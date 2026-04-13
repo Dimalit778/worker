@@ -1,0 +1,271 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+// ─── Enums ───────────────────────────────────────────────────────────────────
+
+enum Role {
+  GUARD
+  MANAGER
+}
+
+enum ShiftType {
+  MORNING
+  EVENING
+  NIGHT
+}
+
+enum PeriodStatus {
+  DRAFT
+  OPEN
+  CLOSED
+  PUBLISHED
+}
+
+enum ScheduleStatus {
+  DRAFT
+  PUBLISHED
+}
+
+enum WarningType {
+  UNDERSTAFFED
+  UNFILLED
+  MIN_NOT_MET
+  CONFLICT
+  FAIRNESS
+}
+
+enum WarningSeverity {
+  ERROR
+  WARNING
+  INFO
+}
+
+// ─── NextAuth models ─────────────────────────────────────────────────────────
+
+model Account {
+  id                String  @id @default(cuid())
+  userId            String
+  type              String
+  provider          String
+  providerAccountId String
+  refresh_token     String?
+  access_token      String?
+  expires_at        Int?
+  token_type        String?
+  scope             String?
+  id_token          String?
+  session_state     String?
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@unique([provider, providerAccountId])
+}
+
+model Session {
+  id           String   @id @default(cuid())
+  sessionToken String   @unique
+  userId       String
+  expires      DateTime
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+}
+
+model VerificationToken {
+  identifier String
+  token      String   @unique
+  expires    DateTime
+
+  @@unique([identifier, token])
+}
+
+// ─── Domain models ───────────────────────────────────────────────────────────
+
+model User {
+  id             String   @id @default(cuid())
+  email          String   @unique
+  passwordHash   String
+  name           String
+  phone          String?
+  role           Role     @default(GUARD)
+  primaryCourtId String?
+  isActive       Boolean  @default(true)
+  createdAt      DateTime @default(now())
+
+  primaryCourt       Court?             @relation("PrimaryCourtGuards", fields: [primaryCourtId], references: [id])
+  courtEligibility   CourtEligibility[]
+  availability       Availability[]
+  assignments        ShiftAssignment[]
+  fairnessRecords    FairnessRecord[]
+  periodsCreated     SchedulingPeriod[] @relation("PeriodCreatedBy")
+  schedulesGenerated Schedule[]         @relation("ScheduleGeneratedBy")
+  assignmentWarnings ScheduleWarning[]  @relation("WarningUser")
+
+  accounts Account[]
+  sessions Session[]
+}
+
+model Court {
+  id       String  @id @default(cuid())
+  name     String
+  code     String  @unique
+  isActive Boolean @default(true)
+
+  capacityRules       ShiftCapacityRule[]
+  eligibility         CourtEligibility[]
+  primaryGuards       User[]              @relation("PrimaryCourtGuards")
+  availabilityEntries AvailabilityEntry[]
+  assignments         ShiftAssignment[]
+  warnings            ScheduleWarning[]   @relation("WarningCourt")
+}
+
+model CourtEligibility {
+  id      String @id @default(cuid())
+  userId  String
+  courtId String
+
+  user  User  @relation(fields: [userId], references: [id], onDelete: Cascade)
+  court Court @relation(fields: [courtId], references: [id], onDelete: Cascade)
+
+  @@unique([userId, courtId])
+}
+
+model ShiftCapacityRule {
+  id        String    @id @default(cuid())
+  courtId   String
+  shiftType ShiftType
+  dayOfWeek Int?      // 0=Sunday … 6=Saturday; null = applies to all days
+  minStaff  Int
+  maxStaff  Int
+
+  court Court @relation(fields: [courtId], references: [id], onDelete: Cascade)
+
+  @@unique([courtId, shiftType, dayOfWeek])
+}
+
+model SchedulingPeriod {
+  id                 String       @id @default(cuid())
+  name               String
+  startDate          DateTime     @db.Date
+  endDate            DateTime     @db.Date
+  submissionDeadline DateTime
+  status             PeriodStatus @default(DRAFT)
+  createdById        String
+  createdAt          DateTime     @default(now())
+
+  createdBy       User             @relation("PeriodCreatedBy", fields: [createdById], references: [id])
+  availability    Availability[]
+  schedules       Schedule[]
+  fairnessRecords FairnessRecord[]
+}
+
+model Availability {
+  id          String    @id @default(cuid())
+  periodId    String
+  userId      String
+  isSubmitted Boolean   @default(false)
+  submittedAt DateTime?
+  createdAt   DateTime  @default(now())
+  updatedAt   DateTime  @updatedAt
+
+  period  SchedulingPeriod  @relation(fields: [periodId], references: [id])
+  user    User              @relation(fields: [userId], references: [id])
+  entries AvailabilityEntry[]
+
+  @@unique([periodId, userId])
+}
+
+model AvailabilityEntry {
+  id             String    @id @default(cuid())
+  availabilityId String
+  date           DateTime  @db.Date
+  courtId        String
+  shiftType      ShiftType
+  isAvailable    Boolean   @default(false)
+
+  // courtId is auto-derived from the guard's primaryCourtId in V1.
+  // The field is explicit in the schema to support multi-court in future versions.
+  availability Availability @relation(fields: [availabilityId], references: [id], onDelete: Cascade)
+  court        Court        @relation(fields: [courtId], references: [id])
+
+  @@unique([availabilityId, date, courtId, shiftType])
+}
+
+model Schedule {
+  id            String         @id @default(cuid())
+  periodId      String
+  status        ScheduleStatus @default(DRAFT)
+  generatedAt   DateTime       @default(now())
+  publishedAt   DateTime?
+  generatedById String
+
+  period      SchedulingPeriod  @relation(fields: [periodId], references: [id])
+  generatedBy User              @relation("ScheduleGeneratedBy", fields: [generatedById], references: [id])
+  assignments ShiftAssignment[]
+  warnings    ScheduleWarning[]
+}
+
+model ShiftAssignment {
+  id               String    @id @default(cuid())
+  scheduleId       String
+  userId           String
+  courtId          String
+  date             DateTime  @db.Date
+  shiftType        ShiftType
+  isOpeningDuty    Boolean   @default(false)
+  isManualOverride Boolean   @default(false)
+  createdAt        DateTime  @default(now())
+
+  // DB rule: isOpeningDuty may only be true for MORNING shifts.
+  // Enforced by CHECK constraint added in migration (see migration SQL).
+  // Partial unique index (scheduleId, date, courtId) WHERE isOpeningDuty = true
+  // is also added in migration to ensure at most one opening duty per court per date.
+
+  schedule Schedule @relation(fields: [scheduleId], references: [id], onDelete: Cascade)
+  user     User     @relation(fields: [userId], references: [id])
+  court    Court    @relation(fields: [courtId], references: [id])
+
+  @@unique([scheduleId, userId, date, shiftType])
+}
+
+model ScheduleWarning {
+  id         String          @id @default(cuid())
+  scheduleId String
+  type       WarningType
+  severity   WarningSeverity
+  courtId    String?
+  userId     String?
+  date       DateTime?       @db.Date
+  message    String
+
+  schedule Schedule  @relation(fields: [scheduleId], references: [id], onDelete: Cascade)
+  court    Court?    @relation("WarningCourt", fields: [courtId], references: [id])
+  user     User?     @relation("WarningUser", fields: [userId], references: [id])
+}
+
+model FairnessRecord {
+  id            String @id @default(cuid())
+  userId        String
+  periodId      String
+  totalShifts   Int    @default(0)
+  morningShifts Int    @default(0)
+  eveningShifts Int    @default(0)
+  nightShifts   Int    @default(0)
+  weekendShifts Int    @default(0)
+  openingDuties Int    @default(0)
+
+  user   User             @relation(fields: [userId], references: [id])
+  period SchedulingPeriod @relation(fields: [periodId], references: [id])
+
+  @@unique([userId, periodId])
+}
+
+model SystemConfig {
+  key   String @id
+  value Json
+}
