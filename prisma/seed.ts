@@ -80,16 +80,30 @@ async function main() {
     ],
   })
 
-  // Manager
+  // Manager — assigned to courtA
   const managerHash = await bcrypt.hash('manager123', 12)
   await prisma.user.upsert({
     where: { email: 'manager@court.gov.il' },
-    update: {},
+    update: { primaryCourtId: courtA.id },
     create: {
       email: 'manager@court.gov.il',
       passwordHash: managerHash,
       name: 'מנהל מערכת',
       role: Role.MANAGER,
+      primaryCourtId: courtA.id,
+    },
+  })
+
+  // Admin — no court (full access)
+  const adminHash = await bcrypt.hash('admin123', 12)
+  await prisma.user.upsert({
+    where: { email: 'admin@court.gov.il' },
+    update: {},
+    create: {
+      email: 'admin@court.gov.il',
+      passwordHash: adminHash,
+      name: 'מנהל ראשי',
+      role: Role.ADMIN,
     },
   })
 
@@ -126,6 +140,7 @@ async function main() {
   }
 
   console.log('Seed complete.')
+  console.log('Admin login:   admin@court.gov.il / admin123')
   console.log('Manager login: manager@court.gov.il / manager123')
   console.log('Guard login:   cohen@court.gov.il / guard123')
 }
