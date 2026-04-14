@@ -16,6 +16,14 @@ export function isManager(session: Session | null): boolean {
   return hasRole(session, Role.MANAGER)
 }
 
+export function isAdmin(session: Session | null): boolean {
+  return hasRole(session, Role.ADMIN)
+}
+
+export function isManagerOrAdmin(session: Session | null): boolean {
+  return isManager(session) || isAdmin(session)
+}
+
 /**
  * Use in server components / route handlers.
  * Redirects to /login if unauthenticated.
