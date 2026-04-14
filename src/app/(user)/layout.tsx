@@ -2,7 +2,7 @@ import { requireSession } from '@/lib/auth-helpers'
 import { Role } from '@/generated/prisma/client'
 import { prisma } from '@/lib/db/client'
 
-export default async function GuardLayout({ children }: { children: React.ReactNode }) {
+export default async function UserLayout({ children }: { children: React.ReactNode }) {
   const session = await requireSession(Role.GUARD)
 
   const primaryCourt = session.user.primaryCourtId

@@ -2,7 +2,7 @@ import { requireSession } from '@/lib/auth-helpers'
 import { Role } from '@/generated/prisma/client'
 import { Card, CardContent } from '@/components/ui/card'
 
-export default async function GuardDashboardPage() {
+export default async function UserDashboardPage() {
   const session = await requireSession(Role.GUARD)
 
   return (
