@@ -7,6 +7,7 @@ export default async function RootPage() {
   const session = await getServerSession(authOptions)
 
   if (!session) redirect('/login')
-  if (session.user.role === Role.GUARD) redirect('/guard')
-  redirect('/manager')
+  if (session.user.role === Role.GUARD) redirect('/user')
+  if (session.user.role === Role.MANAGER) redirect('/manager')
+  redirect('/admin')
 }
