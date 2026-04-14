@@ -1,7 +1,22 @@
-import { PrismaClient, Role, ShiftType } from '@prisma/client'
+import { resolve } from 'node:path'
+
+import { config } from 'dotenv'
+import { PrismaNeon } from '@prisma/adapter-neon'
 import bcrypt from 'bcryptjs'
 
-const prisma = new PrismaClient()
+import { PrismaClient, Role, ShiftType } from '../src/generated/prisma/client'
+
+config({ path: resolve(process.cwd(), '.env.local') })
+config({ path: resolve(process.cwd(), '.env') })
+
+const connectionString = process.env.DATABASE_URL
+if (!connectionString) {
+  throw new Error('DATABASE_URL is not set (check .env or .env.local)')
+}
+
+const prisma = new PrismaClient({
+  adapter: new PrismaNeon({ connectionString }),
+})
 
 async function main() {
   console.log('Seeding database...')

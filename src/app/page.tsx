@@ -1,7 +1,7 @@
 import { redirect } from 'next/navigation'
 import { getServerSession } from 'next-auth'
 import { authOptions } from '@/lib/auth'
-import { Role } from '@prisma/client'
+import { Role } from '@/generated/prisma/client'
 
 export default async function RootPage() {
   const session = await getServerSession(authOptions)

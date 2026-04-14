@@ -1,5 +1,5 @@
 import { requireSession } from '@/lib/auth-helpers'
-import { Role } from '@prisma/client'
+import { Role } from '@/generated/prisma/client'
 import { prisma } from '@/lib/db/client'
 
 export default async function GuardLayout({ children }: { children: React.ReactNode }) {

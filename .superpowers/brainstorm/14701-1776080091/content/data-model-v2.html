@@ -1,0 +1,144 @@
+<h2>Data Model — Clarified</h2>
+<p class="subtitle">Unique constraints, business rules, and role boundaries made explicit.</p>
+
+<!-- Point 2: User vs GuardProfile -->
+<div style="padding: 1.25rem; background: rgba(96,165,250,0.07); border-radius: 12px; border: 1px solid rgba(96,165,250,0.2); margin-bottom: 1.25rem;">
+  <div class="label" style="color: #60a5fa; margin-bottom: 0.4rem;">Decision 1 — User vs GuardProfile</div>
+  <p style="font-size: 0.88rem; line-height: 1.75; margin: 0;">
+    <strong>MVP: everything stays in User.</strong> The <code>User</code> entity holds identity (email, password), display info (name, phone), and role. Court eligibility is already in a separate <code>CourtEligibility</code> join table. A separate <code>GuardProfile</code> entity would be added in a later version for scheduling-specific employee data such as seniority, hire date, badge number, or certifications — none of which are needed for V1 scheduling logic. Adding GuardProfile later is a straightforward migration: create the table, backfill from User, update relations.
+  </p>
+</div>
+
+<!-- Point 3: FairnessRecord role -->
+<div style="padding: 1.25rem; background: rgba(244,114,182,0.07); border-radius: 12px; border: 1px solid rgba(244,114,182,0.2); margin-bottom: 1.25rem;">
+  <div class="label" style="color: #f472b6; margin-bottom: 0.4rem;">Decision 2 — FairnessRecord: Source of Truth</div>
+  <div style="font-size: 0.88rem; line-height: 1.75;">
+    <p style="margin: 0 0 0.75rem;"><strong>Two layers, two roles:</strong></p>
+    <ul style="margin: 0; padding-right: 1.25rem; line-height: 1.9;">
+      <li><strong>ShiftAssignment</strong> = source of truth for <em>what was assigned</em>. Individual records, always queryable, never deleted after publish.</li>
+      <li><strong>FairnessRecord</strong> = source of truth for <em>fairness scoring</em>. Computed from ShiftAssignments at publish time and treated as authoritative thereafter. The scheduling engine reads FairnessRecord for cross-period history — not raw ShiftAssignments — because it is fast, stable, and already aggregated.</li>
+    </ul>
+    <p style="margin: 0.75rem 0 0; color: #9ca3af;">If a published schedule is later corrected manually, FairnessRecord must be recalculated for that period. This is an explicit action, not automatic — keeping the boundary clean.</p>
+  </div>
+</div>
+
+<!-- Point 5: ShiftType enum -->
+<div style="padding: 1.25rem; background: rgba(156,163,175,0.07); border-radius: 12px; border: 1px solid rgba(156,163,175,0.2); margin-bottom: 1.75rem;">
+  <div class="label" style="color: #9ca3af; margin-bottom: 0.4rem;">Decision 3 — ShiftType: Enum for MVP</div>
+  <p style="font-size: 0.88rem; line-height: 1.75; margin: 0;">
+    <strong>MVP: ShiftType is a Prisma enum (MORNING, EVENING, NIGHT).</strong> Display names, hour ranges, and colors live in a code-side config map. A <code>ShiftDefinition</code> DB entity would only be justified if courts need different shift-time definitions or new shift types must be added without a code deploy — neither applies to V1. The enum is easy to extend later; adding a fourth value requires a migration but no structural change.
+  </p>
+</div>
+
+<!-- Point 1: Unique constraints -->
+<h3 style="margin-bottom: 1rem;">Unique Constraints & Business Rules</h3>
+
+<div style="display: grid; grid-template-columns: 1fr 1fr; gap: 1rem; margin-bottom: 1.75rem;">
+
+  <div style="padding: 1.1rem; background: rgba(245,158,11,0.06); border-radius: 10px; border: 1px solid rgba(245,158,11,0.2);">
+    <div class="label" style="color: #f59e0b; margin-bottom: 0.5rem;">Availability</div>
+    <div style="font-size: 0.82rem; line-height: 1.9; color: #d1d5db;">
+      <strong>Availability table</strong><br>
+      UNIQUE (periodId, userId)<br>
+      <span style="color: #9ca3af;">→ one submission per guard per period</span><br><br>
+      <strong>AvailabilityEntry table</strong><br>
+      UNIQUE (availabilityId, date, courtId, shiftType)<br>
+      <span style="color: #9ca3af;">→ one entry per guard per day × court × shift<br>
+      → prevents duplicate availability rows</span>
+    </div>
+  </div>
+
+  <div style="padding: 1.1rem; background: rgba(167,139,250,0.06); border-radius: 10px; border: 1px solid rgba(167,139,250,0.2);">
+    <div class="label" style="color: #a78bfa; margin-bottom: 0.5rem;">ShiftAssignment</div>
+    <div style="font-size: 0.82rem; line-height: 1.9; color: #d1d5db;">
+      UNIQUE (scheduleId, userId, date, shiftType)<br>
+      <span style="color: #9ca3af;">→ a guard cannot be assigned the same shift type<br>twice on the same day, even across courts<br>
+      (Morning at Court A + Morning at Court B = blocked)</span><br><br>
+      Additional service-layer rules:<br>
+      <span style="color: #9ca3af;">→ no Morning + Evening same day<br>
+      → no Evening + Night same day<br>
+      → no Night day N + Morning day N+1</span>
+    </div>
+  </div>
+
+  <!-- Point 4: Opening duty rules -->
+  <div style="padding: 1.1rem; background: rgba(239,68,68,0.07); border-radius: 10px; border: 1px solid rgba(239,68,68,0.2); grid-column: 1 / -1;">
+    <div class="label" style="color: #f87171; margin-bottom: 0.5rem;">Opening Duty — Business Rules (Points 4)</div>
+    <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 1rem;">
+      <div style="font-size: 0.82rem; line-height: 1.9; color: #d1d5db;">
+        <strong>DB-level constraints:</strong><br>
+        CHECK (shiftType = 'MORNING' OR isOpeningDuty = false)<br>
+        <span style="color: #9ca3af;">→ opening duty only valid on MORNING shifts<br>enforced at DB level, not just in code</span><br><br>
+        Partial unique index:<br>
+        UNIQUE (scheduleId, date, courtId) WHERE isOpeningDuty = true<br>
+        <span style="color: #9ca3af;">→ at most one opening duty per court per date</span>
+      </div>
+      <div style="font-size: 0.82rem; line-height: 1.9; color: #d1d5db;">
+        <strong>Service-layer rules:</strong><br>
+        → opening duty must be assigned to a guard already in that morning slot<br>
+        → fairness engine distributes opening duties using FairnessRecord.openingDuties across periods<br>
+        → opening duty can be reassigned manually by manager — warning shown if same guard holds it &gt;2× more than peers in rolling history
+      </div>
+    </div>
+  </div>
+
+</div>
+
+<!-- Summary table -->
+<div style="padding: 1.25rem; background: rgba(255,255,255,0.03); border-radius: 12px; border: 1px solid rgba(255,255,255,0.08); font-size: 0.83rem;">
+  <h3 style="margin-top: 0;">Constraint Enforcement Layers</h3>
+  <table style="width: 100%; border-collapse: collapse;">
+    <thead>
+      <tr style="border-bottom: 1px solid rgba(255,255,255,0.1);">
+        <th style="text-align: right; padding: 0.4rem 0.75rem; color: #9ca3af; font-weight: 500;">Rule</th>
+        <th style="text-align: right; padding: 0.4rem 0.75rem; color: #9ca3af; font-weight: 500;">DB</th>
+        <th style="text-align: right; padding: 0.4rem 0.75rem; color: #9ca3af; font-weight: 500;">Service Layer</th>
+        <th style="text-align: right; padding: 0.4rem 0.75rem; color: #9ca3af; font-weight: 500;">UI Warning</th>
+      </tr>
+    </thead>
+    <tbody style="line-height: 1.9;">
+      <tr style="border-bottom: 1px solid rgba(255,255,255,0.05);">
+        <td style="padding: 0.35rem 0.75rem;">One submission per guard per period</td>
+        <td style="padding: 0.35rem 0.75rem; text-align: center; color: #34d399;">✓</td>
+        <td style="padding: 0.35rem 0.75rem; text-align: center; color: #34d399;">✓</td>
+        <td style="padding: 0.35rem 0.75rem; text-align: center;">—</td>
+      </tr>
+      <tr style="border-bottom: 1px solid rgba(255,255,255,0.05);">
+        <td style="padding: 0.35rem 0.75rem;">No duplicate availability entries</td>
+        <td style="padding: 0.35rem 0.75rem; text-align: center; color: #34d399;">✓</td>
+        <td style="padding: 0.35rem 0.75rem; text-align: center;">—</td>
+        <td style="padding: 0.35rem 0.75rem; text-align: center;">—</td>
+      </tr>
+      <tr style="border-bottom: 1px solid rgba(255,255,255,0.05);">
+        <td style="padding: 0.35rem 0.75rem;">No same-shift assignment twice in one day</td>
+        <td style="padding: 0.35rem 0.75rem; text-align: center; color: #34d399;">✓ (UNIQUE)</td>
+        <td style="padding: 0.35rem 0.75rem; text-align: center; color: #34d399;">✓</td>
+        <td style="padding: 0.35rem 0.75rem; text-align: center; color: #34d399;">✓</td>
+      </tr>
+      <tr style="border-bottom: 1px solid rgba(255,255,255,0.05);">
+        <td style="padding: 0.35rem 0.75rem;">No Morning + Evening / Evening + Night same day</td>
+        <td style="padding: 0.35rem 0.75rem; text-align: center;">—</td>
+        <td style="padding: 0.35rem 0.75rem; text-align: center; color: #34d399;">✓</td>
+        <td style="padding: 0.35rem 0.75rem; text-align: center; color: #34d399;">✓</td>
+      </tr>
+      <tr style="border-bottom: 1px solid rgba(255,255,255,0.05);">
+        <td style="padding: 0.35rem 0.75rem;">No Night → Morning next day</td>
+        <td style="padding: 0.35rem 0.75rem; text-align: center;">—</td>
+        <td style="padding: 0.35rem 0.75rem; text-align: center; color: #34d399;">✓</td>
+        <td style="padding: 0.35rem 0.75rem; text-align: center; color: #34d399;">✓</td>
+      </tr>
+      <tr style="border-bottom: 1px solid rgba(255,255,255,0.05);">
+        <td style="padding: 0.35rem 0.75rem;">Opening duty only on MORNING</td>
+        <td style="padding: 0.35rem 0.75rem; text-align: center; color: #34d399;">✓ (CHECK)</td>
+        <td style="padding: 0.35rem 0.75rem; text-align: center; color: #34d399;">✓</td>
+        <td style="padding: 0.35rem 0.75rem; text-align: center; color: #34d399;">✓</td>
+      </tr>
+      <tr>
+        <td style="padding: 0.35rem 0.75rem;">One opening duty per court per date</td>
+        <td style="padding: 0.35rem 0.75rem; text-align: center; color: #34d399;">✓ (partial index)</td>
+        <td style="padding: 0.35rem 0.75rem; text-align: center; color: #34d399;">✓</td>
+        <td style="padding: 0.35rem 0.75rem; text-align: center; color: #34d399;">✓</td>
+      </tr>
+    </tbody>
+  </table>
+</div>

@@ -1,0 +1,234 @@
+<h2>Manager Schedule Grid — Desktop Wireframe</h2>
+<p class="subtitle">14 days across. Courts + shifts as rows. Guard names in cells. Warnings panel alongside.</p>
+
+<div style="font-size: 0.8rem; overflow-x: auto;">
+
+  <!-- Top bar -->
+  <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 1rem; padding: 0.75rem 1rem; background: rgba(255,255,255,0.04); border-radius: 10px; border: 1px solid rgba(255,255,255,0.08); min-width: 900px;">
+    <div style="display: flex; gap: 1rem; align-items: center;">
+      <div>
+        <div style="font-weight: 700; font-size: 0.95rem;">טיוטה — 18 מאי – 31 מאי</div>
+        <div style="color: #9ca3af; font-size: 0.78rem; margin-top: 0.15rem;">נוצרה: 15 מאי 09:14 · 48 שומרים הגישו · 3 לא הגישו</div>
+      </div>
+    </div>
+    <div style="display: flex; gap: 0.6rem;">
+      <button style="padding: 0.45rem 0.9rem; background: transparent; border: 1px solid rgba(255,255,255,0.15); border-radius: 7px; color: #d1d5db; font-size: 0.8rem; cursor: pointer;">⟳ ייצר מחדש</button>
+      <button style="padding: 0.45rem 0.9rem; background: transparent; border: 1px solid rgba(255,255,255,0.15); border-radius: 7px; color: #d1d5db; font-size: 0.8rem; cursor: pointer;">📊 דוח</button>
+      <button style="padding: 0.45rem 1rem; background: #2563eb; border: none; border-radius: 7px; color: white; font-weight: 700; font-size: 0.8rem; cursor: pointer;">פרסם לוח</button>
+    </div>
+  </div>
+
+  <div style="display: flex; gap: 1rem; min-width: 900px;">
+
+    <!-- Grid -->
+    <div style="flex: 1; overflow-x: auto;">
+      <table style="border-collapse: collapse; width: 100%; min-width: 700px;">
+        <thead>
+          <tr>
+            <!-- Row header spacer -->
+            <th style="width: 130px; padding: 0.4rem 0.5rem; text-align: right; color: #6b7280; font-weight: 500; font-size: 0.75rem; border-bottom: 1px solid rgba(255,255,255,0.08);">בית משפט / משמרת</th>
+            <!-- Day headers — showing 7 of 14 for space -->
+            <th style="padding: 0.35rem 0.3rem; text-align: center; font-size: 0.7rem; font-weight: 500; color: #9ca3af; border-bottom: 1px solid rgba(255,255,255,0.08); min-width: 70px;">
+              <div style="color: #e5e7eb; font-weight: 700;">ראשון</div>
+              <div style="color: #6b7280;">18/5</div>
+            </th>
+            <th style="padding: 0.35rem 0.3rem; text-align: center; font-size: 0.7rem; font-weight: 500; color: #9ca3af; border-bottom: 1px solid rgba(255,255,255,0.08); min-width: 70px;">
+              <div style="color: #e5e7eb; font-weight: 700;">שני</div>
+              <div style="color: #6b7280;">19/5</div>
+            </th>
+            <th style="padding: 0.35rem 0.3rem; text-align: center; font-size: 0.7rem; font-weight: 500; color: #9ca3af; border-bottom: 1px solid rgba(255,255,255,0.08); min-width: 70px;">
+              <div style="color: #e5e7eb; font-weight: 700;">שלישי</div>
+              <div style="color: #6b7280;">20/5</div>
+            </th>
+            <th style="padding: 0.35rem 0.3rem; text-align: center; font-size: 0.7rem; font-weight: 500; color: #9ca3af; border-bottom: 1px solid rgba(255,255,255,0.08); min-width: 70px;">
+              <div style="color: #e5e7eb; font-weight: 700;">רביעי</div>
+              <div style="color: #6b7280;">21/5</div>
+            </th>
+            <th style="padding: 0.35rem 0.3rem; text-align: center; font-size: 0.7rem; font-weight: 500; color: #9ca3af; border-bottom: 1px solid rgba(255,255,255,0.08); min-width: 70px;">
+              <div style="color: #e5e7eb; font-weight: 700;">חמישי</div>
+              <div style="color: #6b7280;">22/5</div>
+            </th>
+            <th style="padding: 0.35rem 0.3rem; text-align: center; font-size: 0.7rem; font-weight: 500; color: #f59e0b; border-bottom: 1px solid rgba(255,255,255,0.08); min-width: 70px;">
+              <div style="color: #f59e0b; font-weight: 700;">שישי</div>
+              <div style="color: #f59e0b; opacity: 0.7;">23/5</div>
+            </th>
+            <th style="padding: 0.35rem 0.3rem; text-align: center; font-size: 0.7rem; font-weight: 500; color: #f59e0b; border-bottom: 1px solid rgba(255,255,255,0.08); min-width: 70px;">
+              <div style="color: #f59e0b; font-weight: 700;">שבת</div>
+              <div style="color: #f59e0b; opacity: 0.7;">24/5</div>
+            </th>
+            <th style="padding: 0.35rem 0.3rem; text-align: center; font-size: 0.7rem; color: #4b5563; border-bottom: 1px solid rgba(255,255,255,0.08);" colspan="7">← עוד 7 ימים →</th>
+          </tr>
+        </thead>
+        <tbody>
+          <!-- Court A: Morning -->
+          <tr>
+            <td rowspan="3" style="padding: 0.4rem 0.5rem; vertical-align: top; border-left: 3px solid rgba(52,211,153,0.4); border-bottom: 2px solid rgba(255,255,255,0.1);">
+              <div style="font-weight: 700; font-size: 0.78rem; color: #34d399; margin-bottom: 0.2rem;">מחוזי – מרכז</div>
+            </td>
+            <td style="background: rgba(255,255,255,0.02); border-bottom: 1px solid rgba(255,255,255,0.04); border-left: 1px solid rgba(255,255,255,0.04); padding: 0.15rem 0.25rem; vertical-align: top;">
+              <div style="font-size: 0.65rem; color: #6b7280; margin-bottom: 0.2rem;">בוקר 4/4</div>
+              <div style="padding: 0.2rem 0.3rem; background: rgba(52,211,153,0.1); border-radius: 4px; font-size: 0.68rem; margin-bottom: 0.15rem; cursor: pointer;">
+                ★ כהן י.
+              </div>
+              <div style="padding: 0.2rem 0.3rem; background: rgba(52,211,153,0.1); border-radius: 4px; font-size: 0.68rem; margin-bottom: 0.15rem; cursor: pointer;">לוי מ.</div>
+              <div style="padding: 0.2rem 0.3rem; background: rgba(52,211,153,0.1); border-radius: 4px; font-size: 0.68rem; margin-bottom: 0.15rem; cursor: pointer;">אבד ר.</div>
+              <div style="padding: 0.2rem 0.3rem; background: rgba(52,211,153,0.1); border-radius: 4px; font-size: 0.68rem; cursor: pointer;">שמיר ע.</div>
+            </td>
+            <!-- Understaffed cell -->
+            <td style="background: rgba(239,68,68,0.07); border-bottom: 1px solid rgba(255,255,255,0.04); border-left: 1px solid rgba(255,255,255,0.04); padding: 0.15rem 0.25rem; vertical-align: top;">
+              <div style="font-size: 0.65rem; color: #f87171; margin-bottom: 0.2rem;">בוקר 2/4 ⚠</div>
+              <div style="padding: 0.2rem 0.3rem; background: rgba(52,211,153,0.1); border-radius: 4px; font-size: 0.68rem; margin-bottom: 0.15rem;">★ לוי מ.</div>
+              <div style="padding: 0.2rem 0.3rem; background: rgba(52,211,153,0.1); border-radius: 4px; font-size: 0.68rem; margin-bottom: 0.15rem;">כהן י.</div>
+              <div style="padding: 0.2rem 0.3rem; background: rgba(239,68,68,0.15); border-radius: 4px; font-size: 0.68rem; color: #f87171; border: 1px dashed rgba(239,68,68,0.3); cursor: pointer;">+ הוסף</div>
+            </td>
+            <td style="background: rgba(255,255,255,0.02); border-bottom: 1px solid rgba(255,255,255,0.04); border-left: 1px solid rgba(255,255,255,0.04); padding: 0.15rem 0.25rem; vertical-align: top;">
+              <div style="font-size: 0.65rem; color: #6b7280; margin-bottom: 0.2rem;">בוקר 4/4</div>
+              <div style="padding: 0.2rem 0.3rem; background: rgba(52,211,153,0.1); border-radius: 4px; font-size: 0.68rem; margin-bottom: 0.15rem;">★ אבד ר.</div>
+              <div style="padding: 0.2rem 0.3rem; background: rgba(52,211,153,0.1); border-radius: 4px; font-size: 0.68rem; margin-bottom: 0.15rem;">שמיר ע.</div>
+              <div style="padding: 0.2rem 0.3rem; background: rgba(52,211,153,0.1); border-radius: 4px; font-size: 0.68rem; margin-bottom: 0.15rem;">כהן י.</div>
+              <div style="padding: 0.2rem 0.3rem; background: rgba(52,211,153,0.1); border-radius: 4px; font-size: 0.68rem;">נגר ד.</div>
+            </td>
+            <td style="background: rgba(255,255,255,0.02); border-bottom: 1px solid rgba(255,255,255,0.04); border-left: 1px solid rgba(255,255,255,0.04); padding: 0.15rem 0.25rem; vertical-align: top;">
+              <div style="font-size: 0.65rem; color: #6b7280; margin-bottom: 0.2rem;">בוקר 3/4</div>
+              <div style="padding: 0.2rem 0.3rem; background: rgba(52,211,153,0.1); border-radius: 4px; font-size: 0.68rem; margin-bottom: 0.15rem;">★ שמיר ע.</div>
+              <div style="padding: 0.2rem 0.3rem; background: rgba(52,211,153,0.1); border-radius: 4px; font-size: 0.68rem; margin-bottom: 0.15rem;">לוי מ.</div>
+              <div style="padding: 0.2rem 0.3rem; background: rgba(52,211,153,0.1); border-radius: 4px; font-size: 0.68rem;">אבד ר.</div>
+            </td>
+            <td style="background: rgba(255,255,255,0.02); border-bottom: 1px solid rgba(255,255,255,0.04); border-left: 1px solid rgba(255,255,255,0.04); padding: 0.15rem 0.25rem; vertical-align: top;">
+              <div style="font-size: 0.65rem; color: #6b7280; margin-bottom: 0.2rem;">בוקר 4/4</div>
+              <div style="padding: 0.2rem 0.3rem; background: rgba(52,211,153,0.1); border-radius: 4px; font-size: 0.68rem; margin-bottom: 0.15rem;">★ נגר ד.</div>
+              <div style="padding: 0.2rem 0.3rem; background: rgba(52,211,153,0.1); border-radius: 4px; font-size: 0.68rem; margin-bottom: 0.15rem;">כהן י.</div>
+              <div style="padding: 0.2rem 0.3rem; background: rgba(52,211,153,0.1); border-radius: 4px; font-size: 0.68rem; margin-bottom: 0.15rem;">לוי מ.</div>
+              <div style="padding: 0.2rem 0.3rem; background: rgba(52,211,153,0.1); border-radius: 4px; font-size: 0.68rem;">שמיר ע.</div>
+            </td>
+            <!-- Weekend cells -->
+            <td style="background: rgba(245,158,11,0.04); border-bottom: 1px solid rgba(255,255,255,0.04); border-left: 1px solid rgba(255,255,255,0.04); padding: 0.15rem 0.25rem; vertical-align: top;">
+              <div style="font-size: 0.65rem; color: #6b7280; margin-bottom: 0.2rem;">בוקר 2/2</div>
+              <div style="padding: 0.2rem 0.3rem; background: rgba(52,211,153,0.1); border-radius: 4px; font-size: 0.68rem; margin-bottom: 0.15rem;">★ אבד ר.</div>
+              <div style="padding: 0.2rem 0.3rem; background: rgba(52,211,153,0.1); border-radius: 4px; font-size: 0.68rem;">כהן י.</div>
+            </td>
+            <td style="background: rgba(245,158,11,0.04); border-bottom: 1px solid rgba(255,255,255,0.04); border-left: 1px solid rgba(255,255,255,0.04); padding: 0.15rem 0.25rem; vertical-align: top;">
+              <div style="font-size: 0.65rem; color: #6b7280; margin-bottom: 0.2rem;">בוקר 2/2</div>
+              <div style="padding: 0.2rem 0.3rem; background: rgba(52,211,153,0.1); border-radius: 4px; font-size: 0.68rem; margin-bottom: 0.15rem;">★ לוי מ.</div>
+              <div style="padding: 0.2rem 0.3rem; background: rgba(52,211,153,0.1); border-radius: 4px; font-size: 0.68rem;">שמיר ע.</div>
+            </td>
+            <td colspan="7" style="padding: 0.15rem 0.5rem; vertical-align: middle; color: #4b5563; font-size: 0.68rem;">· · ·</td>
+          </tr>
+
+          <!-- Court A: Evening -->
+          <tr>
+            <td style="background: rgba(255,255,255,0.015); border-bottom: 1px solid rgba(255,255,255,0.04); border-left: 1px solid rgba(255,255,255,0.04); padding: 0.15rem 0.25rem; vertical-align: top;">
+              <div style="font-size: 0.65rem; color: #6b7280; margin-bottom: 0.2rem;">ערב 3/3</div>
+              <div style="padding: 0.2rem 0.3rem; background: rgba(167,139,250,0.12); border-radius: 4px; font-size: 0.68rem; margin-bottom: 0.15rem; cursor: pointer;">גל ת.</div>
+              <div style="padding: 0.2rem 0.3rem; background: rgba(167,139,250,0.12); border-radius: 4px; font-size: 0.68rem; margin-bottom: 0.15rem; cursor: pointer;">מזרחי נ.</div>
+              <div style="padding: 0.2rem 0.3rem; background: rgba(167,139,250,0.12); border-radius: 4px; font-size: 0.68rem; cursor: pointer;">ביטון ח.</div>
+            </td>
+            <td style="background: rgba(255,255,255,0.015); border-bottom: 1px solid rgba(255,255,255,0.04); border-left: 1px solid rgba(255,255,255,0.04); padding: 0.15rem 0.25rem; vertical-align: top;">
+              <div style="font-size: 0.65rem; color: #6b7280; margin-bottom: 0.2rem;">ערב 3/3</div>
+              <div style="padding: 0.2rem 0.3rem; background: rgba(167,139,250,0.12); border-radius: 4px; font-size: 0.68rem; margin-bottom: 0.15rem;">גל ת.</div>
+              <div style="padding: 0.2rem 0.3rem; background: rgba(167,139,250,0.12); border-radius: 4px; font-size: 0.68rem; margin-bottom: 0.15rem;">ביטון ח.</div>
+              <div style="padding: 0.2rem 0.3rem; background: rgba(167,139,250,0.12); border-radius: 4px; font-size: 0.68rem;">מזרחי נ.</div>
+            </td>
+            <td style="background: rgba(255,255,255,0.015); border-bottom: 1px solid rgba(255,255,255,0.04); border-left: 1px solid rgba(255,255,255,0.04); padding: 0.15rem 0.25rem; vertical-align: top;">
+              <div style="font-size: 0.65rem; color: #6b7280; margin-bottom: 0.2rem;">ערב 2/3</div>
+              <div style="padding: 0.2rem 0.3rem; background: rgba(167,139,250,0.12); border-radius: 4px; font-size: 0.68rem; margin-bottom: 0.15rem;">מזרחי נ.</div>
+              <div style="padding: 0.2rem 0.3rem; background: rgba(167,139,250,0.12); border-radius: 4px; font-size: 0.68rem; margin-bottom: 0.15rem;">ביטון ח.</div>
+              <div style="padding: 0.2rem 0.3rem; background: rgba(255,255,255,0.04); border-radius: 4px; font-size: 0.68rem; color: #6b7280; border: 1px dashed rgba(255,255,255,0.1); cursor: pointer;">+ הוסף</div>
+            </td>
+            <td style="background: rgba(255,255,255,0.015); border-bottom: 1px solid rgba(255,255,255,0.04); border-left: 1px solid rgba(255,255,255,0.04); padding: 0.15rem 0.25rem; vertical-align: top;">
+              <div style="font-size: 0.65rem; color: #6b7280; margin-bottom: 0.2rem;">ערב 3/3</div>
+              <div style="padding: 0.2rem 0.3rem; background: rgba(167,139,250,0.12); border-radius: 4px; font-size: 0.68rem; margin-bottom: 0.15rem;">גל ת.</div>
+              <div style="padding: 0.2rem 0.3rem; background: rgba(167,139,250,0.12); border-radius: 4px; font-size: 0.68rem; margin-bottom: 0.15rem;">מזרחי נ.</div>
+              <div style="padding: 0.2rem 0.3rem; background: rgba(167,139,250,0.12); border-radius: 4px; font-size: 0.68rem;">ביטון ח.</div>
+            </td>
+            <td style="background: rgba(255,255,255,0.015); border-bottom: 1px solid rgba(255,255,255,0.04); border-left: 1px solid rgba(255,255,255,0.04); padding: 0.15rem 0.25rem; vertical-align: top;">
+              <div style="font-size: 0.65rem; color: #6b7280; margin-bottom: 0.2rem;">ערב 3/3</div>
+              <div style="padding: 0.2rem 0.3rem; background: rgba(167,139,250,0.12); border-radius: 4px; font-size: 0.68rem; margin-bottom: 0.15rem;">ביטון ח.</div>
+              <div style="padding: 0.2rem 0.3rem; background: rgba(167,139,250,0.12); border-radius: 4px; font-size: 0.68rem; margin-bottom: 0.15rem;">גל ת.</div>
+              <div style="padding: 0.2rem 0.3rem; background: rgba(167,139,250,0.12); border-radius: 4px; font-size: 0.68rem;">מזרחי נ.</div>
+            </td>
+            <td style="background: rgba(245,158,11,0.04); border-bottom: 1px solid rgba(255,255,255,0.04); border-left: 1px solid rgba(255,255,255,0.04); padding: 0.15rem 0.25rem; vertical-align: top; color: #6b7280; font-size: 0.68rem; text-align: center;">—</td>
+            <td style="background: rgba(245,158,11,0.04); border-bottom: 1px solid rgba(255,255,255,0.04); border-left: 1px solid rgba(255,255,255,0.04); padding: 0.15rem 0.25rem; vertical-align: top; color: #6b7280; font-size: 0.68rem; text-align: center;">—</td>
+            <td colspan="7" style="padding: 0.15rem 0.5rem; vertical-align: middle; color: #4b5563; font-size: 0.68rem;">· · ·</td>
+          </tr>
+
+          <!-- Court A: Night -->
+          <tr>
+            <td style="background: rgba(255,255,255,0.01); border-bottom: 2px solid rgba(255,255,255,0.1); border-left: 1px solid rgba(255,255,255,0.04); padding: 0.15rem 0.25rem; vertical-align: top;">
+              <div style="font-size: 0.65rem; color: #6b7280; margin-bottom: 0.2rem;">לילה 1/1</div>
+              <div style="padding: 0.2rem 0.3rem; background: rgba(30,41,59,0.8); border-radius: 4px; font-size: 0.68rem; color: #94a3b8; cursor: pointer;">פרץ א.</div>
+            </td>
+            <td style="background: rgba(255,255,255,0.01); border-bottom: 2px solid rgba(255,255,255,0.1); border-left: 1px solid rgba(255,255,255,0.04); padding: 0.15rem 0.25rem; vertical-align: top;">
+              <div style="font-size: 0.65rem; color: #6b7280; margin-bottom: 0.2rem;">לילה 1/1</div>
+              <div style="padding: 0.2rem 0.3rem; background: rgba(30,41,59,0.8); border-radius: 4px; font-size: 0.68rem; color: #94a3b8;">חיים ב.</div>
+            </td>
+            <td style="background: rgba(239,68,68,0.07); border-bottom: 2px solid rgba(255,255,255,0.1); border-left: 1px solid rgba(255,255,255,0.04); padding: 0.15rem 0.25rem; vertical-align: top;">
+              <div style="font-size: 0.65rem; color: #f87171; margin-bottom: 0.2rem;">לילה 0/1 ⚠</div>
+              <div style="padding: 0.2rem 0.3rem; background: rgba(239,68,68,0.15); border-radius: 4px; font-size: 0.68rem; color: #f87171; border: 1px dashed rgba(239,68,68,0.3); cursor: pointer;">+ הוסף</div>
+            </td>
+            <td style="background: rgba(255,255,255,0.01); border-bottom: 2px solid rgba(255,255,255,0.1); border-left: 1px solid rgba(255,255,255,0.04); padding: 0.15rem 0.25rem; vertical-align: top;">
+              <div style="font-size: 0.65rem; color: #6b7280; margin-bottom: 0.2rem;">לילה 1/1</div>
+              <div style="padding: 0.2rem 0.3rem; background: rgba(30,41,59,0.8); border-radius: 4px; font-size: 0.68rem; color: #94a3b8;">פרץ א.</div>
+            </td>
+            <td style="background: rgba(255,255,255,0.01); border-bottom: 2px solid rgba(255,255,255,0.1); border-left: 1px solid rgba(255,255,255,0.04); padding: 0.15rem 0.25rem; vertical-align: top;">
+              <div style="font-size: 0.65rem; color: #6b7280; margin-bottom: 0.2rem;">לילה 1/1</div>
+              <div style="padding: 0.2rem 0.3rem; background: rgba(30,41,59,0.8); border-radius: 4px; font-size: 0.68rem; color: #94a3b8;">חיים ב.</div>
+            </td>
+            <td style="background: rgba(245,158,11,0.04); border-bottom: 2px solid rgba(255,255,255,0.1); border-left: 1px solid rgba(255,255,255,0.04); padding: 0.15rem 0.25rem; vertical-align: top; color: #6b7280; font-size: 0.68rem; text-align: center;">—</td>
+            <td style="background: rgba(245,158,11,0.04); border-bottom: 2px solid rgba(255,255,255,0.1); border-left: 1px solid rgba(255,255,255,0.04); padding: 0.15rem 0.25rem; vertical-align: top; color: #6b7280; font-size: 0.68rem; text-align: center;">—</td>
+            <td colspan="7" style="border-bottom: 2px solid rgba(255,255,255,0.1);"></td>
+          </tr>
+
+          <!-- Court B row (collapsed) -->
+          <tr>
+            <td colspan="15" style="padding: 0.5rem 0.5rem; background: rgba(255,255,255,0.02); border-bottom: 1px solid rgba(255,255,255,0.06);">
+              <div style="display: flex; align-items: center; gap: 0.5rem; cursor: pointer;">
+                <span style="color: #6b7280; font-size: 0.75rem;">▶</span>
+                <span style="font-weight: 600; font-size: 0.78rem; color: #60a5fa;">בית משפט שלום – תל אביב</span>
+                <span style="font-size: 0.72rem; color: #9ca3af;">· 3 משמרות · ⚠ 2 אזהרות</span>
+              </div>
+            </td>
+          </tr>
+
+        </tbody>
+      </table>
+
+      <!-- Legend -->
+      <div style="display: flex; gap: 1rem; margin-top: 0.75rem; flex-wrap: wrap; font-size: 0.73rem; color: #9ca3af;">
+        <span>★ = פתיחה</span>
+        <span style="display: flex; align-items: center; gap: 0.3rem;"><span style="width: 10px; height: 10px; background: rgba(52,211,153,0.15); border-radius: 2px; display: inline-block;"></span> בוקר</span>
+        <span style="display: flex; align-items: center; gap: 0.3rem;"><span style="width: 10px; height: 10px; background: rgba(167,139,250,0.15); border-radius: 2px; display: inline-block;"></span> ערב</span>
+        <span style="display: flex; align-items: center; gap: 0.3rem;"><span style="width: 10px; height: 10px; background: rgba(30,41,59,0.8); border-radius: 2px; display: inline-block;"></span> לילה</span>
+        <span style="display: flex; align-items: center; gap: 0.3rem;"><span style="width: 10px; height: 10px; background: rgba(239,68,68,0.15); border-radius: 2px; display: inline-block;"></span> חסר / אזהרה</span>
+        <span style="display: flex; align-items: center; gap: 0.3rem;"><span style="width: 10px; height: 10px; background: rgba(245,158,11,0.08); border-radius: 2px; display: inline-block;"></span> סופ"ש</span>
+      </div>
+    </div>
+
+    <!-- Warnings panel -->
+    <div style="width: 220px; flex-shrink: 0;">
+      <div style="font-weight: 600; font-size: 0.82rem; margin-bottom: 0.6rem; color: #e5e7eb;">אזהרות (4)</div>
+      <div style="display: flex; flex-direction: column; gap: 0.5rem;">
+
+        <div style="padding: 0.65rem 0.75rem; background: rgba(239,68,68,0.09); border-radius: 8px; border: 1px solid rgba(239,68,68,0.25); cursor: pointer;">
+          <div style="font-size: 0.72rem; font-weight: 700; color: #f87171; margin-bottom: 0.2rem;">⚠ חוסר כוח אדם</div>
+          <div style="font-size: 0.7rem; color: #9ca3af; line-height: 1.5;">מחוזי מרכז · בוקר<br>19/5 — 2 מתוך 4</div>
+        </div>
+
+        <div style="padding: 0.65rem 0.75rem; background: rgba(239,68,68,0.09); border-radius: 8px; border: 1px solid rgba(239,68,68,0.25); cursor: pointer;">
+          <div style="font-size: 0.72rem; font-weight: 700; color: #f87171; margin-bottom: 0.2rem;">⚠ משמרת ריקה</div>
+          <div style="font-size: 0.7rem; color: #9ca3af; line-height: 1.5;">מחוזי מרכז · לילה<br>20/5 — אין שומרים</div>
+        </div>
+
+        <div style="padding: 0.65rem 0.75rem; background: rgba(245,158,11,0.08); border-radius: 8px; border: 1px solid rgba(245,158,11,0.2); cursor: pointer;">
+          <div style="font-size: 0.72rem; font-weight: 700; color: #f59e0b; margin-bottom: 0.2rem;">⚡ מינימום שבועי</div>
+          <div style="font-size: 0.7rem; color: #9ca3af; line-height: 1.5;">פרץ א. · שבוע 2<br>0 בוקר מתוך 2 נדרש</div>
+        </div>
+
+        <div style="padding: 0.65rem 0.75rem; background: rgba(96,165,250,0.07); border-radius: 8px; border: 1px solid rgba(96,165,250,0.2); cursor: pointer;">
+          <div style="font-size: 0.72rem; font-weight: 700; color: #60a5fa; margin-bottom: 0.2rem;">ℹ הוגינות</div>
+          <div style="font-size: 0.7rem; color: #9ca3af; line-height: 1.5;">כהן י. · 6 לילות<br>ממוצע הצוות: 3.1</div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>

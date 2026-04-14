@@ -1,0 +1,106 @@
+<h2>Scheduling Algorithm: Which Approach?</h2>
+<p class="subtitle">The algorithm must fill 14 days × multiple courts × 3 shifts while respecting hard constraints and optimizing for fairness. Three viable strategies:</p>
+
+<div class="options">
+  <div class="option" data-choice="weighted" onclick="toggleSelect(this)">
+    <div class="letter">A</div>
+    <div class="content">
+      <h3>Weighted Scoring + Greedy Assignment (Recommended)</h3>
+      <p>Each candidate guard gets a score for each slot based on fairness history, workload balance, and constraint satisfaction. The highest-scoring eligible guard gets assigned first.</p>
+      <div style="margin: 0.75rem 0; padding: 0.75rem; background: rgba(255,255,255,0.04); border-radius: 8px; font-size: 0.88rem; line-height: 1.7;">
+        <strong>Score formula per candidate:</strong><br>
+        + fewer total shifts assigned this period → higher score<br>
+        + fewer night/weekend/opening duties historically → higher score<br>
+        + weekly minimum not yet met → priority boost<br>
+        − conflict risk (same day/next morning) → heavy penalty<br>
+        − over court capacity → excluded entirely
+      </div>
+      <div class="pros-cons">
+        <div class="pros">
+          <h4>Pros</h4>
+          <ul>
+            <li>Fast — runs in milliseconds even for 150 guards</li>
+            <li>Predictable, explainable results the manager can understand</li>
+            <li>Easy to tune: adjust weights to change fairness priorities</li>
+            <li>Naturally produces warnings when constraints can't be met</li>
+            <li>Works well for 50–150 guards at medium scale</li>
+          </ul>
+        </div>
+        <div class="cons">
+          <h4>Cons</h4>
+          <ul>
+            <li>Greedy — may not find globally optimal solution</li>
+            <li>Assignment order matters; early slots affect later ones</li>
+            <li>May need multi-pass (2nd pass to fix unmet minimums)</li>
+          </ul>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="option" data-choice="ilp" onclick="toggleSelect(this)">
+    <div class="letter">B</div>
+    <div class="content">
+      <h3>Integer Linear Programming (ILP / Constraint Solver)</h3>
+      <p>Model the entire scheduling problem as a mathematical optimization. A solver (e.g., GLPK, OR-Tools) finds the globally optimal assignment given all constraints.</p>
+      <div class="pros-cons">
+        <div class="pros">
+          <h4>Pros</h4>
+          <ul>
+            <li>Mathematically optimal — best possible schedule every time</li>
+            <li>All constraints are declarative and verifiable</li>
+            <li>Handles complex interdependencies correctly</li>
+          </ul>
+        </div>
+        <div class="cons">
+          <h4>Cons</h4>
+          <ul>
+            <li>Significant implementation complexity — requires solver library or service</li>
+            <li>Slow for large problem spaces (150 guards × 14 days × 3 shifts × 15 courts)</li>
+            <li>Hard to explain to managers why it made specific choices</li>
+            <li>Overkill for medium scale — greedy gets ~90% of the quality at 5% of the cost</li>
+            <li>Difficult to add custom weights/fairness tuning</li>
+          </ul>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="option" data-choice="multipass" onclick="toggleSelect(this)">
+    <div class="letter">C</div>
+    <div class="content">
+      <h3>Multi-Pass Weighted Greedy (Extended A)</h3>
+      <p>Same as Option A, but runs 3 explicit passes: (1) hard constraints only, (2) weekly minimums, (3) fairness optimization. Each pass fixes what the previous missed.</p>
+      <div class="pros-cons">
+        <div class="pros">
+          <h4>Pros</h4>
+          <ul>
+            <li>Better at satisfying weekly minimums than single-pass greedy</li>
+            <li>Still fast and explainable</li>
+            <li>Natural place to generate per-pass warnings</li>
+            <li>Graceful degradation — each pass reports what it couldn't fix</li>
+          </ul>
+        </div>
+        <div class="cons">
+          <h4>Cons</h4>
+          <ul>
+            <li>Slightly more complex to implement than single-pass</li>
+            <li>Still not globally optimal, but much closer than single-pass</li>
+            <li>Need to carefully define pass boundaries</li>
+          </ul>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<div class="section" style="margin-top: 2rem; padding: 1.5rem; background: rgba(255,255,255,0.03); border-radius: 12px; border: 1px solid rgba(255,255,255,0.08);">
+  <h3>Why I Recommend Option C (Multi-Pass Weighted Greedy)</h3>
+  <p style="line-height: 1.7;">For a scheduling system where <strong>weekly minimums (2 morning + 1 evening per guard per week)</strong> and <strong>fairness across multiple dimensions</strong> are both important, a single greedy pass often trades one for the other. Multi-pass solves this cleanly:</p>
+  <ul style="line-height: 1.8;">
+    <li><strong>Pass 1:</strong> Fill all slots respecting hard constraints (capacity, conflicts, court eligibility)</li>
+    <li><strong>Pass 2:</strong> Check weekly minimums — add missing assignments where availability allows</li>
+    <li><strong>Pass 3:</strong> Fairness rebalancing — swap assignments where history is uneven</li>
+  </ul>
+  <p style="line-height: 1.7; margin-top: 1rem;">Each pass surfaces its own warnings. The manager sees exactly which minimums couldn't be met and why. It's ~85% as good as ILP but 10× simpler and fully explainable.</p>
+</div>

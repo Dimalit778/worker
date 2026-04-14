@@ -1,7 +1,7 @@
 import { describe, it, expect } from 'vitest'
 import { hasRole, isGuard, isManager } from '@/lib/auth-helpers'
 import type { Session } from 'next-auth'
-import { Role } from '@prisma/client'
+import { Role } from '@/generated/prisma/client'
 
 const makeSession = (role: Role): Session => ({
   user: { id: 'user-1', name: 'Test', email: 'test@test.com', role, primaryCourtId: null },

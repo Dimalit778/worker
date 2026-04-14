@@ -1,5 +1,5 @@
 import { requireSession } from '@/lib/auth-helpers'
-import { Role } from '@prisma/client'
+import { Role } from '@/generated/prisma/client'
 import { Card, CardContent } from '@/components/ui/card'
 
 export default async function GuardDashboardPage() {

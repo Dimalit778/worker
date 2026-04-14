@@ -1,0 +1,158 @@
+<h2>Guard Availability Form — Mobile Wireframe</h2>
+<p class="subtitle">Hebrew RTL, mobile-first. One day expanded at a time. Per-court, per-shift toggles.</p>
+
+<div style="display: flex; gap: 2rem; align-items: flex-start; flex-wrap: wrap;">
+
+  <!-- Mobile frame -->
+  <div style="flex-shrink: 0;">
+    <div class="label" style="margin-bottom: 0.5rem; text-align: center;">Guard's phone (375px)</div>
+    <div style="width: 320px; background: #0f1117; border-radius: 20px; border: 2px solid rgba(255,255,255,0.12); overflow: hidden; font-size: 0.83rem; direction: rtl; text-align: right;">
+
+      <!-- App header -->
+      <div style="background: #1a1f2e; padding: 0.85rem 1rem; border-bottom: 1px solid rgba(255,255,255,0.08);">
+        <div style="font-weight: 700; font-size: 0.95rem;">שמירה בתי משפט</div>
+        <div style="color: #9ca3af; font-size: 0.78rem;">יובל כהן · שמאי</div>
+      </div>
+
+      <!-- Period banner -->
+      <div style="background: rgba(245,158,11,0.1); border-bottom: 1px solid rgba(245,158,11,0.2); padding: 0.65rem 1rem; font-size: 0.8rem;">
+        <div style="font-weight: 600; color: #f59e0b;">תקופה: 18 מאי – 31 מאי</div>
+        <div style="color: #9ca3af; margin-top: 0.2rem;">הגשה עד: יום ד׳ 14 מאי, 20:00</div>
+      </div>
+
+      <!-- Day rows -->
+      <div style="padding: 0.5rem 0;">
+
+        <!-- Day row — collapsed -->
+        <div style="padding: 0.65rem 1rem; border-bottom: 1px solid rgba(255,255,255,0.05); display: flex; justify-content: space-between; align-items: center;">
+          <div style="display: flex; gap: 0.4rem; align-items: center;">
+            <span style="width: 8px; height: 8px; border-radius: 50%; background: #34d399; display: inline-block;"></span>
+            <span style="font-size: 0.78rem; color: #9ca3af;">בוקר, ערב</span>
+          </div>
+          <div>
+            <div style="font-weight: 600; font-size: 0.88rem;">ראשון, 18 מאי</div>
+          </div>
+        </div>
+
+        <!-- Day row — EXPANDED -->
+        <div style="border-bottom: 1px solid rgba(255,255,255,0.08); background: rgba(255,255,255,0.03);">
+          <div style="padding: 0.65rem 1rem; border-bottom: 1px solid rgba(255,255,255,0.05); display: flex; justify-content: space-between; align-items: center;">
+            <span style="font-size: 0.75rem; color: #60a5fa;">▲ סגור</span>
+            <div>
+              <div style="font-weight: 700; font-size: 0.88rem; color: #fff;">שני, 19 מאי</div>
+            </div>
+          </div>
+
+          <!-- Court sections inside expanded day -->
+          <div style="padding: 0.5rem 1rem 0.75rem;">
+
+            <!-- Court A -->
+            <div style="margin-bottom: 0.75rem;">
+              <div style="font-size: 0.75rem; color: #9ca3af; margin-bottom: 0.4rem; font-weight: 600;">בית משפט מחוזי – מרכז</div>
+              <div style="display: flex; gap: 0.5rem; justify-content: flex-end;">
+                <div style="text-align: center;">
+                  <div style="font-size: 0.68rem; color: #9ca3af; margin-bottom: 0.25rem;">לילה</div>
+                  <div style="width: 38px; height: 28px; border-radius: 6px; border: 1px solid rgba(255,255,255,0.12); background: transparent; display: flex; align-items: center; justify-content: center; font-size: 0.7rem; color: #6b7280;">✗</div>
+                </div>
+                <div style="text-align: center;">
+                  <div style="font-size: 0.68rem; color: #9ca3af; margin-bottom: 0.25rem;">ערב</div>
+                  <div style="width: 38px; height: 28px; border-radius: 6px; border: 1px solid rgba(96,165,250,0.4); background: rgba(96,165,250,0.15); display: flex; align-items: center; justify-content: center; font-size: 0.7rem; color: #60a5fa;">✓</div>
+                </div>
+                <div style="text-align: center;">
+                  <div style="font-size: 0.68rem; color: #9ca3af; margin-bottom: 0.25rem;">בוקר</div>
+                  <div style="width: 38px; height: 28px; border-radius: 6px; border: 1px solid rgba(96,165,250,0.4); background: rgba(96,165,250,0.15); display: flex; align-items: center; justify-content: center; font-size: 0.7rem; color: #60a5fa;">✓</div>
+                </div>
+              </div>
+            </div>
+
+            <!-- Court B -->
+            <div>
+              <div style="font-size: 0.75rem; color: #9ca3af; margin-bottom: 0.4rem; font-weight: 600;">בית משפט שלום – תל אביב</div>
+              <div style="display: flex; gap: 0.5rem; justify-content: flex-end;">
+                <div style="text-align: center;">
+                  <div style="font-size: 0.68rem; color: #9ca3af; margin-bottom: 0.25rem;">לילה</div>
+                  <div style="width: 38px; height: 28px; border-radius: 6px; border: 1px solid rgba(255,255,255,0.12); background: transparent; display: flex; align-items: center; justify-content: center; font-size: 0.7rem; color: #6b7280;">✗</div>
+                </div>
+                <div style="text-align: center;">
+                  <div style="font-size: 0.68rem; color: #9ca3af; margin-bottom: 0.25rem;">ערב</div>
+                  <div style="width: 38px; height: 28px; border-radius: 6px; border: 1px solid rgba(255,255,255,0.12); background: transparent; display: flex; align-items: center; justify-content: center; font-size: 0.7rem; color: #6b7280;">✗</div>
+                </div>
+                <div style="text-align: center;">
+                  <div style="font-size: 0.68rem; color: #9ca3af; margin-bottom: 0.25rem;">בוקר</div>
+                  <div style="width: 38px; height: 28px; border-radius: 6px; border: 1px solid rgba(96,165,250,0.4); background: rgba(96,165,250,0.15); display: flex; align-items: center; justify-content: center; font-size: 0.7rem; color: #60a5fa;">✓</div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- More collapsed days -->
+        <div style="padding: 0.65rem 1rem; border-bottom: 1px solid rgba(255,255,255,0.05); display: flex; justify-content: space-between; align-items: center;">
+          <div style="display: flex; gap: 0.4rem; align-items: center;">
+            <span style="width: 8px; height: 8px; border-radius: 50%; background: #6b7280; display: inline-block;"></span>
+            <span style="font-size: 0.78rem; color: #6b7280;">לא זמין</span>
+          </div>
+          <div>
+            <div style="font-weight: 600; font-size: 0.88rem;">שלישי, 20 מאי</div>
+          </div>
+        </div>
+
+        <div style="padding: 0.65rem 1rem; border-bottom: 1px solid rgba(255,255,255,0.05); display: flex; justify-content: space-between; align-items: center;">
+          <div style="display: flex; gap: 0.4rem; align-items: center;">
+            <span style="width: 8px; height: 8px; border-radius: 50%; background: #34d399; display: inline-block;"></span>
+            <span style="font-size: 0.78rem; color: #9ca3af;">בוקר, לילה</span>
+          </div>
+          <div>
+            <div style="font-weight: 600; font-size: 0.88rem;">רביעי, 21 מאי</div>
+          </div>
+        </div>
+
+        <div style="padding: 0.5rem 1rem; text-align: center; color: #6b7280; font-size: 0.78rem;">· · · 10 ימים נוספים · · ·</div>
+      </div>
+
+      <!-- Progress + submit -->
+      <div style="border-top: 1px solid rgba(255,255,255,0.08); padding: 0.85rem 1rem; background: #1a1f2e;">
+        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 0.6rem;">
+          <span style="font-size: 0.78rem; color: #9ca3af;">9 / 14 ימים מולאו</span>
+          <span style="font-size: 0.78rem; color: #34d399;">64%</span>
+        </div>
+        <div style="height: 4px; background: rgba(255,255,255,0.08); border-radius: 2px; margin-bottom: 0.85rem;">
+          <div style="width: 64%; height: 100%; background: #34d399; border-radius: 2px;"></div>
+        </div>
+        <button style="width: 100%; padding: 0.7rem; background: #2563eb; border: none; border-radius: 10px; color: white; font-weight: 700; font-size: 0.9rem; cursor: pointer;">הגש זמינות</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- UX notes -->
+  <div style="flex: 1; min-width: 260px;">
+    <div class="label" style="margin-bottom: 0.75rem;">UX Design Notes</div>
+
+    <div style="display: flex; flex-direction: column; gap: 0.75rem;">
+      <div style="padding: 0.85rem; background: rgba(255,255,255,0.04); border-radius: 10px; border-right: 3px solid #60a5fa;">
+        <strong style="font-size: 0.85rem;">Accordion-style days</strong>
+        <p style="font-size: 0.8rem; color: #9ca3af; margin: 0.3rem 0 0; line-height: 1.6;">One day expands at a time. Collapsed rows show a color dot (green = has availability, grey = unavailable) for a quick overview without scrolling through all toggles.</p>
+      </div>
+
+      <div style="padding: 0.85rem; background: rgba(255,255,255,0.04); border-radius: 10px; border-right: 3px solid #34d399;">
+        <strong style="font-size: 0.85rem;">Per-court, per-shift toggles</strong>
+        <p style="font-size: 0.8rem; color: #9ca3af; margin: 0.3rem 0 0; line-height: 1.6;">Only courts the guard is eligible for appear. Tap to toggle. Blue = available, grey = unavailable. Right-to-left order: morning → evening → night (most common first).</p>
+      </div>
+
+      <div style="padding: 0.85rem; background: rgba(255,255,255,0.04); border-radius: 10px; border-right: 3px solid #f59e0b;">
+        <strong style="font-size: 0.85rem;">Progress indicator</strong>
+        <p style="font-size: 0.8rem; color: #9ca3af; margin: 0.3rem 0 0; line-height: 1.6;">Bottom bar always visible. Shows how many days have been filled. Submit button always accessible — guard doesn't need to scroll to the bottom of 14 rows first.</p>
+      </div>
+
+      <div style="padding: 0.85rem; background: rgba(255,255,255,0.04); border-radius: 10px; border-right: 3px solid #a78bfa;">
+        <strong style="font-size: 0.85rem;">Auto-save (no draft/submit split)</strong>
+        <p style="font-size: 0.8rem; color: #9ca3af; margin: 0.3rem 0 0; line-height: 1.6;">Toggles save immediately as draft. "הגש זמינות" marks it submitted (locked for manager). Guard sees status badge: Draft / Submitted / Deadline passed.</p>
+      </div>
+
+      <div style="padding: 0.85rem; background: rgba(255,255,255,0.04); border-radius: 10px; border-right: 3px solid #f87171;">
+        <strong style="font-size: 0.85rem;">Fully RTL</strong>
+        <p style="font-size: 0.8rem; color: #9ca3af; margin: 0.3rem 0 0; line-height: 1.6;">Hebrew labels, date names, right-to-left layout throughout. Shift order right-to-left (בוקר / ערב / לילה). No English visible to guards.</p>
+      </div>
+    </div>
+  </div>
+</div>

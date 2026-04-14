@@ -2,7 +2,7 @@ import { getServerSession } from 'next-auth'
 import { redirect } from 'next/navigation'
 import { authOptions } from '@/lib/auth'
 import type { Session } from 'next-auth'
-import { Role } from '@prisma/client'
+import { Role } from '@/generated/prisma/client'
 
 export function hasRole(session: Session | null, role: Role): boolean {
   return session?.user?.role === role

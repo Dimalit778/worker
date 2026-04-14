@@ -1,0 +1,167 @@
+<h2>MVP Scope — V1 vs Deferred</h2>
+<p class="subtitle">What ships in V1. What is explicitly out of scope but designed for. No surprises either way.</p>
+
+<div style="display: grid; grid-template-columns: 1fr 1fr; gap: 1.5rem; margin-bottom: 2rem;">
+
+  <!-- V1 IN SCOPE -->
+  <div style="padding: 1.25rem; background: rgba(52,211,153,0.06); border-radius: 12px; border: 1px solid rgba(52,211,153,0.2);">
+    <div class="label" style="color: #34d399; margin-bottom: 0.75rem;">V1 — Ships in MVP</div>
+
+    <div style="margin-bottom: 1rem;">
+      <div style="font-size: 0.78rem; font-weight: 700; color: #9ca3af; margin-bottom: 0.4rem; text-transform: uppercase; letter-spacing: 0.05em;">Auth & Users</div>
+      <ul style="font-size: 0.82rem; line-height: 1.85; margin: 0; padding-right: 1.1rem; color: #d1d5db;">
+        <li>Email + password login (NextAuth)</li>
+        <li>Two roles: GUARD, MANAGER</li>
+        <li>Manager creates and manages guard accounts</li>
+        <li>Guard has primary court assigned by manager</li>
+      </ul>
+    </div>
+
+    <div style="margin-bottom: 1rem;">
+      <div style="font-size: 0.78rem; font-weight: 700; color: #9ca3af; margin-bottom: 0.4rem; text-transform: uppercase; letter-spacing: 0.05em;">Configuration</div>
+      <ul style="font-size: 0.82rem; line-height: 1.85; margin: 0; padding-right: 1.1rem; color: #d1d5db;">
+        <li>Create/edit courts with shift capacity rules</li>
+        <li>Day-specific capacity overrides (e.g. Friday)</li>
+        <li>System config: weekly minimums, fairness weights</li>
+        <li>Court eligibility per guard</li>
+      </ul>
+    </div>
+
+    <div style="margin-bottom: 1rem;">
+      <div style="font-size: 0.78rem; font-weight: 700; color: #9ca3af; margin-bottom: 0.4rem; text-transform: uppercase; letter-spacing: 0.05em;">Period & Availability</div>
+      <ul style="font-size: 0.82rem; line-height: 1.85; margin: 0; padding-right: 1.1rem; color: #d1d5db;">
+        <li>14-day period lifecycle (DRAFT → OPEN → CLOSED → PUBLISHED)</li>
+        <li>Sunday-start date picker, auto-calculated end date</li>
+        <li>Submission deadline per period</li>
+        <li>Guard submits per-day, per-shift availability (primary court)</li>
+        <li>Auto-save as draft, explicit submit action</li>
+        <li>Editable by guard until deadline</li>
+        <li>Manager sees submission status (submitted / pending)</li>
+      </ul>
+    </div>
+
+    <div style="margin-bottom: 1rem;">
+      <div style="font-size: 0.78rem; font-weight: 700; color: #9ca3af; margin-bottom: 0.4rem; text-transform: uppercase; letter-spacing: 0.05em;">Schedule Generation</div>
+      <ul style="font-size: 0.82rem; line-height: 1.85; margin: 0; padding-right: 1.1rem; color: #d1d5db;">
+        <li>3-pass weighted greedy engine (synchronous, server-side)</li>
+        <li>Pass 1: hard constraint-aware slot filling</li>
+        <li>Pass 2: weekly minimum prioritization (best-effort)</li>
+        <li>Pass 3: opening duty assignment + fairness warnings</li>
+        <li>Deterministic seeded tiebreaker</li>
+        <li>Structured warnings list (UNDERSTAFFED, UNFILLED, MIN_NOT_MET, FAIRNESS)</li>
+        <li>Manager can re-generate (discards draft, reruns engine)</li>
+      </ul>
+    </div>
+
+    <div style="margin-bottom: 1rem;">
+      <div style="font-size: 0.78rem; font-weight: 700; color: #9ca3af; margin-bottom: 0.4rem; text-transform: uppercase; letter-spacing: 0.05em;">Manager Views</div>
+      <ul style="font-size: 0.82rem; line-height: 1.85; margin: 0; padding-right: 1.1rem; color: #d1d5db;">
+        <li>Schedule grid: court/shift rows × 14-day columns</li>
+        <li>Warnings panel with severity levels</li>
+        <li>Manual override: add/remove guards, change opening duty</li>
+        <li>Live warning updates after manual edits</li>
+        <li>Per-guard report (secondary view): assignments, shift counts, weekly min compliance</li>
+        <li>Fairness report: distribution of nights/weekends/opening duties vs history</li>
+        <li>Publish confirmation with summary</li>
+      </ul>
+    </div>
+
+    <div>
+      <div style="font-size: 0.78rem; font-weight: 700; color: #9ca3af; margin-bottom: 0.4rem; text-transform: uppercase; letter-spacing: 0.05em;">Guard View</div>
+      <ul style="font-size: 0.82rem; line-height: 1.85; margin: 0; padding-right: 1.1rem; color: #d1d5db;">
+        <li>Dashboard: period status, submission CTA</li>
+        <li>Availability form: mobile-first, Hebrew RTL, 14-day accordion</li>
+        <li>My schedule: visible only after manager publishes</li>
+        <li>Shows: date, shift, court, opening duty flag</li>
+      </ul>
+    </div>
+  </div>
+
+  <!-- DEFERRED -->
+  <div style="padding: 1.25rem; background: rgba(255,255,255,0.03); border-radius: 12px; border: 1px solid rgba(255,255,255,0.08);">
+    <div class="label" style="color: #6b7280; margin-bottom: 0.75rem;">Deferred — Explicitly Out of V1</div>
+
+    <div style="margin-bottom: 1rem;">
+      <div style="font-size: 0.78rem; font-weight: 700; color: #6b7280; margin-bottom: 0.4rem; text-transform: uppercase; letter-spacing: 0.05em;">Notifications</div>
+      <ul style="font-size: 0.82rem; line-height: 1.85; margin: 0; padding-right: 1.1rem; color: #6b7280;">
+        <li>Email / SMS / WhatsApp / push notifications</li>
+        <li>Guards check system manually in V1</li>
+      </ul>
+    </div>
+
+    <div style="margin-bottom: 1rem;">
+      <div style="font-size: 0.78rem; font-weight: 700; color: #6b7280; margin-bottom: 0.4rem; text-transform: uppercase; letter-spacing: 0.05em;">Multi-Court Availability UI</div>
+      <ul style="font-size: 0.82rem; line-height: 1.85; margin: 0; padding-right: 1.1rem; color: #6b7280;">
+        <li>Per-court toggle selection in guard form</li>
+        <li>Schema supports it; UI deferred</li>
+        <li>Default: primary court assumed</li>
+      </ul>
+    </div>
+
+    <div style="margin-bottom: 1rem;">
+      <div style="font-size: 0.78rem; font-weight: 700; color: #6b7280; margin-bottom: 0.4rem; text-transform: uppercase; letter-spacing: 0.05em;">Background Jobs</div>
+      <ul style="font-size: 0.82rem; line-height: 1.85; margin: 0; padding-right: 1.1rem; color: #6b7280;">
+        <li>Async schedule generation (job queue)</li>
+        <li>Engine is already pure/isolated — wiring is the only V2 change</li>
+      </ul>
+    </div>
+
+    <div style="margin-bottom: 1rem;">
+      <div style="font-size: 0.78rem; font-weight: 700; color: #6b7280; margin-bottom: 0.4rem; text-transform: uppercase; letter-spacing: 0.05em;">Guard Data Model</div>
+      <ul style="font-size: 0.82rem; line-height: 1.85; margin: 0; padding-right: 1.1rem; color: #6b7280;">
+        <li>GuardProfile entity (seniority, hire date, badge, certifications)</li>
+        <li>ShiftDefinition entity (configurable shift hours per court)</li>
+        <li>Shift preferences (preferred vs available)</li>
+      </ul>
+    </div>
+
+    <div style="margin-bottom: 1rem;">
+      <div style="font-size: 0.78rem; font-weight: 700; color: #6b7280; margin-bottom: 0.4rem; text-transform: uppercase; letter-spacing: 0.05em;">Advanced Fairness</div>
+      <ul style="font-size: 0.82rem; line-height: 1.85; margin: 0; padding-right: 1.1rem; color: #6b7280;">
+        <li>Auto-apply fairness swaps (V1 only surfaces suggestions)</li>
+        <li>Fairness override audit log (V1 has isManualOverride flag only)</li>
+        <li>Configurable rolling fairness window</li>
+      </ul>
+    </div>
+
+    <div style="margin-bottom: 1rem;">
+      <div style="font-size: 0.78rem; font-weight: 700; color: #6b7280; margin-bottom: 0.4rem; text-transform: uppercase; letter-spacing: 0.05em;">Export & Integration</div>
+      <ul style="font-size: 0.82rem; line-height: 1.85; margin: 0; padding-right: 1.1rem; color: #6b7280;">
+        <li>PDF / Excel export of schedule</li>
+        <li>Print-friendly schedule view</li>
+        <li>Calendar sync (iCal / Google Calendar)</li>
+        <li>HR system integration</li>
+      </ul>
+    </div>
+
+    <div style="margin-bottom: 1rem;">
+      <div style="font-size: 0.78rem; font-weight: 700; color: #6b7280; margin-bottom: 0.4rem; text-transform: uppercase; letter-spacing: 0.05em;">Guard Self-Service</div>
+      <ul style="font-size: 0.82rem; line-height: 1.85; margin: 0; padding-right: 1.1rem; color: #6b7280;">
+        <li>Shift swap requests between guards</li>
+        <li>Time-off requests</li>
+        <li>Historical schedule archive for guards</li>
+      </ul>
+    </div>
+
+    <div>
+      <div style="font-size: 0.78rem; font-weight: 700; color: #6b7280; margin-bottom: 0.4rem; text-transform: uppercase; letter-spacing: 0.05em;">Infrastructure</div>
+      <ul style="font-size: 0.82rem; line-height: 1.85; margin: 0; padding-right: 1.1rem; color: #6b7280;">
+        <li>Multi-tenant / multi-organization support</li>
+        <li>Native mobile app (PWA is V2 consideration)</li>
+        <li>SSO / SAML integration</li>
+        <li>Full audit log with revert history</li>
+      </ul>
+    </div>
+  </div>
+</div>
+
+<!-- Design-for-future callout -->
+<div style="padding: 1.25rem; background: rgba(96,165,250,0.06); border-radius: 12px; border: 1px solid rgba(96,165,250,0.18); font-size: 0.83rem; line-height: 1.7;">
+  <strong style="color: #60a5fa;">What "designed for but not built" means in practice:</strong>
+  <ul style="margin: 0.5rem 0 0; padding-right: 1.25rem; color: #9ca3af; line-height: 1.9;">
+    <li><strong style="color: #d1d5db;">Multi-court UI:</strong> AvailabilityEntry already has courtId — adding per-court toggles is a UI-only change</li>
+    <li><strong style="color: #d1d5db;">Background jobs:</strong> Scheduling engine has no HTTP dependency — wrapping it in a job runner touches only the API route</li>
+    <li><strong style="color: #d1d5db;">GuardProfile:</strong> Add table, backfill from User, update FK — no scheduling logic changes</li>
+    <li><strong style="color: #d1d5db;">Notifications:</strong> Period lifecycle events are already structured — hooking a mailer is additive</li>
+  </ul>
+</div>

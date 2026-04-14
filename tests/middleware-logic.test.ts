@@ -1,6 +1,6 @@
 import { describe, it, expect } from 'vitest'
 import { resolveRedirect } from '@/lib/middleware-logic'
-import { Role } from '@prisma/client'
+import { Role } from '@/generated/prisma/client'
 
 describe('resolveRedirect', () => {
   it('returns null for /login (public route)', () => {

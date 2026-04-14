@@ -1,0 +1,86 @@
+<h2>System Architecture — Updated</h2>
+<p class="subtitle">Thin API routes. Business logic in dedicated service modules. Scheduling engine designed for background job extraction.</p>
+
+<div style="display: grid; grid-template-columns: 1fr 1fr; gap: 1.5rem; margin-bottom: 2rem;">
+
+  <div style="padding: 1.25rem; background: rgba(255,255,255,0.04); border-radius: 12px; border: 1px solid rgba(255,255,255,0.08);">
+    <div class="label" style="color: #60a5fa; margin-bottom: 0.5rem;">API Routes (Thin)</div>
+    <h3 style="margin: 0 0 0.75rem;">/api/* — Request/Response Only</h3>
+    <ul style="font-size: 0.88rem; line-height: 1.9; margin: 0; padding-right: 1.25rem;">
+      <li>Parse request, validate auth session</li>
+      <li>Call the appropriate service module</li>
+      <li>Return result or error — nothing else</li>
+      <li>No business logic lives here</li>
+    </ul>
+  </div>
+
+  <div style="padding: 1.25rem; background: rgba(255,255,255,0.04); border-radius: 12px; border: 1px solid rgba(255,255,255,0.08);">
+    <div class="label" style="color: #34d399; margin-bottom: 0.5rem;">Domain Service Modules</div>
+    <h3 style="margin: 0 0 0.75rem;">lib/services/</h3>
+    <ul style="font-size: 0.88rem; line-height: 1.9; margin: 0; padding-right: 1.25rem;">
+      <li><strong>scheduling/</strong> — schedule generation engine (3 passes)</li>
+      <li><strong>availability/</strong> — submission logic, validation</li>
+      <li><strong>guards/</strong> — guard profiles, court eligibility</li>
+      <li><strong>periods/</strong> — period lifecycle, status transitions</li>
+      <li><strong>admin/</strong> — courts, config, capacity rules</li>
+      <li><strong>fairness/</strong> — scoring, history, warnings</li>
+      <li><strong>validations/</strong> — conflict rules, constraint checks</li>
+    </ul>
+  </div>
+
+  <div style="padding: 1.25rem; background: rgba(255,255,255,0.04); border-radius: 12px; border: 1px solid rgba(255,255,255,0.08);">
+    <div class="label" style="color: #f59e0b; margin-bottom: 0.5rem;">Scheduling Engine (Isolated Module)</div>
+    <h3 style="margin: 0 0 0.75rem;">lib/services/scheduling/</h3>
+    <ul style="font-size: 0.88rem; line-height: 1.9; margin: 0; padding-right: 1.25rem;">
+      <li><strong>Pass 1:</strong> Slot filling — hard constraints only</li>
+      <li><strong>Pass 2:</strong> Weekly minimum prioritization (best-effort, within submitted availability)</li>
+      <li><strong>Pass 3:</strong> Fairness rebalancing, opening duty rotation</li>
+      <li>Pure function: takes inputs, returns draft + warnings</li>
+      <li>No HTTP, no side effects — easy to extract to background job</li>
+    </ul>
+  </div>
+
+  <div style="padding: 1.25rem; background: rgba(255,255,255,0.04); border-radius: 12px; border: 1px solid rgba(255,255,255,0.08);">
+    <div class="label" style="color: #a78bfa; margin-bottom: 0.5rem;">Data Layer</div>
+    <h3 style="margin: 0 0 0.75rem;">PostgreSQL + Prisma</h3>
+    <ul style="font-size: 0.88rem; line-height: 1.9; margin: 0; padding-right: 1.25rem;">
+      <li>Repository pattern: <strong>lib/db/</strong> wraps Prisma queries</li>
+      <li>Services call repositories — never Prisma directly</li>
+      <li>Clean seam: easy to swap query implementations</li>
+      <li>NextAuth adapter in the same DB</li>
+    </ul>
+  </div>
+</div>
+
+<div style="padding: 1.25rem; background: rgba(255,255,255,0.03); border-radius: 12px; border: 1px solid rgba(255,255,255,0.08); margin-bottom: 1.5rem;">
+  <h3 style="margin-top: 0;">Layered Call Chain</h3>
+  <div style="display: flex; align-items: center; gap: 0.6rem; flex-wrap: wrap; font-size: 0.88rem; line-height: 2.2;">
+    <span style="padding: 0.3rem 0.8rem; background: rgba(96,165,250,0.15); border-radius: 6px; border: 1px solid rgba(96,165,250,0.3);">HTTP Request</span>
+    <span style="color: #6b7280;">→</span>
+    <span style="padding: 0.3rem 0.8rem; background: rgba(255,255,255,0.06); border-radius: 6px;">API Route (thin)</span>
+    <span style="color: #6b7280;">→</span>
+    <span style="padding: 0.3rem 0.8rem; background: rgba(52,211,153,0.15); border-radius: 6px; border: 1px solid rgba(52,211,153,0.3);">Service Module</span>
+    <span style="color: #6b7280;">→</span>
+    <span style="padding: 0.3rem 0.8rem; background: rgba(167,139,250,0.15); border-radius: 6px; border: 1px solid rgba(167,139,250,0.3);">Repository</span>
+    <span style="color: #6b7280;">→</span>
+    <span style="padding: 0.3rem 0.8rem; background: rgba(167,139,250,0.15); border-radius: 6px; border: 1px solid rgba(167,139,250,0.3);">Prisma → PostgreSQL</span>
+  </div>
+</div>
+
+<div style="padding: 1.25rem; background: rgba(245,158,11,0.06); border-radius: 12px; border: 1px solid rgba(245,158,11,0.2);">
+  <h3 style="margin-top: 0; color: #f59e0b;">Background Job Readiness</h3>
+  <p style="font-size: 0.88rem; line-height: 1.7; margin: 0;">The scheduling engine is a <strong>pure function with no HTTP dependencies</strong>. In V1, the API route calls it directly and awaits the result. When/if generation becomes slow enough to warrant async processing, the same function can be invoked by a job runner (BullMQ, pg-boss, Inngest) with zero changes to the engine itself — only the API route changes (returns a job ID instead of waiting).</p>
+  <div style="display: flex; gap: 1rem; margin-top: 1rem; font-size: 0.85rem;">
+    <div style="flex: 1; padding: 0.75rem; background: rgba(255,255,255,0.04); border-radius: 8px;">
+      <strong style="display: block; margin-bottom: 0.3rem;">V1 (synchronous)</strong>
+      POST /api/schedule/generate<br>
+      → calls engine() → saves draft → returns result
+    </div>
+    <div style="flex: 1; padding: 0.75rem; background: rgba(255,255,255,0.04); border-radius: 8px;">
+      <strong style="display: block; margin-bottom: 0.3rem;">V2 (background job)</strong>
+      POST /api/schedule/generate<br>
+      → enqueues job → returns jobId<br>
+      Job runner calls same engine() → saves draft
+    </div>
+  </div>
+</div>

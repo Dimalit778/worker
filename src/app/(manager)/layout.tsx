@@ -1,16 +1,16 @@
-import { requireSession } from '@/lib/auth-helpers'
-import { Role } from '@prisma/client'
-import Link from 'next/link'
+import { requireSession } from '@/lib/auth-helpers';
+import { Role } from '@/generated/prisma/client';
+import Link from 'next/link';
 
 const navItems = [
-  { href: '/manager',              label: 'לוח בקרה' },
-  { href: '/manager/admin/guards', label: 'שומרים' },
-  { href: '/manager/admin/courts', label: 'בתי משפט' },
-  { href: '/manager/admin/config', label: 'הגדרות' },
-]
+  { href: '/manager', label: 'לוח בקרה' },
+  { href: '/manager/guards', label: 'מאבטחים' },
+  { href: '/manager/courts', label: 'בתי משפט' },
+  { href: '/manager/config', label: 'הגדרות' },
+];
 
 export default async function ManagerLayout({ children }: { children: React.ReactNode }) {
-  const session = await requireSession(Role.MANAGER)
+  const session = await requireSession(Role.MANAGER);
 
   return (
     <div className="min-h-screen flex bg-background">
@@ -34,9 +34,7 @@ export default async function ManagerLayout({ children }: { children: React.Reac
       </aside>
 
       {/* Main */}
-      <main className="flex-1 p-6 overflow-auto">
-        {children}
-      </main>
+      <main className="flex-1 p-6 overflow-auto">{children}</main>
     </div>
-  )
+  );
 }
