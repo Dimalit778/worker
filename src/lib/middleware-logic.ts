@@ -2,9 +2,18 @@ import { Role } from '@/generated/prisma/client'
 
 /** Returns the home path for a given role. */
 function homeFor(role: Role): string {
-  if (role === Role.GUARD) return '/user'
-  if (role === Role.MANAGER) return '/manager'
-  return '/admin'
+  switch (role) {
+    case Role.GUARD:
+      return '/user'
+    case Role.MANAGER:
+      return '/manager'
+    case Role.ADMIN:
+      return '/admin'
+    default: {
+      const _exhaustive: never = role
+      throw new Error(`Unhandled role: ${String(_exhaustive)}`)
+    }
+  }
 }
 
 /**
