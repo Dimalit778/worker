@@ -12,6 +12,7 @@ datasource db {
 enum Role {
   GUARD
   MANAGER
+  ADMIN
 }
 
 enum ShiftType {
