@@ -18,7 +18,7 @@ type AssignGuardParams = {
 }
 
 export async function assignGuard(params: AssignGuardParams): Promise<{ scheduleId: string }> {
-  await requireSession(Role.MANAGER)
+  const session = await requireSession(Role.MANAGER)
 
   const { scheduleId: incomingScheduleId, periodId, userId, courtId, date, shiftType, isOpeningDuty } = params
 
@@ -26,7 +26,6 @@ export async function assignGuard(params: AssignGuardParams): Promise<{ schedule
 
   if (!scheduleId) {
     // Create a new DRAFT schedule for this period
-    const session = await requireSession(Role.MANAGER)
     const schedule = await prisma.schedule.create({
       data: { periodId, generatedById: session.user.id },
     })
@@ -41,6 +40,7 @@ export async function assignGuard(params: AssignGuardParams): Promise<{ schedule
       date: parseISODateToUtcMidnight(date),
       shiftType,
       isOpeningDuty,
+      isManualOverride: true,
     },
   })
 
