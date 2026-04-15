@@ -4,7 +4,11 @@ import { config } from 'dotenv'
 import { PrismaNeon } from '@prisma/adapter-neon'
 import bcrypt from 'bcryptjs'
 
-import { PrismaClient, Role, ShiftType } from '../src/generated/prisma/client'
+import {
+  calendarDateISO,
+  utcNoonFromCalendarISO,
+} from '../src/lib/periods/current-scheduling-period'
+import { GuardRank, PeriodStatus, PrismaClient, Role, ShiftType } from '../src/generated/prisma/client'
 
 config({ path: resolve(process.cwd(), '.env.local') })
 config({ path: resolve(process.cwd(), '.env') })
@@ -82,7 +86,7 @@ async function main() {
 
   // Manager — assigned to courtA
   const managerHash = await bcrypt.hash('manager123', 12)
-  await prisma.user.upsert({
+  const manager = await prisma.user.upsert({
     where: { email: 'manager@court.gov.il' },
     update: { primaryCourtId: courtA.id },
     create: {
@@ -91,6 +95,25 @@ async function main() {
       name: 'מנהל מערכת',
       role: Role.MANAGER,
       primaryCourtId: courtA.id,
+    },
+  })
+
+  // Demo scheduling period covering "today" (Asia/Jerusalem); used by shibutz pages in dev.
+  const todayUtc = utcNoonFromCalendarISO(calendarDateISO(new Date(), 'Asia/Jerusalem'))
+  const periodStart = new Date(todayUtc)
+  periodStart.setUTCDate(periodStart.getUTCDate() - 3)
+  const periodEnd = new Date(periodStart)
+  periodEnd.setUTCDate(periodEnd.getUTCDate() + 13)
+  const seedPeriodName = '\u05ea\u05e7\u05d5\u05e4\u05ea \u05d4\u05d3\u05d2\u05de\u05d4 (seed)'
+  await prisma.schedulingPeriod.deleteMany({ where: { name: seedPeriodName } })
+  await prisma.schedulingPeriod.create({
+    data: {
+      name: seedPeriodName,
+      startDate: periodStart,
+      endDate: periodEnd,
+      submissionDeadline: new Date(periodStart.getTime() - 24 * 60 * 60 * 1000),
+      status: PeriodStatus.OPEN,
+      createdById: manager.id,
     },
   })
 
@@ -109,25 +132,26 @@ async function main() {
 
   // Guards (primary court: courtA)
   const guardData = [
-    { email: 'cohen@court.gov.il',   name: 'יובל כהן' },
-    { email: 'levi@court.gov.il',    name: 'מיכל לוי' },
-    { email: 'abed@court.gov.il',    name: 'ראמי עבד' },
-    { email: 'shamir@court.gov.il',  name: 'עמית שמיר' },
-    { email: 'nagar@court.gov.il',   name: 'דנה נגר' },
-    { email: 'peretz@court.gov.il',  name: 'אלי פרץ' },
-    { email: 'chaim@court.gov.il',   name: 'בן חיים' },
+    { email: 'cohen@court.gov.il',   name: 'יובל כהן',   guardRank: GuardRank.SHIFT_MANAGER },
+    { email: 'levi@court.gov.il',    name: 'מיכל לוי',   guardRank: GuardRank.BAKAR },
+    { email: 'abed@court.gov.il',    name: 'ראמי עבד',   guardRank: GuardRank.BAKAR },
+    { email: 'shamir@court.gov.il',  name: 'עמית שמיר',  guardRank: GuardRank.GUARD },
+    { email: 'nagar@court.gov.il',   name: 'דנה נגר',    guardRank: GuardRank.GUARD },
+    { email: 'peretz@court.gov.il',  name: 'אלי פרץ',    guardRank: GuardRank.GUARD },
+    { email: 'chaim@court.gov.il',   name: 'בן חיים',    guardRank: GuardRank.GUARD },
   ]
   const guardHash = await bcrypt.hash('guard123', 12)
 
   for (const g of guardData) {
     const guard = await prisma.user.upsert({
       where: { email: g.email },
-      update: {},
+      update: { guardRank: g.guardRank },
       create: {
         email: g.email,
         passwordHash: guardHash,
         name: g.name,
         role: Role.GUARD,
+        guardRank: g.guardRank,
         primaryCourtId: courtA.id,
       },
     })

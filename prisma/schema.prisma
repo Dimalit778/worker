@@ -15,6 +15,12 @@ enum Role {
   ADMIN
 }
 
+enum GuardRank {
+  GUARD
+  BAKAR
+  SHIFT_MANAGER
+}
+
 enum ShiftType {
   MORNING
   EVENING
@@ -88,15 +94,16 @@ model VerificationToken {
 // ─── Domain models ───────────────────────────────────────────────────────────
 
 model User {
-  id             String   @id @default(cuid())
-  email          String   @unique
+  id             String     @id @default(cuid())
+  email          String     @unique
   passwordHash   String
   name           String
   phone          String?
-  role           Role     @default(GUARD)
+  role           Role       @default(GUARD)
+  guardRank      GuardRank  @default(GUARD)
   primaryCourtId String?
-  isActive       Boolean  @default(true)
-  createdAt      DateTime @default(now())
+  isActive       Boolean    @default(true)
+  createdAt      DateTime   @default(now())
 
   primaryCourt       Court?             @relation("PrimaryCourtGuards", fields: [primaryCourtId], references: [id])
   courtEligibility   CourtEligibility[]
