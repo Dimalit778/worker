@@ -29,7 +29,7 @@ export function AssignmentCell({
   const [pending, startTransition] = useTransition()
 
   if (closed) {
-    return <td className="border border-border bg-foreground" />
+    return <td className="border border-border bg-black" />
   }
 
   function handleSelect(guardId: string) {
