@@ -14,7 +14,7 @@ export function WeekNavigator({ weekIndex, onWeekChange, week0Label, week1Label 
   return (
     <div className="flex justify-center mb-5" dir="rtl">
       <div className="flex items-center gap-3 bg-white border border-border rounded-xl px-4 py-2 shadow-sm">
-        {/* In RTL: ChevronRight = "forward / next week" (sits on the right) */}
+        {/* In RTL: ChevronRight sits on the right → navigates to week 1 (earlier dates) */}
         <button
           onClick={() => onWeekChange(0)}
           disabled={weekIndex === 0}
@@ -22,7 +22,7 @@ export function WeekNavigator({ weekIndex, onWeekChange, week0Label, week1Label 
             'flex items-center justify-center w-8 h-8 rounded-md border border-border bg-muted text-muted-foreground transition-colors',
             weekIndex === 0 ? 'opacity-30 cursor-default' : 'hover:bg-accent'
           )}
-          aria-label="שבוע הבא"
+          aria-label="שבוע א׳"
         >
           <ChevronRight className="w-4 h-4" />
         </button>
@@ -35,7 +35,7 @@ export function WeekNavigator({ weekIndex, onWeekChange, week0Label, week1Label 
           </div>
         </div>
 
-        {/* ChevronLeft = "back / previous week" (sits on the left in RTL) */}
+        {/* ChevronLeft sits on the left in RTL → navigates to week 2 (later dates) */}
         <button
           onClick={() => onWeekChange(1)}
           disabled={weekIndex === 1}
@@ -43,7 +43,7 @@ export function WeekNavigator({ weekIndex, onWeekChange, week0Label, week1Label 
             'flex items-center justify-center w-8 h-8 rounded-md border border-border bg-muted text-muted-foreground transition-colors',
             weekIndex === 1 ? 'opacity-30 cursor-default' : 'hover:bg-accent'
           )}
-          aria-label="שבוע קודם"
+          aria-label="שבוע ב׳"
         >
           <ChevronLeft className="w-4 h-4" />
         </button>
