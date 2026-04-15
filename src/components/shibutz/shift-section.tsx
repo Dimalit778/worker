@@ -24,6 +24,7 @@ const SHIFT_STYLES: Record<ShiftType, { header: string; label: string; emoji: st
 export function ShiftSection({ shiftType, weekDays, assignments, guards, capacity, scheduleId, periodId, courtId }: Props) {
   const style = SHIFT_STYLES[shiftType]
   const maxSlots = capacity[shiftType]
+  const sortedDays = [...weekDays].sort((a, b) => a.dayOfWeek - b.dayOfWeek)
 
   return (
     <div className="mb-5" dir="rtl">
@@ -40,7 +41,7 @@ export function ShiftSection({ shiftType, weekDays, assignments, guards, capacit
             <tr>
               <th className={cn('w-7 px-1 py-1 border border-border text-white font-semibold', style.header)}>#</th>
               <th className={cn('w-14 px-1 py-1 border border-border text-white font-semibold whitespace-nowrap', style.header)}>משמרת</th>
-              {weekDays.map(day => (
+              {sortedDays.map(day => (
                 <th
                   key={day.iso}
                   className={cn('w-[62px] min-w-[62px] px-1 py-0.5 border border-border text-white text-center', style.header)}
@@ -76,7 +77,7 @@ export function ShiftSection({ shiftType, weekDays, assignments, guards, capacit
                   )}>
                     {rowLabel}
                   </td>
-                  {weekDays.map(day => {
+                  {sortedDays.map(day => {
                     const key = assignmentKey(day.iso, shiftType)
                     const slotAssignments = assignments[key] ?? []
                     const assignment = slotAssignments[slotIndex] ?? null
