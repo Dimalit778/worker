@@ -1,49 +1,49 @@
-'use client'
+'use client';
 
-import { useState, useRef, useEffect } from 'react'
-import { X } from 'lucide-react'
-import { cn } from '@/lib/utils'
-import type { GuardSummary } from './types'
+import { useState, useRef, useEffect } from 'react';
+import { X } from 'lucide-react';
+import { cn } from '@/lib/utils';
+import type { GuardSummary } from '../types';
 
 type Props = {
-  guards: GuardSummary[]
-  currentUserId: string | null
-  onSelect: (guardId: string) => void
-  onRemove: () => void
-  onClose: () => void
-}
+  guards: GuardSummary[];
+  currentUserId: string | null;
+  onSelect: (guardId: string) => void;
+  onRemove: () => void;
+  onClose: () => void;
+};
 
 export function GuardPicker({ guards, currentUserId, onSelect, onRemove, onClose }: Props) {
-  const [query, setQuery] = useState('')
-  const inputRef = useRef<HTMLInputElement>(null)
-  const panelRef = useRef<HTMLDivElement>(null)
+  const [query, setQuery] = useState('');
+  const inputRef = useRef<HTMLInputElement>(null);
+  const panelRef = useRef<HTMLDivElement>(null);
 
-  const filtered = query.trim()
-    ? guards.filter(g => g.name.includes(query.trim()))
-    : guards
+  const filtered = query.trim() ? guards.filter((g) => g.name.includes(query.trim())) : guards;
 
   // Auto-focus search input
-  useEffect(() => { inputRef.current?.focus() }, [])
+  useEffect(() => {
+    inputRef.current?.focus();
+  }, []);
 
   // Close on outside click
   useEffect(() => {
     function handleClick(e: MouseEvent) {
       if (panelRef.current && !panelRef.current.contains(e.target as Node)) {
-        onClose()
+        onClose();
       }
     }
-    document.addEventListener('mousedown', handleClick)
-    return () => document.removeEventListener('mousedown', handleClick)
-  }, [onClose])
+    document.addEventListener('mousedown', handleClick);
+    return () => document.removeEventListener('mousedown', handleClick);
+  }, [onClose]);
 
   // Close on Escape
   useEffect(() => {
     function handleKey(e: KeyboardEvent) {
-      if (e.key === 'Escape') onClose()
+      if (e.key === 'Escape') onClose();
     }
-    document.addEventListener('keydown', handleKey)
-    return () => document.removeEventListener('keydown', handleKey)
-  }, [onClose])
+    document.addEventListener('keydown', handleKey);
+    return () => document.removeEventListener('keydown', handleKey);
+  }, [onClose]);
 
   return (
     <div
@@ -57,7 +57,7 @@ export function GuardPicker({ guards, currentUserId, onSelect, onRemove, onClose
         <input
           ref={inputRef}
           value={query}
-          onChange={e => setQuery(e.target.value)}
+          onChange={(e) => setQuery(e.target.value)}
           placeholder="חיפוש..."
           className="w-full text-xs px-2 py-1 border border-border rounded-md outline-none focus:ring-1 focus:ring-primary"
         />
@@ -65,16 +65,14 @@ export function GuardPicker({ guards, currentUserId, onSelect, onRemove, onClose
 
       {/* Guard list */}
       <ul className="max-h-44 overflow-y-auto">
-        {filtered.length === 0 && (
-          <li className="px-3 py-2 text-xs text-muted-foreground">לא נמצא</li>
-        )}
-        {filtered.map(g => (
+        {filtered.length === 0 && <li className="px-3 py-2 text-xs text-muted-foreground">לא נמצא</li>}
+        {filtered.map((g) => (
           <li
             key={g.id}
             onClick={() => onSelect(g.id)}
             className={cn(
               'px-3 py-1.5 text-xs cursor-pointer hover:bg-accent',
-              g.id === currentUserId && 'font-semibold bg-accent/50'
+              g.id === currentUserId && 'font-semibold bg-accent/50',
             )}
           >
             {g.name}
@@ -95,5 +93,5 @@ export function GuardPicker({ guards, currentUserId, onSelect, onRemove, onClose
         </div>
       )}
     </div>
-  )
+  );
 }

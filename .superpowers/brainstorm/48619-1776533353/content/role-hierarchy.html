@@ -1,0 +1,79 @@
+<h2>מבנה תפקידים — מערכת שיבוץ בתי משפט</h2>
+<p class="subtitle">הייררכיה ארגונית וגישה במערכת</p>
+
+<div style="display: flex; gap: 32px; flex-wrap: wrap; margin-top: 24px;">
+
+  <!-- Hierarchy tree -->
+  <div style="flex: 1; min-width: 320px;">
+    <h3 style="margin-bottom: 16px;">ההייררכיה</h3>
+    <div style="font-family: monospace; direction: rtl; text-align: right; font-size: 14px; line-height: 2.2; background: #1e1e2e; padding: 20px; border-radius: 10px; color: #cdd6f4;">
+      <div style="color: #cba6f7; font-weight: bold;">🔐 ADMIN</div>
+      <div style="padding-right: 20px; color: #89b4fa; font-weight: bold;">↳ 🗺️ קבט (מחוז)</div>
+      <div style="padding-right: 40px; color: #89dceb;">↳ 🤝 סגן קבט (מחוז)</div>
+      <div style="padding-right: 40px; color: #a6e3a1; font-weight: bold;">↳ 👮 קצין מתקן (בית משפט)</div>
+      <div style="padding-right: 60px; color: #f9e2af;">↳ 🪖 אחמש</div>
+      <div style="padding-right: 80px; color: #fab387;">↳ 🔍 בקר</div>
+      <div style="padding-right: 100px; color: #f38ba8;">↳ 🛡️ מאבטח</div>
+    </div>
+  </div>
+
+  <!-- Permissions per role -->
+  <div style="flex: 2; min-width: 400px;">
+    <h3 style="margin-bottom: 16px;">הרשאות לפי תפקיד</h3>
+    <table style="width: 100%; border-collapse: collapse; font-size: 13px;">
+      <thead>
+        <tr style="background: #313244; color: #cdd6f4;">
+          <th style="padding: 8px 12px; text-align: right; border-bottom: 1px solid #45475a;">תפקיד</th>
+          <th style="padding: 8px 12px; text-align: center; border-bottom: 1px solid #45475a;">צפייה בשיבוץ</th>
+          <th style="padding: 8px 12px; text-align: center; border-bottom: 1px solid #45475a;">הגשת זמינות</th>
+          <th style="padding: 8px 12px; text-align: center; border-bottom: 1px solid #45475a;">ניהול עובדים</th>
+          <th style="padding: 8px 12px; text-align: center; border-bottom: 1px solid #45475a;">יצירת שיבוץ</th>
+          <th style="padding: 8px 12px; text-align: center; border-bottom: 1px solid #45475a;">צפייה רב-מחוזית</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr style="border-bottom: 1px solid #313244; color: #cdd6f4;">
+          <td style="padding: 8px 12px; color: #f38ba8;">🛡️ מאבטח / בקר / אחמש</td>
+          <td style="padding: 8px; text-align: center;">✅ (בית משפטו)</td>
+          <td style="padding: 8px; text-align: center;">✅</td>
+          <td style="padding: 8px; text-align: center;">❌</td>
+          <td style="padding: 8px; text-align: center;">❌</td>
+          <td style="padding: 8px; text-align: center;">❌</td>
+        </tr>
+        <tr style="border-bottom: 1px solid #313244; color: #cdd6f4;">
+          <td style="padding: 8px 12px; color: #a6e3a1;">👮 קצין מתקן</td>
+          <td style="padding: 8px; text-align: center;">✅ (בית משפטו)</td>
+          <td style="padding: 8px; text-align: center;">✅</td>
+          <td style="padding: 8px; text-align: center;">✅ (עובדיו)</td>
+          <td style="padding: 8px; text-align: center;">✅ (אוטומטי + ידני)</td>
+          <td style="padding: 8px; text-align: center;">❌</td>
+        </tr>
+        <tr style="border-bottom: 1px solid #313244; color: #cdd6f4;">
+          <td style="padding: 8px 12px; color: #89dceb;">🗺️ קבט / סגן קבט</td>
+          <td style="padding: 8px; text-align: center;">✅ (כל המחוז)</td>
+          <td style="padding: 8px; text-align: center;">❌</td>
+          <td style="padding: 8px; text-align: center;">👁️ צפייה בלבד</td>
+          <td style="padding: 8px; text-align: center;">❌</td>
+          <td style="padding: 8px; text-align: center;">✅ (מחוזו)</td>
+        </tr>
+        <tr style="color: #cdd6f4;">
+          <td style="padding: 8px 12px; color: #cba6f7;">🔐 Admin</td>
+          <td style="padding: 8px; text-align: center;">✅ (הכל)</td>
+          <td style="padding: 8px; text-align: center;">✅</td>
+          <td style="padding: 8px; text-align: center;">✅ (הכל)</td>
+          <td style="padding: 8px; text-align: center;">✅ (הכל)</td>
+          <td style="padding: 8px; text-align: center;">✅ (הכל)</td>
+        </tr>
+      </tbody>
+    </table>
+  </div>
+</div>
+
+<div style="margin-top: 32px; padding: 16px; background: #1e1e2e; border-radius: 10px; border-right: 4px solid #f9e2af;">
+  <h3 style="color: #f9e2af; margin-bottom: 12px;">⚠️ פער שמצאתי בסכמה הנוכחית</h3>
+  <p style="color: #cdd6f4; font-size: 14px; line-height: 1.6;">
+    הסכמה הנוכחית (<code style="color: #89b4fa;">SystemRole</code>) מכילה רק: <strong>EMPLOYEE / MANAGER / ADMIN</strong><br/>
+    אך <strong>קבט וסגן קבט</strong> הם תפקידים ברמת מחוז — לא ניתן לייצג אותם ב-<code style="color: #89b4fa;">Position</code> (שהוא תפקיד תפעולי) ולא ב-<code style="color: #89b4fa;">SystemRole</code> הנוכחי.<br/>
+    <strong>שאלה חשובה:</strong> האם קצין מתקן יכול להיות גם מאבטח בבית משפט אחר? או שכל אחד יש לו תפקיד יחיד?
+  </p>
+</div>

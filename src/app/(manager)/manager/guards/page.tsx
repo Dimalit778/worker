@@ -1,18 +1,15 @@
-import { requireSession } from '@/lib/auth-helpers'
-import { SystemRole } from '@/generated/prisma/client'
-import { Card, CardContent } from '@/components/ui/card'
+import { requireSession } from '@/lib/auth-helpers';
+import { SystemRole } from '@/generated/prisma/client';
+import { GuardsTable } from '@/features/guards/components/guards-table';
+import { getGuards } from '@/features/guards/actions';
 
 export default async function ManagerGuardsPage() {
-  await requireSession(SystemRole.MANAGER)
+  await requireSession(SystemRole.MANAGER);
+  const guards = await getGuards();
 
   return (
     <div className="space-y-6">
-      <h1 className="text-2xl font-bold">מאבטחים</h1>
-      <Card>
-        <CardContent className="pt-6">
-          <p className="text-muted-foreground text-sm">מאבטחי בית המשפט שלך — בקרוב.</p>
-        </CardContent>
-      </Card>
+      <GuardsTable guards={guards} />
     </div>
-  )
+  );
 }

@@ -1,20 +1,13 @@
-import type { PeriodStatus } from '@/generated/prisma/client'
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
-
-const TZ = 'Asia/Jerusalem'
-
-const PERIOD_STATUS_HE: Record<PeriodStatus, string> = {
-  DRAFT: 'טיוטה',
-  OPEN_FOR_SUBMISSION: 'פתוח להגשות',
-  LOCKED: 'נעול',
-  ARCHIVED: 'בארכיון',
-}
+import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
+import type { CurrentPeriodPanelProps } from '../types';
+import { TZ } from '../utils';
+import { PERIOD_STATUS_HE } from '../utils';
 
 function formatDateLong(d: Date): string {
   return new Intl.DateTimeFormat('he-IL', {
     dateStyle: 'long',
     timeZone: TZ,
-  }).format(d)
+  }).format(d);
 }
 
 function formatDateTimeLong(d: Date): string {
@@ -22,32 +15,18 @@ function formatDateTimeLong(d: Date): string {
     dateStyle: 'long',
     timeStyle: 'short',
     timeZone: TZ,
-  }).format(d)
+  }).format(d);
 }
 
-export type CurrentSchedulingPeriodSummary = {
-  name: string
-  startDate: Date
-  endDate: Date
-  submissionDeadline: Date
-  status: PeriodStatus
-}
-
-type Props = {
-  period: CurrentSchedulingPeriodSummary | null
-}
-
-export function CurrentPeriodPanel({ period }: Props) {
+export function CurrentPeriodPanel({ period }: CurrentPeriodPanelProps) {
   if (!period) {
     return (
       <Card>
         <CardContent className="pt-6">
-          <p className="text-muted-foreground text-sm">
-            אין תקופת תזמון שמכסה את היום (לפי לוח השנה בישראל).
-          </p>
+          <p className="text-muted-foreground text-sm">אין תקופת תזמון שמכסה את היום (לפי לוח השנה בישראל).</p>
         </CardContent>
       </Card>
-    )
+    );
   }
 
   return (
@@ -72,5 +51,5 @@ export function CurrentPeriodPanel({ period }: Props) {
         </div>
       </CardContent>
     </Card>
-  )
+  );
 }

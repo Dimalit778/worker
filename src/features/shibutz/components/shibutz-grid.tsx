@@ -1,26 +1,33 @@
-'use client'
+'use client';
 
-import { useState } from 'react'
-import { WeekNavigator } from './week-navigator'
-import { ShiftSection } from './shift-section'
-import { buildWeekDays } from './utils'
-import type { ShibutzGridProps } from './types'
+import { useState } from 'react';
+import { WeekNavigator } from './week-navigator';
+import { ShiftSection } from './shift-section';
+import { buildWeekDays } from '../utils';
+import type { ShibutzGridProps } from '../types';
 
 export function ShibutzGrid({
-  periodId, periodName, startDate, scheduleId,
-  assignments, guards, capacity, courtId,
+  periodId,
+  periodName,
+  startDate,
+  scheduleId,
+  assignments,
+  guards,
+  capacity,
+  courtId,
+  readonly = false,
 }: ShibutzGridProps) {
-  const [weekIndex, setWeekIndex] = useState(0)
-  const weekDays = buildWeekDays(startDate, weekIndex)
+  const [weekIndex, setWeekIndex] = useState(0);
+  const weekDays = buildWeekDays(startDate, weekIndex);
 
   // Build human-readable week range labels
   function weekRangeLabel(idx: number): string {
-    const days = buildWeekDays(startDate, idx)
-    return `${days[0].label}–${days[6].label}`
+    const days = buildWeekDays(startDate, idx);
+    return `${days[0].label}–${days[6].label}`;
   }
 
   return (
-    <div>
+    <div className="w-full">
       <div className="mb-4">
         <h1 className="text-2xl font-bold">שיבוץ</h1>
         <p className="text-sm text-muted-foreground">{periodName}</p>
@@ -42,6 +49,7 @@ export function ShibutzGrid({
         scheduleId={scheduleId}
         periodId={periodId}
         courtId={courtId}
+        readonly={readonly}
       />
       <ShiftSection
         shiftType="EVENING"
@@ -52,6 +60,7 @@ export function ShibutzGrid({
         scheduleId={scheduleId}
         periodId={periodId}
         courtId={courtId}
+        readonly={readonly}
       />
       <ShiftSection
         shiftType="NIGHT"
@@ -62,7 +71,8 @@ export function ShibutzGrid({
         scheduleId={scheduleId}
         periodId={periodId}
         courtId={courtId}
+        readonly={readonly}
       />
     </div>
-  )
+  );
 }

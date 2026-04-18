@@ -3,9 +3,9 @@
 import { useState, useTransition } from 'react'
 import { useRouter } from 'next/navigation'
 import { X } from 'lucide-react'
-import { Position } from '@/generated/prisma/client'
+import { Position } from '@/features/guards/types'
 import { createGuard, updateGuard } from '@/features/guards/actions'
-import type { GuardRow } from './guards-table'
+import type { GuardRow } from '@/features/guards/types'
 
 const POSITION_HE: Record<Position, string> = {
   GUARD: 'מאבטח',
