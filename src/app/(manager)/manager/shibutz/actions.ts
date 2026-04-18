@@ -3,12 +3,13 @@
 import { revalidatePath } from 'next/cache'
 import { prisma } from '@/lib/db/client'
 import { requireSession } from '@/lib/auth-helpers'
-import { Role, ShiftType } from '@/generated/prisma/client'
+import { ShiftType, SystemRole } from '@/generated/prisma/client'
 import { parseISODateToUtcMidnight } from '@/lib/periods/current-scheduling-period'
 
 type AssignGuardParams = {
   scheduleId: string | null
   periodId: string
+  /** Employee id (picker lists employees). */
   userId: string
   courtId: string
   /** ISO date YYYY-MM-DD */
@@ -18,7 +19,7 @@ type AssignGuardParams = {
 }
 
 export async function assignGuard(params: AssignGuardParams): Promise<{ scheduleId: string }> {
-  const session = await requireSession(Role.MANAGER)
+  const session = await requireSession(SystemRole.MANAGER)
 
   const { scheduleId: incomingScheduleId, periodId, userId, courtId, date, shiftType, isOpeningDuty } = params
 
@@ -35,7 +36,7 @@ export async function assignGuard(params: AssignGuardParams): Promise<{ schedule
   await prisma.shiftAssignment.create({
     data: {
       scheduleId,
-      userId,
+      employeeId: userId,
       courtId,
       date: parseISODateToUtcMidnight(date),
       shiftType,
@@ -49,18 +50,18 @@ export async function assignGuard(params: AssignGuardParams): Promise<{ schedule
 }
 
 export async function reassignGuard(assignmentId: string, newUserId: string): Promise<void> {
-  await requireSession(Role.MANAGER)
+  await requireSession(SystemRole.MANAGER)
 
   await prisma.shiftAssignment.update({
     where: { id: assignmentId },
-    data: { userId: newUserId },
+    data: { employeeId: newUserId },
   })
 
   revalidatePath('/manager/shibutz')
 }
 
 export async function removeAssignment(assignmentId: string): Promise<void> {
-  await requireSession(Role.MANAGER)
+  await requireSession(SystemRole.MANAGER)
 
   await prisma.shiftAssignment.delete({ where: { id: assignmentId } })
 

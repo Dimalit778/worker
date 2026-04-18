@@ -1,6 +1,6 @@
 // src/app/(manager)/manager/shibutz/page.tsx
 import { requireSession } from '@/lib/auth-helpers'
-import { Role } from '@/generated/prisma/client'
+import { SystemRole } from '@/generated/prisma/client'
 import { prisma } from '@/lib/db/client'
 import { getCurrentSchedulingPeriod } from '@/lib/periods/current-scheduling-period'
 import { ShibutzGrid } from '@/components/shibutz/shibutz-grid'
@@ -9,7 +9,7 @@ import type { AssignmentMap, CapacityMap } from '@/components/shibutz/types'
 const DEFAULT_CAPACITY: CapacityMap = { MORNING: 15, EVENING: 6, NIGHT: 3 }
 
 export default async function ManagerShibutzPage() {
-  const session = await requireSession(Role.MANAGER)
+  const session = await requireSession(SystemRole.MANAGER)
   const courtId = session.user.primaryCourtId ?? ''
 
   // 1. Current period
@@ -33,7 +33,7 @@ export default async function ManagerShibutzPage() {
   const rawAssignments = scheduleRow
     ? await prisma.shiftAssignment.findMany({
         where: { scheduleId: scheduleRow.id },
-        include: { user: { select: { name: true } } },
+        include: { employee: { select: { name: true } } },
         orderBy: { createdAt: 'asc' },
       })
     : []
@@ -46,18 +46,20 @@ export default async function ManagerShibutzPage() {
     if (!assignments[key]) assignments[key] = []
     assignments[key].push({
       id: a.id,
-      userId: a.userId,
-      userName: a.user.name,
+      userId: a.employeeId,
+      userName: a.employee.name,
       isOpeningDuty: a.isOpeningDuty,
     })
   }
 
-  // 5. Active guards
-  const guards = await prisma.user.findMany({
-    where: { role: 'GUARD', isActive: true },
-    select: { id: true, name: true },
-    orderBy: { name: 'asc' },
-  })
+  // 5. Active employees for this court (picker)
+  const guards = courtId
+    ? await prisma.employee.findMany({
+        where: { primaryCourtId: courtId, isActive: true },
+        select: { id: true, name: true },
+        orderBy: { name: 'asc' },
+      })
+    : []
 
   // 6. Capacity rules (per shift type for manager's court, fallback to defaults)
   const capacityRules = courtId

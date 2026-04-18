@@ -31,6 +31,8 @@ export type AvailabilityEntryMinAggregateOutputType = {
   courtId: string | null
   shiftType: $Enums.ShiftType | null
   isAvailable: boolean | null
+  createdAt: Date | null
+  updatedAt: Date | null
 }
 
 export type AvailabilityEntryMaxAggregateOutputType = {
@@ -40,6 +42,8 @@ export type AvailabilityEntryMaxAggregateOutputType = {
   courtId: string | null
   shiftType: $Enums.ShiftType | null
   isAvailable: boolean | null
+  createdAt: Date | null
+  updatedAt: Date | null
 }
 
 export type AvailabilityEntryCountAggregateOutputType = {
@@ -49,6 +53,8 @@ export type AvailabilityEntryCountAggregateOutputType = {
   courtId: number
   shiftType: number
   isAvailable: number
+  createdAt: number
+  updatedAt: number
   _all: number
 }
 
@@ -60,6 +66,8 @@ export type AvailabilityEntryMinAggregateInputType = {
   courtId?: true
   shiftType?: true
   isAvailable?: true
+  createdAt?: true
+  updatedAt?: true
 }
 
 export type AvailabilityEntryMaxAggregateInputType = {
@@ -69,6 +77,8 @@ export type AvailabilityEntryMaxAggregateInputType = {
   courtId?: true
   shiftType?: true
   isAvailable?: true
+  createdAt?: true
+  updatedAt?: true
 }
 
 export type AvailabilityEntryCountAggregateInputType = {
@@ -78,6 +88,8 @@ export type AvailabilityEntryCountAggregateInputType = {
   courtId?: true
   shiftType?: true
   isAvailable?: true
+  createdAt?: true
+  updatedAt?: true
   _all?: true
 }
 
@@ -160,6 +172,8 @@ export type AvailabilityEntryGroupByOutputType = {
   courtId: string
   shiftType: $Enums.ShiftType
   isAvailable: boolean
+  createdAt: Date
+  updatedAt: Date
   _count: AvailabilityEntryCountAggregateOutputType | null
   _min: AvailabilityEntryMinAggregateOutputType | null
   _max: AvailabilityEntryMaxAggregateOutputType | null
@@ -190,6 +204,8 @@ export type AvailabilityEntryWhereInput = {
   courtId?: Prisma.StringFilter<"AvailabilityEntry"> | string
   shiftType?: Prisma.EnumShiftTypeFilter<"AvailabilityEntry"> | $Enums.ShiftType
   isAvailable?: Prisma.BoolFilter<"AvailabilityEntry"> | boolean
+  createdAt?: Prisma.DateTimeFilter<"AvailabilityEntry"> | Date | string
+  updatedAt?: Prisma.DateTimeFilter<"AvailabilityEntry"> | Date | string
   availability?: Prisma.XOR<Prisma.AvailabilityScalarRelationFilter, Prisma.AvailabilityWhereInput>
   court?: Prisma.XOR<Prisma.CourtScalarRelationFilter, Prisma.CourtWhereInput>
 }
@@ -201,6 +217,8 @@ export type AvailabilityEntryOrderByWithRelationInput = {
   courtId?: Prisma.SortOrder
   shiftType?: Prisma.SortOrder
   isAvailable?: Prisma.SortOrder
+  createdAt?: Prisma.SortOrder
+  updatedAt?: Prisma.SortOrder
   availability?: Prisma.AvailabilityOrderByWithRelationInput
   court?: Prisma.CourtOrderByWithRelationInput
 }
@@ -216,6 +234,8 @@ export type AvailabilityEntryWhereUniqueInput = Prisma.AtLeast<{
   courtId?: Prisma.StringFilter<"AvailabilityEntry"> | string
   shiftType?: Prisma.EnumShiftTypeFilter<"AvailabilityEntry"> | $Enums.ShiftType
   isAvailable?: Prisma.BoolFilter<"AvailabilityEntry"> | boolean
+  createdAt?: Prisma.DateTimeFilter<"AvailabilityEntry"> | Date | string
+  updatedAt?: Prisma.DateTimeFilter<"AvailabilityEntry"> | Date | string
   availability?: Prisma.XOR<Prisma.AvailabilityScalarRelationFilter, Prisma.AvailabilityWhereInput>
   court?: Prisma.XOR<Prisma.CourtScalarRelationFilter, Prisma.CourtWhereInput>
 }, "id" | "availabilityId_date_courtId_shiftType">
@@ -227,6 +247,8 @@ export type AvailabilityEntryOrderByWithAggregationInput = {
   courtId?: Prisma.SortOrder
   shiftType?: Prisma.SortOrder
   isAvailable?: Prisma.SortOrder
+  createdAt?: Prisma.SortOrder
+  updatedAt?: Prisma.SortOrder
   _count?: Prisma.AvailabilityEntryCountOrderByAggregateInput
   _max?: Prisma.AvailabilityEntryMaxOrderByAggregateInput
   _min?: Prisma.AvailabilityEntryMinOrderByAggregateInput
@@ -242,6 +264,8 @@ export type AvailabilityEntryScalarWhereWithAggregatesInput = {
   courtId?: Prisma.StringWithAggregatesFilter<"AvailabilityEntry"> | string
   shiftType?: Prisma.EnumShiftTypeWithAggregatesFilter<"AvailabilityEntry"> | $Enums.ShiftType
   isAvailable?: Prisma.BoolWithAggregatesFilter<"AvailabilityEntry"> | boolean
+  createdAt?: Prisma.DateTimeWithAggregatesFilter<"AvailabilityEntry"> | Date | string
+  updatedAt?: Prisma.DateTimeWithAggregatesFilter<"AvailabilityEntry"> | Date | string
 }
 
 export type AvailabilityEntryCreateInput = {
@@ -249,6 +273,8 @@ export type AvailabilityEntryCreateInput = {
   date: Date | string
   shiftType: $Enums.ShiftType
   isAvailable?: boolean
+  createdAt?: Date | string
+  updatedAt?: Date | string
   availability: Prisma.AvailabilityCreateNestedOneWithoutEntriesInput
   court: Prisma.CourtCreateNestedOneWithoutAvailabilityEntriesInput
 }
@@ -260,6 +286,8 @@ export type AvailabilityEntryUncheckedCreateInput = {
   courtId: string
   shiftType: $Enums.ShiftType
   isAvailable?: boolean
+  createdAt?: Date | string
+  updatedAt?: Date | string
 }
 
 export type AvailabilityEntryUpdateInput = {
@@ -267,6 +295,8 @@ export type AvailabilityEntryUpdateInput = {
   date?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   shiftType?: Prisma.EnumShiftTypeFieldUpdateOperationsInput | $Enums.ShiftType
   isAvailable?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   availability?: Prisma.AvailabilityUpdateOneRequiredWithoutEntriesNestedInput
   court?: Prisma.CourtUpdateOneRequiredWithoutAvailabilityEntriesNestedInput
 }
@@ -278,6 +308,8 @@ export type AvailabilityEntryUncheckedUpdateInput = {
   courtId?: Prisma.StringFieldUpdateOperationsInput | string
   shiftType?: Prisma.EnumShiftTypeFieldUpdateOperationsInput | $Enums.ShiftType
   isAvailable?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
 }
 
 export type AvailabilityEntryCreateManyInput = {
@@ -287,6 +319,8 @@ export type AvailabilityEntryCreateManyInput = {
   courtId: string
   shiftType: $Enums.ShiftType
   isAvailable?: boolean
+  createdAt?: Date | string
+  updatedAt?: Date | string
 }
 
 export type AvailabilityEntryUpdateManyMutationInput = {
@@ -294,6 +328,8 @@ export type AvailabilityEntryUpdateManyMutationInput = {
   date?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   shiftType?: Prisma.EnumShiftTypeFieldUpdateOperationsInput | $Enums.ShiftType
   isAvailable?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
 }
 
 export type AvailabilityEntryUncheckedUpdateManyInput = {
@@ -303,6 +339,8 @@ export type AvailabilityEntryUncheckedUpdateManyInput = {
   courtId?: Prisma.StringFieldUpdateOperationsInput | string
   shiftType?: Prisma.EnumShiftTypeFieldUpdateOperationsInput | $Enums.ShiftType
   isAvailable?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
 }
 
 export type AvailabilityEntryListRelationFilter = {
@@ -329,6 +367,8 @@ export type AvailabilityEntryCountOrderByAggregateInput = {
   courtId?: Prisma.SortOrder
   shiftType?: Prisma.SortOrder
   isAvailable?: Prisma.SortOrder
+  createdAt?: Prisma.SortOrder
+  updatedAt?: Prisma.SortOrder
 }
 
 export type AvailabilityEntryMaxOrderByAggregateInput = {
@@ -338,6 +378,8 @@ export type AvailabilityEntryMaxOrderByAggregateInput = {
   courtId?: Prisma.SortOrder
   shiftType?: Prisma.SortOrder
   isAvailable?: Prisma.SortOrder
+  createdAt?: Prisma.SortOrder
+  updatedAt?: Prisma.SortOrder
 }
 
 export type AvailabilityEntryMinOrderByAggregateInput = {
@@ -347,6 +389,8 @@ export type AvailabilityEntryMinOrderByAggregateInput = {
   courtId?: Prisma.SortOrder
   shiftType?: Prisma.SortOrder
   isAvailable?: Prisma.SortOrder
+  createdAt?: Prisma.SortOrder
+  updatedAt?: Prisma.SortOrder
 }
 
 export type AvailabilityEntryCreateNestedManyWithoutCourtInput = {
@@ -438,6 +482,8 @@ export type AvailabilityEntryCreateWithoutCourtInput = {
   date: Date | string
   shiftType: $Enums.ShiftType
   isAvailable?: boolean
+  createdAt?: Date | string
+  updatedAt?: Date | string
   availability: Prisma.AvailabilityCreateNestedOneWithoutEntriesInput
 }
 
@@ -447,6 +493,8 @@ export type AvailabilityEntryUncheckedCreateWithoutCourtInput = {
   date: Date | string
   shiftType: $Enums.ShiftType
   isAvailable?: boolean
+  createdAt?: Date | string
+  updatedAt?: Date | string
 }
 
 export type AvailabilityEntryCreateOrConnectWithoutCourtInput = {
@@ -485,6 +533,8 @@ export type AvailabilityEntryScalarWhereInput = {
   courtId?: Prisma.StringFilter<"AvailabilityEntry"> | string
   shiftType?: Prisma.EnumShiftTypeFilter<"AvailabilityEntry"> | $Enums.ShiftType
   isAvailable?: Prisma.BoolFilter<"AvailabilityEntry"> | boolean
+  createdAt?: Prisma.DateTimeFilter<"AvailabilityEntry"> | Date | string
+  updatedAt?: Prisma.DateTimeFilter<"AvailabilityEntry"> | Date | string
 }
 
 export type AvailabilityEntryCreateWithoutAvailabilityInput = {
@@ -492,6 +542,8 @@ export type AvailabilityEntryCreateWithoutAvailabilityInput = {
   date: Date | string
   shiftType: $Enums.ShiftType
   isAvailable?: boolean
+  createdAt?: Date | string
+  updatedAt?: Date | string
   court: Prisma.CourtCreateNestedOneWithoutAvailabilityEntriesInput
 }
 
@@ -501,6 +553,8 @@ export type AvailabilityEntryUncheckedCreateWithoutAvailabilityInput = {
   courtId: string
   shiftType: $Enums.ShiftType
   isAvailable?: boolean
+  createdAt?: Date | string
+  updatedAt?: Date | string
 }
 
 export type AvailabilityEntryCreateOrConnectWithoutAvailabilityInput = {
@@ -535,6 +589,8 @@ export type AvailabilityEntryCreateManyCourtInput = {
   date: Date | string
   shiftType: $Enums.ShiftType
   isAvailable?: boolean
+  createdAt?: Date | string
+  updatedAt?: Date | string
 }
 
 export type AvailabilityEntryUpdateWithoutCourtInput = {
@@ -542,6 +598,8 @@ export type AvailabilityEntryUpdateWithoutCourtInput = {
   date?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   shiftType?: Prisma.EnumShiftTypeFieldUpdateOperationsInput | $Enums.ShiftType
   isAvailable?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   availability?: Prisma.AvailabilityUpdateOneRequiredWithoutEntriesNestedInput
 }
 
@@ -551,6 +609,8 @@ export type AvailabilityEntryUncheckedUpdateWithoutCourtInput = {
   date?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   shiftType?: Prisma.EnumShiftTypeFieldUpdateOperationsInput | $Enums.ShiftType
   isAvailable?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
 }
 
 export type AvailabilityEntryUncheckedUpdateManyWithoutCourtInput = {
@@ -559,6 +619,8 @@ export type AvailabilityEntryUncheckedUpdateManyWithoutCourtInput = {
   date?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   shiftType?: Prisma.EnumShiftTypeFieldUpdateOperationsInput | $Enums.ShiftType
   isAvailable?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
 }
 
 export type AvailabilityEntryCreateManyAvailabilityInput = {
@@ -567,6 +629,8 @@ export type AvailabilityEntryCreateManyAvailabilityInput = {
   courtId: string
   shiftType: $Enums.ShiftType
   isAvailable?: boolean
+  createdAt?: Date | string
+  updatedAt?: Date | string
 }
 
 export type AvailabilityEntryUpdateWithoutAvailabilityInput = {
@@ -574,6 +638,8 @@ export type AvailabilityEntryUpdateWithoutAvailabilityInput = {
   date?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   shiftType?: Prisma.EnumShiftTypeFieldUpdateOperationsInput | $Enums.ShiftType
   isAvailable?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   court?: Prisma.CourtUpdateOneRequiredWithoutAvailabilityEntriesNestedInput
 }
 
@@ -583,6 +649,8 @@ export type AvailabilityEntryUncheckedUpdateWithoutAvailabilityInput = {
   courtId?: Prisma.StringFieldUpdateOperationsInput | string
   shiftType?: Prisma.EnumShiftTypeFieldUpdateOperationsInput | $Enums.ShiftType
   isAvailable?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
 }
 
 export type AvailabilityEntryUncheckedUpdateManyWithoutAvailabilityInput = {
@@ -591,6 +659,8 @@ export type AvailabilityEntryUncheckedUpdateManyWithoutAvailabilityInput = {
   courtId?: Prisma.StringFieldUpdateOperationsInput | string
   shiftType?: Prisma.EnumShiftTypeFieldUpdateOperationsInput | $Enums.ShiftType
   isAvailable?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
 }
 
 
@@ -602,6 +672,8 @@ export type AvailabilityEntrySelect<ExtArgs extends runtime.Types.Extensions.Int
   courtId?: boolean
   shiftType?: boolean
   isAvailable?: boolean
+  createdAt?: boolean
+  updatedAt?: boolean
   availability?: boolean | Prisma.AvailabilityDefaultArgs<ExtArgs>
   court?: boolean | Prisma.CourtDefaultArgs<ExtArgs>
 }, ExtArgs["result"]["availabilityEntry"]>
@@ -613,6 +685,8 @@ export type AvailabilityEntrySelectCreateManyAndReturn<ExtArgs extends runtime.T
   courtId?: boolean
   shiftType?: boolean
   isAvailable?: boolean
+  createdAt?: boolean
+  updatedAt?: boolean
   availability?: boolean | Prisma.AvailabilityDefaultArgs<ExtArgs>
   court?: boolean | Prisma.CourtDefaultArgs<ExtArgs>
 }, ExtArgs["result"]["availabilityEntry"]>
@@ -624,6 +698,8 @@ export type AvailabilityEntrySelectUpdateManyAndReturn<ExtArgs extends runtime.T
   courtId?: boolean
   shiftType?: boolean
   isAvailable?: boolean
+  createdAt?: boolean
+  updatedAt?: boolean
   availability?: boolean | Prisma.AvailabilityDefaultArgs<ExtArgs>
   court?: boolean | Prisma.CourtDefaultArgs<ExtArgs>
 }, ExtArgs["result"]["availabilityEntry"]>
@@ -635,9 +711,11 @@ export type AvailabilityEntrySelectScalar = {
   courtId?: boolean
   shiftType?: boolean
   isAvailable?: boolean
+  createdAt?: boolean
+  updatedAt?: boolean
 }
 
-export type AvailabilityEntryOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"id" | "availabilityId" | "date" | "courtId" | "shiftType" | "isAvailable", ExtArgs["result"]["availabilityEntry"]>
+export type AvailabilityEntryOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"id" | "availabilityId" | "date" | "courtId" | "shiftType" | "isAvailable" | "createdAt" | "updatedAt", ExtArgs["result"]["availabilityEntry"]>
 export type AvailabilityEntryInclude<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
   availability?: boolean | Prisma.AvailabilityDefaultArgs<ExtArgs>
   court?: boolean | Prisma.CourtDefaultArgs<ExtArgs>
@@ -664,6 +742,8 @@ export type $AvailabilityEntryPayload<ExtArgs extends runtime.Types.Extensions.I
     courtId: string
     shiftType: $Enums.ShiftType
     isAvailable: boolean
+    createdAt: Date
+    updatedAt: Date
   }, ExtArgs["result"]["availabilityEntry"]>
   composites: {}
 }
@@ -1095,6 +1175,8 @@ export interface AvailabilityEntryFieldRefs {
   readonly courtId: Prisma.FieldRef<"AvailabilityEntry", 'String'>
   readonly shiftType: Prisma.FieldRef<"AvailabilityEntry", 'ShiftType'>
   readonly isAvailable: Prisma.FieldRef<"AvailabilityEntry", 'Boolean'>
+  readonly createdAt: Prisma.FieldRef<"AvailabilityEntry", 'DateTime'>
+  readonly updatedAt: Prisma.FieldRef<"AvailabilityEntry", 'DateTime'>
 }
     
 

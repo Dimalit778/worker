@@ -1,9 +1,9 @@
 import { requireSession } from '@/lib/auth-helpers'
-import { Role } from '@/generated/prisma/client'
+import { SystemRole } from '@/generated/prisma/client'
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 
 export default async function AdminDashboardPage() {
-  await requireSession(Role.ADMIN)
+  await requireSession(SystemRole.ADMIN)
 
   return (
     <div className="space-y-6">

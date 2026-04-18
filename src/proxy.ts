@@ -1,11 +1,11 @@
 import { withAuth } from 'next-auth/middleware';
 import { NextResponse } from 'next/server';
-import type { Role } from '@/generated/prisma/client';
-import { resolveRedirect } from '@/lib/middleware-logic';
+import type { SystemRole } from '@/generated/prisma/client';
+import { resolveRedirect } from '@/lib/middleware';
 
 export default withAuth(
   function middleware(req) {
-    const role = (req.nextauth.token?.role ?? null) as Role | null;
+    const role = (req.nextauth.token?.systemRole ?? null) as SystemRole | null;
     const redirect = resolveRedirect(req.nextUrl.pathname, role);
 
     if (redirect) {

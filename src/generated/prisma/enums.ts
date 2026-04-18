@@ -9,13 +9,23 @@
 * 🟢 You can import this file directly.
 */
 
-export const Role = {
-  GUARD: 'GUARD',
+export const SystemRole = {
+  EMPLOYEE: 'EMPLOYEE',
   MANAGER: 'MANAGER',
   ADMIN: 'ADMIN'
 } as const
 
-export type Role = (typeof Role)[keyof typeof Role]
+export type SystemRole = (typeof SystemRole)[keyof typeof SystemRole]
+
+
+export const Position = {
+  GUARD: 'GUARD',
+  BAKAR: 'BAKAR',
+  SHIFT_MANAGER: 'SHIFT_MANAGER',
+  FACILITY_OFFICER: 'FACILITY_OFFICER'
+} as const
+
+export type Position = (typeof Position)[keyof typeof Position]
 
 
 export const ShiftType = {
@@ -29,9 +39,9 @@ export type ShiftType = (typeof ShiftType)[keyof typeof ShiftType]
 
 export const PeriodStatus = {
   DRAFT: 'DRAFT',
-  OPEN: 'OPEN',
-  CLOSED: 'CLOSED',
-  PUBLISHED: 'PUBLISHED'
+  OPEN_FOR_SUBMISSION: 'OPEN_FOR_SUBMISSION',
+  LOCKED: 'LOCKED',
+  ARCHIVED: 'ARCHIVED'
 } as const
 
 export type PeriodStatus = (typeof PeriodStatus)[keyof typeof PeriodStatus]
@@ -39,6 +49,7 @@ export type PeriodStatus = (typeof PeriodStatus)[keyof typeof PeriodStatus]
 
 export const ScheduleStatus = {
   DRAFT: 'DRAFT',
+  FINALIZED: 'FINALIZED',
   PUBLISHED: 'PUBLISHED'
 } as const
 

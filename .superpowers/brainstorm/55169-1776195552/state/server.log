@@ -1,0 +1,6 @@
+{"type":"server-started","port":61515,"host":"127.0.0.1","url_host":"localhost","url":"http://localhost:61515","screen_dir":"/Users/dimalitvinov/Mac/Dev/Projects/worker/.superpowers/brainstorm/55169-1776195552/content","state_dir":"/Users/dimalitvinov/Mac/Dev/Projects/worker/.superpowers/brainstorm/55169-1776195552/state"}
+{"type":"screen-added","file":"/Users/dimalitvinov/Mac/Dev/Projects/worker/.superpowers/brainstorm/55169-1776195552/content/layout-question.html"}
+{"type":"screen-added","file":"/Users/dimalitvinov/Mac/Dev/Projects/worker/.superpowers/brainstorm/55169-1776195552/content/layout-v2.html"}
+{"type":"screen-added","file":"/Users/dimalitvinov/Mac/Dev/Projects/worker/.superpowers/brainstorm/55169-1776195552/content/layout-v3.html"}
+{"type":"screen-added","file":"/Users/dimalitvinov/Mac/Dev/Projects/worker/.superpowers/brainstorm/55169-1776195552/content/waiting-1.html"}
+{"type":"server-stopped","reason":"idle timeout"}

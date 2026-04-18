@@ -45,6 +45,8 @@ export type ShiftCapacityRuleMinAggregateOutputType = {
   dayOfWeek: number | null
   minStaff: number | null
   maxStaff: number | null
+  createdAt: Date | null
+  updatedAt: Date | null
 }
 
 export type ShiftCapacityRuleMaxAggregateOutputType = {
@@ -54,6 +56,8 @@ export type ShiftCapacityRuleMaxAggregateOutputType = {
   dayOfWeek: number | null
   minStaff: number | null
   maxStaff: number | null
+  createdAt: Date | null
+  updatedAt: Date | null
 }
 
 export type ShiftCapacityRuleCountAggregateOutputType = {
@@ -63,6 +67,8 @@ export type ShiftCapacityRuleCountAggregateOutputType = {
   dayOfWeek: number
   minStaff: number
   maxStaff: number
+  createdAt: number
+  updatedAt: number
   _all: number
 }
 
@@ -86,6 +92,8 @@ export type ShiftCapacityRuleMinAggregateInputType = {
   dayOfWeek?: true
   minStaff?: true
   maxStaff?: true
+  createdAt?: true
+  updatedAt?: true
 }
 
 export type ShiftCapacityRuleMaxAggregateInputType = {
@@ -95,6 +103,8 @@ export type ShiftCapacityRuleMaxAggregateInputType = {
   dayOfWeek?: true
   minStaff?: true
   maxStaff?: true
+  createdAt?: true
+  updatedAt?: true
 }
 
 export type ShiftCapacityRuleCountAggregateInputType = {
@@ -104,6 +114,8 @@ export type ShiftCapacityRuleCountAggregateInputType = {
   dayOfWeek?: true
   minStaff?: true
   maxStaff?: true
+  createdAt?: true
+  updatedAt?: true
   _all?: true
 }
 
@@ -200,6 +212,8 @@ export type ShiftCapacityRuleGroupByOutputType = {
   dayOfWeek: number | null
   minStaff: number
   maxStaff: number
+  createdAt: Date
+  updatedAt: Date
   _count: ShiftCapacityRuleCountAggregateOutputType | null
   _avg: ShiftCapacityRuleAvgAggregateOutputType | null
   _sum: ShiftCapacityRuleSumAggregateOutputType | null
@@ -232,6 +246,8 @@ export type ShiftCapacityRuleWhereInput = {
   dayOfWeek?: Prisma.IntNullableFilter<"ShiftCapacityRule"> | number | null
   minStaff?: Prisma.IntFilter<"ShiftCapacityRule"> | number
   maxStaff?: Prisma.IntFilter<"ShiftCapacityRule"> | number
+  createdAt?: Prisma.DateTimeFilter<"ShiftCapacityRule"> | Date | string
+  updatedAt?: Prisma.DateTimeFilter<"ShiftCapacityRule"> | Date | string
   court?: Prisma.XOR<Prisma.CourtScalarRelationFilter, Prisma.CourtWhereInput>
 }
 
@@ -242,6 +258,8 @@ export type ShiftCapacityRuleOrderByWithRelationInput = {
   dayOfWeek?: Prisma.SortOrderInput | Prisma.SortOrder
   minStaff?: Prisma.SortOrder
   maxStaff?: Prisma.SortOrder
+  createdAt?: Prisma.SortOrder
+  updatedAt?: Prisma.SortOrder
   court?: Prisma.CourtOrderByWithRelationInput
 }
 
@@ -256,6 +274,8 @@ export type ShiftCapacityRuleWhereUniqueInput = Prisma.AtLeast<{
   dayOfWeek?: Prisma.IntNullableFilter<"ShiftCapacityRule"> | number | null
   minStaff?: Prisma.IntFilter<"ShiftCapacityRule"> | number
   maxStaff?: Prisma.IntFilter<"ShiftCapacityRule"> | number
+  createdAt?: Prisma.DateTimeFilter<"ShiftCapacityRule"> | Date | string
+  updatedAt?: Prisma.DateTimeFilter<"ShiftCapacityRule"> | Date | string
   court?: Prisma.XOR<Prisma.CourtScalarRelationFilter, Prisma.CourtWhereInput>
 }, "id" | "courtId_shiftType_dayOfWeek">
 
@@ -266,6 +286,8 @@ export type ShiftCapacityRuleOrderByWithAggregationInput = {
   dayOfWeek?: Prisma.SortOrderInput | Prisma.SortOrder
   minStaff?: Prisma.SortOrder
   maxStaff?: Prisma.SortOrder
+  createdAt?: Prisma.SortOrder
+  updatedAt?: Prisma.SortOrder
   _count?: Prisma.ShiftCapacityRuleCountOrderByAggregateInput
   _avg?: Prisma.ShiftCapacityRuleAvgOrderByAggregateInput
   _max?: Prisma.ShiftCapacityRuleMaxOrderByAggregateInput
@@ -283,6 +305,8 @@ export type ShiftCapacityRuleScalarWhereWithAggregatesInput = {
   dayOfWeek?: Prisma.IntNullableWithAggregatesFilter<"ShiftCapacityRule"> | number | null
   minStaff?: Prisma.IntWithAggregatesFilter<"ShiftCapacityRule"> | number
   maxStaff?: Prisma.IntWithAggregatesFilter<"ShiftCapacityRule"> | number
+  createdAt?: Prisma.DateTimeWithAggregatesFilter<"ShiftCapacityRule"> | Date | string
+  updatedAt?: Prisma.DateTimeWithAggregatesFilter<"ShiftCapacityRule"> | Date | string
 }
 
 export type ShiftCapacityRuleCreateInput = {
@@ -291,6 +315,8 @@ export type ShiftCapacityRuleCreateInput = {
   dayOfWeek?: number | null
   minStaff: number
   maxStaff: number
+  createdAt?: Date | string
+  updatedAt?: Date | string
   court: Prisma.CourtCreateNestedOneWithoutCapacityRulesInput
 }
 
@@ -301,6 +327,8 @@ export type ShiftCapacityRuleUncheckedCreateInput = {
   dayOfWeek?: number | null
   minStaff: number
   maxStaff: number
+  createdAt?: Date | string
+  updatedAt?: Date | string
 }
 
 export type ShiftCapacityRuleUpdateInput = {
@@ -309,6 +337,8 @@ export type ShiftCapacityRuleUpdateInput = {
   dayOfWeek?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   minStaff?: Prisma.IntFieldUpdateOperationsInput | number
   maxStaff?: Prisma.IntFieldUpdateOperationsInput | number
+  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   court?: Prisma.CourtUpdateOneRequiredWithoutCapacityRulesNestedInput
 }
 
@@ -319,6 +349,8 @@ export type ShiftCapacityRuleUncheckedUpdateInput = {
   dayOfWeek?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   minStaff?: Prisma.IntFieldUpdateOperationsInput | number
   maxStaff?: Prisma.IntFieldUpdateOperationsInput | number
+  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
 }
 
 export type ShiftCapacityRuleCreateManyInput = {
@@ -328,6 +360,8 @@ export type ShiftCapacityRuleCreateManyInput = {
   dayOfWeek?: number | null
   minStaff: number
   maxStaff: number
+  createdAt?: Date | string
+  updatedAt?: Date | string
 }
 
 export type ShiftCapacityRuleUpdateManyMutationInput = {
@@ -336,6 +370,8 @@ export type ShiftCapacityRuleUpdateManyMutationInput = {
   dayOfWeek?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   minStaff?: Prisma.IntFieldUpdateOperationsInput | number
   maxStaff?: Prisma.IntFieldUpdateOperationsInput | number
+  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
 }
 
 export type ShiftCapacityRuleUncheckedUpdateManyInput = {
@@ -345,6 +381,8 @@ export type ShiftCapacityRuleUncheckedUpdateManyInput = {
   dayOfWeek?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   minStaff?: Prisma.IntFieldUpdateOperationsInput | number
   maxStaff?: Prisma.IntFieldUpdateOperationsInput | number
+  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
 }
 
 export type ShiftCapacityRuleListRelationFilter = {
@@ -370,6 +408,8 @@ export type ShiftCapacityRuleCountOrderByAggregateInput = {
   dayOfWeek?: Prisma.SortOrder
   minStaff?: Prisma.SortOrder
   maxStaff?: Prisma.SortOrder
+  createdAt?: Prisma.SortOrder
+  updatedAt?: Prisma.SortOrder
 }
 
 export type ShiftCapacityRuleAvgOrderByAggregateInput = {
@@ -385,6 +425,8 @@ export type ShiftCapacityRuleMaxOrderByAggregateInput = {
   dayOfWeek?: Prisma.SortOrder
   minStaff?: Prisma.SortOrder
   maxStaff?: Prisma.SortOrder
+  createdAt?: Prisma.SortOrder
+  updatedAt?: Prisma.SortOrder
 }
 
 export type ShiftCapacityRuleMinOrderByAggregateInput = {
@@ -394,6 +436,8 @@ export type ShiftCapacityRuleMinOrderByAggregateInput = {
   dayOfWeek?: Prisma.SortOrder
   minStaff?: Prisma.SortOrder
   maxStaff?: Prisma.SortOrder
+  createdAt?: Prisma.SortOrder
+  updatedAt?: Prisma.SortOrder
 }
 
 export type ShiftCapacityRuleSumOrderByAggregateInput = {
@@ -462,6 +506,8 @@ export type ShiftCapacityRuleCreateWithoutCourtInput = {
   dayOfWeek?: number | null
   minStaff: number
   maxStaff: number
+  createdAt?: Date | string
+  updatedAt?: Date | string
 }
 
 export type ShiftCapacityRuleUncheckedCreateWithoutCourtInput = {
@@ -470,6 +516,8 @@ export type ShiftCapacityRuleUncheckedCreateWithoutCourtInput = {
   dayOfWeek?: number | null
   minStaff: number
   maxStaff: number
+  createdAt?: Date | string
+  updatedAt?: Date | string
 }
 
 export type ShiftCapacityRuleCreateOrConnectWithoutCourtInput = {
@@ -508,6 +556,8 @@ export type ShiftCapacityRuleScalarWhereInput = {
   dayOfWeek?: Prisma.IntNullableFilter<"ShiftCapacityRule"> | number | null
   minStaff?: Prisma.IntFilter<"ShiftCapacityRule"> | number
   maxStaff?: Prisma.IntFilter<"ShiftCapacityRule"> | number
+  createdAt?: Prisma.DateTimeFilter<"ShiftCapacityRule"> | Date | string
+  updatedAt?: Prisma.DateTimeFilter<"ShiftCapacityRule"> | Date | string
 }
 
 export type ShiftCapacityRuleCreateManyCourtInput = {
@@ -516,6 +566,8 @@ export type ShiftCapacityRuleCreateManyCourtInput = {
   dayOfWeek?: number | null
   minStaff: number
   maxStaff: number
+  createdAt?: Date | string
+  updatedAt?: Date | string
 }
 
 export type ShiftCapacityRuleUpdateWithoutCourtInput = {
@@ -524,6 +576,8 @@ export type ShiftCapacityRuleUpdateWithoutCourtInput = {
   dayOfWeek?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   minStaff?: Prisma.IntFieldUpdateOperationsInput | number
   maxStaff?: Prisma.IntFieldUpdateOperationsInput | number
+  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
 }
 
 export type ShiftCapacityRuleUncheckedUpdateWithoutCourtInput = {
@@ -532,6 +586,8 @@ export type ShiftCapacityRuleUncheckedUpdateWithoutCourtInput = {
   dayOfWeek?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   minStaff?: Prisma.IntFieldUpdateOperationsInput | number
   maxStaff?: Prisma.IntFieldUpdateOperationsInput | number
+  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
 }
 
 export type ShiftCapacityRuleUncheckedUpdateManyWithoutCourtInput = {
@@ -540,6 +596,8 @@ export type ShiftCapacityRuleUncheckedUpdateManyWithoutCourtInput = {
   dayOfWeek?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   minStaff?: Prisma.IntFieldUpdateOperationsInput | number
   maxStaff?: Prisma.IntFieldUpdateOperationsInput | number
+  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
 }
 
 
@@ -551,6 +609,8 @@ export type ShiftCapacityRuleSelect<ExtArgs extends runtime.Types.Extensions.Int
   dayOfWeek?: boolean
   minStaff?: boolean
   maxStaff?: boolean
+  createdAt?: boolean
+  updatedAt?: boolean
   court?: boolean | Prisma.CourtDefaultArgs<ExtArgs>
 }, ExtArgs["result"]["shiftCapacityRule"]>
 
@@ -561,6 +621,8 @@ export type ShiftCapacityRuleSelectCreateManyAndReturn<ExtArgs extends runtime.T
   dayOfWeek?: boolean
   minStaff?: boolean
   maxStaff?: boolean
+  createdAt?: boolean
+  updatedAt?: boolean
   court?: boolean | Prisma.CourtDefaultArgs<ExtArgs>
 }, ExtArgs["result"]["shiftCapacityRule"]>
 
@@ -571,6 +633,8 @@ export type ShiftCapacityRuleSelectUpdateManyAndReturn<ExtArgs extends runtime.T
   dayOfWeek?: boolean
   minStaff?: boolean
   maxStaff?: boolean
+  createdAt?: boolean
+  updatedAt?: boolean
   court?: boolean | Prisma.CourtDefaultArgs<ExtArgs>
 }, ExtArgs["result"]["shiftCapacityRule"]>
 
@@ -581,9 +645,11 @@ export type ShiftCapacityRuleSelectScalar = {
   dayOfWeek?: boolean
   minStaff?: boolean
   maxStaff?: boolean
+  createdAt?: boolean
+  updatedAt?: boolean
 }
 
-export type ShiftCapacityRuleOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"id" | "courtId" | "shiftType" | "dayOfWeek" | "minStaff" | "maxStaff", ExtArgs["result"]["shiftCapacityRule"]>
+export type ShiftCapacityRuleOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"id" | "courtId" | "shiftType" | "dayOfWeek" | "minStaff" | "maxStaff" | "createdAt" | "updatedAt", ExtArgs["result"]["shiftCapacityRule"]>
 export type ShiftCapacityRuleInclude<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
   court?: boolean | Prisma.CourtDefaultArgs<ExtArgs>
 }
@@ -606,6 +672,8 @@ export type $ShiftCapacityRulePayload<ExtArgs extends runtime.Types.Extensions.I
     dayOfWeek: number | null
     minStaff: number
     maxStaff: number
+    createdAt: Date
+    updatedAt: Date
   }, ExtArgs["result"]["shiftCapacityRule"]>
   composites: {}
 }
@@ -1036,6 +1104,8 @@ export interface ShiftCapacityRuleFieldRefs {
   readonly dayOfWeek: Prisma.FieldRef<"ShiftCapacityRule", 'Int'>
   readonly minStaff: Prisma.FieldRef<"ShiftCapacityRule", 'Int'>
   readonly maxStaff: Prisma.FieldRef<"ShiftCapacityRule", 'Int'>
+  readonly createdAt: Prisma.FieldRef<"ShiftCapacityRule", 'DateTime'>
+  readonly updatedAt: Prisma.FieldRef<"ShiftCapacityRule", 'DateTime'>
 }
     
 

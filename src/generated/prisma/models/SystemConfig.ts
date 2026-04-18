@@ -26,30 +26,42 @@ export type AggregateSystemConfig = {
 
 export type SystemConfigMinAggregateOutputType = {
   key: string | null
+  createdAt: Date | null
+  updatedAt: Date | null
 }
 
 export type SystemConfigMaxAggregateOutputType = {
   key: string | null
+  createdAt: Date | null
+  updatedAt: Date | null
 }
 
 export type SystemConfigCountAggregateOutputType = {
   key: number
   value: number
+  createdAt: number
+  updatedAt: number
   _all: number
 }
 
 
 export type SystemConfigMinAggregateInputType = {
   key?: true
+  createdAt?: true
+  updatedAt?: true
 }
 
 export type SystemConfigMaxAggregateInputType = {
   key?: true
+  createdAt?: true
+  updatedAt?: true
 }
 
 export type SystemConfigCountAggregateInputType = {
   key?: true
   value?: true
+  createdAt?: true
+  updatedAt?: true
   _all?: true
 }
 
@@ -128,6 +140,8 @@ export type SystemConfigGroupByArgs<ExtArgs extends runtime.Types.Extensions.Int
 export type SystemConfigGroupByOutputType = {
   key: string
   value: runtime.JsonValue
+  createdAt: Date
+  updatedAt: Date
   _count: SystemConfigCountAggregateOutputType | null
   _min: SystemConfigMinAggregateOutputType | null
   _max: SystemConfigMaxAggregateOutputType | null
@@ -154,11 +168,15 @@ export type SystemConfigWhereInput = {
   NOT?: Prisma.SystemConfigWhereInput | Prisma.SystemConfigWhereInput[]
   key?: Prisma.StringFilter<"SystemConfig"> | string
   value?: Prisma.JsonFilter<"SystemConfig">
+  createdAt?: Prisma.DateTimeFilter<"SystemConfig"> | Date | string
+  updatedAt?: Prisma.DateTimeFilter<"SystemConfig"> | Date | string
 }
 
 export type SystemConfigOrderByWithRelationInput = {
   key?: Prisma.SortOrder
   value?: Prisma.SortOrder
+  createdAt?: Prisma.SortOrder
+  updatedAt?: Prisma.SortOrder
 }
 
 export type SystemConfigWhereUniqueInput = Prisma.AtLeast<{
@@ -167,11 +185,15 @@ export type SystemConfigWhereUniqueInput = Prisma.AtLeast<{
   OR?: Prisma.SystemConfigWhereInput[]
   NOT?: Prisma.SystemConfigWhereInput | Prisma.SystemConfigWhereInput[]
   value?: Prisma.JsonFilter<"SystemConfig">
+  createdAt?: Prisma.DateTimeFilter<"SystemConfig"> | Date | string
+  updatedAt?: Prisma.DateTimeFilter<"SystemConfig"> | Date | string
 }, "key">
 
 export type SystemConfigOrderByWithAggregationInput = {
   key?: Prisma.SortOrder
   value?: Prisma.SortOrder
+  createdAt?: Prisma.SortOrder
+  updatedAt?: Prisma.SortOrder
   _count?: Prisma.SystemConfigCountOrderByAggregateInput
   _max?: Prisma.SystemConfigMaxOrderByAggregateInput
   _min?: Prisma.SystemConfigMinOrderByAggregateInput
@@ -183,54 +205,76 @@ export type SystemConfigScalarWhereWithAggregatesInput = {
   NOT?: Prisma.SystemConfigScalarWhereWithAggregatesInput | Prisma.SystemConfigScalarWhereWithAggregatesInput[]
   key?: Prisma.StringWithAggregatesFilter<"SystemConfig"> | string
   value?: Prisma.JsonWithAggregatesFilter<"SystemConfig">
+  createdAt?: Prisma.DateTimeWithAggregatesFilter<"SystemConfig"> | Date | string
+  updatedAt?: Prisma.DateTimeWithAggregatesFilter<"SystemConfig"> | Date | string
 }
 
 export type SystemConfigCreateInput = {
   key: string
   value: Prisma.JsonNullValueInput | runtime.InputJsonValue
+  createdAt?: Date | string
+  updatedAt?: Date | string
 }
 
 export type SystemConfigUncheckedCreateInput = {
   key: string
   value: Prisma.JsonNullValueInput | runtime.InputJsonValue
+  createdAt?: Date | string
+  updatedAt?: Date | string
 }
 
 export type SystemConfigUpdateInput = {
   key?: Prisma.StringFieldUpdateOperationsInput | string
   value?: Prisma.JsonNullValueInput | runtime.InputJsonValue
+  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
 }
 
 export type SystemConfigUncheckedUpdateInput = {
   key?: Prisma.StringFieldUpdateOperationsInput | string
   value?: Prisma.JsonNullValueInput | runtime.InputJsonValue
+  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
 }
 
 export type SystemConfigCreateManyInput = {
   key: string
   value: Prisma.JsonNullValueInput | runtime.InputJsonValue
+  createdAt?: Date | string
+  updatedAt?: Date | string
 }
 
 export type SystemConfigUpdateManyMutationInput = {
   key?: Prisma.StringFieldUpdateOperationsInput | string
   value?: Prisma.JsonNullValueInput | runtime.InputJsonValue
+  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
 }
 
 export type SystemConfigUncheckedUpdateManyInput = {
   key?: Prisma.StringFieldUpdateOperationsInput | string
   value?: Prisma.JsonNullValueInput | runtime.InputJsonValue
+  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
 }
 
 export type SystemConfigCountOrderByAggregateInput = {
   key?: Prisma.SortOrder
   value?: Prisma.SortOrder
+  createdAt?: Prisma.SortOrder
+  updatedAt?: Prisma.SortOrder
 }
 
 export type SystemConfigMaxOrderByAggregateInput = {
   key?: Prisma.SortOrder
+  createdAt?: Prisma.SortOrder
+  updatedAt?: Prisma.SortOrder
 }
 
 export type SystemConfigMinOrderByAggregateInput = {
   key?: Prisma.SortOrder
+  createdAt?: Prisma.SortOrder
+  updatedAt?: Prisma.SortOrder
 }
 
 
@@ -238,24 +282,32 @@ export type SystemConfigMinOrderByAggregateInput = {
 export type SystemConfigSelect<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetSelect<{
   key?: boolean
   value?: boolean
+  createdAt?: boolean
+  updatedAt?: boolean
 }, ExtArgs["result"]["systemConfig"]>
 
 export type SystemConfigSelectCreateManyAndReturn<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetSelect<{
   key?: boolean
   value?: boolean
+  createdAt?: boolean
+  updatedAt?: boolean
 }, ExtArgs["result"]["systemConfig"]>
 
 export type SystemConfigSelectUpdateManyAndReturn<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetSelect<{
   key?: boolean
   value?: boolean
+  createdAt?: boolean
+  updatedAt?: boolean
 }, ExtArgs["result"]["systemConfig"]>
 
 export type SystemConfigSelectScalar = {
   key?: boolean
   value?: boolean
+  createdAt?: boolean
+  updatedAt?: boolean
 }
 
-export type SystemConfigOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"key" | "value", ExtArgs["result"]["systemConfig"]>
+export type SystemConfigOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"key" | "value" | "createdAt" | "updatedAt", ExtArgs["result"]["systemConfig"]>
 
 export type $SystemConfigPayload<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
   name: "SystemConfig"
@@ -263,6 +315,8 @@ export type $SystemConfigPayload<ExtArgs extends runtime.Types.Extensions.Intern
   scalars: runtime.Types.Extensions.GetPayloadResult<{
     key: string
     value: runtime.JsonValue
+    createdAt: Date
+    updatedAt: Date
   }, ExtArgs["result"]["systemConfig"]>
   composites: {}
 }
@@ -688,6 +742,8 @@ export interface Prisma__SystemConfigClient<T, Null = never, ExtArgs extends run
 export interface SystemConfigFieldRefs {
   readonly key: Prisma.FieldRef<"SystemConfig", 'String'>
   readonly value: Prisma.FieldRef<"SystemConfig", 'Json'>
+  readonly createdAt: Prisma.FieldRef<"SystemConfig", 'DateTime'>
+  readonly updatedAt: Prisma.FieldRef<"SystemConfig", 'DateTime'>
 }
     
 

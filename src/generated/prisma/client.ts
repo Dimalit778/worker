@@ -62,10 +62,20 @@ export type VerificationToken = Prisma.VerificationTokenModel
  */
 export type User = Prisma.UserModel
 /**
+ * Model Employee
+ * 
+ */
+export type Employee = Prisma.EmployeeModel
+/**
  * Model Court
  * 
  */
 export type Court = Prisma.CourtModel
+/**
+ * Model District
+ * 
+ */
+export type District = Prisma.DistrictModel
 /**
  * Model CourtEligibility
  * 

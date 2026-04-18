@@ -27,7 +27,7 @@ export type AggregateAvailability = {
 export type AvailabilityMinAggregateOutputType = {
   id: string | null
   periodId: string | null
-  userId: string | null
+  employeeId: string | null
   isSubmitted: boolean | null
   submittedAt: Date | null
   createdAt: Date | null
@@ -37,7 +37,7 @@ export type AvailabilityMinAggregateOutputType = {
 export type AvailabilityMaxAggregateOutputType = {
   id: string | null
   periodId: string | null
-  userId: string | null
+  employeeId: string | null
   isSubmitted: boolean | null
   submittedAt: Date | null
   createdAt: Date | null
@@ -47,7 +47,7 @@ export type AvailabilityMaxAggregateOutputType = {
 export type AvailabilityCountAggregateOutputType = {
   id: number
   periodId: number
-  userId: number
+  employeeId: number
   isSubmitted: number
   submittedAt: number
   createdAt: number
@@ -59,7 +59,7 @@ export type AvailabilityCountAggregateOutputType = {
 export type AvailabilityMinAggregateInputType = {
   id?: true
   periodId?: true
-  userId?: true
+  employeeId?: true
   isSubmitted?: true
   submittedAt?: true
   createdAt?: true
@@ -69,7 +69,7 @@ export type AvailabilityMinAggregateInputType = {
 export type AvailabilityMaxAggregateInputType = {
   id?: true
   periodId?: true
-  userId?: true
+  employeeId?: true
   isSubmitted?: true
   submittedAt?: true
   createdAt?: true
@@ -79,7 +79,7 @@ export type AvailabilityMaxAggregateInputType = {
 export type AvailabilityCountAggregateInputType = {
   id?: true
   periodId?: true
-  userId?: true
+  employeeId?: true
   isSubmitted?: true
   submittedAt?: true
   createdAt?: true
@@ -162,7 +162,7 @@ export type AvailabilityGroupByArgs<ExtArgs extends runtime.Types.Extensions.Int
 export type AvailabilityGroupByOutputType = {
   id: string
   periodId: string
-  userId: string
+  employeeId: string
   isSubmitted: boolean
   submittedAt: Date | null
   createdAt: Date
@@ -193,50 +193,50 @@ export type AvailabilityWhereInput = {
   NOT?: Prisma.AvailabilityWhereInput | Prisma.AvailabilityWhereInput[]
   id?: Prisma.StringFilter<"Availability"> | string
   periodId?: Prisma.StringFilter<"Availability"> | string
-  userId?: Prisma.StringFilter<"Availability"> | string
+  employeeId?: Prisma.StringFilter<"Availability"> | string
   isSubmitted?: Prisma.BoolFilter<"Availability"> | boolean
   submittedAt?: Prisma.DateTimeNullableFilter<"Availability"> | Date | string | null
   createdAt?: Prisma.DateTimeFilter<"Availability"> | Date | string
   updatedAt?: Prisma.DateTimeFilter<"Availability"> | Date | string
   period?: Prisma.XOR<Prisma.SchedulingPeriodScalarRelationFilter, Prisma.SchedulingPeriodWhereInput>
-  user?: Prisma.XOR<Prisma.UserScalarRelationFilter, Prisma.UserWhereInput>
+  employee?: Prisma.XOR<Prisma.EmployeeScalarRelationFilter, Prisma.EmployeeWhereInput>
   entries?: Prisma.AvailabilityEntryListRelationFilter
 }
 
 export type AvailabilityOrderByWithRelationInput = {
   id?: Prisma.SortOrder
   periodId?: Prisma.SortOrder
-  userId?: Prisma.SortOrder
+  employeeId?: Prisma.SortOrder
   isSubmitted?: Prisma.SortOrder
   submittedAt?: Prisma.SortOrderInput | Prisma.SortOrder
   createdAt?: Prisma.SortOrder
   updatedAt?: Prisma.SortOrder
   period?: Prisma.SchedulingPeriodOrderByWithRelationInput
-  user?: Prisma.UserOrderByWithRelationInput
+  employee?: Prisma.EmployeeOrderByWithRelationInput
   entries?: Prisma.AvailabilityEntryOrderByRelationAggregateInput
 }
 
 export type AvailabilityWhereUniqueInput = Prisma.AtLeast<{
   id?: string
-  periodId_userId?: Prisma.AvailabilityPeriodIdUserIdCompoundUniqueInput
+  periodId_employeeId?: Prisma.AvailabilityPeriodIdEmployeeIdCompoundUniqueInput
   AND?: Prisma.AvailabilityWhereInput | Prisma.AvailabilityWhereInput[]
   OR?: Prisma.AvailabilityWhereInput[]
   NOT?: Prisma.AvailabilityWhereInput | Prisma.AvailabilityWhereInput[]
   periodId?: Prisma.StringFilter<"Availability"> | string
-  userId?: Prisma.StringFilter<"Availability"> | string
+  employeeId?: Prisma.StringFilter<"Availability"> | string
   isSubmitted?: Prisma.BoolFilter<"Availability"> | boolean
   submittedAt?: Prisma.DateTimeNullableFilter<"Availability"> | Date | string | null
   createdAt?: Prisma.DateTimeFilter<"Availability"> | Date | string
   updatedAt?: Prisma.DateTimeFilter<"Availability"> | Date | string
   period?: Prisma.XOR<Prisma.SchedulingPeriodScalarRelationFilter, Prisma.SchedulingPeriodWhereInput>
-  user?: Prisma.XOR<Prisma.UserScalarRelationFilter, Prisma.UserWhereInput>
+  employee?: Prisma.XOR<Prisma.EmployeeScalarRelationFilter, Prisma.EmployeeWhereInput>
   entries?: Prisma.AvailabilityEntryListRelationFilter
-}, "id" | "periodId_userId">
+}, "id" | "periodId_employeeId">
 
 export type AvailabilityOrderByWithAggregationInput = {
   id?: Prisma.SortOrder
   periodId?: Prisma.SortOrder
-  userId?: Prisma.SortOrder
+  employeeId?: Prisma.SortOrder
   isSubmitted?: Prisma.SortOrder
   submittedAt?: Prisma.SortOrderInput | Prisma.SortOrder
   createdAt?: Prisma.SortOrder
@@ -252,7 +252,7 @@ export type AvailabilityScalarWhereWithAggregatesInput = {
   NOT?: Prisma.AvailabilityScalarWhereWithAggregatesInput | Prisma.AvailabilityScalarWhereWithAggregatesInput[]
   id?: Prisma.StringWithAggregatesFilter<"Availability"> | string
   periodId?: Prisma.StringWithAggregatesFilter<"Availability"> | string
-  userId?: Prisma.StringWithAggregatesFilter<"Availability"> | string
+  employeeId?: Prisma.StringWithAggregatesFilter<"Availability"> | string
   isSubmitted?: Prisma.BoolWithAggregatesFilter<"Availability"> | boolean
   submittedAt?: Prisma.DateTimeNullableWithAggregatesFilter<"Availability"> | Date | string | null
   createdAt?: Prisma.DateTimeWithAggregatesFilter<"Availability"> | Date | string
@@ -266,14 +266,14 @@ export type AvailabilityCreateInput = {
   createdAt?: Date | string
   updatedAt?: Date | string
   period: Prisma.SchedulingPeriodCreateNestedOneWithoutAvailabilityInput
-  user: Prisma.UserCreateNestedOneWithoutAvailabilityInput
+  employee: Prisma.EmployeeCreateNestedOneWithoutAvailabilityInput
   entries?: Prisma.AvailabilityEntryCreateNestedManyWithoutAvailabilityInput
 }
 
 export type AvailabilityUncheckedCreateInput = {
   id?: string
   periodId: string
-  userId: string
+  employeeId: string
   isSubmitted?: boolean
   submittedAt?: Date | string | null
   createdAt?: Date | string
@@ -288,14 +288,14 @@ export type AvailabilityUpdateInput = {
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   period?: Prisma.SchedulingPeriodUpdateOneRequiredWithoutAvailabilityNestedInput
-  user?: Prisma.UserUpdateOneRequiredWithoutAvailabilityNestedInput
+  employee?: Prisma.EmployeeUpdateOneRequiredWithoutAvailabilityNestedInput
   entries?: Prisma.AvailabilityEntryUpdateManyWithoutAvailabilityNestedInput
 }
 
 export type AvailabilityUncheckedUpdateInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
   periodId?: Prisma.StringFieldUpdateOperationsInput | string
-  userId?: Prisma.StringFieldUpdateOperationsInput | string
+  employeeId?: Prisma.StringFieldUpdateOperationsInput | string
   isSubmitted?: Prisma.BoolFieldUpdateOperationsInput | boolean
   submittedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
@@ -306,7 +306,7 @@ export type AvailabilityUncheckedUpdateInput = {
 export type AvailabilityCreateManyInput = {
   id?: string
   periodId: string
-  userId: string
+  employeeId: string
   isSubmitted?: boolean
   submittedAt?: Date | string | null
   createdAt?: Date | string
@@ -324,7 +324,7 @@ export type AvailabilityUpdateManyMutationInput = {
 export type AvailabilityUncheckedUpdateManyInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
   periodId?: Prisma.StringFieldUpdateOperationsInput | string
-  userId?: Prisma.StringFieldUpdateOperationsInput | string
+  employeeId?: Prisma.StringFieldUpdateOperationsInput | string
   isSubmitted?: Prisma.BoolFieldUpdateOperationsInput | boolean
   submittedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
@@ -341,15 +341,15 @@ export type AvailabilityOrderByRelationAggregateInput = {
   _count?: Prisma.SortOrder
 }
 
-export type AvailabilityPeriodIdUserIdCompoundUniqueInput = {
+export type AvailabilityPeriodIdEmployeeIdCompoundUniqueInput = {
   periodId: string
-  userId: string
+  employeeId: string
 }
 
 export type AvailabilityCountOrderByAggregateInput = {
   id?: Prisma.SortOrder
   periodId?: Prisma.SortOrder
-  userId?: Prisma.SortOrder
+  employeeId?: Prisma.SortOrder
   isSubmitted?: Prisma.SortOrder
   submittedAt?: Prisma.SortOrder
   createdAt?: Prisma.SortOrder
@@ -359,7 +359,7 @@ export type AvailabilityCountOrderByAggregateInput = {
 export type AvailabilityMaxOrderByAggregateInput = {
   id?: Prisma.SortOrder
   periodId?: Prisma.SortOrder
-  userId?: Prisma.SortOrder
+  employeeId?: Prisma.SortOrder
   isSubmitted?: Prisma.SortOrder
   submittedAt?: Prisma.SortOrder
   createdAt?: Prisma.SortOrder
@@ -369,7 +369,7 @@ export type AvailabilityMaxOrderByAggregateInput = {
 export type AvailabilityMinOrderByAggregateInput = {
   id?: Prisma.SortOrder
   periodId?: Prisma.SortOrder
-  userId?: Prisma.SortOrder
+  employeeId?: Prisma.SortOrder
   isSubmitted?: Prisma.SortOrder
   submittedAt?: Prisma.SortOrder
   createdAt?: Prisma.SortOrder
@@ -381,45 +381,45 @@ export type AvailabilityScalarRelationFilter = {
   isNot?: Prisma.AvailabilityWhereInput
 }
 
-export type AvailabilityCreateNestedManyWithoutUserInput = {
-  create?: Prisma.XOR<Prisma.AvailabilityCreateWithoutUserInput, Prisma.AvailabilityUncheckedCreateWithoutUserInput> | Prisma.AvailabilityCreateWithoutUserInput[] | Prisma.AvailabilityUncheckedCreateWithoutUserInput[]
-  connectOrCreate?: Prisma.AvailabilityCreateOrConnectWithoutUserInput | Prisma.AvailabilityCreateOrConnectWithoutUserInput[]
-  createMany?: Prisma.AvailabilityCreateManyUserInputEnvelope
+export type AvailabilityCreateNestedManyWithoutEmployeeInput = {
+  create?: Prisma.XOR<Prisma.AvailabilityCreateWithoutEmployeeInput, Prisma.AvailabilityUncheckedCreateWithoutEmployeeInput> | Prisma.AvailabilityCreateWithoutEmployeeInput[] | Prisma.AvailabilityUncheckedCreateWithoutEmployeeInput[]
+  connectOrCreate?: Prisma.AvailabilityCreateOrConnectWithoutEmployeeInput | Prisma.AvailabilityCreateOrConnectWithoutEmployeeInput[]
+  createMany?: Prisma.AvailabilityCreateManyEmployeeInputEnvelope
   connect?: Prisma.AvailabilityWhereUniqueInput | Prisma.AvailabilityWhereUniqueInput[]
 }
 
-export type AvailabilityUncheckedCreateNestedManyWithoutUserInput = {
-  create?: Prisma.XOR<Prisma.AvailabilityCreateWithoutUserInput, Prisma.AvailabilityUncheckedCreateWithoutUserInput> | Prisma.AvailabilityCreateWithoutUserInput[] | Prisma.AvailabilityUncheckedCreateWithoutUserInput[]
-  connectOrCreate?: Prisma.AvailabilityCreateOrConnectWithoutUserInput | Prisma.AvailabilityCreateOrConnectWithoutUserInput[]
-  createMany?: Prisma.AvailabilityCreateManyUserInputEnvelope
+export type AvailabilityUncheckedCreateNestedManyWithoutEmployeeInput = {
+  create?: Prisma.XOR<Prisma.AvailabilityCreateWithoutEmployeeInput, Prisma.AvailabilityUncheckedCreateWithoutEmployeeInput> | Prisma.AvailabilityCreateWithoutEmployeeInput[] | Prisma.AvailabilityUncheckedCreateWithoutEmployeeInput[]
+  connectOrCreate?: Prisma.AvailabilityCreateOrConnectWithoutEmployeeInput | Prisma.AvailabilityCreateOrConnectWithoutEmployeeInput[]
+  createMany?: Prisma.AvailabilityCreateManyEmployeeInputEnvelope
   connect?: Prisma.AvailabilityWhereUniqueInput | Prisma.AvailabilityWhereUniqueInput[]
 }
 
-export type AvailabilityUpdateManyWithoutUserNestedInput = {
-  create?: Prisma.XOR<Prisma.AvailabilityCreateWithoutUserInput, Prisma.AvailabilityUncheckedCreateWithoutUserInput> | Prisma.AvailabilityCreateWithoutUserInput[] | Prisma.AvailabilityUncheckedCreateWithoutUserInput[]
-  connectOrCreate?: Prisma.AvailabilityCreateOrConnectWithoutUserInput | Prisma.AvailabilityCreateOrConnectWithoutUserInput[]
-  upsert?: Prisma.AvailabilityUpsertWithWhereUniqueWithoutUserInput | Prisma.AvailabilityUpsertWithWhereUniqueWithoutUserInput[]
-  createMany?: Prisma.AvailabilityCreateManyUserInputEnvelope
+export type AvailabilityUpdateManyWithoutEmployeeNestedInput = {
+  create?: Prisma.XOR<Prisma.AvailabilityCreateWithoutEmployeeInput, Prisma.AvailabilityUncheckedCreateWithoutEmployeeInput> | Prisma.AvailabilityCreateWithoutEmployeeInput[] | Prisma.AvailabilityUncheckedCreateWithoutEmployeeInput[]
+  connectOrCreate?: Prisma.AvailabilityCreateOrConnectWithoutEmployeeInput | Prisma.AvailabilityCreateOrConnectWithoutEmployeeInput[]
+  upsert?: Prisma.AvailabilityUpsertWithWhereUniqueWithoutEmployeeInput | Prisma.AvailabilityUpsertWithWhereUniqueWithoutEmployeeInput[]
+  createMany?: Prisma.AvailabilityCreateManyEmployeeInputEnvelope
   set?: Prisma.AvailabilityWhereUniqueInput | Prisma.AvailabilityWhereUniqueInput[]
   disconnect?: Prisma.AvailabilityWhereUniqueInput | Prisma.AvailabilityWhereUniqueInput[]
   delete?: Prisma.AvailabilityWhereUniqueInput | Prisma.AvailabilityWhereUniqueInput[]
   connect?: Prisma.AvailabilityWhereUniqueInput | Prisma.AvailabilityWhereUniqueInput[]
-  update?: Prisma.AvailabilityUpdateWithWhereUniqueWithoutUserInput | Prisma.AvailabilityUpdateWithWhereUniqueWithoutUserInput[]
-  updateMany?: Prisma.AvailabilityUpdateManyWithWhereWithoutUserInput | Prisma.AvailabilityUpdateManyWithWhereWithoutUserInput[]
+  update?: Prisma.AvailabilityUpdateWithWhereUniqueWithoutEmployeeInput | Prisma.AvailabilityUpdateWithWhereUniqueWithoutEmployeeInput[]
+  updateMany?: Prisma.AvailabilityUpdateManyWithWhereWithoutEmployeeInput | Prisma.AvailabilityUpdateManyWithWhereWithoutEmployeeInput[]
   deleteMany?: Prisma.AvailabilityScalarWhereInput | Prisma.AvailabilityScalarWhereInput[]
 }
 
-export type AvailabilityUncheckedUpdateManyWithoutUserNestedInput = {
-  create?: Prisma.XOR<Prisma.AvailabilityCreateWithoutUserInput, Prisma.AvailabilityUncheckedCreateWithoutUserInput> | Prisma.AvailabilityCreateWithoutUserInput[] | Prisma.AvailabilityUncheckedCreateWithoutUserInput[]
-  connectOrCreate?: Prisma.AvailabilityCreateOrConnectWithoutUserInput | Prisma.AvailabilityCreateOrConnectWithoutUserInput[]
-  upsert?: Prisma.AvailabilityUpsertWithWhereUniqueWithoutUserInput | Prisma.AvailabilityUpsertWithWhereUniqueWithoutUserInput[]
-  createMany?: Prisma.AvailabilityCreateManyUserInputEnvelope
+export type AvailabilityUncheckedUpdateManyWithoutEmployeeNestedInput = {
+  create?: Prisma.XOR<Prisma.AvailabilityCreateWithoutEmployeeInput, Prisma.AvailabilityUncheckedCreateWithoutEmployeeInput> | Prisma.AvailabilityCreateWithoutEmployeeInput[] | Prisma.AvailabilityUncheckedCreateWithoutEmployeeInput[]
+  connectOrCreate?: Prisma.AvailabilityCreateOrConnectWithoutEmployeeInput | Prisma.AvailabilityCreateOrConnectWithoutEmployeeInput[]
+  upsert?: Prisma.AvailabilityUpsertWithWhereUniqueWithoutEmployeeInput | Prisma.AvailabilityUpsertWithWhereUniqueWithoutEmployeeInput[]
+  createMany?: Prisma.AvailabilityCreateManyEmployeeInputEnvelope
   set?: Prisma.AvailabilityWhereUniqueInput | Prisma.AvailabilityWhereUniqueInput[]
   disconnect?: Prisma.AvailabilityWhereUniqueInput | Prisma.AvailabilityWhereUniqueInput[]
   delete?: Prisma.AvailabilityWhereUniqueInput | Prisma.AvailabilityWhereUniqueInput[]
   connect?: Prisma.AvailabilityWhereUniqueInput | Prisma.AvailabilityWhereUniqueInput[]
-  update?: Prisma.AvailabilityUpdateWithWhereUniqueWithoutUserInput | Prisma.AvailabilityUpdateWithWhereUniqueWithoutUserInput[]
-  updateMany?: Prisma.AvailabilityUpdateManyWithWhereWithoutUserInput | Prisma.AvailabilityUpdateManyWithWhereWithoutUserInput[]
+  update?: Prisma.AvailabilityUpdateWithWhereUniqueWithoutEmployeeInput | Prisma.AvailabilityUpdateWithWhereUniqueWithoutEmployeeInput[]
+  updateMany?: Prisma.AvailabilityUpdateManyWithWhereWithoutEmployeeInput | Prisma.AvailabilityUpdateManyWithWhereWithoutEmployeeInput[]
   deleteMany?: Prisma.AvailabilityScalarWhereInput | Prisma.AvailabilityScalarWhereInput[]
 }
 
@@ -483,7 +483,7 @@ export type AvailabilityUpdateOneRequiredWithoutEntriesNestedInput = {
   update?: Prisma.XOR<Prisma.XOR<Prisma.AvailabilityUpdateToOneWithWhereWithoutEntriesInput, Prisma.AvailabilityUpdateWithoutEntriesInput>, Prisma.AvailabilityUncheckedUpdateWithoutEntriesInput>
 }
 
-export type AvailabilityCreateWithoutUserInput = {
+export type AvailabilityCreateWithoutEmployeeInput = {
   id?: string
   isSubmitted?: boolean
   submittedAt?: Date | string | null
@@ -493,7 +493,7 @@ export type AvailabilityCreateWithoutUserInput = {
   entries?: Prisma.AvailabilityEntryCreateNestedManyWithoutAvailabilityInput
 }
 
-export type AvailabilityUncheckedCreateWithoutUserInput = {
+export type AvailabilityUncheckedCreateWithoutEmployeeInput = {
   id?: string
   periodId: string
   isSubmitted?: boolean
@@ -503,30 +503,30 @@ export type AvailabilityUncheckedCreateWithoutUserInput = {
   entries?: Prisma.AvailabilityEntryUncheckedCreateNestedManyWithoutAvailabilityInput
 }
 
-export type AvailabilityCreateOrConnectWithoutUserInput = {
+export type AvailabilityCreateOrConnectWithoutEmployeeInput = {
   where: Prisma.AvailabilityWhereUniqueInput
-  create: Prisma.XOR<Prisma.AvailabilityCreateWithoutUserInput, Prisma.AvailabilityUncheckedCreateWithoutUserInput>
+  create: Prisma.XOR<Prisma.AvailabilityCreateWithoutEmployeeInput, Prisma.AvailabilityUncheckedCreateWithoutEmployeeInput>
 }
 
-export type AvailabilityCreateManyUserInputEnvelope = {
-  data: Prisma.AvailabilityCreateManyUserInput | Prisma.AvailabilityCreateManyUserInput[]
+export type AvailabilityCreateManyEmployeeInputEnvelope = {
+  data: Prisma.AvailabilityCreateManyEmployeeInput | Prisma.AvailabilityCreateManyEmployeeInput[]
   skipDuplicates?: boolean
 }
 
-export type AvailabilityUpsertWithWhereUniqueWithoutUserInput = {
+export type AvailabilityUpsertWithWhereUniqueWithoutEmployeeInput = {
   where: Prisma.AvailabilityWhereUniqueInput
-  update: Prisma.XOR<Prisma.AvailabilityUpdateWithoutUserInput, Prisma.AvailabilityUncheckedUpdateWithoutUserInput>
-  create: Prisma.XOR<Prisma.AvailabilityCreateWithoutUserInput, Prisma.AvailabilityUncheckedCreateWithoutUserInput>
+  update: Prisma.XOR<Prisma.AvailabilityUpdateWithoutEmployeeInput, Prisma.AvailabilityUncheckedUpdateWithoutEmployeeInput>
+  create: Prisma.XOR<Prisma.AvailabilityCreateWithoutEmployeeInput, Prisma.AvailabilityUncheckedCreateWithoutEmployeeInput>
 }
 
-export type AvailabilityUpdateWithWhereUniqueWithoutUserInput = {
+export type AvailabilityUpdateWithWhereUniqueWithoutEmployeeInput = {
   where: Prisma.AvailabilityWhereUniqueInput
-  data: Prisma.XOR<Prisma.AvailabilityUpdateWithoutUserInput, Prisma.AvailabilityUncheckedUpdateWithoutUserInput>
+  data: Prisma.XOR<Prisma.AvailabilityUpdateWithoutEmployeeInput, Prisma.AvailabilityUncheckedUpdateWithoutEmployeeInput>
 }
 
-export type AvailabilityUpdateManyWithWhereWithoutUserInput = {
+export type AvailabilityUpdateManyWithWhereWithoutEmployeeInput = {
   where: Prisma.AvailabilityScalarWhereInput
-  data: Prisma.XOR<Prisma.AvailabilityUpdateManyMutationInput, Prisma.AvailabilityUncheckedUpdateManyWithoutUserInput>
+  data: Prisma.XOR<Prisma.AvailabilityUpdateManyMutationInput, Prisma.AvailabilityUncheckedUpdateManyWithoutEmployeeInput>
 }
 
 export type AvailabilityScalarWhereInput = {
@@ -535,7 +535,7 @@ export type AvailabilityScalarWhereInput = {
   NOT?: Prisma.AvailabilityScalarWhereInput | Prisma.AvailabilityScalarWhereInput[]
   id?: Prisma.StringFilter<"Availability"> | string
   periodId?: Prisma.StringFilter<"Availability"> | string
-  userId?: Prisma.StringFilter<"Availability"> | string
+  employeeId?: Prisma.StringFilter<"Availability"> | string
   isSubmitted?: Prisma.BoolFilter<"Availability"> | boolean
   submittedAt?: Prisma.DateTimeNullableFilter<"Availability"> | Date | string | null
   createdAt?: Prisma.DateTimeFilter<"Availability"> | Date | string
@@ -548,13 +548,13 @@ export type AvailabilityCreateWithoutPeriodInput = {
   submittedAt?: Date | string | null
   createdAt?: Date | string
   updatedAt?: Date | string
-  user: Prisma.UserCreateNestedOneWithoutAvailabilityInput
+  employee: Prisma.EmployeeCreateNestedOneWithoutAvailabilityInput
   entries?: Prisma.AvailabilityEntryCreateNestedManyWithoutAvailabilityInput
 }
 
 export type AvailabilityUncheckedCreateWithoutPeriodInput = {
   id?: string
-  userId: string
+  employeeId: string
   isSubmitted?: boolean
   submittedAt?: Date | string | null
   createdAt?: Date | string
@@ -595,13 +595,13 @@ export type AvailabilityCreateWithoutEntriesInput = {
   createdAt?: Date | string
   updatedAt?: Date | string
   period: Prisma.SchedulingPeriodCreateNestedOneWithoutAvailabilityInput
-  user: Prisma.UserCreateNestedOneWithoutAvailabilityInput
+  employee: Prisma.EmployeeCreateNestedOneWithoutAvailabilityInput
 }
 
 export type AvailabilityUncheckedCreateWithoutEntriesInput = {
   id?: string
   periodId: string
-  userId: string
+  employeeId: string
   isSubmitted?: boolean
   submittedAt?: Date | string | null
   createdAt?: Date | string
@@ -631,20 +631,20 @@ export type AvailabilityUpdateWithoutEntriesInput = {
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   period?: Prisma.SchedulingPeriodUpdateOneRequiredWithoutAvailabilityNestedInput
-  user?: Prisma.UserUpdateOneRequiredWithoutAvailabilityNestedInput
+  employee?: Prisma.EmployeeUpdateOneRequiredWithoutAvailabilityNestedInput
 }
 
 export type AvailabilityUncheckedUpdateWithoutEntriesInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
   periodId?: Prisma.StringFieldUpdateOperationsInput | string
-  userId?: Prisma.StringFieldUpdateOperationsInput | string
+  employeeId?: Prisma.StringFieldUpdateOperationsInput | string
   isSubmitted?: Prisma.BoolFieldUpdateOperationsInput | boolean
   submittedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
 }
 
-export type AvailabilityCreateManyUserInput = {
+export type AvailabilityCreateManyEmployeeInput = {
   id?: string
   periodId: string
   isSubmitted?: boolean
@@ -653,7 +653,7 @@ export type AvailabilityCreateManyUserInput = {
   updatedAt?: Date | string
 }
 
-export type AvailabilityUpdateWithoutUserInput = {
+export type AvailabilityUpdateWithoutEmployeeInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
   isSubmitted?: Prisma.BoolFieldUpdateOperationsInput | boolean
   submittedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
@@ -663,7 +663,7 @@ export type AvailabilityUpdateWithoutUserInput = {
   entries?: Prisma.AvailabilityEntryUpdateManyWithoutAvailabilityNestedInput
 }
 
-export type AvailabilityUncheckedUpdateWithoutUserInput = {
+export type AvailabilityUncheckedUpdateWithoutEmployeeInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
   periodId?: Prisma.StringFieldUpdateOperationsInput | string
   isSubmitted?: Prisma.BoolFieldUpdateOperationsInput | boolean
@@ -673,7 +673,7 @@ export type AvailabilityUncheckedUpdateWithoutUserInput = {
   entries?: Prisma.AvailabilityEntryUncheckedUpdateManyWithoutAvailabilityNestedInput
 }
 
-export type AvailabilityUncheckedUpdateManyWithoutUserInput = {
+export type AvailabilityUncheckedUpdateManyWithoutEmployeeInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
   periodId?: Prisma.StringFieldUpdateOperationsInput | string
   isSubmitted?: Prisma.BoolFieldUpdateOperationsInput | boolean
@@ -684,7 +684,7 @@ export type AvailabilityUncheckedUpdateManyWithoutUserInput = {
 
 export type AvailabilityCreateManyPeriodInput = {
   id?: string
-  userId: string
+  employeeId: string
   isSubmitted?: boolean
   submittedAt?: Date | string | null
   createdAt?: Date | string
@@ -697,13 +697,13 @@ export type AvailabilityUpdateWithoutPeriodInput = {
   submittedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
-  user?: Prisma.UserUpdateOneRequiredWithoutAvailabilityNestedInput
+  employee?: Prisma.EmployeeUpdateOneRequiredWithoutAvailabilityNestedInput
   entries?: Prisma.AvailabilityEntryUpdateManyWithoutAvailabilityNestedInput
 }
 
 export type AvailabilityUncheckedUpdateWithoutPeriodInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
-  userId?: Prisma.StringFieldUpdateOperationsInput | string
+  employeeId?: Prisma.StringFieldUpdateOperationsInput | string
   isSubmitted?: Prisma.BoolFieldUpdateOperationsInput | boolean
   submittedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
@@ -713,7 +713,7 @@ export type AvailabilityUncheckedUpdateWithoutPeriodInput = {
 
 export type AvailabilityUncheckedUpdateManyWithoutPeriodInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
-  userId?: Prisma.StringFieldUpdateOperationsInput | string
+  employeeId?: Prisma.StringFieldUpdateOperationsInput | string
   isSubmitted?: Prisma.BoolFieldUpdateOperationsInput | boolean
   submittedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
@@ -754,13 +754,13 @@ export type AvailabilityCountOutputTypeCountEntriesArgs<ExtArgs extends runtime.
 export type AvailabilitySelect<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetSelect<{
   id?: boolean
   periodId?: boolean
-  userId?: boolean
+  employeeId?: boolean
   isSubmitted?: boolean
   submittedAt?: boolean
   createdAt?: boolean
   updatedAt?: boolean
   period?: boolean | Prisma.SchedulingPeriodDefaultArgs<ExtArgs>
-  user?: boolean | Prisma.UserDefaultArgs<ExtArgs>
+  employee?: boolean | Prisma.EmployeeDefaultArgs<ExtArgs>
   entries?: boolean | Prisma.Availability$entriesArgs<ExtArgs>
   _count?: boolean | Prisma.AvailabilityCountOutputTypeDefaultArgs<ExtArgs>
 }, ExtArgs["result"]["availability"]>
@@ -768,64 +768,64 @@ export type AvailabilitySelect<ExtArgs extends runtime.Types.Extensions.Internal
 export type AvailabilitySelectCreateManyAndReturn<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetSelect<{
   id?: boolean
   periodId?: boolean
-  userId?: boolean
+  employeeId?: boolean
   isSubmitted?: boolean
   submittedAt?: boolean
   createdAt?: boolean
   updatedAt?: boolean
   period?: boolean | Prisma.SchedulingPeriodDefaultArgs<ExtArgs>
-  user?: boolean | Prisma.UserDefaultArgs<ExtArgs>
+  employee?: boolean | Prisma.EmployeeDefaultArgs<ExtArgs>
 }, ExtArgs["result"]["availability"]>
 
 export type AvailabilitySelectUpdateManyAndReturn<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetSelect<{
   id?: boolean
   periodId?: boolean
-  userId?: boolean
+  employeeId?: boolean
   isSubmitted?: boolean
   submittedAt?: boolean
   createdAt?: boolean
   updatedAt?: boolean
   period?: boolean | Prisma.SchedulingPeriodDefaultArgs<ExtArgs>
-  user?: boolean | Prisma.UserDefaultArgs<ExtArgs>
+  employee?: boolean | Prisma.EmployeeDefaultArgs<ExtArgs>
 }, ExtArgs["result"]["availability"]>
 
 export type AvailabilitySelectScalar = {
   id?: boolean
   periodId?: boolean
-  userId?: boolean
+  employeeId?: boolean
   isSubmitted?: boolean
   submittedAt?: boolean
   createdAt?: boolean
   updatedAt?: boolean
 }
 
-export type AvailabilityOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"id" | "periodId" | "userId" | "isSubmitted" | "submittedAt" | "createdAt" | "updatedAt", ExtArgs["result"]["availability"]>
+export type AvailabilityOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"id" | "periodId" | "employeeId" | "isSubmitted" | "submittedAt" | "createdAt" | "updatedAt", ExtArgs["result"]["availability"]>
 export type AvailabilityInclude<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
   period?: boolean | Prisma.SchedulingPeriodDefaultArgs<ExtArgs>
-  user?: boolean | Prisma.UserDefaultArgs<ExtArgs>
+  employee?: boolean | Prisma.EmployeeDefaultArgs<ExtArgs>
   entries?: boolean | Prisma.Availability$entriesArgs<ExtArgs>
   _count?: boolean | Prisma.AvailabilityCountOutputTypeDefaultArgs<ExtArgs>
 }
 export type AvailabilityIncludeCreateManyAndReturn<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
   period?: boolean | Prisma.SchedulingPeriodDefaultArgs<ExtArgs>
-  user?: boolean | Prisma.UserDefaultArgs<ExtArgs>
+  employee?: boolean | Prisma.EmployeeDefaultArgs<ExtArgs>
 }
 export type AvailabilityIncludeUpdateManyAndReturn<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
   period?: boolean | Prisma.SchedulingPeriodDefaultArgs<ExtArgs>
-  user?: boolean | Prisma.UserDefaultArgs<ExtArgs>
+  employee?: boolean | Prisma.EmployeeDefaultArgs<ExtArgs>
 }
 
 export type $AvailabilityPayload<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
   name: "Availability"
   objects: {
     period: Prisma.$SchedulingPeriodPayload<ExtArgs>
-    user: Prisma.$UserPayload<ExtArgs>
+    employee: Prisma.$EmployeePayload<ExtArgs>
     entries: Prisma.$AvailabilityEntryPayload<ExtArgs>[]
   }
   scalars: runtime.Types.Extensions.GetPayloadResult<{
     id: string
     periodId: string
-    userId: string
+    employeeId: string
     isSubmitted: boolean
     submittedAt: Date | null
     createdAt: Date
@@ -1225,7 +1225,7 @@ readonly fields: AvailabilityFieldRefs;
 export interface Prisma__AvailabilityClient<T, Null = never, ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs, GlobalOmitOptions = {}> extends Prisma.PrismaPromise<T> {
   readonly [Symbol.toStringTag]: "PrismaPromise"
   period<T extends Prisma.SchedulingPeriodDefaultArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.SchedulingPeriodDefaultArgs<ExtArgs>>): Prisma.Prisma__SchedulingPeriodClient<runtime.Types.Result.GetResult<Prisma.$SchedulingPeriodPayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions> | Null, Null, ExtArgs, GlobalOmitOptions>
-  user<T extends Prisma.UserDefaultArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.UserDefaultArgs<ExtArgs>>): Prisma.Prisma__UserClient<runtime.Types.Result.GetResult<Prisma.$UserPayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions> | Null, Null, ExtArgs, GlobalOmitOptions>
+  employee<T extends Prisma.EmployeeDefaultArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.EmployeeDefaultArgs<ExtArgs>>): Prisma.Prisma__EmployeeClient<runtime.Types.Result.GetResult<Prisma.$EmployeePayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions> | Null, Null, ExtArgs, GlobalOmitOptions>
   entries<T extends Prisma.Availability$entriesArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.Availability$entriesArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$AvailabilityEntryPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
   /**
    * Attaches callbacks for the resolution and/or rejection of the Promise.
@@ -1258,7 +1258,7 @@ export interface Prisma__AvailabilityClient<T, Null = never, ExtArgs extends run
 export interface AvailabilityFieldRefs {
   readonly id: Prisma.FieldRef<"Availability", 'String'>
   readonly periodId: Prisma.FieldRef<"Availability", 'String'>
-  readonly userId: Prisma.FieldRef<"Availability", 'String'>
+  readonly employeeId: Prisma.FieldRef<"Availability", 'String'>
   readonly isSubmitted: Prisma.FieldRef<"Availability", 'Boolean'>
   readonly submittedAt: Prisma.FieldRef<"Availability", 'DateTime'>
   readonly createdAt: Prisma.FieldRef<"Availability", 'DateTime'>

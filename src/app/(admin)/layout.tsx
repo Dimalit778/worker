@@ -1,6 +1,7 @@
 import { requireSession } from '@/lib/auth-helpers'
-import { Role } from '@/generated/prisma/client'
+import { SystemRole } from '@/generated/prisma/client'
 import Link from 'next/link'
+import { LogoutButton } from '@/components/ui/logout-button'
 
 const navItems = [
   { href: '/admin', label: 'לוח בקרה' },
@@ -11,7 +12,7 @@ const navItems = [
 ]
 
 export default async function AdminLayout({ children }: { children: React.ReactNode }) {
-  const session = await requireSession(Role.ADMIN)
+  const session = await requireSession(SystemRole.ADMIN)
 
   return (
     <div className="min-h-screen flex bg-background">
@@ -32,6 +33,9 @@ export default async function AdminLayout({ children }: { children: React.ReactN
             </Link>
           ))}
         </nav>
+        <div className="p-2 border-t">
+          <LogoutButton className="w-full justify-start" />
+        </div>
       </aside>
 
       {/* Main */}

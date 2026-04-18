@@ -9,16 +9,17 @@ datasource db {
 
 // ─── Enums ───────────────────────────────────────────────────────────────────
 
-enum Role {
-  GUARD
-  MANAGER
+enum SystemRole {
+  EMPLOYEE
+  MANAGER 
   ADMIN
 }
 
-enum GuardRank {
+enum Position {
   GUARD
   BAKAR
   SHIFT_MANAGER
+  FACILITY_OFFICER
 }
 
 enum ShiftType {
@@ -28,15 +29,16 @@ enum ShiftType {
 }
 
 enum PeriodStatus {
-  DRAFT
-  OPEN
-  CLOSED
-  PUBLISHED
+DRAFT
+OPEN_FOR_SUBMISSION
+LOCKED
+ARCHIVED
 }
 
 enum ScheduleStatus {
-  DRAFT
-  PUBLISHED
+DRAFT
+FINALIZED
+PUBLISHED
 }
 
 enum WarningType {
@@ -92,68 +94,117 @@ model VerificationToken {
 }
 
 // ─── Domain models ───────────────────────────────────────────────────────────
-
 model User {
-  id             String     @id @default(cuid())
-  email          String     @unique
-  passwordHash   String
-  name           String
-  phone          String?
-  role           Role       @default(GUARD)
-  guardRank      GuardRank  @default(GUARD)
-  primaryCourtId String?
-  isActive       Boolean    @default(true)
-  createdAt      DateTime   @default(now())
+  id           String     @id @default(cuid())
+  email        String     @unique
+  passwordHash String
+  systemRole   SystemRole @default(EMPLOYEE)
+  isActive     Boolean    @default(true)
 
-  primaryCourt       Court?             @relation("PrimaryCourtGuards", fields: [primaryCourtId], references: [id])
-  courtEligibility   CourtEligibility[]
-  availability       Availability[]
-  assignments        ShiftAssignment[]
-  fairnessRecords    FairnessRecord[]
+  employeeId   String?    @unique
+  employee     Employee?  @relation(fields: [employeeId], references: [id], onDelete: SetNull)
+
+  createdAt    DateTime   @default(now())
+  updatedAt    DateTime   @updatedAt
+
   periodsCreated     SchedulingPeriod[] @relation("PeriodCreatedBy")
   schedulesGenerated Schedule[]         @relation("ScheduleGeneratedBy")
-  assignmentWarnings ScheduleWarning[]  @relation("WarningUser")
+  warningActions     ScheduleWarning[]  @relation("WarningCreatedBy")
 
   accounts Account[]
   sessions Session[]
+
+  @@index([systemRole])
+}
+
+model Employee {
+  id             String    @id @default(cuid())
+  employeeCode   String?   @unique
+  name           String
+  phone          String?
+  position       Position
+  primaryCourtId String?
+  isActive       Boolean   @default(true)
+
+  primaryCourt Court? @relation("PrimaryCourtEmployees", fields: [primaryCourtId], references: [id])
+
+  user              User?
+  courtEligibility  CourtEligibility[]
+  availability      Availability[]
+  assignments       ShiftAssignment[]
+  fairnessRecords   FairnessRecord[]
+  warnings          ScheduleWarning[] @relation("WarningEmployee")
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@index([position])
+  @@index([primaryCourtId])
 }
 
 model Court {
   id       String  @id @default(cuid())
   name     String
   code     String  @unique
+  districtId String
   isActive Boolean @default(true)
+
+  district District @relation(fields: [districtId], references: [id])
 
   capacityRules       ShiftCapacityRule[]
   eligibility         CourtEligibility[]
-  primaryGuards       User[]              @relation("PrimaryCourtGuards")
+  primaryEmployees    Employee[]          @relation("PrimaryCourtEmployees")
   availabilityEntries AvailabilityEntry[]
   assignments         ShiftAssignment[]
   warnings            ScheduleWarning[]   @relation("WarningCourt")
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@index([districtId])
+}
+model District {
+  id        String   @id @default(cuid())
+  name      String
+  code      String   @unique
+  isActive  Boolean  @default(true)
+
+  courts    Court[]
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
 }
 
 model CourtEligibility {
-  id      String @id @default(cuid())
-  userId  String
-  courtId String
+  id         String @id @default(cuid())
+  employeeId String
+  courtId    String
 
-  user  User  @relation(fields: [userId], references: [id], onDelete: Cascade)
-  court Court @relation(fields: [courtId], references: [id], onDelete: Cascade)
+  employee Employee @relation(fields: [employeeId], references: [id], onDelete: Cascade)
+  court    Court    @relation(fields: [courtId], references: [id], onDelete: Cascade)
 
-  @@unique([userId, courtId])
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@unique([employeeId, courtId])
+  @@index([courtId])
 }
 
 model ShiftCapacityRule {
   id        String    @id @default(cuid())
   courtId   String
   shiftType ShiftType
-  dayOfWeek Int?      // 0=Sunday … 6=Saturday; null = applies to all days
+  dayOfWeek Int?      // 0=Sunday ... 6=Saturday; null = all days
   minStaff  Int
   maxStaff  Int
 
   court Court @relation(fields: [courtId], references: [id], onDelete: Cascade)
 
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
   @@unique([courtId, shiftType, dayOfWeek])
+  @@index([courtId, shiftType])
 }
 
 model SchedulingPeriod {
@@ -164,28 +215,35 @@ model SchedulingPeriod {
   submissionDeadline DateTime
   status             PeriodStatus @default(DRAFT)
   createdById        String
-  createdAt          DateTime     @default(now())
 
   createdBy       User             @relation("PeriodCreatedBy", fields: [createdById], references: [id])
   availability    Availability[]
   schedules       Schedule[]
   fairnessRecords FairnessRecord[]
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@index([startDate, endDate])
+  @@index([status])
 }
 
 model Availability {
   id          String    @id @default(cuid())
   periodId    String
-  userId      String
+  employeeId  String
   isSubmitted Boolean   @default(false)
   submittedAt DateTime?
-  createdAt   DateTime  @default(now())
-  updatedAt   DateTime  @updatedAt
 
-  period  SchedulingPeriod  @relation(fields: [periodId], references: [id])
-  user    User              @relation(fields: [userId], references: [id])
-  entries AvailabilityEntry[]
+  period   SchedulingPeriod  @relation(fields: [periodId], references: [id], onDelete: Cascade)
+  employee Employee          @relation(fields: [employeeId], references: [id], onDelete: Cascade)
+  entries   AvailabilityEntry[]
 
-  @@unique([periodId, userId])
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@unique([periodId, employeeId])
+  @@index([employeeId])
 }
 
 model AvailabilityEntry {
@@ -196,12 +254,14 @@ model AvailabilityEntry {
   shiftType      ShiftType
   isAvailable    Boolean   @default(false)
 
-  // courtId is auto-derived from the guard's primaryCourtId in V1.
-  // The field is explicit in the schema to support multi-court in future versions.
   availability Availability @relation(fields: [availabilityId], references: [id], onDelete: Cascade)
   court        Court        @relation(fields: [courtId], references: [id])
 
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
   @@unique([availabilityId, date, courtId, shiftType])
+  @@index([courtId, date, shiftType])
 }
 
 model Schedule {
@@ -212,53 +272,67 @@ model Schedule {
   publishedAt   DateTime?
   generatedById String
 
-  period      SchedulingPeriod  @relation(fields: [periodId], references: [id])
-  generatedBy User              @relation("ScheduleGeneratedBy", fields: [generatedById], references: [id])
+  period      SchedulingPeriod @relation(fields: [periodId], references: [id], onDelete: Cascade)
+  generatedBy User             @relation("ScheduleGeneratedBy", fields: [generatedById], references: [id])
   assignments ShiftAssignment[]
   warnings    ScheduleWarning[]
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@index([periodId, status])
 }
 
 model ShiftAssignment {
   id               String    @id @default(cuid())
   scheduleId       String
-  userId           String
+  employeeId       String
   courtId          String
   date             DateTime  @db.Date
   shiftType        ShiftType
   isOpeningDuty    Boolean   @default(false)
   isManualOverride Boolean   @default(false)
-  createdAt        DateTime  @default(now())
-
-  // DB rule: isOpeningDuty may only be true for MORNING shifts.
-  // Enforced by CHECK constraint added in migration (see migration SQL).
-  // Partial unique index (scheduleId, date, courtId) WHERE isOpeningDuty = true
-  // is also added in migration to ensure at most one opening duty per court per date.
 
   schedule Schedule @relation(fields: [scheduleId], references: [id], onDelete: Cascade)
-  user     User     @relation(fields: [userId], references: [id])
+  employee Employee @relation(fields: [employeeId], references: [id], onDelete: Cascade)
   court    Court    @relation(fields: [courtId], references: [id])
 
-  @@unique([scheduleId, userId, date, shiftType])
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@unique([scheduleId, employeeId, date, shiftType])
+  @@index([courtId, date, shiftType])
+  @@index([employeeId, date])
+  @@index([scheduleId, date])
 }
 
 model ScheduleWarning {
-  id         String          @id @default(cuid())
-  scheduleId String
-  type       WarningType
-  severity   WarningSeverity
-  courtId    String?
-  userId     String?
-  date       DateTime?       @db.Date
-  message    String
+  id          String          @id @default(cuid())
+  scheduleId  String
+  type        WarningType
+  severity    WarningSeverity
+  courtId     String?
+  employeeId  String?
+  date        DateTime?       @db.Date
+  message     String
+  createdById String?
 
-  schedule Schedule  @relation(fields: [scheduleId], references: [id], onDelete: Cascade)
-  court    Court?    @relation("WarningCourt", fields: [courtId], references: [id])
-  user     User?     @relation("WarningUser", fields: [userId], references: [id])
+  schedule   Schedule  @relation(fields: [scheduleId], references: [id], onDelete: Cascade)
+  court      Court?    @relation("WarningCourt", fields: [courtId], references: [id])
+  employee   Employee? @relation("WarningEmployee", fields: [employeeId], references: [id])
+  createdBy  User?     @relation("WarningCreatedBy", fields: [createdById], references: [id])
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@index([scheduleId, date])
+  @@index([courtId, date])
+  @@index([employeeId, date])
 }
 
 model FairnessRecord {
   id            String @id @default(cuid())
-  userId        String
+  employeeId    String
   periodId      String
   totalShifts   Int    @default(0)
   morningShifts Int    @default(0)
@@ -267,13 +341,19 @@ model FairnessRecord {
   weekendShifts Int    @default(0)
   openingDuties Int    @default(0)
 
-  user   User             @relation(fields: [userId], references: [id])
-  period SchedulingPeriod @relation(fields: [periodId], references: [id])
+  employee Employee         @relation(fields: [employeeId], references: [id], onDelete: Cascade)
+  period   SchedulingPeriod @relation(fields: [periodId], references: [id], onDelete: Cascade)
 
-  @@unique([userId, periodId])
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@unique([employeeId, periodId])
+  @@index([periodId])
 }
 
 model SystemConfig {
-  key   String @id
-  value Json
+  key       String   @id
+  value     Json
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
 }

@@ -28,36 +28,33 @@ export type UserMinAggregateOutputType = {
   id: string | null
   email: string | null
   passwordHash: string | null
-  name: string | null
-  phone: string | null
-  role: $Enums.Role | null
-  primaryCourtId: string | null
+  systemRole: $Enums.SystemRole | null
   isActive: boolean | null
+  employeeId: string | null
   createdAt: Date | null
+  updatedAt: Date | null
 }
 
 export type UserMaxAggregateOutputType = {
   id: string | null
   email: string | null
   passwordHash: string | null
-  name: string | null
-  phone: string | null
-  role: $Enums.Role | null
-  primaryCourtId: string | null
+  systemRole: $Enums.SystemRole | null
   isActive: boolean | null
+  employeeId: string | null
   createdAt: Date | null
+  updatedAt: Date | null
 }
 
 export type UserCountAggregateOutputType = {
   id: number
   email: number
   passwordHash: number
-  name: number
-  phone: number
-  role: number
-  primaryCourtId: number
+  systemRole: number
   isActive: number
+  employeeId: number
   createdAt: number
+  updatedAt: number
   _all: number
 }
 
@@ -66,36 +63,33 @@ export type UserMinAggregateInputType = {
   id?: true
   email?: true
   passwordHash?: true
-  name?: true
-  phone?: true
-  role?: true
-  primaryCourtId?: true
+  systemRole?: true
   isActive?: true
+  employeeId?: true
   createdAt?: true
+  updatedAt?: true
 }
 
 export type UserMaxAggregateInputType = {
   id?: true
   email?: true
   passwordHash?: true
-  name?: true
-  phone?: true
-  role?: true
-  primaryCourtId?: true
+  systemRole?: true
   isActive?: true
+  employeeId?: true
   createdAt?: true
+  updatedAt?: true
 }
 
 export type UserCountAggregateInputType = {
   id?: true
   email?: true
   passwordHash?: true
-  name?: true
-  phone?: true
-  role?: true
-  primaryCourtId?: true
+  systemRole?: true
   isActive?: true
+  employeeId?: true
   createdAt?: true
+  updatedAt?: true
   _all?: true
 }
 
@@ -175,12 +169,11 @@ export type UserGroupByOutputType = {
   id: string
   email: string
   passwordHash: string
-  name: string
-  phone: string | null
-  role: $Enums.Role
-  primaryCourtId: string | null
+  systemRole: $Enums.SystemRole
   isActive: boolean
+  employeeId: string | null
   createdAt: Date
+  updatedAt: Date
   _count: UserCountAggregateOutputType | null
   _min: UserMinAggregateOutputType | null
   _max: UserMaxAggregateOutputType | null
@@ -208,20 +201,15 @@ export type UserWhereInput = {
   id?: Prisma.StringFilter<"User"> | string
   email?: Prisma.StringFilter<"User"> | string
   passwordHash?: Prisma.StringFilter<"User"> | string
-  name?: Prisma.StringFilter<"User"> | string
-  phone?: Prisma.StringNullableFilter<"User"> | string | null
-  role?: Prisma.EnumRoleFilter<"User"> | $Enums.Role
-  primaryCourtId?: Prisma.StringNullableFilter<"User"> | string | null
+  systemRole?: Prisma.EnumSystemRoleFilter<"User"> | $Enums.SystemRole
   isActive?: Prisma.BoolFilter<"User"> | boolean
+  employeeId?: Prisma.StringNullableFilter<"User"> | string | null
   createdAt?: Prisma.DateTimeFilter<"User"> | Date | string
-  primaryCourt?: Prisma.XOR<Prisma.CourtNullableScalarRelationFilter, Prisma.CourtWhereInput> | null
-  courtEligibility?: Prisma.CourtEligibilityListRelationFilter
-  availability?: Prisma.AvailabilityListRelationFilter
-  assignments?: Prisma.ShiftAssignmentListRelationFilter
-  fairnessRecords?: Prisma.FairnessRecordListRelationFilter
+  updatedAt?: Prisma.DateTimeFilter<"User"> | Date | string
+  employee?: Prisma.XOR<Prisma.EmployeeNullableScalarRelationFilter, Prisma.EmployeeWhereInput> | null
   periodsCreated?: Prisma.SchedulingPeriodListRelationFilter
   schedulesGenerated?: Prisma.ScheduleListRelationFilter
-  assignmentWarnings?: Prisma.ScheduleWarningListRelationFilter
+  warningActions?: Prisma.ScheduleWarningListRelationFilter
   accounts?: Prisma.AccountListRelationFilter
   sessions?: Prisma.SessionListRelationFilter
 }
@@ -230,20 +218,15 @@ export type UserOrderByWithRelationInput = {
   id?: Prisma.SortOrder
   email?: Prisma.SortOrder
   passwordHash?: Prisma.SortOrder
-  name?: Prisma.SortOrder
-  phone?: Prisma.SortOrderInput | Prisma.SortOrder
-  role?: Prisma.SortOrder
-  primaryCourtId?: Prisma.SortOrderInput | Prisma.SortOrder
+  systemRole?: Prisma.SortOrder
   isActive?: Prisma.SortOrder
+  employeeId?: Prisma.SortOrderInput | Prisma.SortOrder
   createdAt?: Prisma.SortOrder
-  primaryCourt?: Prisma.CourtOrderByWithRelationInput
-  courtEligibility?: Prisma.CourtEligibilityOrderByRelationAggregateInput
-  availability?: Prisma.AvailabilityOrderByRelationAggregateInput
-  assignments?: Prisma.ShiftAssignmentOrderByRelationAggregateInput
-  fairnessRecords?: Prisma.FairnessRecordOrderByRelationAggregateInput
+  updatedAt?: Prisma.SortOrder
+  employee?: Prisma.EmployeeOrderByWithRelationInput
   periodsCreated?: Prisma.SchedulingPeriodOrderByRelationAggregateInput
   schedulesGenerated?: Prisma.ScheduleOrderByRelationAggregateInput
-  assignmentWarnings?: Prisma.ScheduleWarningOrderByRelationAggregateInput
+  warningActions?: Prisma.ScheduleWarningOrderByRelationAggregateInput
   accounts?: Prisma.AccountOrderByRelationAggregateInput
   sessions?: Prisma.SessionOrderByRelationAggregateInput
 }
@@ -251,38 +234,32 @@ export type UserOrderByWithRelationInput = {
 export type UserWhereUniqueInput = Prisma.AtLeast<{
   id?: string
   email?: string
+  employeeId?: string
   AND?: Prisma.UserWhereInput | Prisma.UserWhereInput[]
   OR?: Prisma.UserWhereInput[]
   NOT?: Prisma.UserWhereInput | Prisma.UserWhereInput[]
   passwordHash?: Prisma.StringFilter<"User"> | string
-  name?: Prisma.StringFilter<"User"> | string
-  phone?: Prisma.StringNullableFilter<"User"> | string | null
-  role?: Prisma.EnumRoleFilter<"User"> | $Enums.Role
-  primaryCourtId?: Prisma.StringNullableFilter<"User"> | string | null
+  systemRole?: Prisma.EnumSystemRoleFilter<"User"> | $Enums.SystemRole
   isActive?: Prisma.BoolFilter<"User"> | boolean
   createdAt?: Prisma.DateTimeFilter<"User"> | Date | string
-  primaryCourt?: Prisma.XOR<Prisma.CourtNullableScalarRelationFilter, Prisma.CourtWhereInput> | null
-  courtEligibility?: Prisma.CourtEligibilityListRelationFilter
-  availability?: Prisma.AvailabilityListRelationFilter
-  assignments?: Prisma.ShiftAssignmentListRelationFilter
-  fairnessRecords?: Prisma.FairnessRecordListRelationFilter
+  updatedAt?: Prisma.DateTimeFilter<"User"> | Date | string
+  employee?: Prisma.XOR<Prisma.EmployeeNullableScalarRelationFilter, Prisma.EmployeeWhereInput> | null
   periodsCreated?: Prisma.SchedulingPeriodListRelationFilter
   schedulesGenerated?: Prisma.ScheduleListRelationFilter
-  assignmentWarnings?: Prisma.ScheduleWarningListRelationFilter
+  warningActions?: Prisma.ScheduleWarningListRelationFilter
   accounts?: Prisma.AccountListRelationFilter
   sessions?: Prisma.SessionListRelationFilter
-}, "id" | "email">
+}, "id" | "email" | "employeeId">
 
 export type UserOrderByWithAggregationInput = {
   id?: Prisma.SortOrder
   email?: Prisma.SortOrder
   passwordHash?: Prisma.SortOrder
-  name?: Prisma.SortOrder
-  phone?: Prisma.SortOrderInput | Prisma.SortOrder
-  role?: Prisma.SortOrder
-  primaryCourtId?: Prisma.SortOrderInput | Prisma.SortOrder
+  systemRole?: Prisma.SortOrder
   isActive?: Prisma.SortOrder
+  employeeId?: Prisma.SortOrderInput | Prisma.SortOrder
   createdAt?: Prisma.SortOrder
+  updatedAt?: Prisma.SortOrder
   _count?: Prisma.UserCountOrderByAggregateInput
   _max?: Prisma.UserMaxOrderByAggregateInput
   _min?: Prisma.UserMinOrderByAggregateInput
@@ -295,31 +272,25 @@ export type UserScalarWhereWithAggregatesInput = {
   id?: Prisma.StringWithAggregatesFilter<"User"> | string
   email?: Prisma.StringWithAggregatesFilter<"User"> | string
   passwordHash?: Prisma.StringWithAggregatesFilter<"User"> | string
-  name?: Prisma.StringWithAggregatesFilter<"User"> | string
-  phone?: Prisma.StringNullableWithAggregatesFilter<"User"> | string | null
-  role?: Prisma.EnumRoleWithAggregatesFilter<"User"> | $Enums.Role
-  primaryCourtId?: Prisma.StringNullableWithAggregatesFilter<"User"> | string | null
+  systemRole?: Prisma.EnumSystemRoleWithAggregatesFilter<"User"> | $Enums.SystemRole
   isActive?: Prisma.BoolWithAggregatesFilter<"User"> | boolean
+  employeeId?: Prisma.StringNullableWithAggregatesFilter<"User"> | string | null
   createdAt?: Prisma.DateTimeWithAggregatesFilter<"User"> | Date | string
+  updatedAt?: Prisma.DateTimeWithAggregatesFilter<"User"> | Date | string
 }
 
 export type UserCreateInput = {
   id?: string
   email: string
   passwordHash: string
-  name: string
-  phone?: string | null
-  role?: $Enums.Role
+  systemRole?: $Enums.SystemRole
   isActive?: boolean
   createdAt?: Date | string
-  primaryCourt?: Prisma.CourtCreateNestedOneWithoutPrimaryGuardsInput
-  courtEligibility?: Prisma.CourtEligibilityCreateNestedManyWithoutUserInput
-  availability?: Prisma.AvailabilityCreateNestedManyWithoutUserInput
-  assignments?: Prisma.ShiftAssignmentCreateNestedManyWithoutUserInput
-  fairnessRecords?: Prisma.FairnessRecordCreateNestedManyWithoutUserInput
+  updatedAt?: Date | string
+  employee?: Prisma.EmployeeCreateNestedOneWithoutUserInput
   periodsCreated?: Prisma.SchedulingPeriodCreateNestedManyWithoutCreatedByInput
   schedulesGenerated?: Prisma.ScheduleCreateNestedManyWithoutGeneratedByInput
-  assignmentWarnings?: Prisma.ScheduleWarningCreateNestedManyWithoutUserInput
+  warningActions?: Prisma.ScheduleWarningCreateNestedManyWithoutCreatedByInput
   accounts?: Prisma.AccountCreateNestedManyWithoutUserInput
   sessions?: Prisma.SessionCreateNestedManyWithoutUserInput
 }
@@ -328,19 +299,14 @@ export type UserUncheckedCreateInput = {
   id?: string
   email: string
   passwordHash: string
-  name: string
-  phone?: string | null
-  role?: $Enums.Role
-  primaryCourtId?: string | null
+  systemRole?: $Enums.SystemRole
   isActive?: boolean
+  employeeId?: string | null
   createdAt?: Date | string
-  courtEligibility?: Prisma.CourtEligibilityUncheckedCreateNestedManyWithoutUserInput
-  availability?: Prisma.AvailabilityUncheckedCreateNestedManyWithoutUserInput
-  assignments?: Prisma.ShiftAssignmentUncheckedCreateNestedManyWithoutUserInput
-  fairnessRecords?: Prisma.FairnessRecordUncheckedCreateNestedManyWithoutUserInput
+  updatedAt?: Date | string
   periodsCreated?: Prisma.SchedulingPeriodUncheckedCreateNestedManyWithoutCreatedByInput
   schedulesGenerated?: Prisma.ScheduleUncheckedCreateNestedManyWithoutGeneratedByInput
-  assignmentWarnings?: Prisma.ScheduleWarningUncheckedCreateNestedManyWithoutUserInput
+  warningActions?: Prisma.ScheduleWarningUncheckedCreateNestedManyWithoutCreatedByInput
   accounts?: Prisma.AccountUncheckedCreateNestedManyWithoutUserInput
   sessions?: Prisma.SessionUncheckedCreateNestedManyWithoutUserInput
 }
@@ -349,19 +315,14 @@ export type UserUpdateInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
   email?: Prisma.StringFieldUpdateOperationsInput | string
   passwordHash?: Prisma.StringFieldUpdateOperationsInput | string
-  name?: Prisma.StringFieldUpdateOperationsInput | string
-  phone?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  role?: Prisma.EnumRoleFieldUpdateOperationsInput | $Enums.Role
+  systemRole?: Prisma.EnumSystemRoleFieldUpdateOperationsInput | $Enums.SystemRole
   isActive?: Prisma.BoolFieldUpdateOperationsInput | boolean
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
-  primaryCourt?: Prisma.CourtUpdateOneWithoutPrimaryGuardsNestedInput
-  courtEligibility?: Prisma.CourtEligibilityUpdateManyWithoutUserNestedInput
-  availability?: Prisma.AvailabilityUpdateManyWithoutUserNestedInput
-  assignments?: Prisma.ShiftAssignmentUpdateManyWithoutUserNestedInput
-  fairnessRecords?: Prisma.FairnessRecordUpdateManyWithoutUserNestedInput
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  employee?: Prisma.EmployeeUpdateOneWithoutUserNestedInput
   periodsCreated?: Prisma.SchedulingPeriodUpdateManyWithoutCreatedByNestedInput
   schedulesGenerated?: Prisma.ScheduleUpdateManyWithoutGeneratedByNestedInput
-  assignmentWarnings?: Prisma.ScheduleWarningUpdateManyWithoutUserNestedInput
+  warningActions?: Prisma.ScheduleWarningUpdateManyWithoutCreatedByNestedInput
   accounts?: Prisma.AccountUpdateManyWithoutUserNestedInput
   sessions?: Prisma.SessionUpdateManyWithoutUserNestedInput
 }
@@ -370,19 +331,14 @@ export type UserUncheckedUpdateInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
   email?: Prisma.StringFieldUpdateOperationsInput | string
   passwordHash?: Prisma.StringFieldUpdateOperationsInput | string
-  name?: Prisma.StringFieldUpdateOperationsInput | string
-  phone?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  role?: Prisma.EnumRoleFieldUpdateOperationsInput | $Enums.Role
-  primaryCourtId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  systemRole?: Prisma.EnumSystemRoleFieldUpdateOperationsInput | $Enums.SystemRole
   isActive?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  employeeId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
-  courtEligibility?: Prisma.CourtEligibilityUncheckedUpdateManyWithoutUserNestedInput
-  availability?: Prisma.AvailabilityUncheckedUpdateManyWithoutUserNestedInput
-  assignments?: Prisma.ShiftAssignmentUncheckedUpdateManyWithoutUserNestedInput
-  fairnessRecords?: Prisma.FairnessRecordUncheckedUpdateManyWithoutUserNestedInput
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   periodsCreated?: Prisma.SchedulingPeriodUncheckedUpdateManyWithoutCreatedByNestedInput
   schedulesGenerated?: Prisma.ScheduleUncheckedUpdateManyWithoutGeneratedByNestedInput
-  assignmentWarnings?: Prisma.ScheduleWarningUncheckedUpdateManyWithoutUserNestedInput
+  warningActions?: Prisma.ScheduleWarningUncheckedUpdateManyWithoutCreatedByNestedInput
   accounts?: Prisma.AccountUncheckedUpdateManyWithoutUserNestedInput
   sessions?: Prisma.SessionUncheckedUpdateManyWithoutUserNestedInput
 }
@@ -391,35 +347,32 @@ export type UserCreateManyInput = {
   id?: string
   email: string
   passwordHash: string
-  name: string
-  phone?: string | null
-  role?: $Enums.Role
-  primaryCourtId?: string | null
+  systemRole?: $Enums.SystemRole
   isActive?: boolean
+  employeeId?: string | null
   createdAt?: Date | string
+  updatedAt?: Date | string
 }
 
 export type UserUpdateManyMutationInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
   email?: Prisma.StringFieldUpdateOperationsInput | string
   passwordHash?: Prisma.StringFieldUpdateOperationsInput | string
-  name?: Prisma.StringFieldUpdateOperationsInput | string
-  phone?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  role?: Prisma.EnumRoleFieldUpdateOperationsInput | $Enums.Role
+  systemRole?: Prisma.EnumSystemRoleFieldUpdateOperationsInput | $Enums.SystemRole
   isActive?: Prisma.BoolFieldUpdateOperationsInput | boolean
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
 }
 
 export type UserUncheckedUpdateManyInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
   email?: Prisma.StringFieldUpdateOperationsInput | string
   passwordHash?: Prisma.StringFieldUpdateOperationsInput | string
-  name?: Prisma.StringFieldUpdateOperationsInput | string
-  phone?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  role?: Prisma.EnumRoleFieldUpdateOperationsInput | $Enums.Role
-  primaryCourtId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  systemRole?: Prisma.EnumSystemRoleFieldUpdateOperationsInput | $Enums.SystemRole
   isActive?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  employeeId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
 }
 
 export type UserScalarRelationFilter = {
@@ -431,46 +384,33 @@ export type UserCountOrderByAggregateInput = {
   id?: Prisma.SortOrder
   email?: Prisma.SortOrder
   passwordHash?: Prisma.SortOrder
-  name?: Prisma.SortOrder
-  phone?: Prisma.SortOrder
-  role?: Prisma.SortOrder
-  primaryCourtId?: Prisma.SortOrder
+  systemRole?: Prisma.SortOrder
   isActive?: Prisma.SortOrder
+  employeeId?: Prisma.SortOrder
   createdAt?: Prisma.SortOrder
+  updatedAt?: Prisma.SortOrder
 }
 
 export type UserMaxOrderByAggregateInput = {
   id?: Prisma.SortOrder
   email?: Prisma.SortOrder
   passwordHash?: Prisma.SortOrder
-  name?: Prisma.SortOrder
-  phone?: Prisma.SortOrder
-  role?: Prisma.SortOrder
-  primaryCourtId?: Prisma.SortOrder
+  systemRole?: Prisma.SortOrder
   isActive?: Prisma.SortOrder
+  employeeId?: Prisma.SortOrder
   createdAt?: Prisma.SortOrder
+  updatedAt?: Prisma.SortOrder
 }
 
 export type UserMinOrderByAggregateInput = {
   id?: Prisma.SortOrder
   email?: Prisma.SortOrder
   passwordHash?: Prisma.SortOrder
-  name?: Prisma.SortOrder
-  phone?: Prisma.SortOrder
-  role?: Prisma.SortOrder
-  primaryCourtId?: Prisma.SortOrder
+  systemRole?: Prisma.SortOrder
   isActive?: Prisma.SortOrder
+  employeeId?: Prisma.SortOrder
   createdAt?: Prisma.SortOrder
-}
-
-export type UserListRelationFilter = {
-  every?: Prisma.UserWhereInput
-  some?: Prisma.UserWhereInput
-  none?: Prisma.UserWhereInput
-}
-
-export type UserOrderByRelationAggregateInput = {
-  _count?: Prisma.SortOrder
+  updatedAt?: Prisma.SortOrder
 }
 
 export type UserNullableScalarRelationFilter = {
@@ -506,68 +446,44 @@ export type UserUpdateOneRequiredWithoutSessionsNestedInput = {
   update?: Prisma.XOR<Prisma.XOR<Prisma.UserUpdateToOneWithWhereWithoutSessionsInput, Prisma.UserUpdateWithoutSessionsInput>, Prisma.UserUncheckedUpdateWithoutSessionsInput>
 }
 
-export type EnumRoleFieldUpdateOperationsInput = {
-  set?: $Enums.Role
+export type EnumSystemRoleFieldUpdateOperationsInput = {
+  set?: $Enums.SystemRole
 }
 
 export type BoolFieldUpdateOperationsInput = {
   set?: boolean
 }
 
-export type UserCreateNestedManyWithoutPrimaryCourtInput = {
-  create?: Prisma.XOR<Prisma.UserCreateWithoutPrimaryCourtInput, Prisma.UserUncheckedCreateWithoutPrimaryCourtInput> | Prisma.UserCreateWithoutPrimaryCourtInput[] | Prisma.UserUncheckedCreateWithoutPrimaryCourtInput[]
-  connectOrCreate?: Prisma.UserCreateOrConnectWithoutPrimaryCourtInput | Prisma.UserCreateOrConnectWithoutPrimaryCourtInput[]
-  createMany?: Prisma.UserCreateManyPrimaryCourtInputEnvelope
-  connect?: Prisma.UserWhereUniqueInput | Prisma.UserWhereUniqueInput[]
-}
-
-export type UserUncheckedCreateNestedManyWithoutPrimaryCourtInput = {
-  create?: Prisma.XOR<Prisma.UserCreateWithoutPrimaryCourtInput, Prisma.UserUncheckedCreateWithoutPrimaryCourtInput> | Prisma.UserCreateWithoutPrimaryCourtInput[] | Prisma.UserUncheckedCreateWithoutPrimaryCourtInput[]
-  connectOrCreate?: Prisma.UserCreateOrConnectWithoutPrimaryCourtInput | Prisma.UserCreateOrConnectWithoutPrimaryCourtInput[]
-  createMany?: Prisma.UserCreateManyPrimaryCourtInputEnvelope
-  connect?: Prisma.UserWhereUniqueInput | Prisma.UserWhereUniqueInput[]
-}
-
-export type UserUpdateManyWithoutPrimaryCourtNestedInput = {
-  create?: Prisma.XOR<Prisma.UserCreateWithoutPrimaryCourtInput, Prisma.UserUncheckedCreateWithoutPrimaryCourtInput> | Prisma.UserCreateWithoutPrimaryCourtInput[] | Prisma.UserUncheckedCreateWithoutPrimaryCourtInput[]
-  connectOrCreate?: Prisma.UserCreateOrConnectWithoutPrimaryCourtInput | Prisma.UserCreateOrConnectWithoutPrimaryCourtInput[]
-  upsert?: Prisma.UserUpsertWithWhereUniqueWithoutPrimaryCourtInput | Prisma.UserUpsertWithWhereUniqueWithoutPrimaryCourtInput[]
-  createMany?: Prisma.UserCreateManyPrimaryCourtInputEnvelope
-  set?: Prisma.UserWhereUniqueInput | Prisma.UserWhereUniqueInput[]
-  disconnect?: Prisma.UserWhereUniqueInput | Prisma.UserWhereUniqueInput[]
-  delete?: Prisma.UserWhereUniqueInput | Prisma.UserWhereUniqueInput[]
-  connect?: Prisma.UserWhereUniqueInput | Prisma.UserWhereUniqueInput[]
-  update?: Prisma.UserUpdateWithWhereUniqueWithoutPrimaryCourtInput | Prisma.UserUpdateWithWhereUniqueWithoutPrimaryCourtInput[]
-  updateMany?: Prisma.UserUpdateManyWithWhereWithoutPrimaryCourtInput | Prisma.UserUpdateManyWithWhereWithoutPrimaryCourtInput[]
-  deleteMany?: Prisma.UserScalarWhereInput | Prisma.UserScalarWhereInput[]
-}
-
-export type UserUncheckedUpdateManyWithoutPrimaryCourtNestedInput = {
-  create?: Prisma.XOR<Prisma.UserCreateWithoutPrimaryCourtInput, Prisma.UserUncheckedCreateWithoutPrimaryCourtInput> | Prisma.UserCreateWithoutPrimaryCourtInput[] | Prisma.UserUncheckedCreateWithoutPrimaryCourtInput[]
-  connectOrCreate?: Prisma.UserCreateOrConnectWithoutPrimaryCourtInput | Prisma.UserCreateOrConnectWithoutPrimaryCourtInput[]
-  upsert?: Prisma.UserUpsertWithWhereUniqueWithoutPrimaryCourtInput | Prisma.UserUpsertWithWhereUniqueWithoutPrimaryCourtInput[]
-  createMany?: Prisma.UserCreateManyPrimaryCourtInputEnvelope
-  set?: Prisma.UserWhereUniqueInput | Prisma.UserWhereUniqueInput[]
-  disconnect?: Prisma.UserWhereUniqueInput | Prisma.UserWhereUniqueInput[]
-  delete?: Prisma.UserWhereUniqueInput | Prisma.UserWhereUniqueInput[]
-  connect?: Prisma.UserWhereUniqueInput | Prisma.UserWhereUniqueInput[]
-  update?: Prisma.UserUpdateWithWhereUniqueWithoutPrimaryCourtInput | Prisma.UserUpdateWithWhereUniqueWithoutPrimaryCourtInput[]
-  updateMany?: Prisma.UserUpdateManyWithWhereWithoutPrimaryCourtInput | Prisma.UserUpdateManyWithWhereWithoutPrimaryCourtInput[]
-  deleteMany?: Prisma.UserScalarWhereInput | Prisma.UserScalarWhereInput[]
-}
-
-export type UserCreateNestedOneWithoutCourtEligibilityInput = {
-  create?: Prisma.XOR<Prisma.UserCreateWithoutCourtEligibilityInput, Prisma.UserUncheckedCreateWithoutCourtEligibilityInput>
-  connectOrCreate?: Prisma.UserCreateOrConnectWithoutCourtEligibilityInput
+export type UserCreateNestedOneWithoutEmployeeInput = {
+  create?: Prisma.XOR<Prisma.UserCreateWithoutEmployeeInput, Prisma.UserUncheckedCreateWithoutEmployeeInput>
+  connectOrCreate?: Prisma.UserCreateOrConnectWithoutEmployeeInput
   connect?: Prisma.UserWhereUniqueInput
 }
 
-export type UserUpdateOneRequiredWithoutCourtEligibilityNestedInput = {
-  create?: Prisma.XOR<Prisma.UserCreateWithoutCourtEligibilityInput, Prisma.UserUncheckedCreateWithoutCourtEligibilityInput>
-  connectOrCreate?: Prisma.UserCreateOrConnectWithoutCourtEligibilityInput
-  upsert?: Prisma.UserUpsertWithoutCourtEligibilityInput
+export type UserUncheckedCreateNestedOneWithoutEmployeeInput = {
+  create?: Prisma.XOR<Prisma.UserCreateWithoutEmployeeInput, Prisma.UserUncheckedCreateWithoutEmployeeInput>
+  connectOrCreate?: Prisma.UserCreateOrConnectWithoutEmployeeInput
   connect?: Prisma.UserWhereUniqueInput
-  update?: Prisma.XOR<Prisma.XOR<Prisma.UserUpdateToOneWithWhereWithoutCourtEligibilityInput, Prisma.UserUpdateWithoutCourtEligibilityInput>, Prisma.UserUncheckedUpdateWithoutCourtEligibilityInput>
+}
+
+export type UserUpdateOneWithoutEmployeeNestedInput = {
+  create?: Prisma.XOR<Prisma.UserCreateWithoutEmployeeInput, Prisma.UserUncheckedCreateWithoutEmployeeInput>
+  connectOrCreate?: Prisma.UserCreateOrConnectWithoutEmployeeInput
+  upsert?: Prisma.UserUpsertWithoutEmployeeInput
+  disconnect?: Prisma.UserWhereInput | boolean
+  delete?: Prisma.UserWhereInput | boolean
+  connect?: Prisma.UserWhereUniqueInput
+  update?: Prisma.XOR<Prisma.XOR<Prisma.UserUpdateToOneWithWhereWithoutEmployeeInput, Prisma.UserUpdateWithoutEmployeeInput>, Prisma.UserUncheckedUpdateWithoutEmployeeInput>
+}
+
+export type UserUncheckedUpdateOneWithoutEmployeeNestedInput = {
+  create?: Prisma.XOR<Prisma.UserCreateWithoutEmployeeInput, Prisma.UserUncheckedCreateWithoutEmployeeInput>
+  connectOrCreate?: Prisma.UserCreateOrConnectWithoutEmployeeInput
+  upsert?: Prisma.UserUpsertWithoutEmployeeInput
+  disconnect?: Prisma.UserWhereInput | boolean
+  delete?: Prisma.UserWhereInput | boolean
+  connect?: Prisma.UserWhereUniqueInput
+  update?: Prisma.XOR<Prisma.XOR<Prisma.UserUpdateToOneWithWhereWithoutEmployeeInput, Prisma.UserUpdateWithoutEmployeeInput>, Prisma.UserUncheckedUpdateWithoutEmployeeInput>
 }
 
 export type UserCreateNestedOneWithoutPeriodsCreatedInput = {
@@ -584,20 +500,6 @@ export type UserUpdateOneRequiredWithoutPeriodsCreatedNestedInput = {
   update?: Prisma.XOR<Prisma.XOR<Prisma.UserUpdateToOneWithWhereWithoutPeriodsCreatedInput, Prisma.UserUpdateWithoutPeriodsCreatedInput>, Prisma.UserUncheckedUpdateWithoutPeriodsCreatedInput>
 }
 
-export type UserCreateNestedOneWithoutAvailabilityInput = {
-  create?: Prisma.XOR<Prisma.UserCreateWithoutAvailabilityInput, Prisma.UserUncheckedCreateWithoutAvailabilityInput>
-  connectOrCreate?: Prisma.UserCreateOrConnectWithoutAvailabilityInput
-  connect?: Prisma.UserWhereUniqueInput
-}
-
-export type UserUpdateOneRequiredWithoutAvailabilityNestedInput = {
-  create?: Prisma.XOR<Prisma.UserCreateWithoutAvailabilityInput, Prisma.UserUncheckedCreateWithoutAvailabilityInput>
-  connectOrCreate?: Prisma.UserCreateOrConnectWithoutAvailabilityInput
-  upsert?: Prisma.UserUpsertWithoutAvailabilityInput
-  connect?: Prisma.UserWhereUniqueInput
-  update?: Prisma.XOR<Prisma.XOR<Prisma.UserUpdateToOneWithWhereWithoutAvailabilityInput, Prisma.UserUpdateWithoutAvailabilityInput>, Prisma.UserUncheckedUpdateWithoutAvailabilityInput>
-}
-
 export type UserCreateNestedOneWithoutSchedulesGeneratedInput = {
   create?: Prisma.XOR<Prisma.UserCreateWithoutSchedulesGeneratedInput, Prisma.UserUncheckedCreateWithoutSchedulesGeneratedInput>
   connectOrCreate?: Prisma.UserCreateOrConnectWithoutSchedulesGeneratedInput
@@ -612,67 +514,34 @@ export type UserUpdateOneRequiredWithoutSchedulesGeneratedNestedInput = {
   update?: Prisma.XOR<Prisma.XOR<Prisma.UserUpdateToOneWithWhereWithoutSchedulesGeneratedInput, Prisma.UserUpdateWithoutSchedulesGeneratedInput>, Prisma.UserUncheckedUpdateWithoutSchedulesGeneratedInput>
 }
 
-export type UserCreateNestedOneWithoutAssignmentsInput = {
-  create?: Prisma.XOR<Prisma.UserCreateWithoutAssignmentsInput, Prisma.UserUncheckedCreateWithoutAssignmentsInput>
-  connectOrCreate?: Prisma.UserCreateOrConnectWithoutAssignmentsInput
+export type UserCreateNestedOneWithoutWarningActionsInput = {
+  create?: Prisma.XOR<Prisma.UserCreateWithoutWarningActionsInput, Prisma.UserUncheckedCreateWithoutWarningActionsInput>
+  connectOrCreate?: Prisma.UserCreateOrConnectWithoutWarningActionsInput
   connect?: Prisma.UserWhereUniqueInput
 }
 
-export type UserUpdateOneRequiredWithoutAssignmentsNestedInput = {
-  create?: Prisma.XOR<Prisma.UserCreateWithoutAssignmentsInput, Prisma.UserUncheckedCreateWithoutAssignmentsInput>
-  connectOrCreate?: Prisma.UserCreateOrConnectWithoutAssignmentsInput
-  upsert?: Prisma.UserUpsertWithoutAssignmentsInput
-  connect?: Prisma.UserWhereUniqueInput
-  update?: Prisma.XOR<Prisma.XOR<Prisma.UserUpdateToOneWithWhereWithoutAssignmentsInput, Prisma.UserUpdateWithoutAssignmentsInput>, Prisma.UserUncheckedUpdateWithoutAssignmentsInput>
-}
-
-export type UserCreateNestedOneWithoutAssignmentWarningsInput = {
-  create?: Prisma.XOR<Prisma.UserCreateWithoutAssignmentWarningsInput, Prisma.UserUncheckedCreateWithoutAssignmentWarningsInput>
-  connectOrCreate?: Prisma.UserCreateOrConnectWithoutAssignmentWarningsInput
-  connect?: Prisma.UserWhereUniqueInput
-}
-
-export type UserUpdateOneWithoutAssignmentWarningsNestedInput = {
-  create?: Prisma.XOR<Prisma.UserCreateWithoutAssignmentWarningsInput, Prisma.UserUncheckedCreateWithoutAssignmentWarningsInput>
-  connectOrCreate?: Prisma.UserCreateOrConnectWithoutAssignmentWarningsInput
-  upsert?: Prisma.UserUpsertWithoutAssignmentWarningsInput
+export type UserUpdateOneWithoutWarningActionsNestedInput = {
+  create?: Prisma.XOR<Prisma.UserCreateWithoutWarningActionsInput, Prisma.UserUncheckedCreateWithoutWarningActionsInput>
+  connectOrCreate?: Prisma.UserCreateOrConnectWithoutWarningActionsInput
+  upsert?: Prisma.UserUpsertWithoutWarningActionsInput
   disconnect?: Prisma.UserWhereInput | boolean
   delete?: Prisma.UserWhereInput | boolean
   connect?: Prisma.UserWhereUniqueInput
-  update?: Prisma.XOR<Prisma.XOR<Prisma.UserUpdateToOneWithWhereWithoutAssignmentWarningsInput, Prisma.UserUpdateWithoutAssignmentWarningsInput>, Prisma.UserUncheckedUpdateWithoutAssignmentWarningsInput>
-}
-
-export type UserCreateNestedOneWithoutFairnessRecordsInput = {
-  create?: Prisma.XOR<Prisma.UserCreateWithoutFairnessRecordsInput, Prisma.UserUncheckedCreateWithoutFairnessRecordsInput>
-  connectOrCreate?: Prisma.UserCreateOrConnectWithoutFairnessRecordsInput
-  connect?: Prisma.UserWhereUniqueInput
-}
-
-export type UserUpdateOneRequiredWithoutFairnessRecordsNestedInput = {
-  create?: Prisma.XOR<Prisma.UserCreateWithoutFairnessRecordsInput, Prisma.UserUncheckedCreateWithoutFairnessRecordsInput>
-  connectOrCreate?: Prisma.UserCreateOrConnectWithoutFairnessRecordsInput
-  upsert?: Prisma.UserUpsertWithoutFairnessRecordsInput
-  connect?: Prisma.UserWhereUniqueInput
-  update?: Prisma.XOR<Prisma.XOR<Prisma.UserUpdateToOneWithWhereWithoutFairnessRecordsInput, Prisma.UserUpdateWithoutFairnessRecordsInput>, Prisma.UserUncheckedUpdateWithoutFairnessRecordsInput>
+  update?: Prisma.XOR<Prisma.XOR<Prisma.UserUpdateToOneWithWhereWithoutWarningActionsInput, Prisma.UserUpdateWithoutWarningActionsInput>, Prisma.UserUncheckedUpdateWithoutWarningActionsInput>
 }
 
 export type UserCreateWithoutAccountsInput = {
   id?: string
   email: string
   passwordHash: string
-  name: string
-  phone?: string | null
-  role?: $Enums.Role
+  systemRole?: $Enums.SystemRole
   isActive?: boolean
   createdAt?: Date | string
-  primaryCourt?: Prisma.CourtCreateNestedOneWithoutPrimaryGuardsInput
-  courtEligibility?: Prisma.CourtEligibilityCreateNestedManyWithoutUserInput
-  availability?: Prisma.AvailabilityCreateNestedManyWithoutUserInput
-  assignments?: Prisma.ShiftAssignmentCreateNestedManyWithoutUserInput
-  fairnessRecords?: Prisma.FairnessRecordCreateNestedManyWithoutUserInput
+  updatedAt?: Date | string
+  employee?: Prisma.EmployeeCreateNestedOneWithoutUserInput
   periodsCreated?: Prisma.SchedulingPeriodCreateNestedManyWithoutCreatedByInput
   schedulesGenerated?: Prisma.ScheduleCreateNestedManyWithoutGeneratedByInput
-  assignmentWarnings?: Prisma.ScheduleWarningCreateNestedManyWithoutUserInput
+  warningActions?: Prisma.ScheduleWarningCreateNestedManyWithoutCreatedByInput
   sessions?: Prisma.SessionCreateNestedManyWithoutUserInput
 }
 
@@ -680,19 +549,14 @@ export type UserUncheckedCreateWithoutAccountsInput = {
   id?: string
   email: string
   passwordHash: string
-  name: string
-  phone?: string | null
-  role?: $Enums.Role
-  primaryCourtId?: string | null
+  systemRole?: $Enums.SystemRole
   isActive?: boolean
+  employeeId?: string | null
   createdAt?: Date | string
-  courtEligibility?: Prisma.CourtEligibilityUncheckedCreateNestedManyWithoutUserInput
-  availability?: Prisma.AvailabilityUncheckedCreateNestedManyWithoutUserInput
-  assignments?: Prisma.ShiftAssignmentUncheckedCreateNestedManyWithoutUserInput
-  fairnessRecords?: Prisma.FairnessRecordUncheckedCreateNestedManyWithoutUserInput
+  updatedAt?: Date | string
   periodsCreated?: Prisma.SchedulingPeriodUncheckedCreateNestedManyWithoutCreatedByInput
   schedulesGenerated?: Prisma.ScheduleUncheckedCreateNestedManyWithoutGeneratedByInput
-  assignmentWarnings?: Prisma.ScheduleWarningUncheckedCreateNestedManyWithoutUserInput
+  warningActions?: Prisma.ScheduleWarningUncheckedCreateNestedManyWithoutCreatedByInput
   sessions?: Prisma.SessionUncheckedCreateNestedManyWithoutUserInput
 }
 
@@ -716,19 +580,14 @@ export type UserUpdateWithoutAccountsInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
   email?: Prisma.StringFieldUpdateOperationsInput | string
   passwordHash?: Prisma.StringFieldUpdateOperationsInput | string
-  name?: Prisma.StringFieldUpdateOperationsInput | string
-  phone?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  role?: Prisma.EnumRoleFieldUpdateOperationsInput | $Enums.Role
+  systemRole?: Prisma.EnumSystemRoleFieldUpdateOperationsInput | $Enums.SystemRole
   isActive?: Prisma.BoolFieldUpdateOperationsInput | boolean
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
-  primaryCourt?: Prisma.CourtUpdateOneWithoutPrimaryGuardsNestedInput
-  courtEligibility?: Prisma.CourtEligibilityUpdateManyWithoutUserNestedInput
-  availability?: Prisma.AvailabilityUpdateManyWithoutUserNestedInput
-  assignments?: Prisma.ShiftAssignmentUpdateManyWithoutUserNestedInput
-  fairnessRecords?: Prisma.FairnessRecordUpdateManyWithoutUserNestedInput
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  employee?: Prisma.EmployeeUpdateOneWithoutUserNestedInput
   periodsCreated?: Prisma.SchedulingPeriodUpdateManyWithoutCreatedByNestedInput
   schedulesGenerated?: Prisma.ScheduleUpdateManyWithoutGeneratedByNestedInput
-  assignmentWarnings?: Prisma.ScheduleWarningUpdateManyWithoutUserNestedInput
+  warningActions?: Prisma.ScheduleWarningUpdateManyWithoutCreatedByNestedInput
   sessions?: Prisma.SessionUpdateManyWithoutUserNestedInput
 }
 
@@ -736,19 +595,14 @@ export type UserUncheckedUpdateWithoutAccountsInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
   email?: Prisma.StringFieldUpdateOperationsInput | string
   passwordHash?: Prisma.StringFieldUpdateOperationsInput | string
-  name?: Prisma.StringFieldUpdateOperationsInput | string
-  phone?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  role?: Prisma.EnumRoleFieldUpdateOperationsInput | $Enums.Role
-  primaryCourtId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  systemRole?: Prisma.EnumSystemRoleFieldUpdateOperationsInput | $Enums.SystemRole
   isActive?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  employeeId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
-  courtEligibility?: Prisma.CourtEligibilityUncheckedUpdateManyWithoutUserNestedInput
-  availability?: Prisma.AvailabilityUncheckedUpdateManyWithoutUserNestedInput
-  assignments?: Prisma.ShiftAssignmentUncheckedUpdateManyWithoutUserNestedInput
-  fairnessRecords?: Prisma.FairnessRecordUncheckedUpdateManyWithoutUserNestedInput
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   periodsCreated?: Prisma.SchedulingPeriodUncheckedUpdateManyWithoutCreatedByNestedInput
   schedulesGenerated?: Prisma.ScheduleUncheckedUpdateManyWithoutGeneratedByNestedInput
-  assignmentWarnings?: Prisma.ScheduleWarningUncheckedUpdateManyWithoutUserNestedInput
+  warningActions?: Prisma.ScheduleWarningUncheckedUpdateManyWithoutCreatedByNestedInput
   sessions?: Prisma.SessionUncheckedUpdateManyWithoutUserNestedInput
 }
 
@@ -756,19 +610,14 @@ export type UserCreateWithoutSessionsInput = {
   id?: string
   email: string
   passwordHash: string
-  name: string
-  phone?: string | null
-  role?: $Enums.Role
+  systemRole?: $Enums.SystemRole
   isActive?: boolean
   createdAt?: Date | string
-  primaryCourt?: Prisma.CourtCreateNestedOneWithoutPrimaryGuardsInput
-  courtEligibility?: Prisma.CourtEligibilityCreateNestedManyWithoutUserInput
-  availability?: Prisma.AvailabilityCreateNestedManyWithoutUserInput
-  assignments?: Prisma.ShiftAssignmentCreateNestedManyWithoutUserInput
-  fairnessRecords?: Prisma.FairnessRecordCreateNestedManyWithoutUserInput
+  updatedAt?: Date | string
+  employee?: Prisma.EmployeeCreateNestedOneWithoutUserInput
   periodsCreated?: Prisma.SchedulingPeriodCreateNestedManyWithoutCreatedByInput
   schedulesGenerated?: Prisma.ScheduleCreateNestedManyWithoutGeneratedByInput
-  assignmentWarnings?: Prisma.ScheduleWarningCreateNestedManyWithoutUserInput
+  warningActions?: Prisma.ScheduleWarningCreateNestedManyWithoutCreatedByInput
   accounts?: Prisma.AccountCreateNestedManyWithoutUserInput
 }
 
@@ -776,19 +625,14 @@ export type UserUncheckedCreateWithoutSessionsInput = {
   id?: string
   email: string
   passwordHash: string
-  name: string
-  phone?: string | null
-  role?: $Enums.Role
-  primaryCourtId?: string | null
+  systemRole?: $Enums.SystemRole
   isActive?: boolean
+  employeeId?: string | null
   createdAt?: Date | string
-  courtEligibility?: Prisma.CourtEligibilityUncheckedCreateNestedManyWithoutUserInput
-  availability?: Prisma.AvailabilityUncheckedCreateNestedManyWithoutUserInput
-  assignments?: Prisma.ShiftAssignmentUncheckedCreateNestedManyWithoutUserInput
-  fairnessRecords?: Prisma.FairnessRecordUncheckedCreateNestedManyWithoutUserInput
+  updatedAt?: Date | string
   periodsCreated?: Prisma.SchedulingPeriodUncheckedCreateNestedManyWithoutCreatedByInput
   schedulesGenerated?: Prisma.ScheduleUncheckedCreateNestedManyWithoutGeneratedByInput
-  assignmentWarnings?: Prisma.ScheduleWarningUncheckedCreateNestedManyWithoutUserInput
+  warningActions?: Prisma.ScheduleWarningUncheckedCreateNestedManyWithoutCreatedByInput
   accounts?: Prisma.AccountUncheckedCreateNestedManyWithoutUserInput
 }
 
@@ -812,19 +656,14 @@ export type UserUpdateWithoutSessionsInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
   email?: Prisma.StringFieldUpdateOperationsInput | string
   passwordHash?: Prisma.StringFieldUpdateOperationsInput | string
-  name?: Prisma.StringFieldUpdateOperationsInput | string
-  phone?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  role?: Prisma.EnumRoleFieldUpdateOperationsInput | $Enums.Role
+  systemRole?: Prisma.EnumSystemRoleFieldUpdateOperationsInput | $Enums.SystemRole
   isActive?: Prisma.BoolFieldUpdateOperationsInput | boolean
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
-  primaryCourt?: Prisma.CourtUpdateOneWithoutPrimaryGuardsNestedInput
-  courtEligibility?: Prisma.CourtEligibilityUpdateManyWithoutUserNestedInput
-  availability?: Prisma.AvailabilityUpdateManyWithoutUserNestedInput
-  assignments?: Prisma.ShiftAssignmentUpdateManyWithoutUserNestedInput
-  fairnessRecords?: Prisma.FairnessRecordUpdateManyWithoutUserNestedInput
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  employee?: Prisma.EmployeeUpdateOneWithoutUserNestedInput
   periodsCreated?: Prisma.SchedulingPeriodUpdateManyWithoutCreatedByNestedInput
   schedulesGenerated?: Prisma.ScheduleUpdateManyWithoutGeneratedByNestedInput
-  assignmentWarnings?: Prisma.ScheduleWarningUpdateManyWithoutUserNestedInput
+  warningActions?: Prisma.ScheduleWarningUpdateManyWithoutCreatedByNestedInput
   accounts?: Prisma.AccountUpdateManyWithoutUserNestedInput
 }
 
@@ -832,195 +671,89 @@ export type UserUncheckedUpdateWithoutSessionsInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
   email?: Prisma.StringFieldUpdateOperationsInput | string
   passwordHash?: Prisma.StringFieldUpdateOperationsInput | string
-  name?: Prisma.StringFieldUpdateOperationsInput | string
-  phone?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  role?: Prisma.EnumRoleFieldUpdateOperationsInput | $Enums.Role
-  primaryCourtId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  systemRole?: Prisma.EnumSystemRoleFieldUpdateOperationsInput | $Enums.SystemRole
   isActive?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  employeeId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
-  courtEligibility?: Prisma.CourtEligibilityUncheckedUpdateManyWithoutUserNestedInput
-  availability?: Prisma.AvailabilityUncheckedUpdateManyWithoutUserNestedInput
-  assignments?: Prisma.ShiftAssignmentUncheckedUpdateManyWithoutUserNestedInput
-  fairnessRecords?: Prisma.FairnessRecordUncheckedUpdateManyWithoutUserNestedInput
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   periodsCreated?: Prisma.SchedulingPeriodUncheckedUpdateManyWithoutCreatedByNestedInput
   schedulesGenerated?: Prisma.ScheduleUncheckedUpdateManyWithoutGeneratedByNestedInput
-  assignmentWarnings?: Prisma.ScheduleWarningUncheckedUpdateManyWithoutUserNestedInput
+  warningActions?: Prisma.ScheduleWarningUncheckedUpdateManyWithoutCreatedByNestedInput
   accounts?: Prisma.AccountUncheckedUpdateManyWithoutUserNestedInput
 }
 
-export type UserCreateWithoutPrimaryCourtInput = {
+export type UserCreateWithoutEmployeeInput = {
   id?: string
   email: string
   passwordHash: string
-  name: string
-  phone?: string | null
-  role?: $Enums.Role
+  systemRole?: $Enums.SystemRole
   isActive?: boolean
   createdAt?: Date | string
-  courtEligibility?: Prisma.CourtEligibilityCreateNestedManyWithoutUserInput
-  availability?: Prisma.AvailabilityCreateNestedManyWithoutUserInput
-  assignments?: Prisma.ShiftAssignmentCreateNestedManyWithoutUserInput
-  fairnessRecords?: Prisma.FairnessRecordCreateNestedManyWithoutUserInput
+  updatedAt?: Date | string
   periodsCreated?: Prisma.SchedulingPeriodCreateNestedManyWithoutCreatedByInput
   schedulesGenerated?: Prisma.ScheduleCreateNestedManyWithoutGeneratedByInput
-  assignmentWarnings?: Prisma.ScheduleWarningCreateNestedManyWithoutUserInput
+  warningActions?: Prisma.ScheduleWarningCreateNestedManyWithoutCreatedByInput
   accounts?: Prisma.AccountCreateNestedManyWithoutUserInput
   sessions?: Prisma.SessionCreateNestedManyWithoutUserInput
 }
 
-export type UserUncheckedCreateWithoutPrimaryCourtInput = {
+export type UserUncheckedCreateWithoutEmployeeInput = {
   id?: string
   email: string
   passwordHash: string
-  name: string
-  phone?: string | null
-  role?: $Enums.Role
+  systemRole?: $Enums.SystemRole
   isActive?: boolean
   createdAt?: Date | string
-  courtEligibility?: Prisma.CourtEligibilityUncheckedCreateNestedManyWithoutUserInput
-  availability?: Prisma.AvailabilityUncheckedCreateNestedManyWithoutUserInput
-  assignments?: Prisma.ShiftAssignmentUncheckedCreateNestedManyWithoutUserInput
-  fairnessRecords?: Prisma.FairnessRecordUncheckedCreateNestedManyWithoutUserInput
+  updatedAt?: Date | string
   periodsCreated?: Prisma.SchedulingPeriodUncheckedCreateNestedManyWithoutCreatedByInput
   schedulesGenerated?: Prisma.ScheduleUncheckedCreateNestedManyWithoutGeneratedByInput
-  assignmentWarnings?: Prisma.ScheduleWarningUncheckedCreateNestedManyWithoutUserInput
+  warningActions?: Prisma.ScheduleWarningUncheckedCreateNestedManyWithoutCreatedByInput
   accounts?: Prisma.AccountUncheckedCreateNestedManyWithoutUserInput
   sessions?: Prisma.SessionUncheckedCreateNestedManyWithoutUserInput
 }
 
-export type UserCreateOrConnectWithoutPrimaryCourtInput = {
+export type UserCreateOrConnectWithoutEmployeeInput = {
   where: Prisma.UserWhereUniqueInput
-  create: Prisma.XOR<Prisma.UserCreateWithoutPrimaryCourtInput, Prisma.UserUncheckedCreateWithoutPrimaryCourtInput>
+  create: Prisma.XOR<Prisma.UserCreateWithoutEmployeeInput, Prisma.UserUncheckedCreateWithoutEmployeeInput>
 }
 
-export type UserCreateManyPrimaryCourtInputEnvelope = {
-  data: Prisma.UserCreateManyPrimaryCourtInput | Prisma.UserCreateManyPrimaryCourtInput[]
-  skipDuplicates?: boolean
-}
-
-export type UserUpsertWithWhereUniqueWithoutPrimaryCourtInput = {
-  where: Prisma.UserWhereUniqueInput
-  update: Prisma.XOR<Prisma.UserUpdateWithoutPrimaryCourtInput, Prisma.UserUncheckedUpdateWithoutPrimaryCourtInput>
-  create: Prisma.XOR<Prisma.UserCreateWithoutPrimaryCourtInput, Prisma.UserUncheckedCreateWithoutPrimaryCourtInput>
-}
-
-export type UserUpdateWithWhereUniqueWithoutPrimaryCourtInput = {
-  where: Prisma.UserWhereUniqueInput
-  data: Prisma.XOR<Prisma.UserUpdateWithoutPrimaryCourtInput, Prisma.UserUncheckedUpdateWithoutPrimaryCourtInput>
-}
-
-export type UserUpdateManyWithWhereWithoutPrimaryCourtInput = {
-  where: Prisma.UserScalarWhereInput
-  data: Prisma.XOR<Prisma.UserUpdateManyMutationInput, Prisma.UserUncheckedUpdateManyWithoutPrimaryCourtInput>
-}
-
-export type UserScalarWhereInput = {
-  AND?: Prisma.UserScalarWhereInput | Prisma.UserScalarWhereInput[]
-  OR?: Prisma.UserScalarWhereInput[]
-  NOT?: Prisma.UserScalarWhereInput | Prisma.UserScalarWhereInput[]
-  id?: Prisma.StringFilter<"User"> | string
-  email?: Prisma.StringFilter<"User"> | string
-  passwordHash?: Prisma.StringFilter<"User"> | string
-  name?: Prisma.StringFilter<"User"> | string
-  phone?: Prisma.StringNullableFilter<"User"> | string | null
-  role?: Prisma.EnumRoleFilter<"User"> | $Enums.Role
-  primaryCourtId?: Prisma.StringNullableFilter<"User"> | string | null
-  isActive?: Prisma.BoolFilter<"User"> | boolean
-  createdAt?: Prisma.DateTimeFilter<"User"> | Date | string
-}
-
-export type UserCreateWithoutCourtEligibilityInput = {
-  id?: string
-  email: string
-  passwordHash: string
-  name: string
-  phone?: string | null
-  role?: $Enums.Role
-  isActive?: boolean
-  createdAt?: Date | string
-  primaryCourt?: Prisma.CourtCreateNestedOneWithoutPrimaryGuardsInput
-  availability?: Prisma.AvailabilityCreateNestedManyWithoutUserInput
-  assignments?: Prisma.ShiftAssignmentCreateNestedManyWithoutUserInput
-  fairnessRecords?: Prisma.FairnessRecordCreateNestedManyWithoutUserInput
-  periodsCreated?: Prisma.SchedulingPeriodCreateNestedManyWithoutCreatedByInput
-  schedulesGenerated?: Prisma.ScheduleCreateNestedManyWithoutGeneratedByInput
-  assignmentWarnings?: Prisma.ScheduleWarningCreateNestedManyWithoutUserInput
-  accounts?: Prisma.AccountCreateNestedManyWithoutUserInput
-  sessions?: Prisma.SessionCreateNestedManyWithoutUserInput
-}
-
-export type UserUncheckedCreateWithoutCourtEligibilityInput = {
-  id?: string
-  email: string
-  passwordHash: string
-  name: string
-  phone?: string | null
-  role?: $Enums.Role
-  primaryCourtId?: string | null
-  isActive?: boolean
-  createdAt?: Date | string
-  availability?: Prisma.AvailabilityUncheckedCreateNestedManyWithoutUserInput
-  assignments?: Prisma.ShiftAssignmentUncheckedCreateNestedManyWithoutUserInput
-  fairnessRecords?: Prisma.FairnessRecordUncheckedCreateNestedManyWithoutUserInput
-  periodsCreated?: Prisma.SchedulingPeriodUncheckedCreateNestedManyWithoutCreatedByInput
-  schedulesGenerated?: Prisma.ScheduleUncheckedCreateNestedManyWithoutGeneratedByInput
-  assignmentWarnings?: Prisma.ScheduleWarningUncheckedCreateNestedManyWithoutUserInput
-  accounts?: Prisma.AccountUncheckedCreateNestedManyWithoutUserInput
-  sessions?: Prisma.SessionUncheckedCreateNestedManyWithoutUserInput
-}
-
-export type UserCreateOrConnectWithoutCourtEligibilityInput = {
-  where: Prisma.UserWhereUniqueInput
-  create: Prisma.XOR<Prisma.UserCreateWithoutCourtEligibilityInput, Prisma.UserUncheckedCreateWithoutCourtEligibilityInput>
-}
-
-export type UserUpsertWithoutCourtEligibilityInput = {
-  update: Prisma.XOR<Prisma.UserUpdateWithoutCourtEligibilityInput, Prisma.UserUncheckedUpdateWithoutCourtEligibilityInput>
-  create: Prisma.XOR<Prisma.UserCreateWithoutCourtEligibilityInput, Prisma.UserUncheckedCreateWithoutCourtEligibilityInput>
+export type UserUpsertWithoutEmployeeInput = {
+  update: Prisma.XOR<Prisma.UserUpdateWithoutEmployeeInput, Prisma.UserUncheckedUpdateWithoutEmployeeInput>
+  create: Prisma.XOR<Prisma.UserCreateWithoutEmployeeInput, Prisma.UserUncheckedCreateWithoutEmployeeInput>
   where?: Prisma.UserWhereInput
 }
 
-export type UserUpdateToOneWithWhereWithoutCourtEligibilityInput = {
+export type UserUpdateToOneWithWhereWithoutEmployeeInput = {
   where?: Prisma.UserWhereInput
-  data: Prisma.XOR<Prisma.UserUpdateWithoutCourtEligibilityInput, Prisma.UserUncheckedUpdateWithoutCourtEligibilityInput>
+  data: Prisma.XOR<Prisma.UserUpdateWithoutEmployeeInput, Prisma.UserUncheckedUpdateWithoutEmployeeInput>
 }
 
-export type UserUpdateWithoutCourtEligibilityInput = {
+export type UserUpdateWithoutEmployeeInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
   email?: Prisma.StringFieldUpdateOperationsInput | string
   passwordHash?: Prisma.StringFieldUpdateOperationsInput | string
-  name?: Prisma.StringFieldUpdateOperationsInput | string
-  phone?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  role?: Prisma.EnumRoleFieldUpdateOperationsInput | $Enums.Role
+  systemRole?: Prisma.EnumSystemRoleFieldUpdateOperationsInput | $Enums.SystemRole
   isActive?: Prisma.BoolFieldUpdateOperationsInput | boolean
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
-  primaryCourt?: Prisma.CourtUpdateOneWithoutPrimaryGuardsNestedInput
-  availability?: Prisma.AvailabilityUpdateManyWithoutUserNestedInput
-  assignments?: Prisma.ShiftAssignmentUpdateManyWithoutUserNestedInput
-  fairnessRecords?: Prisma.FairnessRecordUpdateManyWithoutUserNestedInput
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   periodsCreated?: Prisma.SchedulingPeriodUpdateManyWithoutCreatedByNestedInput
   schedulesGenerated?: Prisma.ScheduleUpdateManyWithoutGeneratedByNestedInput
-  assignmentWarnings?: Prisma.ScheduleWarningUpdateManyWithoutUserNestedInput
+  warningActions?: Prisma.ScheduleWarningUpdateManyWithoutCreatedByNestedInput
   accounts?: Prisma.AccountUpdateManyWithoutUserNestedInput
   sessions?: Prisma.SessionUpdateManyWithoutUserNestedInput
 }
 
-export type UserUncheckedUpdateWithoutCourtEligibilityInput = {
+export type UserUncheckedUpdateWithoutEmployeeInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
   email?: Prisma.StringFieldUpdateOperationsInput | string
   passwordHash?: Prisma.StringFieldUpdateOperationsInput | string
-  name?: Prisma.StringFieldUpdateOperationsInput | string
-  phone?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  role?: Prisma.EnumRoleFieldUpdateOperationsInput | $Enums.Role
-  primaryCourtId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  systemRole?: Prisma.EnumSystemRoleFieldUpdateOperationsInput | $Enums.SystemRole
   isActive?: Prisma.BoolFieldUpdateOperationsInput | boolean
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
-  availability?: Prisma.AvailabilityUncheckedUpdateManyWithoutUserNestedInput
-  assignments?: Prisma.ShiftAssignmentUncheckedUpdateManyWithoutUserNestedInput
-  fairnessRecords?: Prisma.FairnessRecordUncheckedUpdateManyWithoutUserNestedInput
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   periodsCreated?: Prisma.SchedulingPeriodUncheckedUpdateManyWithoutCreatedByNestedInput
   schedulesGenerated?: Prisma.ScheduleUncheckedUpdateManyWithoutGeneratedByNestedInput
-  assignmentWarnings?: Prisma.ScheduleWarningUncheckedUpdateManyWithoutUserNestedInput
+  warningActions?: Prisma.ScheduleWarningUncheckedUpdateManyWithoutCreatedByNestedInput
   accounts?: Prisma.AccountUncheckedUpdateManyWithoutUserNestedInput
   sessions?: Prisma.SessionUncheckedUpdateManyWithoutUserNestedInput
 }
@@ -1029,18 +762,13 @@ export type UserCreateWithoutPeriodsCreatedInput = {
   id?: string
   email: string
   passwordHash: string
-  name: string
-  phone?: string | null
-  role?: $Enums.Role
+  systemRole?: $Enums.SystemRole
   isActive?: boolean
   createdAt?: Date | string
-  primaryCourt?: Prisma.CourtCreateNestedOneWithoutPrimaryGuardsInput
-  courtEligibility?: Prisma.CourtEligibilityCreateNestedManyWithoutUserInput
-  availability?: Prisma.AvailabilityCreateNestedManyWithoutUserInput
-  assignments?: Prisma.ShiftAssignmentCreateNestedManyWithoutUserInput
-  fairnessRecords?: Prisma.FairnessRecordCreateNestedManyWithoutUserInput
+  updatedAt?: Date | string
+  employee?: Prisma.EmployeeCreateNestedOneWithoutUserInput
   schedulesGenerated?: Prisma.ScheduleCreateNestedManyWithoutGeneratedByInput
-  assignmentWarnings?: Prisma.ScheduleWarningCreateNestedManyWithoutUserInput
+  warningActions?: Prisma.ScheduleWarningCreateNestedManyWithoutCreatedByInput
   accounts?: Prisma.AccountCreateNestedManyWithoutUserInput
   sessions?: Prisma.SessionCreateNestedManyWithoutUserInput
 }
@@ -1049,18 +777,13 @@ export type UserUncheckedCreateWithoutPeriodsCreatedInput = {
   id?: string
   email: string
   passwordHash: string
-  name: string
-  phone?: string | null
-  role?: $Enums.Role
-  primaryCourtId?: string | null
+  systemRole?: $Enums.SystemRole
   isActive?: boolean
+  employeeId?: string | null
   createdAt?: Date | string
-  courtEligibility?: Prisma.CourtEligibilityUncheckedCreateNestedManyWithoutUserInput
-  availability?: Prisma.AvailabilityUncheckedCreateNestedManyWithoutUserInput
-  assignments?: Prisma.ShiftAssignmentUncheckedCreateNestedManyWithoutUserInput
-  fairnessRecords?: Prisma.FairnessRecordUncheckedCreateNestedManyWithoutUserInput
+  updatedAt?: Date | string
   schedulesGenerated?: Prisma.ScheduleUncheckedCreateNestedManyWithoutGeneratedByInput
-  assignmentWarnings?: Prisma.ScheduleWarningUncheckedCreateNestedManyWithoutUserInput
+  warningActions?: Prisma.ScheduleWarningUncheckedCreateNestedManyWithoutCreatedByInput
   accounts?: Prisma.AccountUncheckedCreateNestedManyWithoutUserInput
   sessions?: Prisma.SessionUncheckedCreateNestedManyWithoutUserInput
 }
@@ -1085,18 +808,13 @@ export type UserUpdateWithoutPeriodsCreatedInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
   email?: Prisma.StringFieldUpdateOperationsInput | string
   passwordHash?: Prisma.StringFieldUpdateOperationsInput | string
-  name?: Prisma.StringFieldUpdateOperationsInput | string
-  phone?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  role?: Prisma.EnumRoleFieldUpdateOperationsInput | $Enums.Role
+  systemRole?: Prisma.EnumSystemRoleFieldUpdateOperationsInput | $Enums.SystemRole
   isActive?: Prisma.BoolFieldUpdateOperationsInput | boolean
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
-  primaryCourt?: Prisma.CourtUpdateOneWithoutPrimaryGuardsNestedInput
-  courtEligibility?: Prisma.CourtEligibilityUpdateManyWithoutUserNestedInput
-  availability?: Prisma.AvailabilityUpdateManyWithoutUserNestedInput
-  assignments?: Prisma.ShiftAssignmentUpdateManyWithoutUserNestedInput
-  fairnessRecords?: Prisma.FairnessRecordUpdateManyWithoutUserNestedInput
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  employee?: Prisma.EmployeeUpdateOneWithoutUserNestedInput
   schedulesGenerated?: Prisma.ScheduleUpdateManyWithoutGeneratedByNestedInput
-  assignmentWarnings?: Prisma.ScheduleWarningUpdateManyWithoutUserNestedInput
+  warningActions?: Prisma.ScheduleWarningUpdateManyWithoutCreatedByNestedInput
   accounts?: Prisma.AccountUpdateManyWithoutUserNestedInput
   sessions?: Prisma.SessionUpdateManyWithoutUserNestedInput
 }
@@ -1105,114 +823,13 @@ export type UserUncheckedUpdateWithoutPeriodsCreatedInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
   email?: Prisma.StringFieldUpdateOperationsInput | string
   passwordHash?: Prisma.StringFieldUpdateOperationsInput | string
-  name?: Prisma.StringFieldUpdateOperationsInput | string
-  phone?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  role?: Prisma.EnumRoleFieldUpdateOperationsInput | $Enums.Role
-  primaryCourtId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  systemRole?: Prisma.EnumSystemRoleFieldUpdateOperationsInput | $Enums.SystemRole
   isActive?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  employeeId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
-  courtEligibility?: Prisma.CourtEligibilityUncheckedUpdateManyWithoutUserNestedInput
-  availability?: Prisma.AvailabilityUncheckedUpdateManyWithoutUserNestedInput
-  assignments?: Prisma.ShiftAssignmentUncheckedUpdateManyWithoutUserNestedInput
-  fairnessRecords?: Prisma.FairnessRecordUncheckedUpdateManyWithoutUserNestedInput
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   schedulesGenerated?: Prisma.ScheduleUncheckedUpdateManyWithoutGeneratedByNestedInput
-  assignmentWarnings?: Prisma.ScheduleWarningUncheckedUpdateManyWithoutUserNestedInput
-  accounts?: Prisma.AccountUncheckedUpdateManyWithoutUserNestedInput
-  sessions?: Prisma.SessionUncheckedUpdateManyWithoutUserNestedInput
-}
-
-export type UserCreateWithoutAvailabilityInput = {
-  id?: string
-  email: string
-  passwordHash: string
-  name: string
-  phone?: string | null
-  role?: $Enums.Role
-  isActive?: boolean
-  createdAt?: Date | string
-  primaryCourt?: Prisma.CourtCreateNestedOneWithoutPrimaryGuardsInput
-  courtEligibility?: Prisma.CourtEligibilityCreateNestedManyWithoutUserInput
-  assignments?: Prisma.ShiftAssignmentCreateNestedManyWithoutUserInput
-  fairnessRecords?: Prisma.FairnessRecordCreateNestedManyWithoutUserInput
-  periodsCreated?: Prisma.SchedulingPeriodCreateNestedManyWithoutCreatedByInput
-  schedulesGenerated?: Prisma.ScheduleCreateNestedManyWithoutGeneratedByInput
-  assignmentWarnings?: Prisma.ScheduleWarningCreateNestedManyWithoutUserInput
-  accounts?: Prisma.AccountCreateNestedManyWithoutUserInput
-  sessions?: Prisma.SessionCreateNestedManyWithoutUserInput
-}
-
-export type UserUncheckedCreateWithoutAvailabilityInput = {
-  id?: string
-  email: string
-  passwordHash: string
-  name: string
-  phone?: string | null
-  role?: $Enums.Role
-  primaryCourtId?: string | null
-  isActive?: boolean
-  createdAt?: Date | string
-  courtEligibility?: Prisma.CourtEligibilityUncheckedCreateNestedManyWithoutUserInput
-  assignments?: Prisma.ShiftAssignmentUncheckedCreateNestedManyWithoutUserInput
-  fairnessRecords?: Prisma.FairnessRecordUncheckedCreateNestedManyWithoutUserInput
-  periodsCreated?: Prisma.SchedulingPeriodUncheckedCreateNestedManyWithoutCreatedByInput
-  schedulesGenerated?: Prisma.ScheduleUncheckedCreateNestedManyWithoutGeneratedByInput
-  assignmentWarnings?: Prisma.ScheduleWarningUncheckedCreateNestedManyWithoutUserInput
-  accounts?: Prisma.AccountUncheckedCreateNestedManyWithoutUserInput
-  sessions?: Prisma.SessionUncheckedCreateNestedManyWithoutUserInput
-}
-
-export type UserCreateOrConnectWithoutAvailabilityInput = {
-  where: Prisma.UserWhereUniqueInput
-  create: Prisma.XOR<Prisma.UserCreateWithoutAvailabilityInput, Prisma.UserUncheckedCreateWithoutAvailabilityInput>
-}
-
-export type UserUpsertWithoutAvailabilityInput = {
-  update: Prisma.XOR<Prisma.UserUpdateWithoutAvailabilityInput, Prisma.UserUncheckedUpdateWithoutAvailabilityInput>
-  create: Prisma.XOR<Prisma.UserCreateWithoutAvailabilityInput, Prisma.UserUncheckedCreateWithoutAvailabilityInput>
-  where?: Prisma.UserWhereInput
-}
-
-export type UserUpdateToOneWithWhereWithoutAvailabilityInput = {
-  where?: Prisma.UserWhereInput
-  data: Prisma.XOR<Prisma.UserUpdateWithoutAvailabilityInput, Prisma.UserUncheckedUpdateWithoutAvailabilityInput>
-}
-
-export type UserUpdateWithoutAvailabilityInput = {
-  id?: Prisma.StringFieldUpdateOperationsInput | string
-  email?: Prisma.StringFieldUpdateOperationsInput | string
-  passwordHash?: Prisma.StringFieldUpdateOperationsInput | string
-  name?: Prisma.StringFieldUpdateOperationsInput | string
-  phone?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  role?: Prisma.EnumRoleFieldUpdateOperationsInput | $Enums.Role
-  isActive?: Prisma.BoolFieldUpdateOperationsInput | boolean
-  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
-  primaryCourt?: Prisma.CourtUpdateOneWithoutPrimaryGuardsNestedInput
-  courtEligibility?: Prisma.CourtEligibilityUpdateManyWithoutUserNestedInput
-  assignments?: Prisma.ShiftAssignmentUpdateManyWithoutUserNestedInput
-  fairnessRecords?: Prisma.FairnessRecordUpdateManyWithoutUserNestedInput
-  periodsCreated?: Prisma.SchedulingPeriodUpdateManyWithoutCreatedByNestedInput
-  schedulesGenerated?: Prisma.ScheduleUpdateManyWithoutGeneratedByNestedInput
-  assignmentWarnings?: Prisma.ScheduleWarningUpdateManyWithoutUserNestedInput
-  accounts?: Prisma.AccountUpdateManyWithoutUserNestedInput
-  sessions?: Prisma.SessionUpdateManyWithoutUserNestedInput
-}
-
-export type UserUncheckedUpdateWithoutAvailabilityInput = {
-  id?: Prisma.StringFieldUpdateOperationsInput | string
-  email?: Prisma.StringFieldUpdateOperationsInput | string
-  passwordHash?: Prisma.StringFieldUpdateOperationsInput | string
-  name?: Prisma.StringFieldUpdateOperationsInput | string
-  phone?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  role?: Prisma.EnumRoleFieldUpdateOperationsInput | $Enums.Role
-  primaryCourtId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  isActive?: Prisma.BoolFieldUpdateOperationsInput | boolean
-  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
-  courtEligibility?: Prisma.CourtEligibilityUncheckedUpdateManyWithoutUserNestedInput
-  assignments?: Prisma.ShiftAssignmentUncheckedUpdateManyWithoutUserNestedInput
-  fairnessRecords?: Prisma.FairnessRecordUncheckedUpdateManyWithoutUserNestedInput
-  periodsCreated?: Prisma.SchedulingPeriodUncheckedUpdateManyWithoutCreatedByNestedInput
-  schedulesGenerated?: Prisma.ScheduleUncheckedUpdateManyWithoutGeneratedByNestedInput
-  assignmentWarnings?: Prisma.ScheduleWarningUncheckedUpdateManyWithoutUserNestedInput
+  warningActions?: Prisma.ScheduleWarningUncheckedUpdateManyWithoutCreatedByNestedInput
   accounts?: Prisma.AccountUncheckedUpdateManyWithoutUserNestedInput
   sessions?: Prisma.SessionUncheckedUpdateManyWithoutUserNestedInput
 }
@@ -1221,18 +838,13 @@ export type UserCreateWithoutSchedulesGeneratedInput = {
   id?: string
   email: string
   passwordHash: string
-  name: string
-  phone?: string | null
-  role?: $Enums.Role
+  systemRole?: $Enums.SystemRole
   isActive?: boolean
   createdAt?: Date | string
-  primaryCourt?: Prisma.CourtCreateNestedOneWithoutPrimaryGuardsInput
-  courtEligibility?: Prisma.CourtEligibilityCreateNestedManyWithoutUserInput
-  availability?: Prisma.AvailabilityCreateNestedManyWithoutUserInput
-  assignments?: Prisma.ShiftAssignmentCreateNestedManyWithoutUserInput
-  fairnessRecords?: Prisma.FairnessRecordCreateNestedManyWithoutUserInput
+  updatedAt?: Date | string
+  employee?: Prisma.EmployeeCreateNestedOneWithoutUserInput
   periodsCreated?: Prisma.SchedulingPeriodCreateNestedManyWithoutCreatedByInput
-  assignmentWarnings?: Prisma.ScheduleWarningCreateNestedManyWithoutUserInput
+  warningActions?: Prisma.ScheduleWarningCreateNestedManyWithoutCreatedByInput
   accounts?: Prisma.AccountCreateNestedManyWithoutUserInput
   sessions?: Prisma.SessionCreateNestedManyWithoutUserInput
 }
@@ -1241,18 +853,13 @@ export type UserUncheckedCreateWithoutSchedulesGeneratedInput = {
   id?: string
   email: string
   passwordHash: string
-  name: string
-  phone?: string | null
-  role?: $Enums.Role
-  primaryCourtId?: string | null
+  systemRole?: $Enums.SystemRole
   isActive?: boolean
+  employeeId?: string | null
   createdAt?: Date | string
-  courtEligibility?: Prisma.CourtEligibilityUncheckedCreateNestedManyWithoutUserInput
-  availability?: Prisma.AvailabilityUncheckedCreateNestedManyWithoutUserInput
-  assignments?: Prisma.ShiftAssignmentUncheckedCreateNestedManyWithoutUserInput
-  fairnessRecords?: Prisma.FairnessRecordUncheckedCreateNestedManyWithoutUserInput
+  updatedAt?: Date | string
   periodsCreated?: Prisma.SchedulingPeriodUncheckedCreateNestedManyWithoutCreatedByInput
-  assignmentWarnings?: Prisma.ScheduleWarningUncheckedCreateNestedManyWithoutUserInput
+  warningActions?: Prisma.ScheduleWarningUncheckedCreateNestedManyWithoutCreatedByInput
   accounts?: Prisma.AccountUncheckedCreateNestedManyWithoutUserInput
   sessions?: Prisma.SessionUncheckedCreateNestedManyWithoutUserInput
 }
@@ -1277,18 +884,13 @@ export type UserUpdateWithoutSchedulesGeneratedInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
   email?: Prisma.StringFieldUpdateOperationsInput | string
   passwordHash?: Prisma.StringFieldUpdateOperationsInput | string
-  name?: Prisma.StringFieldUpdateOperationsInput | string
-  phone?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  role?: Prisma.EnumRoleFieldUpdateOperationsInput | $Enums.Role
+  systemRole?: Prisma.EnumSystemRoleFieldUpdateOperationsInput | $Enums.SystemRole
   isActive?: Prisma.BoolFieldUpdateOperationsInput | boolean
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
-  primaryCourt?: Prisma.CourtUpdateOneWithoutPrimaryGuardsNestedInput
-  courtEligibility?: Prisma.CourtEligibilityUpdateManyWithoutUserNestedInput
-  availability?: Prisma.AvailabilityUpdateManyWithoutUserNestedInput
-  assignments?: Prisma.ShiftAssignmentUpdateManyWithoutUserNestedInput
-  fairnessRecords?: Prisma.FairnessRecordUpdateManyWithoutUserNestedInput
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  employee?: Prisma.EmployeeUpdateOneWithoutUserNestedInput
   periodsCreated?: Prisma.SchedulingPeriodUpdateManyWithoutCreatedByNestedInput
-  assignmentWarnings?: Prisma.ScheduleWarningUpdateManyWithoutUserNestedInput
+  warningActions?: Prisma.ScheduleWarningUpdateManyWithoutCreatedByNestedInput
   accounts?: Prisma.AccountUpdateManyWithoutUserNestedInput
   sessions?: Prisma.SessionUpdateManyWithoutUserNestedInput
 }
@@ -1297,370 +899,91 @@ export type UserUncheckedUpdateWithoutSchedulesGeneratedInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
   email?: Prisma.StringFieldUpdateOperationsInput | string
   passwordHash?: Prisma.StringFieldUpdateOperationsInput | string
-  name?: Prisma.StringFieldUpdateOperationsInput | string
-  phone?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  role?: Prisma.EnumRoleFieldUpdateOperationsInput | $Enums.Role
-  primaryCourtId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  systemRole?: Prisma.EnumSystemRoleFieldUpdateOperationsInput | $Enums.SystemRole
   isActive?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  employeeId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
-  courtEligibility?: Prisma.CourtEligibilityUncheckedUpdateManyWithoutUserNestedInput
-  availability?: Prisma.AvailabilityUncheckedUpdateManyWithoutUserNestedInput
-  assignments?: Prisma.ShiftAssignmentUncheckedUpdateManyWithoutUserNestedInput
-  fairnessRecords?: Prisma.FairnessRecordUncheckedUpdateManyWithoutUserNestedInput
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   periodsCreated?: Prisma.SchedulingPeriodUncheckedUpdateManyWithoutCreatedByNestedInput
-  assignmentWarnings?: Prisma.ScheduleWarningUncheckedUpdateManyWithoutUserNestedInput
+  warningActions?: Prisma.ScheduleWarningUncheckedUpdateManyWithoutCreatedByNestedInput
   accounts?: Prisma.AccountUncheckedUpdateManyWithoutUserNestedInput
   sessions?: Prisma.SessionUncheckedUpdateManyWithoutUserNestedInput
 }
 
-export type UserCreateWithoutAssignmentsInput = {
+export type UserCreateWithoutWarningActionsInput = {
   id?: string
   email: string
   passwordHash: string
-  name: string
-  phone?: string | null
-  role?: $Enums.Role
+  systemRole?: $Enums.SystemRole
   isActive?: boolean
   createdAt?: Date | string
-  primaryCourt?: Prisma.CourtCreateNestedOneWithoutPrimaryGuardsInput
-  courtEligibility?: Prisma.CourtEligibilityCreateNestedManyWithoutUserInput
-  availability?: Prisma.AvailabilityCreateNestedManyWithoutUserInput
-  fairnessRecords?: Prisma.FairnessRecordCreateNestedManyWithoutUserInput
-  periodsCreated?: Prisma.SchedulingPeriodCreateNestedManyWithoutCreatedByInput
-  schedulesGenerated?: Prisma.ScheduleCreateNestedManyWithoutGeneratedByInput
-  assignmentWarnings?: Prisma.ScheduleWarningCreateNestedManyWithoutUserInput
-  accounts?: Prisma.AccountCreateNestedManyWithoutUserInput
-  sessions?: Prisma.SessionCreateNestedManyWithoutUserInput
-}
-
-export type UserUncheckedCreateWithoutAssignmentsInput = {
-  id?: string
-  email: string
-  passwordHash: string
-  name: string
-  phone?: string | null
-  role?: $Enums.Role
-  primaryCourtId?: string | null
-  isActive?: boolean
-  createdAt?: Date | string
-  courtEligibility?: Prisma.CourtEligibilityUncheckedCreateNestedManyWithoutUserInput
-  availability?: Prisma.AvailabilityUncheckedCreateNestedManyWithoutUserInput
-  fairnessRecords?: Prisma.FairnessRecordUncheckedCreateNestedManyWithoutUserInput
-  periodsCreated?: Prisma.SchedulingPeriodUncheckedCreateNestedManyWithoutCreatedByInput
-  schedulesGenerated?: Prisma.ScheduleUncheckedCreateNestedManyWithoutGeneratedByInput
-  assignmentWarnings?: Prisma.ScheduleWarningUncheckedCreateNestedManyWithoutUserInput
-  accounts?: Prisma.AccountUncheckedCreateNestedManyWithoutUserInput
-  sessions?: Prisma.SessionUncheckedCreateNestedManyWithoutUserInput
-}
-
-export type UserCreateOrConnectWithoutAssignmentsInput = {
-  where: Prisma.UserWhereUniqueInput
-  create: Prisma.XOR<Prisma.UserCreateWithoutAssignmentsInput, Prisma.UserUncheckedCreateWithoutAssignmentsInput>
-}
-
-export type UserUpsertWithoutAssignmentsInput = {
-  update: Prisma.XOR<Prisma.UserUpdateWithoutAssignmentsInput, Prisma.UserUncheckedUpdateWithoutAssignmentsInput>
-  create: Prisma.XOR<Prisma.UserCreateWithoutAssignmentsInput, Prisma.UserUncheckedCreateWithoutAssignmentsInput>
-  where?: Prisma.UserWhereInput
-}
-
-export type UserUpdateToOneWithWhereWithoutAssignmentsInput = {
-  where?: Prisma.UserWhereInput
-  data: Prisma.XOR<Prisma.UserUpdateWithoutAssignmentsInput, Prisma.UserUncheckedUpdateWithoutAssignmentsInput>
-}
-
-export type UserUpdateWithoutAssignmentsInput = {
-  id?: Prisma.StringFieldUpdateOperationsInput | string
-  email?: Prisma.StringFieldUpdateOperationsInput | string
-  passwordHash?: Prisma.StringFieldUpdateOperationsInput | string
-  name?: Prisma.StringFieldUpdateOperationsInput | string
-  phone?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  role?: Prisma.EnumRoleFieldUpdateOperationsInput | $Enums.Role
-  isActive?: Prisma.BoolFieldUpdateOperationsInput | boolean
-  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
-  primaryCourt?: Prisma.CourtUpdateOneWithoutPrimaryGuardsNestedInput
-  courtEligibility?: Prisma.CourtEligibilityUpdateManyWithoutUserNestedInput
-  availability?: Prisma.AvailabilityUpdateManyWithoutUserNestedInput
-  fairnessRecords?: Prisma.FairnessRecordUpdateManyWithoutUserNestedInput
-  periodsCreated?: Prisma.SchedulingPeriodUpdateManyWithoutCreatedByNestedInput
-  schedulesGenerated?: Prisma.ScheduleUpdateManyWithoutGeneratedByNestedInput
-  assignmentWarnings?: Prisma.ScheduleWarningUpdateManyWithoutUserNestedInput
-  accounts?: Prisma.AccountUpdateManyWithoutUserNestedInput
-  sessions?: Prisma.SessionUpdateManyWithoutUserNestedInput
-}
-
-export type UserUncheckedUpdateWithoutAssignmentsInput = {
-  id?: Prisma.StringFieldUpdateOperationsInput | string
-  email?: Prisma.StringFieldUpdateOperationsInput | string
-  passwordHash?: Prisma.StringFieldUpdateOperationsInput | string
-  name?: Prisma.StringFieldUpdateOperationsInput | string
-  phone?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  role?: Prisma.EnumRoleFieldUpdateOperationsInput | $Enums.Role
-  primaryCourtId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  isActive?: Prisma.BoolFieldUpdateOperationsInput | boolean
-  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
-  courtEligibility?: Prisma.CourtEligibilityUncheckedUpdateManyWithoutUserNestedInput
-  availability?: Prisma.AvailabilityUncheckedUpdateManyWithoutUserNestedInput
-  fairnessRecords?: Prisma.FairnessRecordUncheckedUpdateManyWithoutUserNestedInput
-  periodsCreated?: Prisma.SchedulingPeriodUncheckedUpdateManyWithoutCreatedByNestedInput
-  schedulesGenerated?: Prisma.ScheduleUncheckedUpdateManyWithoutGeneratedByNestedInput
-  assignmentWarnings?: Prisma.ScheduleWarningUncheckedUpdateManyWithoutUserNestedInput
-  accounts?: Prisma.AccountUncheckedUpdateManyWithoutUserNestedInput
-  sessions?: Prisma.SessionUncheckedUpdateManyWithoutUserNestedInput
-}
-
-export type UserCreateWithoutAssignmentWarningsInput = {
-  id?: string
-  email: string
-  passwordHash: string
-  name: string
-  phone?: string | null
-  role?: $Enums.Role
-  isActive?: boolean
-  createdAt?: Date | string
-  primaryCourt?: Prisma.CourtCreateNestedOneWithoutPrimaryGuardsInput
-  courtEligibility?: Prisma.CourtEligibilityCreateNestedManyWithoutUserInput
-  availability?: Prisma.AvailabilityCreateNestedManyWithoutUserInput
-  assignments?: Prisma.ShiftAssignmentCreateNestedManyWithoutUserInput
-  fairnessRecords?: Prisma.FairnessRecordCreateNestedManyWithoutUserInput
+  updatedAt?: Date | string
+  employee?: Prisma.EmployeeCreateNestedOneWithoutUserInput
   periodsCreated?: Prisma.SchedulingPeriodCreateNestedManyWithoutCreatedByInput
   schedulesGenerated?: Prisma.ScheduleCreateNestedManyWithoutGeneratedByInput
   accounts?: Prisma.AccountCreateNestedManyWithoutUserInput
   sessions?: Prisma.SessionCreateNestedManyWithoutUserInput
 }
 
-export type UserUncheckedCreateWithoutAssignmentWarningsInput = {
+export type UserUncheckedCreateWithoutWarningActionsInput = {
   id?: string
   email: string
   passwordHash: string
-  name: string
-  phone?: string | null
-  role?: $Enums.Role
-  primaryCourtId?: string | null
+  systemRole?: $Enums.SystemRole
   isActive?: boolean
+  employeeId?: string | null
   createdAt?: Date | string
-  courtEligibility?: Prisma.CourtEligibilityUncheckedCreateNestedManyWithoutUserInput
-  availability?: Prisma.AvailabilityUncheckedCreateNestedManyWithoutUserInput
-  assignments?: Prisma.ShiftAssignmentUncheckedCreateNestedManyWithoutUserInput
-  fairnessRecords?: Prisma.FairnessRecordUncheckedCreateNestedManyWithoutUserInput
+  updatedAt?: Date | string
   periodsCreated?: Prisma.SchedulingPeriodUncheckedCreateNestedManyWithoutCreatedByInput
   schedulesGenerated?: Prisma.ScheduleUncheckedCreateNestedManyWithoutGeneratedByInput
   accounts?: Prisma.AccountUncheckedCreateNestedManyWithoutUserInput
   sessions?: Prisma.SessionUncheckedCreateNestedManyWithoutUserInput
 }
 
-export type UserCreateOrConnectWithoutAssignmentWarningsInput = {
+export type UserCreateOrConnectWithoutWarningActionsInput = {
   where: Prisma.UserWhereUniqueInput
-  create: Prisma.XOR<Prisma.UserCreateWithoutAssignmentWarningsInput, Prisma.UserUncheckedCreateWithoutAssignmentWarningsInput>
+  create: Prisma.XOR<Prisma.UserCreateWithoutWarningActionsInput, Prisma.UserUncheckedCreateWithoutWarningActionsInput>
 }
 
-export type UserUpsertWithoutAssignmentWarningsInput = {
-  update: Prisma.XOR<Prisma.UserUpdateWithoutAssignmentWarningsInput, Prisma.UserUncheckedUpdateWithoutAssignmentWarningsInput>
-  create: Prisma.XOR<Prisma.UserCreateWithoutAssignmentWarningsInput, Prisma.UserUncheckedCreateWithoutAssignmentWarningsInput>
+export type UserUpsertWithoutWarningActionsInput = {
+  update: Prisma.XOR<Prisma.UserUpdateWithoutWarningActionsInput, Prisma.UserUncheckedUpdateWithoutWarningActionsInput>
+  create: Prisma.XOR<Prisma.UserCreateWithoutWarningActionsInput, Prisma.UserUncheckedCreateWithoutWarningActionsInput>
   where?: Prisma.UserWhereInput
 }
 
-export type UserUpdateToOneWithWhereWithoutAssignmentWarningsInput = {
+export type UserUpdateToOneWithWhereWithoutWarningActionsInput = {
   where?: Prisma.UserWhereInput
-  data: Prisma.XOR<Prisma.UserUpdateWithoutAssignmentWarningsInput, Prisma.UserUncheckedUpdateWithoutAssignmentWarningsInput>
+  data: Prisma.XOR<Prisma.UserUpdateWithoutWarningActionsInput, Prisma.UserUncheckedUpdateWithoutWarningActionsInput>
 }
 
-export type UserUpdateWithoutAssignmentWarningsInput = {
+export type UserUpdateWithoutWarningActionsInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
   email?: Prisma.StringFieldUpdateOperationsInput | string
   passwordHash?: Prisma.StringFieldUpdateOperationsInput | string
-  name?: Prisma.StringFieldUpdateOperationsInput | string
-  phone?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  role?: Prisma.EnumRoleFieldUpdateOperationsInput | $Enums.Role
+  systemRole?: Prisma.EnumSystemRoleFieldUpdateOperationsInput | $Enums.SystemRole
   isActive?: Prisma.BoolFieldUpdateOperationsInput | boolean
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
-  primaryCourt?: Prisma.CourtUpdateOneWithoutPrimaryGuardsNestedInput
-  courtEligibility?: Prisma.CourtEligibilityUpdateManyWithoutUserNestedInput
-  availability?: Prisma.AvailabilityUpdateManyWithoutUserNestedInput
-  assignments?: Prisma.ShiftAssignmentUpdateManyWithoutUserNestedInput
-  fairnessRecords?: Prisma.FairnessRecordUpdateManyWithoutUserNestedInput
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  employee?: Prisma.EmployeeUpdateOneWithoutUserNestedInput
   periodsCreated?: Prisma.SchedulingPeriodUpdateManyWithoutCreatedByNestedInput
   schedulesGenerated?: Prisma.ScheduleUpdateManyWithoutGeneratedByNestedInput
   accounts?: Prisma.AccountUpdateManyWithoutUserNestedInput
   sessions?: Prisma.SessionUpdateManyWithoutUserNestedInput
 }
 
-export type UserUncheckedUpdateWithoutAssignmentWarningsInput = {
+export type UserUncheckedUpdateWithoutWarningActionsInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
   email?: Prisma.StringFieldUpdateOperationsInput | string
   passwordHash?: Prisma.StringFieldUpdateOperationsInput | string
-  name?: Prisma.StringFieldUpdateOperationsInput | string
-  phone?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  role?: Prisma.EnumRoleFieldUpdateOperationsInput | $Enums.Role
-  primaryCourtId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  systemRole?: Prisma.EnumSystemRoleFieldUpdateOperationsInput | $Enums.SystemRole
   isActive?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  employeeId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
-  courtEligibility?: Prisma.CourtEligibilityUncheckedUpdateManyWithoutUserNestedInput
-  availability?: Prisma.AvailabilityUncheckedUpdateManyWithoutUserNestedInput
-  assignments?: Prisma.ShiftAssignmentUncheckedUpdateManyWithoutUserNestedInput
-  fairnessRecords?: Prisma.FairnessRecordUncheckedUpdateManyWithoutUserNestedInput
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   periodsCreated?: Prisma.SchedulingPeriodUncheckedUpdateManyWithoutCreatedByNestedInput
   schedulesGenerated?: Prisma.ScheduleUncheckedUpdateManyWithoutGeneratedByNestedInput
   accounts?: Prisma.AccountUncheckedUpdateManyWithoutUserNestedInput
   sessions?: Prisma.SessionUncheckedUpdateManyWithoutUserNestedInput
-}
-
-export type UserCreateWithoutFairnessRecordsInput = {
-  id?: string
-  email: string
-  passwordHash: string
-  name: string
-  phone?: string | null
-  role?: $Enums.Role
-  isActive?: boolean
-  createdAt?: Date | string
-  primaryCourt?: Prisma.CourtCreateNestedOneWithoutPrimaryGuardsInput
-  courtEligibility?: Prisma.CourtEligibilityCreateNestedManyWithoutUserInput
-  availability?: Prisma.AvailabilityCreateNestedManyWithoutUserInput
-  assignments?: Prisma.ShiftAssignmentCreateNestedManyWithoutUserInput
-  periodsCreated?: Prisma.SchedulingPeriodCreateNestedManyWithoutCreatedByInput
-  schedulesGenerated?: Prisma.ScheduleCreateNestedManyWithoutGeneratedByInput
-  assignmentWarnings?: Prisma.ScheduleWarningCreateNestedManyWithoutUserInput
-  accounts?: Prisma.AccountCreateNestedManyWithoutUserInput
-  sessions?: Prisma.SessionCreateNestedManyWithoutUserInput
-}
-
-export type UserUncheckedCreateWithoutFairnessRecordsInput = {
-  id?: string
-  email: string
-  passwordHash: string
-  name: string
-  phone?: string | null
-  role?: $Enums.Role
-  primaryCourtId?: string | null
-  isActive?: boolean
-  createdAt?: Date | string
-  courtEligibility?: Prisma.CourtEligibilityUncheckedCreateNestedManyWithoutUserInput
-  availability?: Prisma.AvailabilityUncheckedCreateNestedManyWithoutUserInput
-  assignments?: Prisma.ShiftAssignmentUncheckedCreateNestedManyWithoutUserInput
-  periodsCreated?: Prisma.SchedulingPeriodUncheckedCreateNestedManyWithoutCreatedByInput
-  schedulesGenerated?: Prisma.ScheduleUncheckedCreateNestedManyWithoutGeneratedByInput
-  assignmentWarnings?: Prisma.ScheduleWarningUncheckedCreateNestedManyWithoutUserInput
-  accounts?: Prisma.AccountUncheckedCreateNestedManyWithoutUserInput
-  sessions?: Prisma.SessionUncheckedCreateNestedManyWithoutUserInput
-}
-
-export type UserCreateOrConnectWithoutFairnessRecordsInput = {
-  where: Prisma.UserWhereUniqueInput
-  create: Prisma.XOR<Prisma.UserCreateWithoutFairnessRecordsInput, Prisma.UserUncheckedCreateWithoutFairnessRecordsInput>
-}
-
-export type UserUpsertWithoutFairnessRecordsInput = {
-  update: Prisma.XOR<Prisma.UserUpdateWithoutFairnessRecordsInput, Prisma.UserUncheckedUpdateWithoutFairnessRecordsInput>
-  create: Prisma.XOR<Prisma.UserCreateWithoutFairnessRecordsInput, Prisma.UserUncheckedCreateWithoutFairnessRecordsInput>
-  where?: Prisma.UserWhereInput
-}
-
-export type UserUpdateToOneWithWhereWithoutFairnessRecordsInput = {
-  where?: Prisma.UserWhereInput
-  data: Prisma.XOR<Prisma.UserUpdateWithoutFairnessRecordsInput, Prisma.UserUncheckedUpdateWithoutFairnessRecordsInput>
-}
-
-export type UserUpdateWithoutFairnessRecordsInput = {
-  id?: Prisma.StringFieldUpdateOperationsInput | string
-  email?: Prisma.StringFieldUpdateOperationsInput | string
-  passwordHash?: Prisma.StringFieldUpdateOperationsInput | string
-  name?: Prisma.StringFieldUpdateOperationsInput | string
-  phone?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  role?: Prisma.EnumRoleFieldUpdateOperationsInput | $Enums.Role
-  isActive?: Prisma.BoolFieldUpdateOperationsInput | boolean
-  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
-  primaryCourt?: Prisma.CourtUpdateOneWithoutPrimaryGuardsNestedInput
-  courtEligibility?: Prisma.CourtEligibilityUpdateManyWithoutUserNestedInput
-  availability?: Prisma.AvailabilityUpdateManyWithoutUserNestedInput
-  assignments?: Prisma.ShiftAssignmentUpdateManyWithoutUserNestedInput
-  periodsCreated?: Prisma.SchedulingPeriodUpdateManyWithoutCreatedByNestedInput
-  schedulesGenerated?: Prisma.ScheduleUpdateManyWithoutGeneratedByNestedInput
-  assignmentWarnings?: Prisma.ScheduleWarningUpdateManyWithoutUserNestedInput
-  accounts?: Prisma.AccountUpdateManyWithoutUserNestedInput
-  sessions?: Prisma.SessionUpdateManyWithoutUserNestedInput
-}
-
-export type UserUncheckedUpdateWithoutFairnessRecordsInput = {
-  id?: Prisma.StringFieldUpdateOperationsInput | string
-  email?: Prisma.StringFieldUpdateOperationsInput | string
-  passwordHash?: Prisma.StringFieldUpdateOperationsInput | string
-  name?: Prisma.StringFieldUpdateOperationsInput | string
-  phone?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  role?: Prisma.EnumRoleFieldUpdateOperationsInput | $Enums.Role
-  primaryCourtId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  isActive?: Prisma.BoolFieldUpdateOperationsInput | boolean
-  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
-  courtEligibility?: Prisma.CourtEligibilityUncheckedUpdateManyWithoutUserNestedInput
-  availability?: Prisma.AvailabilityUncheckedUpdateManyWithoutUserNestedInput
-  assignments?: Prisma.ShiftAssignmentUncheckedUpdateManyWithoutUserNestedInput
-  periodsCreated?: Prisma.SchedulingPeriodUncheckedUpdateManyWithoutCreatedByNestedInput
-  schedulesGenerated?: Prisma.ScheduleUncheckedUpdateManyWithoutGeneratedByNestedInput
-  assignmentWarnings?: Prisma.ScheduleWarningUncheckedUpdateManyWithoutUserNestedInput
-  accounts?: Prisma.AccountUncheckedUpdateManyWithoutUserNestedInput
-  sessions?: Prisma.SessionUncheckedUpdateManyWithoutUserNestedInput
-}
-
-export type UserCreateManyPrimaryCourtInput = {
-  id?: string
-  email: string
-  passwordHash: string
-  name: string
-  phone?: string | null
-  role?: $Enums.Role
-  isActive?: boolean
-  createdAt?: Date | string
-}
-
-export type UserUpdateWithoutPrimaryCourtInput = {
-  id?: Prisma.StringFieldUpdateOperationsInput | string
-  email?: Prisma.StringFieldUpdateOperationsInput | string
-  passwordHash?: Prisma.StringFieldUpdateOperationsInput | string
-  name?: Prisma.StringFieldUpdateOperationsInput | string
-  phone?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  role?: Prisma.EnumRoleFieldUpdateOperationsInput | $Enums.Role
-  isActive?: Prisma.BoolFieldUpdateOperationsInput | boolean
-  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
-  courtEligibility?: Prisma.CourtEligibilityUpdateManyWithoutUserNestedInput
-  availability?: Prisma.AvailabilityUpdateManyWithoutUserNestedInput
-  assignments?: Prisma.ShiftAssignmentUpdateManyWithoutUserNestedInput
-  fairnessRecords?: Prisma.FairnessRecordUpdateManyWithoutUserNestedInput
-  periodsCreated?: Prisma.SchedulingPeriodUpdateManyWithoutCreatedByNestedInput
-  schedulesGenerated?: Prisma.ScheduleUpdateManyWithoutGeneratedByNestedInput
-  assignmentWarnings?: Prisma.ScheduleWarningUpdateManyWithoutUserNestedInput
-  accounts?: Prisma.AccountUpdateManyWithoutUserNestedInput
-  sessions?: Prisma.SessionUpdateManyWithoutUserNestedInput
-}
-
-export type UserUncheckedUpdateWithoutPrimaryCourtInput = {
-  id?: Prisma.StringFieldUpdateOperationsInput | string
-  email?: Prisma.StringFieldUpdateOperationsInput | string
-  passwordHash?: Prisma.StringFieldUpdateOperationsInput | string
-  name?: Prisma.StringFieldUpdateOperationsInput | string
-  phone?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  role?: Prisma.EnumRoleFieldUpdateOperationsInput | $Enums.Role
-  isActive?: Prisma.BoolFieldUpdateOperationsInput | boolean
-  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
-  courtEligibility?: Prisma.CourtEligibilityUncheckedUpdateManyWithoutUserNestedInput
-  availability?: Prisma.AvailabilityUncheckedUpdateManyWithoutUserNestedInput
-  assignments?: Prisma.ShiftAssignmentUncheckedUpdateManyWithoutUserNestedInput
-  fairnessRecords?: Prisma.FairnessRecordUncheckedUpdateManyWithoutUserNestedInput
-  periodsCreated?: Prisma.SchedulingPeriodUncheckedUpdateManyWithoutCreatedByNestedInput
-  schedulesGenerated?: Prisma.ScheduleUncheckedUpdateManyWithoutGeneratedByNestedInput
-  assignmentWarnings?: Prisma.ScheduleWarningUncheckedUpdateManyWithoutUserNestedInput
-  accounts?: Prisma.AccountUncheckedUpdateManyWithoutUserNestedInput
-  sessions?: Prisma.SessionUncheckedUpdateManyWithoutUserNestedInput
-}
-
-export type UserUncheckedUpdateManyWithoutPrimaryCourtInput = {
-  id?: Prisma.StringFieldUpdateOperationsInput | string
-  email?: Prisma.StringFieldUpdateOperationsInput | string
-  passwordHash?: Prisma.StringFieldUpdateOperationsInput | string
-  name?: Prisma.StringFieldUpdateOperationsInput | string
-  phone?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  role?: Prisma.EnumRoleFieldUpdateOperationsInput | $Enums.Role
-  isActive?: Prisma.BoolFieldUpdateOperationsInput | boolean
-  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
 }
 
 
@@ -1669,25 +992,17 @@ export type UserUncheckedUpdateManyWithoutPrimaryCourtInput = {
  */
 
 export type UserCountOutputType = {
-  courtEligibility: number
-  availability: number
-  assignments: number
-  fairnessRecords: number
   periodsCreated: number
   schedulesGenerated: number
-  assignmentWarnings: number
+  warningActions: number
   accounts: number
   sessions: number
 }
 
 export type UserCountOutputTypeSelect<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
-  courtEligibility?: boolean | UserCountOutputTypeCountCourtEligibilityArgs
-  availability?: boolean | UserCountOutputTypeCountAvailabilityArgs
-  assignments?: boolean | UserCountOutputTypeCountAssignmentsArgs
-  fairnessRecords?: boolean | UserCountOutputTypeCountFairnessRecordsArgs
   periodsCreated?: boolean | UserCountOutputTypeCountPeriodsCreatedArgs
   schedulesGenerated?: boolean | UserCountOutputTypeCountSchedulesGeneratedArgs
-  assignmentWarnings?: boolean | UserCountOutputTypeCountAssignmentWarningsArgs
+  warningActions?: boolean | UserCountOutputTypeCountWarningActionsArgs
   accounts?: boolean | UserCountOutputTypeCountAccountsArgs
   sessions?: boolean | UserCountOutputTypeCountSessionsArgs
 }
@@ -1700,34 +1015,6 @@ export type UserCountOutputTypeDefaultArgs<ExtArgs extends runtime.Types.Extensi
    * Select specific fields to fetch from the UserCountOutputType
    */
   select?: Prisma.UserCountOutputTypeSelect<ExtArgs> | null
-}
-
-/**
- * UserCountOutputType without action
- */
-export type UserCountOutputTypeCountCourtEligibilityArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
-  where?: Prisma.CourtEligibilityWhereInput
-}
-
-/**
- * UserCountOutputType without action
- */
-export type UserCountOutputTypeCountAvailabilityArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
-  where?: Prisma.AvailabilityWhereInput
-}
-
-/**
- * UserCountOutputType without action
- */
-export type UserCountOutputTypeCountAssignmentsArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
-  where?: Prisma.ShiftAssignmentWhereInput
-}
-
-/**
- * UserCountOutputType without action
- */
-export type UserCountOutputTypeCountFairnessRecordsArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
-  where?: Prisma.FairnessRecordWhereInput
 }
 
 /**
@@ -1747,7 +1034,7 @@ export type UserCountOutputTypeCountSchedulesGeneratedArgs<ExtArgs extends runti
 /**
  * UserCountOutputType without action
  */
-export type UserCountOutputTypeCountAssignmentWarningsArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+export type UserCountOutputTypeCountWarningActionsArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
   where?: Prisma.ScheduleWarningWhereInput
 }
 
@@ -1770,20 +1057,15 @@ export type UserSelect<ExtArgs extends runtime.Types.Extensions.InternalArgs = r
   id?: boolean
   email?: boolean
   passwordHash?: boolean
-  name?: boolean
-  phone?: boolean
-  role?: boolean
-  primaryCourtId?: boolean
+  systemRole?: boolean
   isActive?: boolean
+  employeeId?: boolean
   createdAt?: boolean
-  primaryCourt?: boolean | Prisma.User$primaryCourtArgs<ExtArgs>
-  courtEligibility?: boolean | Prisma.User$courtEligibilityArgs<ExtArgs>
-  availability?: boolean | Prisma.User$availabilityArgs<ExtArgs>
-  assignments?: boolean | Prisma.User$assignmentsArgs<ExtArgs>
-  fairnessRecords?: boolean | Prisma.User$fairnessRecordsArgs<ExtArgs>
+  updatedAt?: boolean
+  employee?: boolean | Prisma.User$employeeArgs<ExtArgs>
   periodsCreated?: boolean | Prisma.User$periodsCreatedArgs<ExtArgs>
   schedulesGenerated?: boolean | Prisma.User$schedulesGeneratedArgs<ExtArgs>
-  assignmentWarnings?: boolean | Prisma.User$assignmentWarningsArgs<ExtArgs>
+  warningActions?: boolean | Prisma.User$warningActionsArgs<ExtArgs>
   accounts?: boolean | Prisma.User$accountsArgs<ExtArgs>
   sessions?: boolean | Prisma.User$sessionsArgs<ExtArgs>
   _count?: boolean | Prisma.UserCountOutputTypeDefaultArgs<ExtArgs>
@@ -1793,72 +1075,61 @@ export type UserSelectCreateManyAndReturn<ExtArgs extends runtime.Types.Extensio
   id?: boolean
   email?: boolean
   passwordHash?: boolean
-  name?: boolean
-  phone?: boolean
-  role?: boolean
-  primaryCourtId?: boolean
+  systemRole?: boolean
   isActive?: boolean
+  employeeId?: boolean
   createdAt?: boolean
-  primaryCourt?: boolean | Prisma.User$primaryCourtArgs<ExtArgs>
+  updatedAt?: boolean
+  employee?: boolean | Prisma.User$employeeArgs<ExtArgs>
 }, ExtArgs["result"]["user"]>
 
 export type UserSelectUpdateManyAndReturn<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetSelect<{
   id?: boolean
   email?: boolean
   passwordHash?: boolean
-  name?: boolean
-  phone?: boolean
-  role?: boolean
-  primaryCourtId?: boolean
+  systemRole?: boolean
   isActive?: boolean
+  employeeId?: boolean
   createdAt?: boolean
-  primaryCourt?: boolean | Prisma.User$primaryCourtArgs<ExtArgs>
+  updatedAt?: boolean
+  employee?: boolean | Prisma.User$employeeArgs<ExtArgs>
 }, ExtArgs["result"]["user"]>
 
 export type UserSelectScalar = {
   id?: boolean
   email?: boolean
   passwordHash?: boolean
-  name?: boolean
-  phone?: boolean
-  role?: boolean
-  primaryCourtId?: boolean
+  systemRole?: boolean
   isActive?: boolean
+  employeeId?: boolean
   createdAt?: boolean
+  updatedAt?: boolean
 }
 
-export type UserOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"id" | "email" | "passwordHash" | "name" | "phone" | "role" | "primaryCourtId" | "isActive" | "createdAt", ExtArgs["result"]["user"]>
+export type UserOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"id" | "email" | "passwordHash" | "systemRole" | "isActive" | "employeeId" | "createdAt" | "updatedAt", ExtArgs["result"]["user"]>
 export type UserInclude<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
-  primaryCourt?: boolean | Prisma.User$primaryCourtArgs<ExtArgs>
-  courtEligibility?: boolean | Prisma.User$courtEligibilityArgs<ExtArgs>
-  availability?: boolean | Prisma.User$availabilityArgs<ExtArgs>
-  assignments?: boolean | Prisma.User$assignmentsArgs<ExtArgs>
-  fairnessRecords?: boolean | Prisma.User$fairnessRecordsArgs<ExtArgs>
+  employee?: boolean | Prisma.User$employeeArgs<ExtArgs>
   periodsCreated?: boolean | Prisma.User$periodsCreatedArgs<ExtArgs>
   schedulesGenerated?: boolean | Prisma.User$schedulesGeneratedArgs<ExtArgs>
-  assignmentWarnings?: boolean | Prisma.User$assignmentWarningsArgs<ExtArgs>
+  warningActions?: boolean | Prisma.User$warningActionsArgs<ExtArgs>
   accounts?: boolean | Prisma.User$accountsArgs<ExtArgs>
   sessions?: boolean | Prisma.User$sessionsArgs<ExtArgs>
   _count?: boolean | Prisma.UserCountOutputTypeDefaultArgs<ExtArgs>
 }
 export type UserIncludeCreateManyAndReturn<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
-  primaryCourt?: boolean | Prisma.User$primaryCourtArgs<ExtArgs>
+  employee?: boolean | Prisma.User$employeeArgs<ExtArgs>
 }
 export type UserIncludeUpdateManyAndReturn<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
-  primaryCourt?: boolean | Prisma.User$primaryCourtArgs<ExtArgs>
+  employee?: boolean | Prisma.User$employeeArgs<ExtArgs>
 }
 
 export type $UserPayload<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
   name: "User"
   objects: {
-    primaryCourt: Prisma.$CourtPayload<ExtArgs> | null
-    courtEligibility: Prisma.$CourtEligibilityPayload<ExtArgs>[]
-    availability: Prisma.$AvailabilityPayload<ExtArgs>[]
-    assignments: Prisma.$ShiftAssignmentPayload<ExtArgs>[]
-    fairnessRecords: Prisma.$FairnessRecordPayload<ExtArgs>[]
+    employee: Prisma.$EmployeePayload<ExtArgs> | null
     periodsCreated: Prisma.$SchedulingPeriodPayload<ExtArgs>[]
     schedulesGenerated: Prisma.$SchedulePayload<ExtArgs>[]
-    assignmentWarnings: Prisma.$ScheduleWarningPayload<ExtArgs>[]
+    warningActions: Prisma.$ScheduleWarningPayload<ExtArgs>[]
     accounts: Prisma.$AccountPayload<ExtArgs>[]
     sessions: Prisma.$SessionPayload<ExtArgs>[]
   }
@@ -1866,12 +1137,11 @@ export type $UserPayload<ExtArgs extends runtime.Types.Extensions.InternalArgs =
     id: string
     email: string
     passwordHash: string
-    name: string
-    phone: string | null
-    role: $Enums.Role
-    primaryCourtId: string | null
+    systemRole: $Enums.SystemRole
     isActive: boolean
+    employeeId: string | null
     createdAt: Date
+    updatedAt: Date
   }, ExtArgs["result"]["user"]>
   composites: {}
 }
@@ -2266,14 +1536,10 @@ readonly fields: UserFieldRefs;
  */
 export interface Prisma__UserClient<T, Null = never, ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs, GlobalOmitOptions = {}> extends Prisma.PrismaPromise<T> {
   readonly [Symbol.toStringTag]: "PrismaPromise"
-  primaryCourt<T extends Prisma.User$primaryCourtArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.User$primaryCourtArgs<ExtArgs>>): Prisma.Prisma__CourtClient<runtime.Types.Result.GetResult<Prisma.$CourtPayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions> | null, null, ExtArgs, GlobalOmitOptions>
-  courtEligibility<T extends Prisma.User$courtEligibilityArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.User$courtEligibilityArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$CourtEligibilityPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
-  availability<T extends Prisma.User$availabilityArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.User$availabilityArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$AvailabilityPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
-  assignments<T extends Prisma.User$assignmentsArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.User$assignmentsArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$ShiftAssignmentPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
-  fairnessRecords<T extends Prisma.User$fairnessRecordsArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.User$fairnessRecordsArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$FairnessRecordPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
+  employee<T extends Prisma.User$employeeArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.User$employeeArgs<ExtArgs>>): Prisma.Prisma__EmployeeClient<runtime.Types.Result.GetResult<Prisma.$EmployeePayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions> | null, null, ExtArgs, GlobalOmitOptions>
   periodsCreated<T extends Prisma.User$periodsCreatedArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.User$periodsCreatedArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$SchedulingPeriodPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
   schedulesGenerated<T extends Prisma.User$schedulesGeneratedArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.User$schedulesGeneratedArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$SchedulePayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
-  assignmentWarnings<T extends Prisma.User$assignmentWarningsArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.User$assignmentWarningsArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$ScheduleWarningPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
+  warningActions<T extends Prisma.User$warningActionsArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.User$warningActionsArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$ScheduleWarningPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
   accounts<T extends Prisma.User$accountsArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.User$accountsArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$AccountPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
   sessions<T extends Prisma.User$sessionsArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.User$sessionsArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$SessionPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
   /**
@@ -2308,12 +1574,11 @@ export interface UserFieldRefs {
   readonly id: Prisma.FieldRef<"User", 'String'>
   readonly email: Prisma.FieldRef<"User", 'String'>
   readonly passwordHash: Prisma.FieldRef<"User", 'String'>
-  readonly name: Prisma.FieldRef<"User", 'String'>
-  readonly phone: Prisma.FieldRef<"User", 'String'>
-  readonly role: Prisma.FieldRef<"User", 'Role'>
-  readonly primaryCourtId: Prisma.FieldRef<"User", 'String'>
+  readonly systemRole: Prisma.FieldRef<"User", 'SystemRole'>
   readonly isActive: Prisma.FieldRef<"User", 'Boolean'>
+  readonly employeeId: Prisma.FieldRef<"User", 'String'>
   readonly createdAt: Prisma.FieldRef<"User", 'DateTime'>
+  readonly updatedAt: Prisma.FieldRef<"User", 'DateTime'>
 }
     
 
@@ -2715,118 +1980,22 @@ export type UserDeleteManyArgs<ExtArgs extends runtime.Types.Extensions.Internal
 }
 
 /**
- * User.primaryCourt
+ * User.employee
  */
-export type User$primaryCourtArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+export type User$employeeArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
   /**
-   * Select specific fields to fetch from the Court
+   * Select specific fields to fetch from the Employee
    */
-  select?: Prisma.CourtSelect<ExtArgs> | null
+  select?: Prisma.EmployeeSelect<ExtArgs> | null
   /**
-   * Omit specific fields from the Court
+   * Omit specific fields from the Employee
    */
-  omit?: Prisma.CourtOmit<ExtArgs> | null
+  omit?: Prisma.EmployeeOmit<ExtArgs> | null
   /**
    * Choose, which related nodes to fetch as well
    */
-  include?: Prisma.CourtInclude<ExtArgs> | null
-  where?: Prisma.CourtWhereInput
-}
-
-/**
- * User.courtEligibility
- */
-export type User$courtEligibilityArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
-  /**
-   * Select specific fields to fetch from the CourtEligibility
-   */
-  select?: Prisma.CourtEligibilitySelect<ExtArgs> | null
-  /**
-   * Omit specific fields from the CourtEligibility
-   */
-  omit?: Prisma.CourtEligibilityOmit<ExtArgs> | null
-  /**
-   * Choose, which related nodes to fetch as well
-   */
-  include?: Prisma.CourtEligibilityInclude<ExtArgs> | null
-  where?: Prisma.CourtEligibilityWhereInput
-  orderBy?: Prisma.CourtEligibilityOrderByWithRelationInput | Prisma.CourtEligibilityOrderByWithRelationInput[]
-  cursor?: Prisma.CourtEligibilityWhereUniqueInput
-  take?: number
-  skip?: number
-  distinct?: Prisma.CourtEligibilityScalarFieldEnum | Prisma.CourtEligibilityScalarFieldEnum[]
-}
-
-/**
- * User.availability
- */
-export type User$availabilityArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
-  /**
-   * Select specific fields to fetch from the Availability
-   */
-  select?: Prisma.AvailabilitySelect<ExtArgs> | null
-  /**
-   * Omit specific fields from the Availability
-   */
-  omit?: Prisma.AvailabilityOmit<ExtArgs> | null
-  /**
-   * Choose, which related nodes to fetch as well
-   */
-  include?: Prisma.AvailabilityInclude<ExtArgs> | null
-  where?: Prisma.AvailabilityWhereInput
-  orderBy?: Prisma.AvailabilityOrderByWithRelationInput | Prisma.AvailabilityOrderByWithRelationInput[]
-  cursor?: Prisma.AvailabilityWhereUniqueInput
-  take?: number
-  skip?: number
-  distinct?: Prisma.AvailabilityScalarFieldEnum | Prisma.AvailabilityScalarFieldEnum[]
-}
-
-/**
- * User.assignments
- */
-export type User$assignmentsArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
-  /**
-   * Select specific fields to fetch from the ShiftAssignment
-   */
-  select?: Prisma.ShiftAssignmentSelect<ExtArgs> | null
-  /**
-   * Omit specific fields from the ShiftAssignment
-   */
-  omit?: Prisma.ShiftAssignmentOmit<ExtArgs> | null
-  /**
-   * Choose, which related nodes to fetch as well
-   */
-  include?: Prisma.ShiftAssignmentInclude<ExtArgs> | null
-  where?: Prisma.ShiftAssignmentWhereInput
-  orderBy?: Prisma.ShiftAssignmentOrderByWithRelationInput | Prisma.ShiftAssignmentOrderByWithRelationInput[]
-  cursor?: Prisma.ShiftAssignmentWhereUniqueInput
-  take?: number
-  skip?: number
-  distinct?: Prisma.ShiftAssignmentScalarFieldEnum | Prisma.ShiftAssignmentScalarFieldEnum[]
-}
-
-/**
- * User.fairnessRecords
- */
-export type User$fairnessRecordsArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
-  /**
-   * Select specific fields to fetch from the FairnessRecord
-   */
-  select?: Prisma.FairnessRecordSelect<ExtArgs> | null
-  /**
-   * Omit specific fields from the FairnessRecord
-   */
-  omit?: Prisma.FairnessRecordOmit<ExtArgs> | null
-  /**
-   * Choose, which related nodes to fetch as well
-   */
-  include?: Prisma.FairnessRecordInclude<ExtArgs> | null
-  where?: Prisma.FairnessRecordWhereInput
-  orderBy?: Prisma.FairnessRecordOrderByWithRelationInput | Prisma.FairnessRecordOrderByWithRelationInput[]
-  cursor?: Prisma.FairnessRecordWhereUniqueInput
-  take?: number
-  skip?: number
-  distinct?: Prisma.FairnessRecordScalarFieldEnum | Prisma.FairnessRecordScalarFieldEnum[]
+  include?: Prisma.EmployeeInclude<ExtArgs> | null
+  where?: Prisma.EmployeeWhereInput
 }
 
 /**
@@ -2878,9 +2047,9 @@ export type User$schedulesGeneratedArgs<ExtArgs extends runtime.Types.Extensions
 }
 
 /**
- * User.assignmentWarnings
+ * User.warningActions
  */
-export type User$assignmentWarningsArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+export type User$warningActionsArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
   /**
    * Select specific fields to fetch from the ScheduleWarning
    */

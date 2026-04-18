@@ -1,12 +1,13 @@
-import { getServerSession } from 'next-auth'
-import { redirect } from 'next/navigation'
-import { authOptions } from '@/lib/auth'
-import { Card, CardHeader, CardTitle, CardContent } from '@/components/ui/card'
-import { LoginForm } from './LoginForm'
+import { getServerSession } from 'next-auth';
+import { redirect } from 'next/navigation';
+import { authOptions } from '@/lib/auth';
+import { Card, CardHeader, CardTitle, CardContent } from '@/components/ui/card';
+import { LoginForm } from './LoginForm';
 
 export default async function LoginPage() {
-  const session = await getServerSession(authOptions)
-  if (session) redirect('/')
+  const session = await getServerSession(authOptions);
+  // Only skip login when JWT has a role claim; otherwise middleware treats user as logged out → redirect loop (/ ↔ /login).
+  if (session?.user?.systemRole) redirect('/');
 
   return (
     <Card className="w-full max-w-sm">
@@ -18,5 +19,5 @@ export default async function LoginPage() {
         <LoginForm />
       </CardContent>
     </Card>
-  )
+  );
 }

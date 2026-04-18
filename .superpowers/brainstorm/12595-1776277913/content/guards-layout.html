@@ -1,0 +1,142 @@
+<h2>How should the guards management page look?</h2>
+<p class="subtitle">Three layout options for viewing and managing guards in the manager's court</p>
+
+<div class="cards">
+
+  <div class="card" data-choice="a" onclick="toggleSelect(this)">
+    <div class="card-image" style="padding:16px; background:#f8fafc; font-family:-apple-system,sans-serif; direction:rtl;">
+      <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:12px;">
+        <span style="font-weight:700; font-size:14px;">מאבטחים (7)</span>
+        <button style="background:#0f172a; color:white; border:none; border-radius:6px; padding:5px 12px; font-size:12px; cursor:pointer;">+ הוסף מאבטח</button>
+      </div>
+      <table style="width:100%; border-collapse:collapse; font-size:12px;">
+        <thead>
+          <tr style="background:#f1f5f9;">
+            <th style="padding:6px 8px; text-align:right; border-bottom:1px solid #e2e8f0;">שם</th>
+            <th style="padding:6px 8px; text-align:right; border-bottom:1px solid #e2e8f0;">אימייל</th>
+            <th style="padding:6px 8px; text-align:right; border-bottom:1px solid #e2e8f0;">טלפון</th>
+            <th style="padding:6px 8px; text-align:right; border-bottom:1px solid #e2e8f0;">סטטוס</th>
+            <th style="padding:6px 8px; border-bottom:1px solid #e2e8f0;"></th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr style="border-bottom:1px solid #f1f5f9;">
+            <td style="padding:6px 8px;">יובל כהן</td>
+            <td style="padding:6px 8px; color:#64748b;">cohen@court.gov.il</td>
+            <td style="padding:6px 8px; color:#64748b;">050-1234567</td>
+            <td style="padding:6px 8px;"><span style="background:#dcfce7;color:#166534;border-radius:4px;padding:2px 6px;font-size:11px;">פעיל</span></td>
+            <td style="padding:6px 8px; text-align:left;">
+              <span style="color:#3b82f6; cursor:pointer; margin-left:8px;">✏️</span>
+              <span style="color:#ef4444; cursor:pointer;">🗑️</span>
+            </td>
+          </tr>
+          <tr style="border-bottom:1px solid #f1f5f9; opacity:0.5;">
+            <td style="padding:6px 8px;">מיכל לוי</td>
+            <td style="padding:6px 8px; color:#64748b;">levi@court.gov.il</td>
+            <td style="padding:6px 8px; color:#64748b;">—</td>
+            <td style="padding:6px 8px;"><span style="background:#f1f5f9;color:#64748b;border-radius:4px;padding:2px 6px;font-size:11px;">לא פעיל</span></td>
+            <td style="padding:6px 8px; text-align:left;">
+              <span style="color:#3b82f6; cursor:pointer; margin-left:8px;">✏️</span>
+              <span style="color:#ef4444; cursor:pointer;">🗑️</span>
+            </td>
+          </tr>
+          <tr>
+            <td style="padding:6px 8px;">ראמי עבד</td>
+            <td style="padding:6px 8px; color:#64748b;">abed@court.gov.il</td>
+            <td style="padding:6px 8px; color:#64748b;">054-9876543</td>
+            <td style="padding:6px 8px;"><span style="background:#dcfce7;color:#166534;border-radius:4px;padding:2px 6px;font-size:11px;">פעיל</span></td>
+            <td style="padding:6px 8px; text-align:left;">
+              <span style="color:#3b82f6; cursor:pointer; margin-left:8px;">✏️</span>
+              <span style="color:#ef4444; cursor:pointer;">🗑️</span>
+            </td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+    <div class="card-body">
+      <h3>A — Table with inline actions</h3>
+      <p>Dense table listing all guards. Edit ✏️ and delete 🗑️ icons on each row. Add button at the top. Inactive guards shown dimmed.</p>
+    </div>
+  </div>
+
+  <div class="card" data-choice="b" onclick="toggleSelect(this)">
+    <div class="card-image" style="padding:16px; background:#f8fafc; font-family:-apple-system,sans-serif; direction:rtl;">
+      <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:12px;">
+        <span style="font-weight:700; font-size:14px;">מאבטחים (7)</span>
+        <button style="background:#0f172a; color:white; border:none; border-radius:6px; padding:5px 12px; font-size:12px;">+ הוסף מאבטח</button>
+      </div>
+      <div style="display:grid; grid-template-columns:1fr 1fr; gap:8px;">
+        <div style="background:white; border:1px solid #e2e8f0; border-radius:8px; padding:10px;">
+          <div style="display:flex; justify-content:space-between; align-items:flex-start;">
+            <div>
+              <div style="font-weight:600; font-size:13px;">יובל כהן</div>
+              <div style="font-size:11px; color:#64748b; margin-top:2px;">cohen@court.gov.il</div>
+              <div style="font-size:11px; color:#64748b;">050-1234567</div>
+            </div>
+            <span style="background:#dcfce7;color:#166534;border-radius:4px;padding:2px 6px;font-size:10px;">פעיל</span>
+          </div>
+          <div style="display:flex; gap:6px; margin-top:8px; padding-top:8px; border-top:1px solid #f1f5f9;">
+            <button style="flex:1; background:#f8fafc; border:1px solid #e2e8f0; border-radius:4px; padding:3px; font-size:11px; cursor:pointer;">עריכה</button>
+            <button style="flex:1; background:#fef2f2; border:1px solid #fecaca; border-radius:4px; padding:3px; font-size:11px; color:#dc2626; cursor:pointer;">מחיקה</button>
+          </div>
+        </div>
+        <div style="background:white; border:1px solid #e2e8f0; border-radius:8px; padding:10px; opacity:0.5;">
+          <div style="display:flex; justify-content:space-between; align-items:flex-start;">
+            <div>
+              <div style="font-weight:600; font-size:13px;">מיכל לוי</div>
+              <div style="font-size:11px; color:#64748b; margin-top:2px;">levi@court.gov.il</div>
+              <div style="font-size:11px; color:#64748b;">—</div>
+            </div>
+            <span style="background:#f1f5f9;color:#64748b;border-radius:4px;padding:2px 6px;font-size:10px;">לא פעיל</span>
+          </div>
+          <div style="display:flex; gap:6px; margin-top:8px; padding-top:8px; border-top:1px solid #f1f5f9;">
+            <button style="flex:1; background:#f8fafc; border:1px solid #e2e8f0; border-radius:4px; padding:3px; font-size:11px; cursor:pointer;">עריכה</button>
+            <button style="flex:1; background:#fef2f2; border:1px solid #fecaca; border-radius:4px; padding:3px; font-size:11px; color:#dc2626; cursor:pointer;">מחיקה</button>
+          </div>
+        </div>
+      </div>
+    </div>
+    <div class="card-body">
+      <h3>B — Card grid</h3>
+      <p>2-column card grid. Each guard is a card with name, email, phone, status badge, and edit/delete buttons. More spacious, less dense.</p>
+    </div>
+  </div>
+
+  <div class="card" data-choice="c" onclick="toggleSelect(this)">
+    <div class="card-image" style="padding:16px; background:#f8fafc; font-family:-apple-system,sans-serif; direction:rtl; display:flex; gap:10px;">
+      <div style="flex:1;">
+        <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:10px;">
+          <span style="font-weight:700; font-size:13px;">מאבטחים (7)</span>
+          <button style="background:#0f172a; color:white; border:none; border-radius:6px; padding:4px 10px; font-size:11px;">+ הוסף</button>
+        </div>
+        <div style="background:white; border:1px solid #e2e8f0; border-radius:8px; overflow:hidden;">
+          <div style="padding:8px 10px; border-bottom:1px solid #f1f5f9; display:flex; justify-content:space-between; align-items:center; background:#eff6ff;">
+            <span style="font-weight:600; font-size:12px;">יובל כהן</span>
+            <span style="font-size:10px; color:#3b82f6;">✓ נבחר</span>
+          </div>
+          <div style="padding:8px 10px; border-bottom:1px solid #f1f5f9; display:flex; justify-content:space-between;">
+            <span style="font-size:12px;">מיכל לוי</span>
+            <span style="font-size:10px; color:#94a3b8;">לא פעיל</span>
+          </div>
+          <div style="padding:8px 10px; border-bottom:1px solid #f1f5f9;">
+            <span style="font-size:12px;">ראמי עבד</span>
+          </div>
+        </div>
+      </div>
+      <div style="width:160px; background:white; border:1px solid #e2e8f0; border-radius:8px; padding:10px; font-size:11px;">
+        <div style="font-weight:700; margin-bottom:8px; font-size:12px;">יובל כהן</div>
+        <div style="color:#64748b; margin-bottom:4px;">cohen@court.gov.il</div>
+        <div style="color:#64748b; margin-bottom:10px;">050-1234567</div>
+        <div style="display:flex; flex-direction:column; gap:4px;">
+          <button style="background:#f8fafc; border:1px solid #e2e8f0; border-radius:4px; padding:4px; font-size:11px; cursor:pointer;">ערוך</button>
+          <button style="background:#fef2f2; border:1px solid #fecaca; border-radius:4px; padding:4px; font-size:11px; color:#dc2626; cursor:pointer;">מחק</button>
+        </div>
+      </div>
+    </div>
+    <div class="card-body">
+      <h3>C — List + side panel</h3>
+      <p>Click a guard name from the list → details appear in a side panel on the left. Edit and delete from the panel. Compact list, focused detail view.</p>
+    </div>
+  </div>
+
+</div>

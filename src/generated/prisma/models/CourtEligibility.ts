@@ -26,40 +26,52 @@ export type AggregateCourtEligibility = {
 
 export type CourtEligibilityMinAggregateOutputType = {
   id: string | null
-  userId: string | null
+  employeeId: string | null
   courtId: string | null
+  createdAt: Date | null
+  updatedAt: Date | null
 }
 
 export type CourtEligibilityMaxAggregateOutputType = {
   id: string | null
-  userId: string | null
+  employeeId: string | null
   courtId: string | null
+  createdAt: Date | null
+  updatedAt: Date | null
 }
 
 export type CourtEligibilityCountAggregateOutputType = {
   id: number
-  userId: number
+  employeeId: number
   courtId: number
+  createdAt: number
+  updatedAt: number
   _all: number
 }
 
 
 export type CourtEligibilityMinAggregateInputType = {
   id?: true
-  userId?: true
+  employeeId?: true
   courtId?: true
+  createdAt?: true
+  updatedAt?: true
 }
 
 export type CourtEligibilityMaxAggregateInputType = {
   id?: true
-  userId?: true
+  employeeId?: true
   courtId?: true
+  createdAt?: true
+  updatedAt?: true
 }
 
 export type CourtEligibilityCountAggregateInputType = {
   id?: true
-  userId?: true
+  employeeId?: true
   courtId?: true
+  createdAt?: true
+  updatedAt?: true
   _all?: true
 }
 
@@ -137,8 +149,10 @@ export type CourtEligibilityGroupByArgs<ExtArgs extends runtime.Types.Extensions
 
 export type CourtEligibilityGroupByOutputType = {
   id: string
-  userId: string
+  employeeId: string
   courtId: string
+  createdAt: Date
+  updatedAt: Date
   _count: CourtEligibilityCountAggregateOutputType | null
   _min: CourtEligibilityMinAggregateOutputType | null
   _max: CourtEligibilityMaxAggregateOutputType | null
@@ -164,36 +178,44 @@ export type CourtEligibilityWhereInput = {
   OR?: Prisma.CourtEligibilityWhereInput[]
   NOT?: Prisma.CourtEligibilityWhereInput | Prisma.CourtEligibilityWhereInput[]
   id?: Prisma.StringFilter<"CourtEligibility"> | string
-  userId?: Prisma.StringFilter<"CourtEligibility"> | string
+  employeeId?: Prisma.StringFilter<"CourtEligibility"> | string
   courtId?: Prisma.StringFilter<"CourtEligibility"> | string
-  user?: Prisma.XOR<Prisma.UserScalarRelationFilter, Prisma.UserWhereInput>
+  createdAt?: Prisma.DateTimeFilter<"CourtEligibility"> | Date | string
+  updatedAt?: Prisma.DateTimeFilter<"CourtEligibility"> | Date | string
+  employee?: Prisma.XOR<Prisma.EmployeeScalarRelationFilter, Prisma.EmployeeWhereInput>
   court?: Prisma.XOR<Prisma.CourtScalarRelationFilter, Prisma.CourtWhereInput>
 }
 
 export type CourtEligibilityOrderByWithRelationInput = {
   id?: Prisma.SortOrder
-  userId?: Prisma.SortOrder
+  employeeId?: Prisma.SortOrder
   courtId?: Prisma.SortOrder
-  user?: Prisma.UserOrderByWithRelationInput
+  createdAt?: Prisma.SortOrder
+  updatedAt?: Prisma.SortOrder
+  employee?: Prisma.EmployeeOrderByWithRelationInput
   court?: Prisma.CourtOrderByWithRelationInput
 }
 
 export type CourtEligibilityWhereUniqueInput = Prisma.AtLeast<{
   id?: string
-  userId_courtId?: Prisma.CourtEligibilityUserIdCourtIdCompoundUniqueInput
+  employeeId_courtId?: Prisma.CourtEligibilityEmployeeIdCourtIdCompoundUniqueInput
   AND?: Prisma.CourtEligibilityWhereInput | Prisma.CourtEligibilityWhereInput[]
   OR?: Prisma.CourtEligibilityWhereInput[]
   NOT?: Prisma.CourtEligibilityWhereInput | Prisma.CourtEligibilityWhereInput[]
-  userId?: Prisma.StringFilter<"CourtEligibility"> | string
+  employeeId?: Prisma.StringFilter<"CourtEligibility"> | string
   courtId?: Prisma.StringFilter<"CourtEligibility"> | string
-  user?: Prisma.XOR<Prisma.UserScalarRelationFilter, Prisma.UserWhereInput>
+  createdAt?: Prisma.DateTimeFilter<"CourtEligibility"> | Date | string
+  updatedAt?: Prisma.DateTimeFilter<"CourtEligibility"> | Date | string
+  employee?: Prisma.XOR<Prisma.EmployeeScalarRelationFilter, Prisma.EmployeeWhereInput>
   court?: Prisma.XOR<Prisma.CourtScalarRelationFilter, Prisma.CourtWhereInput>
-}, "id" | "userId_courtId">
+}, "id" | "employeeId_courtId">
 
 export type CourtEligibilityOrderByWithAggregationInput = {
   id?: Prisma.SortOrder
-  userId?: Prisma.SortOrder
+  employeeId?: Prisma.SortOrder
   courtId?: Prisma.SortOrder
+  createdAt?: Prisma.SortOrder
+  updatedAt?: Prisma.SortOrder
   _count?: Prisma.CourtEligibilityCountOrderByAggregateInput
   _max?: Prisma.CourtEligibilityMaxOrderByAggregateInput
   _min?: Prisma.CourtEligibilityMinOrderByAggregateInput
@@ -204,48 +226,64 @@ export type CourtEligibilityScalarWhereWithAggregatesInput = {
   OR?: Prisma.CourtEligibilityScalarWhereWithAggregatesInput[]
   NOT?: Prisma.CourtEligibilityScalarWhereWithAggregatesInput | Prisma.CourtEligibilityScalarWhereWithAggregatesInput[]
   id?: Prisma.StringWithAggregatesFilter<"CourtEligibility"> | string
-  userId?: Prisma.StringWithAggregatesFilter<"CourtEligibility"> | string
+  employeeId?: Prisma.StringWithAggregatesFilter<"CourtEligibility"> | string
   courtId?: Prisma.StringWithAggregatesFilter<"CourtEligibility"> | string
+  createdAt?: Prisma.DateTimeWithAggregatesFilter<"CourtEligibility"> | Date | string
+  updatedAt?: Prisma.DateTimeWithAggregatesFilter<"CourtEligibility"> | Date | string
 }
 
 export type CourtEligibilityCreateInput = {
   id?: string
-  user: Prisma.UserCreateNestedOneWithoutCourtEligibilityInput
+  createdAt?: Date | string
+  updatedAt?: Date | string
+  employee: Prisma.EmployeeCreateNestedOneWithoutCourtEligibilityInput
   court: Prisma.CourtCreateNestedOneWithoutEligibilityInput
 }
 
 export type CourtEligibilityUncheckedCreateInput = {
   id?: string
-  userId: string
+  employeeId: string
   courtId: string
+  createdAt?: Date | string
+  updatedAt?: Date | string
 }
 
 export type CourtEligibilityUpdateInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
-  user?: Prisma.UserUpdateOneRequiredWithoutCourtEligibilityNestedInput
+  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  employee?: Prisma.EmployeeUpdateOneRequiredWithoutCourtEligibilityNestedInput
   court?: Prisma.CourtUpdateOneRequiredWithoutEligibilityNestedInput
 }
 
 export type CourtEligibilityUncheckedUpdateInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
-  userId?: Prisma.StringFieldUpdateOperationsInput | string
+  employeeId?: Prisma.StringFieldUpdateOperationsInput | string
   courtId?: Prisma.StringFieldUpdateOperationsInput | string
+  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
 }
 
 export type CourtEligibilityCreateManyInput = {
   id?: string
-  userId: string
+  employeeId: string
   courtId: string
+  createdAt?: Date | string
+  updatedAt?: Date | string
 }
 
 export type CourtEligibilityUpdateManyMutationInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
+  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
 }
 
 export type CourtEligibilityUncheckedUpdateManyInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
-  userId?: Prisma.StringFieldUpdateOperationsInput | string
+  employeeId?: Prisma.StringFieldUpdateOperationsInput | string
   courtId?: Prisma.StringFieldUpdateOperationsInput | string
+  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
 }
 
 export type CourtEligibilityListRelationFilter = {
@@ -258,68 +296,74 @@ export type CourtEligibilityOrderByRelationAggregateInput = {
   _count?: Prisma.SortOrder
 }
 
-export type CourtEligibilityUserIdCourtIdCompoundUniqueInput = {
-  userId: string
+export type CourtEligibilityEmployeeIdCourtIdCompoundUniqueInput = {
+  employeeId: string
   courtId: string
 }
 
 export type CourtEligibilityCountOrderByAggregateInput = {
   id?: Prisma.SortOrder
-  userId?: Prisma.SortOrder
+  employeeId?: Prisma.SortOrder
   courtId?: Prisma.SortOrder
+  createdAt?: Prisma.SortOrder
+  updatedAt?: Prisma.SortOrder
 }
 
 export type CourtEligibilityMaxOrderByAggregateInput = {
   id?: Prisma.SortOrder
-  userId?: Prisma.SortOrder
+  employeeId?: Prisma.SortOrder
   courtId?: Prisma.SortOrder
+  createdAt?: Prisma.SortOrder
+  updatedAt?: Prisma.SortOrder
 }
 
 export type CourtEligibilityMinOrderByAggregateInput = {
   id?: Prisma.SortOrder
-  userId?: Prisma.SortOrder
+  employeeId?: Prisma.SortOrder
   courtId?: Prisma.SortOrder
+  createdAt?: Prisma.SortOrder
+  updatedAt?: Prisma.SortOrder
 }
 
-export type CourtEligibilityCreateNestedManyWithoutUserInput = {
-  create?: Prisma.XOR<Prisma.CourtEligibilityCreateWithoutUserInput, Prisma.CourtEligibilityUncheckedCreateWithoutUserInput> | Prisma.CourtEligibilityCreateWithoutUserInput[] | Prisma.CourtEligibilityUncheckedCreateWithoutUserInput[]
-  connectOrCreate?: Prisma.CourtEligibilityCreateOrConnectWithoutUserInput | Prisma.CourtEligibilityCreateOrConnectWithoutUserInput[]
-  createMany?: Prisma.CourtEligibilityCreateManyUserInputEnvelope
+export type CourtEligibilityCreateNestedManyWithoutEmployeeInput = {
+  create?: Prisma.XOR<Prisma.CourtEligibilityCreateWithoutEmployeeInput, Prisma.CourtEligibilityUncheckedCreateWithoutEmployeeInput> | Prisma.CourtEligibilityCreateWithoutEmployeeInput[] | Prisma.CourtEligibilityUncheckedCreateWithoutEmployeeInput[]
+  connectOrCreate?: Prisma.CourtEligibilityCreateOrConnectWithoutEmployeeInput | Prisma.CourtEligibilityCreateOrConnectWithoutEmployeeInput[]
+  createMany?: Prisma.CourtEligibilityCreateManyEmployeeInputEnvelope
   connect?: Prisma.CourtEligibilityWhereUniqueInput | Prisma.CourtEligibilityWhereUniqueInput[]
 }
 
-export type CourtEligibilityUncheckedCreateNestedManyWithoutUserInput = {
-  create?: Prisma.XOR<Prisma.CourtEligibilityCreateWithoutUserInput, Prisma.CourtEligibilityUncheckedCreateWithoutUserInput> | Prisma.CourtEligibilityCreateWithoutUserInput[] | Prisma.CourtEligibilityUncheckedCreateWithoutUserInput[]
-  connectOrCreate?: Prisma.CourtEligibilityCreateOrConnectWithoutUserInput | Prisma.CourtEligibilityCreateOrConnectWithoutUserInput[]
-  createMany?: Prisma.CourtEligibilityCreateManyUserInputEnvelope
+export type CourtEligibilityUncheckedCreateNestedManyWithoutEmployeeInput = {
+  create?: Prisma.XOR<Prisma.CourtEligibilityCreateWithoutEmployeeInput, Prisma.CourtEligibilityUncheckedCreateWithoutEmployeeInput> | Prisma.CourtEligibilityCreateWithoutEmployeeInput[] | Prisma.CourtEligibilityUncheckedCreateWithoutEmployeeInput[]
+  connectOrCreate?: Prisma.CourtEligibilityCreateOrConnectWithoutEmployeeInput | Prisma.CourtEligibilityCreateOrConnectWithoutEmployeeInput[]
+  createMany?: Prisma.CourtEligibilityCreateManyEmployeeInputEnvelope
   connect?: Prisma.CourtEligibilityWhereUniqueInput | Prisma.CourtEligibilityWhereUniqueInput[]
 }
 
-export type CourtEligibilityUpdateManyWithoutUserNestedInput = {
-  create?: Prisma.XOR<Prisma.CourtEligibilityCreateWithoutUserInput, Prisma.CourtEligibilityUncheckedCreateWithoutUserInput> | Prisma.CourtEligibilityCreateWithoutUserInput[] | Prisma.CourtEligibilityUncheckedCreateWithoutUserInput[]
-  connectOrCreate?: Prisma.CourtEligibilityCreateOrConnectWithoutUserInput | Prisma.CourtEligibilityCreateOrConnectWithoutUserInput[]
-  upsert?: Prisma.CourtEligibilityUpsertWithWhereUniqueWithoutUserInput | Prisma.CourtEligibilityUpsertWithWhereUniqueWithoutUserInput[]
-  createMany?: Prisma.CourtEligibilityCreateManyUserInputEnvelope
+export type CourtEligibilityUpdateManyWithoutEmployeeNestedInput = {
+  create?: Prisma.XOR<Prisma.CourtEligibilityCreateWithoutEmployeeInput, Prisma.CourtEligibilityUncheckedCreateWithoutEmployeeInput> | Prisma.CourtEligibilityCreateWithoutEmployeeInput[] | Prisma.CourtEligibilityUncheckedCreateWithoutEmployeeInput[]
+  connectOrCreate?: Prisma.CourtEligibilityCreateOrConnectWithoutEmployeeInput | Prisma.CourtEligibilityCreateOrConnectWithoutEmployeeInput[]
+  upsert?: Prisma.CourtEligibilityUpsertWithWhereUniqueWithoutEmployeeInput | Prisma.CourtEligibilityUpsertWithWhereUniqueWithoutEmployeeInput[]
+  createMany?: Prisma.CourtEligibilityCreateManyEmployeeInputEnvelope
   set?: Prisma.CourtEligibilityWhereUniqueInput | Prisma.CourtEligibilityWhereUniqueInput[]
   disconnect?: Prisma.CourtEligibilityWhereUniqueInput | Prisma.CourtEligibilityWhereUniqueInput[]
   delete?: Prisma.CourtEligibilityWhereUniqueInput | Prisma.CourtEligibilityWhereUniqueInput[]
   connect?: Prisma.CourtEligibilityWhereUniqueInput | Prisma.CourtEligibilityWhereUniqueInput[]
-  update?: Prisma.CourtEligibilityUpdateWithWhereUniqueWithoutUserInput | Prisma.CourtEligibilityUpdateWithWhereUniqueWithoutUserInput[]
-  updateMany?: Prisma.CourtEligibilityUpdateManyWithWhereWithoutUserInput | Prisma.CourtEligibilityUpdateManyWithWhereWithoutUserInput[]
+  update?: Prisma.CourtEligibilityUpdateWithWhereUniqueWithoutEmployeeInput | Prisma.CourtEligibilityUpdateWithWhereUniqueWithoutEmployeeInput[]
+  updateMany?: Prisma.CourtEligibilityUpdateManyWithWhereWithoutEmployeeInput | Prisma.CourtEligibilityUpdateManyWithWhereWithoutEmployeeInput[]
   deleteMany?: Prisma.CourtEligibilityScalarWhereInput | Prisma.CourtEligibilityScalarWhereInput[]
 }
 
-export type CourtEligibilityUncheckedUpdateManyWithoutUserNestedInput = {
-  create?: Prisma.XOR<Prisma.CourtEligibilityCreateWithoutUserInput, Prisma.CourtEligibilityUncheckedCreateWithoutUserInput> | Prisma.CourtEligibilityCreateWithoutUserInput[] | Prisma.CourtEligibilityUncheckedCreateWithoutUserInput[]
-  connectOrCreate?: Prisma.CourtEligibilityCreateOrConnectWithoutUserInput | Prisma.CourtEligibilityCreateOrConnectWithoutUserInput[]
-  upsert?: Prisma.CourtEligibilityUpsertWithWhereUniqueWithoutUserInput | Prisma.CourtEligibilityUpsertWithWhereUniqueWithoutUserInput[]
-  createMany?: Prisma.CourtEligibilityCreateManyUserInputEnvelope
+export type CourtEligibilityUncheckedUpdateManyWithoutEmployeeNestedInput = {
+  create?: Prisma.XOR<Prisma.CourtEligibilityCreateWithoutEmployeeInput, Prisma.CourtEligibilityUncheckedCreateWithoutEmployeeInput> | Prisma.CourtEligibilityCreateWithoutEmployeeInput[] | Prisma.CourtEligibilityUncheckedCreateWithoutEmployeeInput[]
+  connectOrCreate?: Prisma.CourtEligibilityCreateOrConnectWithoutEmployeeInput | Prisma.CourtEligibilityCreateOrConnectWithoutEmployeeInput[]
+  upsert?: Prisma.CourtEligibilityUpsertWithWhereUniqueWithoutEmployeeInput | Prisma.CourtEligibilityUpsertWithWhereUniqueWithoutEmployeeInput[]
+  createMany?: Prisma.CourtEligibilityCreateManyEmployeeInputEnvelope
   set?: Prisma.CourtEligibilityWhereUniqueInput | Prisma.CourtEligibilityWhereUniqueInput[]
   disconnect?: Prisma.CourtEligibilityWhereUniqueInput | Prisma.CourtEligibilityWhereUniqueInput[]
   delete?: Prisma.CourtEligibilityWhereUniqueInput | Prisma.CourtEligibilityWhereUniqueInput[]
   connect?: Prisma.CourtEligibilityWhereUniqueInput | Prisma.CourtEligibilityWhereUniqueInput[]
-  update?: Prisma.CourtEligibilityUpdateWithWhereUniqueWithoutUserInput | Prisma.CourtEligibilityUpdateWithWhereUniqueWithoutUserInput[]
-  updateMany?: Prisma.CourtEligibilityUpdateManyWithWhereWithoutUserInput | Prisma.CourtEligibilityUpdateManyWithWhereWithoutUserInput[]
+  update?: Prisma.CourtEligibilityUpdateWithWhereUniqueWithoutEmployeeInput | Prisma.CourtEligibilityUpdateWithWhereUniqueWithoutEmployeeInput[]
+  updateMany?: Prisma.CourtEligibilityUpdateManyWithWhereWithoutEmployeeInput | Prisma.CourtEligibilityUpdateManyWithWhereWithoutEmployeeInput[]
   deleteMany?: Prisma.CourtEligibilityScalarWhereInput | Prisma.CourtEligibilityScalarWhereInput[]
 }
 
@@ -365,40 +409,44 @@ export type CourtEligibilityUncheckedUpdateManyWithoutCourtNestedInput = {
   deleteMany?: Prisma.CourtEligibilityScalarWhereInput | Prisma.CourtEligibilityScalarWhereInput[]
 }
 
-export type CourtEligibilityCreateWithoutUserInput = {
+export type CourtEligibilityCreateWithoutEmployeeInput = {
   id?: string
+  createdAt?: Date | string
+  updatedAt?: Date | string
   court: Prisma.CourtCreateNestedOneWithoutEligibilityInput
 }
 
-export type CourtEligibilityUncheckedCreateWithoutUserInput = {
+export type CourtEligibilityUncheckedCreateWithoutEmployeeInput = {
   id?: string
   courtId: string
+  createdAt?: Date | string
+  updatedAt?: Date | string
 }
 
-export type CourtEligibilityCreateOrConnectWithoutUserInput = {
+export type CourtEligibilityCreateOrConnectWithoutEmployeeInput = {
   where: Prisma.CourtEligibilityWhereUniqueInput
-  create: Prisma.XOR<Prisma.CourtEligibilityCreateWithoutUserInput, Prisma.CourtEligibilityUncheckedCreateWithoutUserInput>
+  create: Prisma.XOR<Prisma.CourtEligibilityCreateWithoutEmployeeInput, Prisma.CourtEligibilityUncheckedCreateWithoutEmployeeInput>
 }
 
-export type CourtEligibilityCreateManyUserInputEnvelope = {
-  data: Prisma.CourtEligibilityCreateManyUserInput | Prisma.CourtEligibilityCreateManyUserInput[]
+export type CourtEligibilityCreateManyEmployeeInputEnvelope = {
+  data: Prisma.CourtEligibilityCreateManyEmployeeInput | Prisma.CourtEligibilityCreateManyEmployeeInput[]
   skipDuplicates?: boolean
 }
 
-export type CourtEligibilityUpsertWithWhereUniqueWithoutUserInput = {
+export type CourtEligibilityUpsertWithWhereUniqueWithoutEmployeeInput = {
   where: Prisma.CourtEligibilityWhereUniqueInput
-  update: Prisma.XOR<Prisma.CourtEligibilityUpdateWithoutUserInput, Prisma.CourtEligibilityUncheckedUpdateWithoutUserInput>
-  create: Prisma.XOR<Prisma.CourtEligibilityCreateWithoutUserInput, Prisma.CourtEligibilityUncheckedCreateWithoutUserInput>
+  update: Prisma.XOR<Prisma.CourtEligibilityUpdateWithoutEmployeeInput, Prisma.CourtEligibilityUncheckedUpdateWithoutEmployeeInput>
+  create: Prisma.XOR<Prisma.CourtEligibilityCreateWithoutEmployeeInput, Prisma.CourtEligibilityUncheckedCreateWithoutEmployeeInput>
 }
 
-export type CourtEligibilityUpdateWithWhereUniqueWithoutUserInput = {
+export type CourtEligibilityUpdateWithWhereUniqueWithoutEmployeeInput = {
   where: Prisma.CourtEligibilityWhereUniqueInput
-  data: Prisma.XOR<Prisma.CourtEligibilityUpdateWithoutUserInput, Prisma.CourtEligibilityUncheckedUpdateWithoutUserInput>
+  data: Prisma.XOR<Prisma.CourtEligibilityUpdateWithoutEmployeeInput, Prisma.CourtEligibilityUncheckedUpdateWithoutEmployeeInput>
 }
 
-export type CourtEligibilityUpdateManyWithWhereWithoutUserInput = {
+export type CourtEligibilityUpdateManyWithWhereWithoutEmployeeInput = {
   where: Prisma.CourtEligibilityScalarWhereInput
-  data: Prisma.XOR<Prisma.CourtEligibilityUpdateManyMutationInput, Prisma.CourtEligibilityUncheckedUpdateManyWithoutUserInput>
+  data: Prisma.XOR<Prisma.CourtEligibilityUpdateManyMutationInput, Prisma.CourtEligibilityUncheckedUpdateManyWithoutEmployeeInput>
 }
 
 export type CourtEligibilityScalarWhereInput = {
@@ -406,18 +454,24 @@ export type CourtEligibilityScalarWhereInput = {
   OR?: Prisma.CourtEligibilityScalarWhereInput[]
   NOT?: Prisma.CourtEligibilityScalarWhereInput | Prisma.CourtEligibilityScalarWhereInput[]
   id?: Prisma.StringFilter<"CourtEligibility"> | string
-  userId?: Prisma.StringFilter<"CourtEligibility"> | string
+  employeeId?: Prisma.StringFilter<"CourtEligibility"> | string
   courtId?: Prisma.StringFilter<"CourtEligibility"> | string
+  createdAt?: Prisma.DateTimeFilter<"CourtEligibility"> | Date | string
+  updatedAt?: Prisma.DateTimeFilter<"CourtEligibility"> | Date | string
 }
 
 export type CourtEligibilityCreateWithoutCourtInput = {
   id?: string
-  user: Prisma.UserCreateNestedOneWithoutCourtEligibilityInput
+  createdAt?: Date | string
+  updatedAt?: Date | string
+  employee: Prisma.EmployeeCreateNestedOneWithoutCourtEligibilityInput
 }
 
 export type CourtEligibilityUncheckedCreateWithoutCourtInput = {
   id?: string
-  userId: string
+  employeeId: string
+  createdAt?: Date | string
+  updatedAt?: Date | string
 }
 
 export type CourtEligibilityCreateOrConnectWithoutCourtInput = {
@@ -446,102 +500,128 @@ export type CourtEligibilityUpdateManyWithWhereWithoutCourtInput = {
   data: Prisma.XOR<Prisma.CourtEligibilityUpdateManyMutationInput, Prisma.CourtEligibilityUncheckedUpdateManyWithoutCourtInput>
 }
 
-export type CourtEligibilityCreateManyUserInput = {
+export type CourtEligibilityCreateManyEmployeeInput = {
   id?: string
   courtId: string
+  createdAt?: Date | string
+  updatedAt?: Date | string
 }
 
-export type CourtEligibilityUpdateWithoutUserInput = {
+export type CourtEligibilityUpdateWithoutEmployeeInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
+  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   court?: Prisma.CourtUpdateOneRequiredWithoutEligibilityNestedInput
 }
 
-export type CourtEligibilityUncheckedUpdateWithoutUserInput = {
+export type CourtEligibilityUncheckedUpdateWithoutEmployeeInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
   courtId?: Prisma.StringFieldUpdateOperationsInput | string
+  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
 }
 
-export type CourtEligibilityUncheckedUpdateManyWithoutUserInput = {
+export type CourtEligibilityUncheckedUpdateManyWithoutEmployeeInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
   courtId?: Prisma.StringFieldUpdateOperationsInput | string
+  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
 }
 
 export type CourtEligibilityCreateManyCourtInput = {
   id?: string
-  userId: string
+  employeeId: string
+  createdAt?: Date | string
+  updatedAt?: Date | string
 }
 
 export type CourtEligibilityUpdateWithoutCourtInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
-  user?: Prisma.UserUpdateOneRequiredWithoutCourtEligibilityNestedInput
+  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  employee?: Prisma.EmployeeUpdateOneRequiredWithoutCourtEligibilityNestedInput
 }
 
 export type CourtEligibilityUncheckedUpdateWithoutCourtInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
-  userId?: Prisma.StringFieldUpdateOperationsInput | string
+  employeeId?: Prisma.StringFieldUpdateOperationsInput | string
+  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
 }
 
 export type CourtEligibilityUncheckedUpdateManyWithoutCourtInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
-  userId?: Prisma.StringFieldUpdateOperationsInput | string
+  employeeId?: Prisma.StringFieldUpdateOperationsInput | string
+  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
 }
 
 
 
 export type CourtEligibilitySelect<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetSelect<{
   id?: boolean
-  userId?: boolean
+  employeeId?: boolean
   courtId?: boolean
-  user?: boolean | Prisma.UserDefaultArgs<ExtArgs>
+  createdAt?: boolean
+  updatedAt?: boolean
+  employee?: boolean | Prisma.EmployeeDefaultArgs<ExtArgs>
   court?: boolean | Prisma.CourtDefaultArgs<ExtArgs>
 }, ExtArgs["result"]["courtEligibility"]>
 
 export type CourtEligibilitySelectCreateManyAndReturn<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetSelect<{
   id?: boolean
-  userId?: boolean
+  employeeId?: boolean
   courtId?: boolean
-  user?: boolean | Prisma.UserDefaultArgs<ExtArgs>
+  createdAt?: boolean
+  updatedAt?: boolean
+  employee?: boolean | Prisma.EmployeeDefaultArgs<ExtArgs>
   court?: boolean | Prisma.CourtDefaultArgs<ExtArgs>
 }, ExtArgs["result"]["courtEligibility"]>
 
 export type CourtEligibilitySelectUpdateManyAndReturn<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetSelect<{
   id?: boolean
-  userId?: boolean
+  employeeId?: boolean
   courtId?: boolean
-  user?: boolean | Prisma.UserDefaultArgs<ExtArgs>
+  createdAt?: boolean
+  updatedAt?: boolean
+  employee?: boolean | Prisma.EmployeeDefaultArgs<ExtArgs>
   court?: boolean | Prisma.CourtDefaultArgs<ExtArgs>
 }, ExtArgs["result"]["courtEligibility"]>
 
 export type CourtEligibilitySelectScalar = {
   id?: boolean
-  userId?: boolean
+  employeeId?: boolean
   courtId?: boolean
+  createdAt?: boolean
+  updatedAt?: boolean
 }
 
-export type CourtEligibilityOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"id" | "userId" | "courtId", ExtArgs["result"]["courtEligibility"]>
+export type CourtEligibilityOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"id" | "employeeId" | "courtId" | "createdAt" | "updatedAt", ExtArgs["result"]["courtEligibility"]>
 export type CourtEligibilityInclude<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
-  user?: boolean | Prisma.UserDefaultArgs<ExtArgs>
+  employee?: boolean | Prisma.EmployeeDefaultArgs<ExtArgs>
   court?: boolean | Prisma.CourtDefaultArgs<ExtArgs>
 }
 export type CourtEligibilityIncludeCreateManyAndReturn<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
-  user?: boolean | Prisma.UserDefaultArgs<ExtArgs>
+  employee?: boolean | Prisma.EmployeeDefaultArgs<ExtArgs>
   court?: boolean | Prisma.CourtDefaultArgs<ExtArgs>
 }
 export type CourtEligibilityIncludeUpdateManyAndReturn<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
-  user?: boolean | Prisma.UserDefaultArgs<ExtArgs>
+  employee?: boolean | Prisma.EmployeeDefaultArgs<ExtArgs>
   court?: boolean | Prisma.CourtDefaultArgs<ExtArgs>
 }
 
 export type $CourtEligibilityPayload<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
   name: "CourtEligibility"
   objects: {
-    user: Prisma.$UserPayload<ExtArgs>
+    employee: Prisma.$EmployeePayload<ExtArgs>
     court: Prisma.$CourtPayload<ExtArgs>
   }
   scalars: runtime.Types.Extensions.GetPayloadResult<{
     id: string
-    userId: string
+    employeeId: string
     courtId: string
+    createdAt: Date
+    updatedAt: Date
   }, ExtArgs["result"]["courtEligibility"]>
   composites: {}
 }
@@ -936,7 +1016,7 @@ readonly fields: CourtEligibilityFieldRefs;
  */
 export interface Prisma__CourtEligibilityClient<T, Null = never, ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs, GlobalOmitOptions = {}> extends Prisma.PrismaPromise<T> {
   readonly [Symbol.toStringTag]: "PrismaPromise"
-  user<T extends Prisma.UserDefaultArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.UserDefaultArgs<ExtArgs>>): Prisma.Prisma__UserClient<runtime.Types.Result.GetResult<Prisma.$UserPayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions> | Null, Null, ExtArgs, GlobalOmitOptions>
+  employee<T extends Prisma.EmployeeDefaultArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.EmployeeDefaultArgs<ExtArgs>>): Prisma.Prisma__EmployeeClient<runtime.Types.Result.GetResult<Prisma.$EmployeePayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions> | Null, Null, ExtArgs, GlobalOmitOptions>
   court<T extends Prisma.CourtDefaultArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.CourtDefaultArgs<ExtArgs>>): Prisma.Prisma__CourtClient<runtime.Types.Result.GetResult<Prisma.$CourtPayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions> | Null, Null, ExtArgs, GlobalOmitOptions>
   /**
    * Attaches callbacks for the resolution and/or rejection of the Promise.
@@ -968,8 +1048,10 @@ export interface Prisma__CourtEligibilityClient<T, Null = never, ExtArgs extends
  */
 export interface CourtEligibilityFieldRefs {
   readonly id: Prisma.FieldRef<"CourtEligibility", 'String'>
-  readonly userId: Prisma.FieldRef<"CourtEligibility", 'String'>
+  readonly employeeId: Prisma.FieldRef<"CourtEligibility", 'String'>
   readonly courtId: Prisma.FieldRef<"CourtEligibility", 'String'>
+  readonly createdAt: Prisma.FieldRef<"CourtEligibility", 'DateTime'>
+  readonly updatedAt: Prisma.FieldRef<"CourtEligibility", 'DateTime'>
 }
     
 

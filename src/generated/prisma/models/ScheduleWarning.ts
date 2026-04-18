@@ -30,9 +30,12 @@ export type ScheduleWarningMinAggregateOutputType = {
   type: $Enums.WarningType | null
   severity: $Enums.WarningSeverity | null
   courtId: string | null
-  userId: string | null
+  employeeId: string | null
   date: Date | null
   message: string | null
+  createdById: string | null
+  createdAt: Date | null
+  updatedAt: Date | null
 }
 
 export type ScheduleWarningMaxAggregateOutputType = {
@@ -41,9 +44,12 @@ export type ScheduleWarningMaxAggregateOutputType = {
   type: $Enums.WarningType | null
   severity: $Enums.WarningSeverity | null
   courtId: string | null
-  userId: string | null
+  employeeId: string | null
   date: Date | null
   message: string | null
+  createdById: string | null
+  createdAt: Date | null
+  updatedAt: Date | null
 }
 
 export type ScheduleWarningCountAggregateOutputType = {
@@ -52,9 +58,12 @@ export type ScheduleWarningCountAggregateOutputType = {
   type: number
   severity: number
   courtId: number
-  userId: number
+  employeeId: number
   date: number
   message: number
+  createdById: number
+  createdAt: number
+  updatedAt: number
   _all: number
 }
 
@@ -65,9 +74,12 @@ export type ScheduleWarningMinAggregateInputType = {
   type?: true
   severity?: true
   courtId?: true
-  userId?: true
+  employeeId?: true
   date?: true
   message?: true
+  createdById?: true
+  createdAt?: true
+  updatedAt?: true
 }
 
 export type ScheduleWarningMaxAggregateInputType = {
@@ -76,9 +88,12 @@ export type ScheduleWarningMaxAggregateInputType = {
   type?: true
   severity?: true
   courtId?: true
-  userId?: true
+  employeeId?: true
   date?: true
   message?: true
+  createdById?: true
+  createdAt?: true
+  updatedAt?: true
 }
 
 export type ScheduleWarningCountAggregateInputType = {
@@ -87,9 +102,12 @@ export type ScheduleWarningCountAggregateInputType = {
   type?: true
   severity?: true
   courtId?: true
-  userId?: true
+  employeeId?: true
   date?: true
   message?: true
+  createdById?: true
+  createdAt?: true
+  updatedAt?: true
   _all?: true
 }
 
@@ -171,9 +189,12 @@ export type ScheduleWarningGroupByOutputType = {
   type: $Enums.WarningType
   severity: $Enums.WarningSeverity
   courtId: string | null
-  userId: string | null
+  employeeId: string | null
   date: Date | null
   message: string
+  createdById: string | null
+  createdAt: Date
+  updatedAt: Date
   _count: ScheduleWarningCountAggregateOutputType | null
   _min: ScheduleWarningMinAggregateOutputType | null
   _max: ScheduleWarningMaxAggregateOutputType | null
@@ -203,12 +224,16 @@ export type ScheduleWarningWhereInput = {
   type?: Prisma.EnumWarningTypeFilter<"ScheduleWarning"> | $Enums.WarningType
   severity?: Prisma.EnumWarningSeverityFilter<"ScheduleWarning"> | $Enums.WarningSeverity
   courtId?: Prisma.StringNullableFilter<"ScheduleWarning"> | string | null
-  userId?: Prisma.StringNullableFilter<"ScheduleWarning"> | string | null
+  employeeId?: Prisma.StringNullableFilter<"ScheduleWarning"> | string | null
   date?: Prisma.DateTimeNullableFilter<"ScheduleWarning"> | Date | string | null
   message?: Prisma.StringFilter<"ScheduleWarning"> | string
+  createdById?: Prisma.StringNullableFilter<"ScheduleWarning"> | string | null
+  createdAt?: Prisma.DateTimeFilter<"ScheduleWarning"> | Date | string
+  updatedAt?: Prisma.DateTimeFilter<"ScheduleWarning"> | Date | string
   schedule?: Prisma.XOR<Prisma.ScheduleScalarRelationFilter, Prisma.ScheduleWhereInput>
   court?: Prisma.XOR<Prisma.CourtNullableScalarRelationFilter, Prisma.CourtWhereInput> | null
-  user?: Prisma.XOR<Prisma.UserNullableScalarRelationFilter, Prisma.UserWhereInput> | null
+  employee?: Prisma.XOR<Prisma.EmployeeNullableScalarRelationFilter, Prisma.EmployeeWhereInput> | null
+  createdBy?: Prisma.XOR<Prisma.UserNullableScalarRelationFilter, Prisma.UserWhereInput> | null
 }
 
 export type ScheduleWarningOrderByWithRelationInput = {
@@ -217,12 +242,16 @@ export type ScheduleWarningOrderByWithRelationInput = {
   type?: Prisma.SortOrder
   severity?: Prisma.SortOrder
   courtId?: Prisma.SortOrderInput | Prisma.SortOrder
-  userId?: Prisma.SortOrderInput | Prisma.SortOrder
+  employeeId?: Prisma.SortOrderInput | Prisma.SortOrder
   date?: Prisma.SortOrderInput | Prisma.SortOrder
   message?: Prisma.SortOrder
+  createdById?: Prisma.SortOrderInput | Prisma.SortOrder
+  createdAt?: Prisma.SortOrder
+  updatedAt?: Prisma.SortOrder
   schedule?: Prisma.ScheduleOrderByWithRelationInput
   court?: Prisma.CourtOrderByWithRelationInput
-  user?: Prisma.UserOrderByWithRelationInput
+  employee?: Prisma.EmployeeOrderByWithRelationInput
+  createdBy?: Prisma.UserOrderByWithRelationInput
 }
 
 export type ScheduleWarningWhereUniqueInput = Prisma.AtLeast<{
@@ -234,12 +263,16 @@ export type ScheduleWarningWhereUniqueInput = Prisma.AtLeast<{
   type?: Prisma.EnumWarningTypeFilter<"ScheduleWarning"> | $Enums.WarningType
   severity?: Prisma.EnumWarningSeverityFilter<"ScheduleWarning"> | $Enums.WarningSeverity
   courtId?: Prisma.StringNullableFilter<"ScheduleWarning"> | string | null
-  userId?: Prisma.StringNullableFilter<"ScheduleWarning"> | string | null
+  employeeId?: Prisma.StringNullableFilter<"ScheduleWarning"> | string | null
   date?: Prisma.DateTimeNullableFilter<"ScheduleWarning"> | Date | string | null
   message?: Prisma.StringFilter<"ScheduleWarning"> | string
+  createdById?: Prisma.StringNullableFilter<"ScheduleWarning"> | string | null
+  createdAt?: Prisma.DateTimeFilter<"ScheduleWarning"> | Date | string
+  updatedAt?: Prisma.DateTimeFilter<"ScheduleWarning"> | Date | string
   schedule?: Prisma.XOR<Prisma.ScheduleScalarRelationFilter, Prisma.ScheduleWhereInput>
   court?: Prisma.XOR<Prisma.CourtNullableScalarRelationFilter, Prisma.CourtWhereInput> | null
-  user?: Prisma.XOR<Prisma.UserNullableScalarRelationFilter, Prisma.UserWhereInput> | null
+  employee?: Prisma.XOR<Prisma.EmployeeNullableScalarRelationFilter, Prisma.EmployeeWhereInput> | null
+  createdBy?: Prisma.XOR<Prisma.UserNullableScalarRelationFilter, Prisma.UserWhereInput> | null
 }, "id">
 
 export type ScheduleWarningOrderByWithAggregationInput = {
@@ -248,9 +281,12 @@ export type ScheduleWarningOrderByWithAggregationInput = {
   type?: Prisma.SortOrder
   severity?: Prisma.SortOrder
   courtId?: Prisma.SortOrderInput | Prisma.SortOrder
-  userId?: Prisma.SortOrderInput | Prisma.SortOrder
+  employeeId?: Prisma.SortOrderInput | Prisma.SortOrder
   date?: Prisma.SortOrderInput | Prisma.SortOrder
   message?: Prisma.SortOrder
+  createdById?: Prisma.SortOrderInput | Prisma.SortOrder
+  createdAt?: Prisma.SortOrder
+  updatedAt?: Prisma.SortOrder
   _count?: Prisma.ScheduleWarningCountOrderByAggregateInput
   _max?: Prisma.ScheduleWarningMaxOrderByAggregateInput
   _min?: Prisma.ScheduleWarningMinOrderByAggregateInput
@@ -265,9 +301,12 @@ export type ScheduleWarningScalarWhereWithAggregatesInput = {
   type?: Prisma.EnumWarningTypeWithAggregatesFilter<"ScheduleWarning"> | $Enums.WarningType
   severity?: Prisma.EnumWarningSeverityWithAggregatesFilter<"ScheduleWarning"> | $Enums.WarningSeverity
   courtId?: Prisma.StringNullableWithAggregatesFilter<"ScheduleWarning"> | string | null
-  userId?: Prisma.StringNullableWithAggregatesFilter<"ScheduleWarning"> | string | null
+  employeeId?: Prisma.StringNullableWithAggregatesFilter<"ScheduleWarning"> | string | null
   date?: Prisma.DateTimeNullableWithAggregatesFilter<"ScheduleWarning"> | Date | string | null
   message?: Prisma.StringWithAggregatesFilter<"ScheduleWarning"> | string
+  createdById?: Prisma.StringNullableWithAggregatesFilter<"ScheduleWarning"> | string | null
+  createdAt?: Prisma.DateTimeWithAggregatesFilter<"ScheduleWarning"> | Date | string
+  updatedAt?: Prisma.DateTimeWithAggregatesFilter<"ScheduleWarning"> | Date | string
 }
 
 export type ScheduleWarningCreateInput = {
@@ -276,9 +315,12 @@ export type ScheduleWarningCreateInput = {
   severity: $Enums.WarningSeverity
   date?: Date | string | null
   message: string
+  createdAt?: Date | string
+  updatedAt?: Date | string
   schedule: Prisma.ScheduleCreateNestedOneWithoutWarningsInput
   court?: Prisma.CourtCreateNestedOneWithoutWarningsInput
-  user?: Prisma.UserCreateNestedOneWithoutAssignmentWarningsInput
+  employee?: Prisma.EmployeeCreateNestedOneWithoutWarningsInput
+  createdBy?: Prisma.UserCreateNestedOneWithoutWarningActionsInput
 }
 
 export type ScheduleWarningUncheckedCreateInput = {
@@ -287,9 +329,12 @@ export type ScheduleWarningUncheckedCreateInput = {
   type: $Enums.WarningType
   severity: $Enums.WarningSeverity
   courtId?: string | null
-  userId?: string | null
+  employeeId?: string | null
   date?: Date | string | null
   message: string
+  createdById?: string | null
+  createdAt?: Date | string
+  updatedAt?: Date | string
 }
 
 export type ScheduleWarningUpdateInput = {
@@ -298,9 +343,12 @@ export type ScheduleWarningUpdateInput = {
   severity?: Prisma.EnumWarningSeverityFieldUpdateOperationsInput | $Enums.WarningSeverity
   date?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   message?: Prisma.StringFieldUpdateOperationsInput | string
+  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   schedule?: Prisma.ScheduleUpdateOneRequiredWithoutWarningsNestedInput
   court?: Prisma.CourtUpdateOneWithoutWarningsNestedInput
-  user?: Prisma.UserUpdateOneWithoutAssignmentWarningsNestedInput
+  employee?: Prisma.EmployeeUpdateOneWithoutWarningsNestedInput
+  createdBy?: Prisma.UserUpdateOneWithoutWarningActionsNestedInput
 }
 
 export type ScheduleWarningUncheckedUpdateInput = {
@@ -309,9 +357,12 @@ export type ScheduleWarningUncheckedUpdateInput = {
   type?: Prisma.EnumWarningTypeFieldUpdateOperationsInput | $Enums.WarningType
   severity?: Prisma.EnumWarningSeverityFieldUpdateOperationsInput | $Enums.WarningSeverity
   courtId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  userId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  employeeId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   date?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   message?: Prisma.StringFieldUpdateOperationsInput | string
+  createdById?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
 }
 
 export type ScheduleWarningCreateManyInput = {
@@ -320,9 +371,12 @@ export type ScheduleWarningCreateManyInput = {
   type: $Enums.WarningType
   severity: $Enums.WarningSeverity
   courtId?: string | null
-  userId?: string | null
+  employeeId?: string | null
   date?: Date | string | null
   message: string
+  createdById?: string | null
+  createdAt?: Date | string
+  updatedAt?: Date | string
 }
 
 export type ScheduleWarningUpdateManyMutationInput = {
@@ -331,6 +385,8 @@ export type ScheduleWarningUpdateManyMutationInput = {
   severity?: Prisma.EnumWarningSeverityFieldUpdateOperationsInput | $Enums.WarningSeverity
   date?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   message?: Prisma.StringFieldUpdateOperationsInput | string
+  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
 }
 
 export type ScheduleWarningUncheckedUpdateManyInput = {
@@ -339,9 +395,12 @@ export type ScheduleWarningUncheckedUpdateManyInput = {
   type?: Prisma.EnumWarningTypeFieldUpdateOperationsInput | $Enums.WarningType
   severity?: Prisma.EnumWarningSeverityFieldUpdateOperationsInput | $Enums.WarningSeverity
   courtId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  userId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  employeeId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   date?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   message?: Prisma.StringFieldUpdateOperationsInput | string
+  createdById?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
 }
 
 export type ScheduleWarningListRelationFilter = {
@@ -360,9 +419,12 @@ export type ScheduleWarningCountOrderByAggregateInput = {
   type?: Prisma.SortOrder
   severity?: Prisma.SortOrder
   courtId?: Prisma.SortOrder
-  userId?: Prisma.SortOrder
+  employeeId?: Prisma.SortOrder
   date?: Prisma.SortOrder
   message?: Prisma.SortOrder
+  createdById?: Prisma.SortOrder
+  createdAt?: Prisma.SortOrder
+  updatedAt?: Prisma.SortOrder
 }
 
 export type ScheduleWarningMaxOrderByAggregateInput = {
@@ -371,9 +433,12 @@ export type ScheduleWarningMaxOrderByAggregateInput = {
   type?: Prisma.SortOrder
   severity?: Prisma.SortOrder
   courtId?: Prisma.SortOrder
-  userId?: Prisma.SortOrder
+  employeeId?: Prisma.SortOrder
   date?: Prisma.SortOrder
   message?: Prisma.SortOrder
+  createdById?: Prisma.SortOrder
+  createdAt?: Prisma.SortOrder
+  updatedAt?: Prisma.SortOrder
 }
 
 export type ScheduleWarningMinOrderByAggregateInput = {
@@ -382,50 +447,95 @@ export type ScheduleWarningMinOrderByAggregateInput = {
   type?: Prisma.SortOrder
   severity?: Prisma.SortOrder
   courtId?: Prisma.SortOrder
-  userId?: Prisma.SortOrder
+  employeeId?: Prisma.SortOrder
   date?: Prisma.SortOrder
   message?: Prisma.SortOrder
+  createdById?: Prisma.SortOrder
+  createdAt?: Prisma.SortOrder
+  updatedAt?: Prisma.SortOrder
 }
 
-export type ScheduleWarningCreateNestedManyWithoutUserInput = {
-  create?: Prisma.XOR<Prisma.ScheduleWarningCreateWithoutUserInput, Prisma.ScheduleWarningUncheckedCreateWithoutUserInput> | Prisma.ScheduleWarningCreateWithoutUserInput[] | Prisma.ScheduleWarningUncheckedCreateWithoutUserInput[]
-  connectOrCreate?: Prisma.ScheduleWarningCreateOrConnectWithoutUserInput | Prisma.ScheduleWarningCreateOrConnectWithoutUserInput[]
-  createMany?: Prisma.ScheduleWarningCreateManyUserInputEnvelope
+export type ScheduleWarningCreateNestedManyWithoutCreatedByInput = {
+  create?: Prisma.XOR<Prisma.ScheduleWarningCreateWithoutCreatedByInput, Prisma.ScheduleWarningUncheckedCreateWithoutCreatedByInput> | Prisma.ScheduleWarningCreateWithoutCreatedByInput[] | Prisma.ScheduleWarningUncheckedCreateWithoutCreatedByInput[]
+  connectOrCreate?: Prisma.ScheduleWarningCreateOrConnectWithoutCreatedByInput | Prisma.ScheduleWarningCreateOrConnectWithoutCreatedByInput[]
+  createMany?: Prisma.ScheduleWarningCreateManyCreatedByInputEnvelope
   connect?: Prisma.ScheduleWarningWhereUniqueInput | Prisma.ScheduleWarningWhereUniqueInput[]
 }
 
-export type ScheduleWarningUncheckedCreateNestedManyWithoutUserInput = {
-  create?: Prisma.XOR<Prisma.ScheduleWarningCreateWithoutUserInput, Prisma.ScheduleWarningUncheckedCreateWithoutUserInput> | Prisma.ScheduleWarningCreateWithoutUserInput[] | Prisma.ScheduleWarningUncheckedCreateWithoutUserInput[]
-  connectOrCreate?: Prisma.ScheduleWarningCreateOrConnectWithoutUserInput | Prisma.ScheduleWarningCreateOrConnectWithoutUserInput[]
-  createMany?: Prisma.ScheduleWarningCreateManyUserInputEnvelope
+export type ScheduleWarningUncheckedCreateNestedManyWithoutCreatedByInput = {
+  create?: Prisma.XOR<Prisma.ScheduleWarningCreateWithoutCreatedByInput, Prisma.ScheduleWarningUncheckedCreateWithoutCreatedByInput> | Prisma.ScheduleWarningCreateWithoutCreatedByInput[] | Prisma.ScheduleWarningUncheckedCreateWithoutCreatedByInput[]
+  connectOrCreate?: Prisma.ScheduleWarningCreateOrConnectWithoutCreatedByInput | Prisma.ScheduleWarningCreateOrConnectWithoutCreatedByInput[]
+  createMany?: Prisma.ScheduleWarningCreateManyCreatedByInputEnvelope
   connect?: Prisma.ScheduleWarningWhereUniqueInput | Prisma.ScheduleWarningWhereUniqueInput[]
 }
 
-export type ScheduleWarningUpdateManyWithoutUserNestedInput = {
-  create?: Prisma.XOR<Prisma.ScheduleWarningCreateWithoutUserInput, Prisma.ScheduleWarningUncheckedCreateWithoutUserInput> | Prisma.ScheduleWarningCreateWithoutUserInput[] | Prisma.ScheduleWarningUncheckedCreateWithoutUserInput[]
-  connectOrCreate?: Prisma.ScheduleWarningCreateOrConnectWithoutUserInput | Prisma.ScheduleWarningCreateOrConnectWithoutUserInput[]
-  upsert?: Prisma.ScheduleWarningUpsertWithWhereUniqueWithoutUserInput | Prisma.ScheduleWarningUpsertWithWhereUniqueWithoutUserInput[]
-  createMany?: Prisma.ScheduleWarningCreateManyUserInputEnvelope
+export type ScheduleWarningUpdateManyWithoutCreatedByNestedInput = {
+  create?: Prisma.XOR<Prisma.ScheduleWarningCreateWithoutCreatedByInput, Prisma.ScheduleWarningUncheckedCreateWithoutCreatedByInput> | Prisma.ScheduleWarningCreateWithoutCreatedByInput[] | Prisma.ScheduleWarningUncheckedCreateWithoutCreatedByInput[]
+  connectOrCreate?: Prisma.ScheduleWarningCreateOrConnectWithoutCreatedByInput | Prisma.ScheduleWarningCreateOrConnectWithoutCreatedByInput[]
+  upsert?: Prisma.ScheduleWarningUpsertWithWhereUniqueWithoutCreatedByInput | Prisma.ScheduleWarningUpsertWithWhereUniqueWithoutCreatedByInput[]
+  createMany?: Prisma.ScheduleWarningCreateManyCreatedByInputEnvelope
   set?: Prisma.ScheduleWarningWhereUniqueInput | Prisma.ScheduleWarningWhereUniqueInput[]
   disconnect?: Prisma.ScheduleWarningWhereUniqueInput | Prisma.ScheduleWarningWhereUniqueInput[]
   delete?: Prisma.ScheduleWarningWhereUniqueInput | Prisma.ScheduleWarningWhereUniqueInput[]
   connect?: Prisma.ScheduleWarningWhereUniqueInput | Prisma.ScheduleWarningWhereUniqueInput[]
-  update?: Prisma.ScheduleWarningUpdateWithWhereUniqueWithoutUserInput | Prisma.ScheduleWarningUpdateWithWhereUniqueWithoutUserInput[]
-  updateMany?: Prisma.ScheduleWarningUpdateManyWithWhereWithoutUserInput | Prisma.ScheduleWarningUpdateManyWithWhereWithoutUserInput[]
+  update?: Prisma.ScheduleWarningUpdateWithWhereUniqueWithoutCreatedByInput | Prisma.ScheduleWarningUpdateWithWhereUniqueWithoutCreatedByInput[]
+  updateMany?: Prisma.ScheduleWarningUpdateManyWithWhereWithoutCreatedByInput | Prisma.ScheduleWarningUpdateManyWithWhereWithoutCreatedByInput[]
   deleteMany?: Prisma.ScheduleWarningScalarWhereInput | Prisma.ScheduleWarningScalarWhereInput[]
 }
 
-export type ScheduleWarningUncheckedUpdateManyWithoutUserNestedInput = {
-  create?: Prisma.XOR<Prisma.ScheduleWarningCreateWithoutUserInput, Prisma.ScheduleWarningUncheckedCreateWithoutUserInput> | Prisma.ScheduleWarningCreateWithoutUserInput[] | Prisma.ScheduleWarningUncheckedCreateWithoutUserInput[]
-  connectOrCreate?: Prisma.ScheduleWarningCreateOrConnectWithoutUserInput | Prisma.ScheduleWarningCreateOrConnectWithoutUserInput[]
-  upsert?: Prisma.ScheduleWarningUpsertWithWhereUniqueWithoutUserInput | Prisma.ScheduleWarningUpsertWithWhereUniqueWithoutUserInput[]
-  createMany?: Prisma.ScheduleWarningCreateManyUserInputEnvelope
+export type ScheduleWarningUncheckedUpdateManyWithoutCreatedByNestedInput = {
+  create?: Prisma.XOR<Prisma.ScheduleWarningCreateWithoutCreatedByInput, Prisma.ScheduleWarningUncheckedCreateWithoutCreatedByInput> | Prisma.ScheduleWarningCreateWithoutCreatedByInput[] | Prisma.ScheduleWarningUncheckedCreateWithoutCreatedByInput[]
+  connectOrCreate?: Prisma.ScheduleWarningCreateOrConnectWithoutCreatedByInput | Prisma.ScheduleWarningCreateOrConnectWithoutCreatedByInput[]
+  upsert?: Prisma.ScheduleWarningUpsertWithWhereUniqueWithoutCreatedByInput | Prisma.ScheduleWarningUpsertWithWhereUniqueWithoutCreatedByInput[]
+  createMany?: Prisma.ScheduleWarningCreateManyCreatedByInputEnvelope
   set?: Prisma.ScheduleWarningWhereUniqueInput | Prisma.ScheduleWarningWhereUniqueInput[]
   disconnect?: Prisma.ScheduleWarningWhereUniqueInput | Prisma.ScheduleWarningWhereUniqueInput[]
   delete?: Prisma.ScheduleWarningWhereUniqueInput | Prisma.ScheduleWarningWhereUniqueInput[]
   connect?: Prisma.ScheduleWarningWhereUniqueInput | Prisma.ScheduleWarningWhereUniqueInput[]
-  update?: Prisma.ScheduleWarningUpdateWithWhereUniqueWithoutUserInput | Prisma.ScheduleWarningUpdateWithWhereUniqueWithoutUserInput[]
-  updateMany?: Prisma.ScheduleWarningUpdateManyWithWhereWithoutUserInput | Prisma.ScheduleWarningUpdateManyWithWhereWithoutUserInput[]
+  update?: Prisma.ScheduleWarningUpdateWithWhereUniqueWithoutCreatedByInput | Prisma.ScheduleWarningUpdateWithWhereUniqueWithoutCreatedByInput[]
+  updateMany?: Prisma.ScheduleWarningUpdateManyWithWhereWithoutCreatedByInput | Prisma.ScheduleWarningUpdateManyWithWhereWithoutCreatedByInput[]
+  deleteMany?: Prisma.ScheduleWarningScalarWhereInput | Prisma.ScheduleWarningScalarWhereInput[]
+}
+
+export type ScheduleWarningCreateNestedManyWithoutEmployeeInput = {
+  create?: Prisma.XOR<Prisma.ScheduleWarningCreateWithoutEmployeeInput, Prisma.ScheduleWarningUncheckedCreateWithoutEmployeeInput> | Prisma.ScheduleWarningCreateWithoutEmployeeInput[] | Prisma.ScheduleWarningUncheckedCreateWithoutEmployeeInput[]
+  connectOrCreate?: Prisma.ScheduleWarningCreateOrConnectWithoutEmployeeInput | Prisma.ScheduleWarningCreateOrConnectWithoutEmployeeInput[]
+  createMany?: Prisma.ScheduleWarningCreateManyEmployeeInputEnvelope
+  connect?: Prisma.ScheduleWarningWhereUniqueInput | Prisma.ScheduleWarningWhereUniqueInput[]
+}
+
+export type ScheduleWarningUncheckedCreateNestedManyWithoutEmployeeInput = {
+  create?: Prisma.XOR<Prisma.ScheduleWarningCreateWithoutEmployeeInput, Prisma.ScheduleWarningUncheckedCreateWithoutEmployeeInput> | Prisma.ScheduleWarningCreateWithoutEmployeeInput[] | Prisma.ScheduleWarningUncheckedCreateWithoutEmployeeInput[]
+  connectOrCreate?: Prisma.ScheduleWarningCreateOrConnectWithoutEmployeeInput | Prisma.ScheduleWarningCreateOrConnectWithoutEmployeeInput[]
+  createMany?: Prisma.ScheduleWarningCreateManyEmployeeInputEnvelope
+  connect?: Prisma.ScheduleWarningWhereUniqueInput | Prisma.ScheduleWarningWhereUniqueInput[]
+}
+
+export type ScheduleWarningUpdateManyWithoutEmployeeNestedInput = {
+  create?: Prisma.XOR<Prisma.ScheduleWarningCreateWithoutEmployeeInput, Prisma.ScheduleWarningUncheckedCreateWithoutEmployeeInput> | Prisma.ScheduleWarningCreateWithoutEmployeeInput[] | Prisma.ScheduleWarningUncheckedCreateWithoutEmployeeInput[]
+  connectOrCreate?: Prisma.ScheduleWarningCreateOrConnectWithoutEmployeeInput | Prisma.ScheduleWarningCreateOrConnectWithoutEmployeeInput[]
+  upsert?: Prisma.ScheduleWarningUpsertWithWhereUniqueWithoutEmployeeInput | Prisma.ScheduleWarningUpsertWithWhereUniqueWithoutEmployeeInput[]
+  createMany?: Prisma.ScheduleWarningCreateManyEmployeeInputEnvelope
+  set?: Prisma.ScheduleWarningWhereUniqueInput | Prisma.ScheduleWarningWhereUniqueInput[]
+  disconnect?: Prisma.ScheduleWarningWhereUniqueInput | Prisma.ScheduleWarningWhereUniqueInput[]
+  delete?: Prisma.ScheduleWarningWhereUniqueInput | Prisma.ScheduleWarningWhereUniqueInput[]
+  connect?: Prisma.ScheduleWarningWhereUniqueInput | Prisma.ScheduleWarningWhereUniqueInput[]
+  update?: Prisma.ScheduleWarningUpdateWithWhereUniqueWithoutEmployeeInput | Prisma.ScheduleWarningUpdateWithWhereUniqueWithoutEmployeeInput[]
+  updateMany?: Prisma.ScheduleWarningUpdateManyWithWhereWithoutEmployeeInput | Prisma.ScheduleWarningUpdateManyWithWhereWithoutEmployeeInput[]
+  deleteMany?: Prisma.ScheduleWarningScalarWhereInput | Prisma.ScheduleWarningScalarWhereInput[]
+}
+
+export type ScheduleWarningUncheckedUpdateManyWithoutEmployeeNestedInput = {
+  create?: Prisma.XOR<Prisma.ScheduleWarningCreateWithoutEmployeeInput, Prisma.ScheduleWarningUncheckedCreateWithoutEmployeeInput> | Prisma.ScheduleWarningCreateWithoutEmployeeInput[] | Prisma.ScheduleWarningUncheckedCreateWithoutEmployeeInput[]
+  connectOrCreate?: Prisma.ScheduleWarningCreateOrConnectWithoutEmployeeInput | Prisma.ScheduleWarningCreateOrConnectWithoutEmployeeInput[]
+  upsert?: Prisma.ScheduleWarningUpsertWithWhereUniqueWithoutEmployeeInput | Prisma.ScheduleWarningUpsertWithWhereUniqueWithoutEmployeeInput[]
+  createMany?: Prisma.ScheduleWarningCreateManyEmployeeInputEnvelope
+  set?: Prisma.ScheduleWarningWhereUniqueInput | Prisma.ScheduleWarningWhereUniqueInput[]
+  disconnect?: Prisma.ScheduleWarningWhereUniqueInput | Prisma.ScheduleWarningWhereUniqueInput[]
+  delete?: Prisma.ScheduleWarningWhereUniqueInput | Prisma.ScheduleWarningWhereUniqueInput[]
+  connect?: Prisma.ScheduleWarningWhereUniqueInput | Prisma.ScheduleWarningWhereUniqueInput[]
+  update?: Prisma.ScheduleWarningUpdateWithWhereUniqueWithoutEmployeeInput | Prisma.ScheduleWarningUpdateWithWhereUniqueWithoutEmployeeInput[]
+  updateMany?: Prisma.ScheduleWarningUpdateManyWithWhereWithoutEmployeeInput | Prisma.ScheduleWarningUpdateManyWithWhereWithoutEmployeeInput[]
   deleteMany?: Prisma.ScheduleWarningScalarWhereInput | Prisma.ScheduleWarningScalarWhereInput[]
 }
 
@@ -521,50 +631,56 @@ export type EnumWarningSeverityFieldUpdateOperationsInput = {
   set?: $Enums.WarningSeverity
 }
 
-export type ScheduleWarningCreateWithoutUserInput = {
+export type ScheduleWarningCreateWithoutCreatedByInput = {
   id?: string
   type: $Enums.WarningType
   severity: $Enums.WarningSeverity
   date?: Date | string | null
   message: string
+  createdAt?: Date | string
+  updatedAt?: Date | string
   schedule: Prisma.ScheduleCreateNestedOneWithoutWarningsInput
   court?: Prisma.CourtCreateNestedOneWithoutWarningsInput
+  employee?: Prisma.EmployeeCreateNestedOneWithoutWarningsInput
 }
 
-export type ScheduleWarningUncheckedCreateWithoutUserInput = {
+export type ScheduleWarningUncheckedCreateWithoutCreatedByInput = {
   id?: string
   scheduleId: string
   type: $Enums.WarningType
   severity: $Enums.WarningSeverity
   courtId?: string | null
+  employeeId?: string | null
   date?: Date | string | null
   message: string
+  createdAt?: Date | string
+  updatedAt?: Date | string
 }
 
-export type ScheduleWarningCreateOrConnectWithoutUserInput = {
+export type ScheduleWarningCreateOrConnectWithoutCreatedByInput = {
   where: Prisma.ScheduleWarningWhereUniqueInput
-  create: Prisma.XOR<Prisma.ScheduleWarningCreateWithoutUserInput, Prisma.ScheduleWarningUncheckedCreateWithoutUserInput>
+  create: Prisma.XOR<Prisma.ScheduleWarningCreateWithoutCreatedByInput, Prisma.ScheduleWarningUncheckedCreateWithoutCreatedByInput>
 }
 
-export type ScheduleWarningCreateManyUserInputEnvelope = {
-  data: Prisma.ScheduleWarningCreateManyUserInput | Prisma.ScheduleWarningCreateManyUserInput[]
+export type ScheduleWarningCreateManyCreatedByInputEnvelope = {
+  data: Prisma.ScheduleWarningCreateManyCreatedByInput | Prisma.ScheduleWarningCreateManyCreatedByInput[]
   skipDuplicates?: boolean
 }
 
-export type ScheduleWarningUpsertWithWhereUniqueWithoutUserInput = {
+export type ScheduleWarningUpsertWithWhereUniqueWithoutCreatedByInput = {
   where: Prisma.ScheduleWarningWhereUniqueInput
-  update: Prisma.XOR<Prisma.ScheduleWarningUpdateWithoutUserInput, Prisma.ScheduleWarningUncheckedUpdateWithoutUserInput>
-  create: Prisma.XOR<Prisma.ScheduleWarningCreateWithoutUserInput, Prisma.ScheduleWarningUncheckedCreateWithoutUserInput>
+  update: Prisma.XOR<Prisma.ScheduleWarningUpdateWithoutCreatedByInput, Prisma.ScheduleWarningUncheckedUpdateWithoutCreatedByInput>
+  create: Prisma.XOR<Prisma.ScheduleWarningCreateWithoutCreatedByInput, Prisma.ScheduleWarningUncheckedCreateWithoutCreatedByInput>
 }
 
-export type ScheduleWarningUpdateWithWhereUniqueWithoutUserInput = {
+export type ScheduleWarningUpdateWithWhereUniqueWithoutCreatedByInput = {
   where: Prisma.ScheduleWarningWhereUniqueInput
-  data: Prisma.XOR<Prisma.ScheduleWarningUpdateWithoutUserInput, Prisma.ScheduleWarningUncheckedUpdateWithoutUserInput>
+  data: Prisma.XOR<Prisma.ScheduleWarningUpdateWithoutCreatedByInput, Prisma.ScheduleWarningUncheckedUpdateWithoutCreatedByInput>
 }
 
-export type ScheduleWarningUpdateManyWithWhereWithoutUserInput = {
+export type ScheduleWarningUpdateManyWithWhereWithoutCreatedByInput = {
   where: Prisma.ScheduleWarningScalarWhereInput
-  data: Prisma.XOR<Prisma.ScheduleWarningUpdateManyMutationInput, Prisma.ScheduleWarningUncheckedUpdateManyWithoutUserInput>
+  data: Prisma.XOR<Prisma.ScheduleWarningUpdateManyMutationInput, Prisma.ScheduleWarningUncheckedUpdateManyWithoutCreatedByInput>
 }
 
 export type ScheduleWarningScalarWhereInput = {
@@ -576,9 +692,64 @@ export type ScheduleWarningScalarWhereInput = {
   type?: Prisma.EnumWarningTypeFilter<"ScheduleWarning"> | $Enums.WarningType
   severity?: Prisma.EnumWarningSeverityFilter<"ScheduleWarning"> | $Enums.WarningSeverity
   courtId?: Prisma.StringNullableFilter<"ScheduleWarning"> | string | null
-  userId?: Prisma.StringNullableFilter<"ScheduleWarning"> | string | null
+  employeeId?: Prisma.StringNullableFilter<"ScheduleWarning"> | string | null
   date?: Prisma.DateTimeNullableFilter<"ScheduleWarning"> | Date | string | null
   message?: Prisma.StringFilter<"ScheduleWarning"> | string
+  createdById?: Prisma.StringNullableFilter<"ScheduleWarning"> | string | null
+  createdAt?: Prisma.DateTimeFilter<"ScheduleWarning"> | Date | string
+  updatedAt?: Prisma.DateTimeFilter<"ScheduleWarning"> | Date | string
+}
+
+export type ScheduleWarningCreateWithoutEmployeeInput = {
+  id?: string
+  type: $Enums.WarningType
+  severity: $Enums.WarningSeverity
+  date?: Date | string | null
+  message: string
+  createdAt?: Date | string
+  updatedAt?: Date | string
+  schedule: Prisma.ScheduleCreateNestedOneWithoutWarningsInput
+  court?: Prisma.CourtCreateNestedOneWithoutWarningsInput
+  createdBy?: Prisma.UserCreateNestedOneWithoutWarningActionsInput
+}
+
+export type ScheduleWarningUncheckedCreateWithoutEmployeeInput = {
+  id?: string
+  scheduleId: string
+  type: $Enums.WarningType
+  severity: $Enums.WarningSeverity
+  courtId?: string | null
+  date?: Date | string | null
+  message: string
+  createdById?: string | null
+  createdAt?: Date | string
+  updatedAt?: Date | string
+}
+
+export type ScheduleWarningCreateOrConnectWithoutEmployeeInput = {
+  where: Prisma.ScheduleWarningWhereUniqueInput
+  create: Prisma.XOR<Prisma.ScheduleWarningCreateWithoutEmployeeInput, Prisma.ScheduleWarningUncheckedCreateWithoutEmployeeInput>
+}
+
+export type ScheduleWarningCreateManyEmployeeInputEnvelope = {
+  data: Prisma.ScheduleWarningCreateManyEmployeeInput | Prisma.ScheduleWarningCreateManyEmployeeInput[]
+  skipDuplicates?: boolean
+}
+
+export type ScheduleWarningUpsertWithWhereUniqueWithoutEmployeeInput = {
+  where: Prisma.ScheduleWarningWhereUniqueInput
+  update: Prisma.XOR<Prisma.ScheduleWarningUpdateWithoutEmployeeInput, Prisma.ScheduleWarningUncheckedUpdateWithoutEmployeeInput>
+  create: Prisma.XOR<Prisma.ScheduleWarningCreateWithoutEmployeeInput, Prisma.ScheduleWarningUncheckedCreateWithoutEmployeeInput>
+}
+
+export type ScheduleWarningUpdateWithWhereUniqueWithoutEmployeeInput = {
+  where: Prisma.ScheduleWarningWhereUniqueInput
+  data: Prisma.XOR<Prisma.ScheduleWarningUpdateWithoutEmployeeInput, Prisma.ScheduleWarningUncheckedUpdateWithoutEmployeeInput>
+}
+
+export type ScheduleWarningUpdateManyWithWhereWithoutEmployeeInput = {
+  where: Prisma.ScheduleWarningScalarWhereInput
+  data: Prisma.XOR<Prisma.ScheduleWarningUpdateManyMutationInput, Prisma.ScheduleWarningUncheckedUpdateManyWithoutEmployeeInput>
 }
 
 export type ScheduleWarningCreateWithoutCourtInput = {
@@ -587,8 +758,11 @@ export type ScheduleWarningCreateWithoutCourtInput = {
   severity: $Enums.WarningSeverity
   date?: Date | string | null
   message: string
+  createdAt?: Date | string
+  updatedAt?: Date | string
   schedule: Prisma.ScheduleCreateNestedOneWithoutWarningsInput
-  user?: Prisma.UserCreateNestedOneWithoutAssignmentWarningsInput
+  employee?: Prisma.EmployeeCreateNestedOneWithoutWarningsInput
+  createdBy?: Prisma.UserCreateNestedOneWithoutWarningActionsInput
 }
 
 export type ScheduleWarningUncheckedCreateWithoutCourtInput = {
@@ -596,9 +770,12 @@ export type ScheduleWarningUncheckedCreateWithoutCourtInput = {
   scheduleId: string
   type: $Enums.WarningType
   severity: $Enums.WarningSeverity
-  userId?: string | null
+  employeeId?: string | null
   date?: Date | string | null
   message: string
+  createdById?: string | null
+  createdAt?: Date | string
+  updatedAt?: Date | string
 }
 
 export type ScheduleWarningCreateOrConnectWithoutCourtInput = {
@@ -633,8 +810,11 @@ export type ScheduleWarningCreateWithoutScheduleInput = {
   severity: $Enums.WarningSeverity
   date?: Date | string | null
   message: string
+  createdAt?: Date | string
+  updatedAt?: Date | string
   court?: Prisma.CourtCreateNestedOneWithoutWarningsInput
-  user?: Prisma.UserCreateNestedOneWithoutAssignmentWarningsInput
+  employee?: Prisma.EmployeeCreateNestedOneWithoutWarningsInput
+  createdBy?: Prisma.UserCreateNestedOneWithoutWarningActionsInput
 }
 
 export type ScheduleWarningUncheckedCreateWithoutScheduleInput = {
@@ -642,9 +822,12 @@ export type ScheduleWarningUncheckedCreateWithoutScheduleInput = {
   type: $Enums.WarningType
   severity: $Enums.WarningSeverity
   courtId?: string | null
-  userId?: string | null
+  employeeId?: string | null
   date?: Date | string | null
   message: string
+  createdById?: string | null
+  createdAt?: Date | string
+  updatedAt?: Date | string
 }
 
 export type ScheduleWarningCreateOrConnectWithoutScheduleInput = {
@@ -673,7 +856,59 @@ export type ScheduleWarningUpdateManyWithWhereWithoutScheduleInput = {
   data: Prisma.XOR<Prisma.ScheduleWarningUpdateManyMutationInput, Prisma.ScheduleWarningUncheckedUpdateManyWithoutScheduleInput>
 }
 
-export type ScheduleWarningCreateManyUserInput = {
+export type ScheduleWarningCreateManyCreatedByInput = {
+  id?: string
+  scheduleId: string
+  type: $Enums.WarningType
+  severity: $Enums.WarningSeverity
+  courtId?: string | null
+  employeeId?: string | null
+  date?: Date | string | null
+  message: string
+  createdAt?: Date | string
+  updatedAt?: Date | string
+}
+
+export type ScheduleWarningUpdateWithoutCreatedByInput = {
+  id?: Prisma.StringFieldUpdateOperationsInput | string
+  type?: Prisma.EnumWarningTypeFieldUpdateOperationsInput | $Enums.WarningType
+  severity?: Prisma.EnumWarningSeverityFieldUpdateOperationsInput | $Enums.WarningSeverity
+  date?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  message?: Prisma.StringFieldUpdateOperationsInput | string
+  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  schedule?: Prisma.ScheduleUpdateOneRequiredWithoutWarningsNestedInput
+  court?: Prisma.CourtUpdateOneWithoutWarningsNestedInput
+  employee?: Prisma.EmployeeUpdateOneWithoutWarningsNestedInput
+}
+
+export type ScheduleWarningUncheckedUpdateWithoutCreatedByInput = {
+  id?: Prisma.StringFieldUpdateOperationsInput | string
+  scheduleId?: Prisma.StringFieldUpdateOperationsInput | string
+  type?: Prisma.EnumWarningTypeFieldUpdateOperationsInput | $Enums.WarningType
+  severity?: Prisma.EnumWarningSeverityFieldUpdateOperationsInput | $Enums.WarningSeverity
+  courtId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  employeeId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  date?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  message?: Prisma.StringFieldUpdateOperationsInput | string
+  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+}
+
+export type ScheduleWarningUncheckedUpdateManyWithoutCreatedByInput = {
+  id?: Prisma.StringFieldUpdateOperationsInput | string
+  scheduleId?: Prisma.StringFieldUpdateOperationsInput | string
+  type?: Prisma.EnumWarningTypeFieldUpdateOperationsInput | $Enums.WarningType
+  severity?: Prisma.EnumWarningSeverityFieldUpdateOperationsInput | $Enums.WarningSeverity
+  courtId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  employeeId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  date?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  message?: Prisma.StringFieldUpdateOperationsInput | string
+  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+}
+
+export type ScheduleWarningCreateManyEmployeeInput = {
   id?: string
   scheduleId: string
   type: $Enums.WarningType
@@ -681,19 +916,25 @@ export type ScheduleWarningCreateManyUserInput = {
   courtId?: string | null
   date?: Date | string | null
   message: string
+  createdById?: string | null
+  createdAt?: Date | string
+  updatedAt?: Date | string
 }
 
-export type ScheduleWarningUpdateWithoutUserInput = {
+export type ScheduleWarningUpdateWithoutEmployeeInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
   type?: Prisma.EnumWarningTypeFieldUpdateOperationsInput | $Enums.WarningType
   severity?: Prisma.EnumWarningSeverityFieldUpdateOperationsInput | $Enums.WarningSeverity
   date?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   message?: Prisma.StringFieldUpdateOperationsInput | string
+  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   schedule?: Prisma.ScheduleUpdateOneRequiredWithoutWarningsNestedInput
   court?: Prisma.CourtUpdateOneWithoutWarningsNestedInput
+  createdBy?: Prisma.UserUpdateOneWithoutWarningActionsNestedInput
 }
 
-export type ScheduleWarningUncheckedUpdateWithoutUserInput = {
+export type ScheduleWarningUncheckedUpdateWithoutEmployeeInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
   scheduleId?: Prisma.StringFieldUpdateOperationsInput | string
   type?: Prisma.EnumWarningTypeFieldUpdateOperationsInput | $Enums.WarningType
@@ -701,9 +942,12 @@ export type ScheduleWarningUncheckedUpdateWithoutUserInput = {
   courtId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   date?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   message?: Prisma.StringFieldUpdateOperationsInput | string
+  createdById?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
 }
 
-export type ScheduleWarningUncheckedUpdateManyWithoutUserInput = {
+export type ScheduleWarningUncheckedUpdateManyWithoutEmployeeInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
   scheduleId?: Prisma.StringFieldUpdateOperationsInput | string
   type?: Prisma.EnumWarningTypeFieldUpdateOperationsInput | $Enums.WarningType
@@ -711,6 +955,9 @@ export type ScheduleWarningUncheckedUpdateManyWithoutUserInput = {
   courtId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   date?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   message?: Prisma.StringFieldUpdateOperationsInput | string
+  createdById?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
 }
 
 export type ScheduleWarningCreateManyCourtInput = {
@@ -718,9 +965,12 @@ export type ScheduleWarningCreateManyCourtInput = {
   scheduleId: string
   type: $Enums.WarningType
   severity: $Enums.WarningSeverity
-  userId?: string | null
+  employeeId?: string | null
   date?: Date | string | null
   message: string
+  createdById?: string | null
+  createdAt?: Date | string
+  updatedAt?: Date | string
 }
 
 export type ScheduleWarningUpdateWithoutCourtInput = {
@@ -729,8 +979,11 @@ export type ScheduleWarningUpdateWithoutCourtInput = {
   severity?: Prisma.EnumWarningSeverityFieldUpdateOperationsInput | $Enums.WarningSeverity
   date?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   message?: Prisma.StringFieldUpdateOperationsInput | string
+  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   schedule?: Prisma.ScheduleUpdateOneRequiredWithoutWarningsNestedInput
-  user?: Prisma.UserUpdateOneWithoutAssignmentWarningsNestedInput
+  employee?: Prisma.EmployeeUpdateOneWithoutWarningsNestedInput
+  createdBy?: Prisma.UserUpdateOneWithoutWarningActionsNestedInput
 }
 
 export type ScheduleWarningUncheckedUpdateWithoutCourtInput = {
@@ -738,9 +991,12 @@ export type ScheduleWarningUncheckedUpdateWithoutCourtInput = {
   scheduleId?: Prisma.StringFieldUpdateOperationsInput | string
   type?: Prisma.EnumWarningTypeFieldUpdateOperationsInput | $Enums.WarningType
   severity?: Prisma.EnumWarningSeverityFieldUpdateOperationsInput | $Enums.WarningSeverity
-  userId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  employeeId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   date?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   message?: Prisma.StringFieldUpdateOperationsInput | string
+  createdById?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
 }
 
 export type ScheduleWarningUncheckedUpdateManyWithoutCourtInput = {
@@ -748,9 +1004,12 @@ export type ScheduleWarningUncheckedUpdateManyWithoutCourtInput = {
   scheduleId?: Prisma.StringFieldUpdateOperationsInput | string
   type?: Prisma.EnumWarningTypeFieldUpdateOperationsInput | $Enums.WarningType
   severity?: Prisma.EnumWarningSeverityFieldUpdateOperationsInput | $Enums.WarningSeverity
-  userId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  employeeId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   date?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   message?: Prisma.StringFieldUpdateOperationsInput | string
+  createdById?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
 }
 
 export type ScheduleWarningCreateManyScheduleInput = {
@@ -758,9 +1017,12 @@ export type ScheduleWarningCreateManyScheduleInput = {
   type: $Enums.WarningType
   severity: $Enums.WarningSeverity
   courtId?: string | null
-  userId?: string | null
+  employeeId?: string | null
   date?: Date | string | null
   message: string
+  createdById?: string | null
+  createdAt?: Date | string
+  updatedAt?: Date | string
 }
 
 export type ScheduleWarningUpdateWithoutScheduleInput = {
@@ -769,8 +1031,11 @@ export type ScheduleWarningUpdateWithoutScheduleInput = {
   severity?: Prisma.EnumWarningSeverityFieldUpdateOperationsInput | $Enums.WarningSeverity
   date?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   message?: Prisma.StringFieldUpdateOperationsInput | string
+  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   court?: Prisma.CourtUpdateOneWithoutWarningsNestedInput
-  user?: Prisma.UserUpdateOneWithoutAssignmentWarningsNestedInput
+  employee?: Prisma.EmployeeUpdateOneWithoutWarningsNestedInput
+  createdBy?: Prisma.UserUpdateOneWithoutWarningActionsNestedInput
 }
 
 export type ScheduleWarningUncheckedUpdateWithoutScheduleInput = {
@@ -778,9 +1043,12 @@ export type ScheduleWarningUncheckedUpdateWithoutScheduleInput = {
   type?: Prisma.EnumWarningTypeFieldUpdateOperationsInput | $Enums.WarningType
   severity?: Prisma.EnumWarningSeverityFieldUpdateOperationsInput | $Enums.WarningSeverity
   courtId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  userId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  employeeId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   date?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   message?: Prisma.StringFieldUpdateOperationsInput | string
+  createdById?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
 }
 
 export type ScheduleWarningUncheckedUpdateManyWithoutScheduleInput = {
@@ -788,9 +1056,12 @@ export type ScheduleWarningUncheckedUpdateManyWithoutScheduleInput = {
   type?: Prisma.EnumWarningTypeFieldUpdateOperationsInput | $Enums.WarningType
   severity?: Prisma.EnumWarningSeverityFieldUpdateOperationsInput | $Enums.WarningSeverity
   courtId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  userId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  employeeId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   date?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   message?: Prisma.StringFieldUpdateOperationsInput | string
+  createdById?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
 }
 
 
@@ -801,12 +1072,16 @@ export type ScheduleWarningSelect<ExtArgs extends runtime.Types.Extensions.Inter
   type?: boolean
   severity?: boolean
   courtId?: boolean
-  userId?: boolean
+  employeeId?: boolean
   date?: boolean
   message?: boolean
+  createdById?: boolean
+  createdAt?: boolean
+  updatedAt?: boolean
   schedule?: boolean | Prisma.ScheduleDefaultArgs<ExtArgs>
   court?: boolean | Prisma.ScheduleWarning$courtArgs<ExtArgs>
-  user?: boolean | Prisma.ScheduleWarning$userArgs<ExtArgs>
+  employee?: boolean | Prisma.ScheduleWarning$employeeArgs<ExtArgs>
+  createdBy?: boolean | Prisma.ScheduleWarning$createdByArgs<ExtArgs>
 }, ExtArgs["result"]["scheduleWarning"]>
 
 export type ScheduleWarningSelectCreateManyAndReturn<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetSelect<{
@@ -815,12 +1090,16 @@ export type ScheduleWarningSelectCreateManyAndReturn<ExtArgs extends runtime.Typ
   type?: boolean
   severity?: boolean
   courtId?: boolean
-  userId?: boolean
+  employeeId?: boolean
   date?: boolean
   message?: boolean
+  createdById?: boolean
+  createdAt?: boolean
+  updatedAt?: boolean
   schedule?: boolean | Prisma.ScheduleDefaultArgs<ExtArgs>
   court?: boolean | Prisma.ScheduleWarning$courtArgs<ExtArgs>
-  user?: boolean | Prisma.ScheduleWarning$userArgs<ExtArgs>
+  employee?: boolean | Prisma.ScheduleWarning$employeeArgs<ExtArgs>
+  createdBy?: boolean | Prisma.ScheduleWarning$createdByArgs<ExtArgs>
 }, ExtArgs["result"]["scheduleWarning"]>
 
 export type ScheduleWarningSelectUpdateManyAndReturn<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetSelect<{
@@ -829,12 +1108,16 @@ export type ScheduleWarningSelectUpdateManyAndReturn<ExtArgs extends runtime.Typ
   type?: boolean
   severity?: boolean
   courtId?: boolean
-  userId?: boolean
+  employeeId?: boolean
   date?: boolean
   message?: boolean
+  createdById?: boolean
+  createdAt?: boolean
+  updatedAt?: boolean
   schedule?: boolean | Prisma.ScheduleDefaultArgs<ExtArgs>
   court?: boolean | Prisma.ScheduleWarning$courtArgs<ExtArgs>
-  user?: boolean | Prisma.ScheduleWarning$userArgs<ExtArgs>
+  employee?: boolean | Prisma.ScheduleWarning$employeeArgs<ExtArgs>
+  createdBy?: boolean | Prisma.ScheduleWarning$createdByArgs<ExtArgs>
 }, ExtArgs["result"]["scheduleWarning"]>
 
 export type ScheduleWarningSelectScalar = {
@@ -843,26 +1126,32 @@ export type ScheduleWarningSelectScalar = {
   type?: boolean
   severity?: boolean
   courtId?: boolean
-  userId?: boolean
+  employeeId?: boolean
   date?: boolean
   message?: boolean
+  createdById?: boolean
+  createdAt?: boolean
+  updatedAt?: boolean
 }
 
-export type ScheduleWarningOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"id" | "scheduleId" | "type" | "severity" | "courtId" | "userId" | "date" | "message", ExtArgs["result"]["scheduleWarning"]>
+export type ScheduleWarningOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"id" | "scheduleId" | "type" | "severity" | "courtId" | "employeeId" | "date" | "message" | "createdById" | "createdAt" | "updatedAt", ExtArgs["result"]["scheduleWarning"]>
 export type ScheduleWarningInclude<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
   schedule?: boolean | Prisma.ScheduleDefaultArgs<ExtArgs>
   court?: boolean | Prisma.ScheduleWarning$courtArgs<ExtArgs>
-  user?: boolean | Prisma.ScheduleWarning$userArgs<ExtArgs>
+  employee?: boolean | Prisma.ScheduleWarning$employeeArgs<ExtArgs>
+  createdBy?: boolean | Prisma.ScheduleWarning$createdByArgs<ExtArgs>
 }
 export type ScheduleWarningIncludeCreateManyAndReturn<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
   schedule?: boolean | Prisma.ScheduleDefaultArgs<ExtArgs>
   court?: boolean | Prisma.ScheduleWarning$courtArgs<ExtArgs>
-  user?: boolean | Prisma.ScheduleWarning$userArgs<ExtArgs>
+  employee?: boolean | Prisma.ScheduleWarning$employeeArgs<ExtArgs>
+  createdBy?: boolean | Prisma.ScheduleWarning$createdByArgs<ExtArgs>
 }
 export type ScheduleWarningIncludeUpdateManyAndReturn<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
   schedule?: boolean | Prisma.ScheduleDefaultArgs<ExtArgs>
   court?: boolean | Prisma.ScheduleWarning$courtArgs<ExtArgs>
-  user?: boolean | Prisma.ScheduleWarning$userArgs<ExtArgs>
+  employee?: boolean | Prisma.ScheduleWarning$employeeArgs<ExtArgs>
+  createdBy?: boolean | Prisma.ScheduleWarning$createdByArgs<ExtArgs>
 }
 
 export type $ScheduleWarningPayload<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
@@ -870,7 +1159,8 @@ export type $ScheduleWarningPayload<ExtArgs extends runtime.Types.Extensions.Int
   objects: {
     schedule: Prisma.$SchedulePayload<ExtArgs>
     court: Prisma.$CourtPayload<ExtArgs> | null
-    user: Prisma.$UserPayload<ExtArgs> | null
+    employee: Prisma.$EmployeePayload<ExtArgs> | null
+    createdBy: Prisma.$UserPayload<ExtArgs> | null
   }
   scalars: runtime.Types.Extensions.GetPayloadResult<{
     id: string
@@ -878,9 +1168,12 @@ export type $ScheduleWarningPayload<ExtArgs extends runtime.Types.Extensions.Int
     type: $Enums.WarningType
     severity: $Enums.WarningSeverity
     courtId: string | null
-    userId: string | null
+    employeeId: string | null
     date: Date | null
     message: string
+    createdById: string | null
+    createdAt: Date
+    updatedAt: Date
   }, ExtArgs["result"]["scheduleWarning"]>
   composites: {}
 }
@@ -1277,7 +1570,8 @@ export interface Prisma__ScheduleWarningClient<T, Null = never, ExtArgs extends 
   readonly [Symbol.toStringTag]: "PrismaPromise"
   schedule<T extends Prisma.ScheduleDefaultArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.ScheduleDefaultArgs<ExtArgs>>): Prisma.Prisma__ScheduleClient<runtime.Types.Result.GetResult<Prisma.$SchedulePayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions> | Null, Null, ExtArgs, GlobalOmitOptions>
   court<T extends Prisma.ScheduleWarning$courtArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.ScheduleWarning$courtArgs<ExtArgs>>): Prisma.Prisma__CourtClient<runtime.Types.Result.GetResult<Prisma.$CourtPayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions> | null, null, ExtArgs, GlobalOmitOptions>
-  user<T extends Prisma.ScheduleWarning$userArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.ScheduleWarning$userArgs<ExtArgs>>): Prisma.Prisma__UserClient<runtime.Types.Result.GetResult<Prisma.$UserPayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions> | null, null, ExtArgs, GlobalOmitOptions>
+  employee<T extends Prisma.ScheduleWarning$employeeArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.ScheduleWarning$employeeArgs<ExtArgs>>): Prisma.Prisma__EmployeeClient<runtime.Types.Result.GetResult<Prisma.$EmployeePayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions> | null, null, ExtArgs, GlobalOmitOptions>
+  createdBy<T extends Prisma.ScheduleWarning$createdByArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.ScheduleWarning$createdByArgs<ExtArgs>>): Prisma.Prisma__UserClient<runtime.Types.Result.GetResult<Prisma.$UserPayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions> | null, null, ExtArgs, GlobalOmitOptions>
   /**
    * Attaches callbacks for the resolution and/or rejection of the Promise.
    * @param onfulfilled The callback to execute when the Promise is resolved.
@@ -1312,9 +1606,12 @@ export interface ScheduleWarningFieldRefs {
   readonly type: Prisma.FieldRef<"ScheduleWarning", 'WarningType'>
   readonly severity: Prisma.FieldRef<"ScheduleWarning", 'WarningSeverity'>
   readonly courtId: Prisma.FieldRef<"ScheduleWarning", 'String'>
-  readonly userId: Prisma.FieldRef<"ScheduleWarning", 'String'>
+  readonly employeeId: Prisma.FieldRef<"ScheduleWarning", 'String'>
   readonly date: Prisma.FieldRef<"ScheduleWarning", 'DateTime'>
   readonly message: Prisma.FieldRef<"ScheduleWarning", 'String'>
+  readonly createdById: Prisma.FieldRef<"ScheduleWarning", 'String'>
+  readonly createdAt: Prisma.FieldRef<"ScheduleWarning", 'DateTime'>
+  readonly updatedAt: Prisma.FieldRef<"ScheduleWarning", 'DateTime'>
 }
     
 
@@ -1735,9 +2032,28 @@ export type ScheduleWarning$courtArgs<ExtArgs extends runtime.Types.Extensions.I
 }
 
 /**
- * ScheduleWarning.user
+ * ScheduleWarning.employee
  */
-export type ScheduleWarning$userArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+export type ScheduleWarning$employeeArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+  /**
+   * Select specific fields to fetch from the Employee
+   */
+  select?: Prisma.EmployeeSelect<ExtArgs> | null
+  /**
+   * Omit specific fields from the Employee
+   */
+  omit?: Prisma.EmployeeOmit<ExtArgs> | null
+  /**
+   * Choose, which related nodes to fetch as well
+   */
+  include?: Prisma.EmployeeInclude<ExtArgs> | null
+  where?: Prisma.EmployeeWhereInput
+}
+
+/**
+ * ScheduleWarning.createdBy
+ */
+export type ScheduleWarning$createdByArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
   /**
    * Select specific fields to fetch from the User
    */

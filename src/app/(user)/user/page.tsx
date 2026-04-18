@@ -1,9 +1,9 @@
 import { requireSession } from '@/lib/auth-helpers'
-import { Role } from '@/generated/prisma/client'
+import { SystemRole } from '@/generated/prisma/client'
 import { Card, CardContent } from '@/components/ui/card'
 
 export default async function UserDashboardPage() {
-  const session = await requireSession(Role.GUARD)
+  const session = await requireSession(SystemRole.EMPLOYEE)
 
   return (
     <div className="space-y-4">
