@@ -67,3 +67,33 @@ export async function removeAssignment(assignmentId: string): Promise<void> {
 
   revalidatePath('/manager/shibutz');
 }
+
+type CapacityRulesInput = { MORNING: number; EVENING: number; NIGHT: number };
+
+export async function upsertCapacityRules(
+  rules: CapacityRulesInput,
+): Promise<{ ok: true } | { error: string }> {
+  const session = await requireSession(SystemRole.MANAGER);
+  const courtId = session.user.primaryCourtId;
+  if (!courtId) return { error: 'למנהל אין בית משפט משויך' };
+
+  const shiftTypes: ShiftType[] = ['MORNING', 'EVENING', 'NIGHT'];
+
+  await prisma.$transaction(async (tx) => {
+    for (const shiftType of shiftTypes) {
+      const maxStaff = rules[shiftType as keyof CapacityRulesInput];
+      const existing = await tx.shiftCapacityRule.findFirst({
+        where: { courtId, shiftType, dayOfWeek: null },
+      });
+      if (existing) {
+        await tx.shiftCapacityRule.update({ where: { id: existing.id }, data: { maxStaff } });
+      } else {
+        await tx.shiftCapacityRule.create({ data: { courtId, shiftType, dayOfWeek: null, minStaff: 0, maxStaff } });
+      }
+    }
+  });
+
+  revalidatePath('/manager/settings');
+  revalidatePath('/manager/shibutz');
+  return { ok: true };
+}
