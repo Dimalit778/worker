@@ -5,6 +5,7 @@ import { prisma } from '@/lib/db/client';
 import { requireSession } from '@/lib/auth-helpers';
 import { ShiftType, SystemRole } from '@/generated/prisma/client';
 import { parseISODateToUtcMidnight } from '@/features/schedules/utils';
+import type { CapacityMap } from './types';
 
 type AssignGuardParams = {
   scheduleId: string | null;
@@ -68,7 +69,7 @@ export async function removeAssignment(assignmentId: string): Promise<void> {
   revalidatePath('/manager/shibutz');
 }
 
-type CapacityRulesInput = { MORNING: number; EVENING: number; NIGHT: number };
+type CapacityRulesInput = CapacityMap;
 
 export async function upsertCapacityRules(
   rules: CapacityRulesInput,
@@ -76,6 +77,12 @@ export async function upsertCapacityRules(
   const session = await requireSession(SystemRole.MANAGER);
   const courtId = session.user.primaryCourtId;
   if (!courtId) return { error: 'למנהל אין בית משפט משויך' };
+
+  const shiftKeys: (keyof CapacityRulesInput)[] = ['MORNING', 'EVENING', 'NIGHT'];
+  for (const s of shiftKeys) {
+    const v = rules[s];
+    if (!Number.isInteger(v) || v < 1 || v > 999) return { error: 'ערך קיבולת לא תקין' };
+  }
 
   const shiftTypes: ShiftType[] = ['MORNING', 'EVENING', 'NIGHT'];
 
