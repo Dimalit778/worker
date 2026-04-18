@@ -10,7 +10,7 @@ import { Label } from '@/components/ui/label';
 export function LoginForm() {
   const router = useRouter();
 
-  const [email, setEmail] = useState('');
+  const [identifier, setIdentifier] = useState('');
   const [password, setPassword] = useState('');
   const [error, setError] = useState<string | null>(null);
   const [loading, setLoading] = useState(false);
@@ -21,7 +21,7 @@ export function LoginForm() {
     setLoading(true);
 
     const result = await signIn('credentials', {
-      email,
+      identifier,
       password,
       redirect: false,
     });
@@ -29,7 +29,7 @@ export function LoginForm() {
     setLoading(false);
 
     if (result?.error) {
-      setError('אימייל או סיסמה שגויים');
+      setError('מזהה או סיסמה שגויים');
       return;
     }
 
@@ -40,15 +40,15 @@ export function LoginForm() {
   return (
     <form onSubmit={handleSubmit} className="space-y-4 w-full">
       <div className="space-y-2">
-        <Label htmlFor="email">אימייל</Label>
+        <Label htmlFor="identifier">מספר עובד / אימייל</Label>
         <Input
-          id="email"
-          type="email"
-          value={email}
-          onChange={(e) => setEmail(e.target.value)}
-          placeholder="your@court.gov.il"
+          id="identifier"
+          type="text"
+          value={identifier}
+          onChange={(e) => setIdentifier(e.target.value)}
+          placeholder="1001"
           required
-          autoComplete="email"
+          autoComplete="username"
           dir="ltr"
         />
       </div>
