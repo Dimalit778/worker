@@ -2,9 +2,9 @@
 
 > **For agentic workers:** REQUIRED SUB-SKILL: Use superpowers:subagent-driven-development (recommended) or superpowers:executing-plans to implement this plan task-by-task. Steps use checkbox (`- [ ]`) syntax for tracking.
 
-**Goal:** Build the manager guards page with list, add, edit, and delete, plus a `mustChangePassword` flow so newly created guards are forced to change their default password on first login.
+**Goal:** Switch guards and managers to login with employee number + password; build the manager guards page (list / add / edit / delete) where creating a guard auto-generates an employee number and sets it as the initial password; force a password change on first login.
 
-**Architecture:** Schema-first → auth plumbing → middleware TDD → server actions → client components → page wiring. Guards are `Employee` records linked to `User` accounts. Creating a guard provisions both in a single transaction with a default password of `123456` and `mustChangePassword: true`. Server component fetches data; `GuardsTable` client component owns modal/delete state; server actions handle all mutations.
+**Architecture:** Schema-first (add `employeeNumber`, make `email` nullable, add `mustChangePassword`) → update auth to accept employee-number-or-email as identifier → update login form → update seed → TDD middleware redirect → server actions with auto-number generation → client components → page wiring.
 
 **Tech Stack:** Next.js App Router, React 19, Prisma, bcryptjs, Tailwind CSS v4, Lucide icons, Vitest.
 
@@ -16,16 +16,18 @@
 
 | Action | Path | Responsibility |
 |--------|------|----------------|
-| Modify | `prisma/schema.prisma` | Add `mustChangePassword Boolean @default(false)` to `User` |
-| Modify | `src/types/next-auth.d.ts` | Add `mustChangePassword: boolean` to `User`, `JWT`, `Session` |
-| Modify | `src/lib/auth.ts` | Read + persist + expose `mustChangePassword` in auth callbacks |
+| Modify | `prisma/schema.prisma` | `email String? @unique`, add `employeeNumber String? @unique`, add `mustChangePassword Boolean @default(false)` |
+| Modify | `prisma/seed.ts` | Assign `employeeNumber` to non-admin users; remove required `email` from guard creation |
+| Modify | `src/types/next-auth.d.ts` | Add `employeeNumber: string \| null` and `mustChangePassword: boolean` |
+| Modify | `src/lib/auth.ts` | Accept `identifier` credential (employee number or email); persist `employeeNumber` + `mustChangePassword` in JWT/session |
+| Modify | `src/app/(auth)/login/LoginForm.tsx` | Change email field to `identifier` field (label: "מספר עובד / אימייל") |
 | Modify | `src/lib/middleware.ts` | Add `mustChangePassword` param + redirect to `/change-password` |
-| Modify | `src/proxy.ts` | Pass `mustChangePassword` from JWT token to `resolveRedirect` |
+| Modify | `src/proxy.ts` | Pass `mustChangePassword` from JWT to `resolveRedirect` |
 | Modify | `tests/middleware-logic.test.ts` | Add tests for `mustChangePassword` redirect |
-| Create | `src/features/guards/actions.ts` | `createGuard`, `updateGuard`, `deleteGuard` server actions |
-| Create | `src/features/guards/components/guard-modal.tsx` | Add/edit modal — name, email, position fields |
-| Create | `src/features/guards/components/guards-table.tsx` | Table + delete confirm + `GuardRow` type export |
-| Modify | `src/app/(manager)/manager/guards/page.tsx` | Server component — fetch employees, render `GuardsTable` |
+| Create | `src/features/guards/actions.ts` | `createGuard` (auto-generate number), `updateGuard`, `deleteGuard` |
+| Create | `src/features/guards/components/guard-modal.tsx` | Add modal (name + position); edit modal (name + position + isActive + read-only number) |
+| Create | `src/features/guards/components/guards-table.tsx` | Table with employee-number column; delete confirm; exports `GuardRow` |
+| Modify | `src/app/(manager)/manager/guards/page.tsx` | Server component — fetch employees with user data, render `GuardsTable` |
 
 ---
 
@@ -34,18 +36,19 @@
 **Files:**
 - Modify: `prisma/schema.prisma`
 
-- [ ] **Step 1: Add `mustChangePassword` to the `User` model**
+- [ ] **Step 1: Update the `User` model**
 
-In `prisma/schema.prisma`, find the `User` model and add the field after `isActive`:
+In `prisma/schema.prisma`, replace the `User` model block with:
 
 ```prisma
 model User {
-  id           String     @id @default(cuid())
-  email        String     @unique
-  passwordHash String
-  systemRole   SystemRole @default(EMPLOYEE)
-  isActive     Boolean    @default(true)
-  mustChangePassword Boolean @default(false)
+  id                 String     @id @default(cuid())
+  email              String?    @unique
+  employeeNumber     String?    @unique
+  passwordHash       String
+  systemRole         SystemRole @default(EMPLOYEE)
+  isActive           Boolean    @default(true)
+  mustChangePassword Boolean    @default(false)
 
   employeeId   String?    @unique
   employee     Employee?  @relation(fields: [employeeId], references: [id], onDelete: SetNull)
@@ -68,37 +71,161 @@ model User {
 
 ```bash
 cd /Users/dimalitvinov/Mac/Dev/Projects/worker
-pnpm exec prisma migrate dev --name add_must_change_password
+pnpm exec prisma migrate dev --name add_employee_number_and_must_change_password
 ```
 
-Expected output includes: `Applied 1 migration(s).` and `✔ Generated Prisma Client`
+Expected: `Applied 1 migration(s).` and `✔ Generated Prisma Client`
 
-- [ ] **Step 3: Verify the field appears in the generated client**
+- [ ] **Step 3: Verify the fields appear in the generated client**
 
 ```bash
-grep "mustChangePassword" src/generated/prisma/models.ts | head -5
+grep -E "employeeNumber|mustChangePassword" src/generated/prisma/models.ts | head -6
 ```
 
-Expected: a line containing `mustChangePassword`.
+Expected: lines containing both `employeeNumber` and `mustChangePassword`.
 
 - [ ] **Step 4: Commit**
 
 ```bash
 git add prisma/schema.prisma prisma/migrations/
-git commit -m "feat: add mustChangePassword field to User"
+git commit -m "feat: add employeeNumber, mustChangePassword; make email optional on User"
 ```
 
 ---
 
-## Task 2: NextAuth Types + Auth Callbacks
+## Task 2: Update Seed Data
+
+**Files:**
+- Modify: `prisma/seed.ts`
+
+- [ ] **Step 1: Update `createUserWithEmployee` to accept `employeeNumber` and optional `email`**
+
+Find the `createUserWithEmployee` function and replace its signature and `user.create` call:
+
+```ts
+async function createUserWithEmployee(params: {
+  email?: string;
+  employeeNumber?: string;
+  password: string;
+  systemRole: SystemRole;
+  name: string;
+  phone?: string;
+  position: Position;
+  primaryCourtId?: string;
+  employeeCode?: string;
+  mustChangePassword?: boolean;
+}) {
+  const passwordHash = await bcrypt.hash(params.password, 12);
+
+  const employee = await prisma.employee.create({
+    data: {
+      employeeCode: params.employeeCode,
+      name: params.name,
+      phone: params.phone,
+      position: params.position,
+      primaryCourtId: params.primaryCourtId,
+      isActive: true,
+    },
+  });
+
+  const user = await prisma.user.create({
+    data: {
+      email: params.email ?? null,
+      employeeNumber: params.employeeNumber ?? null,
+      passwordHash,
+      systemRole: params.systemRole,
+      isActive: true,
+      mustChangePassword: params.mustChangePassword ?? false,
+      employeeId: employee.id,
+    },
+  });
+
+  if (params.primaryCourtId) {
+    await prisma.courtEligibility.create({
+      data: { employeeId: employee.id, courtId: params.primaryCourtId },
+    });
+  }
+
+  return { user, employee };
+}
+```
+
+- [ ] **Step 2: Assign `employeeNumber` to manager, admin, and all employee seed entries**
+
+Find the manager creation call and update it:
+
+```ts
+const manager = await createUserWithEmployee({
+  email: 'tomer@gmail.com',
+  employeeNumber: '1001',
+  password: 'tomer123',
+  systemRole: SystemRole.MANAGER,
+  name: 'תומר לוי',
+  position: Position.SHIFT_MANAGER,
+  primaryCourtId: courtA.id,
+  employeeCode: 'EMP-001',
+});
+```
+
+Find the admin creation call and update it (admin keeps email, no employee number):
+
+```ts
+await createUserWithEmployee({
+  email: 'admin@gmail.com',
+  password: 'admin123',
+  systemRole: SystemRole.ADMIN,
+  name: 'מנהל ראשי',
+  position: Position.FACILITY_OFFICER,
+  employeeCode: 'EMP-002',
+});
+```
+
+Find the `for (const emp of employeeData)` loop and replace it so each employee gets a sequential number starting at 1002:
+
+```ts
+let employeeCounter = 100;
+let empNumberCounter = 1002;
+
+for (const emp of employeeData) {
+  await createUserWithEmployee({
+    email: emp.email,
+    employeeNumber: String(empNumberCounter++),
+    password: 'worker123',
+    systemRole: SystemRole.EMPLOYEE,
+    name: emp.name.trim(),
+    position: emp.position,
+    primaryCourtId: courtA.id,
+    employeeCode: `EMP-${employeeCounter++}`,
+  });
+}
+```
+
+- [ ] **Step 3: Run the seed to verify**
+
+```bash
+pnpm db:seed
+```
+
+Expected: `Seed complete.` with no errors.
+
+- [ ] **Step 4: Commit**
+
+```bash
+git add prisma/seed.ts
+git commit -m "feat: add employeeNumber to seed users"
+```
+
+---
+
+## Task 3: NextAuth Types + Auth Callbacks
 
 **Files:**
 - Modify: `src/types/next-auth.d.ts`
 - Modify: `src/lib/auth.ts`
 
-- [ ] **Step 1: Add `mustChangePassword` to NextAuth type declarations**
+- [ ] **Step 1: Update `src/types/next-auth.d.ts`**
 
-Replace the full content of `src/types/next-auth.d.ts`:
+Replace the full file:
 
 ```ts
 import type { DefaultSession } from 'next-auth';
@@ -110,6 +237,7 @@ declare module 'next-auth' {
       id: string;
       systemRole: SystemRole;
       primaryCourtId: string | null;
+      employeeNumber: string | null;
       mustChangePassword: boolean;
     } & DefaultSession['user'];
   }
@@ -117,6 +245,7 @@ declare module 'next-auth' {
   interface User {
     systemRole: SystemRole;
     primaryCourtId: string | null;
+    employeeNumber: string | null;
     mustChangePassword: boolean;
   }
 }
@@ -125,52 +254,83 @@ declare module 'next-auth/jwt' {
   interface JWT {
     systemRole: SystemRole;
     primaryCourtId: string | null;
+    employeeNumber: string | null;
     mustChangePassword: boolean;
   }
 }
 ```
 
-- [ ] **Step 2: Update `authorize` in `src/lib/auth.ts` to return `mustChangePassword`**
+- [ ] **Step 2: Update `authorize` in `src/lib/auth.ts` to accept `identifier` and look up by employee number or email**
 
-Find the `authorize` function's return statement (currently returning an object with `id`, `email`, `name`, `systemRole`, `primaryCourtId`). Replace it:
+In `src/lib/auth.ts`, replace the `CredentialsProvider` block:
 
 ```ts
-return {
-  id: user.id,
-  email: user.email,
-  name,
-  systemRole: user.systemRole,
-  primaryCourtId,
-  mustChangePassword: user.mustChangePassword,
-};
+CredentialsProvider({
+  name: 'credentials',
+  credentials: {
+    identifier: { label: 'Employee Number / Email', type: 'text' },
+    password: { label: 'Password', type: 'password' },
+  },
+  async authorize(credentials) {
+    if (!credentials?.identifier || !credentials?.password) return null;
+
+    const user = await prisma.user.findFirst({
+      where: {
+        OR: [
+          { employeeNumber: credentials.identifier },
+          { email: credentials.identifier },
+        ],
+      },
+      include: { employee: true },
+    });
+
+    if (!user || !user.isActive) return null;
+
+    const isValid = await bcrypt.compare(credentials.password, user.passwordHash);
+    if (!isValid) return null;
+
+    const primaryCourtId = user.employee?.primaryCourtId ?? null;
+    const name = user.employee?.name ?? user.email ?? user.employeeNumber ?? '';
+
+    return {
+      id: user.id,
+      email: user.email,
+      name,
+      systemRole: user.systemRole,
+      primaryCourtId,
+      employeeNumber: user.employeeNumber ?? null,
+      mustChangePassword: user.mustChangePassword,
+    };
+  },
+}),
 ```
 
-- [ ] **Step 3: Update the `jwt` callback to persist `mustChangePassword`**
+- [ ] **Step 3: Update the `jwt` callback**
 
-Find the `jwt` callback and replace it entirely:
+Replace the `jwt` callback:
 
 ```ts
 async jwt({ token, user }) {
   if (user) {
     token.systemRole = user.systemRole;
     token.primaryCourtId = user.primaryCourtId;
+    token.employeeNumber = user.employeeNumber;
     token.mustChangePassword = user.mustChangePassword;
   } else {
     const migrated = systemRoleFromLegacyJwt(token as { systemRole?: SystemRole; role?: unknown });
     if (migrated && !token.systemRole) {
       token.systemRole = migrated;
     }
-    if (token.mustChangePassword === undefined) {
-      token.mustChangePassword = false;
-    }
+    if (token.mustChangePassword === undefined) token.mustChangePassword = false;
+    if (token.employeeNumber === undefined) token.employeeNumber = null;
   }
   return token;
 },
 ```
 
-- [ ] **Step 4: Update the `session` callback to expose `mustChangePassword`**
+- [ ] **Step 4: Update the `session` callback**
 
-Find the `session` callback and replace it:
+Replace the `session` callback:
 
 ```ts
 async session({ session, token }) {
@@ -178,13 +338,14 @@ async session({ session, token }) {
     session.user.id = token.sub;
     session.user.systemRole = token.systemRole;
     session.user.primaryCourtId = token.primaryCourtId;
+    session.user.employeeNumber = token.employeeNumber ?? null;
     session.user.mustChangePassword = token.mustChangePassword ?? false;
   }
   return session;
 },
 ```
 
-- [ ] **Step 5: Check for TypeScript errors**
+- [ ] **Step 5: Check TypeScript**
 
 ```bash
 pnpm exec tsc --noEmit
@@ -196,24 +357,130 @@ Expected: no errors.
 
 ```bash
 git add src/types/next-auth.d.ts src/lib/auth.ts
-git commit -m "feat: propagate mustChangePassword through NextAuth jwt and session"
+git commit -m "feat: switch auth to accept employeeNumber or email as identifier"
 ```
 
 ---
 
-## Task 3: Middleware — Force Password Change (TDD)
+## Task 4: Update Login Form
+
+**Files:**
+- Modify: `src/app/(auth)/login/LoginForm.tsx`
+
+- [ ] **Step 1: Replace the email field with a generic identifier field**
+
+Replace the full file content:
+
+```tsx
+'use client';
+
+import { useState } from 'react';
+import { signIn } from 'next-auth/react';
+import { useRouter } from 'next/navigation';
+import { Button } from '@/components/ui/button';
+import { Input } from '@/components/ui/input';
+import { Label } from '@/components/ui/label';
+
+export function LoginForm() {
+  const router = useRouter();
+
+  const [identifier, setIdentifier] = useState('');
+  const [password, setPassword] = useState('');
+  const [error, setError] = useState<string | null>(null);
+  const [loading, setLoading] = useState(false);
+
+  async function handleSubmit(e: React.FormEvent) {
+    e.preventDefault();
+    setError(null);
+    setLoading(true);
+
+    const result = await signIn('credentials', {
+      identifier,
+      password,
+      redirect: false,
+    });
+
+    setLoading(false);
+
+    if (result?.error) {
+      setError('מזהה או סיסמה שגויים');
+      return;
+    }
+
+    router.push('/');
+    router.refresh();
+  }
+
+  return (
+    <form onSubmit={handleSubmit} className="space-y-4 w-full">
+      <div className="space-y-2">
+        <Label htmlFor="identifier">מספר עובד / אימייל</Label>
+        <Input
+          id="identifier"
+          type="text"
+          value={identifier}
+          onChange={(e) => setIdentifier(e.target.value)}
+          placeholder="1001"
+          required
+          autoComplete="username"
+          dir="ltr"
+        />
+      </div>
+
+      <div className="space-y-2">
+        <Label htmlFor="password">סיסמה</Label>
+        <Input
+          id="password"
+          type="password"
+          value={password}
+          onChange={(e) => setPassword(e.target.value)}
+          required
+          autoComplete="current-password"
+        />
+      </div>
+
+      {error && <p className="text-sm text-destructive text-center">{error}</p>}
+
+      <Button type="submit" className="w-full" disabled={loading}>
+        {loading ? 'מתחבר...' : 'התחבר'}
+      </Button>
+    </form>
+  );
+}
+```
+
+- [ ] **Step 2: Verify login works manually**
+
+```bash
+pnpm dev
+```
+
+Open `http://localhost:3000/login`. Verify:
+- Manager logs in with `1001` / `tomer123` → lands on `/manager`
+- Admin logs in with `admin@gmail.com` / `admin123` → lands on `/admin`
+- Wrong credentials shows "מזהה או סיסמה שגויים"
+
+- [ ] **Step 3: Commit**
+
+```bash
+git add src/app/\(auth\)/login/LoginForm.tsx
+git commit -m "feat: update login form to use employee number or email"
+```
+
+---
+
+## Task 5: Middleware — Force Password Change (TDD)
 
 **Files:**
 - Modify: `tests/middleware-logic.test.ts`
 - Modify: `src/lib/middleware.ts`
 - Modify: `src/proxy.ts`
 
-- [ ] **Step 1: Write failing tests for `mustChangePassword` redirect**
+- [ ] **Step 1: Write failing tests**
 
-Append these tests to `tests/middleware-logic.test.ts` (inside the existing `describe('resolveRedirect', ...)` block, after the last `it(...)` call):
+Append inside the existing `describe('resolveRedirect', ...)` block in `tests/middleware-logic.test.ts`, after the last `it(...)` call:
 
 ```ts
-  // mustChangePassword redirect
   describe('mustChangePassword', () => {
     it('redirects authenticated EMPLOYEE with mustChangePassword to /change-password', () => {
       expect(resolveRedirect('/user', SystemRole.EMPLOYEE, true)).toBe('/change-password');
@@ -231,31 +498,31 @@ Append these tests to `tests/middleware-logic.test.ts` (inside the existing `des
       expect(resolveRedirect('/api/auth/session', SystemRole.EMPLOYEE, true)).toBeNull();
     });
 
-    it('does not redirect unauthenticated user (null role) even with mustChangePassword true', () => {
+    it('does not redirect unauthenticated user even when mustChangePassword is true', () => {
       expect(resolveRedirect('/user', null, true)).toBe('/login');
     });
 
-    it('returns null for normal authenticated user with mustChangePassword false', () => {
+    it('returns null for authenticated user with mustChangePassword false', () => {
       expect(resolveRedirect('/user', SystemRole.EMPLOYEE, false)).toBeNull();
     });
 
-    it('returns null when mustChangePassword omitted (default false)', () => {
+    it('returns null when mustChangePassword omitted (defaults false)', () => {
       expect(resolveRedirect('/user', SystemRole.EMPLOYEE)).toBeNull();
     });
   });
 ```
 
-- [ ] **Step 2: Run the tests — expect failures**
+- [ ] **Step 2: Run tests — expect failures**
 
 ```bash
 pnpm exec vitest run tests/middleware-logic.test.ts
 ```
 
-Expected: TypeScript errors or test failures because `resolveRedirect` doesn't yet accept a third argument.
+Expected: failures because `resolveRedirect` does not accept a third argument yet.
 
-- [ ] **Step 3: Update `resolveRedirect` in `src/lib/middleware.ts`**
+- [ ] **Step 3: Update `src/lib/middleware.ts`**
 
-Replace the full file content:
+Replace the full file:
 
 ```ts
 import { SystemRole } from '@/generated/prisma/client';
@@ -280,7 +547,7 @@ export function resolveRedirect(
   role: SystemRole | null,
   mustChangePassword = false,
 ): string | null {
-  // Force password change for authenticated users
+  // Authenticated users with mustChangePassword go to /change-password
   if (
     role &&
     mustChangePassword &&
@@ -334,9 +601,9 @@ pnpm exec vitest run tests/middleware-logic.test.ts
 
 Expected: all tests PASS.
 
-- [ ] **Step 5: Update `src/proxy.ts` to pass `mustChangePassword` to `resolveRedirect`**
+- [ ] **Step 5: Update `src/proxy.ts`**
 
-Replace the full file content:
+Replace the full file:
 
 ```ts
 import { withAuth } from 'next-auth/middleware';
@@ -368,7 +635,7 @@ export const config = {
 };
 ```
 
-- [ ] **Step 6: Run full test suite to check nothing is broken**
+- [ ] **Step 6: Run full test suite**
 
 ```bash
 pnpm exec vitest run
@@ -385,14 +652,14 @@ git commit -m "feat: redirect users with mustChangePassword to /change-password"
 
 ---
 
-## Task 4: Guards Server Actions
+## Task 6: Guards Server Actions
 
 **Files:**
 - Create: `src/features/guards/actions.ts`
 
 - [ ] **Step 1: Create the actions file**
 
-Create `src/features/guards/actions.ts` with this exact content:
+Create `src/features/guards/actions.ts`:
 
 ```ts
 'use server'
@@ -403,18 +670,14 @@ import { Position, SystemRole } from '@/generated/prisma/client'
 import { prisma } from '@/lib/db/client'
 import { requireSession } from '@/lib/auth-helpers'
 
-const DEFAULT_PASSWORD = '123456'
-
 type CreateGuardParams = {
   name: string
-  email: string
   position: Position
 }
 
 type UpdateGuardParams = {
   employeeId: string
   name: string
-  email: string
   position: Position
   isActive: boolean
 }
@@ -424,19 +687,29 @@ type DeleteGuardParams = {
   force?: boolean
 }
 
+async function generateNextEmployeeNumber(): Promise<string> {
+  const users = await prisma.user.findMany({
+    where: { employeeNumber: { not: null } },
+    select: { employeeNumber: true },
+  })
+  const max = users.reduce((acc, u) => {
+    const n = parseInt(u.employeeNumber!, 10)
+    return isNaN(n) ? acc : Math.max(acc, n)
+  }, 1000)
+  return String(max + 1)
+}
+
 export async function createGuard(
   params: CreateGuardParams,
-): Promise<{ ok: true } | { error: string }> {
+): Promise<{ ok: true; employeeNumber: string } | { error: string }> {
   const session = await requireSession(SystemRole.MANAGER)
   const courtId = session.user.primaryCourtId
   if (!courtId) return { error: 'למנהל אין בית משפט משויך' }
 
-  const { name, email, position } = params
+  const { name, position } = params
 
-  const existing = await prisma.user.findUnique({ where: { email } })
-  if (existing) return { error: 'אימייל כבר קיים במערכת' }
-
-  const passwordHash = await bcrypt.hash(DEFAULT_PASSWORD, 12)
+  const employeeNumber = await generateNextEmployeeNumber()
+  const passwordHash = await bcrypt.hash(employeeNumber, 12)
 
   await prisma.$transaction(async (tx) => {
     const employee = await tx.employee.create({
@@ -444,7 +717,7 @@ export async function createGuard(
     })
     await tx.user.create({
       data: {
-        email,
+        employeeNumber,
         passwordHash,
         systemRole: SystemRole.EMPLOYEE,
         mustChangePassword: true,
@@ -458,7 +731,7 @@ export async function createGuard(
   })
 
   revalidatePath('/manager/guards')
-  return { ok: true }
+  return { ok: true, employeeNumber }
 }
 
 export async function updateGuard(
@@ -467,27 +740,16 @@ export async function updateGuard(
   const session = await requireSession(SystemRole.MANAGER)
   const courtId = session.user.primaryCourtId
 
-  const { employeeId, name, email, position, isActive } = params
+  const { employeeId, name, position, isActive } = params
 
   const employee = await prisma.employee.findFirst({
     where: { id: employeeId, primaryCourtId: courtId ?? '' },
   })
   if (!employee) return { error: 'מאבטח לא נמצא' }
 
-  const duplicate = await prisma.user.findFirst({
-    where: { email, NOT: { employeeId } },
-  })
-  if (duplicate) return { error: 'אימייל כבר קיים במערכת' }
-
-  await prisma.$transaction(async (tx) => {
-    await tx.employee.update({
-      where: { id: employeeId },
-      data: { name, position, isActive },
-    })
-    await tx.user.updateMany({
-      where: { employeeId },
-      data: { email },
-    })
+  await prisma.employee.update({
+    where: { id: employeeId },
+    data: { name, position, isActive },
   })
 
   revalidatePath('/manager/guards')
@@ -514,9 +776,9 @@ export async function deleteGuard(params: DeleteGuardParams): Promise<
   }
 
   await prisma.$transaction(async (tx) => {
-    // User has onDelete: SetNull on Employee — must delete User first to avoid orphan
+    // User has onDelete: SetNull — must delete User before Employee
     await tx.user.deleteMany({ where: { employeeId } })
-    // ShiftAssignments cascade-delete automatically via FK onDelete: Cascade
+    // ShiftAssignments cascade via FK onDelete: Cascade on Employee
     await tx.employee.delete({ where: { id: employeeId } })
   })
 
@@ -525,7 +787,7 @@ export async function deleteGuard(params: DeleteGuardParams): Promise<
 }
 ```
 
-- [ ] **Step 2: Check TypeScript compiles**
+- [ ] **Step 2: Check TypeScript**
 
 ```bash
 pnpm exec tsc --noEmit
@@ -542,12 +804,12 @@ git commit -m "feat(guards): add createGuard, updateGuard, deleteGuard server ac
 
 ---
 
-## Task 5: GuardModal Component
+## Task 7: GuardModal Component
 
 **Files:**
 - Create: `src/features/guards/components/guard-modal.tsx`
 
-- [ ] **Step 1: Create the modal component**
+- [ ] **Step 1: Create the modal**
 
 Create `src/features/guards/components/guard-modal.tsx`:
 
@@ -577,29 +839,62 @@ export function GuardModal({ guard, onClose }: Props) {
   const router = useRouter()
   const [pending, startTransition] = useTransition()
   const [error, setError] = useState<string | null>(null)
+  const [createdNumber, setCreatedNumber] = useState<string | null>(null)
   const isEdit = guard !== null
 
   function handleSubmit(e: React.FormEvent<HTMLFormElement>) {
     e.preventDefault()
     const fd = new FormData(e.currentTarget)
     const name = fd.get('name') as string
-    const email = fd.get('email') as string
     const position = fd.get('position') as Position
     const isActive = fd.has('isActive')
 
     setError(null)
     startTransition(async () => {
-      const result = isEdit
-        ? await updateGuard({ employeeId: guard.id, name, email, position, isActive })
-        : await createGuard({ name, email, position })
-
-      if ('error' in result) {
-        setError(result.error)
+      if (isEdit) {
+        const result = await updateGuard({ employeeId: guard.id, name, position, isActive })
+        if ('error' in result) {
+          setError(result.error)
+        } else {
+          onClose()
+          router.refresh()
+        }
       } else {
-        onClose()
-        router.refresh()
+        const result = await createGuard({ name, position })
+        if ('error' in result) {
+          setError(result.error)
+        } else {
+          setCreatedNumber(result.employeeNumber)
+          router.refresh()
+        }
       }
     })
+  }
+
+  // After successful creation: show the generated employee number
+  if (createdNumber) {
+    return (
+      <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50" dir="rtl">
+        <div className="bg-white rounded-xl shadow-2xl w-full max-w-md p-6 space-y-4">
+          <h2 className="font-bold text-lg">מאבטח נוסף בהצלחה</h2>
+          <p className="text-sm text-muted-foreground">
+            מספר העובד שנוצר הוא:
+          </p>
+          <p className="text-3xl font-bold text-center tracking-widest" dir="ltr">
+            {createdNumber}
+          </p>
+          <p className="text-xs text-muted-foreground text-center">
+            הסיסמה הראשונית זהה למספר העובד. המאבטח יתבקש לשנות אותה בכניסה הראשונה.
+          </p>
+          <button
+            onClick={onClose}
+            className="w-full bg-foreground text-background rounded-md py-2 text-sm font-medium hover:opacity-90"
+          >
+            סגור
+          </button>
+        </div>
+      </div>
+    )
   }
 
   return (
@@ -614,6 +909,13 @@ export function GuardModal({ guard, onClose }: Props) {
           </button>
         </div>
 
+        {isEdit && guard.employeeNumber && (
+          <div className="mb-4 px-3 py-2 bg-muted/40 rounded-md text-sm">
+            <span className="text-muted-foreground">מספר עובד: </span>
+            <span className="font-mono font-semibold" dir="ltr">{guard.employeeNumber}</span>
+          </div>
+        )}
+
         <form onSubmit={handleSubmit} className="space-y-4">
           <div>
             <label className="block text-sm font-medium mb-1">שם מלא *</label>
@@ -621,18 +923,6 @@ export function GuardModal({ guard, onClose }: Props) {
               name="name"
               defaultValue={guard?.name ?? ''}
               required
-              className="w-full border border-border rounded-md px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-primary"
-            />
-          </div>
-
-          <div>
-            <label className="block text-sm font-medium mb-1">אימייל *</label>
-            <input
-              name="email"
-              type="email"
-              defaultValue={guard?.email ?? ''}
-              required
-              dir="ltr"
               className="w-full border border-border rounded-md px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-primary"
             />
           </div>
@@ -693,12 +983,12 @@ export function GuardModal({ guard, onClose }: Props) {
 
 ```bash
 git add src/features/guards/components/guard-modal.tsx
-git commit -m "feat(guards): add GuardModal component"
+git commit -m "feat(guards): add GuardModal with employee number display on create"
 ```
 
 ---
 
-## Task 6: GuardsTable Component
+## Task 8: GuardsTable Component
 
 **Files:**
 - Create: `src/features/guards/components/guards-table.tsx`
@@ -723,8 +1013,7 @@ export type GuardRow = {
   name: string
   position: Position
   isActive: boolean
-  email: string | null
-  mustChangePassword: boolean
+  employeeNumber: string | null
 }
 
 const POSITION_HE: Record<Position, string> = {
@@ -808,7 +1097,7 @@ export function GuardsTable({ guards }: { guards: GuardRow[] }) {
               <th className="px-4 py-3 font-medium border-b border-border w-10">#</th>
               <th className="px-4 py-3 font-medium border-b border-border">שם</th>
               <th className="px-4 py-3 font-medium border-b border-border">תפקיד</th>
-              <th className="px-4 py-3 font-medium border-b border-border">אימייל</th>
+              <th className="px-4 py-3 font-medium border-b border-border">מספר עובד</th>
               <th className="px-4 py-3 font-medium border-b border-border">סטטוס</th>
               <th className="px-4 py-3 border-b border-border w-16"></th>
             </tr>
@@ -836,7 +1125,9 @@ export function GuardsTable({ guards }: { guards: GuardRow[] }) {
                     {POSITION_HE[guard.position]}
                   </span>
                 </td>
-                <td className="px-4 py-3 text-muted-foreground" dir="ltr">{guard.email ?? '—'}</td>
+                <td className="px-4 py-3 font-mono text-muted-foreground" dir="ltr">
+                  {guard.employeeNumber ?? '—'}
+                </td>
                 <td className="px-4 py-3">
                   {guard.isActive
                     ? <span className="text-xs px-2 py-0.5 rounded-full bg-green-100 text-green-800 font-medium">פעיל</span>
@@ -903,12 +1194,12 @@ export function GuardsTable({ guards }: { guards: GuardRow[] }) {
 
 ```bash
 git add src/features/guards/components/guards-table.tsx
-git commit -m "feat(guards): add GuardsTable component with inline edit and delete"
+git commit -m "feat(guards): add GuardsTable with employee number column"
 ```
 
 ---
 
-## Task 7: Guards Page
+## Task 9: Guards Page
 
 **Files:**
 - Modify: `src/app/(manager)/manager/guards/page.tsx`
@@ -930,7 +1221,7 @@ export default async function ManagerGuardsPage() {
 
   const employees = await prisma.employee.findMany({
     where: { primaryCourtId: courtId },
-    include: { user: { select: { email: true, mustChangePassword: true } } },
+    include: { user: { select: { employeeNumber: true } } },
     orderBy: { name: 'asc' },
   })
 
@@ -939,8 +1230,7 @@ export default async function ManagerGuardsPage() {
     name: e.name,
     position: e.position,
     isActive: e.isActive,
-    email: e.user?.email ?? null,
-    mustChangePassword: e.user?.mustChangePassword ?? false,
+    employeeNumber: e.user?.employeeNumber ?? null,
   }))
 
   return <GuardsTable guards={guards} />
@@ -955,21 +1245,32 @@ pnpm exec tsc --noEmit
 
 Expected: no errors.
 
-- [ ] **Step 3: Run the dev server and manually verify the page**
+- [ ] **Step 3: Run full test suite**
+
+```bash
+pnpm exec vitest run
+```
+
+Expected: all tests PASS.
+
+- [ ] **Step 4: Manual verification**
 
 ```bash
 pnpm dev
 ```
 
-Open `http://localhost:3000` and log in as the manager (`tomer@gmail.com` / `tomer123`). Navigate to `/manager/guards`. Verify:
-- Table shows all seeded employees for the court
-- "+ הוסף מאבטח" button opens the add modal
-- Filling name + email + position and submitting creates a new guard (appears in table)
-- Clicking the edit icon opens the edit modal with prefilled values
-- Clicking the delete icon (for a guard with no assignments) removes the row immediately
-- An employee with assignments triggers the confirmation dialog
+Verify end-to-end:
+1. Log in as manager (`1001` / `tomer123`) → lands on `/manager`
+2. Navigate to `/manager/guards` → see the table with all court employees
+3. Click "+ הוסף מאבטח" → modal with שם מלא + תפקיד fields only
+4. Submit → success screen shows the generated employee number (e.g. `1016`) and notes the password is the same
+5. Close → new guard appears in the table
+6. Log out; log in as the new guard using their employee number and that number as password → redirected to `/change-password`
+7. Edit an existing guard → modal shows employee number as read-only, can change name/position/active
+8. Delete a guard with no assignments → row disappears immediately
+9. Delete a guard with assignments → confirmation dialog shows count, then deletes on confirm
 
-- [ ] **Step 4: Commit**
+- [ ] **Step 5: Commit**
 
 ```bash
 git add src/app/\(manager\)/manager/guards/page.tsx
