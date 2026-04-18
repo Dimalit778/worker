@@ -95,11 +95,13 @@ model VerificationToken {
 
 // ─── Domain models ───────────────────────────────────────────────────────────
 model User {
-  id           String     @id @default(cuid())
-  email        String     @unique
-  passwordHash String
-  systemRole   SystemRole @default(EMPLOYEE)
-  isActive     Boolean    @default(true)
+  id                 String     @id @default(cuid())
+  email              String?    @unique
+  employeeNumber     String?    @unique
+  passwordHash       String
+  systemRole         SystemRole @default(EMPLOYEE)
+  isActive           Boolean    @default(true)
+  mustChangePassword Boolean    @default(false)
 
   employeeId   String?    @unique
   employee     Employee?  @relation(fields: [employeeId], references: [id], onDelete: SetNull)

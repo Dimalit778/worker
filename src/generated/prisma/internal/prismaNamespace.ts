@@ -1757,9 +1757,11 @@ export type VerificationTokenScalarFieldEnum = (typeof VerificationTokenScalarFi
 export const UserScalarFieldEnum = {
   id: 'id',
   email: 'email',
+  employeeNumber: 'employeeNumber',
   passwordHash: 'passwordHash',
   systemRole: 'systemRole',
   isActive: 'isActive',
+  mustChangePassword: 'mustChangePassword',
   employeeId: 'employeeId',
   createdAt: 'createdAt',
   updatedAt: 'updatedAt'
