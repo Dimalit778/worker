@@ -79,19 +79,19 @@ export async function upsertCapacityRules(
 
   const shiftTypes: ShiftType[] = ['MORNING', 'EVENING', 'NIGHT'];
 
-  await prisma.$transaction(async (tx) => {
-    for (const shiftType of shiftTypes) {
-      const maxStaff = rules[shiftType as keyof CapacityRulesInput];
-      const existing = await tx.shiftCapacityRule.findFirst({
-        where: { courtId, shiftType, dayOfWeek: null },
-      });
-      if (existing) {
-        await tx.shiftCapacityRule.update({ where: { id: existing.id }, data: { maxStaff } });
-      } else {
-        await tx.shiftCapacityRule.create({ data: { courtId, shiftType, dayOfWeek: null, minStaff: 0, maxStaff } });
-      }
-    }
-  });
+  try {
+    await prisma.$transaction(
+      shiftTypes.map((shiftType) =>
+        prisma.shiftCapacityRule.upsert({
+          where: { courtId_shiftType_dayOfWeek: { courtId, shiftType, dayOfWeek: null as unknown as number } },
+          create: { courtId, shiftType, dayOfWeek: null, minStaff: 0, maxStaff: rules[shiftType as keyof CapacityRulesInput] },
+          update: { maxStaff: rules[shiftType as keyof CapacityRulesInput] },
+        }),
+      ),
+    );
+  } catch {
+    return { error: 'שגיאה בשמירת הכללים' };
+  }
 
   revalidatePath('/manager/settings');
   revalidatePath('/manager/shibutz');
