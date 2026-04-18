@@ -5,9 +5,10 @@ import { LogoutButton } from '@/components/ui/logout-button';
 
 const navItems = [
   { href: '/manager', label: 'לוח בקרה' },
-  { href: '/manager/shibutz', label: '\u05e9\u05d9\u05d1\u05d5\u05e5' },
+  { href: '/manager/shibutz', label: 'שיבוץ' },
   { href: '/manager/periods', label: 'תקופות' },
   { href: '/manager/guards', label: 'מאבטחים' },
+  { href: '/manager/settings', label: 'הגדרות' },
 ];
 
 export default async function ManagerLayout({ children }: { children: React.ReactNode }) {
