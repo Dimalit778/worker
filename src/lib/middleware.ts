@@ -20,7 +20,16 @@ function homeFor(role: SystemRole): string {
  * Pure function — no Next.js dependency.
  * Returns the URL to redirect to, or null if the request should proceed.
  */
-export function resolveRedirect(pathname: string, role: SystemRole | null): string | null {
+export function resolveRedirect(pathname: string, role: SystemRole | null, mustChangePassword = false): string | null {
+  if (
+    role &&
+    mustChangePassword &&
+    !pathname.startsWith('/change-password') &&
+    !pathname.startsWith('/api/auth')
+  ) {
+    return '/change-password';
+  }
+
   // Public routes
   if (pathname.startsWith('/login') || pathname.startsWith('/api/auth')) {
     return null;

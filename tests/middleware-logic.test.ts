@@ -101,4 +101,34 @@ describe('resolveRedirect', () => {
     expect(resolveRedirect('/some/unknown/path', SystemRole.MANAGER)).toBeNull();
     expect(resolveRedirect('/favicon.ico', null)).toBeNull();
   });
+
+  describe('mustChangePassword', () => {
+    it('redirects authenticated EMPLOYEE with mustChangePassword to /change-password', () => {
+      expect(resolveRedirect('/user', SystemRole.EMPLOYEE, true)).toBe('/change-password');
+    });
+
+    it('redirects authenticated MANAGER with mustChangePassword to /change-password', () => {
+      expect(resolveRedirect('/manager', SystemRole.MANAGER, true)).toBe('/change-password');
+    });
+
+    it('does not redirect if already on /change-password', () => {
+      expect(resolveRedirect('/change-password', SystemRole.EMPLOYEE, true)).toBeNull();
+    });
+
+    it('does not redirect api/auth routes even with mustChangePassword', () => {
+      expect(resolveRedirect('/api/auth/session', SystemRole.EMPLOYEE, true)).toBeNull();
+    });
+
+    it('does not redirect unauthenticated user even when mustChangePassword is true', () => {
+      expect(resolveRedirect('/user', null, true)).toBe('/login');
+    });
+
+    it('returns null for authenticated user with mustChangePassword false', () => {
+      expect(resolveRedirect('/user', SystemRole.EMPLOYEE, false)).toBeNull();
+    });
+
+    it('returns null when mustChangePassword omitted (defaults false)', () => {
+      expect(resolveRedirect('/user', SystemRole.EMPLOYEE)).toBeNull();
+    });
+  });
 });

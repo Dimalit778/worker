@@ -6,7 +6,8 @@ import { resolveRedirect } from '@/lib/middleware';
 export default withAuth(
   function middleware(req) {
     const role = (req.nextauth.token?.systemRole ?? null) as SystemRole | null;
-    const redirect = resolveRedirect(req.nextUrl.pathname, role);
+    const mustChangePassword = (req.nextauth.token?.mustChangePassword ?? false) as boolean;
+    const redirect = resolveRedirect(req.nextUrl.pathname, role, mustChangePassword);
 
     if (redirect) {
       return NextResponse.redirect(new URL(redirect, req.url));
