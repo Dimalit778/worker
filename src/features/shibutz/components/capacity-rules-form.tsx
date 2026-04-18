@@ -5,6 +5,12 @@ import { Button } from '@/components/ui/button';
 import { upsertCapacityRules } from '@/features/shibutz/actions';
 import type { CapacityMap } from '@/features/shibutz/types';
 
+const LABELS: { key: keyof CapacityMap; label: string }[] = [
+  { key: 'MORNING', label: 'בוקר' },
+  { key: 'EVENING', label: 'ערב' },
+  { key: 'NIGHT', label: 'לילה' },
+];
+
 export function CapacityRulesForm({ initialValues }: { initialValues: CapacityMap }) {
   const [values, setValues] = useState(initialValues);
   const [status, setStatus] = useState<'idle' | 'ok' | 'error'>('idle');
@@ -30,18 +36,13 @@ export function CapacityRulesForm({ initialValues }: { initialValues: CapacityMa
     });
   }
 
-  const LABELS: { key: keyof CapacityMap; label: string }[] = [
-    { key: 'MORNING', label: 'בוקר' },
-    { key: 'EVENING', label: 'ערב' },
-    { key: 'NIGHT', label: 'לילה' },
-  ];
-
   return (
     <form onSubmit={handleSubmit} className="space-y-4 max-w-xs">
       {LABELS.map(({ key, label }) => (
         <div key={key} className="flex items-center gap-3">
-          <label className="w-16 text-sm font-medium text-right">{label}</label>
+          <label htmlFor={key} className="w-16 text-sm font-medium text-right">{label}</label>
           <input
+            id={key}
             type="number"
             min={1}
             value={values[key]}
@@ -57,7 +58,7 @@ export function CapacityRulesForm({ initialValues }: { initialValues: CapacityMa
       </Button>
 
       {status === 'ok' && <p className="text-sm text-green-600">הגדרות נשמרו בהצלחה</p>}
-      {status === 'error' && <p className="text-sm text-destructive">{errorMsg}</p>}
+      {status === 'error' && errorMsg && <p className="text-sm text-destructive">{errorMsg}</p>}
     </form>
   );
 }
