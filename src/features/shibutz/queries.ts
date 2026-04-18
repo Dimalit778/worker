@@ -4,6 +4,26 @@ import type { AssignmentMap, CapacityMap, ShibutzPageData } from './types';
 
 const DEFAULT_CAPACITY: CapacityMap = { MORNING: 15, EVENING: 6, NIGHT: 3 };
 
+export function mergeCapacityRules(
+  rules: { shiftType: 'MORNING' | 'EVENING' | 'NIGHT'; maxStaff: number }[],
+  defaults: CapacityMap,
+): CapacityMap {
+  const result = { ...defaults };
+  for (const rule of rules) {
+    result[rule.shiftType] = rule.maxStaff;
+  }
+  return result;
+}
+
+export async function getCapacityRules(courtId: string): Promise<CapacityMap> {
+  if (!courtId) return { ...DEFAULT_CAPACITY };
+  const rows = await prisma.shiftCapacityRule.findMany({
+    where: { courtId, dayOfWeek: null },
+    select: { shiftType: true, maxStaff: true },
+  });
+  return mergeCapacityRules(rows, DEFAULT_CAPACITY);
+}
+
 export async function getShibutzPageData(
   courtId: string,
   options: { includeGuards?: boolean } = {},
@@ -48,10 +68,10 @@ export async function getShibutzPageData(
 
   const capacityRules = courtId ? await prisma.shiftCapacityRule.findMany({ where: { courtId } }) : [];
 
-  const capacity: CapacityMap = { ...DEFAULT_CAPACITY };
-  for (const rule of capacityRules) {
-    if (rule.dayOfWeek === null) capacity[rule.shiftType] = rule.maxStaff;
-  }
+  const capacity: CapacityMap = mergeCapacityRules(
+    capacityRules.filter((r) => r.dayOfWeek === null),
+    DEFAULT_CAPACITY,
+  );
 
   return {
     found: true,
