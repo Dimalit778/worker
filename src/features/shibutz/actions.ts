@@ -83,6 +83,8 @@ export async function upsertCapacityRules(
     await prisma.$transaction(
       shiftTypes.map((shiftType) =>
         prisma.shiftCapacityRule.upsert({
+          // Prisma compound-unique input requires `number` even for nullable columns;
+          // at runtime Prisma translates `null` to IS NULL correctly.
           where: { courtId_shiftType_dayOfWeek: { courtId, shiftType, dayOfWeek: null as unknown as number } },
           create: { courtId, shiftType, dayOfWeek: null, minStaff: 0, maxStaff: rules[shiftType as keyof CapacityRulesInput] },
           update: { maxStaff: rules[shiftType as keyof CapacityRulesInput] },
