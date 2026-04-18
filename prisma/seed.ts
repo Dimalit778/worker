@@ -184,7 +184,9 @@ async function seedCapacityRules(
 }
 
 async function createUserWithEmployee(params: {
-  email: string;
+  email?: string;
+  employeeNumber?: string;
+  mustChangePassword?: boolean;
   password: string;
   systemRole: SystemRole;
   name: string;
@@ -208,7 +210,9 @@ async function createUserWithEmployee(params: {
 
   const user = await prisma.user.create({
     data: {
-      email: params.email,
+      email: params.email ?? null,
+      employeeNumber: params.employeeNumber ?? null,
+      mustChangePassword: params.mustChangePassword ?? false,
       passwordHash,
       systemRole: params.systemRole,
       isActive: true,
@@ -252,6 +256,7 @@ async function main() {
   // Manager
   const manager = await createUserWithEmployee({
     email: 'tomer@gmail.com',
+    employeeNumber: '1001',
     password: 'tomer123',
     systemRole: SystemRole.MANAGER,
     name: 'תומר לוי',
@@ -310,10 +315,12 @@ async function main() {
   ];
 
   let employeeCounter = 100;
+  let empNumberCounter = 1002;
 
   for (const emp of employeeData) {
     await createUserWithEmployee({
       email: emp.email,
+      employeeNumber: String(empNumberCounter++),
       password: 'worker123',
       systemRole: SystemRole.EMPLOYEE,
       name: emp.name.trim(),
