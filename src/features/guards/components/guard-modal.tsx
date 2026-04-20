@@ -23,7 +23,7 @@ export function GuardModal({ guard, onClose }: Props) {
   const router = useRouter()
   const [pending, startTransition] = useTransition()
   const [error, setError] = useState<string | null>(null)
-  const [createdNumber, setCreatedNumber] = useState<string | null>(null)
+  const [created, setCreated] = useState(false)
   const isEdit = guard !== null
 
   function handleSubmit(e: React.FormEvent<HTMLFormElement>) {
@@ -48,27 +48,20 @@ export function GuardModal({ guard, onClose }: Props) {
         if ('error' in result) {
           setError(result.error)
         } else {
-          setCreatedNumber(result.employeeNumber)
+          setCreated(true)
           router.refresh()
         }
       }
     })
   }
 
-  // After successful creation: show the generated employee number
-  if (createdNumber) {
+  if (created) {
     return (
       <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50" dir="rtl">
         <div className="bg-white rounded-xl shadow-2xl w-full max-w-md p-6 space-y-4">
           <h2 className="font-bold text-lg">מאבטח נוסף בהצלחה</h2>
-          <p className="text-sm text-muted-foreground">
-            מספר העובד שנוצר הוא:
-          </p>
-          <p className="text-3xl font-bold text-center tracking-widest" dir="ltr">
-            {createdNumber}
-          </p>
-          <p className="text-xs text-muted-foreground text-center">
-            הסיסמה הראשונית זהה למספר העובד. המאבטח יתבקש לשנות אותה בכניסה הראשונה.
+          <p className="text-sm text-muted-foreground text-center">
+            הסיסמה הראשונית היא <span className="font-mono font-semibold">123456</span>. המאבטח יתבקש לשנות אותה בכניסה הראשונה.
           </p>
           <button
             onClick={onClose}
@@ -92,13 +85,6 @@ export function GuardModal({ guard, onClose }: Props) {
             <X className="w-4 h-4" />
           </button>
         </div>
-
-        {isEdit && guard.employeeNumber && (
-          <div className="mb-4 px-3 py-2 bg-muted/40 rounded-md text-sm">
-            <span className="text-muted-foreground">מספר עובד: </span>
-            <span className="font-mono font-semibold" dir="ltr">{guard.employeeNumber}</span>
-          </div>
-        )}
 
         <form onSubmit={handleSubmit} className="space-y-4">
           <div>

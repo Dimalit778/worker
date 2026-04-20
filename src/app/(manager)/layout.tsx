@@ -5,7 +5,8 @@ import { LogoutButton } from '@/components/ui/logout-button';
 
 const navItems = [
   { href: '/manager', label: 'לוח בקרה' },
-  { href: '/manager/shibutz', label: 'שיבוץ' },
+
+  { href: '/manager/shifts', label: 'שיבוץ' },
   { href: '/manager/periods', label: 'תקופות' },
   { href: '/manager/guards', label: 'מאבטחים' },
   { href: '/manager/settings', label: 'הגדרות' },

@@ -1,5 +1,5 @@
 import { describe, it, expect } from 'vitest';
-import { isClosedCell, getRowLabel, buildWeekDays } from '@/features/shibutz/utils';
+import { isClosedCell, getRowLabel, buildWeekDays } from '@/features/shifts/utils';
 
 describe('isClosedCell', () => {
   it('closes Saturday for any shift', () => {

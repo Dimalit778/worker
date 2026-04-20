@@ -26,7 +26,6 @@ export type AggregateEmployee = {
 
 export type EmployeeMinAggregateOutputType = {
   id: string | null
-  employeeCode: string | null
   name: string | null
   phone: string | null
   position: $Enums.Position | null
@@ -38,7 +37,6 @@ export type EmployeeMinAggregateOutputType = {
 
 export type EmployeeMaxAggregateOutputType = {
   id: string | null
-  employeeCode: string | null
   name: string | null
   phone: string | null
   position: $Enums.Position | null
@@ -50,7 +48,6 @@ export type EmployeeMaxAggregateOutputType = {
 
 export type EmployeeCountAggregateOutputType = {
   id: number
-  employeeCode: number
   name: number
   phone: number
   position: number
@@ -64,7 +61,6 @@ export type EmployeeCountAggregateOutputType = {
 
 export type EmployeeMinAggregateInputType = {
   id?: true
-  employeeCode?: true
   name?: true
   phone?: true
   position?: true
@@ -76,7 +72,6 @@ export type EmployeeMinAggregateInputType = {
 
 export type EmployeeMaxAggregateInputType = {
   id?: true
-  employeeCode?: true
   name?: true
   phone?: true
   position?: true
@@ -88,7 +83,6 @@ export type EmployeeMaxAggregateInputType = {
 
 export type EmployeeCountAggregateInputType = {
   id?: true
-  employeeCode?: true
   name?: true
   phone?: true
   position?: true
@@ -173,7 +167,6 @@ export type EmployeeGroupByArgs<ExtArgs extends runtime.Types.Extensions.Interna
 
 export type EmployeeGroupByOutputType = {
   id: string
-  employeeCode: string | null
   name: string
   phone: string | null
   position: $Enums.Position
@@ -206,7 +199,6 @@ export type EmployeeWhereInput = {
   OR?: Prisma.EmployeeWhereInput[]
   NOT?: Prisma.EmployeeWhereInput | Prisma.EmployeeWhereInput[]
   id?: Prisma.StringFilter<"Employee"> | string
-  employeeCode?: Prisma.StringNullableFilter<"Employee"> | string | null
   name?: Prisma.StringFilter<"Employee"> | string
   phone?: Prisma.StringNullableFilter<"Employee"> | string | null
   position?: Prisma.EnumPositionFilter<"Employee"> | $Enums.Position
@@ -225,7 +217,6 @@ export type EmployeeWhereInput = {
 
 export type EmployeeOrderByWithRelationInput = {
   id?: Prisma.SortOrder
-  employeeCode?: Prisma.SortOrderInput | Prisma.SortOrder
   name?: Prisma.SortOrder
   phone?: Prisma.SortOrderInput | Prisma.SortOrder
   position?: Prisma.SortOrder
@@ -244,7 +235,6 @@ export type EmployeeOrderByWithRelationInput = {
 
 export type EmployeeWhereUniqueInput = Prisma.AtLeast<{
   id?: string
-  employeeCode?: string
   AND?: Prisma.EmployeeWhereInput | Prisma.EmployeeWhereInput[]
   OR?: Prisma.EmployeeWhereInput[]
   NOT?: Prisma.EmployeeWhereInput | Prisma.EmployeeWhereInput[]
@@ -262,11 +252,10 @@ export type EmployeeWhereUniqueInput = Prisma.AtLeast<{
   assignments?: Prisma.ShiftAssignmentListRelationFilter
   fairnessRecords?: Prisma.FairnessRecordListRelationFilter
   warnings?: Prisma.ScheduleWarningListRelationFilter
-}, "id" | "employeeCode">
+}, "id">
 
 export type EmployeeOrderByWithAggregationInput = {
   id?: Prisma.SortOrder
-  employeeCode?: Prisma.SortOrderInput | Prisma.SortOrder
   name?: Prisma.SortOrder
   phone?: Prisma.SortOrderInput | Prisma.SortOrder
   position?: Prisma.SortOrder
@@ -284,7 +273,6 @@ export type EmployeeScalarWhereWithAggregatesInput = {
   OR?: Prisma.EmployeeScalarWhereWithAggregatesInput[]
   NOT?: Prisma.EmployeeScalarWhereWithAggregatesInput | Prisma.EmployeeScalarWhereWithAggregatesInput[]
   id?: Prisma.StringWithAggregatesFilter<"Employee"> | string
-  employeeCode?: Prisma.StringNullableWithAggregatesFilter<"Employee"> | string | null
   name?: Prisma.StringWithAggregatesFilter<"Employee"> | string
   phone?: Prisma.StringNullableWithAggregatesFilter<"Employee"> | string | null
   position?: Prisma.EnumPositionWithAggregatesFilter<"Employee"> | $Enums.Position
@@ -296,7 +284,6 @@ export type EmployeeScalarWhereWithAggregatesInput = {
 
 export type EmployeeCreateInput = {
   id?: string
-  employeeCode?: string | null
   name: string
   phone?: string | null
   position: $Enums.Position
@@ -314,7 +301,6 @@ export type EmployeeCreateInput = {
 
 export type EmployeeUncheckedCreateInput = {
   id?: string
-  employeeCode?: string | null
   name: string
   phone?: string | null
   position: $Enums.Position
@@ -332,7 +318,6 @@ export type EmployeeUncheckedCreateInput = {
 
 export type EmployeeUpdateInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
-  employeeCode?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   name?: Prisma.StringFieldUpdateOperationsInput | string
   phone?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   position?: Prisma.EnumPositionFieldUpdateOperationsInput | $Enums.Position
@@ -350,7 +335,6 @@ export type EmployeeUpdateInput = {
 
 export type EmployeeUncheckedUpdateInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
-  employeeCode?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   name?: Prisma.StringFieldUpdateOperationsInput | string
   phone?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   position?: Prisma.EnumPositionFieldUpdateOperationsInput | $Enums.Position
@@ -368,7 +352,6 @@ export type EmployeeUncheckedUpdateInput = {
 
 export type EmployeeCreateManyInput = {
   id?: string
-  employeeCode?: string | null
   name: string
   phone?: string | null
   position: $Enums.Position
@@ -380,7 +363,6 @@ export type EmployeeCreateManyInput = {
 
 export type EmployeeUpdateManyMutationInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
-  employeeCode?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   name?: Prisma.StringFieldUpdateOperationsInput | string
   phone?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   position?: Prisma.EnumPositionFieldUpdateOperationsInput | $Enums.Position
@@ -391,7 +373,6 @@ export type EmployeeUpdateManyMutationInput = {
 
 export type EmployeeUncheckedUpdateManyInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
-  employeeCode?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   name?: Prisma.StringFieldUpdateOperationsInput | string
   phone?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   position?: Prisma.EnumPositionFieldUpdateOperationsInput | $Enums.Position
@@ -408,7 +389,6 @@ export type EmployeeNullableScalarRelationFilter = {
 
 export type EmployeeCountOrderByAggregateInput = {
   id?: Prisma.SortOrder
-  employeeCode?: Prisma.SortOrder
   name?: Prisma.SortOrder
   phone?: Prisma.SortOrder
   position?: Prisma.SortOrder
@@ -420,7 +400,6 @@ export type EmployeeCountOrderByAggregateInput = {
 
 export type EmployeeMaxOrderByAggregateInput = {
   id?: Prisma.SortOrder
-  employeeCode?: Prisma.SortOrder
   name?: Prisma.SortOrder
   phone?: Prisma.SortOrder
   position?: Prisma.SortOrder
@@ -432,7 +411,6 @@ export type EmployeeMaxOrderByAggregateInput = {
 
 export type EmployeeMinOrderByAggregateInput = {
   id?: Prisma.SortOrder
-  employeeCode?: Prisma.SortOrder
   name?: Prisma.SortOrder
   phone?: Prisma.SortOrder
   position?: Prisma.SortOrder
@@ -593,7 +571,6 @@ export type EmployeeUpdateOneRequiredWithoutFairnessRecordsNestedInput = {
 
 export type EmployeeCreateWithoutUserInput = {
   id?: string
-  employeeCode?: string | null
   name: string
   phone?: string | null
   position: $Enums.Position
@@ -610,7 +587,6 @@ export type EmployeeCreateWithoutUserInput = {
 
 export type EmployeeUncheckedCreateWithoutUserInput = {
   id?: string
-  employeeCode?: string | null
   name: string
   phone?: string | null
   position: $Enums.Position
@@ -643,7 +619,6 @@ export type EmployeeUpdateToOneWithWhereWithoutUserInput = {
 
 export type EmployeeUpdateWithoutUserInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
-  employeeCode?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   name?: Prisma.StringFieldUpdateOperationsInput | string
   phone?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   position?: Prisma.EnumPositionFieldUpdateOperationsInput | $Enums.Position
@@ -660,7 +635,6 @@ export type EmployeeUpdateWithoutUserInput = {
 
 export type EmployeeUncheckedUpdateWithoutUserInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
-  employeeCode?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   name?: Prisma.StringFieldUpdateOperationsInput | string
   phone?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   position?: Prisma.EnumPositionFieldUpdateOperationsInput | $Enums.Position
@@ -677,7 +651,6 @@ export type EmployeeUncheckedUpdateWithoutUserInput = {
 
 export type EmployeeCreateWithoutPrimaryCourtInput = {
   id?: string
-  employeeCode?: string | null
   name: string
   phone?: string | null
   position: $Enums.Position
@@ -694,7 +667,6 @@ export type EmployeeCreateWithoutPrimaryCourtInput = {
 
 export type EmployeeUncheckedCreateWithoutPrimaryCourtInput = {
   id?: string
-  employeeCode?: string | null
   name: string
   phone?: string | null
   position: $Enums.Position
@@ -740,7 +712,6 @@ export type EmployeeScalarWhereInput = {
   OR?: Prisma.EmployeeScalarWhereInput[]
   NOT?: Prisma.EmployeeScalarWhereInput | Prisma.EmployeeScalarWhereInput[]
   id?: Prisma.StringFilter<"Employee"> | string
-  employeeCode?: Prisma.StringNullableFilter<"Employee"> | string | null
   name?: Prisma.StringFilter<"Employee"> | string
   phone?: Prisma.StringNullableFilter<"Employee"> | string | null
   position?: Prisma.EnumPositionFilter<"Employee"> | $Enums.Position
@@ -752,7 +723,6 @@ export type EmployeeScalarWhereInput = {
 
 export type EmployeeCreateWithoutCourtEligibilityInput = {
   id?: string
-  employeeCode?: string | null
   name: string
   phone?: string | null
   position: $Enums.Position
@@ -769,7 +739,6 @@ export type EmployeeCreateWithoutCourtEligibilityInput = {
 
 export type EmployeeUncheckedCreateWithoutCourtEligibilityInput = {
   id?: string
-  employeeCode?: string | null
   name: string
   phone?: string | null
   position: $Enums.Position
@@ -802,7 +771,6 @@ export type EmployeeUpdateToOneWithWhereWithoutCourtEligibilityInput = {
 
 export type EmployeeUpdateWithoutCourtEligibilityInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
-  employeeCode?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   name?: Prisma.StringFieldUpdateOperationsInput | string
   phone?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   position?: Prisma.EnumPositionFieldUpdateOperationsInput | $Enums.Position
@@ -819,7 +787,6 @@ export type EmployeeUpdateWithoutCourtEligibilityInput = {
 
 export type EmployeeUncheckedUpdateWithoutCourtEligibilityInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
-  employeeCode?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   name?: Prisma.StringFieldUpdateOperationsInput | string
   phone?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   position?: Prisma.EnumPositionFieldUpdateOperationsInput | $Enums.Position
@@ -836,7 +803,6 @@ export type EmployeeUncheckedUpdateWithoutCourtEligibilityInput = {
 
 export type EmployeeCreateWithoutAvailabilityInput = {
   id?: string
-  employeeCode?: string | null
   name: string
   phone?: string | null
   position: $Enums.Position
@@ -853,7 +819,6 @@ export type EmployeeCreateWithoutAvailabilityInput = {
 
 export type EmployeeUncheckedCreateWithoutAvailabilityInput = {
   id?: string
-  employeeCode?: string | null
   name: string
   phone?: string | null
   position: $Enums.Position
@@ -886,7 +851,6 @@ export type EmployeeUpdateToOneWithWhereWithoutAvailabilityInput = {
 
 export type EmployeeUpdateWithoutAvailabilityInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
-  employeeCode?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   name?: Prisma.StringFieldUpdateOperationsInput | string
   phone?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   position?: Prisma.EnumPositionFieldUpdateOperationsInput | $Enums.Position
@@ -903,7 +867,6 @@ export type EmployeeUpdateWithoutAvailabilityInput = {
 
 export type EmployeeUncheckedUpdateWithoutAvailabilityInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
-  employeeCode?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   name?: Prisma.StringFieldUpdateOperationsInput | string
   phone?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   position?: Prisma.EnumPositionFieldUpdateOperationsInput | $Enums.Position
@@ -920,7 +883,6 @@ export type EmployeeUncheckedUpdateWithoutAvailabilityInput = {
 
 export type EmployeeCreateWithoutAssignmentsInput = {
   id?: string
-  employeeCode?: string | null
   name: string
   phone?: string | null
   position: $Enums.Position
@@ -937,7 +899,6 @@ export type EmployeeCreateWithoutAssignmentsInput = {
 
 export type EmployeeUncheckedCreateWithoutAssignmentsInput = {
   id?: string
-  employeeCode?: string | null
   name: string
   phone?: string | null
   position: $Enums.Position
@@ -970,7 +931,6 @@ export type EmployeeUpdateToOneWithWhereWithoutAssignmentsInput = {
 
 export type EmployeeUpdateWithoutAssignmentsInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
-  employeeCode?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   name?: Prisma.StringFieldUpdateOperationsInput | string
   phone?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   position?: Prisma.EnumPositionFieldUpdateOperationsInput | $Enums.Position
@@ -987,7 +947,6 @@ export type EmployeeUpdateWithoutAssignmentsInput = {
 
 export type EmployeeUncheckedUpdateWithoutAssignmentsInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
-  employeeCode?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   name?: Prisma.StringFieldUpdateOperationsInput | string
   phone?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   position?: Prisma.EnumPositionFieldUpdateOperationsInput | $Enums.Position
@@ -1004,7 +963,6 @@ export type EmployeeUncheckedUpdateWithoutAssignmentsInput = {
 
 export type EmployeeCreateWithoutWarningsInput = {
   id?: string
-  employeeCode?: string | null
   name: string
   phone?: string | null
   position: $Enums.Position
@@ -1021,7 +979,6 @@ export type EmployeeCreateWithoutWarningsInput = {
 
 export type EmployeeUncheckedCreateWithoutWarningsInput = {
   id?: string
-  employeeCode?: string | null
   name: string
   phone?: string | null
   position: $Enums.Position
@@ -1054,7 +1011,6 @@ export type EmployeeUpdateToOneWithWhereWithoutWarningsInput = {
 
 export type EmployeeUpdateWithoutWarningsInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
-  employeeCode?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   name?: Prisma.StringFieldUpdateOperationsInput | string
   phone?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   position?: Prisma.EnumPositionFieldUpdateOperationsInput | $Enums.Position
@@ -1071,7 +1027,6 @@ export type EmployeeUpdateWithoutWarningsInput = {
 
 export type EmployeeUncheckedUpdateWithoutWarningsInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
-  employeeCode?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   name?: Prisma.StringFieldUpdateOperationsInput | string
   phone?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   position?: Prisma.EnumPositionFieldUpdateOperationsInput | $Enums.Position
@@ -1088,7 +1043,6 @@ export type EmployeeUncheckedUpdateWithoutWarningsInput = {
 
 export type EmployeeCreateWithoutFairnessRecordsInput = {
   id?: string
-  employeeCode?: string | null
   name: string
   phone?: string | null
   position: $Enums.Position
@@ -1105,7 +1059,6 @@ export type EmployeeCreateWithoutFairnessRecordsInput = {
 
 export type EmployeeUncheckedCreateWithoutFairnessRecordsInput = {
   id?: string
-  employeeCode?: string | null
   name: string
   phone?: string | null
   position: $Enums.Position
@@ -1138,7 +1091,6 @@ export type EmployeeUpdateToOneWithWhereWithoutFairnessRecordsInput = {
 
 export type EmployeeUpdateWithoutFairnessRecordsInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
-  employeeCode?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   name?: Prisma.StringFieldUpdateOperationsInput | string
   phone?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   position?: Prisma.EnumPositionFieldUpdateOperationsInput | $Enums.Position
@@ -1155,7 +1107,6 @@ export type EmployeeUpdateWithoutFairnessRecordsInput = {
 
 export type EmployeeUncheckedUpdateWithoutFairnessRecordsInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
-  employeeCode?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   name?: Prisma.StringFieldUpdateOperationsInput | string
   phone?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   position?: Prisma.EnumPositionFieldUpdateOperationsInput | $Enums.Position
@@ -1172,7 +1123,6 @@ export type EmployeeUncheckedUpdateWithoutFairnessRecordsInput = {
 
 export type EmployeeCreateManyPrimaryCourtInput = {
   id?: string
-  employeeCode?: string | null
   name: string
   phone?: string | null
   position: $Enums.Position
@@ -1183,7 +1133,6 @@ export type EmployeeCreateManyPrimaryCourtInput = {
 
 export type EmployeeUpdateWithoutPrimaryCourtInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
-  employeeCode?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   name?: Prisma.StringFieldUpdateOperationsInput | string
   phone?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   position?: Prisma.EnumPositionFieldUpdateOperationsInput | $Enums.Position
@@ -1200,7 +1149,6 @@ export type EmployeeUpdateWithoutPrimaryCourtInput = {
 
 export type EmployeeUncheckedUpdateWithoutPrimaryCourtInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
-  employeeCode?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   name?: Prisma.StringFieldUpdateOperationsInput | string
   phone?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   position?: Prisma.EnumPositionFieldUpdateOperationsInput | $Enums.Position
@@ -1217,7 +1165,6 @@ export type EmployeeUncheckedUpdateWithoutPrimaryCourtInput = {
 
 export type EmployeeUncheckedUpdateManyWithoutPrimaryCourtInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
-  employeeCode?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   name?: Prisma.StringFieldUpdateOperationsInput | string
   phone?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   position?: Prisma.EnumPositionFieldUpdateOperationsInput | $Enums.Position
@@ -1295,7 +1242,6 @@ export type EmployeeCountOutputTypeCountWarningsArgs<ExtArgs extends runtime.Typ
 
 export type EmployeeSelect<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetSelect<{
   id?: boolean
-  employeeCode?: boolean
   name?: boolean
   phone?: boolean
   position?: boolean
@@ -1315,7 +1261,6 @@ export type EmployeeSelect<ExtArgs extends runtime.Types.Extensions.InternalArgs
 
 export type EmployeeSelectCreateManyAndReturn<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetSelect<{
   id?: boolean
-  employeeCode?: boolean
   name?: boolean
   phone?: boolean
   position?: boolean
@@ -1328,7 +1273,6 @@ export type EmployeeSelectCreateManyAndReturn<ExtArgs extends runtime.Types.Exte
 
 export type EmployeeSelectUpdateManyAndReturn<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetSelect<{
   id?: boolean
-  employeeCode?: boolean
   name?: boolean
   phone?: boolean
   position?: boolean
@@ -1341,7 +1285,6 @@ export type EmployeeSelectUpdateManyAndReturn<ExtArgs extends runtime.Types.Exte
 
 export type EmployeeSelectScalar = {
   id?: boolean
-  employeeCode?: boolean
   name?: boolean
   phone?: boolean
   position?: boolean
@@ -1351,7 +1294,7 @@ export type EmployeeSelectScalar = {
   updatedAt?: boolean
 }
 
-export type EmployeeOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"id" | "employeeCode" | "name" | "phone" | "position" | "primaryCourtId" | "isActive" | "createdAt" | "updatedAt", ExtArgs["result"]["employee"]>
+export type EmployeeOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"id" | "name" | "phone" | "position" | "primaryCourtId" | "isActive" | "createdAt" | "updatedAt", ExtArgs["result"]["employee"]>
 export type EmployeeInclude<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
   primaryCourt?: boolean | Prisma.Employee$primaryCourtArgs<ExtArgs>
   user?: boolean | Prisma.Employee$userArgs<ExtArgs>
@@ -1382,7 +1325,6 @@ export type $EmployeePayload<ExtArgs extends runtime.Types.Extensions.InternalAr
   }
   scalars: runtime.Types.Extensions.GetPayloadResult<{
     id: string
-    employeeCode: string | null
     name: string
     phone: string | null
     position: $Enums.Position
@@ -1821,7 +1763,6 @@ export interface Prisma__EmployeeClient<T, Null = never, ExtArgs extends runtime
  */
 export interface EmployeeFieldRefs {
   readonly id: Prisma.FieldRef<"Employee", 'String'>
-  readonly employeeCode: Prisma.FieldRef<"Employee", 'String'>
   readonly name: Prisma.FieldRef<"Employee", 'String'>
   readonly phone: Prisma.FieldRef<"Employee", 'String'>
   readonly position: Prisma.FieldRef<"Employee", 'Position'>

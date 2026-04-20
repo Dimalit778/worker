@@ -1,6 +1,6 @@
 import { describe, it, expect } from 'vitest';
-import { mergeCapacityRules } from '@/features/shibutz/queries';
-import type { CapacityMap } from '@/features/shibutz/types';
+import { mergeCapacityRules } from '@/features/shifts/queries';
+import type { CapacityMap } from '@/features/shifts/types';
 
 const DEFAULT: CapacityMap = { MORNING: 15, EVENING: 6, NIGHT: 3 };
 

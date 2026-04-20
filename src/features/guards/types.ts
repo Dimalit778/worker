@@ -12,7 +12,6 @@ export type GuardRow = {
   name: string;
   position: Position;
   isActive: boolean;
-  employeeNumber: string | null;
 };
 export type CreateGuardParams = {
   name: string;

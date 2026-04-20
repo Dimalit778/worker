@@ -57,9 +57,9 @@ export const ModelName = {
   User: 'User',
   Employee: 'Employee',
   Court: 'Court',
-  District: 'District',
+  Region: 'Region',
   CourtEligibility: 'CourtEligibility',
-  ShiftCapacityRule: 'ShiftCapacityRule',
+  CourtShiftRule: 'CourtShiftRule',
   SchedulingPeriod: 'SchedulingPeriod',
   Availability: 'Availability',
   AvailabilityEntry: 'AvailabilityEntry',
@@ -126,7 +126,6 @@ export type VerificationTokenScalarFieldEnum = (typeof VerificationTokenScalarFi
 export const UserScalarFieldEnum = {
   id: 'id',
   email: 'email',
-  employeeNumber: 'employeeNumber',
   passwordHash: 'passwordHash',
   systemRole: 'systemRole',
   isActive: 'isActive',
@@ -141,7 +140,6 @@ export type UserScalarFieldEnum = (typeof UserScalarFieldEnum)[keyof typeof User
 
 export const EmployeeScalarFieldEnum = {
   id: 'id',
-  employeeCode: 'employeeCode',
   name: 'name',
   phone: 'phone',
   position: 'position',
@@ -158,7 +156,7 @@ export const CourtScalarFieldEnum = {
   id: 'id',
   name: 'name',
   code: 'code',
-  districtId: 'districtId',
+  regionId: 'regionId',
   isActive: 'isActive',
   createdAt: 'createdAt',
   updatedAt: 'updatedAt'
@@ -167,7 +165,7 @@ export const CourtScalarFieldEnum = {
 export type CourtScalarFieldEnum = (typeof CourtScalarFieldEnum)[keyof typeof CourtScalarFieldEnum]
 
 
-export const DistrictScalarFieldEnum = {
+export const RegionScalarFieldEnum = {
   id: 'id',
   name: 'name',
   code: 'code',
@@ -176,7 +174,7 @@ export const DistrictScalarFieldEnum = {
   updatedAt: 'updatedAt'
 } as const
 
-export type DistrictScalarFieldEnum = (typeof DistrictScalarFieldEnum)[keyof typeof DistrictScalarFieldEnum]
+export type RegionScalarFieldEnum = (typeof RegionScalarFieldEnum)[keyof typeof RegionScalarFieldEnum]
 
 
 export const CourtEligibilityScalarFieldEnum = {
@@ -190,18 +188,19 @@ export const CourtEligibilityScalarFieldEnum = {
 export type CourtEligibilityScalarFieldEnum = (typeof CourtEligibilityScalarFieldEnum)[keyof typeof CourtEligibilityScalarFieldEnum]
 
 
-export const ShiftCapacityRuleScalarFieldEnum = {
+export const CourtShiftRuleScalarFieldEnum = {
   id: 'id',
   courtId: 'courtId',
   shiftType: 'shiftType',
-  dayOfWeek: 'dayOfWeek',
-  minStaff: 'minStaff',
-  maxStaff: 'maxStaff',
+  dayCategory: 'dayCategory',
+  position: 'position',
+  requiredCount: 'requiredCount',
+  displayOrder: 'displayOrder',
   createdAt: 'createdAt',
   updatedAt: 'updatedAt'
 } as const
 
-export type ShiftCapacityRuleScalarFieldEnum = (typeof ShiftCapacityRuleScalarFieldEnum)[keyof typeof ShiftCapacityRuleScalarFieldEnum]
+export type CourtShiftRuleScalarFieldEnum = (typeof CourtShiftRuleScalarFieldEnum)[keyof typeof CourtShiftRuleScalarFieldEnum]
 
 
 export const SchedulingPeriodScalarFieldEnum = {
@@ -267,6 +266,8 @@ export const ShiftAssignmentScalarFieldEnum = {
   courtId: 'courtId',
   date: 'date',
   shiftType: 'shiftType',
+  position: 'position',
+  slotIndex: 'slotIndex',
   isOpeningDuty: 'isOpeningDuty',
   isManualOverride: 'isManualOverride',
   createdAt: 'createdAt',

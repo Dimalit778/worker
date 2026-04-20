@@ -4,8 +4,7 @@ import { config } from 'dotenv';
 import { PrismaNeon } from '@prisma/adapter-neon';
 import bcrypt from 'bcryptjs';
 
-import { calendarDateISO, utcNoonFromCalendarISO } from '../src/lib/periods/current-scheduling-period';
-import { PeriodStatus, Position, PrismaClient, ShiftType, SystemRole } from '../src/generated/prisma/client';
+import { Position, PrismaClient, SystemRole } from '../src/generated/prisma/client';
 
 config({ path: resolve(process.cwd(), '.env.local') });
 config({ path: resolve(process.cwd(), '.env') });
@@ -30,7 +29,6 @@ async function wipeDatabase() {
     prisma.availability.deleteMany(),
     prisma.fairnessRecord.deleteMany(),
     prisma.courtEligibility.deleteMany(),
-    prisma.shiftCapacityRule.deleteMany(),
     prisma.schedulingPeriod.deleteMany(),
     prisma.session.deleteMany(),
     prisma.account.deleteMany(),
@@ -38,10 +36,11 @@ async function wipeDatabase() {
     prisma.employee.deleteMany(),
     prisma.verificationToken.deleteMany(),
     prisma.court.deleteMany(),
-    prisma.district.deleteMany(),
+    prisma.region.deleteMany(),
     prisma.systemConfig.deleteMany(),
   ]);
 }
+
 async function upsertSystemConfig() {
   await prisma.systemConfig.upsert({
     where: { key: 'weekly_min_morning' },
@@ -73,135 +72,83 @@ async function upsertSystemConfig() {
     create: { key: 'fairness_opening_duty_threshold', value: 2 },
   });
 }
-async function upsertDistricts() {
-  const jerusalem = await prisma.district.upsert({
+
+async function upsertRegions() {
+  const jerusalem = await prisma.region.upsert({
     where: { code: 'JERUSALEM' },
     update: { name: 'מחוז ירושלים', isActive: true },
     create: { name: 'מחוז ירושלים', code: 'JERUSALEM' },
   });
 
-  const telAviv = await prisma.district.upsert({
+  const telAviv = await prisma.region.upsert({
     where: { code: 'TEL_AVIV' },
     update: { name: 'מחוז תל אביב-יפו', isActive: true },
     create: { name: 'מחוז תל אביב-יפו', code: 'TEL_AVIV' },
   });
 
-  const haifa = await prisma.district.upsert({
+  const haifa = await prisma.region.upsert({
     where: { code: 'HAIFA' },
     update: { name: 'מחוז חיפה', isActive: true },
     create: { name: 'מחוז חיפה', code: 'HAIFA' },
   });
 
-  const south = await prisma.district.upsert({
-    where: { code: 'SOUTH' },
-    update: { name: 'מחוז דרום', isActive: true },
-    create: { name: 'מחוז דרום', code: 'SOUTH' },
-  });
-
-  const north = await prisma.district.upsert({
-    where: { code: 'NORTH' },
-    update: { name: 'מחוז צפון', isActive: true },
-    create: { name: 'מחוז צפון', code: 'NORTH' },
-  });
-
-  const center = await prisma.district.upsert({
+  const center = await prisma.region.upsert({
     where: { code: 'CENTER' },
     update: { name: 'מחוז מרכז', isActive: true },
     create: { name: 'מחוז מרכז', code: 'CENTER' },
   });
 
-  return { jerusalem, telAviv, haifa, south, north, center };
+  return { jerusalem, telAviv, haifa, center };
 }
 
-async function upsertCourts(districts: {
+async function upsertCourts(regions: {
   jerusalem: { id: string };
   telAviv: { id: string };
   haifa: { id: string };
-  south: { id: string };
-  north: { id: string };
   center: { id: string };
 }) {
-  const courtA = await prisma.court.upsert({
-    where: { code: 'TEL_AVIV_DISTRICT' },
-    update: {
-      name: 'בית משפט מחוזי תל אביב',
-      isActive: true,
-      districtId: districts.telAviv.id,
-    },
-    create: {
-      name: 'בית משפט מחוזי תל אביב',
-      code: 'TEL_AVIV_DISTRICT',
-      districtId: districts.telAviv.id,
-    },
+  const vaitzman = await prisma.court.upsert({
+    where: { code: 'VAITZMAN' },
+    update: { name: 'בית משפט מחוזי תל אביב (ויצמן)', isActive: true, regionId: regions.telAviv.id },
+    create: { name: 'בית משפט מחוזי תל אביב (ויצמן)', code: 'VAITZMAN', regionId: regions.telAviv.id },
   });
 
-  const courtB = await prisma.court.upsert({
-    where: { code: 'BAT_YAM_MAGISTRATE' },
-    update: {
-      name: 'בית משפט שלום בת ים',
-      isActive: true,
-      districtId: districts.telAviv.id,
-    },
-    create: {
-      name: 'בית משפט שלום בת ים',
-      code: 'BAT_YAM_MAGISTRATE',
-      districtId: districts.telAviv.id,
-    },
+  const shoken = await prisma.court.upsert({
+    where: { code: 'SHOKEN' },
+    update: { name: 'בית משפט שוקן', isActive: true, regionId: regions.telAviv.id },
+    create: { name: 'בית משפט שוקן', code: 'SHOKEN', regionId: regions.telAviv.id },
   });
 
-  const courtC = await prisma.court.upsert({
-    where: { code: 'SHOKEN_MAGISTRATE' },
-    update: {
-      name: 'בית משפט - שוקן',
-      isActive: true,
-      districtId: districts.telAviv.id,
-    },
-    create: {
-      name: 'בית משפט - שוקן',
-      code: 'SHOKEN_MAGISTRATE',
-      districtId: districts.telAviv.id,
-    },
+  const batYam = await prisma.court.upsert({
+    where: { code: 'BAT_YAM' },
+    update: { name: 'בית משפט שלום בת ים', isActive: true, regionId: regions.telAviv.id },
+    create: { name: 'בית משפט שלום בת ים', code: 'BAT_YAM', regionId: regions.telAviv.id },
   });
 
-  return { courtA, courtB, courtC };
-}
-
-async function seedCapacityRules(
-  courtId: string,
-  rules: Array<{ shiftType: ShiftType; dayOfWeek: number | null; minStaff: number; maxStaff: number }>,
-) {
-  await prisma.shiftCapacityRule.deleteMany({ where: { courtId } });
-
-  await prisma.shiftCapacityRule.createMany({
-    data: rules.map((rule) => ({
-      courtId,
-      shiftType: rule.shiftType,
-      dayOfWeek: rule.dayOfWeek,
-      minStaff: rule.minStaff,
-      maxStaff: rule.maxStaff,
-    })),
+  const jerusalemMehuzin = await prisma.court.upsert({
+    where: { code: 'JERUSALEM_MEHUZIN' },
+    update: { name: 'בית משפט מחוזי ירושלים', isActive: true, regionId: regions.jerusalem.id },
+    create: { name: 'בית משפט מחוזי ירושלים', code: 'JERUSALEM_MEHUZIN', regionId: regions.jerusalem.id },
   });
+
+  return { vaitzman, shoken, batYam, jerusalemMehuzin };
 }
 
 async function createUserWithEmployee(params: {
-  email?: string;
-  employeeNumber?: string;
-  mustChangePassword?: boolean;
+  email: string;
   password: string;
   systemRole: SystemRole;
   name: string;
   phone?: string;
   position: Position;
-  primaryCourtId?: string;
-  employeeCode?: string;
+  primaryCourtId: string;
 }) {
   const passwordHash = await bcrypt.hash(params.password, 12);
 
   const employee = await prisma.employee.create({
     data: {
-      employeeCode: params.employeeCode,
       name: params.name,
-      phone: params.phone,
+      phone: params.phone ?? null,
       position: params.position,
       primaryCourtId: params.primaryCourtId,
       isActive: true,
@@ -210,9 +157,7 @@ async function createUserWithEmployee(params: {
 
   const user = await prisma.user.create({
     data: {
-      email: params.email ?? null,
-      employeeNumber: params.employeeNumber ?? null,
-      mustChangePassword: params.mustChangePassword ?? false,
+      email: params.email,
       passwordHash,
       systemRole: params.systemRole,
       isActive: true,
@@ -220,16 +165,92 @@ async function createUserWithEmployee(params: {
     },
   });
 
-  if (params.primaryCourtId) {
-    await prisma.courtEligibility.create({
-      data: {
-        employeeId: employee.id,
-        courtId: params.primaryCourtId,
-      },
+  await prisma.courtEligibility.create({
+    data: {
+      employeeId: employee.id,
+      courtId: params.primaryCourtId,
+    },
+  });
+
+  return { user, employee };
+}
+
+// Names for each position per court slot
+const NAMES: Record<string, Record<string, string[]>> = {
+  VAITZMAN: {
+    FACILITY_OFFICER: ['אריה כהן'],
+    SHIFT_MANAGER: ['מיכל לוי', 'יוסף ברק'],
+    BAKAR: ['רון שפירא', 'נועה גולן'],
+    GUARD: ['דניאל כץ', 'שרה מזרחי', 'אמיר פרץ', 'תמר אלון', 'גיל זיו'],
+  },
+  SHOKEN: {
+    FACILITY_OFFICER: ['דבורה שמיר'],
+    SHIFT_MANAGER: ['עמית רוזן', 'לילה נסים'],
+    BAKAR: ['בנימין טל', 'אורית פישר'],
+    GUARD: ['יעקב כהן', 'רחל בן-דוד', 'אסף לוי', 'נעמה ורד', 'עידן שלום'],
+  },
+  BAT_YAM: {
+    FACILITY_OFFICER: ['שלמה אביב'],
+    SHIFT_MANAGER: ['חנה מור', 'ניסים אזולאי'],
+    BAKAR: ['צבי הרצוג', 'מרים סבג'],
+    GUARD: ['אלי ביטון', 'שושנה קדם', 'מאיר פלד', 'יפית עמר', 'ברוך נחום'],
+  },
+  JERUSALEM_MEHUZIN: {
+    FACILITY_OFFICER: ['פנחס אדלר'],
+    SHIFT_MANAGER: ['רינה גרוס', 'משה אוחיון'],
+    BAKAR: ['זאב בן-אור', 'אסתר חיון'],
+    GUARD: ['שמעון ברגר', 'חיה קפלן', 'אביגיל ריבה', 'דוד ענבר', 'רות אלבז'],
+  },
+};
+
+async function seedCourtEmployees(courtCode: keyof typeof NAMES, courtId: string, emailPrefix: string) {
+  const names = NAMES[courtCode];
+
+  // 1 FACILITY_OFFICER — manager role
+  await createUserWithEmployee({
+    email: `manager.${emailPrefix}@example.com`,
+    password: 'manager123',
+    systemRole: SystemRole.MANAGER,
+    name: names.FACILITY_OFFICER[0],
+    position: Position.FACILITY_OFFICER,
+    primaryCourtId: courtId,
+  });
+
+  // 2 SHIFT_MANAGER
+  for (let i = 0; i < 2; i++) {
+    await createUserWithEmployee({
+      email: `shift-manager-${i + 1}.${emailPrefix}@example.com`,
+      password: 'worker123',
+      systemRole: SystemRole.EMPLOYEE,
+      name: names.SHIFT_MANAGER[i],
+      position: Position.SHIFT_MANAGER,
+      primaryCourtId: courtId,
     });
   }
 
-  return { user, employee };
+  // 2 BAKAR
+  for (let i = 0; i < 2; i++) {
+    await createUserWithEmployee({
+      email: `bakar-${i + 1}.${emailPrefix}@example.com`,
+      password: 'worker123',
+      systemRole: SystemRole.EMPLOYEE,
+      name: names.BAKAR[i],
+      position: Position.BAKAR,
+      primaryCourtId: courtId,
+    });
+  }
+
+  // 5 GUARD
+  for (let i = 0; i < 5; i++) {
+    await createUserWithEmployee({
+      email: `guard-${i + 1}.${emailPrefix}@example.com`,
+      password: 'worker123',
+      systemRole: SystemRole.EMPLOYEE,
+      name: names.GUARD[i],
+      position: Position.GUARD,
+      primaryCourtId: courtId,
+    });
+  }
 }
 
 async function main() {
@@ -238,99 +259,33 @@ async function main() {
 
   await upsertSystemConfig();
 
-  const districts = await upsertDistricts();
+  const regions = await upsertRegions();
+  console.log('Regions seeded.');
 
-  const { courtA, courtB } = await upsertCourts(districts);
+  const { vaitzman, shoken, batYam, jerusalemMehuzin } = await upsertCourts(regions);
+  console.log('Courts seeded.');
 
-  await seedCapacityRules(courtA.id, [
-    { shiftType: ShiftType.MORNING, dayOfWeek: null, minStaff: 3, maxStaff: 5 },
-    { shiftType: ShiftType.EVENING, dayOfWeek: null, minStaff: 2, maxStaff: 3 },
-    { shiftType: ShiftType.NIGHT, dayOfWeek: null, minStaff: 1, maxStaff: 1 },
-  ]);
+  await seedCourtEmployees('VAITZMAN', vaitzman.id, 'vaitzman');
+  console.log('VAITZMAN employees seeded (10).');
 
-  await seedCapacityRules(courtB.id, [
-    { shiftType: ShiftType.MORNING, dayOfWeek: null, minStaff: 2, maxStaff: 3 },
-    { shiftType: ShiftType.EVENING, dayOfWeek: null, minStaff: 1, maxStaff: 2 },
-  ]);
+  await seedCourtEmployees('SHOKEN', shoken.id, 'shoken');
+  console.log('SHOKEN employees seeded (10).');
 
-  // Manager
-  const manager = await createUserWithEmployee({
-    email: 'tomer@gmail.com',
-    employeeNumber: '1001',
-    password: 'tomer123',
-    systemRole: SystemRole.MANAGER,
-    name: 'תומר לוי',
-    position: Position.SHIFT_MANAGER,
-    primaryCourtId: courtA.id,
-    employeeCode: 'EMP-001',
-  });
+  await seedCourtEmployees('BAT_YAM', batYam.id, 'batyam');
+  console.log('BAT_YAM employees seeded (10).');
 
-  // Demo scheduling period covering "today" (Asia/Jerusalem)
-  const todayUtc = utcNoonFromCalendarISO(calendarDateISO(new Date(), 'Asia/Jerusalem'));
-  const periodStart = new Date(todayUtc);
-  periodStart.setUTCDate(periodStart.getUTCDate() - 3);
+  await seedCourtEmployees('JERUSALEM_MEHUZIN', jerusalemMehuzin.id, 'jerusalem');
+  console.log('JERUSALEM_MEHUZIN employees seeded (10).');
 
-  const periodEnd = new Date(periodStart);
-  periodEnd.setUTCDate(periodEnd.getUTCDate() + 13);
-
-  const seedPeriodName = 'תקופת הדגמה (seed)';
-
-  await prisma.schedulingPeriod.create({
-    data: {
-      name: seedPeriodName,
-      startDate: periodStart,
-      endDate: periodEnd,
-      submissionDeadline: new Date(periodStart.getTime() - 24 * 60 * 60 * 1000),
-      status: PeriodStatus.OPEN_FOR_SUBMISSION,
-      createdById: manager.user.id,
-    },
-  });
-
-  // Admin
-  await createUserWithEmployee({
-    email: 'admin@gmail.com',
-    password: 'admin123',
-    systemRole: SystemRole.ADMIN,
-    name: 'מנהל ראשי',
-    position: Position.FACILITY_OFFICER,
-    employeeCode: 'EMP-002',
-  });
-
-  // Employees
-  const employeeData = [
-    { email: 'dimalit@gmail.com', name: 'דימה ליטבינוב', position: Position.SHIFT_MANAGER },
-    { email: 'dima@gmail.com', name: 'דימה גוכמן', position: Position.SHIFT_MANAGER },
-    { email: 'noam@gmail.com', name: 'נועם לוי', position: Position.SHIFT_MANAGER },
-    { email: 'shir@gmail.com', name: 'שיר ברלינר', position: Position.SHIFT_MANAGER },
-    { email: 'eve@gmail.com', name: 'איב לוי', position: Position.SHIFT_MANAGER },
-    { email: 'osheramar@gmail.com', name: 'אושר עמאר', position: Position.BAKAR },
-    { email: 'ben@gmail.com', name: 'בן הרגס', position: Position.BAKAR },
-    { email: 'yohay@gmail.com', name: 'יוחאי אוחיון', position: Position.BAKAR },
-    { email: 'ayala@gmail.com', name: 'איילה גין', position: Position.GUARD },
-    { email: 'nick@gmail.com', name: 'ניק שבדש', position: Position.GUARD },
-    { email: 'nitzan@gmail.com', name: 'ניצן', position: Position.GUARD },
-    { email: 'rafael@gmail.com', name: 'רפאל ברק', position: Position.GUARD },
-    { email: 'shahar@gmail.com', name: 'שחר אף', position: Position.GUARD },
-    { email: 'ariel@gmail.com', name: 'אריאל רוטייברג', position: Position.GUARD },
-  ];
-
-  let employeeCounter = 100;
-  let empNumberCounter = 1002;
-
-  for (const emp of employeeData) {
-    await createUserWithEmployee({
-      email: emp.email,
-      employeeNumber: String(empNumberCounter++),
-      password: 'worker123',
-      systemRole: SystemRole.EMPLOYEE,
-      name: emp.name.trim(),
-      position: emp.position,
-      primaryCourtId: courtA.id,
-      employeeCode: `EMP-${employeeCounter++}`,
-    });
-  }
-
-  console.log('Seed complete.');
+  console.log('\nSeed complete.');
+  console.log('  Courts: 4  (VAITZMAN, SHOKEN, BAT_YAM, JERUSALEM_MEHUZIN)');
+  console.log('  Employees per court: 1 FACILITY_OFFICER + 2 SHIFT_MANAGER + 2 BAKAR + 5 GUARD = 10');
+  console.log('  Total users: 40');
+  console.log('\n  Manager password : manager123');
+  console.log('  Worker password  : worker123');
+  console.log('\n  Example logins:');
+  console.log('    manager.vaitzman@example.com  / manager123');
+  console.log('    guard-1.vaitzman@example.com  / worker123');
 }
 
 main()

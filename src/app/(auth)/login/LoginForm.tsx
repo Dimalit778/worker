@@ -40,15 +40,15 @@ export function LoginForm() {
   return (
     <form onSubmit={handleSubmit} className="space-y-4 w-full">
       <div className="space-y-2">
-        <Label htmlFor="identifier">מספר עובד / אימייל</Label>
+        <Label htmlFor="identifier">אימייל</Label>
         <Input
           id="identifier"
-          type="text"
+          type="email"
           value={identifier}
           onChange={(e) => setIdentifier(e.target.value)}
-          placeholder="1001"
+          placeholder="user@example.com"
           required
-          autoComplete="username"
+          autoComplete="email"
           dir="ltr"
         />
       </div>

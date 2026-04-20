@@ -7,29 +7,14 @@ import { prisma } from '@/lib/db/client';
 import { requireSession } from '@/lib/auth-helpers';
 import type { CreateGuardParams, UpdateGuardParams, DeleteGuardParams, GetGuardsResult } from '@/features/guards/types';
 
-async function generateNextEmployeeNumber(): Promise<string> {
-  const users = await prisma.user.findMany({
-    where: { employeeNumber: { not: null } },
-    select: { employeeNumber: true },
-  });
-  const max = users.reduce((acc, u) => {
-    const n = parseInt(u.employeeNumber!, 10);
-    return isNaN(n) ? acc : Math.max(acc, n);
-  }, 1000);
-  return String(max + 1);
-}
-
-export async function createGuard(
-  params: CreateGuardParams,
-): Promise<{ ok: true; employeeNumber: string } | { error: string }> {
+export async function createGuard(params: CreateGuardParams): Promise<{ ok: true } | { error: string }> {
   const session = await requireSession(SystemRole.MANAGER);
   const courtId = session.user.primaryCourtId;
   if (!courtId) return { error: 'למנהל אין בית משפט משויך' };
 
   const { name, position } = params;
 
-  const employeeNumber = await generateNextEmployeeNumber();
-  const passwordHash = await bcrypt.hash(employeeNumber, 12);
+  const passwordHash = await bcrypt.hash('123456', 12);
 
   await prisma.$transaction(async (tx) => {
     const employee = await tx.employee.create({
@@ -37,7 +22,6 @@ export async function createGuard(
     });
     await tx.user.create({
       data: {
-        employeeNumber,
         passwordHash,
         systemRole: SystemRole.EMPLOYEE,
         mustChangePassword: true,
@@ -51,7 +35,7 @@ export async function createGuard(
   });
 
   revalidatePath('/manager/guards');
-  return { ok: true, employeeNumber };
+  return { ok: true };
 }
 
 export async function updateGuard(params: UpdateGuardParams): Promise<{ ok: true } | { error: string }> {
@@ -115,13 +99,13 @@ export async function getGuards(): Promise<GetGuardsResult> {
 
   const guards = await prisma.employee.findMany({
     where: { primaryCourtId: courtId },
-    include: { user: { select: { employeeNumber: true } } },
+    include: { user: { select: { id: true } } },
   });
+  console.log(guards);
   return guards.map((guard) => ({
     id: guard.id,
     name: guard.name,
     position: guard.position as Position,
     isActive: guard.isActive,
-    employeeNumber: guard.user?.employeeNumber ?? null,
   }));
 }

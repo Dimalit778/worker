@@ -390,9 +390,9 @@ export const ModelName = {
   User: 'User',
   Employee: 'Employee',
   Court: 'Court',
-  District: 'District',
+  Region: 'Region',
   CourtEligibility: 'CourtEligibility',
-  ShiftCapacityRule: 'ShiftCapacityRule',
+  CourtShiftRule: 'CourtShiftRule',
   SchedulingPeriod: 'SchedulingPeriod',
   Availability: 'Availability',
   AvailabilityEntry: 'AvailabilityEntry',
@@ -416,7 +416,7 @@ export type TypeMap<ExtArgs extends runtime.Types.Extensions.InternalArgs = runt
     omit: GlobalOmitOptions
   }
   meta: {
-    modelProps: "account" | "session" | "verificationToken" | "user" | "employee" | "court" | "district" | "courtEligibility" | "shiftCapacityRule" | "schedulingPeriod" | "availability" | "availabilityEntry" | "schedule" | "shiftAssignment" | "scheduleWarning" | "fairnessRecord" | "systemConfig"
+    modelProps: "account" | "session" | "verificationToken" | "user" | "employee" | "court" | "region" | "courtEligibility" | "courtShiftRule" | "schedulingPeriod" | "availability" | "availabilityEntry" | "schedule" | "shiftAssignment" | "scheduleWarning" | "fairnessRecord" | "systemConfig"
     txIsolationLevel: TransactionIsolationLevel
   }
   model: {
@@ -864,77 +864,77 @@ export type TypeMap<ExtArgs extends runtime.Types.Extensions.InternalArgs = runt
         }
       }
     }
-    District: {
-      payload: Prisma.$DistrictPayload<ExtArgs>
-      fields: Prisma.DistrictFieldRefs
+    Region: {
+      payload: Prisma.$RegionPayload<ExtArgs>
+      fields: Prisma.RegionFieldRefs
       operations: {
         findUnique: {
-          args: Prisma.DistrictFindUniqueArgs<ExtArgs>
-          result: runtime.Types.Utils.PayloadToResult<Prisma.$DistrictPayload> | null
+          args: Prisma.RegionFindUniqueArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$RegionPayload> | null
         }
         findUniqueOrThrow: {
-          args: Prisma.DistrictFindUniqueOrThrowArgs<ExtArgs>
-          result: runtime.Types.Utils.PayloadToResult<Prisma.$DistrictPayload>
+          args: Prisma.RegionFindUniqueOrThrowArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$RegionPayload>
         }
         findFirst: {
-          args: Prisma.DistrictFindFirstArgs<ExtArgs>
-          result: runtime.Types.Utils.PayloadToResult<Prisma.$DistrictPayload> | null
+          args: Prisma.RegionFindFirstArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$RegionPayload> | null
         }
         findFirstOrThrow: {
-          args: Prisma.DistrictFindFirstOrThrowArgs<ExtArgs>
-          result: runtime.Types.Utils.PayloadToResult<Prisma.$DistrictPayload>
+          args: Prisma.RegionFindFirstOrThrowArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$RegionPayload>
         }
         findMany: {
-          args: Prisma.DistrictFindManyArgs<ExtArgs>
-          result: runtime.Types.Utils.PayloadToResult<Prisma.$DistrictPayload>[]
+          args: Prisma.RegionFindManyArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$RegionPayload>[]
         }
         create: {
-          args: Prisma.DistrictCreateArgs<ExtArgs>
-          result: runtime.Types.Utils.PayloadToResult<Prisma.$DistrictPayload>
+          args: Prisma.RegionCreateArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$RegionPayload>
         }
         createMany: {
-          args: Prisma.DistrictCreateManyArgs<ExtArgs>
+          args: Prisma.RegionCreateManyArgs<ExtArgs>
           result: BatchPayload
         }
         createManyAndReturn: {
-          args: Prisma.DistrictCreateManyAndReturnArgs<ExtArgs>
-          result: runtime.Types.Utils.PayloadToResult<Prisma.$DistrictPayload>[]
+          args: Prisma.RegionCreateManyAndReturnArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$RegionPayload>[]
         }
         delete: {
-          args: Prisma.DistrictDeleteArgs<ExtArgs>
-          result: runtime.Types.Utils.PayloadToResult<Prisma.$DistrictPayload>
+          args: Prisma.RegionDeleteArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$RegionPayload>
         }
         update: {
-          args: Prisma.DistrictUpdateArgs<ExtArgs>
-          result: runtime.Types.Utils.PayloadToResult<Prisma.$DistrictPayload>
+          args: Prisma.RegionUpdateArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$RegionPayload>
         }
         deleteMany: {
-          args: Prisma.DistrictDeleteManyArgs<ExtArgs>
+          args: Prisma.RegionDeleteManyArgs<ExtArgs>
           result: BatchPayload
         }
         updateMany: {
-          args: Prisma.DistrictUpdateManyArgs<ExtArgs>
+          args: Prisma.RegionUpdateManyArgs<ExtArgs>
           result: BatchPayload
         }
         updateManyAndReturn: {
-          args: Prisma.DistrictUpdateManyAndReturnArgs<ExtArgs>
-          result: runtime.Types.Utils.PayloadToResult<Prisma.$DistrictPayload>[]
+          args: Prisma.RegionUpdateManyAndReturnArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$RegionPayload>[]
         }
         upsert: {
-          args: Prisma.DistrictUpsertArgs<ExtArgs>
-          result: runtime.Types.Utils.PayloadToResult<Prisma.$DistrictPayload>
+          args: Prisma.RegionUpsertArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$RegionPayload>
         }
         aggregate: {
-          args: Prisma.DistrictAggregateArgs<ExtArgs>
-          result: runtime.Types.Utils.Optional<Prisma.AggregateDistrict>
+          args: Prisma.RegionAggregateArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.AggregateRegion>
         }
         groupBy: {
-          args: Prisma.DistrictGroupByArgs<ExtArgs>
-          result: runtime.Types.Utils.Optional<Prisma.DistrictGroupByOutputType>[]
+          args: Prisma.RegionGroupByArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.RegionGroupByOutputType>[]
         }
         count: {
-          args: Prisma.DistrictCountArgs<ExtArgs>
-          result: runtime.Types.Utils.Optional<Prisma.DistrictCountAggregateOutputType> | number
+          args: Prisma.RegionCountArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.RegionCountAggregateOutputType> | number
         }
       }
     }
@@ -1012,77 +1012,77 @@ export type TypeMap<ExtArgs extends runtime.Types.Extensions.InternalArgs = runt
         }
       }
     }
-    ShiftCapacityRule: {
-      payload: Prisma.$ShiftCapacityRulePayload<ExtArgs>
-      fields: Prisma.ShiftCapacityRuleFieldRefs
+    CourtShiftRule: {
+      payload: Prisma.$CourtShiftRulePayload<ExtArgs>
+      fields: Prisma.CourtShiftRuleFieldRefs
       operations: {
         findUnique: {
-          args: Prisma.ShiftCapacityRuleFindUniqueArgs<ExtArgs>
-          result: runtime.Types.Utils.PayloadToResult<Prisma.$ShiftCapacityRulePayload> | null
+          args: Prisma.CourtShiftRuleFindUniqueArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$CourtShiftRulePayload> | null
         }
         findUniqueOrThrow: {
-          args: Prisma.ShiftCapacityRuleFindUniqueOrThrowArgs<ExtArgs>
-          result: runtime.Types.Utils.PayloadToResult<Prisma.$ShiftCapacityRulePayload>
+          args: Prisma.CourtShiftRuleFindUniqueOrThrowArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$CourtShiftRulePayload>
         }
         findFirst: {
-          args: Prisma.ShiftCapacityRuleFindFirstArgs<ExtArgs>
-          result: runtime.Types.Utils.PayloadToResult<Prisma.$ShiftCapacityRulePayload> | null
+          args: Prisma.CourtShiftRuleFindFirstArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$CourtShiftRulePayload> | null
         }
         findFirstOrThrow: {
-          args: Prisma.ShiftCapacityRuleFindFirstOrThrowArgs<ExtArgs>
-          result: runtime.Types.Utils.PayloadToResult<Prisma.$ShiftCapacityRulePayload>
+          args: Prisma.CourtShiftRuleFindFirstOrThrowArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$CourtShiftRulePayload>
         }
         findMany: {
-          args: Prisma.ShiftCapacityRuleFindManyArgs<ExtArgs>
-          result: runtime.Types.Utils.PayloadToResult<Prisma.$ShiftCapacityRulePayload>[]
+          args: Prisma.CourtShiftRuleFindManyArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$CourtShiftRulePayload>[]
         }
         create: {
-          args: Prisma.ShiftCapacityRuleCreateArgs<ExtArgs>
-          result: runtime.Types.Utils.PayloadToResult<Prisma.$ShiftCapacityRulePayload>
+          args: Prisma.CourtShiftRuleCreateArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$CourtShiftRulePayload>
         }
         createMany: {
-          args: Prisma.ShiftCapacityRuleCreateManyArgs<ExtArgs>
+          args: Prisma.CourtShiftRuleCreateManyArgs<ExtArgs>
           result: BatchPayload
         }
         createManyAndReturn: {
-          args: Prisma.ShiftCapacityRuleCreateManyAndReturnArgs<ExtArgs>
-          result: runtime.Types.Utils.PayloadToResult<Prisma.$ShiftCapacityRulePayload>[]
+          args: Prisma.CourtShiftRuleCreateManyAndReturnArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$CourtShiftRulePayload>[]
         }
         delete: {
-          args: Prisma.ShiftCapacityRuleDeleteArgs<ExtArgs>
-          result: runtime.Types.Utils.PayloadToResult<Prisma.$ShiftCapacityRulePayload>
+          args: Prisma.CourtShiftRuleDeleteArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$CourtShiftRulePayload>
         }
         update: {
-          args: Prisma.ShiftCapacityRuleUpdateArgs<ExtArgs>
-          result: runtime.Types.Utils.PayloadToResult<Prisma.$ShiftCapacityRulePayload>
+          args: Prisma.CourtShiftRuleUpdateArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$CourtShiftRulePayload>
         }
         deleteMany: {
-          args: Prisma.ShiftCapacityRuleDeleteManyArgs<ExtArgs>
+          args: Prisma.CourtShiftRuleDeleteManyArgs<ExtArgs>
           result: BatchPayload
         }
         updateMany: {
-          args: Prisma.ShiftCapacityRuleUpdateManyArgs<ExtArgs>
+          args: Prisma.CourtShiftRuleUpdateManyArgs<ExtArgs>
           result: BatchPayload
         }
         updateManyAndReturn: {
-          args: Prisma.ShiftCapacityRuleUpdateManyAndReturnArgs<ExtArgs>
-          result: runtime.Types.Utils.PayloadToResult<Prisma.$ShiftCapacityRulePayload>[]
+          args: Prisma.CourtShiftRuleUpdateManyAndReturnArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$CourtShiftRulePayload>[]
         }
         upsert: {
-          args: Prisma.ShiftCapacityRuleUpsertArgs<ExtArgs>
-          result: runtime.Types.Utils.PayloadToResult<Prisma.$ShiftCapacityRulePayload>
+          args: Prisma.CourtShiftRuleUpsertArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$CourtShiftRulePayload>
         }
         aggregate: {
-          args: Prisma.ShiftCapacityRuleAggregateArgs<ExtArgs>
-          result: runtime.Types.Utils.Optional<Prisma.AggregateShiftCapacityRule>
+          args: Prisma.CourtShiftRuleAggregateArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.AggregateCourtShiftRule>
         }
         groupBy: {
-          args: Prisma.ShiftCapacityRuleGroupByArgs<ExtArgs>
-          result: runtime.Types.Utils.Optional<Prisma.ShiftCapacityRuleGroupByOutputType>[]
+          args: Prisma.CourtShiftRuleGroupByArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.CourtShiftRuleGroupByOutputType>[]
         }
         count: {
-          args: Prisma.ShiftCapacityRuleCountArgs<ExtArgs>
-          result: runtime.Types.Utils.Optional<Prisma.ShiftCapacityRuleCountAggregateOutputType> | number
+          args: Prisma.CourtShiftRuleCountArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.CourtShiftRuleCountAggregateOutputType> | number
         }
       }
     }
@@ -1757,7 +1757,6 @@ export type VerificationTokenScalarFieldEnum = (typeof VerificationTokenScalarFi
 export const UserScalarFieldEnum = {
   id: 'id',
   email: 'email',
-  employeeNumber: 'employeeNumber',
   passwordHash: 'passwordHash',
   systemRole: 'systemRole',
   isActive: 'isActive',
@@ -1772,7 +1771,6 @@ export type UserScalarFieldEnum = (typeof UserScalarFieldEnum)[keyof typeof User
 
 export const EmployeeScalarFieldEnum = {
   id: 'id',
-  employeeCode: 'employeeCode',
   name: 'name',
   phone: 'phone',
   position: 'position',
@@ -1789,7 +1787,7 @@ export const CourtScalarFieldEnum = {
   id: 'id',
   name: 'name',
   code: 'code',
-  districtId: 'districtId',
+  regionId: 'regionId',
   isActive: 'isActive',
   createdAt: 'createdAt',
   updatedAt: 'updatedAt'
@@ -1798,7 +1796,7 @@ export const CourtScalarFieldEnum = {
 export type CourtScalarFieldEnum = (typeof CourtScalarFieldEnum)[keyof typeof CourtScalarFieldEnum]
 
 
-export const DistrictScalarFieldEnum = {
+export const RegionScalarFieldEnum = {
   id: 'id',
   name: 'name',
   code: 'code',
@@ -1807,7 +1805,7 @@ export const DistrictScalarFieldEnum = {
   updatedAt: 'updatedAt'
 } as const
 
-export type DistrictScalarFieldEnum = (typeof DistrictScalarFieldEnum)[keyof typeof DistrictScalarFieldEnum]
+export type RegionScalarFieldEnum = (typeof RegionScalarFieldEnum)[keyof typeof RegionScalarFieldEnum]
 
 
 export const CourtEligibilityScalarFieldEnum = {
@@ -1821,18 +1819,19 @@ export const CourtEligibilityScalarFieldEnum = {
 export type CourtEligibilityScalarFieldEnum = (typeof CourtEligibilityScalarFieldEnum)[keyof typeof CourtEligibilityScalarFieldEnum]
 
 
-export const ShiftCapacityRuleScalarFieldEnum = {
+export const CourtShiftRuleScalarFieldEnum = {
   id: 'id',
   courtId: 'courtId',
   shiftType: 'shiftType',
-  dayOfWeek: 'dayOfWeek',
-  minStaff: 'minStaff',
-  maxStaff: 'maxStaff',
+  dayCategory: 'dayCategory',
+  position: 'position',
+  requiredCount: 'requiredCount',
+  displayOrder: 'displayOrder',
   createdAt: 'createdAt',
   updatedAt: 'updatedAt'
 } as const
 
-export type ShiftCapacityRuleScalarFieldEnum = (typeof ShiftCapacityRuleScalarFieldEnum)[keyof typeof ShiftCapacityRuleScalarFieldEnum]
+export type CourtShiftRuleScalarFieldEnum = (typeof CourtShiftRuleScalarFieldEnum)[keyof typeof CourtShiftRuleScalarFieldEnum]
 
 
 export const SchedulingPeriodScalarFieldEnum = {
@@ -1898,6 +1897,8 @@ export const ShiftAssignmentScalarFieldEnum = {
   courtId: 'courtId',
   date: 'date',
   shiftType: 'shiftType',
+  position: 'position',
+  slotIndex: 'slotIndex',
   isOpeningDuty: 'isOpeningDuty',
   isManualOverride: 'isManualOverride',
   createdAt: 'createdAt',
@@ -2089,6 +2090,20 @@ export type ListEnumShiftTypeFieldRefInput<$PrismaModel> = FieldRefInputType<$Pr
 
 
 /**
+ * Reference to a field of type 'DayCategory'
+ */
+export type EnumDayCategoryFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'DayCategory'>
+    
+
+
+/**
+ * Reference to a field of type 'DayCategory[]'
+ */
+export type ListEnumDayCategoryFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'DayCategory[]'>
+    
+
+
+/**
  * Reference to a field of type 'PeriodStatus'
  */
 export type EnumPeriodStatusFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'PeriodStatus'>
@@ -2272,9 +2287,9 @@ export type GlobalOmitConfig = {
   user?: Prisma.UserOmit
   employee?: Prisma.EmployeeOmit
   court?: Prisma.CourtOmit
-  district?: Prisma.DistrictOmit
+  region?: Prisma.RegionOmit
   courtEligibility?: Prisma.CourtEligibilityOmit
-  shiftCapacityRule?: Prisma.ShiftCapacityRuleOmit
+  courtShiftRule?: Prisma.CourtShiftRuleOmit
   schedulingPeriod?: Prisma.SchedulingPeriodOmit
   availability?: Prisma.AvailabilityOmit
   availabilityEntry?: Prisma.AvailabilityEntryOmit

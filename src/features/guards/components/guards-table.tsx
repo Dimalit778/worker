@@ -91,7 +91,6 @@ export function GuardsTable({ guards }: { guards: GuardRow[] }) {
               <th className="px-4 py-3 font-medium border-b border-border w-10">#</th>
               <th className="px-4 py-3 font-medium border-b border-border">שם</th>
               <th className="px-4 py-3 font-medium border-b border-border">תפקיד</th>
-              <th className="px-4 py-3 font-medium border-b border-border">מספר עובד</th>
               <th className="px-4 py-3 font-medium border-b border-border">סטטוס</th>
               <th className="px-4 py-3 border-b border-border w-16"></th>
             </tr>
@@ -99,7 +98,7 @@ export function GuardsTable({ guards }: { guards: GuardRow[] }) {
           <tbody>
             {guards.length === 0 && (
               <tr>
-                <td colSpan={6} className="px-4 py-8 text-center text-muted-foreground">
+                <td colSpan={5} className="px-4 py-8 text-center text-muted-foreground">
                   אין מאבטחים. לחץ על &quot;+ הוסף מאבטח&quot; להוספה.
                 </td>
               </tr>
@@ -118,9 +117,6 @@ export function GuardsTable({ guards }: { guards: GuardRow[] }) {
                   <span className={cn('text-xs px-2 py-0.5 rounded-full font-medium', POSITION_STYLE[guard.position])}>
                     {POSITION_HE[guard.position]}
                   </span>
-                </td>
-                <td className="px-4 py-3 font-mono text-muted-foreground" dir="ltr">
-                  {guard.employeeNumber ?? '—'}
                 </td>
                 <td className="px-4 py-3">
                   {guard.isActive

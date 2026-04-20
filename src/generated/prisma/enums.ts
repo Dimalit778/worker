@@ -37,6 +37,16 @@ export const ShiftType = {
 export type ShiftType = (typeof ShiftType)[keyof typeof ShiftType]
 
 
+export const DayCategory = {
+  WEEKDAY: 'WEEKDAY',
+  FRIDAY: 'FRIDAY',
+  SATURDAY: 'SATURDAY',
+  HOLIDAY: 'HOLIDAY'
+} as const
+
+export type DayCategory = (typeof DayCategory)[keyof typeof DayCategory]
+
+
 export const PeriodStatus = {
   DRAFT: 'DRAFT',
   OPEN_FOR_SUBMISSION: 'OPEN_FOR_SUBMISSION',

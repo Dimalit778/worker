@@ -1,6 +1,7 @@
 'use client';
 
 import { useState, useRef, useEffect } from 'react';
+import { createPortal } from 'react-dom';
 import { X } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import type { GuardSummary } from '../types';
@@ -8,24 +9,23 @@ import type { GuardSummary } from '../types';
 type Props = {
   guards: GuardSummary[];
   currentUserId: string | null;
+  anchorRect: DOMRect;
   onSelect: (guardId: string) => void;
   onRemove: () => void;
   onClose: () => void;
 };
 
-export function GuardPicker({ guards, currentUserId, onSelect, onRemove, onClose }: Props) {
+export function GuardPicker({ guards, currentUserId, anchorRect, onSelect, onRemove, onClose }: Props) {
   const [query, setQuery] = useState('');
   const inputRef = useRef<HTMLInputElement>(null);
   const panelRef = useRef<HTMLDivElement>(null);
 
   const filtered = query.trim() ? guards.filter((g) => g.name.includes(query.trim())) : guards;
 
-  // Auto-focus search input
   useEffect(() => {
     inputRef.current?.focus();
   }, []);
 
-  // Close on outside click
   useEffect(() => {
     function handleClick(e: MouseEvent) {
       if (panelRef.current && !panelRef.current.contains(e.target as Node)) {
@@ -36,7 +36,6 @@ export function GuardPicker({ guards, currentUserId, onSelect, onRemove, onClose
     return () => document.removeEventListener('mousedown', handleClick);
   }, [onClose]);
 
-  // Close on Escape
   useEffect(() => {
     function handleKey(e: KeyboardEvent) {
       if (e.key === 'Escape') onClose();
@@ -45,14 +44,13 @@ export function GuardPicker({ guards, currentUserId, onSelect, onRemove, onClose
     return () => document.removeEventListener('keydown', handleKey);
   }, [onClose]);
 
-  return (
+  const panel = (
     <div
       ref={panelRef}
-      className="absolute z-50 bg-white border border-border rounded-lg shadow-lg w-44 py-1"
-      style={{ top: '100%', right: 0 }}
+      className="fixed z-9999 bg-white border border-border rounded-lg shadow-lg w-full max-w-36 py-1"
+      style={{ top: anchorRect.bottom + 4, left: anchorRect.left }}
       dir="rtl"
     >
-      {/* Search */}
       <div className="px-2 pb-1 pt-1 border-b border-border">
         <input
           ref={inputRef}
@@ -63,7 +61,6 @@ export function GuardPicker({ guards, currentUserId, onSelect, onRemove, onClose
         />
       </div>
 
-      {/* Guard list */}
       <ul className="max-h-44 overflow-y-auto">
         {filtered.length === 0 && <li className="px-3 py-2 text-xs text-muted-foreground">לא נמצא</li>}
         {filtered.map((g) => (
@@ -80,7 +77,6 @@ export function GuardPicker({ guards, currentUserId, onSelect, onRemove, onClose
         ))}
       </ul>
 
-      {/* Remove option — only if cell is filled */}
       {currentUserId && (
         <div className="border-t border-border mt-1">
           <button
@@ -94,4 +90,6 @@ export function GuardPicker({ guards, currentUserId, onSelect, onRemove, onClose
       )}
     </div>
   );
+
+  return createPortal(panel, document.body);
 }

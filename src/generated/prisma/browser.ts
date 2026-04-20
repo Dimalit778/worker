@@ -34,7 +34,7 @@ export type Session = Prisma.SessionModel
 export type VerificationToken = Prisma.VerificationTokenModel
 /**
  * Model User
- * 
+ * * ─── Domain models ───────────────────────────────────────────────────────────
  */
 export type User = Prisma.UserModel
 /**
@@ -48,20 +48,20 @@ export type Employee = Prisma.EmployeeModel
  */
 export type Court = Prisma.CourtModel
 /**
- * Model District
+ * Model Region
  * 
  */
-export type District = Prisma.DistrictModel
+export type Region = Prisma.RegionModel
 /**
  * Model CourtEligibility
  * 
  */
 export type CourtEligibility = Prisma.CourtEligibilityModel
 /**
- * Model ShiftCapacityRule
+ * Model CourtShiftRule
  * 
  */
-export type ShiftCapacityRule = Prisma.ShiftCapacityRuleModel
+export type CourtShiftRule = Prisma.CourtShiftRuleModel
 /**
  * Model SchedulingPeriod
  * 

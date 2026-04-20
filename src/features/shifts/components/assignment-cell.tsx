@@ -1,29 +1,30 @@
 'use client';
 
-import { useState, useTransition } from 'react';
+import { useState, useTransition, useRef } from 'react';
 import { useRouter } from 'next/navigation';
 import { cn } from '@/lib/utils';
 import { GuardPicker } from './guard-picker';
-import { assignGuard, reassignGuard, removeAssignment } from '@/features/shibutz/actions';
+import { assignGuard, reassignGuard, removeAssignment } from '@/features/shifts/actions';
 import type { AssignmentSummary, GuardSummary, ShiftType } from '../types';
+import type { Position } from '@/generated/prisma/client';
 
 type Props = {
-  /** null = closed cell (Friday night / Saturday) */
-  closed: boolean;
+  closed?: boolean;
   assignment: AssignmentSummary | null;
   guards: GuardSummary[];
   scheduleId: string | null;
   periodId: string;
   courtId: string;
-  /** ISO date YYYY-MM-DD */
   date: string;
   shiftType: ShiftType;
+  position: Position;
+  slotIndex: number;
   isOpeningDuty: boolean;
   readonly?: boolean;
 };
 
 export function AssignmentCell({
-  closed,
+  closed = false,
   assignment,
   guards,
   scheduleId,
@@ -31,15 +32,19 @@ export function AssignmentCell({
   courtId,
   date,
   shiftType,
+  position,
+  slotIndex,
   isOpeningDuty,
   readonly = false,
 }: Props) {
   const router = useRouter();
   const [open, setOpen] = useState(false);
+  const [anchorRect, setAnchorRect] = useState<DOMRect | null>(null);
   const [pending, startTransition] = useTransition();
+  const tdRef = useRef<HTMLTableCellElement>(null);
 
   if (closed) {
-    return <td className="border border-border bg-black" />;
+    return <td className=" bg-black" />;
   }
 
   if (readonly) {
@@ -56,7 +61,7 @@ export function AssignmentCell({
       if (assignment) {
         await reassignGuard(assignment.id, guardId);
       } else {
-        await assignGuard({ scheduleId, periodId, userId: guardId, courtId, date, shiftType, isOpeningDuty });
+        await assignGuard({ scheduleId, periodId, userId: guardId, courtId, date, shiftType, position, slotIndex, isOpeningDuty });
       }
       router.refresh();
     });
@@ -73,6 +78,7 @@ export function AssignmentCell({
 
   return (
     <td
+      ref={tdRef}
       className={cn(
         'relative border border-border text-center text-xs cursor-pointer select-none transition-colors',
         'min-w-[62px] h-[26px] px-1',
@@ -80,14 +86,20 @@ export function AssignmentCell({
         pending && 'opacity-50 pointer-events-none',
         open && 'ring-2 ring-primary ring-inset',
       )}
-      onClick={() => setOpen((v) => !v)}
+      onClick={() => {
+        if (!open && tdRef.current) {
+          setAnchorRect(tdRef.current.getBoundingClientRect());
+        }
+        setOpen((v) => !v);
+      }}
     >
       <span className="truncate block max-w-[58px] mx-auto">{assignment?.userName ?? ''}</span>
 
-      {open && (
+      {open && anchorRect && (
         <GuardPicker
           guards={guards}
           currentUserId={assignment?.userId ?? null}
+          anchorRect={anchorRect}
           onSelect={handleSelect}
           onRemove={handleRemove}
           onClose={() => setOpen(false)}

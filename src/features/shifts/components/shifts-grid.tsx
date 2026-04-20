@@ -4,9 +4,9 @@ import { useState } from 'react';
 import { WeekNavigator } from './week-navigator';
 import { ShiftSection } from './shift-section';
 import { buildWeekDays } from '../utils';
-import type { ShibutzGridProps } from '../types';
+import type { ShiftsGridProps } from '../types';
 
-export function ShibutzGrid({
+export function ShiftsGrid({
   periodId,
   periodName,
   startDate,
@@ -16,7 +16,7 @@ export function ShibutzGrid({
   capacity,
   courtId,
   readonly = false,
-}: ShibutzGridProps) {
+}: ShiftsGridProps) {
   const [weekIndex, setWeekIndex] = useState(0);
   const weekDays = buildWeekDays(startDate, weekIndex);
 

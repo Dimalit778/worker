@@ -30,12 +30,7 @@ export const authOptions: NextAuthOptions = {
         if (!credentials?.identifier || !credentials?.password) return null;
 
         const user = await prisma.user.findFirst({
-          where: {
-            OR: [
-              { employeeNumber: credentials.identifier },
-              { email: credentials.identifier },
-            ],
-          },
+          where: { email: credentials.identifier },
           include: { employee: true },
         });
 
@@ -45,7 +40,7 @@ export const authOptions: NextAuthOptions = {
         if (!isValid) return null;
 
         const primaryCourtId = user.employee?.primaryCourtId ?? null;
-        const name = user.employee?.name ?? user.email ?? user.employeeNumber ?? '';
+        const name = user.employee?.name ?? user.email ?? '';
 
         return {
           id: user.id,
@@ -53,7 +48,6 @@ export const authOptions: NextAuthOptions = {
           name,
           systemRole: user.systemRole,
           primaryCourtId,
-          employeeNumber: user.employeeNumber ?? null,
           mustChangePassword: user.mustChangePassword,
         };
       },
@@ -64,7 +58,6 @@ export const authOptions: NextAuthOptions = {
       if (user) {
         token.systemRole = user.systemRole;
         token.primaryCourtId = user.primaryCourtId;
-        token.employeeNumber = user.employeeNumber;
         token.mustChangePassword = user.mustChangePassword;
       } else {
         const migrated = systemRoleFromLegacyJwt(token as { systemRole?: SystemRole; role?: unknown });
@@ -72,7 +65,6 @@ export const authOptions: NextAuthOptions = {
           token.systemRole = migrated;
         }
         if (token.mustChangePassword === undefined) token.mustChangePassword = false;
-        if (token.employeeNumber === undefined) token.employeeNumber = null;
       }
       return token;
     },
@@ -81,7 +73,6 @@ export const authOptions: NextAuthOptions = {
         session.user.id = token.sub;
         session.user.systemRole = token.systemRole;
         session.user.primaryCourtId = token.primaryCourtId;
-        session.user.employeeNumber = token.employeeNumber ?? null;
         session.user.mustChangePassword = token.mustChangePassword ?? false;
       }
       return session;

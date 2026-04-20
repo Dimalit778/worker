@@ -7,13 +7,15 @@ export function isClosedCell(dayOfWeek: number, shiftType: ShiftType): boolean {
   return false;
 }
 
-const MORNING_LABELS: Record<number, string> = { 0: 'אתמ״ש', 1: 'בקר', 2: 'בע״ת' };
-const EVENING_LABELS: Record<number, string> = { 0: 'אתמ״ש', 1: 'בקר' };
-const NIGHT_LABELS: Record<number, string> = { 0: 'בע״ת' };
+const MORNING_LABELS: Record<number, string> = { 0: 'אתמ״ש', 1: 'בקר', 2: 'בע״ת', 3: 'פתיחה' };
+const EVENING_LABELS: Record<number, string> = { 0: 'אתמ״ש', 1: 'בקר', 2: 'פתיחה' };
+const NIGHT_LABELS: Record<number, string> = { 0: 'בע״ת', 1: 'פתיחה' };
 
 export function getRowLabel(shiftType: ShiftType, slotIndex: number): string {
   const map = shiftType === 'MORNING' ? MORNING_LABELS : shiftType === 'EVENING' ? EVENING_LABELS : NIGHT_LABELS;
-  return map[slotIndex] ?? 'פתיחה';
+  if (map[slotIndex] !== undefined) return map[slotIndex];
+  const keys = Object.keys(map).map(Number).sort((a, b) => a - b);
+  return map[keys[keys.length - 1]] ?? '';
 }
 
 const HEB_LETTERS = ['א', 'ב', 'ג', 'ד', 'ה', 'ו', 'ש']; // index = dayOfWeek (0=Sun…6=Sat)

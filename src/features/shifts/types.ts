@@ -23,7 +23,18 @@ export type AssignmentMap = Record<string, AssignmentSummary[]>;
 /** Max slots to display per shift type */
 export type CapacityMap = { MORNING: number; EVENING: number; NIGHT: number };
 
-export type ShibutzGridProps = {
+/**
+ * Full capacity rules: default (all regular days), plus optional overrides
+ * for Friday (dayOfWeek=5) and Saturday (dayOfWeek=6).
+ * A value of 0 means that shift is closed on that day.
+ */
+export type FullCapacityRules = {
+  default: CapacityMap;
+  friday: CapacityMap;
+  saturday: CapacityMap;
+};
+
+export type ShiftsGridProps = {
   periodId: string;
   periodName: string;
   /** ISO date string YYYY-MM-DD */
@@ -33,13 +44,13 @@ export type ShibutzGridProps = {
   scheduleId: string | null;
   assignments: AssignmentMap;
   guards: GuardSummary[];
-  capacity: CapacityMap;
+  capacity: FullCapacityRules;
   /** Manager's court id — required for new assignments */
   courtId: string;
   /** When true: no clicks, no picker, view-only */
   readonly?: boolean;
 };
-export type ShibutzPageData =
+export type ShiftsPageData =
   | { found: false }
   | {
       found: true;
@@ -50,6 +61,6 @@ export type ShibutzPageData =
       scheduleId: string | null;
       assignments: AssignmentMap;
       guards: { id: string; name: string }[];
-      capacity: CapacityMap;
+      capacity: FullCapacityRules;
       courtId: string;
     };

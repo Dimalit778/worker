@@ -1,15 +1,15 @@
-import { ChevronLeft, ChevronRight } from 'lucide-react'
-import { cn } from '@/lib/utils'
+import { ChevronLeft, ChevronRight } from 'lucide-react';
+import { cn } from '@/lib/utils';
 
 type Props = {
-  weekIndex: number          // 0 or 1
-  onWeekChange: (w: number) => void
-  week0Label: string         // e.g. "22–28 מרץ"
-  week1Label: string         // e.g. "15–21 מרץ"
-}
+  weekIndex: number; // 0 or 1
+  onWeekChange: (w: number) => void;
+  week0Label: string; // e.g. "22–28 מרץ"
+  week1Label: string; // e.g. "15–21 מרץ"
+};
 
 export function WeekNavigator({ weekIndex, onWeekChange, week0Label, week1Label }: Props) {
-  const label = weekIndex === 0 ? week0Label : week1Label
+  const label = weekIndex === 0 ? week0Label : week1Label;
 
   return (
     <div className="flex justify-center mb-5" dir="rtl">
@@ -20,7 +20,7 @@ export function WeekNavigator({ weekIndex, onWeekChange, week0Label, week1Label 
           disabled={weekIndex === 0}
           className={cn(
             'flex items-center justify-center w-8 h-8 rounded-md border border-border bg-muted text-muted-foreground transition-colors',
-            weekIndex === 0 ? 'opacity-30 cursor-default' : 'hover:bg-accent'
+            weekIndex === 0 ? 'opacity-30 cursor-default' : 'hover:bg-accent',
           )}
           aria-label="שבוע א׳"
         >
@@ -41,7 +41,7 @@ export function WeekNavigator({ weekIndex, onWeekChange, week0Label, week1Label 
           disabled={weekIndex === 1}
           className={cn(
             'flex items-center justify-center w-8 h-8 rounded-md border border-border bg-muted text-muted-foreground transition-colors',
-            weekIndex === 1 ? 'opacity-30 cursor-default' : 'hover:bg-accent'
+            weekIndex === 1 ? 'opacity-30 cursor-default' : 'hover:bg-accent',
           )}
           aria-label="שבוע ב׳"
         >
@@ -49,5 +49,5 @@ export function WeekNavigator({ weekIndex, onWeekChange, week0Label, week1Label 
         </button>
       </div>
     </div>
-  )
+  );
 }

@@ -1,8 +1,8 @@
 import { requireSession } from '@/lib/auth-helpers';
 import { SystemRole } from '@/generated/prisma/client';
 import { prisma } from '@/lib/db/client';
-import { getShibutzPageData } from '@/features/shibutz/queries';
-import { ShibutzGrid } from '@/features/shibutz/components/shibutz-grid';
+import { getShiftsPageData } from '@/features/shifts/queries';
+import { ShiftsGrid } from '@/features/shifts/components/shifts-grid';
 import { Card, CardContent } from '@/components/ui/card';
 
 export default async function UserShibutzPage() {
@@ -14,7 +14,7 @@ export default async function UserShibutzPage() {
   });
   const courtId = employee?.primaryCourtId ?? '';
 
-  const data = await getShibutzPageData(courtId);
+  const data = await getShiftsPageData(courtId);
 
   if (!data.found) {
     return (
@@ -29,5 +29,5 @@ export default async function UserShibutzPage() {
     );
   }
 
-  return <ShibutzGrid {...data} readonly />;
+  return <ShiftsGrid {...data} readonly />;
 }

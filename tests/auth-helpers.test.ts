@@ -10,7 +10,6 @@ const makeSession = (systemRole: SystemRole): Session => ({
     email: 'test@test.com',
     systemRole,
     primaryCourtId: null,
-    employeeNumber: null,
     mustChangePassword: false,
   },
   expires: new Date(Date.now() + 86400_000).toISOString(),

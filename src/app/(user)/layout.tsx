@@ -6,7 +6,7 @@ import { LogoutButton } from '@/components/ui/logout-button';
 
 const userNavItems = [
   { href: '/user', label: '\u05e8\u05d0\u05e9\u05d9' },
-  { href: '/user/shibutz', label: '\u05e9\u05d9\u05d1\u05d5\u05e5' },
+  { href: '/user/shifts', label: 'שיבוץ' },
   { href: '/user/availability', label: '\u05d6\u05de\u05d9\u05e0\u05d5\u05ea' },
   { href: '/user/schedule', label: '\u05dc\u05d5\u05d7 \u05de\u05e9\u05de\u05e8\u05d5\u05ea' },
 ];

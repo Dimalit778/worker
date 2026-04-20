@@ -1,8 +1,13 @@
 import { prisma } from '@/lib/db/client';
 import { getCurrentSchedulingPeriod } from '@/features/schedules/actions';
-import type { AssignmentMap, CapacityMap, ShibutzPageData } from './types';
+import type { AssignmentMap, CapacityMap, FullCapacityRules, ShiftsPageData } from './types';
+import { DayCategory, ShiftType } from '@/generated/prisma/client';
 
 const DEFAULT_CAPACITY: CapacityMap = { MORNING: 15, EVENING: 6, NIGHT: 3 };
+/** Friday: same as default but NIGHT is closed (0) */
+const DEFAULT_FRIDAY: CapacityMap = { MORNING: 15, EVENING: 6, NIGHT: 0 };
+/** Saturday: all shifts closed (0) by default */
+const DEFAULT_SATURDAY: CapacityMap = { MORNING: 0, EVENING: 0, NIGHT: 0 };
 
 export function mergeCapacityRules(
   rules: { shiftType: 'MORNING' | 'EVENING' | 'NIGHT'; maxStaff: number }[],
@@ -15,19 +20,41 @@ export function mergeCapacityRules(
   return result;
 }
 
-export async function getCapacityRules(courtId: string): Promise<CapacityMap> {
-  if (!courtId) return { ...DEFAULT_CAPACITY };
-  const rows = await prisma.shiftCapacityRule.findMany({
-    where: { courtId, dayOfWeek: null },
-    select: { shiftType: true, maxStaff: true },
+export async function getFullCapacityRules(courtId: string): Promise<FullCapacityRules> {
+  if (!courtId) {
+    return { default: { ...DEFAULT_CAPACITY }, friday: { ...DEFAULT_FRIDAY }, saturday: { ...DEFAULT_SATURDAY } };
+  }
+
+  const rows = await prisma.courtShiftRule.findMany({
+    where: { courtId },
+    select: { shiftType: true, requiredCount: true, dayCategory: true },
   });
-  return mergeCapacityRules(rows, DEFAULT_CAPACITY);
+
+  function buildCapacityMap(category: DayCategory, defaults: CapacityMap): CapacityMap {
+    const filtered = rows.filter((r) => r.dayCategory === category);
+    // Sum requiredCount across all positions for each shiftType
+    const sums: Partial<Record<ShiftType, number>> = {};
+    for (const r of filtered) {
+      sums[r.shiftType] = (sums[r.shiftType] ?? 0) + r.requiredCount;
+    }
+    const sumsList = (Object.entries(sums) as [ShiftType, number][]).map(([shiftType, maxStaff]) => ({
+      shiftType,
+      maxStaff,
+    }));
+    return mergeCapacityRules(sumsList, defaults);
+  }
+
+  return {
+    default: buildCapacityMap(DayCategory.WEEKDAY, DEFAULT_CAPACITY),
+    friday: buildCapacityMap(DayCategory.FRIDAY, DEFAULT_FRIDAY),
+    saturday: buildCapacityMap(DayCategory.SATURDAY, DEFAULT_SATURDAY),
+  };
 }
 
-export async function getShibutzPageData(
+export async function getShiftsPageData(
   courtId: string,
   options: { includeGuards?: boolean } = {},
-): Promise<ShibutzPageData> {
+): Promise<ShiftsPageData> {
   const periodRow = await getCurrentSchedulingPeriod();
   if (!periodRow) return { found: false };
 
@@ -66,12 +93,7 @@ export async function getShibutzPageData(
         })
       : [];
 
-  const capacityRules = courtId ? await prisma.shiftCapacityRule.findMany({ where: { courtId } }) : [];
-
-  const capacity: CapacityMap = mergeCapacityRules(
-    capacityRules.filter((r) => r.dayOfWeek === null),
-    DEFAULT_CAPACITY,
-  );
+  const capacity = await getFullCapacityRules(courtId);
 
   return {
     found: true,
