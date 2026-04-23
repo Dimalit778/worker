@@ -1,75 +1,79 @@
-'use client'
+'use client';
 
-import { useState, useTransition } from 'react'
-import { useRouter } from 'next/navigation'
-import { Pencil, Trash2 } from 'lucide-react'
-import { cn } from '@/lib/utils'
-import { Position, type GuardRow } from '@/features/guards/types'
-import { deleteGuard } from '@/features/guards/actions'
-import { GuardModal } from './guard-modal'
+import { useState, useTransition } from 'react';
+import { useRouter } from 'next/navigation';
+import { Pencil, Trash2 } from 'lucide-react';
+import { cn } from '@/lib/utils';
+import { Position, type GuardRow } from '@/features/guards/types';
+import { deleteGuard } from '@/features/guards/actions';
+import { GuardModal } from './guard-modal';
 
-export type { GuardRow }
+export type { GuardRow };
 
 const POSITION_HE: Record<Position, string> = {
   GUARD: 'מאבטח',
   BAKAR: 'בקר',
   SHIFT_MANAGER: 'אחמ״ש',
   FACILITY_OFFICER: 'קצין מתקן',
-}
+};
 
 const POSITION_STYLE: Record<Position, string> = {
   SHIFT_MANAGER: 'bg-slate-800 text-white',
   BAKAR: 'bg-blue-100 text-blue-800',
   GUARD: 'bg-slate-100 text-slate-600',
   FACILITY_OFFICER: 'bg-orange-100 text-orange-800',
-}
+};
 
 type DeleteTarget = {
-  id: string
-  name: string
-  assignmentCount: number
-}
+  id: string;
+  name: string;
+  assignmentCount: number;
+};
 
 export function GuardsTable({ guards }: { guards: GuardRow[] }) {
-  const router = useRouter()
-  const [modalOpen, setModalOpen] = useState(false)
-  const [editingGuard, setEditingGuard] = useState<GuardRow | null>(null)
-  const [deleteTarget, setDeleteTarget] = useState<DeleteTarget | null>(null)
-  const [deletePending, startDeleteTransition] = useTransition()
+  const router = useRouter();
+  const [modalOpen, setModalOpen] = useState(false);
+  const [editingGuard, setEditingGuard] = useState<GuardRow | null>(null);
+  const [deleteTarget, setDeleteTarget] = useState<DeleteTarget | null>(null);
+  const [deletePending, startDeleteTransition] = useTransition();
 
   function openAdd() {
-    setEditingGuard(null)
-    setModalOpen(true)
+    setEditingGuard(null);
+    setModalOpen(true);
   }
 
   function openEdit(guard: GuardRow) {
-    setEditingGuard(guard)
-    setModalOpen(true)
+    setEditingGuard(guard);
+    setModalOpen(true);
   }
 
   function closeModal() {
-    setModalOpen(false)
-    setEditingGuard(null)
+    setModalOpen(false);
+    setEditingGuard(null);
   }
 
   function handleDeleteClick(guard: GuardRow) {
     startDeleteTransition(async () => {
-      const result = await deleteGuard({ employeeId: guard.id })
+      const result = await deleteGuard({ employeeId: guard.id });
       if ('needsConfirm' in result) {
-        setDeleteTarget({ id: guard.id, name: guard.name, assignmentCount: result.assignmentCount })
+        setDeleteTarget({
+          id: guard.id,
+          name: guard.firstName + ' ' + guard.lastName,
+          assignmentCount: result.assignmentCount,
+        });
       } else if ('ok' in result) {
-        router.refresh()
+        router.refresh();
       }
-    })
+    });
   }
 
   function handleForceDelete() {
-    if (!deleteTarget) return
+    if (!deleteTarget) return;
     startDeleteTransition(async () => {
-      await deleteGuard({ employeeId: deleteTarget.id, force: true })
-      setDeleteTarget(null)
-      router.refresh()
-    })
+      await deleteGuard({ employeeId: deleteTarget.id, force: true });
+      setDeleteTarget(null);
+      router.refresh();
+    });
   }
 
   return (
@@ -112,17 +116,24 @@ export function GuardsTable({ guards }: { guards: GuardRow[] }) {
                 )}
               >
                 <td className="px-4 py-3 text-muted-foreground">{i + 1}</td>
-                <td className="px-4 py-3 font-medium">{guard.name}</td>
+                <td className="px-4 py-3 font-medium">
+                  {guard.firstName} {guard.lastName}
+                </td>
                 <td className="px-4 py-3">
                   <span className={cn('text-xs px-2 py-0.5 rounded-full font-medium', POSITION_STYLE[guard.position])}>
                     {POSITION_HE[guard.position]}
                   </span>
                 </td>
                 <td className="px-4 py-3">
-                  {guard.isActive
-                    ? <span className="text-xs px-2 py-0.5 rounded-full bg-green-100 text-green-800 font-medium">פעיל</span>
-                    : <span className="text-xs px-2 py-0.5 rounded-full bg-slate-100 text-slate-600 font-medium">לא פעיל</span>
-                  }
+                  {guard.isActive ? (
+                    <span className="text-xs px-2 py-0.5 rounded-full bg-green-100 text-green-800 font-medium">
+                      פעיל
+                    </span>
+                  ) : (
+                    <span className="text-xs px-2 py-0.5 rounded-full bg-slate-100 text-slate-600 font-medium">
+                      לא פעיל
+                    </span>
+                  )}
                 </td>
                 <td className="px-4 py-3">
                   <div className="flex items-center gap-2 justify-end">
@@ -176,5 +187,5 @@ export function GuardsTable({ guards }: { guards: GuardRow[] }) {
         </div>
       )}
     </div>
-  )
+  );
 }

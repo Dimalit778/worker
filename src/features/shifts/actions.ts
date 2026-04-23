@@ -2,7 +2,7 @@
 
 import { revalidatePath } from 'next/cache';
 import { prisma } from '@/lib/db/client';
-import { requireSession } from '@/lib/auth-helpers';
+import { requireSession } from '@/lib/db/auth-helpers';
 import { DayCategory, Position, ShiftType, SystemRole } from '@/generated/prisma/client';
 import { parseISODateToUtcMidnight } from '@/features/schedules/utils';
 import type { CapacityMap, FullCapacityRules } from './types';
@@ -24,7 +24,17 @@ type AssignGuardParams = {
 export async function assignGuard(params: AssignGuardParams): Promise<{ scheduleId: string }> {
   const session = await requireSession(SystemRole.MANAGER);
 
-  const { scheduleId: incomingScheduleId, periodId, userId, courtId, date, shiftType, position, slotIndex, isOpeningDuty } = params;
+  const {
+    scheduleId: incomingScheduleId,
+    periodId,
+    userId,
+    courtId,
+    date,
+    shiftType,
+    position,
+    slotIndex,
+    isOpeningDuty,
+  } = params;
 
   let scheduleId = incomingScheduleId;
 
@@ -39,7 +49,6 @@ export async function assignGuard(params: AssignGuardParams): Promise<{ schedule
     data: {
       scheduleId,
       employeeId: userId,
-      courtId,
       date: parseISODateToUtcMidnight(date),
       shiftType,
       position,
@@ -74,7 +83,7 @@ export async function removeAssignment(assignmentId: string): Promise<void> {
 
 export async function upsertCapacityRules(rules: FullCapacityRules): Promise<{ ok: true } | { error: string }> {
   const session = await requireSession(SystemRole.MANAGER);
-  const courtId = session.user.primaryCourtId;
+  const courtId = session.user.courtId;
   if (!courtId) return { error: 'למנהל אין בית משפט משויך' };
 
   const shiftKeys: (keyof CapacityMap)[] = ['MORNING', 'EVENING', 'NIGHT'];

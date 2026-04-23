@@ -14,7 +14,7 @@ import type * as Prisma from "../internal/prismaNamespace"
 
 /**
  * Model User
- * * ─── Domain models ───────────────────────────────────────────────────────────
+ * 
  */
 export type UserModel = runtime.Types.Result.DefaultSelection<Prisma.$UserPayload>
 
@@ -29,7 +29,6 @@ export type UserMinAggregateOutputType = {
   email: string | null
   passwordHash: string | null
   systemRole: $Enums.SystemRole | null
-  isActive: boolean | null
   mustChangePassword: boolean | null
   employeeId: string | null
   createdAt: Date | null
@@ -41,7 +40,6 @@ export type UserMaxAggregateOutputType = {
   email: string | null
   passwordHash: string | null
   systemRole: $Enums.SystemRole | null
-  isActive: boolean | null
   mustChangePassword: boolean | null
   employeeId: string | null
   createdAt: Date | null
@@ -53,7 +51,6 @@ export type UserCountAggregateOutputType = {
   email: number
   passwordHash: number
   systemRole: number
-  isActive: number
   mustChangePassword: number
   employeeId: number
   createdAt: number
@@ -67,7 +64,6 @@ export type UserMinAggregateInputType = {
   email?: true
   passwordHash?: true
   systemRole?: true
-  isActive?: true
   mustChangePassword?: true
   employeeId?: true
   createdAt?: true
@@ -79,7 +75,6 @@ export type UserMaxAggregateInputType = {
   email?: true
   passwordHash?: true
   systemRole?: true
-  isActive?: true
   mustChangePassword?: true
   employeeId?: true
   createdAt?: true
@@ -91,7 +86,6 @@ export type UserCountAggregateInputType = {
   email?: true
   passwordHash?: true
   systemRole?: true
-  isActive?: true
   mustChangePassword?: true
   employeeId?: true
   createdAt?: true
@@ -173,10 +167,9 @@ export type UserGroupByArgs<ExtArgs extends runtime.Types.Extensions.InternalArg
 
 export type UserGroupByOutputType = {
   id: string
-  email: string | null
+  email: string
   passwordHash: string
   systemRole: $Enums.SystemRole
-  isActive: boolean
   mustChangePassword: boolean
   employeeId: string | null
   createdAt: Date
@@ -206,10 +199,9 @@ export type UserWhereInput = {
   OR?: Prisma.UserWhereInput[]
   NOT?: Prisma.UserWhereInput | Prisma.UserWhereInput[]
   id?: Prisma.StringFilter<"User"> | string
-  email?: Prisma.StringNullableFilter<"User"> | string | null
+  email?: Prisma.StringFilter<"User"> | string
   passwordHash?: Prisma.StringFilter<"User"> | string
   systemRole?: Prisma.EnumSystemRoleFilter<"User"> | $Enums.SystemRole
-  isActive?: Prisma.BoolFilter<"User"> | boolean
   mustChangePassword?: Prisma.BoolFilter<"User"> | boolean
   employeeId?: Prisma.StringNullableFilter<"User"> | string | null
   createdAt?: Prisma.DateTimeFilter<"User"> | Date | string
@@ -217,17 +209,15 @@ export type UserWhereInput = {
   employee?: Prisma.XOR<Prisma.EmployeeNullableScalarRelationFilter, Prisma.EmployeeWhereInput> | null
   periodsCreated?: Prisma.SchedulingPeriodListRelationFilter
   schedulesGenerated?: Prisma.ScheduleListRelationFilter
-  warningActions?: Prisma.ScheduleWarningListRelationFilter
   accounts?: Prisma.AccountListRelationFilter
   sessions?: Prisma.SessionListRelationFilter
 }
 
 export type UserOrderByWithRelationInput = {
   id?: Prisma.SortOrder
-  email?: Prisma.SortOrderInput | Prisma.SortOrder
+  email?: Prisma.SortOrder
   passwordHash?: Prisma.SortOrder
   systemRole?: Prisma.SortOrder
-  isActive?: Prisma.SortOrder
   mustChangePassword?: Prisma.SortOrder
   employeeId?: Prisma.SortOrderInput | Prisma.SortOrder
   createdAt?: Prisma.SortOrder
@@ -235,7 +225,6 @@ export type UserOrderByWithRelationInput = {
   employee?: Prisma.EmployeeOrderByWithRelationInput
   periodsCreated?: Prisma.SchedulingPeriodOrderByRelationAggregateInput
   schedulesGenerated?: Prisma.ScheduleOrderByRelationAggregateInput
-  warningActions?: Prisma.ScheduleWarningOrderByRelationAggregateInput
   accounts?: Prisma.AccountOrderByRelationAggregateInput
   sessions?: Prisma.SessionOrderByRelationAggregateInput
 }
@@ -249,24 +238,21 @@ export type UserWhereUniqueInput = Prisma.AtLeast<{
   NOT?: Prisma.UserWhereInput | Prisma.UserWhereInput[]
   passwordHash?: Prisma.StringFilter<"User"> | string
   systemRole?: Prisma.EnumSystemRoleFilter<"User"> | $Enums.SystemRole
-  isActive?: Prisma.BoolFilter<"User"> | boolean
   mustChangePassword?: Prisma.BoolFilter<"User"> | boolean
   createdAt?: Prisma.DateTimeFilter<"User"> | Date | string
   updatedAt?: Prisma.DateTimeFilter<"User"> | Date | string
   employee?: Prisma.XOR<Prisma.EmployeeNullableScalarRelationFilter, Prisma.EmployeeWhereInput> | null
   periodsCreated?: Prisma.SchedulingPeriodListRelationFilter
   schedulesGenerated?: Prisma.ScheduleListRelationFilter
-  warningActions?: Prisma.ScheduleWarningListRelationFilter
   accounts?: Prisma.AccountListRelationFilter
   sessions?: Prisma.SessionListRelationFilter
 }, "id" | "email" | "employeeId">
 
 export type UserOrderByWithAggregationInput = {
   id?: Prisma.SortOrder
-  email?: Prisma.SortOrderInput | Prisma.SortOrder
+  email?: Prisma.SortOrder
   passwordHash?: Prisma.SortOrder
   systemRole?: Prisma.SortOrder
-  isActive?: Prisma.SortOrder
   mustChangePassword?: Prisma.SortOrder
   employeeId?: Prisma.SortOrderInput | Prisma.SortOrder
   createdAt?: Prisma.SortOrder
@@ -281,10 +267,9 @@ export type UserScalarWhereWithAggregatesInput = {
   OR?: Prisma.UserScalarWhereWithAggregatesInput[]
   NOT?: Prisma.UserScalarWhereWithAggregatesInput | Prisma.UserScalarWhereWithAggregatesInput[]
   id?: Prisma.StringWithAggregatesFilter<"User"> | string
-  email?: Prisma.StringNullableWithAggregatesFilter<"User"> | string | null
+  email?: Prisma.StringWithAggregatesFilter<"User"> | string
   passwordHash?: Prisma.StringWithAggregatesFilter<"User"> | string
   systemRole?: Prisma.EnumSystemRoleWithAggregatesFilter<"User"> | $Enums.SystemRole
-  isActive?: Prisma.BoolWithAggregatesFilter<"User"> | boolean
   mustChangePassword?: Prisma.BoolWithAggregatesFilter<"User"> | boolean
   employeeId?: Prisma.StringNullableWithAggregatesFilter<"User"> | string | null
   createdAt?: Prisma.DateTimeWithAggregatesFilter<"User"> | Date | string
@@ -293,78 +278,69 @@ export type UserScalarWhereWithAggregatesInput = {
 
 export type UserCreateInput = {
   id?: string
-  email?: string | null
+  email: string
   passwordHash: string
   systemRole?: $Enums.SystemRole
-  isActive?: boolean
   mustChangePassword?: boolean
   createdAt?: Date | string
   updatedAt?: Date | string
   employee?: Prisma.EmployeeCreateNestedOneWithoutUserInput
   periodsCreated?: Prisma.SchedulingPeriodCreateNestedManyWithoutCreatedByInput
   schedulesGenerated?: Prisma.ScheduleCreateNestedManyWithoutGeneratedByInput
-  warningActions?: Prisma.ScheduleWarningCreateNestedManyWithoutCreatedByInput
   accounts?: Prisma.AccountCreateNestedManyWithoutUserInput
   sessions?: Prisma.SessionCreateNestedManyWithoutUserInput
 }
 
 export type UserUncheckedCreateInput = {
   id?: string
-  email?: string | null
+  email: string
   passwordHash: string
   systemRole?: $Enums.SystemRole
-  isActive?: boolean
   mustChangePassword?: boolean
   employeeId?: string | null
   createdAt?: Date | string
   updatedAt?: Date | string
   periodsCreated?: Prisma.SchedulingPeriodUncheckedCreateNestedManyWithoutCreatedByInput
   schedulesGenerated?: Prisma.ScheduleUncheckedCreateNestedManyWithoutGeneratedByInput
-  warningActions?: Prisma.ScheduleWarningUncheckedCreateNestedManyWithoutCreatedByInput
   accounts?: Prisma.AccountUncheckedCreateNestedManyWithoutUserInput
   sessions?: Prisma.SessionUncheckedCreateNestedManyWithoutUserInput
 }
 
 export type UserUpdateInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
-  email?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  email?: Prisma.StringFieldUpdateOperationsInput | string
   passwordHash?: Prisma.StringFieldUpdateOperationsInput | string
   systemRole?: Prisma.EnumSystemRoleFieldUpdateOperationsInput | $Enums.SystemRole
-  isActive?: Prisma.BoolFieldUpdateOperationsInput | boolean
   mustChangePassword?: Prisma.BoolFieldUpdateOperationsInput | boolean
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   employee?: Prisma.EmployeeUpdateOneWithoutUserNestedInput
   periodsCreated?: Prisma.SchedulingPeriodUpdateManyWithoutCreatedByNestedInput
   schedulesGenerated?: Prisma.ScheduleUpdateManyWithoutGeneratedByNestedInput
-  warningActions?: Prisma.ScheduleWarningUpdateManyWithoutCreatedByNestedInput
   accounts?: Prisma.AccountUpdateManyWithoutUserNestedInput
   sessions?: Prisma.SessionUpdateManyWithoutUserNestedInput
 }
 
 export type UserUncheckedUpdateInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
-  email?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  email?: Prisma.StringFieldUpdateOperationsInput | string
   passwordHash?: Prisma.StringFieldUpdateOperationsInput | string
   systemRole?: Prisma.EnumSystemRoleFieldUpdateOperationsInput | $Enums.SystemRole
-  isActive?: Prisma.BoolFieldUpdateOperationsInput | boolean
   mustChangePassword?: Prisma.BoolFieldUpdateOperationsInput | boolean
   employeeId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   periodsCreated?: Prisma.SchedulingPeriodUncheckedUpdateManyWithoutCreatedByNestedInput
   schedulesGenerated?: Prisma.ScheduleUncheckedUpdateManyWithoutGeneratedByNestedInput
-  warningActions?: Prisma.ScheduleWarningUncheckedUpdateManyWithoutCreatedByNestedInput
   accounts?: Prisma.AccountUncheckedUpdateManyWithoutUserNestedInput
   sessions?: Prisma.SessionUncheckedUpdateManyWithoutUserNestedInput
 }
 
 export type UserCreateManyInput = {
   id?: string
-  email?: string | null
+  email: string
   passwordHash: string
   systemRole?: $Enums.SystemRole
-  isActive?: boolean
   mustChangePassword?: boolean
   employeeId?: string | null
   createdAt?: Date | string
@@ -373,10 +349,9 @@ export type UserCreateManyInput = {
 
 export type UserUpdateManyMutationInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
-  email?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  email?: Prisma.StringFieldUpdateOperationsInput | string
   passwordHash?: Prisma.StringFieldUpdateOperationsInput | string
   systemRole?: Prisma.EnumSystemRoleFieldUpdateOperationsInput | $Enums.SystemRole
-  isActive?: Prisma.BoolFieldUpdateOperationsInput | boolean
   mustChangePassword?: Prisma.BoolFieldUpdateOperationsInput | boolean
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
@@ -384,10 +359,9 @@ export type UserUpdateManyMutationInput = {
 
 export type UserUncheckedUpdateManyInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
-  email?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  email?: Prisma.StringFieldUpdateOperationsInput | string
   passwordHash?: Prisma.StringFieldUpdateOperationsInput | string
   systemRole?: Prisma.EnumSystemRoleFieldUpdateOperationsInput | $Enums.SystemRole
-  isActive?: Prisma.BoolFieldUpdateOperationsInput | boolean
   mustChangePassword?: Prisma.BoolFieldUpdateOperationsInput | boolean
   employeeId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
@@ -404,7 +378,6 @@ export type UserCountOrderByAggregateInput = {
   email?: Prisma.SortOrder
   passwordHash?: Prisma.SortOrder
   systemRole?: Prisma.SortOrder
-  isActive?: Prisma.SortOrder
   mustChangePassword?: Prisma.SortOrder
   employeeId?: Prisma.SortOrder
   createdAt?: Prisma.SortOrder
@@ -416,7 +389,6 @@ export type UserMaxOrderByAggregateInput = {
   email?: Prisma.SortOrder
   passwordHash?: Prisma.SortOrder
   systemRole?: Prisma.SortOrder
-  isActive?: Prisma.SortOrder
   mustChangePassword?: Prisma.SortOrder
   employeeId?: Prisma.SortOrder
   createdAt?: Prisma.SortOrder
@@ -428,7 +400,6 @@ export type UserMinOrderByAggregateInput = {
   email?: Prisma.SortOrder
   passwordHash?: Prisma.SortOrder
   systemRole?: Prisma.SortOrder
-  isActive?: Prisma.SortOrder
   mustChangePassword?: Prisma.SortOrder
   employeeId?: Prisma.SortOrder
   createdAt?: Prisma.SortOrder
@@ -536,51 +507,31 @@ export type UserUpdateOneRequiredWithoutSchedulesGeneratedNestedInput = {
   update?: Prisma.XOR<Prisma.XOR<Prisma.UserUpdateToOneWithWhereWithoutSchedulesGeneratedInput, Prisma.UserUpdateWithoutSchedulesGeneratedInput>, Prisma.UserUncheckedUpdateWithoutSchedulesGeneratedInput>
 }
 
-export type UserCreateNestedOneWithoutWarningActionsInput = {
-  create?: Prisma.XOR<Prisma.UserCreateWithoutWarningActionsInput, Prisma.UserUncheckedCreateWithoutWarningActionsInput>
-  connectOrCreate?: Prisma.UserCreateOrConnectWithoutWarningActionsInput
-  connect?: Prisma.UserWhereUniqueInput
-}
-
-export type UserUpdateOneWithoutWarningActionsNestedInput = {
-  create?: Prisma.XOR<Prisma.UserCreateWithoutWarningActionsInput, Prisma.UserUncheckedCreateWithoutWarningActionsInput>
-  connectOrCreate?: Prisma.UserCreateOrConnectWithoutWarningActionsInput
-  upsert?: Prisma.UserUpsertWithoutWarningActionsInput
-  disconnect?: Prisma.UserWhereInput | boolean
-  delete?: Prisma.UserWhereInput | boolean
-  connect?: Prisma.UserWhereUniqueInput
-  update?: Prisma.XOR<Prisma.XOR<Prisma.UserUpdateToOneWithWhereWithoutWarningActionsInput, Prisma.UserUpdateWithoutWarningActionsInput>, Prisma.UserUncheckedUpdateWithoutWarningActionsInput>
-}
-
 export type UserCreateWithoutAccountsInput = {
   id?: string
-  email?: string | null
+  email: string
   passwordHash: string
   systemRole?: $Enums.SystemRole
-  isActive?: boolean
   mustChangePassword?: boolean
   createdAt?: Date | string
   updatedAt?: Date | string
   employee?: Prisma.EmployeeCreateNestedOneWithoutUserInput
   periodsCreated?: Prisma.SchedulingPeriodCreateNestedManyWithoutCreatedByInput
   schedulesGenerated?: Prisma.ScheduleCreateNestedManyWithoutGeneratedByInput
-  warningActions?: Prisma.ScheduleWarningCreateNestedManyWithoutCreatedByInput
   sessions?: Prisma.SessionCreateNestedManyWithoutUserInput
 }
 
 export type UserUncheckedCreateWithoutAccountsInput = {
   id?: string
-  email?: string | null
+  email: string
   passwordHash: string
   systemRole?: $Enums.SystemRole
-  isActive?: boolean
   mustChangePassword?: boolean
   employeeId?: string | null
   createdAt?: Date | string
   updatedAt?: Date | string
   periodsCreated?: Prisma.SchedulingPeriodUncheckedCreateNestedManyWithoutCreatedByInput
   schedulesGenerated?: Prisma.ScheduleUncheckedCreateNestedManyWithoutGeneratedByInput
-  warningActions?: Prisma.ScheduleWarningUncheckedCreateNestedManyWithoutCreatedByInput
   sessions?: Prisma.SessionUncheckedCreateNestedManyWithoutUserInput
 }
 
@@ -602,65 +553,57 @@ export type UserUpdateToOneWithWhereWithoutAccountsInput = {
 
 export type UserUpdateWithoutAccountsInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
-  email?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  email?: Prisma.StringFieldUpdateOperationsInput | string
   passwordHash?: Prisma.StringFieldUpdateOperationsInput | string
   systemRole?: Prisma.EnumSystemRoleFieldUpdateOperationsInput | $Enums.SystemRole
-  isActive?: Prisma.BoolFieldUpdateOperationsInput | boolean
   mustChangePassword?: Prisma.BoolFieldUpdateOperationsInput | boolean
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   employee?: Prisma.EmployeeUpdateOneWithoutUserNestedInput
   periodsCreated?: Prisma.SchedulingPeriodUpdateManyWithoutCreatedByNestedInput
   schedulesGenerated?: Prisma.ScheduleUpdateManyWithoutGeneratedByNestedInput
-  warningActions?: Prisma.ScheduleWarningUpdateManyWithoutCreatedByNestedInput
   sessions?: Prisma.SessionUpdateManyWithoutUserNestedInput
 }
 
 export type UserUncheckedUpdateWithoutAccountsInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
-  email?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  email?: Prisma.StringFieldUpdateOperationsInput | string
   passwordHash?: Prisma.StringFieldUpdateOperationsInput | string
   systemRole?: Prisma.EnumSystemRoleFieldUpdateOperationsInput | $Enums.SystemRole
-  isActive?: Prisma.BoolFieldUpdateOperationsInput | boolean
   mustChangePassword?: Prisma.BoolFieldUpdateOperationsInput | boolean
   employeeId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   periodsCreated?: Prisma.SchedulingPeriodUncheckedUpdateManyWithoutCreatedByNestedInput
   schedulesGenerated?: Prisma.ScheduleUncheckedUpdateManyWithoutGeneratedByNestedInput
-  warningActions?: Prisma.ScheduleWarningUncheckedUpdateManyWithoutCreatedByNestedInput
   sessions?: Prisma.SessionUncheckedUpdateManyWithoutUserNestedInput
 }
 
 export type UserCreateWithoutSessionsInput = {
   id?: string
-  email?: string | null
+  email: string
   passwordHash: string
   systemRole?: $Enums.SystemRole
-  isActive?: boolean
   mustChangePassword?: boolean
   createdAt?: Date | string
   updatedAt?: Date | string
   employee?: Prisma.EmployeeCreateNestedOneWithoutUserInput
   periodsCreated?: Prisma.SchedulingPeriodCreateNestedManyWithoutCreatedByInput
   schedulesGenerated?: Prisma.ScheduleCreateNestedManyWithoutGeneratedByInput
-  warningActions?: Prisma.ScheduleWarningCreateNestedManyWithoutCreatedByInput
   accounts?: Prisma.AccountCreateNestedManyWithoutUserInput
 }
 
 export type UserUncheckedCreateWithoutSessionsInput = {
   id?: string
-  email?: string | null
+  email: string
   passwordHash: string
   systemRole?: $Enums.SystemRole
-  isActive?: boolean
   mustChangePassword?: boolean
   employeeId?: string | null
   createdAt?: Date | string
   updatedAt?: Date | string
   periodsCreated?: Prisma.SchedulingPeriodUncheckedCreateNestedManyWithoutCreatedByInput
   schedulesGenerated?: Prisma.ScheduleUncheckedCreateNestedManyWithoutGeneratedByInput
-  warningActions?: Prisma.ScheduleWarningUncheckedCreateNestedManyWithoutCreatedByInput
   accounts?: Prisma.AccountUncheckedCreateNestedManyWithoutUserInput
 }
 
@@ -682,64 +625,56 @@ export type UserUpdateToOneWithWhereWithoutSessionsInput = {
 
 export type UserUpdateWithoutSessionsInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
-  email?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  email?: Prisma.StringFieldUpdateOperationsInput | string
   passwordHash?: Prisma.StringFieldUpdateOperationsInput | string
   systemRole?: Prisma.EnumSystemRoleFieldUpdateOperationsInput | $Enums.SystemRole
-  isActive?: Prisma.BoolFieldUpdateOperationsInput | boolean
   mustChangePassword?: Prisma.BoolFieldUpdateOperationsInput | boolean
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   employee?: Prisma.EmployeeUpdateOneWithoutUserNestedInput
   periodsCreated?: Prisma.SchedulingPeriodUpdateManyWithoutCreatedByNestedInput
   schedulesGenerated?: Prisma.ScheduleUpdateManyWithoutGeneratedByNestedInput
-  warningActions?: Prisma.ScheduleWarningUpdateManyWithoutCreatedByNestedInput
   accounts?: Prisma.AccountUpdateManyWithoutUserNestedInput
 }
 
 export type UserUncheckedUpdateWithoutSessionsInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
-  email?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  email?: Prisma.StringFieldUpdateOperationsInput | string
   passwordHash?: Prisma.StringFieldUpdateOperationsInput | string
   systemRole?: Prisma.EnumSystemRoleFieldUpdateOperationsInput | $Enums.SystemRole
-  isActive?: Prisma.BoolFieldUpdateOperationsInput | boolean
   mustChangePassword?: Prisma.BoolFieldUpdateOperationsInput | boolean
   employeeId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   periodsCreated?: Prisma.SchedulingPeriodUncheckedUpdateManyWithoutCreatedByNestedInput
   schedulesGenerated?: Prisma.ScheduleUncheckedUpdateManyWithoutGeneratedByNestedInput
-  warningActions?: Prisma.ScheduleWarningUncheckedUpdateManyWithoutCreatedByNestedInput
   accounts?: Prisma.AccountUncheckedUpdateManyWithoutUserNestedInput
 }
 
 export type UserCreateWithoutEmployeeInput = {
   id?: string
-  email?: string | null
+  email: string
   passwordHash: string
   systemRole?: $Enums.SystemRole
-  isActive?: boolean
   mustChangePassword?: boolean
   createdAt?: Date | string
   updatedAt?: Date | string
   periodsCreated?: Prisma.SchedulingPeriodCreateNestedManyWithoutCreatedByInput
   schedulesGenerated?: Prisma.ScheduleCreateNestedManyWithoutGeneratedByInput
-  warningActions?: Prisma.ScheduleWarningCreateNestedManyWithoutCreatedByInput
   accounts?: Prisma.AccountCreateNestedManyWithoutUserInput
   sessions?: Prisma.SessionCreateNestedManyWithoutUserInput
 }
 
 export type UserUncheckedCreateWithoutEmployeeInput = {
   id?: string
-  email?: string | null
+  email: string
   passwordHash: string
   systemRole?: $Enums.SystemRole
-  isActive?: boolean
   mustChangePassword?: boolean
   createdAt?: Date | string
   updatedAt?: Date | string
   periodsCreated?: Prisma.SchedulingPeriodUncheckedCreateNestedManyWithoutCreatedByInput
   schedulesGenerated?: Prisma.ScheduleUncheckedCreateNestedManyWithoutGeneratedByInput
-  warningActions?: Prisma.ScheduleWarningUncheckedCreateNestedManyWithoutCreatedByInput
   accounts?: Prisma.AccountUncheckedCreateNestedManyWithoutUserInput
   sessions?: Prisma.SessionUncheckedCreateNestedManyWithoutUserInput
 }
@@ -762,64 +697,56 @@ export type UserUpdateToOneWithWhereWithoutEmployeeInput = {
 
 export type UserUpdateWithoutEmployeeInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
-  email?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  email?: Prisma.StringFieldUpdateOperationsInput | string
   passwordHash?: Prisma.StringFieldUpdateOperationsInput | string
   systemRole?: Prisma.EnumSystemRoleFieldUpdateOperationsInput | $Enums.SystemRole
-  isActive?: Prisma.BoolFieldUpdateOperationsInput | boolean
   mustChangePassword?: Prisma.BoolFieldUpdateOperationsInput | boolean
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   periodsCreated?: Prisma.SchedulingPeriodUpdateManyWithoutCreatedByNestedInput
   schedulesGenerated?: Prisma.ScheduleUpdateManyWithoutGeneratedByNestedInput
-  warningActions?: Prisma.ScheduleWarningUpdateManyWithoutCreatedByNestedInput
   accounts?: Prisma.AccountUpdateManyWithoutUserNestedInput
   sessions?: Prisma.SessionUpdateManyWithoutUserNestedInput
 }
 
 export type UserUncheckedUpdateWithoutEmployeeInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
-  email?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  email?: Prisma.StringFieldUpdateOperationsInput | string
   passwordHash?: Prisma.StringFieldUpdateOperationsInput | string
   systemRole?: Prisma.EnumSystemRoleFieldUpdateOperationsInput | $Enums.SystemRole
-  isActive?: Prisma.BoolFieldUpdateOperationsInput | boolean
   mustChangePassword?: Prisma.BoolFieldUpdateOperationsInput | boolean
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   periodsCreated?: Prisma.SchedulingPeriodUncheckedUpdateManyWithoutCreatedByNestedInput
   schedulesGenerated?: Prisma.ScheduleUncheckedUpdateManyWithoutGeneratedByNestedInput
-  warningActions?: Prisma.ScheduleWarningUncheckedUpdateManyWithoutCreatedByNestedInput
   accounts?: Prisma.AccountUncheckedUpdateManyWithoutUserNestedInput
   sessions?: Prisma.SessionUncheckedUpdateManyWithoutUserNestedInput
 }
 
 export type UserCreateWithoutPeriodsCreatedInput = {
   id?: string
-  email?: string | null
+  email: string
   passwordHash: string
   systemRole?: $Enums.SystemRole
-  isActive?: boolean
   mustChangePassword?: boolean
   createdAt?: Date | string
   updatedAt?: Date | string
   employee?: Prisma.EmployeeCreateNestedOneWithoutUserInput
   schedulesGenerated?: Prisma.ScheduleCreateNestedManyWithoutGeneratedByInput
-  warningActions?: Prisma.ScheduleWarningCreateNestedManyWithoutCreatedByInput
   accounts?: Prisma.AccountCreateNestedManyWithoutUserInput
   sessions?: Prisma.SessionCreateNestedManyWithoutUserInput
 }
 
 export type UserUncheckedCreateWithoutPeriodsCreatedInput = {
   id?: string
-  email?: string | null
+  email: string
   passwordHash: string
   systemRole?: $Enums.SystemRole
-  isActive?: boolean
   mustChangePassword?: boolean
   employeeId?: string | null
   createdAt?: Date | string
   updatedAt?: Date | string
   schedulesGenerated?: Prisma.ScheduleUncheckedCreateNestedManyWithoutGeneratedByInput
-  warningActions?: Prisma.ScheduleWarningUncheckedCreateNestedManyWithoutCreatedByInput
   accounts?: Prisma.AccountUncheckedCreateNestedManyWithoutUserInput
   sessions?: Prisma.SessionUncheckedCreateNestedManyWithoutUserInput
 }
@@ -842,64 +769,56 @@ export type UserUpdateToOneWithWhereWithoutPeriodsCreatedInput = {
 
 export type UserUpdateWithoutPeriodsCreatedInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
-  email?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  email?: Prisma.StringFieldUpdateOperationsInput | string
   passwordHash?: Prisma.StringFieldUpdateOperationsInput | string
   systemRole?: Prisma.EnumSystemRoleFieldUpdateOperationsInput | $Enums.SystemRole
-  isActive?: Prisma.BoolFieldUpdateOperationsInput | boolean
   mustChangePassword?: Prisma.BoolFieldUpdateOperationsInput | boolean
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   employee?: Prisma.EmployeeUpdateOneWithoutUserNestedInput
   schedulesGenerated?: Prisma.ScheduleUpdateManyWithoutGeneratedByNestedInput
-  warningActions?: Prisma.ScheduleWarningUpdateManyWithoutCreatedByNestedInput
   accounts?: Prisma.AccountUpdateManyWithoutUserNestedInput
   sessions?: Prisma.SessionUpdateManyWithoutUserNestedInput
 }
 
 export type UserUncheckedUpdateWithoutPeriodsCreatedInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
-  email?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  email?: Prisma.StringFieldUpdateOperationsInput | string
   passwordHash?: Prisma.StringFieldUpdateOperationsInput | string
   systemRole?: Prisma.EnumSystemRoleFieldUpdateOperationsInput | $Enums.SystemRole
-  isActive?: Prisma.BoolFieldUpdateOperationsInput | boolean
   mustChangePassword?: Prisma.BoolFieldUpdateOperationsInput | boolean
   employeeId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   schedulesGenerated?: Prisma.ScheduleUncheckedUpdateManyWithoutGeneratedByNestedInput
-  warningActions?: Prisma.ScheduleWarningUncheckedUpdateManyWithoutCreatedByNestedInput
   accounts?: Prisma.AccountUncheckedUpdateManyWithoutUserNestedInput
   sessions?: Prisma.SessionUncheckedUpdateManyWithoutUserNestedInput
 }
 
 export type UserCreateWithoutSchedulesGeneratedInput = {
   id?: string
-  email?: string | null
+  email: string
   passwordHash: string
   systemRole?: $Enums.SystemRole
-  isActive?: boolean
   mustChangePassword?: boolean
   createdAt?: Date | string
   updatedAt?: Date | string
   employee?: Prisma.EmployeeCreateNestedOneWithoutUserInput
   periodsCreated?: Prisma.SchedulingPeriodCreateNestedManyWithoutCreatedByInput
-  warningActions?: Prisma.ScheduleWarningCreateNestedManyWithoutCreatedByInput
   accounts?: Prisma.AccountCreateNestedManyWithoutUserInput
   sessions?: Prisma.SessionCreateNestedManyWithoutUserInput
 }
 
 export type UserUncheckedCreateWithoutSchedulesGeneratedInput = {
   id?: string
-  email?: string | null
+  email: string
   passwordHash: string
   systemRole?: $Enums.SystemRole
-  isActive?: boolean
   mustChangePassword?: boolean
   employeeId?: string | null
   createdAt?: Date | string
   updatedAt?: Date | string
   periodsCreated?: Prisma.SchedulingPeriodUncheckedCreateNestedManyWithoutCreatedByInput
-  warningActions?: Prisma.ScheduleWarningUncheckedCreateNestedManyWithoutCreatedByInput
   accounts?: Prisma.AccountUncheckedCreateNestedManyWithoutUserInput
   sessions?: Prisma.SessionUncheckedCreateNestedManyWithoutUserInput
 }
@@ -922,112 +841,28 @@ export type UserUpdateToOneWithWhereWithoutSchedulesGeneratedInput = {
 
 export type UserUpdateWithoutSchedulesGeneratedInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
-  email?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  email?: Prisma.StringFieldUpdateOperationsInput | string
   passwordHash?: Prisma.StringFieldUpdateOperationsInput | string
   systemRole?: Prisma.EnumSystemRoleFieldUpdateOperationsInput | $Enums.SystemRole
-  isActive?: Prisma.BoolFieldUpdateOperationsInput | boolean
   mustChangePassword?: Prisma.BoolFieldUpdateOperationsInput | boolean
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   employee?: Prisma.EmployeeUpdateOneWithoutUserNestedInput
   periodsCreated?: Prisma.SchedulingPeriodUpdateManyWithoutCreatedByNestedInput
-  warningActions?: Prisma.ScheduleWarningUpdateManyWithoutCreatedByNestedInput
   accounts?: Prisma.AccountUpdateManyWithoutUserNestedInput
   sessions?: Prisma.SessionUpdateManyWithoutUserNestedInput
 }
 
 export type UserUncheckedUpdateWithoutSchedulesGeneratedInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
-  email?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  email?: Prisma.StringFieldUpdateOperationsInput | string
   passwordHash?: Prisma.StringFieldUpdateOperationsInput | string
   systemRole?: Prisma.EnumSystemRoleFieldUpdateOperationsInput | $Enums.SystemRole
-  isActive?: Prisma.BoolFieldUpdateOperationsInput | boolean
   mustChangePassword?: Prisma.BoolFieldUpdateOperationsInput | boolean
   employeeId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   periodsCreated?: Prisma.SchedulingPeriodUncheckedUpdateManyWithoutCreatedByNestedInput
-  warningActions?: Prisma.ScheduleWarningUncheckedUpdateManyWithoutCreatedByNestedInput
-  accounts?: Prisma.AccountUncheckedUpdateManyWithoutUserNestedInput
-  sessions?: Prisma.SessionUncheckedUpdateManyWithoutUserNestedInput
-}
-
-export type UserCreateWithoutWarningActionsInput = {
-  id?: string
-  email?: string | null
-  passwordHash: string
-  systemRole?: $Enums.SystemRole
-  isActive?: boolean
-  mustChangePassword?: boolean
-  createdAt?: Date | string
-  updatedAt?: Date | string
-  employee?: Prisma.EmployeeCreateNestedOneWithoutUserInput
-  periodsCreated?: Prisma.SchedulingPeriodCreateNestedManyWithoutCreatedByInput
-  schedulesGenerated?: Prisma.ScheduleCreateNestedManyWithoutGeneratedByInput
-  accounts?: Prisma.AccountCreateNestedManyWithoutUserInput
-  sessions?: Prisma.SessionCreateNestedManyWithoutUserInput
-}
-
-export type UserUncheckedCreateWithoutWarningActionsInput = {
-  id?: string
-  email?: string | null
-  passwordHash: string
-  systemRole?: $Enums.SystemRole
-  isActive?: boolean
-  mustChangePassword?: boolean
-  employeeId?: string | null
-  createdAt?: Date | string
-  updatedAt?: Date | string
-  periodsCreated?: Prisma.SchedulingPeriodUncheckedCreateNestedManyWithoutCreatedByInput
-  schedulesGenerated?: Prisma.ScheduleUncheckedCreateNestedManyWithoutGeneratedByInput
-  accounts?: Prisma.AccountUncheckedCreateNestedManyWithoutUserInput
-  sessions?: Prisma.SessionUncheckedCreateNestedManyWithoutUserInput
-}
-
-export type UserCreateOrConnectWithoutWarningActionsInput = {
-  where: Prisma.UserWhereUniqueInput
-  create: Prisma.XOR<Prisma.UserCreateWithoutWarningActionsInput, Prisma.UserUncheckedCreateWithoutWarningActionsInput>
-}
-
-export type UserUpsertWithoutWarningActionsInput = {
-  update: Prisma.XOR<Prisma.UserUpdateWithoutWarningActionsInput, Prisma.UserUncheckedUpdateWithoutWarningActionsInput>
-  create: Prisma.XOR<Prisma.UserCreateWithoutWarningActionsInput, Prisma.UserUncheckedCreateWithoutWarningActionsInput>
-  where?: Prisma.UserWhereInput
-}
-
-export type UserUpdateToOneWithWhereWithoutWarningActionsInput = {
-  where?: Prisma.UserWhereInput
-  data: Prisma.XOR<Prisma.UserUpdateWithoutWarningActionsInput, Prisma.UserUncheckedUpdateWithoutWarningActionsInput>
-}
-
-export type UserUpdateWithoutWarningActionsInput = {
-  id?: Prisma.StringFieldUpdateOperationsInput | string
-  email?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  passwordHash?: Prisma.StringFieldUpdateOperationsInput | string
-  systemRole?: Prisma.EnumSystemRoleFieldUpdateOperationsInput | $Enums.SystemRole
-  isActive?: Prisma.BoolFieldUpdateOperationsInput | boolean
-  mustChangePassword?: Prisma.BoolFieldUpdateOperationsInput | boolean
-  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
-  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
-  employee?: Prisma.EmployeeUpdateOneWithoutUserNestedInput
-  periodsCreated?: Prisma.SchedulingPeriodUpdateManyWithoutCreatedByNestedInput
-  schedulesGenerated?: Prisma.ScheduleUpdateManyWithoutGeneratedByNestedInput
-  accounts?: Prisma.AccountUpdateManyWithoutUserNestedInput
-  sessions?: Prisma.SessionUpdateManyWithoutUserNestedInput
-}
-
-export type UserUncheckedUpdateWithoutWarningActionsInput = {
-  id?: Prisma.StringFieldUpdateOperationsInput | string
-  email?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  passwordHash?: Prisma.StringFieldUpdateOperationsInput | string
-  systemRole?: Prisma.EnumSystemRoleFieldUpdateOperationsInput | $Enums.SystemRole
-  isActive?: Prisma.BoolFieldUpdateOperationsInput | boolean
-  mustChangePassword?: Prisma.BoolFieldUpdateOperationsInput | boolean
-  employeeId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
-  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
-  periodsCreated?: Prisma.SchedulingPeriodUncheckedUpdateManyWithoutCreatedByNestedInput
-  schedulesGenerated?: Prisma.ScheduleUncheckedUpdateManyWithoutGeneratedByNestedInput
   accounts?: Prisma.AccountUncheckedUpdateManyWithoutUserNestedInput
   sessions?: Prisma.SessionUncheckedUpdateManyWithoutUserNestedInput
 }
@@ -1040,7 +875,6 @@ export type UserUncheckedUpdateWithoutWarningActionsInput = {
 export type UserCountOutputType = {
   periodsCreated: number
   schedulesGenerated: number
-  warningActions: number
   accounts: number
   sessions: number
 }
@@ -1048,7 +882,6 @@ export type UserCountOutputType = {
 export type UserCountOutputTypeSelect<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
   periodsCreated?: boolean | UserCountOutputTypeCountPeriodsCreatedArgs
   schedulesGenerated?: boolean | UserCountOutputTypeCountSchedulesGeneratedArgs
-  warningActions?: boolean | UserCountOutputTypeCountWarningActionsArgs
   accounts?: boolean | UserCountOutputTypeCountAccountsArgs
   sessions?: boolean | UserCountOutputTypeCountSessionsArgs
 }
@@ -1080,13 +913,6 @@ export type UserCountOutputTypeCountSchedulesGeneratedArgs<ExtArgs extends runti
 /**
  * UserCountOutputType without action
  */
-export type UserCountOutputTypeCountWarningActionsArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
-  where?: Prisma.ScheduleWarningWhereInput
-}
-
-/**
- * UserCountOutputType without action
- */
 export type UserCountOutputTypeCountAccountsArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
   where?: Prisma.AccountWhereInput
 }
@@ -1104,7 +930,6 @@ export type UserSelect<ExtArgs extends runtime.Types.Extensions.InternalArgs = r
   email?: boolean
   passwordHash?: boolean
   systemRole?: boolean
-  isActive?: boolean
   mustChangePassword?: boolean
   employeeId?: boolean
   createdAt?: boolean
@@ -1112,7 +937,6 @@ export type UserSelect<ExtArgs extends runtime.Types.Extensions.InternalArgs = r
   employee?: boolean | Prisma.User$employeeArgs<ExtArgs>
   periodsCreated?: boolean | Prisma.User$periodsCreatedArgs<ExtArgs>
   schedulesGenerated?: boolean | Prisma.User$schedulesGeneratedArgs<ExtArgs>
-  warningActions?: boolean | Prisma.User$warningActionsArgs<ExtArgs>
   accounts?: boolean | Prisma.User$accountsArgs<ExtArgs>
   sessions?: boolean | Prisma.User$sessionsArgs<ExtArgs>
   _count?: boolean | Prisma.UserCountOutputTypeDefaultArgs<ExtArgs>
@@ -1123,7 +947,6 @@ export type UserSelectCreateManyAndReturn<ExtArgs extends runtime.Types.Extensio
   email?: boolean
   passwordHash?: boolean
   systemRole?: boolean
-  isActive?: boolean
   mustChangePassword?: boolean
   employeeId?: boolean
   createdAt?: boolean
@@ -1136,7 +959,6 @@ export type UserSelectUpdateManyAndReturn<ExtArgs extends runtime.Types.Extensio
   email?: boolean
   passwordHash?: boolean
   systemRole?: boolean
-  isActive?: boolean
   mustChangePassword?: boolean
   employeeId?: boolean
   createdAt?: boolean
@@ -1149,19 +971,17 @@ export type UserSelectScalar = {
   email?: boolean
   passwordHash?: boolean
   systemRole?: boolean
-  isActive?: boolean
   mustChangePassword?: boolean
   employeeId?: boolean
   createdAt?: boolean
   updatedAt?: boolean
 }
 
-export type UserOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"id" | "email" | "passwordHash" | "systemRole" | "isActive" | "mustChangePassword" | "employeeId" | "createdAt" | "updatedAt", ExtArgs["result"]["user"]>
+export type UserOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"id" | "email" | "passwordHash" | "systemRole" | "mustChangePassword" | "employeeId" | "createdAt" | "updatedAt", ExtArgs["result"]["user"]>
 export type UserInclude<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
   employee?: boolean | Prisma.User$employeeArgs<ExtArgs>
   periodsCreated?: boolean | Prisma.User$periodsCreatedArgs<ExtArgs>
   schedulesGenerated?: boolean | Prisma.User$schedulesGeneratedArgs<ExtArgs>
-  warningActions?: boolean | Prisma.User$warningActionsArgs<ExtArgs>
   accounts?: boolean | Prisma.User$accountsArgs<ExtArgs>
   sessions?: boolean | Prisma.User$sessionsArgs<ExtArgs>
   _count?: boolean | Prisma.UserCountOutputTypeDefaultArgs<ExtArgs>
@@ -1179,16 +999,14 @@ export type $UserPayload<ExtArgs extends runtime.Types.Extensions.InternalArgs =
     employee: Prisma.$EmployeePayload<ExtArgs> | null
     periodsCreated: Prisma.$SchedulingPeriodPayload<ExtArgs>[]
     schedulesGenerated: Prisma.$SchedulePayload<ExtArgs>[]
-    warningActions: Prisma.$ScheduleWarningPayload<ExtArgs>[]
     accounts: Prisma.$AccountPayload<ExtArgs>[]
     sessions: Prisma.$SessionPayload<ExtArgs>[]
   }
   scalars: runtime.Types.Extensions.GetPayloadResult<{
     id: string
-    email: string | null
+    email: string
     passwordHash: string
     systemRole: $Enums.SystemRole
-    isActive: boolean
     mustChangePassword: boolean
     employeeId: string | null
     createdAt: Date
@@ -1590,7 +1408,6 @@ export interface Prisma__UserClient<T, Null = never, ExtArgs extends runtime.Typ
   employee<T extends Prisma.User$employeeArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.User$employeeArgs<ExtArgs>>): Prisma.Prisma__EmployeeClient<runtime.Types.Result.GetResult<Prisma.$EmployeePayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions> | null, null, ExtArgs, GlobalOmitOptions>
   periodsCreated<T extends Prisma.User$periodsCreatedArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.User$periodsCreatedArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$SchedulingPeriodPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
   schedulesGenerated<T extends Prisma.User$schedulesGeneratedArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.User$schedulesGeneratedArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$SchedulePayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
-  warningActions<T extends Prisma.User$warningActionsArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.User$warningActionsArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$ScheduleWarningPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
   accounts<T extends Prisma.User$accountsArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.User$accountsArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$AccountPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
   sessions<T extends Prisma.User$sessionsArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.User$sessionsArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$SessionPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
   /**
@@ -1626,7 +1443,6 @@ export interface UserFieldRefs {
   readonly email: Prisma.FieldRef<"User", 'String'>
   readonly passwordHash: Prisma.FieldRef<"User", 'String'>
   readonly systemRole: Prisma.FieldRef<"User", 'SystemRole'>
-  readonly isActive: Prisma.FieldRef<"User", 'Boolean'>
   readonly mustChangePassword: Prisma.FieldRef<"User", 'Boolean'>
   readonly employeeId: Prisma.FieldRef<"User", 'String'>
   readonly createdAt: Prisma.FieldRef<"User", 'DateTime'>
@@ -2096,30 +1912,6 @@ export type User$schedulesGeneratedArgs<ExtArgs extends runtime.Types.Extensions
   take?: number
   skip?: number
   distinct?: Prisma.ScheduleScalarFieldEnum | Prisma.ScheduleScalarFieldEnum[]
-}
-
-/**
- * User.warningActions
- */
-export type User$warningActionsArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
-  /**
-   * Select specific fields to fetch from the ScheduleWarning
-   */
-  select?: Prisma.ScheduleWarningSelect<ExtArgs> | null
-  /**
-   * Omit specific fields from the ScheduleWarning
-   */
-  omit?: Prisma.ScheduleWarningOmit<ExtArgs> | null
-  /**
-   * Choose, which related nodes to fetch as well
-   */
-  include?: Prisma.ScheduleWarningInclude<ExtArgs> | null
-  where?: Prisma.ScheduleWarningWhereInput
-  orderBy?: Prisma.ScheduleWarningOrderByWithRelationInput | Prisma.ScheduleWarningOrderByWithRelationInput[]
-  cursor?: Prisma.ScheduleWarningWhereUniqueInput
-  take?: number
-  skip?: number
-  distinct?: Prisma.ScheduleWarningScalarFieldEnum | Prisma.ScheduleWarningScalarFieldEnum[]
 }
 
 /**

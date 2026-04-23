@@ -9,18 +9,25 @@ export type Position = (typeof Position)[keyof typeof Position];
 
 export type GuardRow = {
   id: string;
-  name: string;
+  firstName: string;
+  lastName: string;
+  phone: string | null;
   position: Position;
   isActive: boolean;
 };
 export type CreateGuardParams = {
-  name: string;
+  firstName: string;
+  lastName: string;
+  phone: string | null;
+  email: string;
   position: Position;
 };
 
 export type UpdateGuardParams = {
   employeeId: string;
-  name: string;
+  firstName: string;
+  lastName: string;
+  phone: string | null;
   position: Position;
   isActive: boolean;
 };

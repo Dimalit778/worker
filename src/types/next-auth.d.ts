@@ -6,22 +6,25 @@ declare module 'next-auth' {
     user: {
       id: string;
       systemRole: SystemRole;
-      primaryCourtId: string | null;
+      courtId: string | null;
       mustChangePassword: boolean;
+      fullName?: string;
     } & DefaultSession['user'];
   }
 
   interface User {
     systemRole: SystemRole;
-    primaryCourtId: string | null;
+    courtId: string | null;
     mustChangePassword: boolean;
+    fullName?: string;
   }
 }
 
 declare module 'next-auth/jwt' {
   interface JWT {
     systemRole: SystemRole;
-    primaryCourtId: string | null;
+    courtId: string | null;
     mustChangePassword: boolean;
+    fullName?: string;
   }
 }

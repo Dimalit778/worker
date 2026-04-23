@@ -2,7 +2,7 @@ import { getServerSession } from 'next-auth';
 import { redirect } from 'next/navigation';
 import type { Session } from 'next-auth';
 
-import { authOptions } from '@/lib/auth';
+import { authOptions } from '@/lib/auth/auth';
 import { SystemRole } from '@/generated/prisma/client';
 
 export function hasRole(session: Session | null, role: SystemRole): boolean {

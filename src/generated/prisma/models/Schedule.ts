@@ -229,10 +229,10 @@ export type ScheduleOrderByWithRelationInput = {
 
 export type ScheduleWhereUniqueInput = Prisma.AtLeast<{
   id?: string
+  periodId?: string
   AND?: Prisma.ScheduleWhereInput | Prisma.ScheduleWhereInput[]
   OR?: Prisma.ScheduleWhereInput[]
   NOT?: Prisma.ScheduleWhereInput | Prisma.ScheduleWhereInput[]
-  periodId?: Prisma.StringFilter<"Schedule"> | string
   status?: Prisma.EnumScheduleStatusFilter<"Schedule"> | $Enums.ScheduleStatus
   generatedAt?: Prisma.DateTimeFilter<"Schedule"> | Date | string
   publishedAt?: Prisma.DateTimeNullableFilter<"Schedule"> | Date | string | null
@@ -243,7 +243,7 @@ export type ScheduleWhereUniqueInput = Prisma.AtLeast<{
   generatedBy?: Prisma.XOR<Prisma.UserScalarRelationFilter, Prisma.UserWhereInput>
   assignments?: Prisma.ShiftAssignmentListRelationFilter
   warnings?: Prisma.ScheduleWarningListRelationFilter
-}, "id">
+}, "id" | "periodId">
 
 export type ScheduleOrderByWithAggregationInput = {
   id?: Prisma.SortOrder
@@ -280,7 +280,7 @@ export type ScheduleCreateInput = {
   publishedAt?: Date | string | null
   createdAt?: Date | string
   updatedAt?: Date | string
-  period: Prisma.SchedulingPeriodCreateNestedOneWithoutSchedulesInput
+  period: Prisma.SchedulingPeriodCreateNestedOneWithoutScheduleInput
   generatedBy: Prisma.UserCreateNestedOneWithoutSchedulesGeneratedInput
   assignments?: Prisma.ShiftAssignmentCreateNestedManyWithoutScheduleInput
   warnings?: Prisma.ScheduleWarningCreateNestedManyWithoutScheduleInput
@@ -306,7 +306,7 @@ export type ScheduleUpdateInput = {
   publishedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
-  period?: Prisma.SchedulingPeriodUpdateOneRequiredWithoutSchedulesNestedInput
+  period?: Prisma.SchedulingPeriodUpdateOneRequiredWithoutScheduleNestedInput
   generatedBy?: Prisma.UserUpdateOneRequiredWithoutSchedulesGeneratedNestedInput
   assignments?: Prisma.ShiftAssignmentUpdateManyWithoutScheduleNestedInput
   warnings?: Prisma.ScheduleWarningUpdateManyWithoutScheduleNestedInput
@@ -364,6 +364,11 @@ export type ScheduleListRelationFilter = {
 
 export type ScheduleOrderByRelationAggregateInput = {
   _count?: Prisma.SortOrder
+}
+
+export type ScheduleNullableScalarRelationFilter = {
+  is?: Prisma.ScheduleWhereInput | null
+  isNot?: Prisma.ScheduleWhereInput | null
 }
 
 export type ScheduleCountOrderByAggregateInput = {
@@ -446,46 +451,36 @@ export type ScheduleUncheckedUpdateManyWithoutGeneratedByNestedInput = {
   deleteMany?: Prisma.ScheduleScalarWhereInput | Prisma.ScheduleScalarWhereInput[]
 }
 
-export type ScheduleCreateNestedManyWithoutPeriodInput = {
-  create?: Prisma.XOR<Prisma.ScheduleCreateWithoutPeriodInput, Prisma.ScheduleUncheckedCreateWithoutPeriodInput> | Prisma.ScheduleCreateWithoutPeriodInput[] | Prisma.ScheduleUncheckedCreateWithoutPeriodInput[]
-  connectOrCreate?: Prisma.ScheduleCreateOrConnectWithoutPeriodInput | Prisma.ScheduleCreateOrConnectWithoutPeriodInput[]
-  createMany?: Prisma.ScheduleCreateManyPeriodInputEnvelope
-  connect?: Prisma.ScheduleWhereUniqueInput | Prisma.ScheduleWhereUniqueInput[]
+export type ScheduleCreateNestedOneWithoutPeriodInput = {
+  create?: Prisma.XOR<Prisma.ScheduleCreateWithoutPeriodInput, Prisma.ScheduleUncheckedCreateWithoutPeriodInput>
+  connectOrCreate?: Prisma.ScheduleCreateOrConnectWithoutPeriodInput
+  connect?: Prisma.ScheduleWhereUniqueInput
 }
 
-export type ScheduleUncheckedCreateNestedManyWithoutPeriodInput = {
-  create?: Prisma.XOR<Prisma.ScheduleCreateWithoutPeriodInput, Prisma.ScheduleUncheckedCreateWithoutPeriodInput> | Prisma.ScheduleCreateWithoutPeriodInput[] | Prisma.ScheduleUncheckedCreateWithoutPeriodInput[]
-  connectOrCreate?: Prisma.ScheduleCreateOrConnectWithoutPeriodInput | Prisma.ScheduleCreateOrConnectWithoutPeriodInput[]
-  createMany?: Prisma.ScheduleCreateManyPeriodInputEnvelope
-  connect?: Prisma.ScheduleWhereUniqueInput | Prisma.ScheduleWhereUniqueInput[]
+export type ScheduleUncheckedCreateNestedOneWithoutPeriodInput = {
+  create?: Prisma.XOR<Prisma.ScheduleCreateWithoutPeriodInput, Prisma.ScheduleUncheckedCreateWithoutPeriodInput>
+  connectOrCreate?: Prisma.ScheduleCreateOrConnectWithoutPeriodInput
+  connect?: Prisma.ScheduleWhereUniqueInput
 }
 
-export type ScheduleUpdateManyWithoutPeriodNestedInput = {
-  create?: Prisma.XOR<Prisma.ScheduleCreateWithoutPeriodInput, Prisma.ScheduleUncheckedCreateWithoutPeriodInput> | Prisma.ScheduleCreateWithoutPeriodInput[] | Prisma.ScheduleUncheckedCreateWithoutPeriodInput[]
-  connectOrCreate?: Prisma.ScheduleCreateOrConnectWithoutPeriodInput | Prisma.ScheduleCreateOrConnectWithoutPeriodInput[]
-  upsert?: Prisma.ScheduleUpsertWithWhereUniqueWithoutPeriodInput | Prisma.ScheduleUpsertWithWhereUniqueWithoutPeriodInput[]
-  createMany?: Prisma.ScheduleCreateManyPeriodInputEnvelope
-  set?: Prisma.ScheduleWhereUniqueInput | Prisma.ScheduleWhereUniqueInput[]
-  disconnect?: Prisma.ScheduleWhereUniqueInput | Prisma.ScheduleWhereUniqueInput[]
-  delete?: Prisma.ScheduleWhereUniqueInput | Prisma.ScheduleWhereUniqueInput[]
-  connect?: Prisma.ScheduleWhereUniqueInput | Prisma.ScheduleWhereUniqueInput[]
-  update?: Prisma.ScheduleUpdateWithWhereUniqueWithoutPeriodInput | Prisma.ScheduleUpdateWithWhereUniqueWithoutPeriodInput[]
-  updateMany?: Prisma.ScheduleUpdateManyWithWhereWithoutPeriodInput | Prisma.ScheduleUpdateManyWithWhereWithoutPeriodInput[]
-  deleteMany?: Prisma.ScheduleScalarWhereInput | Prisma.ScheduleScalarWhereInput[]
+export type ScheduleUpdateOneWithoutPeriodNestedInput = {
+  create?: Prisma.XOR<Prisma.ScheduleCreateWithoutPeriodInput, Prisma.ScheduleUncheckedCreateWithoutPeriodInput>
+  connectOrCreate?: Prisma.ScheduleCreateOrConnectWithoutPeriodInput
+  upsert?: Prisma.ScheduleUpsertWithoutPeriodInput
+  disconnect?: Prisma.ScheduleWhereInput | boolean
+  delete?: Prisma.ScheduleWhereInput | boolean
+  connect?: Prisma.ScheduleWhereUniqueInput
+  update?: Prisma.XOR<Prisma.XOR<Prisma.ScheduleUpdateToOneWithWhereWithoutPeriodInput, Prisma.ScheduleUpdateWithoutPeriodInput>, Prisma.ScheduleUncheckedUpdateWithoutPeriodInput>
 }
 
-export type ScheduleUncheckedUpdateManyWithoutPeriodNestedInput = {
-  create?: Prisma.XOR<Prisma.ScheduleCreateWithoutPeriodInput, Prisma.ScheduleUncheckedCreateWithoutPeriodInput> | Prisma.ScheduleCreateWithoutPeriodInput[] | Prisma.ScheduleUncheckedCreateWithoutPeriodInput[]
-  connectOrCreate?: Prisma.ScheduleCreateOrConnectWithoutPeriodInput | Prisma.ScheduleCreateOrConnectWithoutPeriodInput[]
-  upsert?: Prisma.ScheduleUpsertWithWhereUniqueWithoutPeriodInput | Prisma.ScheduleUpsertWithWhereUniqueWithoutPeriodInput[]
-  createMany?: Prisma.ScheduleCreateManyPeriodInputEnvelope
-  set?: Prisma.ScheduleWhereUniqueInput | Prisma.ScheduleWhereUniqueInput[]
-  disconnect?: Prisma.ScheduleWhereUniqueInput | Prisma.ScheduleWhereUniqueInput[]
-  delete?: Prisma.ScheduleWhereUniqueInput | Prisma.ScheduleWhereUniqueInput[]
-  connect?: Prisma.ScheduleWhereUniqueInput | Prisma.ScheduleWhereUniqueInput[]
-  update?: Prisma.ScheduleUpdateWithWhereUniqueWithoutPeriodInput | Prisma.ScheduleUpdateWithWhereUniqueWithoutPeriodInput[]
-  updateMany?: Prisma.ScheduleUpdateManyWithWhereWithoutPeriodInput | Prisma.ScheduleUpdateManyWithWhereWithoutPeriodInput[]
-  deleteMany?: Prisma.ScheduleScalarWhereInput | Prisma.ScheduleScalarWhereInput[]
+export type ScheduleUncheckedUpdateOneWithoutPeriodNestedInput = {
+  create?: Prisma.XOR<Prisma.ScheduleCreateWithoutPeriodInput, Prisma.ScheduleUncheckedCreateWithoutPeriodInput>
+  connectOrCreate?: Prisma.ScheduleCreateOrConnectWithoutPeriodInput
+  upsert?: Prisma.ScheduleUpsertWithoutPeriodInput
+  disconnect?: Prisma.ScheduleWhereInput | boolean
+  delete?: Prisma.ScheduleWhereInput | boolean
+  connect?: Prisma.ScheduleWhereUniqueInput
+  update?: Prisma.XOR<Prisma.XOR<Prisma.ScheduleUpdateToOneWithWhereWithoutPeriodInput, Prisma.ScheduleUpdateWithoutPeriodInput>, Prisma.ScheduleUncheckedUpdateWithoutPeriodInput>
 }
 
 export type EnumScheduleStatusFieldUpdateOperationsInput = {
@@ -527,7 +522,7 @@ export type ScheduleCreateWithoutGeneratedByInput = {
   publishedAt?: Date | string | null
   createdAt?: Date | string
   updatedAt?: Date | string
-  period: Prisma.SchedulingPeriodCreateNestedOneWithoutSchedulesInput
+  period: Prisma.SchedulingPeriodCreateNestedOneWithoutScheduleInput
   assignments?: Prisma.ShiftAssignmentCreateNestedManyWithoutScheduleInput
   warnings?: Prisma.ScheduleWarningCreateNestedManyWithoutScheduleInput
 }
@@ -613,25 +608,39 @@ export type ScheduleCreateOrConnectWithoutPeriodInput = {
   create: Prisma.XOR<Prisma.ScheduleCreateWithoutPeriodInput, Prisma.ScheduleUncheckedCreateWithoutPeriodInput>
 }
 
-export type ScheduleCreateManyPeriodInputEnvelope = {
-  data: Prisma.ScheduleCreateManyPeriodInput | Prisma.ScheduleCreateManyPeriodInput[]
-  skipDuplicates?: boolean
-}
-
-export type ScheduleUpsertWithWhereUniqueWithoutPeriodInput = {
-  where: Prisma.ScheduleWhereUniqueInput
+export type ScheduleUpsertWithoutPeriodInput = {
   update: Prisma.XOR<Prisma.ScheduleUpdateWithoutPeriodInput, Prisma.ScheduleUncheckedUpdateWithoutPeriodInput>
   create: Prisma.XOR<Prisma.ScheduleCreateWithoutPeriodInput, Prisma.ScheduleUncheckedCreateWithoutPeriodInput>
+  where?: Prisma.ScheduleWhereInput
 }
 
-export type ScheduleUpdateWithWhereUniqueWithoutPeriodInput = {
-  where: Prisma.ScheduleWhereUniqueInput
+export type ScheduleUpdateToOneWithWhereWithoutPeriodInput = {
+  where?: Prisma.ScheduleWhereInput
   data: Prisma.XOR<Prisma.ScheduleUpdateWithoutPeriodInput, Prisma.ScheduleUncheckedUpdateWithoutPeriodInput>
 }
 
-export type ScheduleUpdateManyWithWhereWithoutPeriodInput = {
-  where: Prisma.ScheduleScalarWhereInput
-  data: Prisma.XOR<Prisma.ScheduleUpdateManyMutationInput, Prisma.ScheduleUncheckedUpdateManyWithoutPeriodInput>
+export type ScheduleUpdateWithoutPeriodInput = {
+  id?: Prisma.StringFieldUpdateOperationsInput | string
+  status?: Prisma.EnumScheduleStatusFieldUpdateOperationsInput | $Enums.ScheduleStatus
+  generatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  publishedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  generatedBy?: Prisma.UserUpdateOneRequiredWithoutSchedulesGeneratedNestedInput
+  assignments?: Prisma.ShiftAssignmentUpdateManyWithoutScheduleNestedInput
+  warnings?: Prisma.ScheduleWarningUpdateManyWithoutScheduleNestedInput
+}
+
+export type ScheduleUncheckedUpdateWithoutPeriodInput = {
+  id?: Prisma.StringFieldUpdateOperationsInput | string
+  status?: Prisma.EnumScheduleStatusFieldUpdateOperationsInput | $Enums.ScheduleStatus
+  generatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  publishedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  generatedById?: Prisma.StringFieldUpdateOperationsInput | string
+  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  assignments?: Prisma.ShiftAssignmentUncheckedUpdateManyWithoutScheduleNestedInput
+  warnings?: Prisma.ScheduleWarningUncheckedUpdateManyWithoutScheduleNestedInput
 }
 
 export type ScheduleCreateWithoutAssignmentsInput = {
@@ -641,7 +650,7 @@ export type ScheduleCreateWithoutAssignmentsInput = {
   publishedAt?: Date | string | null
   createdAt?: Date | string
   updatedAt?: Date | string
-  period: Prisma.SchedulingPeriodCreateNestedOneWithoutSchedulesInput
+  period: Prisma.SchedulingPeriodCreateNestedOneWithoutScheduleInput
   generatedBy: Prisma.UserCreateNestedOneWithoutSchedulesGeneratedInput
   warnings?: Prisma.ScheduleWarningCreateNestedManyWithoutScheduleInput
 }
@@ -681,7 +690,7 @@ export type ScheduleUpdateWithoutAssignmentsInput = {
   publishedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
-  period?: Prisma.SchedulingPeriodUpdateOneRequiredWithoutSchedulesNestedInput
+  period?: Prisma.SchedulingPeriodUpdateOneRequiredWithoutScheduleNestedInput
   generatedBy?: Prisma.UserUpdateOneRequiredWithoutSchedulesGeneratedNestedInput
   warnings?: Prisma.ScheduleWarningUpdateManyWithoutScheduleNestedInput
 }
@@ -705,7 +714,7 @@ export type ScheduleCreateWithoutWarningsInput = {
   publishedAt?: Date | string | null
   createdAt?: Date | string
   updatedAt?: Date | string
-  period: Prisma.SchedulingPeriodCreateNestedOneWithoutSchedulesInput
+  period: Prisma.SchedulingPeriodCreateNestedOneWithoutScheduleInput
   generatedBy: Prisma.UserCreateNestedOneWithoutSchedulesGeneratedInput
   assignments?: Prisma.ShiftAssignmentCreateNestedManyWithoutScheduleInput
 }
@@ -745,7 +754,7 @@ export type ScheduleUpdateWithoutWarningsInput = {
   publishedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
-  period?: Prisma.SchedulingPeriodUpdateOneRequiredWithoutSchedulesNestedInput
+  period?: Prisma.SchedulingPeriodUpdateOneRequiredWithoutScheduleNestedInput
   generatedBy?: Prisma.UserUpdateOneRequiredWithoutSchedulesGeneratedNestedInput
   assignments?: Prisma.ShiftAssignmentUpdateManyWithoutScheduleNestedInput
 }
@@ -779,7 +788,7 @@ export type ScheduleUpdateWithoutGeneratedByInput = {
   publishedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
-  period?: Prisma.SchedulingPeriodUpdateOneRequiredWithoutSchedulesNestedInput
+  period?: Prisma.SchedulingPeriodUpdateOneRequiredWithoutScheduleNestedInput
   assignments?: Prisma.ShiftAssignmentUpdateManyWithoutScheduleNestedInput
   warnings?: Prisma.ScheduleWarningUpdateManyWithoutScheduleNestedInput
 }
@@ -802,50 +811,6 @@ export type ScheduleUncheckedUpdateManyWithoutGeneratedByInput = {
   status?: Prisma.EnumScheduleStatusFieldUpdateOperationsInput | $Enums.ScheduleStatus
   generatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   publishedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
-  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
-  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
-}
-
-export type ScheduleCreateManyPeriodInput = {
-  id?: string
-  status?: $Enums.ScheduleStatus
-  generatedAt?: Date | string
-  publishedAt?: Date | string | null
-  generatedById: string
-  createdAt?: Date | string
-  updatedAt?: Date | string
-}
-
-export type ScheduleUpdateWithoutPeriodInput = {
-  id?: Prisma.StringFieldUpdateOperationsInput | string
-  status?: Prisma.EnumScheduleStatusFieldUpdateOperationsInput | $Enums.ScheduleStatus
-  generatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
-  publishedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
-  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
-  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
-  generatedBy?: Prisma.UserUpdateOneRequiredWithoutSchedulesGeneratedNestedInput
-  assignments?: Prisma.ShiftAssignmentUpdateManyWithoutScheduleNestedInput
-  warnings?: Prisma.ScheduleWarningUpdateManyWithoutScheduleNestedInput
-}
-
-export type ScheduleUncheckedUpdateWithoutPeriodInput = {
-  id?: Prisma.StringFieldUpdateOperationsInput | string
-  status?: Prisma.EnumScheduleStatusFieldUpdateOperationsInput | $Enums.ScheduleStatus
-  generatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
-  publishedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
-  generatedById?: Prisma.StringFieldUpdateOperationsInput | string
-  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
-  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
-  assignments?: Prisma.ShiftAssignmentUncheckedUpdateManyWithoutScheduleNestedInput
-  warnings?: Prisma.ScheduleWarningUncheckedUpdateManyWithoutScheduleNestedInput
-}
-
-export type ScheduleUncheckedUpdateManyWithoutPeriodInput = {
-  id?: Prisma.StringFieldUpdateOperationsInput | string
-  status?: Prisma.EnumScheduleStatusFieldUpdateOperationsInput | $Enums.ScheduleStatus
-  generatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
-  publishedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
-  generatedById?: Prisma.StringFieldUpdateOperationsInput | string
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
 }

@@ -34,20 +34,20 @@ export const authOptions: NextAuthOptions = {
           include: { employee: true },
         });
 
-        if (!user || !user.isActive) return null;
+        if (!user) return null;
 
         const isValid = await bcrypt.compare(credentials.password, user.passwordHash);
         if (!isValid) return null;
 
-        const primaryCourtId = user.employee?.primaryCourtId ?? null;
-        const name = user.employee?.name ?? user.email ?? '';
+        const courtId = user.employee?.courtId ?? null;
 
         return {
           id: user.id,
           email: user.email,
-          name,
+          fullName: user.employee?.firstName + ' ' + user.employee?.lastName,
+          phone: user.employee?.phone,
           systemRole: user.systemRole,
-          primaryCourtId,
+          courtId,
           mustChangePassword: user.mustChangePassword,
         };
       },
@@ -57,8 +57,9 @@ export const authOptions: NextAuthOptions = {
     async jwt({ token, user }) {
       if (user) {
         token.systemRole = user.systemRole;
-        token.primaryCourtId = user.primaryCourtId;
+        token.courtId = user.courtId;
         token.mustChangePassword = user.mustChangePassword;
+        token.fullName = user.fullName;
       } else {
         const migrated = systemRoleFromLegacyJwt(token as { systemRole?: SystemRole; role?: unknown });
         if (migrated && !token.systemRole) {
@@ -72,8 +73,9 @@ export const authOptions: NextAuthOptions = {
       if (session.user && token.sub) {
         session.user.id = token.sub;
         session.user.systemRole = token.systemRole;
-        session.user.primaryCourtId = token.primaryCourtId;
+        session.user.courtId = token.courtId;
         session.user.mustChangePassword = token.mustChangePassword ?? false;
+        session.user.fullName = token.fullName;
       }
       return session;
     },

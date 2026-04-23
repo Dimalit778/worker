@@ -29,7 +29,6 @@ export type CourtMinAggregateOutputType = {
   name: string | null
   code: string | null
   regionId: string | null
-  isActive: boolean | null
   createdAt: Date | null
   updatedAt: Date | null
 }
@@ -39,7 +38,6 @@ export type CourtMaxAggregateOutputType = {
   name: string | null
   code: string | null
   regionId: string | null
-  isActive: boolean | null
   createdAt: Date | null
   updatedAt: Date | null
 }
@@ -49,7 +47,6 @@ export type CourtCountAggregateOutputType = {
   name: number
   code: number
   regionId: number
-  isActive: number
   createdAt: number
   updatedAt: number
   _all: number
@@ -61,7 +58,6 @@ export type CourtMinAggregateInputType = {
   name?: true
   code?: true
   regionId?: true
-  isActive?: true
   createdAt?: true
   updatedAt?: true
 }
@@ -71,7 +67,6 @@ export type CourtMaxAggregateInputType = {
   name?: true
   code?: true
   regionId?: true
-  isActive?: true
   createdAt?: true
   updatedAt?: true
 }
@@ -81,7 +76,6 @@ export type CourtCountAggregateInputType = {
   name?: true
   code?: true
   regionId?: true
-  isActive?: true
   createdAt?: true
   updatedAt?: true
   _all?: true
@@ -164,7 +158,6 @@ export type CourtGroupByOutputType = {
   name: string
   code: string
   regionId: string
-  isActive: boolean
   createdAt: Date
   updatedAt: Date
   _count: CourtCountAggregateOutputType | null
@@ -195,16 +188,12 @@ export type CourtWhereInput = {
   name?: Prisma.StringFilter<"Court"> | string
   code?: Prisma.StringFilter<"Court"> | string
   regionId?: Prisma.StringFilter<"Court"> | string
-  isActive?: Prisma.BoolFilter<"Court"> | boolean
   createdAt?: Prisma.DateTimeFilter<"Court"> | Date | string
   updatedAt?: Prisma.DateTimeFilter<"Court"> | Date | string
   region?: Prisma.XOR<Prisma.RegionScalarRelationFilter, Prisma.RegionWhereInput>
+  employees?: Prisma.EmployeeListRelationFilter
   shiftRules?: Prisma.CourtShiftRuleListRelationFilter
-  eligibility?: Prisma.CourtEligibilityListRelationFilter
-  primaryEmployees?: Prisma.EmployeeListRelationFilter
-  availabilityEntries?: Prisma.AvailabilityEntryListRelationFilter
-  assignments?: Prisma.ShiftAssignmentListRelationFilter
-  warnings?: Prisma.ScheduleWarningListRelationFilter
+  periods?: Prisma.SchedulingPeriodListRelationFilter
 }
 
 export type CourtOrderByWithRelationInput = {
@@ -212,16 +201,12 @@ export type CourtOrderByWithRelationInput = {
   name?: Prisma.SortOrder
   code?: Prisma.SortOrder
   regionId?: Prisma.SortOrder
-  isActive?: Prisma.SortOrder
   createdAt?: Prisma.SortOrder
   updatedAt?: Prisma.SortOrder
   region?: Prisma.RegionOrderByWithRelationInput
+  employees?: Prisma.EmployeeOrderByRelationAggregateInput
   shiftRules?: Prisma.CourtShiftRuleOrderByRelationAggregateInput
-  eligibility?: Prisma.CourtEligibilityOrderByRelationAggregateInput
-  primaryEmployees?: Prisma.EmployeeOrderByRelationAggregateInput
-  availabilityEntries?: Prisma.AvailabilityEntryOrderByRelationAggregateInput
-  assignments?: Prisma.ShiftAssignmentOrderByRelationAggregateInput
-  warnings?: Prisma.ScheduleWarningOrderByRelationAggregateInput
+  periods?: Prisma.SchedulingPeriodOrderByRelationAggregateInput
 }
 
 export type CourtWhereUniqueInput = Prisma.AtLeast<{
@@ -232,16 +217,12 @@ export type CourtWhereUniqueInput = Prisma.AtLeast<{
   NOT?: Prisma.CourtWhereInput | Prisma.CourtWhereInput[]
   name?: Prisma.StringFilter<"Court"> | string
   regionId?: Prisma.StringFilter<"Court"> | string
-  isActive?: Prisma.BoolFilter<"Court"> | boolean
   createdAt?: Prisma.DateTimeFilter<"Court"> | Date | string
   updatedAt?: Prisma.DateTimeFilter<"Court"> | Date | string
   region?: Prisma.XOR<Prisma.RegionScalarRelationFilter, Prisma.RegionWhereInput>
+  employees?: Prisma.EmployeeListRelationFilter
   shiftRules?: Prisma.CourtShiftRuleListRelationFilter
-  eligibility?: Prisma.CourtEligibilityListRelationFilter
-  primaryEmployees?: Prisma.EmployeeListRelationFilter
-  availabilityEntries?: Prisma.AvailabilityEntryListRelationFilter
-  assignments?: Prisma.ShiftAssignmentListRelationFilter
-  warnings?: Prisma.ScheduleWarningListRelationFilter
+  periods?: Prisma.SchedulingPeriodListRelationFilter
 }, "id" | "code">
 
 export type CourtOrderByWithAggregationInput = {
@@ -249,7 +230,6 @@ export type CourtOrderByWithAggregationInput = {
   name?: Prisma.SortOrder
   code?: Prisma.SortOrder
   regionId?: Prisma.SortOrder
-  isActive?: Prisma.SortOrder
   createdAt?: Prisma.SortOrder
   updatedAt?: Prisma.SortOrder
   _count?: Prisma.CourtCountOrderByAggregateInput
@@ -265,7 +245,6 @@ export type CourtScalarWhereWithAggregatesInput = {
   name?: Prisma.StringWithAggregatesFilter<"Court"> | string
   code?: Prisma.StringWithAggregatesFilter<"Court"> | string
   regionId?: Prisma.StringWithAggregatesFilter<"Court"> | string
-  isActive?: Prisma.BoolWithAggregatesFilter<"Court"> | boolean
   createdAt?: Prisma.DateTimeWithAggregatesFilter<"Court"> | Date | string
   updatedAt?: Prisma.DateTimeWithAggregatesFilter<"Court"> | Date | string
 }
@@ -274,16 +253,12 @@ export type CourtCreateInput = {
   id?: string
   name: string
   code: string
-  isActive?: boolean
   createdAt?: Date | string
   updatedAt?: Date | string
   region: Prisma.RegionCreateNestedOneWithoutCourtsInput
+  employees?: Prisma.EmployeeCreateNestedManyWithoutCourtInput
   shiftRules?: Prisma.CourtShiftRuleCreateNestedManyWithoutCourtInput
-  eligibility?: Prisma.CourtEligibilityCreateNestedManyWithoutCourtInput
-  primaryEmployees?: Prisma.EmployeeCreateNestedManyWithoutPrimaryCourtInput
-  availabilityEntries?: Prisma.AvailabilityEntryCreateNestedManyWithoutCourtInput
-  assignments?: Prisma.ShiftAssignmentCreateNestedManyWithoutCourtInput
-  warnings?: Prisma.ScheduleWarningCreateNestedManyWithoutCourtInput
+  periods?: Prisma.SchedulingPeriodCreateNestedManyWithoutCourtInput
 }
 
 export type CourtUncheckedCreateInput = {
@@ -291,31 +266,23 @@ export type CourtUncheckedCreateInput = {
   name: string
   code: string
   regionId: string
-  isActive?: boolean
   createdAt?: Date | string
   updatedAt?: Date | string
+  employees?: Prisma.EmployeeUncheckedCreateNestedManyWithoutCourtInput
   shiftRules?: Prisma.CourtShiftRuleUncheckedCreateNestedManyWithoutCourtInput
-  eligibility?: Prisma.CourtEligibilityUncheckedCreateNestedManyWithoutCourtInput
-  primaryEmployees?: Prisma.EmployeeUncheckedCreateNestedManyWithoutPrimaryCourtInput
-  availabilityEntries?: Prisma.AvailabilityEntryUncheckedCreateNestedManyWithoutCourtInput
-  assignments?: Prisma.ShiftAssignmentUncheckedCreateNestedManyWithoutCourtInput
-  warnings?: Prisma.ScheduleWarningUncheckedCreateNestedManyWithoutCourtInput
+  periods?: Prisma.SchedulingPeriodUncheckedCreateNestedManyWithoutCourtInput
 }
 
 export type CourtUpdateInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
   name?: Prisma.StringFieldUpdateOperationsInput | string
   code?: Prisma.StringFieldUpdateOperationsInput | string
-  isActive?: Prisma.BoolFieldUpdateOperationsInput | boolean
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   region?: Prisma.RegionUpdateOneRequiredWithoutCourtsNestedInput
+  employees?: Prisma.EmployeeUpdateManyWithoutCourtNestedInput
   shiftRules?: Prisma.CourtShiftRuleUpdateManyWithoutCourtNestedInput
-  eligibility?: Prisma.CourtEligibilityUpdateManyWithoutCourtNestedInput
-  primaryEmployees?: Prisma.EmployeeUpdateManyWithoutPrimaryCourtNestedInput
-  availabilityEntries?: Prisma.AvailabilityEntryUpdateManyWithoutCourtNestedInput
-  assignments?: Prisma.ShiftAssignmentUpdateManyWithoutCourtNestedInput
-  warnings?: Prisma.ScheduleWarningUpdateManyWithoutCourtNestedInput
+  periods?: Prisma.SchedulingPeriodUpdateManyWithoutCourtNestedInput
 }
 
 export type CourtUncheckedUpdateInput = {
@@ -323,15 +290,11 @@ export type CourtUncheckedUpdateInput = {
   name?: Prisma.StringFieldUpdateOperationsInput | string
   code?: Prisma.StringFieldUpdateOperationsInput | string
   regionId?: Prisma.StringFieldUpdateOperationsInput | string
-  isActive?: Prisma.BoolFieldUpdateOperationsInput | boolean
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  employees?: Prisma.EmployeeUncheckedUpdateManyWithoutCourtNestedInput
   shiftRules?: Prisma.CourtShiftRuleUncheckedUpdateManyWithoutCourtNestedInput
-  eligibility?: Prisma.CourtEligibilityUncheckedUpdateManyWithoutCourtNestedInput
-  primaryEmployees?: Prisma.EmployeeUncheckedUpdateManyWithoutPrimaryCourtNestedInput
-  availabilityEntries?: Prisma.AvailabilityEntryUncheckedUpdateManyWithoutCourtNestedInput
-  assignments?: Prisma.ShiftAssignmentUncheckedUpdateManyWithoutCourtNestedInput
-  warnings?: Prisma.ScheduleWarningUncheckedUpdateManyWithoutCourtNestedInput
+  periods?: Prisma.SchedulingPeriodUncheckedUpdateManyWithoutCourtNestedInput
 }
 
 export type CourtCreateManyInput = {
@@ -339,7 +302,6 @@ export type CourtCreateManyInput = {
   name: string
   code: string
   regionId: string
-  isActive?: boolean
   createdAt?: Date | string
   updatedAt?: Date | string
 }
@@ -348,7 +310,6 @@ export type CourtUpdateManyMutationInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
   name?: Prisma.StringFieldUpdateOperationsInput | string
   code?: Prisma.StringFieldUpdateOperationsInput | string
-  isActive?: Prisma.BoolFieldUpdateOperationsInput | boolean
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
 }
@@ -358,44 +319,8 @@ export type CourtUncheckedUpdateManyInput = {
   name?: Prisma.StringFieldUpdateOperationsInput | string
   code?: Prisma.StringFieldUpdateOperationsInput | string
   regionId?: Prisma.StringFieldUpdateOperationsInput | string
-  isActive?: Prisma.BoolFieldUpdateOperationsInput | boolean
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
-}
-
-export type CourtNullableScalarRelationFilter = {
-  is?: Prisma.CourtWhereInput | null
-  isNot?: Prisma.CourtWhereInput | null
-}
-
-export type CourtCountOrderByAggregateInput = {
-  id?: Prisma.SortOrder
-  name?: Prisma.SortOrder
-  code?: Prisma.SortOrder
-  regionId?: Prisma.SortOrder
-  isActive?: Prisma.SortOrder
-  createdAt?: Prisma.SortOrder
-  updatedAt?: Prisma.SortOrder
-}
-
-export type CourtMaxOrderByAggregateInput = {
-  id?: Prisma.SortOrder
-  name?: Prisma.SortOrder
-  code?: Prisma.SortOrder
-  regionId?: Prisma.SortOrder
-  isActive?: Prisma.SortOrder
-  createdAt?: Prisma.SortOrder
-  updatedAt?: Prisma.SortOrder
-}
-
-export type CourtMinOrderByAggregateInput = {
-  id?: Prisma.SortOrder
-  name?: Prisma.SortOrder
-  code?: Prisma.SortOrder
-  regionId?: Prisma.SortOrder
-  isActive?: Prisma.SortOrder
-  createdAt?: Prisma.SortOrder
-  updatedAt?: Prisma.SortOrder
 }
 
 export type CourtListRelationFilter = {
@@ -408,25 +333,36 @@ export type CourtOrderByRelationAggregateInput = {
   _count?: Prisma.SortOrder
 }
 
+export type CourtCountOrderByAggregateInput = {
+  id?: Prisma.SortOrder
+  name?: Prisma.SortOrder
+  code?: Prisma.SortOrder
+  regionId?: Prisma.SortOrder
+  createdAt?: Prisma.SortOrder
+  updatedAt?: Prisma.SortOrder
+}
+
+export type CourtMaxOrderByAggregateInput = {
+  id?: Prisma.SortOrder
+  name?: Prisma.SortOrder
+  code?: Prisma.SortOrder
+  regionId?: Prisma.SortOrder
+  createdAt?: Prisma.SortOrder
+  updatedAt?: Prisma.SortOrder
+}
+
+export type CourtMinOrderByAggregateInput = {
+  id?: Prisma.SortOrder
+  name?: Prisma.SortOrder
+  code?: Prisma.SortOrder
+  regionId?: Prisma.SortOrder
+  createdAt?: Prisma.SortOrder
+  updatedAt?: Prisma.SortOrder
+}
+
 export type CourtScalarRelationFilter = {
   is?: Prisma.CourtWhereInput
   isNot?: Prisma.CourtWhereInput
-}
-
-export type CourtCreateNestedOneWithoutPrimaryEmployeesInput = {
-  create?: Prisma.XOR<Prisma.CourtCreateWithoutPrimaryEmployeesInput, Prisma.CourtUncheckedCreateWithoutPrimaryEmployeesInput>
-  connectOrCreate?: Prisma.CourtCreateOrConnectWithoutPrimaryEmployeesInput
-  connect?: Prisma.CourtWhereUniqueInput
-}
-
-export type CourtUpdateOneWithoutPrimaryEmployeesNestedInput = {
-  create?: Prisma.XOR<Prisma.CourtCreateWithoutPrimaryEmployeesInput, Prisma.CourtUncheckedCreateWithoutPrimaryEmployeesInput>
-  connectOrCreate?: Prisma.CourtCreateOrConnectWithoutPrimaryEmployeesInput
-  upsert?: Prisma.CourtUpsertWithoutPrimaryEmployeesInput
-  disconnect?: Prisma.CourtWhereInput | boolean
-  delete?: Prisma.CourtWhereInput | boolean
-  connect?: Prisma.CourtWhereUniqueInput
-  update?: Prisma.XOR<Prisma.XOR<Prisma.CourtUpdateToOneWithWhereWithoutPrimaryEmployeesInput, Prisma.CourtUpdateWithoutPrimaryEmployeesInput>, Prisma.CourtUncheckedUpdateWithoutPrimaryEmployeesInput>
 }
 
 export type CourtCreateNestedManyWithoutRegionInput = {
@@ -471,18 +407,18 @@ export type CourtUncheckedUpdateManyWithoutRegionNestedInput = {
   deleteMany?: Prisma.CourtScalarWhereInput | Prisma.CourtScalarWhereInput[]
 }
 
-export type CourtCreateNestedOneWithoutEligibilityInput = {
-  create?: Prisma.XOR<Prisma.CourtCreateWithoutEligibilityInput, Prisma.CourtUncheckedCreateWithoutEligibilityInput>
-  connectOrCreate?: Prisma.CourtCreateOrConnectWithoutEligibilityInput
+export type CourtCreateNestedOneWithoutEmployeesInput = {
+  create?: Prisma.XOR<Prisma.CourtCreateWithoutEmployeesInput, Prisma.CourtUncheckedCreateWithoutEmployeesInput>
+  connectOrCreate?: Prisma.CourtCreateOrConnectWithoutEmployeesInput
   connect?: Prisma.CourtWhereUniqueInput
 }
 
-export type CourtUpdateOneRequiredWithoutEligibilityNestedInput = {
-  create?: Prisma.XOR<Prisma.CourtCreateWithoutEligibilityInput, Prisma.CourtUncheckedCreateWithoutEligibilityInput>
-  connectOrCreate?: Prisma.CourtCreateOrConnectWithoutEligibilityInput
-  upsert?: Prisma.CourtUpsertWithoutEligibilityInput
+export type CourtUpdateOneRequiredWithoutEmployeesNestedInput = {
+  create?: Prisma.XOR<Prisma.CourtCreateWithoutEmployeesInput, Prisma.CourtUncheckedCreateWithoutEmployeesInput>
+  connectOrCreate?: Prisma.CourtCreateOrConnectWithoutEmployeesInput
+  upsert?: Prisma.CourtUpsertWithoutEmployeesInput
   connect?: Prisma.CourtWhereUniqueInput
-  update?: Prisma.XOR<Prisma.XOR<Prisma.CourtUpdateToOneWithWhereWithoutEligibilityInput, Prisma.CourtUpdateWithoutEligibilityInput>, Prisma.CourtUncheckedUpdateWithoutEligibilityInput>
+  update?: Prisma.XOR<Prisma.XOR<Prisma.CourtUpdateToOneWithWhereWithoutEmployeesInput, Prisma.CourtUpdateWithoutEmployeesInput>, Prisma.CourtUncheckedUpdateWithoutEmployeesInput>
 }
 
 export type CourtCreateNestedOneWithoutShiftRulesInput = {
@@ -499,154 +435,40 @@ export type CourtUpdateOneRequiredWithoutShiftRulesNestedInput = {
   update?: Prisma.XOR<Prisma.XOR<Prisma.CourtUpdateToOneWithWhereWithoutShiftRulesInput, Prisma.CourtUpdateWithoutShiftRulesInput>, Prisma.CourtUncheckedUpdateWithoutShiftRulesInput>
 }
 
-export type CourtCreateNestedOneWithoutAvailabilityEntriesInput = {
-  create?: Prisma.XOR<Prisma.CourtCreateWithoutAvailabilityEntriesInput, Prisma.CourtUncheckedCreateWithoutAvailabilityEntriesInput>
-  connectOrCreate?: Prisma.CourtCreateOrConnectWithoutAvailabilityEntriesInput
+export type CourtCreateNestedOneWithoutPeriodsInput = {
+  create?: Prisma.XOR<Prisma.CourtCreateWithoutPeriodsInput, Prisma.CourtUncheckedCreateWithoutPeriodsInput>
+  connectOrCreate?: Prisma.CourtCreateOrConnectWithoutPeriodsInput
   connect?: Prisma.CourtWhereUniqueInput
 }
 
-export type CourtUpdateOneRequiredWithoutAvailabilityEntriesNestedInput = {
-  create?: Prisma.XOR<Prisma.CourtCreateWithoutAvailabilityEntriesInput, Prisma.CourtUncheckedCreateWithoutAvailabilityEntriesInput>
-  connectOrCreate?: Prisma.CourtCreateOrConnectWithoutAvailabilityEntriesInput
-  upsert?: Prisma.CourtUpsertWithoutAvailabilityEntriesInput
+export type CourtUpdateOneRequiredWithoutPeriodsNestedInput = {
+  create?: Prisma.XOR<Prisma.CourtCreateWithoutPeriodsInput, Prisma.CourtUncheckedCreateWithoutPeriodsInput>
+  connectOrCreate?: Prisma.CourtCreateOrConnectWithoutPeriodsInput
+  upsert?: Prisma.CourtUpsertWithoutPeriodsInput
   connect?: Prisma.CourtWhereUniqueInput
-  update?: Prisma.XOR<Prisma.XOR<Prisma.CourtUpdateToOneWithWhereWithoutAvailabilityEntriesInput, Prisma.CourtUpdateWithoutAvailabilityEntriesInput>, Prisma.CourtUncheckedUpdateWithoutAvailabilityEntriesInput>
-}
-
-export type CourtCreateNestedOneWithoutAssignmentsInput = {
-  create?: Prisma.XOR<Prisma.CourtCreateWithoutAssignmentsInput, Prisma.CourtUncheckedCreateWithoutAssignmentsInput>
-  connectOrCreate?: Prisma.CourtCreateOrConnectWithoutAssignmentsInput
-  connect?: Prisma.CourtWhereUniqueInput
-}
-
-export type CourtUpdateOneRequiredWithoutAssignmentsNestedInput = {
-  create?: Prisma.XOR<Prisma.CourtCreateWithoutAssignmentsInput, Prisma.CourtUncheckedCreateWithoutAssignmentsInput>
-  connectOrCreate?: Prisma.CourtCreateOrConnectWithoutAssignmentsInput
-  upsert?: Prisma.CourtUpsertWithoutAssignmentsInput
-  connect?: Prisma.CourtWhereUniqueInput
-  update?: Prisma.XOR<Prisma.XOR<Prisma.CourtUpdateToOneWithWhereWithoutAssignmentsInput, Prisma.CourtUpdateWithoutAssignmentsInput>, Prisma.CourtUncheckedUpdateWithoutAssignmentsInput>
-}
-
-export type CourtCreateNestedOneWithoutWarningsInput = {
-  create?: Prisma.XOR<Prisma.CourtCreateWithoutWarningsInput, Prisma.CourtUncheckedCreateWithoutWarningsInput>
-  connectOrCreate?: Prisma.CourtCreateOrConnectWithoutWarningsInput
-  connect?: Prisma.CourtWhereUniqueInput
-}
-
-export type CourtUpdateOneWithoutWarningsNestedInput = {
-  create?: Prisma.XOR<Prisma.CourtCreateWithoutWarningsInput, Prisma.CourtUncheckedCreateWithoutWarningsInput>
-  connectOrCreate?: Prisma.CourtCreateOrConnectWithoutWarningsInput
-  upsert?: Prisma.CourtUpsertWithoutWarningsInput
-  disconnect?: Prisma.CourtWhereInput | boolean
-  delete?: Prisma.CourtWhereInput | boolean
-  connect?: Prisma.CourtWhereUniqueInput
-  update?: Prisma.XOR<Prisma.XOR<Prisma.CourtUpdateToOneWithWhereWithoutWarningsInput, Prisma.CourtUpdateWithoutWarningsInput>, Prisma.CourtUncheckedUpdateWithoutWarningsInput>
-}
-
-export type CourtCreateWithoutPrimaryEmployeesInput = {
-  id?: string
-  name: string
-  code: string
-  isActive?: boolean
-  createdAt?: Date | string
-  updatedAt?: Date | string
-  region: Prisma.RegionCreateNestedOneWithoutCourtsInput
-  shiftRules?: Prisma.CourtShiftRuleCreateNestedManyWithoutCourtInput
-  eligibility?: Prisma.CourtEligibilityCreateNestedManyWithoutCourtInput
-  availabilityEntries?: Prisma.AvailabilityEntryCreateNestedManyWithoutCourtInput
-  assignments?: Prisma.ShiftAssignmentCreateNestedManyWithoutCourtInput
-  warnings?: Prisma.ScheduleWarningCreateNestedManyWithoutCourtInput
-}
-
-export type CourtUncheckedCreateWithoutPrimaryEmployeesInput = {
-  id?: string
-  name: string
-  code: string
-  regionId: string
-  isActive?: boolean
-  createdAt?: Date | string
-  updatedAt?: Date | string
-  shiftRules?: Prisma.CourtShiftRuleUncheckedCreateNestedManyWithoutCourtInput
-  eligibility?: Prisma.CourtEligibilityUncheckedCreateNestedManyWithoutCourtInput
-  availabilityEntries?: Prisma.AvailabilityEntryUncheckedCreateNestedManyWithoutCourtInput
-  assignments?: Prisma.ShiftAssignmentUncheckedCreateNestedManyWithoutCourtInput
-  warnings?: Prisma.ScheduleWarningUncheckedCreateNestedManyWithoutCourtInput
-}
-
-export type CourtCreateOrConnectWithoutPrimaryEmployeesInput = {
-  where: Prisma.CourtWhereUniqueInput
-  create: Prisma.XOR<Prisma.CourtCreateWithoutPrimaryEmployeesInput, Prisma.CourtUncheckedCreateWithoutPrimaryEmployeesInput>
-}
-
-export type CourtUpsertWithoutPrimaryEmployeesInput = {
-  update: Prisma.XOR<Prisma.CourtUpdateWithoutPrimaryEmployeesInput, Prisma.CourtUncheckedUpdateWithoutPrimaryEmployeesInput>
-  create: Prisma.XOR<Prisma.CourtCreateWithoutPrimaryEmployeesInput, Prisma.CourtUncheckedCreateWithoutPrimaryEmployeesInput>
-  where?: Prisma.CourtWhereInput
-}
-
-export type CourtUpdateToOneWithWhereWithoutPrimaryEmployeesInput = {
-  where?: Prisma.CourtWhereInput
-  data: Prisma.XOR<Prisma.CourtUpdateWithoutPrimaryEmployeesInput, Prisma.CourtUncheckedUpdateWithoutPrimaryEmployeesInput>
-}
-
-export type CourtUpdateWithoutPrimaryEmployeesInput = {
-  id?: Prisma.StringFieldUpdateOperationsInput | string
-  name?: Prisma.StringFieldUpdateOperationsInput | string
-  code?: Prisma.StringFieldUpdateOperationsInput | string
-  isActive?: Prisma.BoolFieldUpdateOperationsInput | boolean
-  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
-  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
-  region?: Prisma.RegionUpdateOneRequiredWithoutCourtsNestedInput
-  shiftRules?: Prisma.CourtShiftRuleUpdateManyWithoutCourtNestedInput
-  eligibility?: Prisma.CourtEligibilityUpdateManyWithoutCourtNestedInput
-  availabilityEntries?: Prisma.AvailabilityEntryUpdateManyWithoutCourtNestedInput
-  assignments?: Prisma.ShiftAssignmentUpdateManyWithoutCourtNestedInput
-  warnings?: Prisma.ScheduleWarningUpdateManyWithoutCourtNestedInput
-}
-
-export type CourtUncheckedUpdateWithoutPrimaryEmployeesInput = {
-  id?: Prisma.StringFieldUpdateOperationsInput | string
-  name?: Prisma.StringFieldUpdateOperationsInput | string
-  code?: Prisma.StringFieldUpdateOperationsInput | string
-  regionId?: Prisma.StringFieldUpdateOperationsInput | string
-  isActive?: Prisma.BoolFieldUpdateOperationsInput | boolean
-  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
-  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
-  shiftRules?: Prisma.CourtShiftRuleUncheckedUpdateManyWithoutCourtNestedInput
-  eligibility?: Prisma.CourtEligibilityUncheckedUpdateManyWithoutCourtNestedInput
-  availabilityEntries?: Prisma.AvailabilityEntryUncheckedUpdateManyWithoutCourtNestedInput
-  assignments?: Prisma.ShiftAssignmentUncheckedUpdateManyWithoutCourtNestedInput
-  warnings?: Prisma.ScheduleWarningUncheckedUpdateManyWithoutCourtNestedInput
+  update?: Prisma.XOR<Prisma.XOR<Prisma.CourtUpdateToOneWithWhereWithoutPeriodsInput, Prisma.CourtUpdateWithoutPeriodsInput>, Prisma.CourtUncheckedUpdateWithoutPeriodsInput>
 }
 
 export type CourtCreateWithoutRegionInput = {
   id?: string
   name: string
   code: string
-  isActive?: boolean
   createdAt?: Date | string
   updatedAt?: Date | string
+  employees?: Prisma.EmployeeCreateNestedManyWithoutCourtInput
   shiftRules?: Prisma.CourtShiftRuleCreateNestedManyWithoutCourtInput
-  eligibility?: Prisma.CourtEligibilityCreateNestedManyWithoutCourtInput
-  primaryEmployees?: Prisma.EmployeeCreateNestedManyWithoutPrimaryCourtInput
-  availabilityEntries?: Prisma.AvailabilityEntryCreateNestedManyWithoutCourtInput
-  assignments?: Prisma.ShiftAssignmentCreateNestedManyWithoutCourtInput
-  warnings?: Prisma.ScheduleWarningCreateNestedManyWithoutCourtInput
+  periods?: Prisma.SchedulingPeriodCreateNestedManyWithoutCourtInput
 }
 
 export type CourtUncheckedCreateWithoutRegionInput = {
   id?: string
   name: string
   code: string
-  isActive?: boolean
   createdAt?: Date | string
   updatedAt?: Date | string
+  employees?: Prisma.EmployeeUncheckedCreateNestedManyWithoutCourtInput
   shiftRules?: Prisma.CourtShiftRuleUncheckedCreateNestedManyWithoutCourtInput
-  eligibility?: Prisma.CourtEligibilityUncheckedCreateNestedManyWithoutCourtInput
-  primaryEmployees?: Prisma.EmployeeUncheckedCreateNestedManyWithoutPrimaryCourtInput
-  availabilityEntries?: Prisma.AvailabilityEntryUncheckedCreateNestedManyWithoutCourtInput
-  assignments?: Prisma.ShiftAssignmentUncheckedCreateNestedManyWithoutCourtInput
-  warnings?: Prisma.ScheduleWarningUncheckedCreateNestedManyWithoutCourtInput
+  periods?: Prisma.SchedulingPeriodUncheckedCreateNestedManyWithoutCourtInput
 }
 
 export type CourtCreateOrConnectWithoutRegionInput = {
@@ -683,100 +505,79 @@ export type CourtScalarWhereInput = {
   name?: Prisma.StringFilter<"Court"> | string
   code?: Prisma.StringFilter<"Court"> | string
   regionId?: Prisma.StringFilter<"Court"> | string
-  isActive?: Prisma.BoolFilter<"Court"> | boolean
   createdAt?: Prisma.DateTimeFilter<"Court"> | Date | string
   updatedAt?: Prisma.DateTimeFilter<"Court"> | Date | string
 }
 
-export type CourtCreateWithoutEligibilityInput = {
+export type CourtCreateWithoutEmployeesInput = {
   id?: string
   name: string
   code: string
-  isActive?: boolean
   createdAt?: Date | string
   updatedAt?: Date | string
   region: Prisma.RegionCreateNestedOneWithoutCourtsInput
   shiftRules?: Prisma.CourtShiftRuleCreateNestedManyWithoutCourtInput
-  primaryEmployees?: Prisma.EmployeeCreateNestedManyWithoutPrimaryCourtInput
-  availabilityEntries?: Prisma.AvailabilityEntryCreateNestedManyWithoutCourtInput
-  assignments?: Prisma.ShiftAssignmentCreateNestedManyWithoutCourtInput
-  warnings?: Prisma.ScheduleWarningCreateNestedManyWithoutCourtInput
+  periods?: Prisma.SchedulingPeriodCreateNestedManyWithoutCourtInput
 }
 
-export type CourtUncheckedCreateWithoutEligibilityInput = {
+export type CourtUncheckedCreateWithoutEmployeesInput = {
   id?: string
   name: string
   code: string
   regionId: string
-  isActive?: boolean
   createdAt?: Date | string
   updatedAt?: Date | string
   shiftRules?: Prisma.CourtShiftRuleUncheckedCreateNestedManyWithoutCourtInput
-  primaryEmployees?: Prisma.EmployeeUncheckedCreateNestedManyWithoutPrimaryCourtInput
-  availabilityEntries?: Prisma.AvailabilityEntryUncheckedCreateNestedManyWithoutCourtInput
-  assignments?: Prisma.ShiftAssignmentUncheckedCreateNestedManyWithoutCourtInput
-  warnings?: Prisma.ScheduleWarningUncheckedCreateNestedManyWithoutCourtInput
+  periods?: Prisma.SchedulingPeriodUncheckedCreateNestedManyWithoutCourtInput
 }
 
-export type CourtCreateOrConnectWithoutEligibilityInput = {
+export type CourtCreateOrConnectWithoutEmployeesInput = {
   where: Prisma.CourtWhereUniqueInput
-  create: Prisma.XOR<Prisma.CourtCreateWithoutEligibilityInput, Prisma.CourtUncheckedCreateWithoutEligibilityInput>
+  create: Prisma.XOR<Prisma.CourtCreateWithoutEmployeesInput, Prisma.CourtUncheckedCreateWithoutEmployeesInput>
 }
 
-export type CourtUpsertWithoutEligibilityInput = {
-  update: Prisma.XOR<Prisma.CourtUpdateWithoutEligibilityInput, Prisma.CourtUncheckedUpdateWithoutEligibilityInput>
-  create: Prisma.XOR<Prisma.CourtCreateWithoutEligibilityInput, Prisma.CourtUncheckedCreateWithoutEligibilityInput>
+export type CourtUpsertWithoutEmployeesInput = {
+  update: Prisma.XOR<Prisma.CourtUpdateWithoutEmployeesInput, Prisma.CourtUncheckedUpdateWithoutEmployeesInput>
+  create: Prisma.XOR<Prisma.CourtCreateWithoutEmployeesInput, Prisma.CourtUncheckedCreateWithoutEmployeesInput>
   where?: Prisma.CourtWhereInput
 }
 
-export type CourtUpdateToOneWithWhereWithoutEligibilityInput = {
+export type CourtUpdateToOneWithWhereWithoutEmployeesInput = {
   where?: Prisma.CourtWhereInput
-  data: Prisma.XOR<Prisma.CourtUpdateWithoutEligibilityInput, Prisma.CourtUncheckedUpdateWithoutEligibilityInput>
+  data: Prisma.XOR<Prisma.CourtUpdateWithoutEmployeesInput, Prisma.CourtUncheckedUpdateWithoutEmployeesInput>
 }
 
-export type CourtUpdateWithoutEligibilityInput = {
+export type CourtUpdateWithoutEmployeesInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
   name?: Prisma.StringFieldUpdateOperationsInput | string
   code?: Prisma.StringFieldUpdateOperationsInput | string
-  isActive?: Prisma.BoolFieldUpdateOperationsInput | boolean
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   region?: Prisma.RegionUpdateOneRequiredWithoutCourtsNestedInput
   shiftRules?: Prisma.CourtShiftRuleUpdateManyWithoutCourtNestedInput
-  primaryEmployees?: Prisma.EmployeeUpdateManyWithoutPrimaryCourtNestedInput
-  availabilityEntries?: Prisma.AvailabilityEntryUpdateManyWithoutCourtNestedInput
-  assignments?: Prisma.ShiftAssignmentUpdateManyWithoutCourtNestedInput
-  warnings?: Prisma.ScheduleWarningUpdateManyWithoutCourtNestedInput
+  periods?: Prisma.SchedulingPeriodUpdateManyWithoutCourtNestedInput
 }
 
-export type CourtUncheckedUpdateWithoutEligibilityInput = {
+export type CourtUncheckedUpdateWithoutEmployeesInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
   name?: Prisma.StringFieldUpdateOperationsInput | string
   code?: Prisma.StringFieldUpdateOperationsInput | string
   regionId?: Prisma.StringFieldUpdateOperationsInput | string
-  isActive?: Prisma.BoolFieldUpdateOperationsInput | boolean
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   shiftRules?: Prisma.CourtShiftRuleUncheckedUpdateManyWithoutCourtNestedInput
-  primaryEmployees?: Prisma.EmployeeUncheckedUpdateManyWithoutPrimaryCourtNestedInput
-  availabilityEntries?: Prisma.AvailabilityEntryUncheckedUpdateManyWithoutCourtNestedInput
-  assignments?: Prisma.ShiftAssignmentUncheckedUpdateManyWithoutCourtNestedInput
-  warnings?: Prisma.ScheduleWarningUncheckedUpdateManyWithoutCourtNestedInput
+  periods?: Prisma.SchedulingPeriodUncheckedUpdateManyWithoutCourtNestedInput
 }
 
 export type CourtCreateWithoutShiftRulesInput = {
   id?: string
   name: string
   code: string
-  isActive?: boolean
   createdAt?: Date | string
   updatedAt?: Date | string
   region: Prisma.RegionCreateNestedOneWithoutCourtsInput
-  eligibility?: Prisma.CourtEligibilityCreateNestedManyWithoutCourtInput
-  primaryEmployees?: Prisma.EmployeeCreateNestedManyWithoutPrimaryCourtInput
-  availabilityEntries?: Prisma.AvailabilityEntryCreateNestedManyWithoutCourtInput
-  assignments?: Prisma.ShiftAssignmentCreateNestedManyWithoutCourtInput
-  warnings?: Prisma.ScheduleWarningCreateNestedManyWithoutCourtInput
+  employees?: Prisma.EmployeeCreateNestedManyWithoutCourtInput
+  periods?: Prisma.SchedulingPeriodCreateNestedManyWithoutCourtInput
 }
 
 export type CourtUncheckedCreateWithoutShiftRulesInput = {
@@ -784,14 +585,10 @@ export type CourtUncheckedCreateWithoutShiftRulesInput = {
   name: string
   code: string
   regionId: string
-  isActive?: boolean
   createdAt?: Date | string
   updatedAt?: Date | string
-  eligibility?: Prisma.CourtEligibilityUncheckedCreateNestedManyWithoutCourtInput
-  primaryEmployees?: Prisma.EmployeeUncheckedCreateNestedManyWithoutPrimaryCourtInput
-  availabilityEntries?: Prisma.AvailabilityEntryUncheckedCreateNestedManyWithoutCourtInput
-  assignments?: Prisma.ShiftAssignmentUncheckedCreateNestedManyWithoutCourtInput
-  warnings?: Prisma.ScheduleWarningUncheckedCreateNestedManyWithoutCourtInput
+  employees?: Prisma.EmployeeUncheckedCreateNestedManyWithoutCourtInput
+  periods?: Prisma.SchedulingPeriodUncheckedCreateNestedManyWithoutCourtInput
 }
 
 export type CourtCreateOrConnectWithoutShiftRulesInput = {
@@ -814,15 +611,11 @@ export type CourtUpdateWithoutShiftRulesInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
   name?: Prisma.StringFieldUpdateOperationsInput | string
   code?: Prisma.StringFieldUpdateOperationsInput | string
-  isActive?: Prisma.BoolFieldUpdateOperationsInput | boolean
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   region?: Prisma.RegionUpdateOneRequiredWithoutCourtsNestedInput
-  eligibility?: Prisma.CourtEligibilityUpdateManyWithoutCourtNestedInput
-  primaryEmployees?: Prisma.EmployeeUpdateManyWithoutPrimaryCourtNestedInput
-  availabilityEntries?: Prisma.AvailabilityEntryUpdateManyWithoutCourtNestedInput
-  assignments?: Prisma.ShiftAssignmentUpdateManyWithoutCourtNestedInput
-  warnings?: Prisma.ScheduleWarningUpdateManyWithoutCourtNestedInput
+  employees?: Prisma.EmployeeUpdateManyWithoutCourtNestedInput
+  periods?: Prisma.SchedulingPeriodUpdateManyWithoutCourtNestedInput
 }
 
 export type CourtUncheckedUpdateWithoutShiftRulesInput = {
@@ -830,249 +623,76 @@ export type CourtUncheckedUpdateWithoutShiftRulesInput = {
   name?: Prisma.StringFieldUpdateOperationsInput | string
   code?: Prisma.StringFieldUpdateOperationsInput | string
   regionId?: Prisma.StringFieldUpdateOperationsInput | string
-  isActive?: Prisma.BoolFieldUpdateOperationsInput | boolean
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
-  eligibility?: Prisma.CourtEligibilityUncheckedUpdateManyWithoutCourtNestedInput
-  primaryEmployees?: Prisma.EmployeeUncheckedUpdateManyWithoutPrimaryCourtNestedInput
-  availabilityEntries?: Prisma.AvailabilityEntryUncheckedUpdateManyWithoutCourtNestedInput
-  assignments?: Prisma.ShiftAssignmentUncheckedUpdateManyWithoutCourtNestedInput
-  warnings?: Prisma.ScheduleWarningUncheckedUpdateManyWithoutCourtNestedInput
+  employees?: Prisma.EmployeeUncheckedUpdateManyWithoutCourtNestedInput
+  periods?: Prisma.SchedulingPeriodUncheckedUpdateManyWithoutCourtNestedInput
 }
 
-export type CourtCreateWithoutAvailabilityEntriesInput = {
+export type CourtCreateWithoutPeriodsInput = {
   id?: string
   name: string
   code: string
-  isActive?: boolean
   createdAt?: Date | string
   updatedAt?: Date | string
   region: Prisma.RegionCreateNestedOneWithoutCourtsInput
+  employees?: Prisma.EmployeeCreateNestedManyWithoutCourtInput
   shiftRules?: Prisma.CourtShiftRuleCreateNestedManyWithoutCourtInput
-  eligibility?: Prisma.CourtEligibilityCreateNestedManyWithoutCourtInput
-  primaryEmployees?: Prisma.EmployeeCreateNestedManyWithoutPrimaryCourtInput
-  assignments?: Prisma.ShiftAssignmentCreateNestedManyWithoutCourtInput
-  warnings?: Prisma.ScheduleWarningCreateNestedManyWithoutCourtInput
 }
 
-export type CourtUncheckedCreateWithoutAvailabilityEntriesInput = {
+export type CourtUncheckedCreateWithoutPeriodsInput = {
   id?: string
   name: string
   code: string
   regionId: string
-  isActive?: boolean
   createdAt?: Date | string
   updatedAt?: Date | string
+  employees?: Prisma.EmployeeUncheckedCreateNestedManyWithoutCourtInput
   shiftRules?: Prisma.CourtShiftRuleUncheckedCreateNestedManyWithoutCourtInput
-  eligibility?: Prisma.CourtEligibilityUncheckedCreateNestedManyWithoutCourtInput
-  primaryEmployees?: Prisma.EmployeeUncheckedCreateNestedManyWithoutPrimaryCourtInput
-  assignments?: Prisma.ShiftAssignmentUncheckedCreateNestedManyWithoutCourtInput
-  warnings?: Prisma.ScheduleWarningUncheckedCreateNestedManyWithoutCourtInput
 }
 
-export type CourtCreateOrConnectWithoutAvailabilityEntriesInput = {
+export type CourtCreateOrConnectWithoutPeriodsInput = {
   where: Prisma.CourtWhereUniqueInput
-  create: Prisma.XOR<Prisma.CourtCreateWithoutAvailabilityEntriesInput, Prisma.CourtUncheckedCreateWithoutAvailabilityEntriesInput>
+  create: Prisma.XOR<Prisma.CourtCreateWithoutPeriodsInput, Prisma.CourtUncheckedCreateWithoutPeriodsInput>
 }
 
-export type CourtUpsertWithoutAvailabilityEntriesInput = {
-  update: Prisma.XOR<Prisma.CourtUpdateWithoutAvailabilityEntriesInput, Prisma.CourtUncheckedUpdateWithoutAvailabilityEntriesInput>
-  create: Prisma.XOR<Prisma.CourtCreateWithoutAvailabilityEntriesInput, Prisma.CourtUncheckedCreateWithoutAvailabilityEntriesInput>
+export type CourtUpsertWithoutPeriodsInput = {
+  update: Prisma.XOR<Prisma.CourtUpdateWithoutPeriodsInput, Prisma.CourtUncheckedUpdateWithoutPeriodsInput>
+  create: Prisma.XOR<Prisma.CourtCreateWithoutPeriodsInput, Prisma.CourtUncheckedCreateWithoutPeriodsInput>
   where?: Prisma.CourtWhereInput
 }
 
-export type CourtUpdateToOneWithWhereWithoutAvailabilityEntriesInput = {
+export type CourtUpdateToOneWithWhereWithoutPeriodsInput = {
   where?: Prisma.CourtWhereInput
-  data: Prisma.XOR<Prisma.CourtUpdateWithoutAvailabilityEntriesInput, Prisma.CourtUncheckedUpdateWithoutAvailabilityEntriesInput>
+  data: Prisma.XOR<Prisma.CourtUpdateWithoutPeriodsInput, Prisma.CourtUncheckedUpdateWithoutPeriodsInput>
 }
 
-export type CourtUpdateWithoutAvailabilityEntriesInput = {
+export type CourtUpdateWithoutPeriodsInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
   name?: Prisma.StringFieldUpdateOperationsInput | string
   code?: Prisma.StringFieldUpdateOperationsInput | string
-  isActive?: Prisma.BoolFieldUpdateOperationsInput | boolean
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   region?: Prisma.RegionUpdateOneRequiredWithoutCourtsNestedInput
+  employees?: Prisma.EmployeeUpdateManyWithoutCourtNestedInput
   shiftRules?: Prisma.CourtShiftRuleUpdateManyWithoutCourtNestedInput
-  eligibility?: Prisma.CourtEligibilityUpdateManyWithoutCourtNestedInput
-  primaryEmployees?: Prisma.EmployeeUpdateManyWithoutPrimaryCourtNestedInput
-  assignments?: Prisma.ShiftAssignmentUpdateManyWithoutCourtNestedInput
-  warnings?: Prisma.ScheduleWarningUpdateManyWithoutCourtNestedInput
 }
 
-export type CourtUncheckedUpdateWithoutAvailabilityEntriesInput = {
+export type CourtUncheckedUpdateWithoutPeriodsInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
   name?: Prisma.StringFieldUpdateOperationsInput | string
   code?: Prisma.StringFieldUpdateOperationsInput | string
   regionId?: Prisma.StringFieldUpdateOperationsInput | string
-  isActive?: Prisma.BoolFieldUpdateOperationsInput | boolean
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  employees?: Prisma.EmployeeUncheckedUpdateManyWithoutCourtNestedInput
   shiftRules?: Prisma.CourtShiftRuleUncheckedUpdateManyWithoutCourtNestedInput
-  eligibility?: Prisma.CourtEligibilityUncheckedUpdateManyWithoutCourtNestedInput
-  primaryEmployees?: Prisma.EmployeeUncheckedUpdateManyWithoutPrimaryCourtNestedInput
-  assignments?: Prisma.ShiftAssignmentUncheckedUpdateManyWithoutCourtNestedInput
-  warnings?: Prisma.ScheduleWarningUncheckedUpdateManyWithoutCourtNestedInput
-}
-
-export type CourtCreateWithoutAssignmentsInput = {
-  id?: string
-  name: string
-  code: string
-  isActive?: boolean
-  createdAt?: Date | string
-  updatedAt?: Date | string
-  region: Prisma.RegionCreateNestedOneWithoutCourtsInput
-  shiftRules?: Prisma.CourtShiftRuleCreateNestedManyWithoutCourtInput
-  eligibility?: Prisma.CourtEligibilityCreateNestedManyWithoutCourtInput
-  primaryEmployees?: Prisma.EmployeeCreateNestedManyWithoutPrimaryCourtInput
-  availabilityEntries?: Prisma.AvailabilityEntryCreateNestedManyWithoutCourtInput
-  warnings?: Prisma.ScheduleWarningCreateNestedManyWithoutCourtInput
-}
-
-export type CourtUncheckedCreateWithoutAssignmentsInput = {
-  id?: string
-  name: string
-  code: string
-  regionId: string
-  isActive?: boolean
-  createdAt?: Date | string
-  updatedAt?: Date | string
-  shiftRules?: Prisma.CourtShiftRuleUncheckedCreateNestedManyWithoutCourtInput
-  eligibility?: Prisma.CourtEligibilityUncheckedCreateNestedManyWithoutCourtInput
-  primaryEmployees?: Prisma.EmployeeUncheckedCreateNestedManyWithoutPrimaryCourtInput
-  availabilityEntries?: Prisma.AvailabilityEntryUncheckedCreateNestedManyWithoutCourtInput
-  warnings?: Prisma.ScheduleWarningUncheckedCreateNestedManyWithoutCourtInput
-}
-
-export type CourtCreateOrConnectWithoutAssignmentsInput = {
-  where: Prisma.CourtWhereUniqueInput
-  create: Prisma.XOR<Prisma.CourtCreateWithoutAssignmentsInput, Prisma.CourtUncheckedCreateWithoutAssignmentsInput>
-}
-
-export type CourtUpsertWithoutAssignmentsInput = {
-  update: Prisma.XOR<Prisma.CourtUpdateWithoutAssignmentsInput, Prisma.CourtUncheckedUpdateWithoutAssignmentsInput>
-  create: Prisma.XOR<Prisma.CourtCreateWithoutAssignmentsInput, Prisma.CourtUncheckedCreateWithoutAssignmentsInput>
-  where?: Prisma.CourtWhereInput
-}
-
-export type CourtUpdateToOneWithWhereWithoutAssignmentsInput = {
-  where?: Prisma.CourtWhereInput
-  data: Prisma.XOR<Prisma.CourtUpdateWithoutAssignmentsInput, Prisma.CourtUncheckedUpdateWithoutAssignmentsInput>
-}
-
-export type CourtUpdateWithoutAssignmentsInput = {
-  id?: Prisma.StringFieldUpdateOperationsInput | string
-  name?: Prisma.StringFieldUpdateOperationsInput | string
-  code?: Prisma.StringFieldUpdateOperationsInput | string
-  isActive?: Prisma.BoolFieldUpdateOperationsInput | boolean
-  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
-  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
-  region?: Prisma.RegionUpdateOneRequiredWithoutCourtsNestedInput
-  shiftRules?: Prisma.CourtShiftRuleUpdateManyWithoutCourtNestedInput
-  eligibility?: Prisma.CourtEligibilityUpdateManyWithoutCourtNestedInput
-  primaryEmployees?: Prisma.EmployeeUpdateManyWithoutPrimaryCourtNestedInput
-  availabilityEntries?: Prisma.AvailabilityEntryUpdateManyWithoutCourtNestedInput
-  warnings?: Prisma.ScheduleWarningUpdateManyWithoutCourtNestedInput
-}
-
-export type CourtUncheckedUpdateWithoutAssignmentsInput = {
-  id?: Prisma.StringFieldUpdateOperationsInput | string
-  name?: Prisma.StringFieldUpdateOperationsInput | string
-  code?: Prisma.StringFieldUpdateOperationsInput | string
-  regionId?: Prisma.StringFieldUpdateOperationsInput | string
-  isActive?: Prisma.BoolFieldUpdateOperationsInput | boolean
-  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
-  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
-  shiftRules?: Prisma.CourtShiftRuleUncheckedUpdateManyWithoutCourtNestedInput
-  eligibility?: Prisma.CourtEligibilityUncheckedUpdateManyWithoutCourtNestedInput
-  primaryEmployees?: Prisma.EmployeeUncheckedUpdateManyWithoutPrimaryCourtNestedInput
-  availabilityEntries?: Prisma.AvailabilityEntryUncheckedUpdateManyWithoutCourtNestedInput
-  warnings?: Prisma.ScheduleWarningUncheckedUpdateManyWithoutCourtNestedInput
-}
-
-export type CourtCreateWithoutWarningsInput = {
-  id?: string
-  name: string
-  code: string
-  isActive?: boolean
-  createdAt?: Date | string
-  updatedAt?: Date | string
-  region: Prisma.RegionCreateNestedOneWithoutCourtsInput
-  shiftRules?: Prisma.CourtShiftRuleCreateNestedManyWithoutCourtInput
-  eligibility?: Prisma.CourtEligibilityCreateNestedManyWithoutCourtInput
-  primaryEmployees?: Prisma.EmployeeCreateNestedManyWithoutPrimaryCourtInput
-  availabilityEntries?: Prisma.AvailabilityEntryCreateNestedManyWithoutCourtInput
-  assignments?: Prisma.ShiftAssignmentCreateNestedManyWithoutCourtInput
-}
-
-export type CourtUncheckedCreateWithoutWarningsInput = {
-  id?: string
-  name: string
-  code: string
-  regionId: string
-  isActive?: boolean
-  createdAt?: Date | string
-  updatedAt?: Date | string
-  shiftRules?: Prisma.CourtShiftRuleUncheckedCreateNestedManyWithoutCourtInput
-  eligibility?: Prisma.CourtEligibilityUncheckedCreateNestedManyWithoutCourtInput
-  primaryEmployees?: Prisma.EmployeeUncheckedCreateNestedManyWithoutPrimaryCourtInput
-  availabilityEntries?: Prisma.AvailabilityEntryUncheckedCreateNestedManyWithoutCourtInput
-  assignments?: Prisma.ShiftAssignmentUncheckedCreateNestedManyWithoutCourtInput
-}
-
-export type CourtCreateOrConnectWithoutWarningsInput = {
-  where: Prisma.CourtWhereUniqueInput
-  create: Prisma.XOR<Prisma.CourtCreateWithoutWarningsInput, Prisma.CourtUncheckedCreateWithoutWarningsInput>
-}
-
-export type CourtUpsertWithoutWarningsInput = {
-  update: Prisma.XOR<Prisma.CourtUpdateWithoutWarningsInput, Prisma.CourtUncheckedUpdateWithoutWarningsInput>
-  create: Prisma.XOR<Prisma.CourtCreateWithoutWarningsInput, Prisma.CourtUncheckedCreateWithoutWarningsInput>
-  where?: Prisma.CourtWhereInput
-}
-
-export type CourtUpdateToOneWithWhereWithoutWarningsInput = {
-  where?: Prisma.CourtWhereInput
-  data: Prisma.XOR<Prisma.CourtUpdateWithoutWarningsInput, Prisma.CourtUncheckedUpdateWithoutWarningsInput>
-}
-
-export type CourtUpdateWithoutWarningsInput = {
-  id?: Prisma.StringFieldUpdateOperationsInput | string
-  name?: Prisma.StringFieldUpdateOperationsInput | string
-  code?: Prisma.StringFieldUpdateOperationsInput | string
-  isActive?: Prisma.BoolFieldUpdateOperationsInput | boolean
-  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
-  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
-  region?: Prisma.RegionUpdateOneRequiredWithoutCourtsNestedInput
-  shiftRules?: Prisma.CourtShiftRuleUpdateManyWithoutCourtNestedInput
-  eligibility?: Prisma.CourtEligibilityUpdateManyWithoutCourtNestedInput
-  primaryEmployees?: Prisma.EmployeeUpdateManyWithoutPrimaryCourtNestedInput
-  availabilityEntries?: Prisma.AvailabilityEntryUpdateManyWithoutCourtNestedInput
-  assignments?: Prisma.ShiftAssignmentUpdateManyWithoutCourtNestedInput
-}
-
-export type CourtUncheckedUpdateWithoutWarningsInput = {
-  id?: Prisma.StringFieldUpdateOperationsInput | string
-  name?: Prisma.StringFieldUpdateOperationsInput | string
-  code?: Prisma.StringFieldUpdateOperationsInput | string
-  regionId?: Prisma.StringFieldUpdateOperationsInput | string
-  isActive?: Prisma.BoolFieldUpdateOperationsInput | boolean
-  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
-  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
-  shiftRules?: Prisma.CourtShiftRuleUncheckedUpdateManyWithoutCourtNestedInput
-  eligibility?: Prisma.CourtEligibilityUncheckedUpdateManyWithoutCourtNestedInput
-  primaryEmployees?: Prisma.EmployeeUncheckedUpdateManyWithoutPrimaryCourtNestedInput
-  availabilityEntries?: Prisma.AvailabilityEntryUncheckedUpdateManyWithoutCourtNestedInput
-  assignments?: Prisma.ShiftAssignmentUncheckedUpdateManyWithoutCourtNestedInput
 }
 
 export type CourtCreateManyRegionInput = {
   id?: string
   name: string
   code: string
-  isActive?: boolean
   createdAt?: Date | string
   updatedAt?: Date | string
 }
@@ -1081,37 +701,28 @@ export type CourtUpdateWithoutRegionInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
   name?: Prisma.StringFieldUpdateOperationsInput | string
   code?: Prisma.StringFieldUpdateOperationsInput | string
-  isActive?: Prisma.BoolFieldUpdateOperationsInput | boolean
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  employees?: Prisma.EmployeeUpdateManyWithoutCourtNestedInput
   shiftRules?: Prisma.CourtShiftRuleUpdateManyWithoutCourtNestedInput
-  eligibility?: Prisma.CourtEligibilityUpdateManyWithoutCourtNestedInput
-  primaryEmployees?: Prisma.EmployeeUpdateManyWithoutPrimaryCourtNestedInput
-  availabilityEntries?: Prisma.AvailabilityEntryUpdateManyWithoutCourtNestedInput
-  assignments?: Prisma.ShiftAssignmentUpdateManyWithoutCourtNestedInput
-  warnings?: Prisma.ScheduleWarningUpdateManyWithoutCourtNestedInput
+  periods?: Prisma.SchedulingPeriodUpdateManyWithoutCourtNestedInput
 }
 
 export type CourtUncheckedUpdateWithoutRegionInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
   name?: Prisma.StringFieldUpdateOperationsInput | string
   code?: Prisma.StringFieldUpdateOperationsInput | string
-  isActive?: Prisma.BoolFieldUpdateOperationsInput | boolean
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  employees?: Prisma.EmployeeUncheckedUpdateManyWithoutCourtNestedInput
   shiftRules?: Prisma.CourtShiftRuleUncheckedUpdateManyWithoutCourtNestedInput
-  eligibility?: Prisma.CourtEligibilityUncheckedUpdateManyWithoutCourtNestedInput
-  primaryEmployees?: Prisma.EmployeeUncheckedUpdateManyWithoutPrimaryCourtNestedInput
-  availabilityEntries?: Prisma.AvailabilityEntryUncheckedUpdateManyWithoutCourtNestedInput
-  assignments?: Prisma.ShiftAssignmentUncheckedUpdateManyWithoutCourtNestedInput
-  warnings?: Prisma.ScheduleWarningUncheckedUpdateManyWithoutCourtNestedInput
+  periods?: Prisma.SchedulingPeriodUncheckedUpdateManyWithoutCourtNestedInput
 }
 
 export type CourtUncheckedUpdateManyWithoutRegionInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
   name?: Prisma.StringFieldUpdateOperationsInput | string
   code?: Prisma.StringFieldUpdateOperationsInput | string
-  isActive?: Prisma.BoolFieldUpdateOperationsInput | boolean
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
 }
@@ -1122,21 +733,15 @@ export type CourtUncheckedUpdateManyWithoutRegionInput = {
  */
 
 export type CourtCountOutputType = {
+  employees: number
   shiftRules: number
-  eligibility: number
-  primaryEmployees: number
-  availabilityEntries: number
-  assignments: number
-  warnings: number
+  periods: number
 }
 
 export type CourtCountOutputTypeSelect<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+  employees?: boolean | CourtCountOutputTypeCountEmployeesArgs
   shiftRules?: boolean | CourtCountOutputTypeCountShiftRulesArgs
-  eligibility?: boolean | CourtCountOutputTypeCountEligibilityArgs
-  primaryEmployees?: boolean | CourtCountOutputTypeCountPrimaryEmployeesArgs
-  availabilityEntries?: boolean | CourtCountOutputTypeCountAvailabilityEntriesArgs
-  assignments?: boolean | CourtCountOutputTypeCountAssignmentsArgs
-  warnings?: boolean | CourtCountOutputTypeCountWarningsArgs
+  periods?: boolean | CourtCountOutputTypeCountPeriodsArgs
 }
 
 /**
@@ -1152,6 +757,13 @@ export type CourtCountOutputTypeDefaultArgs<ExtArgs extends runtime.Types.Extens
 /**
  * CourtCountOutputType without action
  */
+export type CourtCountOutputTypeCountEmployeesArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+  where?: Prisma.EmployeeWhereInput
+}
+
+/**
+ * CourtCountOutputType without action
+ */
 export type CourtCountOutputTypeCountShiftRulesArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
   where?: Prisma.CourtShiftRuleWhereInput
 }
@@ -1159,36 +771,8 @@ export type CourtCountOutputTypeCountShiftRulesArgs<ExtArgs extends runtime.Type
 /**
  * CourtCountOutputType without action
  */
-export type CourtCountOutputTypeCountEligibilityArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
-  where?: Prisma.CourtEligibilityWhereInput
-}
-
-/**
- * CourtCountOutputType without action
- */
-export type CourtCountOutputTypeCountPrimaryEmployeesArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
-  where?: Prisma.EmployeeWhereInput
-}
-
-/**
- * CourtCountOutputType without action
- */
-export type CourtCountOutputTypeCountAvailabilityEntriesArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
-  where?: Prisma.AvailabilityEntryWhereInput
-}
-
-/**
- * CourtCountOutputType without action
- */
-export type CourtCountOutputTypeCountAssignmentsArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
-  where?: Prisma.ShiftAssignmentWhereInput
-}
-
-/**
- * CourtCountOutputType without action
- */
-export type CourtCountOutputTypeCountWarningsArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
-  where?: Prisma.ScheduleWarningWhereInput
+export type CourtCountOutputTypeCountPeriodsArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+  where?: Prisma.SchedulingPeriodWhereInput
 }
 
 
@@ -1197,16 +781,12 @@ export type CourtSelect<ExtArgs extends runtime.Types.Extensions.InternalArgs = 
   name?: boolean
   code?: boolean
   regionId?: boolean
-  isActive?: boolean
   createdAt?: boolean
   updatedAt?: boolean
   region?: boolean | Prisma.RegionDefaultArgs<ExtArgs>
+  employees?: boolean | Prisma.Court$employeesArgs<ExtArgs>
   shiftRules?: boolean | Prisma.Court$shiftRulesArgs<ExtArgs>
-  eligibility?: boolean | Prisma.Court$eligibilityArgs<ExtArgs>
-  primaryEmployees?: boolean | Prisma.Court$primaryEmployeesArgs<ExtArgs>
-  availabilityEntries?: boolean | Prisma.Court$availabilityEntriesArgs<ExtArgs>
-  assignments?: boolean | Prisma.Court$assignmentsArgs<ExtArgs>
-  warnings?: boolean | Prisma.Court$warningsArgs<ExtArgs>
+  periods?: boolean | Prisma.Court$periodsArgs<ExtArgs>
   _count?: boolean | Prisma.CourtCountOutputTypeDefaultArgs<ExtArgs>
 }, ExtArgs["result"]["court"]>
 
@@ -1215,7 +795,6 @@ export type CourtSelectCreateManyAndReturn<ExtArgs extends runtime.Types.Extensi
   name?: boolean
   code?: boolean
   regionId?: boolean
-  isActive?: boolean
   createdAt?: boolean
   updatedAt?: boolean
   region?: boolean | Prisma.RegionDefaultArgs<ExtArgs>
@@ -1226,7 +805,6 @@ export type CourtSelectUpdateManyAndReturn<ExtArgs extends runtime.Types.Extensi
   name?: boolean
   code?: boolean
   regionId?: boolean
-  isActive?: boolean
   createdAt?: boolean
   updatedAt?: boolean
   region?: boolean | Prisma.RegionDefaultArgs<ExtArgs>
@@ -1237,20 +815,16 @@ export type CourtSelectScalar = {
   name?: boolean
   code?: boolean
   regionId?: boolean
-  isActive?: boolean
   createdAt?: boolean
   updatedAt?: boolean
 }
 
-export type CourtOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"id" | "name" | "code" | "regionId" | "isActive" | "createdAt" | "updatedAt", ExtArgs["result"]["court"]>
+export type CourtOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"id" | "name" | "code" | "regionId" | "createdAt" | "updatedAt", ExtArgs["result"]["court"]>
 export type CourtInclude<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
   region?: boolean | Prisma.RegionDefaultArgs<ExtArgs>
+  employees?: boolean | Prisma.Court$employeesArgs<ExtArgs>
   shiftRules?: boolean | Prisma.Court$shiftRulesArgs<ExtArgs>
-  eligibility?: boolean | Prisma.Court$eligibilityArgs<ExtArgs>
-  primaryEmployees?: boolean | Prisma.Court$primaryEmployeesArgs<ExtArgs>
-  availabilityEntries?: boolean | Prisma.Court$availabilityEntriesArgs<ExtArgs>
-  assignments?: boolean | Prisma.Court$assignmentsArgs<ExtArgs>
-  warnings?: boolean | Prisma.Court$warningsArgs<ExtArgs>
+  periods?: boolean | Prisma.Court$periodsArgs<ExtArgs>
   _count?: boolean | Prisma.CourtCountOutputTypeDefaultArgs<ExtArgs>
 }
 export type CourtIncludeCreateManyAndReturn<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
@@ -1264,19 +838,15 @@ export type $CourtPayload<ExtArgs extends runtime.Types.Extensions.InternalArgs 
   name: "Court"
   objects: {
     region: Prisma.$RegionPayload<ExtArgs>
+    employees: Prisma.$EmployeePayload<ExtArgs>[]
     shiftRules: Prisma.$CourtShiftRulePayload<ExtArgs>[]
-    eligibility: Prisma.$CourtEligibilityPayload<ExtArgs>[]
-    primaryEmployees: Prisma.$EmployeePayload<ExtArgs>[]
-    availabilityEntries: Prisma.$AvailabilityEntryPayload<ExtArgs>[]
-    assignments: Prisma.$ShiftAssignmentPayload<ExtArgs>[]
-    warnings: Prisma.$ScheduleWarningPayload<ExtArgs>[]
+    periods: Prisma.$SchedulingPeriodPayload<ExtArgs>[]
   }
   scalars: runtime.Types.Extensions.GetPayloadResult<{
     id: string
     name: string
     code: string
     regionId: string
-    isActive: boolean
     createdAt: Date
     updatedAt: Date
   }, ExtArgs["result"]["court"]>
@@ -1674,12 +1244,9 @@ readonly fields: CourtFieldRefs;
 export interface Prisma__CourtClient<T, Null = never, ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs, GlobalOmitOptions = {}> extends Prisma.PrismaPromise<T> {
   readonly [Symbol.toStringTag]: "PrismaPromise"
   region<T extends Prisma.RegionDefaultArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.RegionDefaultArgs<ExtArgs>>): Prisma.Prisma__RegionClient<runtime.Types.Result.GetResult<Prisma.$RegionPayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions> | Null, Null, ExtArgs, GlobalOmitOptions>
+  employees<T extends Prisma.Court$employeesArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.Court$employeesArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$EmployeePayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
   shiftRules<T extends Prisma.Court$shiftRulesArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.Court$shiftRulesArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$CourtShiftRulePayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
-  eligibility<T extends Prisma.Court$eligibilityArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.Court$eligibilityArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$CourtEligibilityPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
-  primaryEmployees<T extends Prisma.Court$primaryEmployeesArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.Court$primaryEmployeesArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$EmployeePayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
-  availabilityEntries<T extends Prisma.Court$availabilityEntriesArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.Court$availabilityEntriesArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$AvailabilityEntryPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
-  assignments<T extends Prisma.Court$assignmentsArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.Court$assignmentsArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$ShiftAssignmentPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
-  warnings<T extends Prisma.Court$warningsArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.Court$warningsArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$ScheduleWarningPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
+  periods<T extends Prisma.Court$periodsArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.Court$periodsArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$SchedulingPeriodPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
   /**
    * Attaches callbacks for the resolution and/or rejection of the Promise.
    * @param onfulfilled The callback to execute when the Promise is resolved.
@@ -1713,7 +1280,6 @@ export interface CourtFieldRefs {
   readonly name: Prisma.FieldRef<"Court", 'String'>
   readonly code: Prisma.FieldRef<"Court", 'String'>
   readonly regionId: Prisma.FieldRef<"Court", 'String'>
-  readonly isActive: Prisma.FieldRef<"Court", 'Boolean'>
   readonly createdAt: Prisma.FieldRef<"Court", 'DateTime'>
   readonly updatedAt: Prisma.FieldRef<"Court", 'DateTime'>
 }
@@ -2117,6 +1683,30 @@ export type CourtDeleteManyArgs<ExtArgs extends runtime.Types.Extensions.Interna
 }
 
 /**
+ * Court.employees
+ */
+export type Court$employeesArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+  /**
+   * Select specific fields to fetch from the Employee
+   */
+  select?: Prisma.EmployeeSelect<ExtArgs> | null
+  /**
+   * Omit specific fields from the Employee
+   */
+  omit?: Prisma.EmployeeOmit<ExtArgs> | null
+  /**
+   * Choose, which related nodes to fetch as well
+   */
+  include?: Prisma.EmployeeInclude<ExtArgs> | null
+  where?: Prisma.EmployeeWhereInput
+  orderBy?: Prisma.EmployeeOrderByWithRelationInput | Prisma.EmployeeOrderByWithRelationInput[]
+  cursor?: Prisma.EmployeeWhereUniqueInput
+  take?: number
+  skip?: number
+  distinct?: Prisma.EmployeeScalarFieldEnum | Prisma.EmployeeScalarFieldEnum[]
+}
+
+/**
  * Court.shiftRules
  */
 export type Court$shiftRulesArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
@@ -2141,123 +1731,27 @@ export type Court$shiftRulesArgs<ExtArgs extends runtime.Types.Extensions.Intern
 }
 
 /**
- * Court.eligibility
+ * Court.periods
  */
-export type Court$eligibilityArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+export type Court$periodsArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
   /**
-   * Select specific fields to fetch from the CourtEligibility
+   * Select specific fields to fetch from the SchedulingPeriod
    */
-  select?: Prisma.CourtEligibilitySelect<ExtArgs> | null
+  select?: Prisma.SchedulingPeriodSelect<ExtArgs> | null
   /**
-   * Omit specific fields from the CourtEligibility
+   * Omit specific fields from the SchedulingPeriod
    */
-  omit?: Prisma.CourtEligibilityOmit<ExtArgs> | null
+  omit?: Prisma.SchedulingPeriodOmit<ExtArgs> | null
   /**
    * Choose, which related nodes to fetch as well
    */
-  include?: Prisma.CourtEligibilityInclude<ExtArgs> | null
-  where?: Prisma.CourtEligibilityWhereInput
-  orderBy?: Prisma.CourtEligibilityOrderByWithRelationInput | Prisma.CourtEligibilityOrderByWithRelationInput[]
-  cursor?: Prisma.CourtEligibilityWhereUniqueInput
+  include?: Prisma.SchedulingPeriodInclude<ExtArgs> | null
+  where?: Prisma.SchedulingPeriodWhereInput
+  orderBy?: Prisma.SchedulingPeriodOrderByWithRelationInput | Prisma.SchedulingPeriodOrderByWithRelationInput[]
+  cursor?: Prisma.SchedulingPeriodWhereUniqueInput
   take?: number
   skip?: number
-  distinct?: Prisma.CourtEligibilityScalarFieldEnum | Prisma.CourtEligibilityScalarFieldEnum[]
-}
-
-/**
- * Court.primaryEmployees
- */
-export type Court$primaryEmployeesArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
-  /**
-   * Select specific fields to fetch from the Employee
-   */
-  select?: Prisma.EmployeeSelect<ExtArgs> | null
-  /**
-   * Omit specific fields from the Employee
-   */
-  omit?: Prisma.EmployeeOmit<ExtArgs> | null
-  /**
-   * Choose, which related nodes to fetch as well
-   */
-  include?: Prisma.EmployeeInclude<ExtArgs> | null
-  where?: Prisma.EmployeeWhereInput
-  orderBy?: Prisma.EmployeeOrderByWithRelationInput | Prisma.EmployeeOrderByWithRelationInput[]
-  cursor?: Prisma.EmployeeWhereUniqueInput
-  take?: number
-  skip?: number
-  distinct?: Prisma.EmployeeScalarFieldEnum | Prisma.EmployeeScalarFieldEnum[]
-}
-
-/**
- * Court.availabilityEntries
- */
-export type Court$availabilityEntriesArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
-  /**
-   * Select specific fields to fetch from the AvailabilityEntry
-   */
-  select?: Prisma.AvailabilityEntrySelect<ExtArgs> | null
-  /**
-   * Omit specific fields from the AvailabilityEntry
-   */
-  omit?: Prisma.AvailabilityEntryOmit<ExtArgs> | null
-  /**
-   * Choose, which related nodes to fetch as well
-   */
-  include?: Prisma.AvailabilityEntryInclude<ExtArgs> | null
-  where?: Prisma.AvailabilityEntryWhereInput
-  orderBy?: Prisma.AvailabilityEntryOrderByWithRelationInput | Prisma.AvailabilityEntryOrderByWithRelationInput[]
-  cursor?: Prisma.AvailabilityEntryWhereUniqueInput
-  take?: number
-  skip?: number
-  distinct?: Prisma.AvailabilityEntryScalarFieldEnum | Prisma.AvailabilityEntryScalarFieldEnum[]
-}
-
-/**
- * Court.assignments
- */
-export type Court$assignmentsArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
-  /**
-   * Select specific fields to fetch from the ShiftAssignment
-   */
-  select?: Prisma.ShiftAssignmentSelect<ExtArgs> | null
-  /**
-   * Omit specific fields from the ShiftAssignment
-   */
-  omit?: Prisma.ShiftAssignmentOmit<ExtArgs> | null
-  /**
-   * Choose, which related nodes to fetch as well
-   */
-  include?: Prisma.ShiftAssignmentInclude<ExtArgs> | null
-  where?: Prisma.ShiftAssignmentWhereInput
-  orderBy?: Prisma.ShiftAssignmentOrderByWithRelationInput | Prisma.ShiftAssignmentOrderByWithRelationInput[]
-  cursor?: Prisma.ShiftAssignmentWhereUniqueInput
-  take?: number
-  skip?: number
-  distinct?: Prisma.ShiftAssignmentScalarFieldEnum | Prisma.ShiftAssignmentScalarFieldEnum[]
-}
-
-/**
- * Court.warnings
- */
-export type Court$warningsArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
-  /**
-   * Select specific fields to fetch from the ScheduleWarning
-   */
-  select?: Prisma.ScheduleWarningSelect<ExtArgs> | null
-  /**
-   * Omit specific fields from the ScheduleWarning
-   */
-  omit?: Prisma.ScheduleWarningOmit<ExtArgs> | null
-  /**
-   * Choose, which related nodes to fetch as well
-   */
-  include?: Prisma.ScheduleWarningInclude<ExtArgs> | null
-  where?: Prisma.ScheduleWarningWhereInput
-  orderBy?: Prisma.ScheduleWarningOrderByWithRelationInput | Prisma.ScheduleWarningOrderByWithRelationInput[]
-  cursor?: Prisma.ScheduleWarningWhereUniqueInput
-  take?: number
-  skip?: number
-  distinct?: Prisma.ScheduleWarningScalarFieldEnum | Prisma.ScheduleWarningScalarFieldEnum[]
+  distinct?: Prisma.SchedulingPeriodScalarFieldEnum | Prisma.SchedulingPeriodScalarFieldEnum[]
 }
 
 /**

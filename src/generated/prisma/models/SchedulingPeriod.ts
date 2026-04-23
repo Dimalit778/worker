@@ -26,6 +26,7 @@ export type AggregateSchedulingPeriod = {
 
 export type SchedulingPeriodMinAggregateOutputType = {
   id: string | null
+  courtId: string | null
   name: string | null
   startDate: Date | null
   endDate: Date | null
@@ -38,6 +39,7 @@ export type SchedulingPeriodMinAggregateOutputType = {
 
 export type SchedulingPeriodMaxAggregateOutputType = {
   id: string | null
+  courtId: string | null
   name: string | null
   startDate: Date | null
   endDate: Date | null
@@ -50,6 +52,7 @@ export type SchedulingPeriodMaxAggregateOutputType = {
 
 export type SchedulingPeriodCountAggregateOutputType = {
   id: number
+  courtId: number
   name: number
   startDate: number
   endDate: number
@@ -64,6 +67,7 @@ export type SchedulingPeriodCountAggregateOutputType = {
 
 export type SchedulingPeriodMinAggregateInputType = {
   id?: true
+  courtId?: true
   name?: true
   startDate?: true
   endDate?: true
@@ -76,6 +80,7 @@ export type SchedulingPeriodMinAggregateInputType = {
 
 export type SchedulingPeriodMaxAggregateInputType = {
   id?: true
+  courtId?: true
   name?: true
   startDate?: true
   endDate?: true
@@ -88,6 +93,7 @@ export type SchedulingPeriodMaxAggregateInputType = {
 
 export type SchedulingPeriodCountAggregateInputType = {
   id?: true
+  courtId?: true
   name?: true
   startDate?: true
   endDate?: true
@@ -173,6 +179,7 @@ export type SchedulingPeriodGroupByArgs<ExtArgs extends runtime.Types.Extensions
 
 export type SchedulingPeriodGroupByOutputType = {
   id: string
+  courtId: string
   name: string
   startDate: Date
   endDate: Date
@@ -206,6 +213,7 @@ export type SchedulingPeriodWhereInput = {
   OR?: Prisma.SchedulingPeriodWhereInput[]
   NOT?: Prisma.SchedulingPeriodWhereInput | Prisma.SchedulingPeriodWhereInput[]
   id?: Prisma.StringFilter<"SchedulingPeriod"> | string
+  courtId?: Prisma.StringFilter<"SchedulingPeriod"> | string
   name?: Prisma.StringFilter<"SchedulingPeriod"> | string
   startDate?: Prisma.DateTimeFilter<"SchedulingPeriod"> | Date | string
   endDate?: Prisma.DateTimeFilter<"SchedulingPeriod"> | Date | string
@@ -214,14 +222,16 @@ export type SchedulingPeriodWhereInput = {
   createdById?: Prisma.StringFilter<"SchedulingPeriod"> | string
   createdAt?: Prisma.DateTimeFilter<"SchedulingPeriod"> | Date | string
   updatedAt?: Prisma.DateTimeFilter<"SchedulingPeriod"> | Date | string
+  court?: Prisma.XOR<Prisma.CourtScalarRelationFilter, Prisma.CourtWhereInput>
   createdBy?: Prisma.XOR<Prisma.UserScalarRelationFilter, Prisma.UserWhereInput>
-  availability?: Prisma.AvailabilityListRelationFilter
-  schedules?: Prisma.ScheduleListRelationFilter
+  availabilities?: Prisma.AvailabilityListRelationFilter
+  schedule?: Prisma.XOR<Prisma.ScheduleNullableScalarRelationFilter, Prisma.ScheduleWhereInput> | null
   fairnessRecords?: Prisma.FairnessRecordListRelationFilter
 }
 
 export type SchedulingPeriodOrderByWithRelationInput = {
   id?: Prisma.SortOrder
+  courtId?: Prisma.SortOrder
   name?: Prisma.SortOrder
   startDate?: Prisma.SortOrder
   endDate?: Prisma.SortOrder
@@ -230,17 +240,20 @@ export type SchedulingPeriodOrderByWithRelationInput = {
   createdById?: Prisma.SortOrder
   createdAt?: Prisma.SortOrder
   updatedAt?: Prisma.SortOrder
+  court?: Prisma.CourtOrderByWithRelationInput
   createdBy?: Prisma.UserOrderByWithRelationInput
-  availability?: Prisma.AvailabilityOrderByRelationAggregateInput
-  schedules?: Prisma.ScheduleOrderByRelationAggregateInput
+  availabilities?: Prisma.AvailabilityOrderByRelationAggregateInput
+  schedule?: Prisma.ScheduleOrderByWithRelationInput
   fairnessRecords?: Prisma.FairnessRecordOrderByRelationAggregateInput
 }
 
 export type SchedulingPeriodWhereUniqueInput = Prisma.AtLeast<{
   id?: string
+  courtId_startDate_endDate?: Prisma.SchedulingPeriodCourtIdStartDateEndDateCompoundUniqueInput
   AND?: Prisma.SchedulingPeriodWhereInput | Prisma.SchedulingPeriodWhereInput[]
   OR?: Prisma.SchedulingPeriodWhereInput[]
   NOT?: Prisma.SchedulingPeriodWhereInput | Prisma.SchedulingPeriodWhereInput[]
+  courtId?: Prisma.StringFilter<"SchedulingPeriod"> | string
   name?: Prisma.StringFilter<"SchedulingPeriod"> | string
   startDate?: Prisma.DateTimeFilter<"SchedulingPeriod"> | Date | string
   endDate?: Prisma.DateTimeFilter<"SchedulingPeriod"> | Date | string
@@ -249,14 +262,16 @@ export type SchedulingPeriodWhereUniqueInput = Prisma.AtLeast<{
   createdById?: Prisma.StringFilter<"SchedulingPeriod"> | string
   createdAt?: Prisma.DateTimeFilter<"SchedulingPeriod"> | Date | string
   updatedAt?: Prisma.DateTimeFilter<"SchedulingPeriod"> | Date | string
+  court?: Prisma.XOR<Prisma.CourtScalarRelationFilter, Prisma.CourtWhereInput>
   createdBy?: Prisma.XOR<Prisma.UserScalarRelationFilter, Prisma.UserWhereInput>
-  availability?: Prisma.AvailabilityListRelationFilter
-  schedules?: Prisma.ScheduleListRelationFilter
+  availabilities?: Prisma.AvailabilityListRelationFilter
+  schedule?: Prisma.XOR<Prisma.ScheduleNullableScalarRelationFilter, Prisma.ScheduleWhereInput> | null
   fairnessRecords?: Prisma.FairnessRecordListRelationFilter
-}, "id">
+}, "id" | "courtId_startDate_endDate">
 
 export type SchedulingPeriodOrderByWithAggregationInput = {
   id?: Prisma.SortOrder
+  courtId?: Prisma.SortOrder
   name?: Prisma.SortOrder
   startDate?: Prisma.SortOrder
   endDate?: Prisma.SortOrder
@@ -275,6 +290,7 @@ export type SchedulingPeriodScalarWhereWithAggregatesInput = {
   OR?: Prisma.SchedulingPeriodScalarWhereWithAggregatesInput[]
   NOT?: Prisma.SchedulingPeriodScalarWhereWithAggregatesInput | Prisma.SchedulingPeriodScalarWhereWithAggregatesInput[]
   id?: Prisma.StringWithAggregatesFilter<"SchedulingPeriod"> | string
+  courtId?: Prisma.StringWithAggregatesFilter<"SchedulingPeriod"> | string
   name?: Prisma.StringWithAggregatesFilter<"SchedulingPeriod"> | string
   startDate?: Prisma.DateTimeWithAggregatesFilter<"SchedulingPeriod"> | Date | string
   endDate?: Prisma.DateTimeWithAggregatesFilter<"SchedulingPeriod"> | Date | string
@@ -294,14 +310,16 @@ export type SchedulingPeriodCreateInput = {
   status?: $Enums.PeriodStatus
   createdAt?: Date | string
   updatedAt?: Date | string
+  court: Prisma.CourtCreateNestedOneWithoutPeriodsInput
   createdBy: Prisma.UserCreateNestedOneWithoutPeriodsCreatedInput
-  availability?: Prisma.AvailabilityCreateNestedManyWithoutPeriodInput
-  schedules?: Prisma.ScheduleCreateNestedManyWithoutPeriodInput
+  availabilities?: Prisma.AvailabilityCreateNestedManyWithoutPeriodInput
+  schedule?: Prisma.ScheduleCreateNestedOneWithoutPeriodInput
   fairnessRecords?: Prisma.FairnessRecordCreateNestedManyWithoutPeriodInput
 }
 
 export type SchedulingPeriodUncheckedCreateInput = {
   id?: string
+  courtId: string
   name: string
   startDate: Date | string
   endDate: Date | string
@@ -310,8 +328,8 @@ export type SchedulingPeriodUncheckedCreateInput = {
   createdById: string
   createdAt?: Date | string
   updatedAt?: Date | string
-  availability?: Prisma.AvailabilityUncheckedCreateNestedManyWithoutPeriodInput
-  schedules?: Prisma.ScheduleUncheckedCreateNestedManyWithoutPeriodInput
+  availabilities?: Prisma.AvailabilityUncheckedCreateNestedManyWithoutPeriodInput
+  schedule?: Prisma.ScheduleUncheckedCreateNestedOneWithoutPeriodInput
   fairnessRecords?: Prisma.FairnessRecordUncheckedCreateNestedManyWithoutPeriodInput
 }
 
@@ -324,14 +342,16 @@ export type SchedulingPeriodUpdateInput = {
   status?: Prisma.EnumPeriodStatusFieldUpdateOperationsInput | $Enums.PeriodStatus
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  court?: Prisma.CourtUpdateOneRequiredWithoutPeriodsNestedInput
   createdBy?: Prisma.UserUpdateOneRequiredWithoutPeriodsCreatedNestedInput
-  availability?: Prisma.AvailabilityUpdateManyWithoutPeriodNestedInput
-  schedules?: Prisma.ScheduleUpdateManyWithoutPeriodNestedInput
+  availabilities?: Prisma.AvailabilityUpdateManyWithoutPeriodNestedInput
+  schedule?: Prisma.ScheduleUpdateOneWithoutPeriodNestedInput
   fairnessRecords?: Prisma.FairnessRecordUpdateManyWithoutPeriodNestedInput
 }
 
 export type SchedulingPeriodUncheckedUpdateInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
+  courtId?: Prisma.StringFieldUpdateOperationsInput | string
   name?: Prisma.StringFieldUpdateOperationsInput | string
   startDate?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   endDate?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
@@ -340,13 +360,14 @@ export type SchedulingPeriodUncheckedUpdateInput = {
   createdById?: Prisma.StringFieldUpdateOperationsInput | string
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
-  availability?: Prisma.AvailabilityUncheckedUpdateManyWithoutPeriodNestedInput
-  schedules?: Prisma.ScheduleUncheckedUpdateManyWithoutPeriodNestedInput
+  availabilities?: Prisma.AvailabilityUncheckedUpdateManyWithoutPeriodNestedInput
+  schedule?: Prisma.ScheduleUncheckedUpdateOneWithoutPeriodNestedInput
   fairnessRecords?: Prisma.FairnessRecordUncheckedUpdateManyWithoutPeriodNestedInput
 }
 
 export type SchedulingPeriodCreateManyInput = {
   id?: string
+  courtId: string
   name: string
   startDate: Date | string
   endDate: Date | string
@@ -370,6 +391,7 @@ export type SchedulingPeriodUpdateManyMutationInput = {
 
 export type SchedulingPeriodUncheckedUpdateManyInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
+  courtId?: Prisma.StringFieldUpdateOperationsInput | string
   name?: Prisma.StringFieldUpdateOperationsInput | string
   startDate?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   endDate?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
@@ -390,8 +412,15 @@ export type SchedulingPeriodOrderByRelationAggregateInput = {
   _count?: Prisma.SortOrder
 }
 
+export type SchedulingPeriodCourtIdStartDateEndDateCompoundUniqueInput = {
+  courtId: string
+  startDate: Date | string
+  endDate: Date | string
+}
+
 export type SchedulingPeriodCountOrderByAggregateInput = {
   id?: Prisma.SortOrder
+  courtId?: Prisma.SortOrder
   name?: Prisma.SortOrder
   startDate?: Prisma.SortOrder
   endDate?: Prisma.SortOrder
@@ -404,6 +433,7 @@ export type SchedulingPeriodCountOrderByAggregateInput = {
 
 export type SchedulingPeriodMaxOrderByAggregateInput = {
   id?: Prisma.SortOrder
+  courtId?: Prisma.SortOrder
   name?: Prisma.SortOrder
   startDate?: Prisma.SortOrder
   endDate?: Prisma.SortOrder
@@ -416,6 +446,7 @@ export type SchedulingPeriodMaxOrderByAggregateInput = {
 
 export type SchedulingPeriodMinOrderByAggregateInput = {
   id?: Prisma.SortOrder
+  courtId?: Prisma.SortOrder
   name?: Prisma.SortOrder
   startDate?: Prisma.SortOrder
   endDate?: Prisma.SortOrder
@@ -473,36 +504,78 @@ export type SchedulingPeriodUncheckedUpdateManyWithoutCreatedByNestedInput = {
   deleteMany?: Prisma.SchedulingPeriodScalarWhereInput | Prisma.SchedulingPeriodScalarWhereInput[]
 }
 
+export type SchedulingPeriodCreateNestedManyWithoutCourtInput = {
+  create?: Prisma.XOR<Prisma.SchedulingPeriodCreateWithoutCourtInput, Prisma.SchedulingPeriodUncheckedCreateWithoutCourtInput> | Prisma.SchedulingPeriodCreateWithoutCourtInput[] | Prisma.SchedulingPeriodUncheckedCreateWithoutCourtInput[]
+  connectOrCreate?: Prisma.SchedulingPeriodCreateOrConnectWithoutCourtInput | Prisma.SchedulingPeriodCreateOrConnectWithoutCourtInput[]
+  createMany?: Prisma.SchedulingPeriodCreateManyCourtInputEnvelope
+  connect?: Prisma.SchedulingPeriodWhereUniqueInput | Prisma.SchedulingPeriodWhereUniqueInput[]
+}
+
+export type SchedulingPeriodUncheckedCreateNestedManyWithoutCourtInput = {
+  create?: Prisma.XOR<Prisma.SchedulingPeriodCreateWithoutCourtInput, Prisma.SchedulingPeriodUncheckedCreateWithoutCourtInput> | Prisma.SchedulingPeriodCreateWithoutCourtInput[] | Prisma.SchedulingPeriodUncheckedCreateWithoutCourtInput[]
+  connectOrCreate?: Prisma.SchedulingPeriodCreateOrConnectWithoutCourtInput | Prisma.SchedulingPeriodCreateOrConnectWithoutCourtInput[]
+  createMany?: Prisma.SchedulingPeriodCreateManyCourtInputEnvelope
+  connect?: Prisma.SchedulingPeriodWhereUniqueInput | Prisma.SchedulingPeriodWhereUniqueInput[]
+}
+
+export type SchedulingPeriodUpdateManyWithoutCourtNestedInput = {
+  create?: Prisma.XOR<Prisma.SchedulingPeriodCreateWithoutCourtInput, Prisma.SchedulingPeriodUncheckedCreateWithoutCourtInput> | Prisma.SchedulingPeriodCreateWithoutCourtInput[] | Prisma.SchedulingPeriodUncheckedCreateWithoutCourtInput[]
+  connectOrCreate?: Prisma.SchedulingPeriodCreateOrConnectWithoutCourtInput | Prisma.SchedulingPeriodCreateOrConnectWithoutCourtInput[]
+  upsert?: Prisma.SchedulingPeriodUpsertWithWhereUniqueWithoutCourtInput | Prisma.SchedulingPeriodUpsertWithWhereUniqueWithoutCourtInput[]
+  createMany?: Prisma.SchedulingPeriodCreateManyCourtInputEnvelope
+  set?: Prisma.SchedulingPeriodWhereUniqueInput | Prisma.SchedulingPeriodWhereUniqueInput[]
+  disconnect?: Prisma.SchedulingPeriodWhereUniqueInput | Prisma.SchedulingPeriodWhereUniqueInput[]
+  delete?: Prisma.SchedulingPeriodWhereUniqueInput | Prisma.SchedulingPeriodWhereUniqueInput[]
+  connect?: Prisma.SchedulingPeriodWhereUniqueInput | Prisma.SchedulingPeriodWhereUniqueInput[]
+  update?: Prisma.SchedulingPeriodUpdateWithWhereUniqueWithoutCourtInput | Prisma.SchedulingPeriodUpdateWithWhereUniqueWithoutCourtInput[]
+  updateMany?: Prisma.SchedulingPeriodUpdateManyWithWhereWithoutCourtInput | Prisma.SchedulingPeriodUpdateManyWithWhereWithoutCourtInput[]
+  deleteMany?: Prisma.SchedulingPeriodScalarWhereInput | Prisma.SchedulingPeriodScalarWhereInput[]
+}
+
+export type SchedulingPeriodUncheckedUpdateManyWithoutCourtNestedInput = {
+  create?: Prisma.XOR<Prisma.SchedulingPeriodCreateWithoutCourtInput, Prisma.SchedulingPeriodUncheckedCreateWithoutCourtInput> | Prisma.SchedulingPeriodCreateWithoutCourtInput[] | Prisma.SchedulingPeriodUncheckedCreateWithoutCourtInput[]
+  connectOrCreate?: Prisma.SchedulingPeriodCreateOrConnectWithoutCourtInput | Prisma.SchedulingPeriodCreateOrConnectWithoutCourtInput[]
+  upsert?: Prisma.SchedulingPeriodUpsertWithWhereUniqueWithoutCourtInput | Prisma.SchedulingPeriodUpsertWithWhereUniqueWithoutCourtInput[]
+  createMany?: Prisma.SchedulingPeriodCreateManyCourtInputEnvelope
+  set?: Prisma.SchedulingPeriodWhereUniqueInput | Prisma.SchedulingPeriodWhereUniqueInput[]
+  disconnect?: Prisma.SchedulingPeriodWhereUniqueInput | Prisma.SchedulingPeriodWhereUniqueInput[]
+  delete?: Prisma.SchedulingPeriodWhereUniqueInput | Prisma.SchedulingPeriodWhereUniqueInput[]
+  connect?: Prisma.SchedulingPeriodWhereUniqueInput | Prisma.SchedulingPeriodWhereUniqueInput[]
+  update?: Prisma.SchedulingPeriodUpdateWithWhereUniqueWithoutCourtInput | Prisma.SchedulingPeriodUpdateWithWhereUniqueWithoutCourtInput[]
+  updateMany?: Prisma.SchedulingPeriodUpdateManyWithWhereWithoutCourtInput | Prisma.SchedulingPeriodUpdateManyWithWhereWithoutCourtInput[]
+  deleteMany?: Prisma.SchedulingPeriodScalarWhereInput | Prisma.SchedulingPeriodScalarWhereInput[]
+}
+
 export type EnumPeriodStatusFieldUpdateOperationsInput = {
   set?: $Enums.PeriodStatus
 }
 
-export type SchedulingPeriodCreateNestedOneWithoutAvailabilityInput = {
-  create?: Prisma.XOR<Prisma.SchedulingPeriodCreateWithoutAvailabilityInput, Prisma.SchedulingPeriodUncheckedCreateWithoutAvailabilityInput>
-  connectOrCreate?: Prisma.SchedulingPeriodCreateOrConnectWithoutAvailabilityInput
+export type SchedulingPeriodCreateNestedOneWithoutAvailabilitiesInput = {
+  create?: Prisma.XOR<Prisma.SchedulingPeriodCreateWithoutAvailabilitiesInput, Prisma.SchedulingPeriodUncheckedCreateWithoutAvailabilitiesInput>
+  connectOrCreate?: Prisma.SchedulingPeriodCreateOrConnectWithoutAvailabilitiesInput
   connect?: Prisma.SchedulingPeriodWhereUniqueInput
 }
 
-export type SchedulingPeriodUpdateOneRequiredWithoutAvailabilityNestedInput = {
-  create?: Prisma.XOR<Prisma.SchedulingPeriodCreateWithoutAvailabilityInput, Prisma.SchedulingPeriodUncheckedCreateWithoutAvailabilityInput>
-  connectOrCreate?: Prisma.SchedulingPeriodCreateOrConnectWithoutAvailabilityInput
-  upsert?: Prisma.SchedulingPeriodUpsertWithoutAvailabilityInput
+export type SchedulingPeriodUpdateOneRequiredWithoutAvailabilitiesNestedInput = {
+  create?: Prisma.XOR<Prisma.SchedulingPeriodCreateWithoutAvailabilitiesInput, Prisma.SchedulingPeriodUncheckedCreateWithoutAvailabilitiesInput>
+  connectOrCreate?: Prisma.SchedulingPeriodCreateOrConnectWithoutAvailabilitiesInput
+  upsert?: Prisma.SchedulingPeriodUpsertWithoutAvailabilitiesInput
   connect?: Prisma.SchedulingPeriodWhereUniqueInput
-  update?: Prisma.XOR<Prisma.XOR<Prisma.SchedulingPeriodUpdateToOneWithWhereWithoutAvailabilityInput, Prisma.SchedulingPeriodUpdateWithoutAvailabilityInput>, Prisma.SchedulingPeriodUncheckedUpdateWithoutAvailabilityInput>
+  update?: Prisma.XOR<Prisma.XOR<Prisma.SchedulingPeriodUpdateToOneWithWhereWithoutAvailabilitiesInput, Prisma.SchedulingPeriodUpdateWithoutAvailabilitiesInput>, Prisma.SchedulingPeriodUncheckedUpdateWithoutAvailabilitiesInput>
 }
 
-export type SchedulingPeriodCreateNestedOneWithoutSchedulesInput = {
-  create?: Prisma.XOR<Prisma.SchedulingPeriodCreateWithoutSchedulesInput, Prisma.SchedulingPeriodUncheckedCreateWithoutSchedulesInput>
-  connectOrCreate?: Prisma.SchedulingPeriodCreateOrConnectWithoutSchedulesInput
+export type SchedulingPeriodCreateNestedOneWithoutScheduleInput = {
+  create?: Prisma.XOR<Prisma.SchedulingPeriodCreateWithoutScheduleInput, Prisma.SchedulingPeriodUncheckedCreateWithoutScheduleInput>
+  connectOrCreate?: Prisma.SchedulingPeriodCreateOrConnectWithoutScheduleInput
   connect?: Prisma.SchedulingPeriodWhereUniqueInput
 }
 
-export type SchedulingPeriodUpdateOneRequiredWithoutSchedulesNestedInput = {
-  create?: Prisma.XOR<Prisma.SchedulingPeriodCreateWithoutSchedulesInput, Prisma.SchedulingPeriodUncheckedCreateWithoutSchedulesInput>
-  connectOrCreate?: Prisma.SchedulingPeriodCreateOrConnectWithoutSchedulesInput
-  upsert?: Prisma.SchedulingPeriodUpsertWithoutSchedulesInput
+export type SchedulingPeriodUpdateOneRequiredWithoutScheduleNestedInput = {
+  create?: Prisma.XOR<Prisma.SchedulingPeriodCreateWithoutScheduleInput, Prisma.SchedulingPeriodUncheckedCreateWithoutScheduleInput>
+  connectOrCreate?: Prisma.SchedulingPeriodCreateOrConnectWithoutScheduleInput
+  upsert?: Prisma.SchedulingPeriodUpsertWithoutScheduleInput
   connect?: Prisma.SchedulingPeriodWhereUniqueInput
-  update?: Prisma.XOR<Prisma.XOR<Prisma.SchedulingPeriodUpdateToOneWithWhereWithoutSchedulesInput, Prisma.SchedulingPeriodUpdateWithoutSchedulesInput>, Prisma.SchedulingPeriodUncheckedUpdateWithoutSchedulesInput>
+  update?: Prisma.XOR<Prisma.XOR<Prisma.SchedulingPeriodUpdateToOneWithWhereWithoutScheduleInput, Prisma.SchedulingPeriodUpdateWithoutScheduleInput>, Prisma.SchedulingPeriodUncheckedUpdateWithoutScheduleInput>
 }
 
 export type SchedulingPeriodCreateNestedOneWithoutFairnessRecordsInput = {
@@ -528,13 +601,15 @@ export type SchedulingPeriodCreateWithoutCreatedByInput = {
   status?: $Enums.PeriodStatus
   createdAt?: Date | string
   updatedAt?: Date | string
-  availability?: Prisma.AvailabilityCreateNestedManyWithoutPeriodInput
-  schedules?: Prisma.ScheduleCreateNestedManyWithoutPeriodInput
+  court: Prisma.CourtCreateNestedOneWithoutPeriodsInput
+  availabilities?: Prisma.AvailabilityCreateNestedManyWithoutPeriodInput
+  schedule?: Prisma.ScheduleCreateNestedOneWithoutPeriodInput
   fairnessRecords?: Prisma.FairnessRecordCreateNestedManyWithoutPeriodInput
 }
 
 export type SchedulingPeriodUncheckedCreateWithoutCreatedByInput = {
   id?: string
+  courtId: string
   name: string
   startDate: Date | string
   endDate: Date | string
@@ -542,8 +617,8 @@ export type SchedulingPeriodUncheckedCreateWithoutCreatedByInput = {
   status?: $Enums.PeriodStatus
   createdAt?: Date | string
   updatedAt?: Date | string
-  availability?: Prisma.AvailabilityUncheckedCreateNestedManyWithoutPeriodInput
-  schedules?: Prisma.ScheduleUncheckedCreateNestedManyWithoutPeriodInput
+  availabilities?: Prisma.AvailabilityUncheckedCreateNestedManyWithoutPeriodInput
+  schedule?: Prisma.ScheduleUncheckedCreateNestedOneWithoutPeriodInput
   fairnessRecords?: Prisma.FairnessRecordUncheckedCreateNestedManyWithoutPeriodInput
 }
 
@@ -578,6 +653,7 @@ export type SchedulingPeriodScalarWhereInput = {
   OR?: Prisma.SchedulingPeriodScalarWhereInput[]
   NOT?: Prisma.SchedulingPeriodScalarWhereInput | Prisma.SchedulingPeriodScalarWhereInput[]
   id?: Prisma.StringFilter<"SchedulingPeriod"> | string
+  courtId?: Prisma.StringFilter<"SchedulingPeriod"> | string
   name?: Prisma.StringFilter<"SchedulingPeriod"> | string
   startDate?: Prisma.DateTimeFilter<"SchedulingPeriod"> | Date | string
   endDate?: Prisma.DateTimeFilter<"SchedulingPeriod"> | Date | string
@@ -588,7 +664,7 @@ export type SchedulingPeriodScalarWhereInput = {
   updatedAt?: Prisma.DateTimeFilter<"SchedulingPeriod"> | Date | string
 }
 
-export type SchedulingPeriodCreateWithoutAvailabilityInput = {
+export type SchedulingPeriodCreateWithoutCourtInput = {
   id?: string
   name: string
   startDate: Date | string
@@ -598,11 +674,12 @@ export type SchedulingPeriodCreateWithoutAvailabilityInput = {
   createdAt?: Date | string
   updatedAt?: Date | string
   createdBy: Prisma.UserCreateNestedOneWithoutPeriodsCreatedInput
-  schedules?: Prisma.ScheduleCreateNestedManyWithoutPeriodInput
+  availabilities?: Prisma.AvailabilityCreateNestedManyWithoutPeriodInput
+  schedule?: Prisma.ScheduleCreateNestedOneWithoutPeriodInput
   fairnessRecords?: Prisma.FairnessRecordCreateNestedManyWithoutPeriodInput
 }
 
-export type SchedulingPeriodUncheckedCreateWithoutAvailabilityInput = {
+export type SchedulingPeriodUncheckedCreateWithoutCourtInput = {
   id?: string
   name: string
   startDate: Date | string
@@ -612,27 +689,84 @@ export type SchedulingPeriodUncheckedCreateWithoutAvailabilityInput = {
   createdById: string
   createdAt?: Date | string
   updatedAt?: Date | string
-  schedules?: Prisma.ScheduleUncheckedCreateNestedManyWithoutPeriodInput
+  availabilities?: Prisma.AvailabilityUncheckedCreateNestedManyWithoutPeriodInput
+  schedule?: Prisma.ScheduleUncheckedCreateNestedOneWithoutPeriodInput
   fairnessRecords?: Prisma.FairnessRecordUncheckedCreateNestedManyWithoutPeriodInput
 }
 
-export type SchedulingPeriodCreateOrConnectWithoutAvailabilityInput = {
+export type SchedulingPeriodCreateOrConnectWithoutCourtInput = {
   where: Prisma.SchedulingPeriodWhereUniqueInput
-  create: Prisma.XOR<Prisma.SchedulingPeriodCreateWithoutAvailabilityInput, Prisma.SchedulingPeriodUncheckedCreateWithoutAvailabilityInput>
+  create: Prisma.XOR<Prisma.SchedulingPeriodCreateWithoutCourtInput, Prisma.SchedulingPeriodUncheckedCreateWithoutCourtInput>
 }
 
-export type SchedulingPeriodUpsertWithoutAvailabilityInput = {
-  update: Prisma.XOR<Prisma.SchedulingPeriodUpdateWithoutAvailabilityInput, Prisma.SchedulingPeriodUncheckedUpdateWithoutAvailabilityInput>
-  create: Prisma.XOR<Prisma.SchedulingPeriodCreateWithoutAvailabilityInput, Prisma.SchedulingPeriodUncheckedCreateWithoutAvailabilityInput>
+export type SchedulingPeriodCreateManyCourtInputEnvelope = {
+  data: Prisma.SchedulingPeriodCreateManyCourtInput | Prisma.SchedulingPeriodCreateManyCourtInput[]
+  skipDuplicates?: boolean
+}
+
+export type SchedulingPeriodUpsertWithWhereUniqueWithoutCourtInput = {
+  where: Prisma.SchedulingPeriodWhereUniqueInput
+  update: Prisma.XOR<Prisma.SchedulingPeriodUpdateWithoutCourtInput, Prisma.SchedulingPeriodUncheckedUpdateWithoutCourtInput>
+  create: Prisma.XOR<Prisma.SchedulingPeriodCreateWithoutCourtInput, Prisma.SchedulingPeriodUncheckedCreateWithoutCourtInput>
+}
+
+export type SchedulingPeriodUpdateWithWhereUniqueWithoutCourtInput = {
+  where: Prisma.SchedulingPeriodWhereUniqueInput
+  data: Prisma.XOR<Prisma.SchedulingPeriodUpdateWithoutCourtInput, Prisma.SchedulingPeriodUncheckedUpdateWithoutCourtInput>
+}
+
+export type SchedulingPeriodUpdateManyWithWhereWithoutCourtInput = {
+  where: Prisma.SchedulingPeriodScalarWhereInput
+  data: Prisma.XOR<Prisma.SchedulingPeriodUpdateManyMutationInput, Prisma.SchedulingPeriodUncheckedUpdateManyWithoutCourtInput>
+}
+
+export type SchedulingPeriodCreateWithoutAvailabilitiesInput = {
+  id?: string
+  name: string
+  startDate: Date | string
+  endDate: Date | string
+  submissionDeadline: Date | string
+  status?: $Enums.PeriodStatus
+  createdAt?: Date | string
+  updatedAt?: Date | string
+  court: Prisma.CourtCreateNestedOneWithoutPeriodsInput
+  createdBy: Prisma.UserCreateNestedOneWithoutPeriodsCreatedInput
+  schedule?: Prisma.ScheduleCreateNestedOneWithoutPeriodInput
+  fairnessRecords?: Prisma.FairnessRecordCreateNestedManyWithoutPeriodInput
+}
+
+export type SchedulingPeriodUncheckedCreateWithoutAvailabilitiesInput = {
+  id?: string
+  courtId: string
+  name: string
+  startDate: Date | string
+  endDate: Date | string
+  submissionDeadline: Date | string
+  status?: $Enums.PeriodStatus
+  createdById: string
+  createdAt?: Date | string
+  updatedAt?: Date | string
+  schedule?: Prisma.ScheduleUncheckedCreateNestedOneWithoutPeriodInput
+  fairnessRecords?: Prisma.FairnessRecordUncheckedCreateNestedManyWithoutPeriodInput
+}
+
+export type SchedulingPeriodCreateOrConnectWithoutAvailabilitiesInput = {
+  where: Prisma.SchedulingPeriodWhereUniqueInput
+  create: Prisma.XOR<Prisma.SchedulingPeriodCreateWithoutAvailabilitiesInput, Prisma.SchedulingPeriodUncheckedCreateWithoutAvailabilitiesInput>
+}
+
+export type SchedulingPeriodUpsertWithoutAvailabilitiesInput = {
+  update: Prisma.XOR<Prisma.SchedulingPeriodUpdateWithoutAvailabilitiesInput, Prisma.SchedulingPeriodUncheckedUpdateWithoutAvailabilitiesInput>
+  create: Prisma.XOR<Prisma.SchedulingPeriodCreateWithoutAvailabilitiesInput, Prisma.SchedulingPeriodUncheckedCreateWithoutAvailabilitiesInput>
   where?: Prisma.SchedulingPeriodWhereInput
 }
 
-export type SchedulingPeriodUpdateToOneWithWhereWithoutAvailabilityInput = {
+export type SchedulingPeriodUpdateToOneWithWhereWithoutAvailabilitiesInput = {
   where?: Prisma.SchedulingPeriodWhereInput
-  data: Prisma.XOR<Prisma.SchedulingPeriodUpdateWithoutAvailabilityInput, Prisma.SchedulingPeriodUncheckedUpdateWithoutAvailabilityInput>
+  data: Prisma.XOR<Prisma.SchedulingPeriodUpdateWithoutAvailabilitiesInput, Prisma.SchedulingPeriodUncheckedUpdateWithoutAvailabilitiesInput>
 }
 
-export type SchedulingPeriodUpdateWithoutAvailabilityInput = {
+export type SchedulingPeriodUpdateWithoutAvailabilitiesInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
   name?: Prisma.StringFieldUpdateOperationsInput | string
   startDate?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
@@ -641,13 +775,15 @@ export type SchedulingPeriodUpdateWithoutAvailabilityInput = {
   status?: Prisma.EnumPeriodStatusFieldUpdateOperationsInput | $Enums.PeriodStatus
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  court?: Prisma.CourtUpdateOneRequiredWithoutPeriodsNestedInput
   createdBy?: Prisma.UserUpdateOneRequiredWithoutPeriodsCreatedNestedInput
-  schedules?: Prisma.ScheduleUpdateManyWithoutPeriodNestedInput
+  schedule?: Prisma.ScheduleUpdateOneWithoutPeriodNestedInput
   fairnessRecords?: Prisma.FairnessRecordUpdateManyWithoutPeriodNestedInput
 }
 
-export type SchedulingPeriodUncheckedUpdateWithoutAvailabilityInput = {
+export type SchedulingPeriodUncheckedUpdateWithoutAvailabilitiesInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
+  courtId?: Prisma.StringFieldUpdateOperationsInput | string
   name?: Prisma.StringFieldUpdateOperationsInput | string
   startDate?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   endDate?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
@@ -656,11 +792,11 @@ export type SchedulingPeriodUncheckedUpdateWithoutAvailabilityInput = {
   createdById?: Prisma.StringFieldUpdateOperationsInput | string
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
-  schedules?: Prisma.ScheduleUncheckedUpdateManyWithoutPeriodNestedInput
+  schedule?: Prisma.ScheduleUncheckedUpdateOneWithoutPeriodNestedInput
   fairnessRecords?: Prisma.FairnessRecordUncheckedUpdateManyWithoutPeriodNestedInput
 }
 
-export type SchedulingPeriodCreateWithoutSchedulesInput = {
+export type SchedulingPeriodCreateWithoutScheduleInput = {
   id?: string
   name: string
   startDate: Date | string
@@ -669,13 +805,15 @@ export type SchedulingPeriodCreateWithoutSchedulesInput = {
   status?: $Enums.PeriodStatus
   createdAt?: Date | string
   updatedAt?: Date | string
+  court: Prisma.CourtCreateNestedOneWithoutPeriodsInput
   createdBy: Prisma.UserCreateNestedOneWithoutPeriodsCreatedInput
-  availability?: Prisma.AvailabilityCreateNestedManyWithoutPeriodInput
+  availabilities?: Prisma.AvailabilityCreateNestedManyWithoutPeriodInput
   fairnessRecords?: Prisma.FairnessRecordCreateNestedManyWithoutPeriodInput
 }
 
-export type SchedulingPeriodUncheckedCreateWithoutSchedulesInput = {
+export type SchedulingPeriodUncheckedCreateWithoutScheduleInput = {
   id?: string
+  courtId: string
   name: string
   startDate: Date | string
   endDate: Date | string
@@ -684,27 +822,27 @@ export type SchedulingPeriodUncheckedCreateWithoutSchedulesInput = {
   createdById: string
   createdAt?: Date | string
   updatedAt?: Date | string
-  availability?: Prisma.AvailabilityUncheckedCreateNestedManyWithoutPeriodInput
+  availabilities?: Prisma.AvailabilityUncheckedCreateNestedManyWithoutPeriodInput
   fairnessRecords?: Prisma.FairnessRecordUncheckedCreateNestedManyWithoutPeriodInput
 }
 
-export type SchedulingPeriodCreateOrConnectWithoutSchedulesInput = {
+export type SchedulingPeriodCreateOrConnectWithoutScheduleInput = {
   where: Prisma.SchedulingPeriodWhereUniqueInput
-  create: Prisma.XOR<Prisma.SchedulingPeriodCreateWithoutSchedulesInput, Prisma.SchedulingPeriodUncheckedCreateWithoutSchedulesInput>
+  create: Prisma.XOR<Prisma.SchedulingPeriodCreateWithoutScheduleInput, Prisma.SchedulingPeriodUncheckedCreateWithoutScheduleInput>
 }
 
-export type SchedulingPeriodUpsertWithoutSchedulesInput = {
-  update: Prisma.XOR<Prisma.SchedulingPeriodUpdateWithoutSchedulesInput, Prisma.SchedulingPeriodUncheckedUpdateWithoutSchedulesInput>
-  create: Prisma.XOR<Prisma.SchedulingPeriodCreateWithoutSchedulesInput, Prisma.SchedulingPeriodUncheckedCreateWithoutSchedulesInput>
+export type SchedulingPeriodUpsertWithoutScheduleInput = {
+  update: Prisma.XOR<Prisma.SchedulingPeriodUpdateWithoutScheduleInput, Prisma.SchedulingPeriodUncheckedUpdateWithoutScheduleInput>
+  create: Prisma.XOR<Prisma.SchedulingPeriodCreateWithoutScheduleInput, Prisma.SchedulingPeriodUncheckedCreateWithoutScheduleInput>
   where?: Prisma.SchedulingPeriodWhereInput
 }
 
-export type SchedulingPeriodUpdateToOneWithWhereWithoutSchedulesInput = {
+export type SchedulingPeriodUpdateToOneWithWhereWithoutScheduleInput = {
   where?: Prisma.SchedulingPeriodWhereInput
-  data: Prisma.XOR<Prisma.SchedulingPeriodUpdateWithoutSchedulesInput, Prisma.SchedulingPeriodUncheckedUpdateWithoutSchedulesInput>
+  data: Prisma.XOR<Prisma.SchedulingPeriodUpdateWithoutScheduleInput, Prisma.SchedulingPeriodUncheckedUpdateWithoutScheduleInput>
 }
 
-export type SchedulingPeriodUpdateWithoutSchedulesInput = {
+export type SchedulingPeriodUpdateWithoutScheduleInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
   name?: Prisma.StringFieldUpdateOperationsInput | string
   startDate?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
@@ -713,13 +851,15 @@ export type SchedulingPeriodUpdateWithoutSchedulesInput = {
   status?: Prisma.EnumPeriodStatusFieldUpdateOperationsInput | $Enums.PeriodStatus
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  court?: Prisma.CourtUpdateOneRequiredWithoutPeriodsNestedInput
   createdBy?: Prisma.UserUpdateOneRequiredWithoutPeriodsCreatedNestedInput
-  availability?: Prisma.AvailabilityUpdateManyWithoutPeriodNestedInput
+  availabilities?: Prisma.AvailabilityUpdateManyWithoutPeriodNestedInput
   fairnessRecords?: Prisma.FairnessRecordUpdateManyWithoutPeriodNestedInput
 }
 
-export type SchedulingPeriodUncheckedUpdateWithoutSchedulesInput = {
+export type SchedulingPeriodUncheckedUpdateWithoutScheduleInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
+  courtId?: Prisma.StringFieldUpdateOperationsInput | string
   name?: Prisma.StringFieldUpdateOperationsInput | string
   startDate?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   endDate?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
@@ -728,7 +868,7 @@ export type SchedulingPeriodUncheckedUpdateWithoutSchedulesInput = {
   createdById?: Prisma.StringFieldUpdateOperationsInput | string
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
-  availability?: Prisma.AvailabilityUncheckedUpdateManyWithoutPeriodNestedInput
+  availabilities?: Prisma.AvailabilityUncheckedUpdateManyWithoutPeriodNestedInput
   fairnessRecords?: Prisma.FairnessRecordUncheckedUpdateManyWithoutPeriodNestedInput
 }
 
@@ -741,13 +881,15 @@ export type SchedulingPeriodCreateWithoutFairnessRecordsInput = {
   status?: $Enums.PeriodStatus
   createdAt?: Date | string
   updatedAt?: Date | string
+  court: Prisma.CourtCreateNestedOneWithoutPeriodsInput
   createdBy: Prisma.UserCreateNestedOneWithoutPeriodsCreatedInput
-  availability?: Prisma.AvailabilityCreateNestedManyWithoutPeriodInput
-  schedules?: Prisma.ScheduleCreateNestedManyWithoutPeriodInput
+  availabilities?: Prisma.AvailabilityCreateNestedManyWithoutPeriodInput
+  schedule?: Prisma.ScheduleCreateNestedOneWithoutPeriodInput
 }
 
 export type SchedulingPeriodUncheckedCreateWithoutFairnessRecordsInput = {
   id?: string
+  courtId: string
   name: string
   startDate: Date | string
   endDate: Date | string
@@ -756,8 +898,8 @@ export type SchedulingPeriodUncheckedCreateWithoutFairnessRecordsInput = {
   createdById: string
   createdAt?: Date | string
   updatedAt?: Date | string
-  availability?: Prisma.AvailabilityUncheckedCreateNestedManyWithoutPeriodInput
-  schedules?: Prisma.ScheduleUncheckedCreateNestedManyWithoutPeriodInput
+  availabilities?: Prisma.AvailabilityUncheckedCreateNestedManyWithoutPeriodInput
+  schedule?: Prisma.ScheduleUncheckedCreateNestedOneWithoutPeriodInput
 }
 
 export type SchedulingPeriodCreateOrConnectWithoutFairnessRecordsInput = {
@@ -785,13 +927,15 @@ export type SchedulingPeriodUpdateWithoutFairnessRecordsInput = {
   status?: Prisma.EnumPeriodStatusFieldUpdateOperationsInput | $Enums.PeriodStatus
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  court?: Prisma.CourtUpdateOneRequiredWithoutPeriodsNestedInput
   createdBy?: Prisma.UserUpdateOneRequiredWithoutPeriodsCreatedNestedInput
-  availability?: Prisma.AvailabilityUpdateManyWithoutPeriodNestedInput
-  schedules?: Prisma.ScheduleUpdateManyWithoutPeriodNestedInput
+  availabilities?: Prisma.AvailabilityUpdateManyWithoutPeriodNestedInput
+  schedule?: Prisma.ScheduleUpdateOneWithoutPeriodNestedInput
 }
 
 export type SchedulingPeriodUncheckedUpdateWithoutFairnessRecordsInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
+  courtId?: Prisma.StringFieldUpdateOperationsInput | string
   name?: Prisma.StringFieldUpdateOperationsInput | string
   startDate?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   endDate?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
@@ -800,12 +944,13 @@ export type SchedulingPeriodUncheckedUpdateWithoutFairnessRecordsInput = {
   createdById?: Prisma.StringFieldUpdateOperationsInput | string
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
-  availability?: Prisma.AvailabilityUncheckedUpdateManyWithoutPeriodNestedInput
-  schedules?: Prisma.ScheduleUncheckedUpdateManyWithoutPeriodNestedInput
+  availabilities?: Prisma.AvailabilityUncheckedUpdateManyWithoutPeriodNestedInput
+  schedule?: Prisma.ScheduleUncheckedUpdateOneWithoutPeriodNestedInput
 }
 
 export type SchedulingPeriodCreateManyCreatedByInput = {
   id?: string
+  courtId: string
   name: string
   startDate: Date | string
   endDate: Date | string
@@ -824,12 +969,52 @@ export type SchedulingPeriodUpdateWithoutCreatedByInput = {
   status?: Prisma.EnumPeriodStatusFieldUpdateOperationsInput | $Enums.PeriodStatus
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
-  availability?: Prisma.AvailabilityUpdateManyWithoutPeriodNestedInput
-  schedules?: Prisma.ScheduleUpdateManyWithoutPeriodNestedInput
+  court?: Prisma.CourtUpdateOneRequiredWithoutPeriodsNestedInput
+  availabilities?: Prisma.AvailabilityUpdateManyWithoutPeriodNestedInput
+  schedule?: Prisma.ScheduleUpdateOneWithoutPeriodNestedInput
   fairnessRecords?: Prisma.FairnessRecordUpdateManyWithoutPeriodNestedInput
 }
 
 export type SchedulingPeriodUncheckedUpdateWithoutCreatedByInput = {
+  id?: Prisma.StringFieldUpdateOperationsInput | string
+  courtId?: Prisma.StringFieldUpdateOperationsInput | string
+  name?: Prisma.StringFieldUpdateOperationsInput | string
+  startDate?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  endDate?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  submissionDeadline?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  status?: Prisma.EnumPeriodStatusFieldUpdateOperationsInput | $Enums.PeriodStatus
+  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  availabilities?: Prisma.AvailabilityUncheckedUpdateManyWithoutPeriodNestedInput
+  schedule?: Prisma.ScheduleUncheckedUpdateOneWithoutPeriodNestedInput
+  fairnessRecords?: Prisma.FairnessRecordUncheckedUpdateManyWithoutPeriodNestedInput
+}
+
+export type SchedulingPeriodUncheckedUpdateManyWithoutCreatedByInput = {
+  id?: Prisma.StringFieldUpdateOperationsInput | string
+  courtId?: Prisma.StringFieldUpdateOperationsInput | string
+  name?: Prisma.StringFieldUpdateOperationsInput | string
+  startDate?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  endDate?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  submissionDeadline?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  status?: Prisma.EnumPeriodStatusFieldUpdateOperationsInput | $Enums.PeriodStatus
+  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+}
+
+export type SchedulingPeriodCreateManyCourtInput = {
+  id?: string
+  name: string
+  startDate: Date | string
+  endDate: Date | string
+  submissionDeadline: Date | string
+  status?: $Enums.PeriodStatus
+  createdById: string
+  createdAt?: Date | string
+  updatedAt?: Date | string
+}
+
+export type SchedulingPeriodUpdateWithoutCourtInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
   name?: Prisma.StringFieldUpdateOperationsInput | string
   startDate?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
@@ -838,18 +1023,35 @@ export type SchedulingPeriodUncheckedUpdateWithoutCreatedByInput = {
   status?: Prisma.EnumPeriodStatusFieldUpdateOperationsInput | $Enums.PeriodStatus
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
-  availability?: Prisma.AvailabilityUncheckedUpdateManyWithoutPeriodNestedInput
-  schedules?: Prisma.ScheduleUncheckedUpdateManyWithoutPeriodNestedInput
-  fairnessRecords?: Prisma.FairnessRecordUncheckedUpdateManyWithoutPeriodNestedInput
+  createdBy?: Prisma.UserUpdateOneRequiredWithoutPeriodsCreatedNestedInput
+  availabilities?: Prisma.AvailabilityUpdateManyWithoutPeriodNestedInput
+  schedule?: Prisma.ScheduleUpdateOneWithoutPeriodNestedInput
+  fairnessRecords?: Prisma.FairnessRecordUpdateManyWithoutPeriodNestedInput
 }
 
-export type SchedulingPeriodUncheckedUpdateManyWithoutCreatedByInput = {
+export type SchedulingPeriodUncheckedUpdateWithoutCourtInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
   name?: Prisma.StringFieldUpdateOperationsInput | string
   startDate?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   endDate?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   submissionDeadline?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   status?: Prisma.EnumPeriodStatusFieldUpdateOperationsInput | $Enums.PeriodStatus
+  createdById?: Prisma.StringFieldUpdateOperationsInput | string
+  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  availabilities?: Prisma.AvailabilityUncheckedUpdateManyWithoutPeriodNestedInput
+  schedule?: Prisma.ScheduleUncheckedUpdateOneWithoutPeriodNestedInput
+  fairnessRecords?: Prisma.FairnessRecordUncheckedUpdateManyWithoutPeriodNestedInput
+}
+
+export type SchedulingPeriodUncheckedUpdateManyWithoutCourtInput = {
+  id?: Prisma.StringFieldUpdateOperationsInput | string
+  name?: Prisma.StringFieldUpdateOperationsInput | string
+  startDate?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  endDate?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  submissionDeadline?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  status?: Prisma.EnumPeriodStatusFieldUpdateOperationsInput | $Enums.PeriodStatus
+  createdById?: Prisma.StringFieldUpdateOperationsInput | string
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
 }
@@ -860,14 +1062,12 @@ export type SchedulingPeriodUncheckedUpdateManyWithoutCreatedByInput = {
  */
 
 export type SchedulingPeriodCountOutputType = {
-  availability: number
-  schedules: number
+  availabilities: number
   fairnessRecords: number
 }
 
 export type SchedulingPeriodCountOutputTypeSelect<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
-  availability?: boolean | SchedulingPeriodCountOutputTypeCountAvailabilityArgs
-  schedules?: boolean | SchedulingPeriodCountOutputTypeCountSchedulesArgs
+  availabilities?: boolean | SchedulingPeriodCountOutputTypeCountAvailabilitiesArgs
   fairnessRecords?: boolean | SchedulingPeriodCountOutputTypeCountFairnessRecordsArgs
 }
 
@@ -884,15 +1084,8 @@ export type SchedulingPeriodCountOutputTypeDefaultArgs<ExtArgs extends runtime.T
 /**
  * SchedulingPeriodCountOutputType without action
  */
-export type SchedulingPeriodCountOutputTypeCountAvailabilityArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+export type SchedulingPeriodCountOutputTypeCountAvailabilitiesArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
   where?: Prisma.AvailabilityWhereInput
-}
-
-/**
- * SchedulingPeriodCountOutputType without action
- */
-export type SchedulingPeriodCountOutputTypeCountSchedulesArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
-  where?: Prisma.ScheduleWhereInput
 }
 
 /**
@@ -905,6 +1098,7 @@ export type SchedulingPeriodCountOutputTypeCountFairnessRecordsArgs<ExtArgs exte
 
 export type SchedulingPeriodSelect<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetSelect<{
   id?: boolean
+  courtId?: boolean
   name?: boolean
   startDate?: boolean
   endDate?: boolean
@@ -913,15 +1107,17 @@ export type SchedulingPeriodSelect<ExtArgs extends runtime.Types.Extensions.Inte
   createdById?: boolean
   createdAt?: boolean
   updatedAt?: boolean
+  court?: boolean | Prisma.CourtDefaultArgs<ExtArgs>
   createdBy?: boolean | Prisma.UserDefaultArgs<ExtArgs>
-  availability?: boolean | Prisma.SchedulingPeriod$availabilityArgs<ExtArgs>
-  schedules?: boolean | Prisma.SchedulingPeriod$schedulesArgs<ExtArgs>
+  availabilities?: boolean | Prisma.SchedulingPeriod$availabilitiesArgs<ExtArgs>
+  schedule?: boolean | Prisma.SchedulingPeriod$scheduleArgs<ExtArgs>
   fairnessRecords?: boolean | Prisma.SchedulingPeriod$fairnessRecordsArgs<ExtArgs>
   _count?: boolean | Prisma.SchedulingPeriodCountOutputTypeDefaultArgs<ExtArgs>
 }, ExtArgs["result"]["schedulingPeriod"]>
 
 export type SchedulingPeriodSelectCreateManyAndReturn<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetSelect<{
   id?: boolean
+  courtId?: boolean
   name?: boolean
   startDate?: boolean
   endDate?: boolean
@@ -930,11 +1126,13 @@ export type SchedulingPeriodSelectCreateManyAndReturn<ExtArgs extends runtime.Ty
   createdById?: boolean
   createdAt?: boolean
   updatedAt?: boolean
+  court?: boolean | Prisma.CourtDefaultArgs<ExtArgs>
   createdBy?: boolean | Prisma.UserDefaultArgs<ExtArgs>
 }, ExtArgs["result"]["schedulingPeriod"]>
 
 export type SchedulingPeriodSelectUpdateManyAndReturn<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetSelect<{
   id?: boolean
+  courtId?: boolean
   name?: boolean
   startDate?: boolean
   endDate?: boolean
@@ -943,11 +1141,13 @@ export type SchedulingPeriodSelectUpdateManyAndReturn<ExtArgs extends runtime.Ty
   createdById?: boolean
   createdAt?: boolean
   updatedAt?: boolean
+  court?: boolean | Prisma.CourtDefaultArgs<ExtArgs>
   createdBy?: boolean | Prisma.UserDefaultArgs<ExtArgs>
 }, ExtArgs["result"]["schedulingPeriod"]>
 
 export type SchedulingPeriodSelectScalar = {
   id?: boolean
+  courtId?: boolean
   name?: boolean
   startDate?: boolean
   endDate?: boolean
@@ -958,31 +1158,36 @@ export type SchedulingPeriodSelectScalar = {
   updatedAt?: boolean
 }
 
-export type SchedulingPeriodOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"id" | "name" | "startDate" | "endDate" | "submissionDeadline" | "status" | "createdById" | "createdAt" | "updatedAt", ExtArgs["result"]["schedulingPeriod"]>
+export type SchedulingPeriodOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"id" | "courtId" | "name" | "startDate" | "endDate" | "submissionDeadline" | "status" | "createdById" | "createdAt" | "updatedAt", ExtArgs["result"]["schedulingPeriod"]>
 export type SchedulingPeriodInclude<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+  court?: boolean | Prisma.CourtDefaultArgs<ExtArgs>
   createdBy?: boolean | Prisma.UserDefaultArgs<ExtArgs>
-  availability?: boolean | Prisma.SchedulingPeriod$availabilityArgs<ExtArgs>
-  schedules?: boolean | Prisma.SchedulingPeriod$schedulesArgs<ExtArgs>
+  availabilities?: boolean | Prisma.SchedulingPeriod$availabilitiesArgs<ExtArgs>
+  schedule?: boolean | Prisma.SchedulingPeriod$scheduleArgs<ExtArgs>
   fairnessRecords?: boolean | Prisma.SchedulingPeriod$fairnessRecordsArgs<ExtArgs>
   _count?: boolean | Prisma.SchedulingPeriodCountOutputTypeDefaultArgs<ExtArgs>
 }
 export type SchedulingPeriodIncludeCreateManyAndReturn<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+  court?: boolean | Prisma.CourtDefaultArgs<ExtArgs>
   createdBy?: boolean | Prisma.UserDefaultArgs<ExtArgs>
 }
 export type SchedulingPeriodIncludeUpdateManyAndReturn<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+  court?: boolean | Prisma.CourtDefaultArgs<ExtArgs>
   createdBy?: boolean | Prisma.UserDefaultArgs<ExtArgs>
 }
 
 export type $SchedulingPeriodPayload<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
   name: "SchedulingPeriod"
   objects: {
+    court: Prisma.$CourtPayload<ExtArgs>
     createdBy: Prisma.$UserPayload<ExtArgs>
-    availability: Prisma.$AvailabilityPayload<ExtArgs>[]
-    schedules: Prisma.$SchedulePayload<ExtArgs>[]
+    availabilities: Prisma.$AvailabilityPayload<ExtArgs>[]
+    schedule: Prisma.$SchedulePayload<ExtArgs> | null
     fairnessRecords: Prisma.$FairnessRecordPayload<ExtArgs>[]
   }
   scalars: runtime.Types.Extensions.GetPayloadResult<{
     id: string
+    courtId: string
     name: string
     startDate: Date
     endDate: Date
@@ -1385,9 +1590,10 @@ readonly fields: SchedulingPeriodFieldRefs;
  */
 export interface Prisma__SchedulingPeriodClient<T, Null = never, ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs, GlobalOmitOptions = {}> extends Prisma.PrismaPromise<T> {
   readonly [Symbol.toStringTag]: "PrismaPromise"
+  court<T extends Prisma.CourtDefaultArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.CourtDefaultArgs<ExtArgs>>): Prisma.Prisma__CourtClient<runtime.Types.Result.GetResult<Prisma.$CourtPayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions> | Null, Null, ExtArgs, GlobalOmitOptions>
   createdBy<T extends Prisma.UserDefaultArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.UserDefaultArgs<ExtArgs>>): Prisma.Prisma__UserClient<runtime.Types.Result.GetResult<Prisma.$UserPayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions> | Null, Null, ExtArgs, GlobalOmitOptions>
-  availability<T extends Prisma.SchedulingPeriod$availabilityArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.SchedulingPeriod$availabilityArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$AvailabilityPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
-  schedules<T extends Prisma.SchedulingPeriod$schedulesArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.SchedulingPeriod$schedulesArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$SchedulePayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
+  availabilities<T extends Prisma.SchedulingPeriod$availabilitiesArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.SchedulingPeriod$availabilitiesArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$AvailabilityPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
+  schedule<T extends Prisma.SchedulingPeriod$scheduleArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.SchedulingPeriod$scheduleArgs<ExtArgs>>): Prisma.Prisma__ScheduleClient<runtime.Types.Result.GetResult<Prisma.$SchedulePayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions> | null, null, ExtArgs, GlobalOmitOptions>
   fairnessRecords<T extends Prisma.SchedulingPeriod$fairnessRecordsArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.SchedulingPeriod$fairnessRecordsArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$FairnessRecordPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
   /**
    * Attaches callbacks for the resolution and/or rejection of the Promise.
@@ -1419,6 +1625,7 @@ export interface Prisma__SchedulingPeriodClient<T, Null = never, ExtArgs extends
  */
 export interface SchedulingPeriodFieldRefs {
   readonly id: Prisma.FieldRef<"SchedulingPeriod", 'String'>
+  readonly courtId: Prisma.FieldRef<"SchedulingPeriod", 'String'>
   readonly name: Prisma.FieldRef<"SchedulingPeriod", 'String'>
   readonly startDate: Prisma.FieldRef<"SchedulingPeriod", 'DateTime'>
   readonly endDate: Prisma.FieldRef<"SchedulingPeriod", 'DateTime'>
@@ -1828,9 +2035,9 @@ export type SchedulingPeriodDeleteManyArgs<ExtArgs extends runtime.Types.Extensi
 }
 
 /**
- * SchedulingPeriod.availability
+ * SchedulingPeriod.availabilities
  */
-export type SchedulingPeriod$availabilityArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+export type SchedulingPeriod$availabilitiesArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
   /**
    * Select specific fields to fetch from the Availability
    */
@@ -1852,9 +2059,9 @@ export type SchedulingPeriod$availabilityArgs<ExtArgs extends runtime.Types.Exte
 }
 
 /**
- * SchedulingPeriod.schedules
+ * SchedulingPeriod.schedule
  */
-export type SchedulingPeriod$schedulesArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+export type SchedulingPeriod$scheduleArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
   /**
    * Select specific fields to fetch from the Schedule
    */
@@ -1868,11 +2075,6 @@ export type SchedulingPeriod$schedulesArgs<ExtArgs extends runtime.Types.Extensi
    */
   include?: Prisma.ScheduleInclude<ExtArgs> | null
   where?: Prisma.ScheduleWhereInput
-  orderBy?: Prisma.ScheduleOrderByWithRelationInput | Prisma.ScheduleOrderByWithRelationInput[]
-  cursor?: Prisma.ScheduleWhereUniqueInput
-  take?: number
-  skip?: number
-  distinct?: Prisma.ScheduleScalarFieldEnum | Prisma.ScheduleScalarFieldEnum[]
 }
 
 /**

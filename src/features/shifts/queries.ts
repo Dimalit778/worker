@@ -66,7 +66,7 @@ export async function getShiftsPageData(
   const rawAssignments = scheduleRow
     ? await prisma.shiftAssignment.findMany({
         where: { scheduleId: scheduleRow.id },
-        include: { employee: { select: { name: true } } },
+        include: { employee: { select: { firstName: true, lastName: true } } },
         orderBy: { createdAt: 'asc' },
       })
     : [];
@@ -79,7 +79,7 @@ export async function getShiftsPageData(
     assignments[key].push({
       id: a.id,
       userId: a.employeeId,
-      userName: a.employee.name,
+      userName: `${a.employee.firstName} ${a.employee.lastName}`.trim(),
       isOpeningDuty: a.isOpeningDuty,
     });
   }
@@ -87,9 +87,9 @@ export async function getShiftsPageData(
   const guards =
     options.includeGuards && courtId
       ? await prisma.employee.findMany({
-          where: { primaryCourtId: courtId, isActive: true },
-          select: { id: true, name: true },
-          orderBy: { name: 'asc' },
+          where: { courtId, isActive: true },
+          select: { id: true, firstName: true, lastName: true },
+          orderBy: { firstName: 'asc' },
         })
       : [];
 

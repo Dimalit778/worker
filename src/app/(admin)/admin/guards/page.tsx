@@ -1,9 +1,9 @@
-import { requireSession } from '@/lib/auth-helpers'
-import { SystemRole } from '@/generated/prisma/client'
-import { Card, CardContent } from '@/components/ui/card'
+import { requireSession } from '@/lib/db/auth-helpers';
+import { SystemRole } from '@/generated/prisma/client';
+import { Card, CardContent } from '@/components/ui/card';
 
 export default async function AdminGuardsPage() {
-  await requireSession(SystemRole.ADMIN)
+  await requireSession(SystemRole.ADMIN);
 
   return (
     <div className="space-y-6">
@@ -14,5 +14,5 @@ export default async function AdminGuardsPage() {
         </CardContent>
       </Card>
     </div>
-  )
+  );
 }

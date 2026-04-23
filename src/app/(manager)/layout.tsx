@@ -1,12 +1,13 @@
-import { requireSession } from '@/lib/auth-helpers';
+import { requireSession } from '@/lib/db/auth-helpers';
 import { SystemRole } from '@/generated/prisma/client';
 import Link from 'next/link';
 import { LogoutButton } from '@/components/ui/logout-button';
+import { prisma } from '@/lib/db/client';
 
 const navItems = [
   { href: '/manager', label: 'לוח בקרה' },
 
-  { href: '/manager/shifts', label: 'שיבוץ' },
+  { href: '/manager/shifts', label: 'שיבוץ עבודה' },
   { href: '/manager/periods', label: 'תקופות' },
   { href: '/manager/guards', label: 'מאבטחים' },
   { href: '/manager/settings', label: 'הגדרות' },
@@ -14,14 +15,15 @@ const navItems = [
 
 export default async function ManagerLayout({ children }: { children: React.ReactNode }) {
   const session = await requireSession(SystemRole.MANAGER);
+  const court = session.user.courtId ? await prisma.court.findUnique({ where: { id: session.user.courtId } }) : null;
 
   return (
     <div className="min-h-screen flex bg-background">
       {/* Sidebar */}
       <aside className="w-56 border-e bg-card flex flex-col shrink-0">
         <div className="p-4 border-b">
-          <p className="font-bold text-sm">שמירה בתי משפט</p>
-          <p className="text-xs text-muted-foreground mt-0.5">{session.user.name}</p>
+          <p className="text-lg font-bold text-primary text-center mb-2">{session.user.fullName} </p>
+          <p className="text-md text-muted-foreground mt-0.5">{court?.name}</p>
         </div>
         <nav className="flex-1 p-2 space-y-1">
           {navItems.map((item) => (

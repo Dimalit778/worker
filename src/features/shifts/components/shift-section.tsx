@@ -3,7 +3,7 @@ import { AssignmentCell } from './assignment-cell';
 import { getRowLabel, assignmentKey } from '../utils';
 import type { ShiftType, AssignmentMap, GuardSummary, FullCapacityRules } from '../types';
 import type { WeekDay } from '../utils';
-import { Position } from '@/generated/prisma/client';
+import { Position } from '@/generated/prisma/enums';
 
 type Props = {
   shiftType: ShiftType;

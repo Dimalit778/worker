@@ -1,11 +1,11 @@
-import { requireSession } from '@/lib/auth-helpers';
+import { requireSession } from '@/lib/db/auth-helpers';
 import { SystemRole } from '@/generated/prisma/client';
 import { getFullCapacityRules } from '@/features/shifts/queries';
 import { CapacityRulesForm } from '@/features/shifts/components/capacity-rules-form';
 
 export default async function ManagerSettingsPage() {
   const session = await requireSession(SystemRole.MANAGER);
-  const courtId = session.user.primaryCourtId ?? '';
+  const courtId = session.user.courtId ?? '';
   const capacity = await getFullCapacityRules(courtId);
 
   return (

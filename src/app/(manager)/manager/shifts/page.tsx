@@ -1,11 +1,11 @@
-import { requireSession } from '@/lib/auth-helpers';
+import { requireSession } from '@/lib/db/auth-helpers';
 import { SystemRole } from '@/generated/prisma/client';
 import { getShiftsPageData } from '@/features/shifts/queries';
 import { ShiftsGrid } from '@/features/shifts/components/shifts-grid';
 
 export default async function ManagerShiftsPage() {
   const session = await requireSession(SystemRole.MANAGER);
-  const courtId = session.user.primaryCourtId ?? '';
+  const courtId = session.user.courtId ?? '';
 
   const data = await getShiftsPageData(courtId, { includeGuards: true });
 

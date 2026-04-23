@@ -1,9 +1,9 @@
-import { requireSession } from '@/lib/auth-helpers'
-import { SystemRole } from '@/generated/prisma/client'
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
+import { requireSession } from '@/lib/db/auth-helpers';
+import { SystemRole } from '@/generated/prisma/client';
+import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 
 export default async function ManagerDashboardPage() {
-  await requireSession(SystemRole.MANAGER)
+  await requireSession(SystemRole.MANAGER);
 
   return (
     <div className="space-y-6">
@@ -38,11 +38,9 @@ export default async function ManagerDashboardPage() {
 
       <Card>
         <CardContent className="pt-6">
-          <p className="text-muted-foreground text-sm">
-            אין תקופות תזמון. לחץ &quot;תקופה חדשה&quot; להתחיל.
-          </p>
+          <p className="text-muted-foreground text-sm">שלח שיבוץ חדש</p>
         </CardContent>
       </Card>
     </div>
-  )
+  );
 }

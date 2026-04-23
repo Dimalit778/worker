@@ -1,4 +1,4 @@
-import { requireSession } from '@/lib/auth-helpers';
+import { requireSession } from '@/lib/db/auth-helpers';
 import { SystemRole } from '@/generated/prisma/client';
 import { Card, CardContent } from '@/components/ui/card';
 import { getScheduleData } from '@/features/availability/actions';

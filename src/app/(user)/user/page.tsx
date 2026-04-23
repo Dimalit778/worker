@@ -1,9 +1,9 @@
-import { requireSession } from '@/lib/auth-helpers'
-import { SystemRole } from '@/generated/prisma/client'
-import { Card, CardContent } from '@/components/ui/card'
+import { requireSession } from '@/lib/db/auth-helpers';
+import { SystemRole } from '@/generated/prisma/client';
+import { Card, CardContent } from '@/components/ui/card';
 
 export default async function UserDashboardPage() {
-  const session = await requireSession(SystemRole.EMPLOYEE)
+  const session = await requireSession(SystemRole.EMPLOYEE);
 
   return (
     <div className="space-y-4">
@@ -11,11 +11,9 @@ export default async function UserDashboardPage() {
 
       <Card>
         <CardContent className="pt-6">
-          <p className="text-muted-foreground text-sm text-center">
-            אין תקופת תזמון פעילה כרגע.
-          </p>
+          <p className="text-muted-foreground text-sm text-center">אין תקופת תזמון פעילה כרגע.</p>
         </CardContent>
       </Card>
     </div>
-  )
+  );
 }

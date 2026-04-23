@@ -13,9 +13,10 @@
     "db:reset": "prisma migrate reset",
     "db:push": "prisma db push",
     "db:migrate": "prisma migrate dev",
-    "db:seed": "tsx prisma/seed.ts",
-    "db:seed-guards": "tsx prisma/seed-guards.ts",
-    "db:seed-managers": "tsx prisma/seed-managers.ts",
+    "db:seed": "tsx --env-file=.env.local prisma/seed.ts",
+    "db:seed-guards": "tsx --env-file=.env.local prisma/seed-guards.ts",
+    "db:seed-managers": "tsx --env-file=.env.local prisma/seed-managers.ts",
+    "db:seed-region-courts": "tsx --env-file=.env.local prisma/seed-region-courts.ts",
     "db:studio": "prisma studio"
   },
   "dependencies": {

@@ -1,9 +1,9 @@
-import { requireSession } from '@/lib/auth-helpers'
-import { SystemRole } from '@/generated/prisma/client'
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
+import { requireSession } from '@/lib/db/auth-helpers';
+import { SystemRole } from '@/generated/prisma/client';
+import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 
 export default async function AdminDashboardPage() {
-  await requireSession(SystemRole.ADMIN)
+  await requireSession(SystemRole.ADMIN);
 
   return (
     <div className="space-y-6">
@@ -38,11 +38,9 @@ export default async function AdminDashboardPage() {
 
       <Card>
         <CardContent className="pt-6">
-          <p className="text-muted-foreground text-sm">
-            ברוך הבא לממשק הניהול. בחר קטגוריה מהתפריט הצידי.
-          </p>
+          <p className="text-muted-foreground text-sm">ברוך הבא לממשק הניהול. בחר קטגוריה מהתפריט הצידי.</p>
         </CardContent>
       </Card>
     </div>
-  )
+  );
 }

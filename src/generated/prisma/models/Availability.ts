@@ -265,8 +265,8 @@ export type AvailabilityCreateInput = {
   submittedAt?: Date | string | null
   createdAt?: Date | string
   updatedAt?: Date | string
-  period: Prisma.SchedulingPeriodCreateNestedOneWithoutAvailabilityInput
-  employee: Prisma.EmployeeCreateNestedOneWithoutAvailabilityInput
+  period: Prisma.SchedulingPeriodCreateNestedOneWithoutAvailabilitiesInput
+  employee: Prisma.EmployeeCreateNestedOneWithoutAvailabilitiesInput
   entries?: Prisma.AvailabilityEntryCreateNestedManyWithoutAvailabilityInput
 }
 
@@ -287,8 +287,8 @@ export type AvailabilityUpdateInput = {
   submittedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
-  period?: Prisma.SchedulingPeriodUpdateOneRequiredWithoutAvailabilityNestedInput
-  employee?: Prisma.EmployeeUpdateOneRequiredWithoutAvailabilityNestedInput
+  period?: Prisma.SchedulingPeriodUpdateOneRequiredWithoutAvailabilitiesNestedInput
+  employee?: Prisma.EmployeeUpdateOneRequiredWithoutAvailabilitiesNestedInput
   entries?: Prisma.AvailabilityEntryUpdateManyWithoutAvailabilityNestedInput
 }
 
@@ -489,7 +489,7 @@ export type AvailabilityCreateWithoutEmployeeInput = {
   submittedAt?: Date | string | null
   createdAt?: Date | string
   updatedAt?: Date | string
-  period: Prisma.SchedulingPeriodCreateNestedOneWithoutAvailabilityInput
+  period: Prisma.SchedulingPeriodCreateNestedOneWithoutAvailabilitiesInput
   entries?: Prisma.AvailabilityEntryCreateNestedManyWithoutAvailabilityInput
 }
 
@@ -548,7 +548,7 @@ export type AvailabilityCreateWithoutPeriodInput = {
   submittedAt?: Date | string | null
   createdAt?: Date | string
   updatedAt?: Date | string
-  employee: Prisma.EmployeeCreateNestedOneWithoutAvailabilityInput
+  employee: Prisma.EmployeeCreateNestedOneWithoutAvailabilitiesInput
   entries?: Prisma.AvailabilityEntryCreateNestedManyWithoutAvailabilityInput
 }
 
@@ -594,8 +594,8 @@ export type AvailabilityCreateWithoutEntriesInput = {
   submittedAt?: Date | string | null
   createdAt?: Date | string
   updatedAt?: Date | string
-  period: Prisma.SchedulingPeriodCreateNestedOneWithoutAvailabilityInput
-  employee: Prisma.EmployeeCreateNestedOneWithoutAvailabilityInput
+  period: Prisma.SchedulingPeriodCreateNestedOneWithoutAvailabilitiesInput
+  employee: Prisma.EmployeeCreateNestedOneWithoutAvailabilitiesInput
 }
 
 export type AvailabilityUncheckedCreateWithoutEntriesInput = {
@@ -630,8 +630,8 @@ export type AvailabilityUpdateWithoutEntriesInput = {
   submittedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
-  period?: Prisma.SchedulingPeriodUpdateOneRequiredWithoutAvailabilityNestedInput
-  employee?: Prisma.EmployeeUpdateOneRequiredWithoutAvailabilityNestedInput
+  period?: Prisma.SchedulingPeriodUpdateOneRequiredWithoutAvailabilitiesNestedInput
+  employee?: Prisma.EmployeeUpdateOneRequiredWithoutAvailabilitiesNestedInput
 }
 
 export type AvailabilityUncheckedUpdateWithoutEntriesInput = {
@@ -659,7 +659,7 @@ export type AvailabilityUpdateWithoutEmployeeInput = {
   submittedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
-  period?: Prisma.SchedulingPeriodUpdateOneRequiredWithoutAvailabilityNestedInput
+  period?: Prisma.SchedulingPeriodUpdateOneRequiredWithoutAvailabilitiesNestedInput
   entries?: Prisma.AvailabilityEntryUpdateManyWithoutAvailabilityNestedInput
 }
 
@@ -697,7 +697,7 @@ export type AvailabilityUpdateWithoutPeriodInput = {
   submittedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
-  employee?: Prisma.EmployeeUpdateOneRequiredWithoutAvailabilityNestedInput
+  employee?: Prisma.EmployeeUpdateOneRequiredWithoutAvailabilitiesNestedInput
   entries?: Prisma.AvailabilityEntryUpdateManyWithoutAvailabilityNestedInput
 }
 

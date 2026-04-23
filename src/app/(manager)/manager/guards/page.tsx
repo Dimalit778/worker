@@ -1,4 +1,4 @@
-import { requireSession } from '@/lib/auth-helpers';
+import { requireSession } from '@/lib/db/auth-helpers';
 import { SystemRole } from '@/generated/prisma/client';
 import { GuardsTable } from '@/features/guards/components/guards-table';
 import { getGuards } from '@/features/guards/actions';

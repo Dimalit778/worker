@@ -38,7 +38,6 @@ export type ShiftAssignmentMinAggregateOutputType = {
   id: string | null
   scheduleId: string | null
   employeeId: string | null
-  courtId: string | null
   date: Date | null
   shiftType: $Enums.ShiftType | null
   position: $Enums.Position | null
@@ -53,7 +52,6 @@ export type ShiftAssignmentMaxAggregateOutputType = {
   id: string | null
   scheduleId: string | null
   employeeId: string | null
-  courtId: string | null
   date: Date | null
   shiftType: $Enums.ShiftType | null
   position: $Enums.Position | null
@@ -68,7 +66,6 @@ export type ShiftAssignmentCountAggregateOutputType = {
   id: number
   scheduleId: number
   employeeId: number
-  courtId: number
   date: number
   shiftType: number
   position: number
@@ -93,7 +90,6 @@ export type ShiftAssignmentMinAggregateInputType = {
   id?: true
   scheduleId?: true
   employeeId?: true
-  courtId?: true
   date?: true
   shiftType?: true
   position?: true
@@ -108,7 +104,6 @@ export type ShiftAssignmentMaxAggregateInputType = {
   id?: true
   scheduleId?: true
   employeeId?: true
-  courtId?: true
   date?: true
   shiftType?: true
   position?: true
@@ -123,7 +118,6 @@ export type ShiftAssignmentCountAggregateInputType = {
   id?: true
   scheduleId?: true
   employeeId?: true
-  courtId?: true
   date?: true
   shiftType?: true
   position?: true
@@ -225,7 +219,6 @@ export type ShiftAssignmentGroupByOutputType = {
   id: string
   scheduleId: string
   employeeId: string
-  courtId: string
   date: Date
   shiftType: $Enums.ShiftType
   position: $Enums.Position
@@ -263,7 +256,6 @@ export type ShiftAssignmentWhereInput = {
   id?: Prisma.StringFilter<"ShiftAssignment"> | string
   scheduleId?: Prisma.StringFilter<"ShiftAssignment"> | string
   employeeId?: Prisma.StringFilter<"ShiftAssignment"> | string
-  courtId?: Prisma.StringFilter<"ShiftAssignment"> | string
   date?: Prisma.DateTimeFilter<"ShiftAssignment"> | Date | string
   shiftType?: Prisma.EnumShiftTypeFilter<"ShiftAssignment"> | $Enums.ShiftType
   position?: Prisma.EnumPositionFilter<"ShiftAssignment"> | $Enums.Position
@@ -274,14 +266,12 @@ export type ShiftAssignmentWhereInput = {
   updatedAt?: Prisma.DateTimeFilter<"ShiftAssignment"> | Date | string
   schedule?: Prisma.XOR<Prisma.ScheduleScalarRelationFilter, Prisma.ScheduleWhereInput>
   employee?: Prisma.XOR<Prisma.EmployeeScalarRelationFilter, Prisma.EmployeeWhereInput>
-  court?: Prisma.XOR<Prisma.CourtScalarRelationFilter, Prisma.CourtWhereInput>
 }
 
 export type ShiftAssignmentOrderByWithRelationInput = {
   id?: Prisma.SortOrder
   scheduleId?: Prisma.SortOrder
   employeeId?: Prisma.SortOrder
-  courtId?: Prisma.SortOrder
   date?: Prisma.SortOrder
   shiftType?: Prisma.SortOrder
   position?: Prisma.SortOrder
@@ -292,7 +282,6 @@ export type ShiftAssignmentOrderByWithRelationInput = {
   updatedAt?: Prisma.SortOrder
   schedule?: Prisma.ScheduleOrderByWithRelationInput
   employee?: Prisma.EmployeeOrderByWithRelationInput
-  court?: Prisma.CourtOrderByWithRelationInput
 }
 
 export type ShiftAssignmentWhereUniqueInput = Prisma.AtLeast<{
@@ -303,7 +292,6 @@ export type ShiftAssignmentWhereUniqueInput = Prisma.AtLeast<{
   NOT?: Prisma.ShiftAssignmentWhereInput | Prisma.ShiftAssignmentWhereInput[]
   scheduleId?: Prisma.StringFilter<"ShiftAssignment"> | string
   employeeId?: Prisma.StringFilter<"ShiftAssignment"> | string
-  courtId?: Prisma.StringFilter<"ShiftAssignment"> | string
   date?: Prisma.DateTimeFilter<"ShiftAssignment"> | Date | string
   shiftType?: Prisma.EnumShiftTypeFilter<"ShiftAssignment"> | $Enums.ShiftType
   position?: Prisma.EnumPositionFilter<"ShiftAssignment"> | $Enums.Position
@@ -314,14 +302,12 @@ export type ShiftAssignmentWhereUniqueInput = Prisma.AtLeast<{
   updatedAt?: Prisma.DateTimeFilter<"ShiftAssignment"> | Date | string
   schedule?: Prisma.XOR<Prisma.ScheduleScalarRelationFilter, Prisma.ScheduleWhereInput>
   employee?: Prisma.XOR<Prisma.EmployeeScalarRelationFilter, Prisma.EmployeeWhereInput>
-  court?: Prisma.XOR<Prisma.CourtScalarRelationFilter, Prisma.CourtWhereInput>
 }, "id" | "scheduleId_employeeId_date_shiftType_position_slotIndex">
 
 export type ShiftAssignmentOrderByWithAggregationInput = {
   id?: Prisma.SortOrder
   scheduleId?: Prisma.SortOrder
   employeeId?: Prisma.SortOrder
-  courtId?: Prisma.SortOrder
   date?: Prisma.SortOrder
   shiftType?: Prisma.SortOrder
   position?: Prisma.SortOrder
@@ -344,7 +330,6 @@ export type ShiftAssignmentScalarWhereWithAggregatesInput = {
   id?: Prisma.StringWithAggregatesFilter<"ShiftAssignment"> | string
   scheduleId?: Prisma.StringWithAggregatesFilter<"ShiftAssignment"> | string
   employeeId?: Prisma.StringWithAggregatesFilter<"ShiftAssignment"> | string
-  courtId?: Prisma.StringWithAggregatesFilter<"ShiftAssignment"> | string
   date?: Prisma.DateTimeWithAggregatesFilter<"ShiftAssignment"> | Date | string
   shiftType?: Prisma.EnumShiftTypeWithAggregatesFilter<"ShiftAssignment"> | $Enums.ShiftType
   position?: Prisma.EnumPositionWithAggregatesFilter<"ShiftAssignment"> | $Enums.Position
@@ -367,14 +352,12 @@ export type ShiftAssignmentCreateInput = {
   updatedAt?: Date | string
   schedule: Prisma.ScheduleCreateNestedOneWithoutAssignmentsInput
   employee: Prisma.EmployeeCreateNestedOneWithoutAssignmentsInput
-  court: Prisma.CourtCreateNestedOneWithoutAssignmentsInput
 }
 
 export type ShiftAssignmentUncheckedCreateInput = {
   id?: string
   scheduleId: string
   employeeId: string
-  courtId: string
   date: Date | string
   shiftType: $Enums.ShiftType
   position: $Enums.Position
@@ -397,14 +380,12 @@ export type ShiftAssignmentUpdateInput = {
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   schedule?: Prisma.ScheduleUpdateOneRequiredWithoutAssignmentsNestedInput
   employee?: Prisma.EmployeeUpdateOneRequiredWithoutAssignmentsNestedInput
-  court?: Prisma.CourtUpdateOneRequiredWithoutAssignmentsNestedInput
 }
 
 export type ShiftAssignmentUncheckedUpdateInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
   scheduleId?: Prisma.StringFieldUpdateOperationsInput | string
   employeeId?: Prisma.StringFieldUpdateOperationsInput | string
-  courtId?: Prisma.StringFieldUpdateOperationsInput | string
   date?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   shiftType?: Prisma.EnumShiftTypeFieldUpdateOperationsInput | $Enums.ShiftType
   position?: Prisma.EnumPositionFieldUpdateOperationsInput | $Enums.Position
@@ -419,7 +400,6 @@ export type ShiftAssignmentCreateManyInput = {
   id?: string
   scheduleId: string
   employeeId: string
-  courtId: string
   date: Date | string
   shiftType: $Enums.ShiftType
   position: $Enums.Position
@@ -446,7 +426,6 @@ export type ShiftAssignmentUncheckedUpdateManyInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
   scheduleId?: Prisma.StringFieldUpdateOperationsInput | string
   employeeId?: Prisma.StringFieldUpdateOperationsInput | string
-  courtId?: Prisma.StringFieldUpdateOperationsInput | string
   date?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   shiftType?: Prisma.EnumShiftTypeFieldUpdateOperationsInput | $Enums.ShiftType
   position?: Prisma.EnumPositionFieldUpdateOperationsInput | $Enums.Position
@@ -480,7 +459,6 @@ export type ShiftAssignmentCountOrderByAggregateInput = {
   id?: Prisma.SortOrder
   scheduleId?: Prisma.SortOrder
   employeeId?: Prisma.SortOrder
-  courtId?: Prisma.SortOrder
   date?: Prisma.SortOrder
   shiftType?: Prisma.SortOrder
   position?: Prisma.SortOrder
@@ -499,7 +477,6 @@ export type ShiftAssignmentMaxOrderByAggregateInput = {
   id?: Prisma.SortOrder
   scheduleId?: Prisma.SortOrder
   employeeId?: Prisma.SortOrder
-  courtId?: Prisma.SortOrder
   date?: Prisma.SortOrder
   shiftType?: Prisma.SortOrder
   position?: Prisma.SortOrder
@@ -514,7 +491,6 @@ export type ShiftAssignmentMinOrderByAggregateInput = {
   id?: Prisma.SortOrder
   scheduleId?: Prisma.SortOrder
   employeeId?: Prisma.SortOrder
-  courtId?: Prisma.SortOrder
   date?: Prisma.SortOrder
   shiftType?: Prisma.SortOrder
   position?: Prisma.SortOrder
@@ -571,48 +547,6 @@ export type ShiftAssignmentUncheckedUpdateManyWithoutEmployeeNestedInput = {
   deleteMany?: Prisma.ShiftAssignmentScalarWhereInput | Prisma.ShiftAssignmentScalarWhereInput[]
 }
 
-export type ShiftAssignmentCreateNestedManyWithoutCourtInput = {
-  create?: Prisma.XOR<Prisma.ShiftAssignmentCreateWithoutCourtInput, Prisma.ShiftAssignmentUncheckedCreateWithoutCourtInput> | Prisma.ShiftAssignmentCreateWithoutCourtInput[] | Prisma.ShiftAssignmentUncheckedCreateWithoutCourtInput[]
-  connectOrCreate?: Prisma.ShiftAssignmentCreateOrConnectWithoutCourtInput | Prisma.ShiftAssignmentCreateOrConnectWithoutCourtInput[]
-  createMany?: Prisma.ShiftAssignmentCreateManyCourtInputEnvelope
-  connect?: Prisma.ShiftAssignmentWhereUniqueInput | Prisma.ShiftAssignmentWhereUniqueInput[]
-}
-
-export type ShiftAssignmentUncheckedCreateNestedManyWithoutCourtInput = {
-  create?: Prisma.XOR<Prisma.ShiftAssignmentCreateWithoutCourtInput, Prisma.ShiftAssignmentUncheckedCreateWithoutCourtInput> | Prisma.ShiftAssignmentCreateWithoutCourtInput[] | Prisma.ShiftAssignmentUncheckedCreateWithoutCourtInput[]
-  connectOrCreate?: Prisma.ShiftAssignmentCreateOrConnectWithoutCourtInput | Prisma.ShiftAssignmentCreateOrConnectWithoutCourtInput[]
-  createMany?: Prisma.ShiftAssignmentCreateManyCourtInputEnvelope
-  connect?: Prisma.ShiftAssignmentWhereUniqueInput | Prisma.ShiftAssignmentWhereUniqueInput[]
-}
-
-export type ShiftAssignmentUpdateManyWithoutCourtNestedInput = {
-  create?: Prisma.XOR<Prisma.ShiftAssignmentCreateWithoutCourtInput, Prisma.ShiftAssignmentUncheckedCreateWithoutCourtInput> | Prisma.ShiftAssignmentCreateWithoutCourtInput[] | Prisma.ShiftAssignmentUncheckedCreateWithoutCourtInput[]
-  connectOrCreate?: Prisma.ShiftAssignmentCreateOrConnectWithoutCourtInput | Prisma.ShiftAssignmentCreateOrConnectWithoutCourtInput[]
-  upsert?: Prisma.ShiftAssignmentUpsertWithWhereUniqueWithoutCourtInput | Prisma.ShiftAssignmentUpsertWithWhereUniqueWithoutCourtInput[]
-  createMany?: Prisma.ShiftAssignmentCreateManyCourtInputEnvelope
-  set?: Prisma.ShiftAssignmentWhereUniqueInput | Prisma.ShiftAssignmentWhereUniqueInput[]
-  disconnect?: Prisma.ShiftAssignmentWhereUniqueInput | Prisma.ShiftAssignmentWhereUniqueInput[]
-  delete?: Prisma.ShiftAssignmentWhereUniqueInput | Prisma.ShiftAssignmentWhereUniqueInput[]
-  connect?: Prisma.ShiftAssignmentWhereUniqueInput | Prisma.ShiftAssignmentWhereUniqueInput[]
-  update?: Prisma.ShiftAssignmentUpdateWithWhereUniqueWithoutCourtInput | Prisma.ShiftAssignmentUpdateWithWhereUniqueWithoutCourtInput[]
-  updateMany?: Prisma.ShiftAssignmentUpdateManyWithWhereWithoutCourtInput | Prisma.ShiftAssignmentUpdateManyWithWhereWithoutCourtInput[]
-  deleteMany?: Prisma.ShiftAssignmentScalarWhereInput | Prisma.ShiftAssignmentScalarWhereInput[]
-}
-
-export type ShiftAssignmentUncheckedUpdateManyWithoutCourtNestedInput = {
-  create?: Prisma.XOR<Prisma.ShiftAssignmentCreateWithoutCourtInput, Prisma.ShiftAssignmentUncheckedCreateWithoutCourtInput> | Prisma.ShiftAssignmentCreateWithoutCourtInput[] | Prisma.ShiftAssignmentUncheckedCreateWithoutCourtInput[]
-  connectOrCreate?: Prisma.ShiftAssignmentCreateOrConnectWithoutCourtInput | Prisma.ShiftAssignmentCreateOrConnectWithoutCourtInput[]
-  upsert?: Prisma.ShiftAssignmentUpsertWithWhereUniqueWithoutCourtInput | Prisma.ShiftAssignmentUpsertWithWhereUniqueWithoutCourtInput[]
-  createMany?: Prisma.ShiftAssignmentCreateManyCourtInputEnvelope
-  set?: Prisma.ShiftAssignmentWhereUniqueInput | Prisma.ShiftAssignmentWhereUniqueInput[]
-  disconnect?: Prisma.ShiftAssignmentWhereUniqueInput | Prisma.ShiftAssignmentWhereUniqueInput[]
-  delete?: Prisma.ShiftAssignmentWhereUniqueInput | Prisma.ShiftAssignmentWhereUniqueInput[]
-  connect?: Prisma.ShiftAssignmentWhereUniqueInput | Prisma.ShiftAssignmentWhereUniqueInput[]
-  update?: Prisma.ShiftAssignmentUpdateWithWhereUniqueWithoutCourtInput | Prisma.ShiftAssignmentUpdateWithWhereUniqueWithoutCourtInput[]
-  updateMany?: Prisma.ShiftAssignmentUpdateManyWithWhereWithoutCourtInput | Prisma.ShiftAssignmentUpdateManyWithWhereWithoutCourtInput[]
-  deleteMany?: Prisma.ShiftAssignmentScalarWhereInput | Prisma.ShiftAssignmentScalarWhereInput[]
-}
-
 export type ShiftAssignmentCreateNestedManyWithoutScheduleInput = {
   create?: Prisma.XOR<Prisma.ShiftAssignmentCreateWithoutScheduleInput, Prisma.ShiftAssignmentUncheckedCreateWithoutScheduleInput> | Prisma.ShiftAssignmentCreateWithoutScheduleInput[] | Prisma.ShiftAssignmentUncheckedCreateWithoutScheduleInput[]
   connectOrCreate?: Prisma.ShiftAssignmentCreateOrConnectWithoutScheduleInput | Prisma.ShiftAssignmentCreateOrConnectWithoutScheduleInput[]
@@ -666,13 +600,11 @@ export type ShiftAssignmentCreateWithoutEmployeeInput = {
   createdAt?: Date | string
   updatedAt?: Date | string
   schedule: Prisma.ScheduleCreateNestedOneWithoutAssignmentsInput
-  court: Prisma.CourtCreateNestedOneWithoutAssignmentsInput
 }
 
 export type ShiftAssignmentUncheckedCreateWithoutEmployeeInput = {
   id?: string
   scheduleId: string
-  courtId: string
   date: Date | string
   shiftType: $Enums.ShiftType
   position: $Enums.Position
@@ -716,7 +648,6 @@ export type ShiftAssignmentScalarWhereInput = {
   id?: Prisma.StringFilter<"ShiftAssignment"> | string
   scheduleId?: Prisma.StringFilter<"ShiftAssignment"> | string
   employeeId?: Prisma.StringFilter<"ShiftAssignment"> | string
-  courtId?: Prisma.StringFilter<"ShiftAssignment"> | string
   date?: Prisma.DateTimeFilter<"ShiftAssignment"> | Date | string
   shiftType?: Prisma.EnumShiftTypeFilter<"ShiftAssignment"> | $Enums.ShiftType
   position?: Prisma.EnumPositionFilter<"ShiftAssignment"> | $Enums.Position
@@ -725,60 +656,6 @@ export type ShiftAssignmentScalarWhereInput = {
   isManualOverride?: Prisma.BoolFilter<"ShiftAssignment"> | boolean
   createdAt?: Prisma.DateTimeFilter<"ShiftAssignment"> | Date | string
   updatedAt?: Prisma.DateTimeFilter<"ShiftAssignment"> | Date | string
-}
-
-export type ShiftAssignmentCreateWithoutCourtInput = {
-  id?: string
-  date: Date | string
-  shiftType: $Enums.ShiftType
-  position: $Enums.Position
-  slotIndex: number
-  isOpeningDuty?: boolean
-  isManualOverride?: boolean
-  createdAt?: Date | string
-  updatedAt?: Date | string
-  schedule: Prisma.ScheduleCreateNestedOneWithoutAssignmentsInput
-  employee: Prisma.EmployeeCreateNestedOneWithoutAssignmentsInput
-}
-
-export type ShiftAssignmentUncheckedCreateWithoutCourtInput = {
-  id?: string
-  scheduleId: string
-  employeeId: string
-  date: Date | string
-  shiftType: $Enums.ShiftType
-  position: $Enums.Position
-  slotIndex: number
-  isOpeningDuty?: boolean
-  isManualOverride?: boolean
-  createdAt?: Date | string
-  updatedAt?: Date | string
-}
-
-export type ShiftAssignmentCreateOrConnectWithoutCourtInput = {
-  where: Prisma.ShiftAssignmentWhereUniqueInput
-  create: Prisma.XOR<Prisma.ShiftAssignmentCreateWithoutCourtInput, Prisma.ShiftAssignmentUncheckedCreateWithoutCourtInput>
-}
-
-export type ShiftAssignmentCreateManyCourtInputEnvelope = {
-  data: Prisma.ShiftAssignmentCreateManyCourtInput | Prisma.ShiftAssignmentCreateManyCourtInput[]
-  skipDuplicates?: boolean
-}
-
-export type ShiftAssignmentUpsertWithWhereUniqueWithoutCourtInput = {
-  where: Prisma.ShiftAssignmentWhereUniqueInput
-  update: Prisma.XOR<Prisma.ShiftAssignmentUpdateWithoutCourtInput, Prisma.ShiftAssignmentUncheckedUpdateWithoutCourtInput>
-  create: Prisma.XOR<Prisma.ShiftAssignmentCreateWithoutCourtInput, Prisma.ShiftAssignmentUncheckedCreateWithoutCourtInput>
-}
-
-export type ShiftAssignmentUpdateWithWhereUniqueWithoutCourtInput = {
-  where: Prisma.ShiftAssignmentWhereUniqueInput
-  data: Prisma.XOR<Prisma.ShiftAssignmentUpdateWithoutCourtInput, Prisma.ShiftAssignmentUncheckedUpdateWithoutCourtInput>
-}
-
-export type ShiftAssignmentUpdateManyWithWhereWithoutCourtInput = {
-  where: Prisma.ShiftAssignmentScalarWhereInput
-  data: Prisma.XOR<Prisma.ShiftAssignmentUpdateManyMutationInput, Prisma.ShiftAssignmentUncheckedUpdateManyWithoutCourtInput>
 }
 
 export type ShiftAssignmentCreateWithoutScheduleInput = {
@@ -792,13 +669,11 @@ export type ShiftAssignmentCreateWithoutScheduleInput = {
   createdAt?: Date | string
   updatedAt?: Date | string
   employee: Prisma.EmployeeCreateNestedOneWithoutAssignmentsInput
-  court: Prisma.CourtCreateNestedOneWithoutAssignmentsInput
 }
 
 export type ShiftAssignmentUncheckedCreateWithoutScheduleInput = {
   id?: string
   employeeId: string
-  courtId: string
   date: Date | string
   shiftType: $Enums.ShiftType
   position: $Enums.Position
@@ -838,7 +713,6 @@ export type ShiftAssignmentUpdateManyWithWhereWithoutScheduleInput = {
 export type ShiftAssignmentCreateManyEmployeeInput = {
   id?: string
   scheduleId: string
-  courtId: string
   date: Date | string
   shiftType: $Enums.ShiftType
   position: $Enums.Position
@@ -860,13 +734,11 @@ export type ShiftAssignmentUpdateWithoutEmployeeInput = {
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   schedule?: Prisma.ScheduleUpdateOneRequiredWithoutAssignmentsNestedInput
-  court?: Prisma.CourtUpdateOneRequiredWithoutAssignmentsNestedInput
 }
 
 export type ShiftAssignmentUncheckedUpdateWithoutEmployeeInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
   scheduleId?: Prisma.StringFieldUpdateOperationsInput | string
-  courtId?: Prisma.StringFieldUpdateOperationsInput | string
   date?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   shiftType?: Prisma.EnumShiftTypeFieldUpdateOperationsInput | $Enums.ShiftType
   position?: Prisma.EnumPositionFieldUpdateOperationsInput | $Enums.Position
@@ -880,63 +752,6 @@ export type ShiftAssignmentUncheckedUpdateWithoutEmployeeInput = {
 export type ShiftAssignmentUncheckedUpdateManyWithoutEmployeeInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
   scheduleId?: Prisma.StringFieldUpdateOperationsInput | string
-  courtId?: Prisma.StringFieldUpdateOperationsInput | string
-  date?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
-  shiftType?: Prisma.EnumShiftTypeFieldUpdateOperationsInput | $Enums.ShiftType
-  position?: Prisma.EnumPositionFieldUpdateOperationsInput | $Enums.Position
-  slotIndex?: Prisma.IntFieldUpdateOperationsInput | number
-  isOpeningDuty?: Prisma.BoolFieldUpdateOperationsInput | boolean
-  isManualOverride?: Prisma.BoolFieldUpdateOperationsInput | boolean
-  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
-  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
-}
-
-export type ShiftAssignmentCreateManyCourtInput = {
-  id?: string
-  scheduleId: string
-  employeeId: string
-  date: Date | string
-  shiftType: $Enums.ShiftType
-  position: $Enums.Position
-  slotIndex: number
-  isOpeningDuty?: boolean
-  isManualOverride?: boolean
-  createdAt?: Date | string
-  updatedAt?: Date | string
-}
-
-export type ShiftAssignmentUpdateWithoutCourtInput = {
-  id?: Prisma.StringFieldUpdateOperationsInput | string
-  date?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
-  shiftType?: Prisma.EnumShiftTypeFieldUpdateOperationsInput | $Enums.ShiftType
-  position?: Prisma.EnumPositionFieldUpdateOperationsInput | $Enums.Position
-  slotIndex?: Prisma.IntFieldUpdateOperationsInput | number
-  isOpeningDuty?: Prisma.BoolFieldUpdateOperationsInput | boolean
-  isManualOverride?: Prisma.BoolFieldUpdateOperationsInput | boolean
-  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
-  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
-  schedule?: Prisma.ScheduleUpdateOneRequiredWithoutAssignmentsNestedInput
-  employee?: Prisma.EmployeeUpdateOneRequiredWithoutAssignmentsNestedInput
-}
-
-export type ShiftAssignmentUncheckedUpdateWithoutCourtInput = {
-  id?: Prisma.StringFieldUpdateOperationsInput | string
-  scheduleId?: Prisma.StringFieldUpdateOperationsInput | string
-  employeeId?: Prisma.StringFieldUpdateOperationsInput | string
-  date?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
-  shiftType?: Prisma.EnumShiftTypeFieldUpdateOperationsInput | $Enums.ShiftType
-  position?: Prisma.EnumPositionFieldUpdateOperationsInput | $Enums.Position
-  slotIndex?: Prisma.IntFieldUpdateOperationsInput | number
-  isOpeningDuty?: Prisma.BoolFieldUpdateOperationsInput | boolean
-  isManualOverride?: Prisma.BoolFieldUpdateOperationsInput | boolean
-  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
-  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
-}
-
-export type ShiftAssignmentUncheckedUpdateManyWithoutCourtInput = {
-  id?: Prisma.StringFieldUpdateOperationsInput | string
-  scheduleId?: Prisma.StringFieldUpdateOperationsInput | string
-  employeeId?: Prisma.StringFieldUpdateOperationsInput | string
   date?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   shiftType?: Prisma.EnumShiftTypeFieldUpdateOperationsInput | $Enums.ShiftType
   position?: Prisma.EnumPositionFieldUpdateOperationsInput | $Enums.Position
@@ -950,7 +765,6 @@ export type ShiftAssignmentUncheckedUpdateManyWithoutCourtInput = {
 export type ShiftAssignmentCreateManyScheduleInput = {
   id?: string
   employeeId: string
-  courtId: string
   date: Date | string
   shiftType: $Enums.ShiftType
   position: $Enums.Position
@@ -972,13 +786,11 @@ export type ShiftAssignmentUpdateWithoutScheduleInput = {
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   employee?: Prisma.EmployeeUpdateOneRequiredWithoutAssignmentsNestedInput
-  court?: Prisma.CourtUpdateOneRequiredWithoutAssignmentsNestedInput
 }
 
 export type ShiftAssignmentUncheckedUpdateWithoutScheduleInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
   employeeId?: Prisma.StringFieldUpdateOperationsInput | string
-  courtId?: Prisma.StringFieldUpdateOperationsInput | string
   date?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   shiftType?: Prisma.EnumShiftTypeFieldUpdateOperationsInput | $Enums.ShiftType
   position?: Prisma.EnumPositionFieldUpdateOperationsInput | $Enums.Position
@@ -992,7 +804,6 @@ export type ShiftAssignmentUncheckedUpdateWithoutScheduleInput = {
 export type ShiftAssignmentUncheckedUpdateManyWithoutScheduleInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
   employeeId?: Prisma.StringFieldUpdateOperationsInput | string
-  courtId?: Prisma.StringFieldUpdateOperationsInput | string
   date?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   shiftType?: Prisma.EnumShiftTypeFieldUpdateOperationsInput | $Enums.ShiftType
   position?: Prisma.EnumPositionFieldUpdateOperationsInput | $Enums.Position
@@ -1009,7 +820,6 @@ export type ShiftAssignmentSelect<ExtArgs extends runtime.Types.Extensions.Inter
   id?: boolean
   scheduleId?: boolean
   employeeId?: boolean
-  courtId?: boolean
   date?: boolean
   shiftType?: boolean
   position?: boolean
@@ -1020,14 +830,12 @@ export type ShiftAssignmentSelect<ExtArgs extends runtime.Types.Extensions.Inter
   updatedAt?: boolean
   schedule?: boolean | Prisma.ScheduleDefaultArgs<ExtArgs>
   employee?: boolean | Prisma.EmployeeDefaultArgs<ExtArgs>
-  court?: boolean | Prisma.CourtDefaultArgs<ExtArgs>
 }, ExtArgs["result"]["shiftAssignment"]>
 
 export type ShiftAssignmentSelectCreateManyAndReturn<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetSelect<{
   id?: boolean
   scheduleId?: boolean
   employeeId?: boolean
-  courtId?: boolean
   date?: boolean
   shiftType?: boolean
   position?: boolean
@@ -1038,14 +846,12 @@ export type ShiftAssignmentSelectCreateManyAndReturn<ExtArgs extends runtime.Typ
   updatedAt?: boolean
   schedule?: boolean | Prisma.ScheduleDefaultArgs<ExtArgs>
   employee?: boolean | Prisma.EmployeeDefaultArgs<ExtArgs>
-  court?: boolean | Prisma.CourtDefaultArgs<ExtArgs>
 }, ExtArgs["result"]["shiftAssignment"]>
 
 export type ShiftAssignmentSelectUpdateManyAndReturn<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetSelect<{
   id?: boolean
   scheduleId?: boolean
   employeeId?: boolean
-  courtId?: boolean
   date?: boolean
   shiftType?: boolean
   position?: boolean
@@ -1056,14 +862,12 @@ export type ShiftAssignmentSelectUpdateManyAndReturn<ExtArgs extends runtime.Typ
   updatedAt?: boolean
   schedule?: boolean | Prisma.ScheduleDefaultArgs<ExtArgs>
   employee?: boolean | Prisma.EmployeeDefaultArgs<ExtArgs>
-  court?: boolean | Prisma.CourtDefaultArgs<ExtArgs>
 }, ExtArgs["result"]["shiftAssignment"]>
 
 export type ShiftAssignmentSelectScalar = {
   id?: boolean
   scheduleId?: boolean
   employeeId?: boolean
-  courtId?: boolean
   date?: boolean
   shiftType?: boolean
   position?: boolean
@@ -1074,21 +878,18 @@ export type ShiftAssignmentSelectScalar = {
   updatedAt?: boolean
 }
 
-export type ShiftAssignmentOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"id" | "scheduleId" | "employeeId" | "courtId" | "date" | "shiftType" | "position" | "slotIndex" | "isOpeningDuty" | "isManualOverride" | "createdAt" | "updatedAt", ExtArgs["result"]["shiftAssignment"]>
+export type ShiftAssignmentOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"id" | "scheduleId" | "employeeId" | "date" | "shiftType" | "position" | "slotIndex" | "isOpeningDuty" | "isManualOverride" | "createdAt" | "updatedAt", ExtArgs["result"]["shiftAssignment"]>
 export type ShiftAssignmentInclude<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
   schedule?: boolean | Prisma.ScheduleDefaultArgs<ExtArgs>
   employee?: boolean | Prisma.EmployeeDefaultArgs<ExtArgs>
-  court?: boolean | Prisma.CourtDefaultArgs<ExtArgs>
 }
 export type ShiftAssignmentIncludeCreateManyAndReturn<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
   schedule?: boolean | Prisma.ScheduleDefaultArgs<ExtArgs>
   employee?: boolean | Prisma.EmployeeDefaultArgs<ExtArgs>
-  court?: boolean | Prisma.CourtDefaultArgs<ExtArgs>
 }
 export type ShiftAssignmentIncludeUpdateManyAndReturn<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
   schedule?: boolean | Prisma.ScheduleDefaultArgs<ExtArgs>
   employee?: boolean | Prisma.EmployeeDefaultArgs<ExtArgs>
-  court?: boolean | Prisma.CourtDefaultArgs<ExtArgs>
 }
 
 export type $ShiftAssignmentPayload<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
@@ -1096,13 +897,11 @@ export type $ShiftAssignmentPayload<ExtArgs extends runtime.Types.Extensions.Int
   objects: {
     schedule: Prisma.$SchedulePayload<ExtArgs>
     employee: Prisma.$EmployeePayload<ExtArgs>
-    court: Prisma.$CourtPayload<ExtArgs>
   }
   scalars: runtime.Types.Extensions.GetPayloadResult<{
     id: string
     scheduleId: string
     employeeId: string
-    courtId: string
     date: Date
     shiftType: $Enums.ShiftType
     position: $Enums.Position
@@ -1507,7 +1306,6 @@ export interface Prisma__ShiftAssignmentClient<T, Null = never, ExtArgs extends 
   readonly [Symbol.toStringTag]: "PrismaPromise"
   schedule<T extends Prisma.ScheduleDefaultArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.ScheduleDefaultArgs<ExtArgs>>): Prisma.Prisma__ScheduleClient<runtime.Types.Result.GetResult<Prisma.$SchedulePayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions> | Null, Null, ExtArgs, GlobalOmitOptions>
   employee<T extends Prisma.EmployeeDefaultArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.EmployeeDefaultArgs<ExtArgs>>): Prisma.Prisma__EmployeeClient<runtime.Types.Result.GetResult<Prisma.$EmployeePayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions> | Null, Null, ExtArgs, GlobalOmitOptions>
-  court<T extends Prisma.CourtDefaultArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.CourtDefaultArgs<ExtArgs>>): Prisma.Prisma__CourtClient<runtime.Types.Result.GetResult<Prisma.$CourtPayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions> | Null, Null, ExtArgs, GlobalOmitOptions>
   /**
    * Attaches callbacks for the resolution and/or rejection of the Promise.
    * @param onfulfilled The callback to execute when the Promise is resolved.
@@ -1540,7 +1338,6 @@ export interface ShiftAssignmentFieldRefs {
   readonly id: Prisma.FieldRef<"ShiftAssignment", 'String'>
   readonly scheduleId: Prisma.FieldRef<"ShiftAssignment", 'String'>
   readonly employeeId: Prisma.FieldRef<"ShiftAssignment", 'String'>
-  readonly courtId: Prisma.FieldRef<"ShiftAssignment", 'String'>
   readonly date: Prisma.FieldRef<"ShiftAssignment", 'DateTime'>
   readonly shiftType: Prisma.FieldRef<"ShiftAssignment", 'ShiftType'>
   readonly position: Prisma.FieldRef<"ShiftAssignment", 'Position'>

@@ -1,5 +1,5 @@
 import Link from 'next/link';
-import { requireSession } from '@/lib/auth-helpers';
+import { requireSession } from '@/lib/db/auth-helpers';
 import { SystemRole } from '@/generated/prisma/client';
 import { prisma } from '@/lib/db/client';
 import { LogoutButton } from '@/components/ui/logout-button';
@@ -14,8 +14,8 @@ const userNavItems = [
 export default async function UserLayout({ children }: { children: React.ReactNode }) {
   const session = await requireSession(SystemRole.EMPLOYEE);
 
-  const primaryCourt = session.user.primaryCourtId
-    ? await prisma.court.findUnique({ where: { id: session.user.primaryCourtId } })
+  const primaryCourt = session.user.courtId
+    ? await prisma.court.findUnique({ where: { id: session.user.courtId } })
     : null;
 
   return (

@@ -2,35 +2,32 @@
 
 import bcrypt from 'bcryptjs';
 import { revalidatePath } from 'next/cache';
-import { Employee, Position, SystemRole, User } from '@/generated/prisma/client';
+import { Position, SystemRole } from '@/generated/prisma/client';
 import { prisma } from '@/lib/db/client';
-import { requireSession } from '@/lib/auth-helpers';
+import { requireSession } from '@/lib/db/auth-helpers';
 import type { CreateGuardParams, UpdateGuardParams, DeleteGuardParams, GetGuardsResult } from '@/features/guards/types';
 
 export async function createGuard(params: CreateGuardParams): Promise<{ ok: true } | { error: string }> {
   const session = await requireSession(SystemRole.MANAGER);
-  const courtId = session.user.primaryCourtId;
+  const courtId = session.user.courtId;
   if (!courtId) return { error: 'למנהל אין בית משפט משויך' };
 
-  const { name, position } = params;
+  const { firstName, lastName, phone, email, position } = params;
 
   const passwordHash = await bcrypt.hash('123456', 12);
 
   await prisma.$transaction(async (tx) => {
     const employee = await tx.employee.create({
-      data: { name, position, primaryCourtId: courtId, isActive: true },
+      data: { firstName, lastName, phone, position, courtId, isActive: true },
     });
     await tx.user.create({
       data: {
+        email,
         passwordHash,
         systemRole: SystemRole.EMPLOYEE,
         mustChangePassword: true,
-        isActive: true,
         employeeId: employee.id,
       },
-    });
-    await tx.courtEligibility.create({
-      data: { employeeId: employee.id, courtId },
     });
   });
 
@@ -40,18 +37,18 @@ export async function createGuard(params: CreateGuardParams): Promise<{ ok: true
 
 export async function updateGuard(params: UpdateGuardParams): Promise<{ ok: true } | { error: string }> {
   const session = await requireSession(SystemRole.MANAGER);
-  const courtId = session.user.primaryCourtId;
+  const courtId = session.user.courtId;
 
-  const { employeeId, name, position, isActive } = params;
+  const { employeeId, firstName, lastName, phone, position, isActive } = params;
 
   const employee = await prisma.employee.findFirst({
-    where: { id: employeeId, primaryCourtId: courtId ?? '' },
+    where: { id: employeeId, courtId: courtId ?? '' },
   });
   if (!employee) return { error: 'מאבטח לא נמצא' };
 
   await prisma.employee.update({
     where: { id: employeeId },
-    data: { name, position, isActive },
+    data: { firstName, lastName, phone, position, isActive },
   });
 
   revalidatePath('/manager/guards');
@@ -62,12 +59,12 @@ export async function deleteGuard(
   params: DeleteGuardParams,
 ): Promise<{ ok: true } | { needsConfirm: true; assignmentCount: number } | { error: string }> {
   const session = await requireSession(SystemRole.MANAGER);
-  const courtId = session.user.primaryCourtId;
+  const courtId = session.user.courtId;
 
   const { employeeId, force } = params;
 
   const employee = await prisma.employee.findFirst({
-    where: { id: employeeId, primaryCourtId: courtId ?? '' },
+    where: { id: employeeId, courtId: courtId ?? '' },
   });
   if (!employee) return { error: 'מאבטח לא נמצא' };
 
@@ -91,20 +88,22 @@ export async function getGuards(): Promise<GetGuardsResult> {
 
   const managerEmployee = await prisma.employee.findFirst({
     where: { user: { id: session.user.id } },
-    select: { primaryCourtId: true },
+    select: { courtId: true },
   });
-  const courtId = managerEmployee?.primaryCourtId ?? null;
+  const courtId = managerEmployee?.courtId ?? null;
 
   if (!courtId) return [];
 
   const guards = await prisma.employee.findMany({
-    where: { primaryCourtId: courtId },
+    where: { courtId },
     include: { user: { select: { id: true } } },
   });
   console.log(guards);
   return guards.map((guard) => ({
     id: guard.id,
-    name: guard.name,
+    firstName: guard.firstName,
+    lastName: guard.lastName,
+    phone: guard.phone,
     position: guard.position as Position,
     isActive: guard.isActive,
   }));

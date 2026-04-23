@@ -3,13 +3,13 @@
 import { revalidatePath } from 'next/cache';
 import { ShiftType, SystemRole } from '@/generated/prisma/client';
 import { prisma } from '@/lib/db/client';
-import { requireSession } from '@/lib/auth-helpers';
+import { requireSession } from '@/lib/db/auth-helpers';
 import { getCurrentSchedulingPeriod } from '@/features/schedules/actions';
 
 async function getEmployeeForUser(userId: string) {
   return prisma.employee.findFirst({
     where: { user: { id: userId } },
-    select: { id: true, primaryCourtId: true },
+    select: { id: true, courtId: true },
   });
 }
 
@@ -52,7 +52,7 @@ export async function getScheduleData() {
 export async function submitAvailability(entries: Record<string, boolean>): Promise<{ ok: boolean }> {
   const session = await requireSession(SystemRole.EMPLOYEE);
   const employee = await getEmployeeForUser(session.user.id);
-  if (!employee?.primaryCourtId) return { ok: false };
+  if (!employee?.courtId) return { ok: false };
 
   const period = await getCurrentSchedulingPeriod();
   if (!period) return { ok: false };
@@ -76,7 +76,6 @@ export async function submitAvailability(entries: Record<string, boolean>): Prom
       return {
         availabilityId: availability.id,
         date: new Date(`${year}-${month}-${day}T12:00:00Z`),
-        courtId: employee.primaryCourtId!,
         shiftType: shiftType as ShiftType,
         isAvailable: true,
       };

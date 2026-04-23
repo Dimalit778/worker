@@ -28,7 +28,6 @@ export type AvailabilityEntryMinAggregateOutputType = {
   id: string | null
   availabilityId: string | null
   date: Date | null
-  courtId: string | null
   shiftType: $Enums.ShiftType | null
   isAvailable: boolean | null
   createdAt: Date | null
@@ -39,7 +38,6 @@ export type AvailabilityEntryMaxAggregateOutputType = {
   id: string | null
   availabilityId: string | null
   date: Date | null
-  courtId: string | null
   shiftType: $Enums.ShiftType | null
   isAvailable: boolean | null
   createdAt: Date | null
@@ -50,7 +48,6 @@ export type AvailabilityEntryCountAggregateOutputType = {
   id: number
   availabilityId: number
   date: number
-  courtId: number
   shiftType: number
   isAvailable: number
   createdAt: number
@@ -63,7 +60,6 @@ export type AvailabilityEntryMinAggregateInputType = {
   id?: true
   availabilityId?: true
   date?: true
-  courtId?: true
   shiftType?: true
   isAvailable?: true
   createdAt?: true
@@ -74,7 +70,6 @@ export type AvailabilityEntryMaxAggregateInputType = {
   id?: true
   availabilityId?: true
   date?: true
-  courtId?: true
   shiftType?: true
   isAvailable?: true
   createdAt?: true
@@ -85,7 +80,6 @@ export type AvailabilityEntryCountAggregateInputType = {
   id?: true
   availabilityId?: true
   date?: true
-  courtId?: true
   shiftType?: true
   isAvailable?: true
   createdAt?: true
@@ -169,7 +163,6 @@ export type AvailabilityEntryGroupByOutputType = {
   id: string
   availabilityId: string
   date: Date
-  courtId: string
   shiftType: $Enums.ShiftType
   isAvailable: boolean
   createdAt: Date
@@ -201,50 +194,43 @@ export type AvailabilityEntryWhereInput = {
   id?: Prisma.StringFilter<"AvailabilityEntry"> | string
   availabilityId?: Prisma.StringFilter<"AvailabilityEntry"> | string
   date?: Prisma.DateTimeFilter<"AvailabilityEntry"> | Date | string
-  courtId?: Prisma.StringFilter<"AvailabilityEntry"> | string
   shiftType?: Prisma.EnumShiftTypeFilter<"AvailabilityEntry"> | $Enums.ShiftType
   isAvailable?: Prisma.BoolFilter<"AvailabilityEntry"> | boolean
   createdAt?: Prisma.DateTimeFilter<"AvailabilityEntry"> | Date | string
   updatedAt?: Prisma.DateTimeFilter<"AvailabilityEntry"> | Date | string
   availability?: Prisma.XOR<Prisma.AvailabilityScalarRelationFilter, Prisma.AvailabilityWhereInput>
-  court?: Prisma.XOR<Prisma.CourtScalarRelationFilter, Prisma.CourtWhereInput>
 }
 
 export type AvailabilityEntryOrderByWithRelationInput = {
   id?: Prisma.SortOrder
   availabilityId?: Prisma.SortOrder
   date?: Prisma.SortOrder
-  courtId?: Prisma.SortOrder
   shiftType?: Prisma.SortOrder
   isAvailable?: Prisma.SortOrder
   createdAt?: Prisma.SortOrder
   updatedAt?: Prisma.SortOrder
   availability?: Prisma.AvailabilityOrderByWithRelationInput
-  court?: Prisma.CourtOrderByWithRelationInput
 }
 
 export type AvailabilityEntryWhereUniqueInput = Prisma.AtLeast<{
   id?: string
-  availabilityId_date_courtId_shiftType?: Prisma.AvailabilityEntryAvailabilityIdDateCourtIdShiftTypeCompoundUniqueInput
+  availabilityId_date_shiftType?: Prisma.AvailabilityEntryAvailabilityIdDateShiftTypeCompoundUniqueInput
   AND?: Prisma.AvailabilityEntryWhereInput | Prisma.AvailabilityEntryWhereInput[]
   OR?: Prisma.AvailabilityEntryWhereInput[]
   NOT?: Prisma.AvailabilityEntryWhereInput | Prisma.AvailabilityEntryWhereInput[]
   availabilityId?: Prisma.StringFilter<"AvailabilityEntry"> | string
   date?: Prisma.DateTimeFilter<"AvailabilityEntry"> | Date | string
-  courtId?: Prisma.StringFilter<"AvailabilityEntry"> | string
   shiftType?: Prisma.EnumShiftTypeFilter<"AvailabilityEntry"> | $Enums.ShiftType
   isAvailable?: Prisma.BoolFilter<"AvailabilityEntry"> | boolean
   createdAt?: Prisma.DateTimeFilter<"AvailabilityEntry"> | Date | string
   updatedAt?: Prisma.DateTimeFilter<"AvailabilityEntry"> | Date | string
   availability?: Prisma.XOR<Prisma.AvailabilityScalarRelationFilter, Prisma.AvailabilityWhereInput>
-  court?: Prisma.XOR<Prisma.CourtScalarRelationFilter, Prisma.CourtWhereInput>
-}, "id" | "availabilityId_date_courtId_shiftType">
+}, "id" | "availabilityId_date_shiftType">
 
 export type AvailabilityEntryOrderByWithAggregationInput = {
   id?: Prisma.SortOrder
   availabilityId?: Prisma.SortOrder
   date?: Prisma.SortOrder
-  courtId?: Prisma.SortOrder
   shiftType?: Prisma.SortOrder
   isAvailable?: Prisma.SortOrder
   createdAt?: Prisma.SortOrder
@@ -261,7 +247,6 @@ export type AvailabilityEntryScalarWhereWithAggregatesInput = {
   id?: Prisma.StringWithAggregatesFilter<"AvailabilityEntry"> | string
   availabilityId?: Prisma.StringWithAggregatesFilter<"AvailabilityEntry"> | string
   date?: Prisma.DateTimeWithAggregatesFilter<"AvailabilityEntry"> | Date | string
-  courtId?: Prisma.StringWithAggregatesFilter<"AvailabilityEntry"> | string
   shiftType?: Prisma.EnumShiftTypeWithAggregatesFilter<"AvailabilityEntry"> | $Enums.ShiftType
   isAvailable?: Prisma.BoolWithAggregatesFilter<"AvailabilityEntry"> | boolean
   createdAt?: Prisma.DateTimeWithAggregatesFilter<"AvailabilityEntry"> | Date | string
@@ -276,14 +261,12 @@ export type AvailabilityEntryCreateInput = {
   createdAt?: Date | string
   updatedAt?: Date | string
   availability: Prisma.AvailabilityCreateNestedOneWithoutEntriesInput
-  court: Prisma.CourtCreateNestedOneWithoutAvailabilityEntriesInput
 }
 
 export type AvailabilityEntryUncheckedCreateInput = {
   id?: string
   availabilityId: string
   date: Date | string
-  courtId: string
   shiftType: $Enums.ShiftType
   isAvailable?: boolean
   createdAt?: Date | string
@@ -298,14 +281,12 @@ export type AvailabilityEntryUpdateInput = {
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   availability?: Prisma.AvailabilityUpdateOneRequiredWithoutEntriesNestedInput
-  court?: Prisma.CourtUpdateOneRequiredWithoutAvailabilityEntriesNestedInput
 }
 
 export type AvailabilityEntryUncheckedUpdateInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
   availabilityId?: Prisma.StringFieldUpdateOperationsInput | string
   date?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
-  courtId?: Prisma.StringFieldUpdateOperationsInput | string
   shiftType?: Prisma.EnumShiftTypeFieldUpdateOperationsInput | $Enums.ShiftType
   isAvailable?: Prisma.BoolFieldUpdateOperationsInput | boolean
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
@@ -316,7 +297,6 @@ export type AvailabilityEntryCreateManyInput = {
   id?: string
   availabilityId: string
   date: Date | string
-  courtId: string
   shiftType: $Enums.ShiftType
   isAvailable?: boolean
   createdAt?: Date | string
@@ -336,7 +316,6 @@ export type AvailabilityEntryUncheckedUpdateManyInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
   availabilityId?: Prisma.StringFieldUpdateOperationsInput | string
   date?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
-  courtId?: Prisma.StringFieldUpdateOperationsInput | string
   shiftType?: Prisma.EnumShiftTypeFieldUpdateOperationsInput | $Enums.ShiftType
   isAvailable?: Prisma.BoolFieldUpdateOperationsInput | boolean
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
@@ -353,10 +332,9 @@ export type AvailabilityEntryOrderByRelationAggregateInput = {
   _count?: Prisma.SortOrder
 }
 
-export type AvailabilityEntryAvailabilityIdDateCourtIdShiftTypeCompoundUniqueInput = {
+export type AvailabilityEntryAvailabilityIdDateShiftTypeCompoundUniqueInput = {
   availabilityId: string
   date: Date | string
-  courtId: string
   shiftType: $Enums.ShiftType
 }
 
@@ -364,7 +342,6 @@ export type AvailabilityEntryCountOrderByAggregateInput = {
   id?: Prisma.SortOrder
   availabilityId?: Prisma.SortOrder
   date?: Prisma.SortOrder
-  courtId?: Prisma.SortOrder
   shiftType?: Prisma.SortOrder
   isAvailable?: Prisma.SortOrder
   createdAt?: Prisma.SortOrder
@@ -375,7 +352,6 @@ export type AvailabilityEntryMaxOrderByAggregateInput = {
   id?: Prisma.SortOrder
   availabilityId?: Prisma.SortOrder
   date?: Prisma.SortOrder
-  courtId?: Prisma.SortOrder
   shiftType?: Prisma.SortOrder
   isAvailable?: Prisma.SortOrder
   createdAt?: Prisma.SortOrder
@@ -386,53 +362,10 @@ export type AvailabilityEntryMinOrderByAggregateInput = {
   id?: Prisma.SortOrder
   availabilityId?: Prisma.SortOrder
   date?: Prisma.SortOrder
-  courtId?: Prisma.SortOrder
   shiftType?: Prisma.SortOrder
   isAvailable?: Prisma.SortOrder
   createdAt?: Prisma.SortOrder
   updatedAt?: Prisma.SortOrder
-}
-
-export type AvailabilityEntryCreateNestedManyWithoutCourtInput = {
-  create?: Prisma.XOR<Prisma.AvailabilityEntryCreateWithoutCourtInput, Prisma.AvailabilityEntryUncheckedCreateWithoutCourtInput> | Prisma.AvailabilityEntryCreateWithoutCourtInput[] | Prisma.AvailabilityEntryUncheckedCreateWithoutCourtInput[]
-  connectOrCreate?: Prisma.AvailabilityEntryCreateOrConnectWithoutCourtInput | Prisma.AvailabilityEntryCreateOrConnectWithoutCourtInput[]
-  createMany?: Prisma.AvailabilityEntryCreateManyCourtInputEnvelope
-  connect?: Prisma.AvailabilityEntryWhereUniqueInput | Prisma.AvailabilityEntryWhereUniqueInput[]
-}
-
-export type AvailabilityEntryUncheckedCreateNestedManyWithoutCourtInput = {
-  create?: Prisma.XOR<Prisma.AvailabilityEntryCreateWithoutCourtInput, Prisma.AvailabilityEntryUncheckedCreateWithoutCourtInput> | Prisma.AvailabilityEntryCreateWithoutCourtInput[] | Prisma.AvailabilityEntryUncheckedCreateWithoutCourtInput[]
-  connectOrCreate?: Prisma.AvailabilityEntryCreateOrConnectWithoutCourtInput | Prisma.AvailabilityEntryCreateOrConnectWithoutCourtInput[]
-  createMany?: Prisma.AvailabilityEntryCreateManyCourtInputEnvelope
-  connect?: Prisma.AvailabilityEntryWhereUniqueInput | Prisma.AvailabilityEntryWhereUniqueInput[]
-}
-
-export type AvailabilityEntryUpdateManyWithoutCourtNestedInput = {
-  create?: Prisma.XOR<Prisma.AvailabilityEntryCreateWithoutCourtInput, Prisma.AvailabilityEntryUncheckedCreateWithoutCourtInput> | Prisma.AvailabilityEntryCreateWithoutCourtInput[] | Prisma.AvailabilityEntryUncheckedCreateWithoutCourtInput[]
-  connectOrCreate?: Prisma.AvailabilityEntryCreateOrConnectWithoutCourtInput | Prisma.AvailabilityEntryCreateOrConnectWithoutCourtInput[]
-  upsert?: Prisma.AvailabilityEntryUpsertWithWhereUniqueWithoutCourtInput | Prisma.AvailabilityEntryUpsertWithWhereUniqueWithoutCourtInput[]
-  createMany?: Prisma.AvailabilityEntryCreateManyCourtInputEnvelope
-  set?: Prisma.AvailabilityEntryWhereUniqueInput | Prisma.AvailabilityEntryWhereUniqueInput[]
-  disconnect?: Prisma.AvailabilityEntryWhereUniqueInput | Prisma.AvailabilityEntryWhereUniqueInput[]
-  delete?: Prisma.AvailabilityEntryWhereUniqueInput | Prisma.AvailabilityEntryWhereUniqueInput[]
-  connect?: Prisma.AvailabilityEntryWhereUniqueInput | Prisma.AvailabilityEntryWhereUniqueInput[]
-  update?: Prisma.AvailabilityEntryUpdateWithWhereUniqueWithoutCourtInput | Prisma.AvailabilityEntryUpdateWithWhereUniqueWithoutCourtInput[]
-  updateMany?: Prisma.AvailabilityEntryUpdateManyWithWhereWithoutCourtInput | Prisma.AvailabilityEntryUpdateManyWithWhereWithoutCourtInput[]
-  deleteMany?: Prisma.AvailabilityEntryScalarWhereInput | Prisma.AvailabilityEntryScalarWhereInput[]
-}
-
-export type AvailabilityEntryUncheckedUpdateManyWithoutCourtNestedInput = {
-  create?: Prisma.XOR<Prisma.AvailabilityEntryCreateWithoutCourtInput, Prisma.AvailabilityEntryUncheckedCreateWithoutCourtInput> | Prisma.AvailabilityEntryCreateWithoutCourtInput[] | Prisma.AvailabilityEntryUncheckedCreateWithoutCourtInput[]
-  connectOrCreate?: Prisma.AvailabilityEntryCreateOrConnectWithoutCourtInput | Prisma.AvailabilityEntryCreateOrConnectWithoutCourtInput[]
-  upsert?: Prisma.AvailabilityEntryUpsertWithWhereUniqueWithoutCourtInput | Prisma.AvailabilityEntryUpsertWithWhereUniqueWithoutCourtInput[]
-  createMany?: Prisma.AvailabilityEntryCreateManyCourtInputEnvelope
-  set?: Prisma.AvailabilityEntryWhereUniqueInput | Prisma.AvailabilityEntryWhereUniqueInput[]
-  disconnect?: Prisma.AvailabilityEntryWhereUniqueInput | Prisma.AvailabilityEntryWhereUniqueInput[]
-  delete?: Prisma.AvailabilityEntryWhereUniqueInput | Prisma.AvailabilityEntryWhereUniqueInput[]
-  connect?: Prisma.AvailabilityEntryWhereUniqueInput | Prisma.AvailabilityEntryWhereUniqueInput[]
-  update?: Prisma.AvailabilityEntryUpdateWithWhereUniqueWithoutCourtInput | Prisma.AvailabilityEntryUpdateWithWhereUniqueWithoutCourtInput[]
-  updateMany?: Prisma.AvailabilityEntryUpdateManyWithWhereWithoutCourtInput | Prisma.AvailabilityEntryUpdateManyWithWhereWithoutCourtInput[]
-  deleteMany?: Prisma.AvailabilityEntryScalarWhereInput | Prisma.AvailabilityEntryScalarWhereInput[]
 }
 
 export type AvailabilityEntryCreateNestedManyWithoutAvailabilityInput = {
@@ -477,66 +410,6 @@ export type AvailabilityEntryUncheckedUpdateManyWithoutAvailabilityNestedInput =
   deleteMany?: Prisma.AvailabilityEntryScalarWhereInput | Prisma.AvailabilityEntryScalarWhereInput[]
 }
 
-export type AvailabilityEntryCreateWithoutCourtInput = {
-  id?: string
-  date: Date | string
-  shiftType: $Enums.ShiftType
-  isAvailable?: boolean
-  createdAt?: Date | string
-  updatedAt?: Date | string
-  availability: Prisma.AvailabilityCreateNestedOneWithoutEntriesInput
-}
-
-export type AvailabilityEntryUncheckedCreateWithoutCourtInput = {
-  id?: string
-  availabilityId: string
-  date: Date | string
-  shiftType: $Enums.ShiftType
-  isAvailable?: boolean
-  createdAt?: Date | string
-  updatedAt?: Date | string
-}
-
-export type AvailabilityEntryCreateOrConnectWithoutCourtInput = {
-  where: Prisma.AvailabilityEntryWhereUniqueInput
-  create: Prisma.XOR<Prisma.AvailabilityEntryCreateWithoutCourtInput, Prisma.AvailabilityEntryUncheckedCreateWithoutCourtInput>
-}
-
-export type AvailabilityEntryCreateManyCourtInputEnvelope = {
-  data: Prisma.AvailabilityEntryCreateManyCourtInput | Prisma.AvailabilityEntryCreateManyCourtInput[]
-  skipDuplicates?: boolean
-}
-
-export type AvailabilityEntryUpsertWithWhereUniqueWithoutCourtInput = {
-  where: Prisma.AvailabilityEntryWhereUniqueInput
-  update: Prisma.XOR<Prisma.AvailabilityEntryUpdateWithoutCourtInput, Prisma.AvailabilityEntryUncheckedUpdateWithoutCourtInput>
-  create: Prisma.XOR<Prisma.AvailabilityEntryCreateWithoutCourtInput, Prisma.AvailabilityEntryUncheckedCreateWithoutCourtInput>
-}
-
-export type AvailabilityEntryUpdateWithWhereUniqueWithoutCourtInput = {
-  where: Prisma.AvailabilityEntryWhereUniqueInput
-  data: Prisma.XOR<Prisma.AvailabilityEntryUpdateWithoutCourtInput, Prisma.AvailabilityEntryUncheckedUpdateWithoutCourtInput>
-}
-
-export type AvailabilityEntryUpdateManyWithWhereWithoutCourtInput = {
-  where: Prisma.AvailabilityEntryScalarWhereInput
-  data: Prisma.XOR<Prisma.AvailabilityEntryUpdateManyMutationInput, Prisma.AvailabilityEntryUncheckedUpdateManyWithoutCourtInput>
-}
-
-export type AvailabilityEntryScalarWhereInput = {
-  AND?: Prisma.AvailabilityEntryScalarWhereInput | Prisma.AvailabilityEntryScalarWhereInput[]
-  OR?: Prisma.AvailabilityEntryScalarWhereInput[]
-  NOT?: Prisma.AvailabilityEntryScalarWhereInput | Prisma.AvailabilityEntryScalarWhereInput[]
-  id?: Prisma.StringFilter<"AvailabilityEntry"> | string
-  availabilityId?: Prisma.StringFilter<"AvailabilityEntry"> | string
-  date?: Prisma.DateTimeFilter<"AvailabilityEntry"> | Date | string
-  courtId?: Prisma.StringFilter<"AvailabilityEntry"> | string
-  shiftType?: Prisma.EnumShiftTypeFilter<"AvailabilityEntry"> | $Enums.ShiftType
-  isAvailable?: Prisma.BoolFilter<"AvailabilityEntry"> | boolean
-  createdAt?: Prisma.DateTimeFilter<"AvailabilityEntry"> | Date | string
-  updatedAt?: Prisma.DateTimeFilter<"AvailabilityEntry"> | Date | string
-}
-
 export type AvailabilityEntryCreateWithoutAvailabilityInput = {
   id?: string
   date: Date | string
@@ -544,13 +417,11 @@ export type AvailabilityEntryCreateWithoutAvailabilityInput = {
   isAvailable?: boolean
   createdAt?: Date | string
   updatedAt?: Date | string
-  court: Prisma.CourtCreateNestedOneWithoutAvailabilityEntriesInput
 }
 
 export type AvailabilityEntryUncheckedCreateWithoutAvailabilityInput = {
   id?: string
   date: Date | string
-  courtId: string
   shiftType: $Enums.ShiftType
   isAvailable?: boolean
   createdAt?: Date | string
@@ -583,50 +454,22 @@ export type AvailabilityEntryUpdateManyWithWhereWithoutAvailabilityInput = {
   data: Prisma.XOR<Prisma.AvailabilityEntryUpdateManyMutationInput, Prisma.AvailabilityEntryUncheckedUpdateManyWithoutAvailabilityInput>
 }
 
-export type AvailabilityEntryCreateManyCourtInput = {
-  id?: string
-  availabilityId: string
-  date: Date | string
-  shiftType: $Enums.ShiftType
-  isAvailable?: boolean
-  createdAt?: Date | string
-  updatedAt?: Date | string
-}
-
-export type AvailabilityEntryUpdateWithoutCourtInput = {
-  id?: Prisma.StringFieldUpdateOperationsInput | string
-  date?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
-  shiftType?: Prisma.EnumShiftTypeFieldUpdateOperationsInput | $Enums.ShiftType
-  isAvailable?: Prisma.BoolFieldUpdateOperationsInput | boolean
-  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
-  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
-  availability?: Prisma.AvailabilityUpdateOneRequiredWithoutEntriesNestedInput
-}
-
-export type AvailabilityEntryUncheckedUpdateWithoutCourtInput = {
-  id?: Prisma.StringFieldUpdateOperationsInput | string
-  availabilityId?: Prisma.StringFieldUpdateOperationsInput | string
-  date?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
-  shiftType?: Prisma.EnumShiftTypeFieldUpdateOperationsInput | $Enums.ShiftType
-  isAvailable?: Prisma.BoolFieldUpdateOperationsInput | boolean
-  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
-  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
-}
-
-export type AvailabilityEntryUncheckedUpdateManyWithoutCourtInput = {
-  id?: Prisma.StringFieldUpdateOperationsInput | string
-  availabilityId?: Prisma.StringFieldUpdateOperationsInput | string
-  date?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
-  shiftType?: Prisma.EnumShiftTypeFieldUpdateOperationsInput | $Enums.ShiftType
-  isAvailable?: Prisma.BoolFieldUpdateOperationsInput | boolean
-  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
-  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+export type AvailabilityEntryScalarWhereInput = {
+  AND?: Prisma.AvailabilityEntryScalarWhereInput | Prisma.AvailabilityEntryScalarWhereInput[]
+  OR?: Prisma.AvailabilityEntryScalarWhereInput[]
+  NOT?: Prisma.AvailabilityEntryScalarWhereInput | Prisma.AvailabilityEntryScalarWhereInput[]
+  id?: Prisma.StringFilter<"AvailabilityEntry"> | string
+  availabilityId?: Prisma.StringFilter<"AvailabilityEntry"> | string
+  date?: Prisma.DateTimeFilter<"AvailabilityEntry"> | Date | string
+  shiftType?: Prisma.EnumShiftTypeFilter<"AvailabilityEntry"> | $Enums.ShiftType
+  isAvailable?: Prisma.BoolFilter<"AvailabilityEntry"> | boolean
+  createdAt?: Prisma.DateTimeFilter<"AvailabilityEntry"> | Date | string
+  updatedAt?: Prisma.DateTimeFilter<"AvailabilityEntry"> | Date | string
 }
 
 export type AvailabilityEntryCreateManyAvailabilityInput = {
   id?: string
   date: Date | string
-  courtId: string
   shiftType: $Enums.ShiftType
   isAvailable?: boolean
   createdAt?: Date | string
@@ -640,13 +483,11 @@ export type AvailabilityEntryUpdateWithoutAvailabilityInput = {
   isAvailable?: Prisma.BoolFieldUpdateOperationsInput | boolean
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
-  court?: Prisma.CourtUpdateOneRequiredWithoutAvailabilityEntriesNestedInput
 }
 
 export type AvailabilityEntryUncheckedUpdateWithoutAvailabilityInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
   date?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
-  courtId?: Prisma.StringFieldUpdateOperationsInput | string
   shiftType?: Prisma.EnumShiftTypeFieldUpdateOperationsInput | $Enums.ShiftType
   isAvailable?: Prisma.BoolFieldUpdateOperationsInput | boolean
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
@@ -656,7 +497,6 @@ export type AvailabilityEntryUncheckedUpdateWithoutAvailabilityInput = {
 export type AvailabilityEntryUncheckedUpdateManyWithoutAvailabilityInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
   date?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
-  courtId?: Prisma.StringFieldUpdateOperationsInput | string
   shiftType?: Prisma.EnumShiftTypeFieldUpdateOperationsInput | $Enums.ShiftType
   isAvailable?: Prisma.BoolFieldUpdateOperationsInput | boolean
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
@@ -669,77 +509,65 @@ export type AvailabilityEntrySelect<ExtArgs extends runtime.Types.Extensions.Int
   id?: boolean
   availabilityId?: boolean
   date?: boolean
-  courtId?: boolean
   shiftType?: boolean
   isAvailable?: boolean
   createdAt?: boolean
   updatedAt?: boolean
   availability?: boolean | Prisma.AvailabilityDefaultArgs<ExtArgs>
-  court?: boolean | Prisma.CourtDefaultArgs<ExtArgs>
 }, ExtArgs["result"]["availabilityEntry"]>
 
 export type AvailabilityEntrySelectCreateManyAndReturn<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetSelect<{
   id?: boolean
   availabilityId?: boolean
   date?: boolean
-  courtId?: boolean
   shiftType?: boolean
   isAvailable?: boolean
   createdAt?: boolean
   updatedAt?: boolean
   availability?: boolean | Prisma.AvailabilityDefaultArgs<ExtArgs>
-  court?: boolean | Prisma.CourtDefaultArgs<ExtArgs>
 }, ExtArgs["result"]["availabilityEntry"]>
 
 export type AvailabilityEntrySelectUpdateManyAndReturn<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetSelect<{
   id?: boolean
   availabilityId?: boolean
   date?: boolean
-  courtId?: boolean
   shiftType?: boolean
   isAvailable?: boolean
   createdAt?: boolean
   updatedAt?: boolean
   availability?: boolean | Prisma.AvailabilityDefaultArgs<ExtArgs>
-  court?: boolean | Prisma.CourtDefaultArgs<ExtArgs>
 }, ExtArgs["result"]["availabilityEntry"]>
 
 export type AvailabilityEntrySelectScalar = {
   id?: boolean
   availabilityId?: boolean
   date?: boolean
-  courtId?: boolean
   shiftType?: boolean
   isAvailable?: boolean
   createdAt?: boolean
   updatedAt?: boolean
 }
 
-export type AvailabilityEntryOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"id" | "availabilityId" | "date" | "courtId" | "shiftType" | "isAvailable" | "createdAt" | "updatedAt", ExtArgs["result"]["availabilityEntry"]>
+export type AvailabilityEntryOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"id" | "availabilityId" | "date" | "shiftType" | "isAvailable" | "createdAt" | "updatedAt", ExtArgs["result"]["availabilityEntry"]>
 export type AvailabilityEntryInclude<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
   availability?: boolean | Prisma.AvailabilityDefaultArgs<ExtArgs>
-  court?: boolean | Prisma.CourtDefaultArgs<ExtArgs>
 }
 export type AvailabilityEntryIncludeCreateManyAndReturn<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
   availability?: boolean | Prisma.AvailabilityDefaultArgs<ExtArgs>
-  court?: boolean | Prisma.CourtDefaultArgs<ExtArgs>
 }
 export type AvailabilityEntryIncludeUpdateManyAndReturn<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
   availability?: boolean | Prisma.AvailabilityDefaultArgs<ExtArgs>
-  court?: boolean | Prisma.CourtDefaultArgs<ExtArgs>
 }
 
 export type $AvailabilityEntryPayload<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
   name: "AvailabilityEntry"
   objects: {
     availability: Prisma.$AvailabilityPayload<ExtArgs>
-    court: Prisma.$CourtPayload<ExtArgs>
   }
   scalars: runtime.Types.Extensions.GetPayloadResult<{
     id: string
     availabilityId: string
     date: Date
-    courtId: string
     shiftType: $Enums.ShiftType
     isAvailable: boolean
     createdAt: Date
@@ -1139,7 +967,6 @@ readonly fields: AvailabilityEntryFieldRefs;
 export interface Prisma__AvailabilityEntryClient<T, Null = never, ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs, GlobalOmitOptions = {}> extends Prisma.PrismaPromise<T> {
   readonly [Symbol.toStringTag]: "PrismaPromise"
   availability<T extends Prisma.AvailabilityDefaultArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.AvailabilityDefaultArgs<ExtArgs>>): Prisma.Prisma__AvailabilityClient<runtime.Types.Result.GetResult<Prisma.$AvailabilityPayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions> | Null, Null, ExtArgs, GlobalOmitOptions>
-  court<T extends Prisma.CourtDefaultArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.CourtDefaultArgs<ExtArgs>>): Prisma.Prisma__CourtClient<runtime.Types.Result.GetResult<Prisma.$CourtPayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions> | Null, Null, ExtArgs, GlobalOmitOptions>
   /**
    * Attaches callbacks for the resolution and/or rejection of the Promise.
    * @param onfulfilled The callback to execute when the Promise is resolved.
@@ -1172,7 +999,6 @@ export interface AvailabilityEntryFieldRefs {
   readonly id: Prisma.FieldRef<"AvailabilityEntry", 'String'>
   readonly availabilityId: Prisma.FieldRef<"AvailabilityEntry", 'String'>
   readonly date: Prisma.FieldRef<"AvailabilityEntry", 'DateTime'>
-  readonly courtId: Prisma.FieldRef<"AvailabilityEntry", 'String'>
   readonly shiftType: Prisma.FieldRef<"AvailabilityEntry", 'ShiftType'>
   readonly isAvailable: Prisma.FieldRef<"AvailabilityEntry", 'Boolean'>
   readonly createdAt: Prisma.FieldRef<"AvailabilityEntry", 'DateTime'>

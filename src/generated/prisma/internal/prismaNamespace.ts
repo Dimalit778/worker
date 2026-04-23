@@ -388,10 +388,9 @@ export const ModelName = {
   Session: 'Session',
   VerificationToken: 'VerificationToken',
   User: 'User',
-  Employee: 'Employee',
-  Court: 'Court',
   Region: 'Region',
-  CourtEligibility: 'CourtEligibility',
+  Court: 'Court',
+  Employee: 'Employee',
   CourtShiftRule: 'CourtShiftRule',
   SchedulingPeriod: 'SchedulingPeriod',
   Availability: 'Availability',
@@ -416,7 +415,7 @@ export type TypeMap<ExtArgs extends runtime.Types.Extensions.InternalArgs = runt
     omit: GlobalOmitOptions
   }
   meta: {
-    modelProps: "account" | "session" | "verificationToken" | "user" | "employee" | "court" | "region" | "courtEligibility" | "courtShiftRule" | "schedulingPeriod" | "availability" | "availabilityEntry" | "schedule" | "shiftAssignment" | "scheduleWarning" | "fairnessRecord" | "systemConfig"
+    modelProps: "account" | "session" | "verificationToken" | "user" | "region" | "court" | "employee" | "courtShiftRule" | "schedulingPeriod" | "availability" | "availabilityEntry" | "schedule" | "shiftAssignment" | "scheduleWarning" | "fairnessRecord" | "systemConfig"
     txIsolationLevel: TransactionIsolationLevel
   }
   model: {
@@ -716,77 +715,77 @@ export type TypeMap<ExtArgs extends runtime.Types.Extensions.InternalArgs = runt
         }
       }
     }
-    Employee: {
-      payload: Prisma.$EmployeePayload<ExtArgs>
-      fields: Prisma.EmployeeFieldRefs
+    Region: {
+      payload: Prisma.$RegionPayload<ExtArgs>
+      fields: Prisma.RegionFieldRefs
       operations: {
         findUnique: {
-          args: Prisma.EmployeeFindUniqueArgs<ExtArgs>
-          result: runtime.Types.Utils.PayloadToResult<Prisma.$EmployeePayload> | null
+          args: Prisma.RegionFindUniqueArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$RegionPayload> | null
         }
         findUniqueOrThrow: {
-          args: Prisma.EmployeeFindUniqueOrThrowArgs<ExtArgs>
-          result: runtime.Types.Utils.PayloadToResult<Prisma.$EmployeePayload>
+          args: Prisma.RegionFindUniqueOrThrowArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$RegionPayload>
         }
         findFirst: {
-          args: Prisma.EmployeeFindFirstArgs<ExtArgs>
-          result: runtime.Types.Utils.PayloadToResult<Prisma.$EmployeePayload> | null
+          args: Prisma.RegionFindFirstArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$RegionPayload> | null
         }
         findFirstOrThrow: {
-          args: Prisma.EmployeeFindFirstOrThrowArgs<ExtArgs>
-          result: runtime.Types.Utils.PayloadToResult<Prisma.$EmployeePayload>
+          args: Prisma.RegionFindFirstOrThrowArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$RegionPayload>
         }
         findMany: {
-          args: Prisma.EmployeeFindManyArgs<ExtArgs>
-          result: runtime.Types.Utils.PayloadToResult<Prisma.$EmployeePayload>[]
+          args: Prisma.RegionFindManyArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$RegionPayload>[]
         }
         create: {
-          args: Prisma.EmployeeCreateArgs<ExtArgs>
-          result: runtime.Types.Utils.PayloadToResult<Prisma.$EmployeePayload>
+          args: Prisma.RegionCreateArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$RegionPayload>
         }
         createMany: {
-          args: Prisma.EmployeeCreateManyArgs<ExtArgs>
+          args: Prisma.RegionCreateManyArgs<ExtArgs>
           result: BatchPayload
         }
         createManyAndReturn: {
-          args: Prisma.EmployeeCreateManyAndReturnArgs<ExtArgs>
-          result: runtime.Types.Utils.PayloadToResult<Prisma.$EmployeePayload>[]
+          args: Prisma.RegionCreateManyAndReturnArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$RegionPayload>[]
         }
         delete: {
-          args: Prisma.EmployeeDeleteArgs<ExtArgs>
-          result: runtime.Types.Utils.PayloadToResult<Prisma.$EmployeePayload>
+          args: Prisma.RegionDeleteArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$RegionPayload>
         }
         update: {
-          args: Prisma.EmployeeUpdateArgs<ExtArgs>
-          result: runtime.Types.Utils.PayloadToResult<Prisma.$EmployeePayload>
+          args: Prisma.RegionUpdateArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$RegionPayload>
         }
         deleteMany: {
-          args: Prisma.EmployeeDeleteManyArgs<ExtArgs>
+          args: Prisma.RegionDeleteManyArgs<ExtArgs>
           result: BatchPayload
         }
         updateMany: {
-          args: Prisma.EmployeeUpdateManyArgs<ExtArgs>
+          args: Prisma.RegionUpdateManyArgs<ExtArgs>
           result: BatchPayload
         }
         updateManyAndReturn: {
-          args: Prisma.EmployeeUpdateManyAndReturnArgs<ExtArgs>
-          result: runtime.Types.Utils.PayloadToResult<Prisma.$EmployeePayload>[]
+          args: Prisma.RegionUpdateManyAndReturnArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$RegionPayload>[]
         }
         upsert: {
-          args: Prisma.EmployeeUpsertArgs<ExtArgs>
-          result: runtime.Types.Utils.PayloadToResult<Prisma.$EmployeePayload>
+          args: Prisma.RegionUpsertArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$RegionPayload>
         }
         aggregate: {
-          args: Prisma.EmployeeAggregateArgs<ExtArgs>
-          result: runtime.Types.Utils.Optional<Prisma.AggregateEmployee>
+          args: Prisma.RegionAggregateArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.AggregateRegion>
         }
         groupBy: {
-          args: Prisma.EmployeeGroupByArgs<ExtArgs>
-          result: runtime.Types.Utils.Optional<Prisma.EmployeeGroupByOutputType>[]
+          args: Prisma.RegionGroupByArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.RegionGroupByOutputType>[]
         }
         count: {
-          args: Prisma.EmployeeCountArgs<ExtArgs>
-          result: runtime.Types.Utils.Optional<Prisma.EmployeeCountAggregateOutputType> | number
+          args: Prisma.RegionCountArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.RegionCountAggregateOutputType> | number
         }
       }
     }
@@ -864,151 +863,77 @@ export type TypeMap<ExtArgs extends runtime.Types.Extensions.InternalArgs = runt
         }
       }
     }
-    Region: {
-      payload: Prisma.$RegionPayload<ExtArgs>
-      fields: Prisma.RegionFieldRefs
+    Employee: {
+      payload: Prisma.$EmployeePayload<ExtArgs>
+      fields: Prisma.EmployeeFieldRefs
       operations: {
         findUnique: {
-          args: Prisma.RegionFindUniqueArgs<ExtArgs>
-          result: runtime.Types.Utils.PayloadToResult<Prisma.$RegionPayload> | null
+          args: Prisma.EmployeeFindUniqueArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$EmployeePayload> | null
         }
         findUniqueOrThrow: {
-          args: Prisma.RegionFindUniqueOrThrowArgs<ExtArgs>
-          result: runtime.Types.Utils.PayloadToResult<Prisma.$RegionPayload>
+          args: Prisma.EmployeeFindUniqueOrThrowArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$EmployeePayload>
         }
         findFirst: {
-          args: Prisma.RegionFindFirstArgs<ExtArgs>
-          result: runtime.Types.Utils.PayloadToResult<Prisma.$RegionPayload> | null
+          args: Prisma.EmployeeFindFirstArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$EmployeePayload> | null
         }
         findFirstOrThrow: {
-          args: Prisma.RegionFindFirstOrThrowArgs<ExtArgs>
-          result: runtime.Types.Utils.PayloadToResult<Prisma.$RegionPayload>
+          args: Prisma.EmployeeFindFirstOrThrowArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$EmployeePayload>
         }
         findMany: {
-          args: Prisma.RegionFindManyArgs<ExtArgs>
-          result: runtime.Types.Utils.PayloadToResult<Prisma.$RegionPayload>[]
+          args: Prisma.EmployeeFindManyArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$EmployeePayload>[]
         }
         create: {
-          args: Prisma.RegionCreateArgs<ExtArgs>
-          result: runtime.Types.Utils.PayloadToResult<Prisma.$RegionPayload>
+          args: Prisma.EmployeeCreateArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$EmployeePayload>
         }
         createMany: {
-          args: Prisma.RegionCreateManyArgs<ExtArgs>
+          args: Prisma.EmployeeCreateManyArgs<ExtArgs>
           result: BatchPayload
         }
         createManyAndReturn: {
-          args: Prisma.RegionCreateManyAndReturnArgs<ExtArgs>
-          result: runtime.Types.Utils.PayloadToResult<Prisma.$RegionPayload>[]
+          args: Prisma.EmployeeCreateManyAndReturnArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$EmployeePayload>[]
         }
         delete: {
-          args: Prisma.RegionDeleteArgs<ExtArgs>
-          result: runtime.Types.Utils.PayloadToResult<Prisma.$RegionPayload>
+          args: Prisma.EmployeeDeleteArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$EmployeePayload>
         }
         update: {
-          args: Prisma.RegionUpdateArgs<ExtArgs>
-          result: runtime.Types.Utils.PayloadToResult<Prisma.$RegionPayload>
+          args: Prisma.EmployeeUpdateArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$EmployeePayload>
         }
         deleteMany: {
-          args: Prisma.RegionDeleteManyArgs<ExtArgs>
+          args: Prisma.EmployeeDeleteManyArgs<ExtArgs>
           result: BatchPayload
         }
         updateMany: {
-          args: Prisma.RegionUpdateManyArgs<ExtArgs>
+          args: Prisma.EmployeeUpdateManyArgs<ExtArgs>
           result: BatchPayload
         }
         updateManyAndReturn: {
-          args: Prisma.RegionUpdateManyAndReturnArgs<ExtArgs>
-          result: runtime.Types.Utils.PayloadToResult<Prisma.$RegionPayload>[]
+          args: Prisma.EmployeeUpdateManyAndReturnArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$EmployeePayload>[]
         }
         upsert: {
-          args: Prisma.RegionUpsertArgs<ExtArgs>
-          result: runtime.Types.Utils.PayloadToResult<Prisma.$RegionPayload>
+          args: Prisma.EmployeeUpsertArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$EmployeePayload>
         }
         aggregate: {
-          args: Prisma.RegionAggregateArgs<ExtArgs>
-          result: runtime.Types.Utils.Optional<Prisma.AggregateRegion>
+          args: Prisma.EmployeeAggregateArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.AggregateEmployee>
         }
         groupBy: {
-          args: Prisma.RegionGroupByArgs<ExtArgs>
-          result: runtime.Types.Utils.Optional<Prisma.RegionGroupByOutputType>[]
+          args: Prisma.EmployeeGroupByArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.EmployeeGroupByOutputType>[]
         }
         count: {
-          args: Prisma.RegionCountArgs<ExtArgs>
-          result: runtime.Types.Utils.Optional<Prisma.RegionCountAggregateOutputType> | number
-        }
-      }
-    }
-    CourtEligibility: {
-      payload: Prisma.$CourtEligibilityPayload<ExtArgs>
-      fields: Prisma.CourtEligibilityFieldRefs
-      operations: {
-        findUnique: {
-          args: Prisma.CourtEligibilityFindUniqueArgs<ExtArgs>
-          result: runtime.Types.Utils.PayloadToResult<Prisma.$CourtEligibilityPayload> | null
-        }
-        findUniqueOrThrow: {
-          args: Prisma.CourtEligibilityFindUniqueOrThrowArgs<ExtArgs>
-          result: runtime.Types.Utils.PayloadToResult<Prisma.$CourtEligibilityPayload>
-        }
-        findFirst: {
-          args: Prisma.CourtEligibilityFindFirstArgs<ExtArgs>
-          result: runtime.Types.Utils.PayloadToResult<Prisma.$CourtEligibilityPayload> | null
-        }
-        findFirstOrThrow: {
-          args: Prisma.CourtEligibilityFindFirstOrThrowArgs<ExtArgs>
-          result: runtime.Types.Utils.PayloadToResult<Prisma.$CourtEligibilityPayload>
-        }
-        findMany: {
-          args: Prisma.CourtEligibilityFindManyArgs<ExtArgs>
-          result: runtime.Types.Utils.PayloadToResult<Prisma.$CourtEligibilityPayload>[]
-        }
-        create: {
-          args: Prisma.CourtEligibilityCreateArgs<ExtArgs>
-          result: runtime.Types.Utils.PayloadToResult<Prisma.$CourtEligibilityPayload>
-        }
-        createMany: {
-          args: Prisma.CourtEligibilityCreateManyArgs<ExtArgs>
-          result: BatchPayload
-        }
-        createManyAndReturn: {
-          args: Prisma.CourtEligibilityCreateManyAndReturnArgs<ExtArgs>
-          result: runtime.Types.Utils.PayloadToResult<Prisma.$CourtEligibilityPayload>[]
-        }
-        delete: {
-          args: Prisma.CourtEligibilityDeleteArgs<ExtArgs>
-          result: runtime.Types.Utils.PayloadToResult<Prisma.$CourtEligibilityPayload>
-        }
-        update: {
-          args: Prisma.CourtEligibilityUpdateArgs<ExtArgs>
-          result: runtime.Types.Utils.PayloadToResult<Prisma.$CourtEligibilityPayload>
-        }
-        deleteMany: {
-          args: Prisma.CourtEligibilityDeleteManyArgs<ExtArgs>
-          result: BatchPayload
-        }
-        updateMany: {
-          args: Prisma.CourtEligibilityUpdateManyArgs<ExtArgs>
-          result: BatchPayload
-        }
-        updateManyAndReturn: {
-          args: Prisma.CourtEligibilityUpdateManyAndReturnArgs<ExtArgs>
-          result: runtime.Types.Utils.PayloadToResult<Prisma.$CourtEligibilityPayload>[]
-        }
-        upsert: {
-          args: Prisma.CourtEligibilityUpsertArgs<ExtArgs>
-          result: runtime.Types.Utils.PayloadToResult<Prisma.$CourtEligibilityPayload>
-        }
-        aggregate: {
-          args: Prisma.CourtEligibilityAggregateArgs<ExtArgs>
-          result: runtime.Types.Utils.Optional<Prisma.AggregateCourtEligibility>
-        }
-        groupBy: {
-          args: Prisma.CourtEligibilityGroupByArgs<ExtArgs>
-          result: runtime.Types.Utils.Optional<Prisma.CourtEligibilityGroupByOutputType>[]
-        }
-        count: {
-          args: Prisma.CourtEligibilityCountArgs<ExtArgs>
-          result: runtime.Types.Utils.Optional<Prisma.CourtEligibilityCountAggregateOutputType> | number
+          args: Prisma.EmployeeCountArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.EmployeeCountAggregateOutputType> | number
         }
       }
     }
@@ -1759,7 +1684,6 @@ export const UserScalarFieldEnum = {
   email: 'email',
   passwordHash: 'passwordHash',
   systemRole: 'systemRole',
-  isActive: 'isActive',
   mustChangePassword: 'mustChangePassword',
   employeeId: 'employeeId',
   createdAt: 'createdAt',
@@ -1769,38 +1693,10 @@ export const UserScalarFieldEnum = {
 export type UserScalarFieldEnum = (typeof UserScalarFieldEnum)[keyof typeof UserScalarFieldEnum]
 
 
-export const EmployeeScalarFieldEnum = {
-  id: 'id',
-  name: 'name',
-  phone: 'phone',
-  position: 'position',
-  primaryCourtId: 'primaryCourtId',
-  isActive: 'isActive',
-  createdAt: 'createdAt',
-  updatedAt: 'updatedAt'
-} as const
-
-export type EmployeeScalarFieldEnum = (typeof EmployeeScalarFieldEnum)[keyof typeof EmployeeScalarFieldEnum]
-
-
-export const CourtScalarFieldEnum = {
-  id: 'id',
-  name: 'name',
-  code: 'code',
-  regionId: 'regionId',
-  isActive: 'isActive',
-  createdAt: 'createdAt',
-  updatedAt: 'updatedAt'
-} as const
-
-export type CourtScalarFieldEnum = (typeof CourtScalarFieldEnum)[keyof typeof CourtScalarFieldEnum]
-
-
 export const RegionScalarFieldEnum = {
   id: 'id',
   name: 'name',
   code: 'code',
-  isActive: 'isActive',
   createdAt: 'createdAt',
   updatedAt: 'updatedAt'
 } as const
@@ -1808,15 +1704,31 @@ export const RegionScalarFieldEnum = {
 export type RegionScalarFieldEnum = (typeof RegionScalarFieldEnum)[keyof typeof RegionScalarFieldEnum]
 
 
-export const CourtEligibilityScalarFieldEnum = {
+export const CourtScalarFieldEnum = {
   id: 'id',
-  employeeId: 'employeeId',
-  courtId: 'courtId',
+  name: 'name',
+  code: 'code',
+  regionId: 'regionId',
   createdAt: 'createdAt',
   updatedAt: 'updatedAt'
 } as const
 
-export type CourtEligibilityScalarFieldEnum = (typeof CourtEligibilityScalarFieldEnum)[keyof typeof CourtEligibilityScalarFieldEnum]
+export type CourtScalarFieldEnum = (typeof CourtScalarFieldEnum)[keyof typeof CourtScalarFieldEnum]
+
+
+export const EmployeeScalarFieldEnum = {
+  id: 'id',
+  firstName: 'firstName',
+  lastName: 'lastName',
+  phone: 'phone',
+  position: 'position',
+  courtId: 'courtId',
+  isActive: 'isActive',
+  createdAt: 'createdAt',
+  updatedAt: 'updatedAt'
+} as const
+
+export type EmployeeScalarFieldEnum = (typeof EmployeeScalarFieldEnum)[keyof typeof EmployeeScalarFieldEnum]
 
 
 export const CourtShiftRuleScalarFieldEnum = {
@@ -1836,6 +1748,7 @@ export type CourtShiftRuleScalarFieldEnum = (typeof CourtShiftRuleScalarFieldEnu
 
 export const SchedulingPeriodScalarFieldEnum = {
   id: 'id',
+  courtId: 'courtId',
   name: 'name',
   startDate: 'startDate',
   endDate: 'endDate',
@@ -1866,7 +1779,6 @@ export const AvailabilityEntryScalarFieldEnum = {
   id: 'id',
   availabilityId: 'availabilityId',
   date: 'date',
-  courtId: 'courtId',
   shiftType: 'shiftType',
   isAvailable: 'isAvailable',
   createdAt: 'createdAt',
@@ -1894,7 +1806,6 @@ export const ShiftAssignmentScalarFieldEnum = {
   id: 'id',
   scheduleId: 'scheduleId',
   employeeId: 'employeeId',
-  courtId: 'courtId',
   date: 'date',
   shiftType: 'shiftType',
   position: 'position',
@@ -1913,11 +1824,9 @@ export const ScheduleWarningScalarFieldEnum = {
   scheduleId: 'scheduleId',
   type: 'type',
   severity: 'severity',
-  courtId: 'courtId',
   employeeId: 'employeeId',
   date: 'date',
   message: 'message',
-  createdById: 'createdById',
   createdAt: 'createdAt',
   updatedAt: 'updatedAt'
 } as const
@@ -2285,10 +2194,9 @@ export type GlobalOmitConfig = {
   session?: Prisma.SessionOmit
   verificationToken?: Prisma.VerificationTokenOmit
   user?: Prisma.UserOmit
-  employee?: Prisma.EmployeeOmit
-  court?: Prisma.CourtOmit
   region?: Prisma.RegionOmit
-  courtEligibility?: Prisma.CourtEligibilityOmit
+  court?: Prisma.CourtOmit
+  employee?: Prisma.EmployeeOmit
   courtShiftRule?: Prisma.CourtShiftRuleOmit
   schedulingPeriod?: Prisma.SchedulingPeriodOmit
   availability?: Prisma.AvailabilityOmit

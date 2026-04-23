@@ -1,4 +1,4 @@
-import { requireSession } from '@/lib/auth-helpers';
+import { requireSession } from '@/lib/db/auth-helpers';
 import { SystemRole } from '@/generated/prisma/client';
 import { prisma } from '@/lib/db/client';
 import { getShiftsPageData } from '@/features/shifts/queries';
@@ -10,9 +10,9 @@ export default async function UserShibutzPage() {
 
   const employee = await prisma.employee.findFirst({
     where: { user: { id: session.user.id } },
-    select: { primaryCourtId: true },
+    select: { courtId: true },
   });
-  const courtId = employee?.primaryCourtId ?? '';
+  const courtId = employee?.courtId ?? '';
 
   const data = await getShiftsPageData(courtId);
 
