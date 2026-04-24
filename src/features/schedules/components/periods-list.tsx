@@ -1,7 +1,8 @@
 'use client';
 
 import { useTransition } from 'react';
-import { updatePeriodStatus, deletePeriod, type PeriodSummary } from '../period-actions';
+import { updatePeriodStatus, deletePeriod } from '../actions';
+import { PeriodSummary } from '../types';
 import { PERIOD_STATUS_HE } from '../utils';
 import { cn } from '@/lib/utils';
 

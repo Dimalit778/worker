@@ -2,13 +2,13 @@
 
 import { useState, useTransition } from 'react';
 import { cn } from '@/lib/utils';
-import { createPeriod } from '../period-actions';
+import { createPeriod } from '../actions';
 
 type PeriodType = 'weekly' | 'biweekly';
 
 const PERIOD_OPTIONS: { value: PeriodType; label: string; days: number; desc: string }[] = [
-  { value: 'weekly',   label: 'שבועי',     days: 7,  desc: '7 ימים' },
-  { value: 'biweekly', label: 'דו-שבועי',  days: 14, desc: '14 ימים' },
+  { value: 'weekly', label: 'שבועי', days: 7, desc: '7 ימים' },
+  { value: 'biweekly', label: 'דו-שבועי', days: 14, desc: '14 ימים' },
 ];
 
 function addDays(iso: string, days: number): string {
@@ -112,7 +112,6 @@ export function CreatePeriodForm({ onCreated }: { onCreated?: () => void }) {
       </div>
 
       <form onSubmit={handleSubmit} className="space-y-4">
-
         {/* Type selector */}
         <div className="space-y-1.5">
           <label className="text-xs font-medium text-muted-foreground">סוג שיבוץ</label>
@@ -152,11 +151,15 @@ export function CreatePeriodForm({ onCreated }: { onCreated?: () => void }) {
         <div className="grid grid-cols-2 gap-3 bg-muted/40 rounded-lg px-3 py-2.5 text-xs">
           <div>
             <p className="text-muted-foreground">תאריך סיום</p>
-            <p className="font-medium mt-0.5" dir="ltr">{endDate}</p>
+            <p className="font-medium mt-0.5" dir="ltr">
+              {endDate}
+            </p>
           </div>
           <div>
             <p className="text-muted-foreground">מועד אחרון להגשה</p>
-            <p className="font-medium mt-0.5" dir="ltr">{submissionDeadline.replace('T', ' ')}</p>
+            <p className="font-medium mt-0.5" dir="ltr">
+              {submissionDeadline.replace('T', ' ')}
+            </p>
           </div>
         </div>
 
@@ -172,11 +175,7 @@ export function CreatePeriodForm({ onCreated }: { onCreated?: () => void }) {
           />
         </div>
 
-        {error && (
-          <p className="text-sm text-red-600 bg-red-50 border border-red-200 rounded-md px-3 py-2">
-            {error}
-          </p>
-        )}
+        {error && <p className="text-sm text-red-600 bg-red-50 border border-red-200 rounded-md px-3 py-2">{error}</p>}
 
         <div className="flex gap-2 pt-1">
           <button

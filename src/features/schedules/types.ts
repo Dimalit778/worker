@@ -11,3 +11,13 @@ export type CurrentSchedulingPeriodSummary = {
 export type CurrentPeriodPanelProps = {
   period: CurrentSchedulingPeriodSummary | null;
 };
+export type PeriodSummary = {
+  id: string;
+  name: string;
+  startDate: string;
+  endDate: string;
+  submissionDeadline: string;
+  status: PeriodStatus;
+  submittedCount: number;
+  totalGuards: number;
+};

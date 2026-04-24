@@ -8,7 +8,6 @@ import type { ShiftsGridProps } from '../types';
 
 export function ShiftsGrid({
   periodId,
-  periodName,
   startDate,
   scheduleId,
   assignments,
@@ -20,24 +19,18 @@ export function ShiftsGrid({
   const [weekIndex, setWeekIndex] = useState(0);
   const weekDays = buildWeekDays(startDate, weekIndex);
 
-  // Build human-readable week range labels
   function weekRangeLabel(idx: number): string {
     const days = buildWeekDays(startDate, idx);
-    return `${days[0].label}–${days[6].label}`;
+    return `${days[0].label} - ${days[6].label}`;
   }
 
   return (
     <div className="w-full">
-      <div className="mb-4">
-        <h1 className="text-2xl font-bold">שיבוץ</h1>
-        <p className="text-sm text-muted-foreground">{periodName}</p>
-      </div>
-
       <WeekNavigator
         weekIndex={weekIndex}
         onWeekChange={setWeekIndex}
-        week0Label={`שבוע א׳ — ${weekRangeLabel(0)}`}
-        week1Label={`שבוע ב׳ — ${weekRangeLabel(1)}`}
+        week0Label={`${weekRangeLabel(0)}`}
+        week1Label={`${weekRangeLabel(1)}`}
       />
 
       <ShiftSection

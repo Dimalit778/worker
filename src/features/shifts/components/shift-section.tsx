@@ -75,7 +75,6 @@ export function ShiftSection({
         <span>{style.label}</span>
       </div>
 
-      {/* RTL table: first <th>/<td> in HTML = rightmost on screen */}
       <div className="overflow-x-auto">
         <table
           className="w-full border-collapse bg-white border border-border border-t-0 rounded-b-lg text-xs"

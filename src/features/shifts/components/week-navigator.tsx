@@ -2,10 +2,10 @@ import { ChevronLeft, ChevronRight } from 'lucide-react';
 import { cn } from '@/lib/utils';
 
 type Props = {
-  weekIndex: number; // 0 or 1
+  weekIndex: number;
   onWeekChange: (w: number) => void;
-  week0Label: string; // e.g. "22–28 מרץ"
-  week1Label: string; // e.g. "15–21 מרץ"
+  week0Label: string;
+  week1Label: string;
 };
 
 export function WeekNavigator({ weekIndex, onWeekChange, week0Label, week1Label }: Props) {
@@ -14,7 +14,6 @@ export function WeekNavigator({ weekIndex, onWeekChange, week0Label, week1Label 
   return (
     <div className="flex justify-center mb-5" dir="rtl">
       <div className="flex items-center gap-3 bg-white border border-border rounded-xl px-4 py-2 shadow-sm">
-        {/* In RTL: ChevronRight sits on the right → navigates to week 1 (earlier dates) */}
         <button
           onClick={() => onWeekChange(0)}
           disabled={weekIndex === 0}
@@ -35,7 +34,6 @@ export function WeekNavigator({ weekIndex, onWeekChange, week0Label, week1Label 
           </div>
         </div>
 
-        {/* ChevronLeft sits on the left in RTL → navigates to week 2 (later dates) */}
         <button
           onClick={() => onWeekChange(1)}
           disabled={weekIndex === 1}

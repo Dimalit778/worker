@@ -1,10 +1,10 @@
 'use server';
 
 import { revalidatePath } from 'next/cache';
-import { ShiftType, SystemRole } from '@/generated/prisma/client';
+import { PeriodStatus, ShiftType, SystemRole } from '@/generated/prisma/client';
 import { prisma } from '@/lib/db/client';
 import { requireSession } from '@/lib/db/auth-helpers';
-import { getCurrentSchedulingPeriod } from '@/features/schedules/actions';
+import { getOpenPeriod } from '../schedules/actions';
 
 async function getEmployeeForUser(userId: string) {
   return prisma.employee.findFirst({
@@ -18,7 +18,11 @@ export async function getScheduleData() {
   const employee = await getEmployeeForUser(session.user.id);
   if (!employee) return { period: null, entries: {}, isSubmitted: false };
 
-  const period = await getCurrentSchedulingPeriod();
+  const period = await prisma.schedulingPeriod.findFirst({
+    where: { courtId: employee.courtId, status: PeriodStatus.OPEN_FOR_SUBMISSION },
+  });
+
+  console.log('period -->', JSON.stringify(period, null, 2));
   if (!period) return { period: null, entries: {}, isSubmitted: false };
 
   const availability = await prisma.availability.findUnique({
@@ -44,17 +48,13 @@ export async function getScheduleData() {
     isSubmitted: availability?.isSubmitted ?? false,
   };
 }
-
-/**
- * Persists the full selection map and marks availability as submitted.
- * entries keys are "YYYY-MM-DD-SHIFTTYPE", values are true/false.
- */
+// = להגיש שיבוץ משמרות
 export async function submitAvailability(entries: Record<string, boolean>): Promise<{ ok: boolean }> {
   const session = await requireSession(SystemRole.EMPLOYEE);
   const employee = await getEmployeeForUser(session.user.id);
   if (!employee?.courtId) return { ok: false };
 
-  const period = await getCurrentSchedulingPeriod();
+  const period = await getOpenPeriod(employee.courtId);
   if (!period) return { ok: false };
 
   const availability = await prisma.availability.upsert({

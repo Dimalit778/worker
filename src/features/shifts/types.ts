@@ -1,4 +1,4 @@
-import type { ShiftType } from '@/generated/prisma/client';
+import type { DayCategory, Position, ScheduleStatus, ShiftType } from '@/generated/prisma/client';
 
 export type { ShiftType };
 
@@ -11,6 +11,18 @@ export type AssignmentSummary = {
   id: string;
   userId: string;
   userName: string;
+  isOpeningDuty: boolean;
+};
+
+export type AssignGuardParams = {
+  scheduleId: string | null;
+  periodId: string;
+  userId: string;
+  courtId: string;
+  date: string;
+  shiftType: ShiftType;
+  position: Position;
+  slotIndex: number;
   isOpeningDuty: boolean;
 };
 
@@ -50,6 +62,22 @@ export type ShiftsGridProps = {
   /** When true: no clicks, no picker, view-only */
   readonly?: boolean;
 };
+export type DraftScheduleData =
+  | { found: false }
+  | {
+      found: true;
+      periodId: string;
+      periodName: string;
+      startDate: string;
+      endDate: string;
+      scheduleId: string | null;
+      scheduleStatus: ScheduleStatus | null;
+      assignments: AssignmentMap;
+      guards: GuardSummary[];
+      capacity: FullCapacityRules;
+      courtId: string;
+    };
+
 export type ShiftsPageData =
   | { found: false }
   | {
@@ -64,3 +92,11 @@ export type ShiftsPageData =
       capacity: FullCapacityRules;
       courtId: string;
     };
+export type CourtShiftRuleRow = {
+  id: string;
+  shiftType: ShiftType;
+  dayCategory: DayCategory;
+  position: import('@/generated/prisma/client').Position;
+  requiredCount: number;
+  displayOrder: number;
+};

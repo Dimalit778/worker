@@ -1,9 +1,10 @@
 import { requireSession } from '@/lib/db/auth-helpers';
 import { SystemRole } from '@/generated/prisma/client';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
-import { getPeriodsForManager } from '@/features/schedules/period-actions';
+import { getPeriodsForManager } from '@/features/schedules/actions';
 import { PeriodsList } from '@/features/schedules/components/periods-list';
 import { CreatePeriodForm } from '@/features/schedules/components/create-period-form';
+import { PeriodCalendar } from '@/features/schedules/components/period-calendar';
 
 export default async function ManagerPeriodsPage() {
   await requireSession(SystemRole.MANAGER);
@@ -11,8 +12,8 @@ export default async function ManagerPeriodsPage() {
   const periods = await getPeriodsForManager();
 
   const activeCount = periods.filter((p) => p.status === 'OPEN_FOR_SUBMISSION').length;
-
   const totalSubmissions = periods.reduce((sum, p) => sum + p.submittedCount, 0);
+  const openPeriod = periods.find((p) => p.status === 'OPEN_FOR_SUBMISSION');
 
   return (
     <div className="space-y-6" dir="rtl">
@@ -48,6 +49,20 @@ export default async function ManagerPeriodsPage() {
         </Card>
       </div>
 
+      {openPeriod && (
+        <Card>
+          <CardHeader className="pb-2">
+            <CardTitle className="text-base flex items-center gap-2">
+              <span className="w-2 h-2 rounded-full bg-green-500 inline-block" />
+              תקופה פתוחה להגשות
+            </CardTitle>
+          </CardHeader>
+          <CardContent>
+            <PeriodCalendar period={openPeriod} />
+          </CardContent>
+        </Card>
+      )}
+
       <Card>
         <CardHeader className="pb-2">
           <CardTitle className="text-base">כל התקופות</CardTitle>
@@ -56,20 +71,6 @@ export default async function ManagerPeriodsPage() {
           <PeriodsList periods={periods} />
         </CardContent>
       </Card>
-
-      <div className="rounded-xl border border-border bg-muted/30 p-4 text-sm text-muted-foreground space-y-1">
-        <p className="font-medium text-foreground">זרימת העבודה</p>
-        <ol className="list-decimal list-inside space-y-1 text-xs">
-          <li>צור תקופה חדשה — היא נפתחת אוטומטית להגשות.</li>
-          <li>המאבטחים רואים אותה בלוח המשמרות שלהם ומגישים זמינות.</li>
-          <li>
-            לחץ <strong>נעל</strong> לסגירת ההגשות.
-          </li>
-          <li>
-            עבור לדף <strong>שיבוץ</strong> לביצוע השיבוץ הסופי.
-          </li>
-        </ol>
-      </div>
     </div>
   );
 }

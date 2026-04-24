@@ -1,19 +1,33 @@
 import { requireSession } from '@/lib/db/auth-helpers';
 import { SystemRole } from '@/generated/prisma/client';
+import { prisma } from '@/lib/db/client';
+import { getShiftsPageData } from '@/features/shifts/queries';
+import { ShiftsGrid } from '@/features/shifts/components/shifts-grid';
 import { Card, CardContent } from '@/components/ui/card';
 
-export default async function UserDashboardPage() {
+export default async function UserShibutzPage() {
   const session = await requireSession(SystemRole.EMPLOYEE);
 
-  return (
-    <div className="space-y-4">
-      <h1 className="text-lg font-bold">שלום, {session.user.name}</h1>
+  const employee = await prisma.employee.findFirst({
+    where: { user: { id: session.user.id } },
+    select: { courtId: true },
+  });
+  const courtId = employee?.courtId ?? '';
 
-      <Card>
-        <CardContent className="pt-6">
-          <p className="text-muted-foreground text-sm text-center">אין תקופת תזמון פעילה כרגע.</p>
-        </CardContent>
-      </Card>
-    </div>
-  );
+  const data = await getShiftsPageData(courtId);
+  console.log('data', data);
+
+  if (!data.found) {
+    return (
+      <div className="space-y-4">
+        <Card>
+          <CardContent className="pt-6">
+            <p className="text-sm text-muted-foreground text-center">אין תקופת תזמון פעילה.</p>
+          </CardContent>
+        </Card>
+      </div>
+    );
+  }
+
+  return <ShiftsGrid {...data} readonly />;
 }

@@ -12,12 +12,10 @@ export default async function UserAvailabilityPage() {
   if (!period) {
     return (
       <div className="space-y-4">
-        <h1 className="text-lg font-bold">זמינות</h1>
+        <h1 className="text-lg font-bold">Availability</h1>
         <Card>
           <CardContent className="pt-6">
-            <p className="text-muted-foreground text-sm text-center">
-              אין תקופת שיבוץ פתוחה להגשות כרגע.
-            </p>
+            <p className="text-muted-foreground text-sm text-center">אין תקופת שיבוץ פתוחה להגשות כרגע.</p>
           </CardContent>
         </Card>
       </div>

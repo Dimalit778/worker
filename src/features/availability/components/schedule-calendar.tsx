@@ -1,69 +1,44 @@
-'use client'
+'use client';
 
-import { useState, useTransition } from 'react'
-import { cn } from '@/lib/utils'
-import { submitAvailability } from '../actions'
-import type { ShiftType } from '@/generated/prisma/client'
-
-const SHIFTS: { key: ShiftType; label: string; bg: string; text: string; border: string }[] = [
-  { key: 'MORNING', label: 'בוקר',  bg: 'bg-amber-400',   text: 'text-amber-950', border: 'border-amber-300' },
-  { key: 'EVENING', label: 'ערב',   bg: 'bg-sky-500',     text: 'text-white',     border: 'border-sky-300'  },
-  { key: 'NIGHT',   label: 'לילה',  bg: 'bg-indigo-700',  text: 'text-white',     border: 'border-indigo-400' },
-]
-
-const DAY_HE = ['א׳', 'ב׳', 'ג׳', 'ד׳', 'ה׳', 'ו׳', 'ש׳']
-
-function datesInRange(start: string, end: string): string[] {
-  const dates: string[] = []
-  const cur = new Date(`${start}T12:00:00Z`)
-  const last = new Date(`${end}T12:00:00Z`)
-  while (cur <= last) {
-    dates.push(cur.toISOString().slice(0, 10))
-    cur.setUTCDate(cur.getUTCDate() + 1)
-  }
-  return dates
-}
-
-export type PeriodInfo = {
-  id: string
-  name: string
-  startDate: string
-  endDate: string
-  status: string
-}
+import { useState, useTransition } from 'react';
+import { cn } from '@/lib/utils';
+import { submitAvailability } from '../actions';
+import type { ShiftType } from '@/generated/prisma/client';
+import { PeriodInfo } from '../types';
+import { datesInRange, SHIFTS, DAY_HE } from '../utils';
 
 type Props = {
-  period: PeriodInfo
-  initialEntries: Record<string, boolean>
-  initialSubmitted: boolean
-}
+  period: PeriodInfo;
+  initialEntries: Record<string, boolean>;
+  initialSubmitted: boolean;
+};
 
 export function ScheduleCalendar({ period, initialEntries, initialSubmitted }: Props) {
-  const [entries, setEntries] = useState<Record<string, boolean>>(initialEntries)
-  const [submitted, setSubmitted] = useState(initialSubmitted)
-  const [pending, startTransition] = useTransition()
+  const [entries, setEntries] = useState<Record<string, boolean>>(initialEntries);
+  const [submitted, setSubmitted] = useState(initialSubmitted);
+  const [pending, startTransition] = useTransition();
 
-  const dates = datesInRange(period.startDate, period.endDate)
-  const readonly = submitted || period.status === 'LOCKED' || period.status === 'ARCHIVED'
+  const dates = datesInRange(period.startDate, period.endDate);
+  const readonly = submitted || period.status === 'LOCKED' || period.status === 'ARCHIVED';
 
   // Split into two weeks for layout
-  const week1 = dates.slice(0, 7)
-  const week2 = dates.slice(7, 14)
+  const week1 = dates.slice(0, 7);
+  const week2 = dates.slice(7, 14);
 
   function handleToggle(date: string, shiftType: ShiftType) {
-    if (readonly) return
-    const key = `${date}-${shiftType}`
-    setEntries(prev => ({ ...prev, [key]: !prev[key] }))
+    if (readonly) return;
+    const key = `${date}-${shiftType}`;
+    setEntries((prev) => ({ ...prev, [key]: !prev[key] }));
   }
 
   function handleSubmit() {
     startTransition(async () => {
-      const res = await submitAvailability(entries)
-      if (res.ok) setSubmitted(true)
-    })
+      const res = await submitAvailability(entries);
+      if (res.ok) setSubmitted(true);
+    });
   }
 
-  const selected = Object.values(entries).filter(Boolean).length
+  const selected = Object.values(entries).filter(Boolean).length;
 
   return (
     <div className="space-y-5" dir="rtl">
@@ -78,15 +53,13 @@ export function ScheduleCalendar({ period, initialEntries, initialSubmitted }: P
             <span>✓</span> זמינות הוגשה
           </span>
         ) : (
-          <span className="text-sm text-muted-foreground">
-            {selected} משמרות נבחרו
-          </span>
+          <span className="text-sm text-muted-foreground">{selected} משמרות נבחרו</span>
         )}
       </div>
 
       {/* Legend */}
       <div className="flex gap-3 text-xs">
-        {SHIFTS.map(s => (
+        {SHIFTS.map((s) => (
           <div key={s.key} className="flex items-center gap-1.5">
             <span className={cn('w-3 h-3 rounded-sm', s.bg)} />
             <span>{s.label}</span>
@@ -107,10 +80,10 @@ export function ScheduleCalendar({ period, initialEntries, initialSubmitted }: P
                   <th className="w-14 px-3 py-2.5 text-right font-medium border-b border-e border-border bg-muted/30 sticky right-0 z-10">
                     משמרת
                   </th>
-                  {week.map(date => {
-                    const d = new Date(`${date}T12:00:00Z`)
-                    const [, m, day] = date.split('-')
-                    const isWeekend = d.getUTCDay() === 5 || d.getUTCDay() === 6
+                  {week.map((date) => {
+                    const d = new Date(`${date}T12:00:00Z`);
+                    const [, m, day] = date.split('-');
+                    const isWeekend = d.getUTCDay() === 5 || d.getUTCDay() === 6;
                     return (
                       <th
                         key={date}
@@ -120,30 +93,29 @@ export function ScheduleCalendar({ period, initialEntries, initialSubmitted }: P
                         )}
                       >
                         <div className="text-muted-foreground font-normal">{DAY_HE[d.getUTCDay()]}</div>
-                        <div className="font-semibold">{day}/{m}</div>
+                        <div className="font-semibold">
+                          {day}/{m}
+                        </div>
                       </th>
-                    )
+                    );
                   })}
                 </tr>
               </thead>
               <tbody>
-                {SHIFTS.map(shift => (
+                {SHIFTS.map((shift) => (
                   <tr key={shift.key} className="border-b last:border-b-0 border-border">
                     <td className="px-3 py-2 font-medium text-right border-e border-border bg-muted/20 sticky right-0 z-10">
                       {shift.label}
                     </td>
-                    {week.map(date => {
-                      const key = `${date}-${shift.key}`
-                      const on = !!entries[key]
-                      const d = new Date(`${date}T12:00:00Z`)
-                      const isWeekend = d.getUTCDay() === 5 || d.getUTCDay() === 6
+                    {week.map((date) => {
+                      const key = `${date}-${shift.key}`;
+                      const on = !!entries[key];
+                      const d = new Date(`${date}T12:00:00Z`);
+                      const isWeekend = d.getUTCDay() === 5 || d.getUTCDay() === 6;
                       return (
                         <td
                           key={date}
-                          className={cn(
-                            'border-e last:border-e-0 border-border p-1',
-                            isWeekend && 'bg-slate-50/60',
-                          )}
+                          className={cn('border-e last:border-e-0 border-border p-1', isWeekend && 'bg-slate-50/60')}
                         >
                           <button
                             onClick={() => handleToggle(date, shift.key)}
@@ -165,7 +137,7 @@ export function ScheduleCalendar({ period, initialEntries, initialSubmitted }: P
                             )}
                           </button>
                         </td>
-                      )
+                      );
                     })}
                   </tr>
                 ))}
@@ -185,9 +157,7 @@ export function ScheduleCalendar({ period, initialEntries, initialSubmitted }: P
           >
             {pending ? 'שומר...' : 'הגש זמינות'}
           </button>
-          {selected === 0 && (
-            <p className="text-xs text-muted-foreground">יש לבחור לפחות משמרת אחת</p>
-          )}
+          {selected === 0 && <p className="text-xs text-muted-foreground">יש לבחור לפחות משמרת אחת</p>}
         </div>
       )}
 
@@ -195,5 +165,5 @@ export function ScheduleCalendar({ period, initialEntries, initialSubmitted }: P
         <p className="text-sm text-muted-foreground">התקופה נעולה — לא ניתן לשנות זמינות.</p>
       )}
     </div>
-  )
+  );
 }
