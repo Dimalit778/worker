@@ -206,10 +206,11 @@ export type ScheduleWhereInput = {
   generatedById?: Prisma.StringFilter<"Schedule"> | string
   createdAt?: Prisma.DateTimeFilter<"Schedule"> | Date | string
   updatedAt?: Prisma.DateTimeFilter<"Schedule"> | Date | string
-  period?: Prisma.XOR<Prisma.SchedulingPeriodScalarRelationFilter, Prisma.SchedulingPeriodWhereInput>
+  period?: Prisma.XOR<Prisma.SchedulePeriodScalarRelationFilter, Prisma.SchedulePeriodWhereInput>
   generatedBy?: Prisma.XOR<Prisma.UserScalarRelationFilter, Prisma.UserWhereInput>
   assignments?: Prisma.ShiftAssignmentListRelationFilter
   warnings?: Prisma.ScheduleWarningListRelationFilter
+  changeLogs?: Prisma.ScheduleChangeLogListRelationFilter
 }
 
 export type ScheduleOrderByWithRelationInput = {
@@ -221,10 +222,11 @@ export type ScheduleOrderByWithRelationInput = {
   generatedById?: Prisma.SortOrder
   createdAt?: Prisma.SortOrder
   updatedAt?: Prisma.SortOrder
-  period?: Prisma.SchedulingPeriodOrderByWithRelationInput
+  period?: Prisma.SchedulePeriodOrderByWithRelationInput
   generatedBy?: Prisma.UserOrderByWithRelationInput
   assignments?: Prisma.ShiftAssignmentOrderByRelationAggregateInput
   warnings?: Prisma.ScheduleWarningOrderByRelationAggregateInput
+  changeLogs?: Prisma.ScheduleChangeLogOrderByRelationAggregateInput
 }
 
 export type ScheduleWhereUniqueInput = Prisma.AtLeast<{
@@ -239,10 +241,11 @@ export type ScheduleWhereUniqueInput = Prisma.AtLeast<{
   generatedById?: Prisma.StringFilter<"Schedule"> | string
   createdAt?: Prisma.DateTimeFilter<"Schedule"> | Date | string
   updatedAt?: Prisma.DateTimeFilter<"Schedule"> | Date | string
-  period?: Prisma.XOR<Prisma.SchedulingPeriodScalarRelationFilter, Prisma.SchedulingPeriodWhereInput>
+  period?: Prisma.XOR<Prisma.SchedulePeriodScalarRelationFilter, Prisma.SchedulePeriodWhereInput>
   generatedBy?: Prisma.XOR<Prisma.UserScalarRelationFilter, Prisma.UserWhereInput>
   assignments?: Prisma.ShiftAssignmentListRelationFilter
   warnings?: Prisma.ScheduleWarningListRelationFilter
+  changeLogs?: Prisma.ScheduleChangeLogListRelationFilter
 }, "id" | "periodId">
 
 export type ScheduleOrderByWithAggregationInput = {
@@ -280,10 +283,11 @@ export type ScheduleCreateInput = {
   publishedAt?: Date | string | null
   createdAt?: Date | string
   updatedAt?: Date | string
-  period: Prisma.SchedulingPeriodCreateNestedOneWithoutScheduleInput
+  period: Prisma.SchedulePeriodCreateNestedOneWithoutScheduleInput
   generatedBy: Prisma.UserCreateNestedOneWithoutSchedulesGeneratedInput
   assignments?: Prisma.ShiftAssignmentCreateNestedManyWithoutScheduleInput
   warnings?: Prisma.ScheduleWarningCreateNestedManyWithoutScheduleInput
+  changeLogs?: Prisma.ScheduleChangeLogCreateNestedManyWithoutScheduleInput
 }
 
 export type ScheduleUncheckedCreateInput = {
@@ -297,6 +301,7 @@ export type ScheduleUncheckedCreateInput = {
   updatedAt?: Date | string
   assignments?: Prisma.ShiftAssignmentUncheckedCreateNestedManyWithoutScheduleInput
   warnings?: Prisma.ScheduleWarningUncheckedCreateNestedManyWithoutScheduleInput
+  changeLogs?: Prisma.ScheduleChangeLogUncheckedCreateNestedManyWithoutScheduleInput
 }
 
 export type ScheduleUpdateInput = {
@@ -306,10 +311,11 @@ export type ScheduleUpdateInput = {
   publishedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
-  period?: Prisma.SchedulingPeriodUpdateOneRequiredWithoutScheduleNestedInput
+  period?: Prisma.SchedulePeriodUpdateOneRequiredWithoutScheduleNestedInput
   generatedBy?: Prisma.UserUpdateOneRequiredWithoutSchedulesGeneratedNestedInput
   assignments?: Prisma.ShiftAssignmentUpdateManyWithoutScheduleNestedInput
   warnings?: Prisma.ScheduleWarningUpdateManyWithoutScheduleNestedInput
+  changeLogs?: Prisma.ScheduleChangeLogUpdateManyWithoutScheduleNestedInput
 }
 
 export type ScheduleUncheckedUpdateInput = {
@@ -323,6 +329,7 @@ export type ScheduleUncheckedUpdateInput = {
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   assignments?: Prisma.ShiftAssignmentUncheckedUpdateManyWithoutScheduleNestedInput
   warnings?: Prisma.ScheduleWarningUncheckedUpdateManyWithoutScheduleNestedInput
+  changeLogs?: Prisma.ScheduleChangeLogUncheckedUpdateManyWithoutScheduleNestedInput
 }
 
 export type ScheduleCreateManyInput = {
@@ -515,6 +522,20 @@ export type ScheduleUpdateOneRequiredWithoutWarningsNestedInput = {
   update?: Prisma.XOR<Prisma.XOR<Prisma.ScheduleUpdateToOneWithWhereWithoutWarningsInput, Prisma.ScheduleUpdateWithoutWarningsInput>, Prisma.ScheduleUncheckedUpdateWithoutWarningsInput>
 }
 
+export type ScheduleCreateNestedOneWithoutChangeLogsInput = {
+  create?: Prisma.XOR<Prisma.ScheduleCreateWithoutChangeLogsInput, Prisma.ScheduleUncheckedCreateWithoutChangeLogsInput>
+  connectOrCreate?: Prisma.ScheduleCreateOrConnectWithoutChangeLogsInput
+  connect?: Prisma.ScheduleWhereUniqueInput
+}
+
+export type ScheduleUpdateOneRequiredWithoutChangeLogsNestedInput = {
+  create?: Prisma.XOR<Prisma.ScheduleCreateWithoutChangeLogsInput, Prisma.ScheduleUncheckedCreateWithoutChangeLogsInput>
+  connectOrCreate?: Prisma.ScheduleCreateOrConnectWithoutChangeLogsInput
+  upsert?: Prisma.ScheduleUpsertWithoutChangeLogsInput
+  connect?: Prisma.ScheduleWhereUniqueInput
+  update?: Prisma.XOR<Prisma.XOR<Prisma.ScheduleUpdateToOneWithWhereWithoutChangeLogsInput, Prisma.ScheduleUpdateWithoutChangeLogsInput>, Prisma.ScheduleUncheckedUpdateWithoutChangeLogsInput>
+}
+
 export type ScheduleCreateWithoutGeneratedByInput = {
   id?: string
   status?: $Enums.ScheduleStatus
@@ -522,9 +543,10 @@ export type ScheduleCreateWithoutGeneratedByInput = {
   publishedAt?: Date | string | null
   createdAt?: Date | string
   updatedAt?: Date | string
-  period: Prisma.SchedulingPeriodCreateNestedOneWithoutScheduleInput
+  period: Prisma.SchedulePeriodCreateNestedOneWithoutScheduleInput
   assignments?: Prisma.ShiftAssignmentCreateNestedManyWithoutScheduleInput
   warnings?: Prisma.ScheduleWarningCreateNestedManyWithoutScheduleInput
+  changeLogs?: Prisma.ScheduleChangeLogCreateNestedManyWithoutScheduleInput
 }
 
 export type ScheduleUncheckedCreateWithoutGeneratedByInput = {
@@ -537,6 +559,7 @@ export type ScheduleUncheckedCreateWithoutGeneratedByInput = {
   updatedAt?: Date | string
   assignments?: Prisma.ShiftAssignmentUncheckedCreateNestedManyWithoutScheduleInput
   warnings?: Prisma.ScheduleWarningUncheckedCreateNestedManyWithoutScheduleInput
+  changeLogs?: Prisma.ScheduleChangeLogUncheckedCreateNestedManyWithoutScheduleInput
 }
 
 export type ScheduleCreateOrConnectWithoutGeneratedByInput = {
@@ -589,6 +612,7 @@ export type ScheduleCreateWithoutPeriodInput = {
   generatedBy: Prisma.UserCreateNestedOneWithoutSchedulesGeneratedInput
   assignments?: Prisma.ShiftAssignmentCreateNestedManyWithoutScheduleInput
   warnings?: Prisma.ScheduleWarningCreateNestedManyWithoutScheduleInput
+  changeLogs?: Prisma.ScheduleChangeLogCreateNestedManyWithoutScheduleInput
 }
 
 export type ScheduleUncheckedCreateWithoutPeriodInput = {
@@ -601,6 +625,7 @@ export type ScheduleUncheckedCreateWithoutPeriodInput = {
   updatedAt?: Date | string
   assignments?: Prisma.ShiftAssignmentUncheckedCreateNestedManyWithoutScheduleInput
   warnings?: Prisma.ScheduleWarningUncheckedCreateNestedManyWithoutScheduleInput
+  changeLogs?: Prisma.ScheduleChangeLogUncheckedCreateNestedManyWithoutScheduleInput
 }
 
 export type ScheduleCreateOrConnectWithoutPeriodInput = {
@@ -629,6 +654,7 @@ export type ScheduleUpdateWithoutPeriodInput = {
   generatedBy?: Prisma.UserUpdateOneRequiredWithoutSchedulesGeneratedNestedInput
   assignments?: Prisma.ShiftAssignmentUpdateManyWithoutScheduleNestedInput
   warnings?: Prisma.ScheduleWarningUpdateManyWithoutScheduleNestedInput
+  changeLogs?: Prisma.ScheduleChangeLogUpdateManyWithoutScheduleNestedInput
 }
 
 export type ScheduleUncheckedUpdateWithoutPeriodInput = {
@@ -641,6 +667,7 @@ export type ScheduleUncheckedUpdateWithoutPeriodInput = {
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   assignments?: Prisma.ShiftAssignmentUncheckedUpdateManyWithoutScheduleNestedInput
   warnings?: Prisma.ScheduleWarningUncheckedUpdateManyWithoutScheduleNestedInput
+  changeLogs?: Prisma.ScheduleChangeLogUncheckedUpdateManyWithoutScheduleNestedInput
 }
 
 export type ScheduleCreateWithoutAssignmentsInput = {
@@ -650,9 +677,10 @@ export type ScheduleCreateWithoutAssignmentsInput = {
   publishedAt?: Date | string | null
   createdAt?: Date | string
   updatedAt?: Date | string
-  period: Prisma.SchedulingPeriodCreateNestedOneWithoutScheduleInput
+  period: Prisma.SchedulePeriodCreateNestedOneWithoutScheduleInput
   generatedBy: Prisma.UserCreateNestedOneWithoutSchedulesGeneratedInput
   warnings?: Prisma.ScheduleWarningCreateNestedManyWithoutScheduleInput
+  changeLogs?: Prisma.ScheduleChangeLogCreateNestedManyWithoutScheduleInput
 }
 
 export type ScheduleUncheckedCreateWithoutAssignmentsInput = {
@@ -665,6 +693,7 @@ export type ScheduleUncheckedCreateWithoutAssignmentsInput = {
   createdAt?: Date | string
   updatedAt?: Date | string
   warnings?: Prisma.ScheduleWarningUncheckedCreateNestedManyWithoutScheduleInput
+  changeLogs?: Prisma.ScheduleChangeLogUncheckedCreateNestedManyWithoutScheduleInput
 }
 
 export type ScheduleCreateOrConnectWithoutAssignmentsInput = {
@@ -690,9 +719,10 @@ export type ScheduleUpdateWithoutAssignmentsInput = {
   publishedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
-  period?: Prisma.SchedulingPeriodUpdateOneRequiredWithoutScheduleNestedInput
+  period?: Prisma.SchedulePeriodUpdateOneRequiredWithoutScheduleNestedInput
   generatedBy?: Prisma.UserUpdateOneRequiredWithoutSchedulesGeneratedNestedInput
   warnings?: Prisma.ScheduleWarningUpdateManyWithoutScheduleNestedInput
+  changeLogs?: Prisma.ScheduleChangeLogUpdateManyWithoutScheduleNestedInput
 }
 
 export type ScheduleUncheckedUpdateWithoutAssignmentsInput = {
@@ -705,6 +735,7 @@ export type ScheduleUncheckedUpdateWithoutAssignmentsInput = {
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   warnings?: Prisma.ScheduleWarningUncheckedUpdateManyWithoutScheduleNestedInput
+  changeLogs?: Prisma.ScheduleChangeLogUncheckedUpdateManyWithoutScheduleNestedInput
 }
 
 export type ScheduleCreateWithoutWarningsInput = {
@@ -714,9 +745,10 @@ export type ScheduleCreateWithoutWarningsInput = {
   publishedAt?: Date | string | null
   createdAt?: Date | string
   updatedAt?: Date | string
-  period: Prisma.SchedulingPeriodCreateNestedOneWithoutScheduleInput
+  period: Prisma.SchedulePeriodCreateNestedOneWithoutScheduleInput
   generatedBy: Prisma.UserCreateNestedOneWithoutSchedulesGeneratedInput
   assignments?: Prisma.ShiftAssignmentCreateNestedManyWithoutScheduleInput
+  changeLogs?: Prisma.ScheduleChangeLogCreateNestedManyWithoutScheduleInput
 }
 
 export type ScheduleUncheckedCreateWithoutWarningsInput = {
@@ -729,6 +761,7 @@ export type ScheduleUncheckedCreateWithoutWarningsInput = {
   createdAt?: Date | string
   updatedAt?: Date | string
   assignments?: Prisma.ShiftAssignmentUncheckedCreateNestedManyWithoutScheduleInput
+  changeLogs?: Prisma.ScheduleChangeLogUncheckedCreateNestedManyWithoutScheduleInput
 }
 
 export type ScheduleCreateOrConnectWithoutWarningsInput = {
@@ -754,9 +787,10 @@ export type ScheduleUpdateWithoutWarningsInput = {
   publishedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
-  period?: Prisma.SchedulingPeriodUpdateOneRequiredWithoutScheduleNestedInput
+  period?: Prisma.SchedulePeriodUpdateOneRequiredWithoutScheduleNestedInput
   generatedBy?: Prisma.UserUpdateOneRequiredWithoutSchedulesGeneratedNestedInput
   assignments?: Prisma.ShiftAssignmentUpdateManyWithoutScheduleNestedInput
+  changeLogs?: Prisma.ScheduleChangeLogUpdateManyWithoutScheduleNestedInput
 }
 
 export type ScheduleUncheckedUpdateWithoutWarningsInput = {
@@ -769,6 +803,75 @@ export type ScheduleUncheckedUpdateWithoutWarningsInput = {
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   assignments?: Prisma.ShiftAssignmentUncheckedUpdateManyWithoutScheduleNestedInput
+  changeLogs?: Prisma.ScheduleChangeLogUncheckedUpdateManyWithoutScheduleNestedInput
+}
+
+export type ScheduleCreateWithoutChangeLogsInput = {
+  id?: string
+  status?: $Enums.ScheduleStatus
+  generatedAt?: Date | string
+  publishedAt?: Date | string | null
+  createdAt?: Date | string
+  updatedAt?: Date | string
+  period: Prisma.SchedulePeriodCreateNestedOneWithoutScheduleInput
+  generatedBy: Prisma.UserCreateNestedOneWithoutSchedulesGeneratedInput
+  assignments?: Prisma.ShiftAssignmentCreateNestedManyWithoutScheduleInput
+  warnings?: Prisma.ScheduleWarningCreateNestedManyWithoutScheduleInput
+}
+
+export type ScheduleUncheckedCreateWithoutChangeLogsInput = {
+  id?: string
+  periodId: string
+  status?: $Enums.ScheduleStatus
+  generatedAt?: Date | string
+  publishedAt?: Date | string | null
+  generatedById: string
+  createdAt?: Date | string
+  updatedAt?: Date | string
+  assignments?: Prisma.ShiftAssignmentUncheckedCreateNestedManyWithoutScheduleInput
+  warnings?: Prisma.ScheduleWarningUncheckedCreateNestedManyWithoutScheduleInput
+}
+
+export type ScheduleCreateOrConnectWithoutChangeLogsInput = {
+  where: Prisma.ScheduleWhereUniqueInput
+  create: Prisma.XOR<Prisma.ScheduleCreateWithoutChangeLogsInput, Prisma.ScheduleUncheckedCreateWithoutChangeLogsInput>
+}
+
+export type ScheduleUpsertWithoutChangeLogsInput = {
+  update: Prisma.XOR<Prisma.ScheduleUpdateWithoutChangeLogsInput, Prisma.ScheduleUncheckedUpdateWithoutChangeLogsInput>
+  create: Prisma.XOR<Prisma.ScheduleCreateWithoutChangeLogsInput, Prisma.ScheduleUncheckedCreateWithoutChangeLogsInput>
+  where?: Prisma.ScheduleWhereInput
+}
+
+export type ScheduleUpdateToOneWithWhereWithoutChangeLogsInput = {
+  where?: Prisma.ScheduleWhereInput
+  data: Prisma.XOR<Prisma.ScheduleUpdateWithoutChangeLogsInput, Prisma.ScheduleUncheckedUpdateWithoutChangeLogsInput>
+}
+
+export type ScheduleUpdateWithoutChangeLogsInput = {
+  id?: Prisma.StringFieldUpdateOperationsInput | string
+  status?: Prisma.EnumScheduleStatusFieldUpdateOperationsInput | $Enums.ScheduleStatus
+  generatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  publishedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  period?: Prisma.SchedulePeriodUpdateOneRequiredWithoutScheduleNestedInput
+  generatedBy?: Prisma.UserUpdateOneRequiredWithoutSchedulesGeneratedNestedInput
+  assignments?: Prisma.ShiftAssignmentUpdateManyWithoutScheduleNestedInput
+  warnings?: Prisma.ScheduleWarningUpdateManyWithoutScheduleNestedInput
+}
+
+export type ScheduleUncheckedUpdateWithoutChangeLogsInput = {
+  id?: Prisma.StringFieldUpdateOperationsInput | string
+  periodId?: Prisma.StringFieldUpdateOperationsInput | string
+  status?: Prisma.EnumScheduleStatusFieldUpdateOperationsInput | $Enums.ScheduleStatus
+  generatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  publishedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  generatedById?: Prisma.StringFieldUpdateOperationsInput | string
+  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  assignments?: Prisma.ShiftAssignmentUncheckedUpdateManyWithoutScheduleNestedInput
+  warnings?: Prisma.ScheduleWarningUncheckedUpdateManyWithoutScheduleNestedInput
 }
 
 export type ScheduleCreateManyGeneratedByInput = {
@@ -788,9 +891,10 @@ export type ScheduleUpdateWithoutGeneratedByInput = {
   publishedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
-  period?: Prisma.SchedulingPeriodUpdateOneRequiredWithoutScheduleNestedInput
+  period?: Prisma.SchedulePeriodUpdateOneRequiredWithoutScheduleNestedInput
   assignments?: Prisma.ShiftAssignmentUpdateManyWithoutScheduleNestedInput
   warnings?: Prisma.ScheduleWarningUpdateManyWithoutScheduleNestedInput
+  changeLogs?: Prisma.ScheduleChangeLogUpdateManyWithoutScheduleNestedInput
 }
 
 export type ScheduleUncheckedUpdateWithoutGeneratedByInput = {
@@ -803,6 +907,7 @@ export type ScheduleUncheckedUpdateWithoutGeneratedByInput = {
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   assignments?: Prisma.ShiftAssignmentUncheckedUpdateManyWithoutScheduleNestedInput
   warnings?: Prisma.ScheduleWarningUncheckedUpdateManyWithoutScheduleNestedInput
+  changeLogs?: Prisma.ScheduleChangeLogUncheckedUpdateManyWithoutScheduleNestedInput
 }
 
 export type ScheduleUncheckedUpdateManyWithoutGeneratedByInput = {
@@ -823,11 +928,13 @@ export type ScheduleUncheckedUpdateManyWithoutGeneratedByInput = {
 export type ScheduleCountOutputType = {
   assignments: number
   warnings: number
+  changeLogs: number
 }
 
 export type ScheduleCountOutputTypeSelect<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
   assignments?: boolean | ScheduleCountOutputTypeCountAssignmentsArgs
   warnings?: boolean | ScheduleCountOutputTypeCountWarningsArgs
+  changeLogs?: boolean | ScheduleCountOutputTypeCountChangeLogsArgs
 }
 
 /**
@@ -854,6 +961,13 @@ export type ScheduleCountOutputTypeCountWarningsArgs<ExtArgs extends runtime.Typ
   where?: Prisma.ScheduleWarningWhereInput
 }
 
+/**
+ * ScheduleCountOutputType without action
+ */
+export type ScheduleCountOutputTypeCountChangeLogsArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+  where?: Prisma.ScheduleChangeLogWhereInput
+}
+
 
 export type ScheduleSelect<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetSelect<{
   id?: boolean
@@ -864,10 +978,11 @@ export type ScheduleSelect<ExtArgs extends runtime.Types.Extensions.InternalArgs
   generatedById?: boolean
   createdAt?: boolean
   updatedAt?: boolean
-  period?: boolean | Prisma.SchedulingPeriodDefaultArgs<ExtArgs>
+  period?: boolean | Prisma.SchedulePeriodDefaultArgs<ExtArgs>
   generatedBy?: boolean | Prisma.UserDefaultArgs<ExtArgs>
   assignments?: boolean | Prisma.Schedule$assignmentsArgs<ExtArgs>
   warnings?: boolean | Prisma.Schedule$warningsArgs<ExtArgs>
+  changeLogs?: boolean | Prisma.Schedule$changeLogsArgs<ExtArgs>
   _count?: boolean | Prisma.ScheduleCountOutputTypeDefaultArgs<ExtArgs>
 }, ExtArgs["result"]["schedule"]>
 
@@ -880,7 +995,7 @@ export type ScheduleSelectCreateManyAndReturn<ExtArgs extends runtime.Types.Exte
   generatedById?: boolean
   createdAt?: boolean
   updatedAt?: boolean
-  period?: boolean | Prisma.SchedulingPeriodDefaultArgs<ExtArgs>
+  period?: boolean | Prisma.SchedulePeriodDefaultArgs<ExtArgs>
   generatedBy?: boolean | Prisma.UserDefaultArgs<ExtArgs>
 }, ExtArgs["result"]["schedule"]>
 
@@ -893,7 +1008,7 @@ export type ScheduleSelectUpdateManyAndReturn<ExtArgs extends runtime.Types.Exte
   generatedById?: boolean
   createdAt?: boolean
   updatedAt?: boolean
-  period?: boolean | Prisma.SchedulingPeriodDefaultArgs<ExtArgs>
+  period?: boolean | Prisma.SchedulePeriodDefaultArgs<ExtArgs>
   generatedBy?: boolean | Prisma.UserDefaultArgs<ExtArgs>
 }, ExtArgs["result"]["schedule"]>
 
@@ -910,28 +1025,30 @@ export type ScheduleSelectScalar = {
 
 export type ScheduleOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"id" | "periodId" | "status" | "generatedAt" | "publishedAt" | "generatedById" | "createdAt" | "updatedAt", ExtArgs["result"]["schedule"]>
 export type ScheduleInclude<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
-  period?: boolean | Prisma.SchedulingPeriodDefaultArgs<ExtArgs>
+  period?: boolean | Prisma.SchedulePeriodDefaultArgs<ExtArgs>
   generatedBy?: boolean | Prisma.UserDefaultArgs<ExtArgs>
   assignments?: boolean | Prisma.Schedule$assignmentsArgs<ExtArgs>
   warnings?: boolean | Prisma.Schedule$warningsArgs<ExtArgs>
+  changeLogs?: boolean | Prisma.Schedule$changeLogsArgs<ExtArgs>
   _count?: boolean | Prisma.ScheduleCountOutputTypeDefaultArgs<ExtArgs>
 }
 export type ScheduleIncludeCreateManyAndReturn<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
-  period?: boolean | Prisma.SchedulingPeriodDefaultArgs<ExtArgs>
+  period?: boolean | Prisma.SchedulePeriodDefaultArgs<ExtArgs>
   generatedBy?: boolean | Prisma.UserDefaultArgs<ExtArgs>
 }
 export type ScheduleIncludeUpdateManyAndReturn<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
-  period?: boolean | Prisma.SchedulingPeriodDefaultArgs<ExtArgs>
+  period?: boolean | Prisma.SchedulePeriodDefaultArgs<ExtArgs>
   generatedBy?: boolean | Prisma.UserDefaultArgs<ExtArgs>
 }
 
 export type $SchedulePayload<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
   name: "Schedule"
   objects: {
-    period: Prisma.$SchedulingPeriodPayload<ExtArgs>
+    period: Prisma.$SchedulePeriodPayload<ExtArgs>
     generatedBy: Prisma.$UserPayload<ExtArgs>
     assignments: Prisma.$ShiftAssignmentPayload<ExtArgs>[]
     warnings: Prisma.$ScheduleWarningPayload<ExtArgs>[]
+    changeLogs: Prisma.$ScheduleChangeLogPayload<ExtArgs>[]
   }
   scalars: runtime.Types.Extensions.GetPayloadResult<{
     id: string
@@ -1336,10 +1453,11 @@ readonly fields: ScheduleFieldRefs;
  */
 export interface Prisma__ScheduleClient<T, Null = never, ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs, GlobalOmitOptions = {}> extends Prisma.PrismaPromise<T> {
   readonly [Symbol.toStringTag]: "PrismaPromise"
-  period<T extends Prisma.SchedulingPeriodDefaultArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.SchedulingPeriodDefaultArgs<ExtArgs>>): Prisma.Prisma__SchedulingPeriodClient<runtime.Types.Result.GetResult<Prisma.$SchedulingPeriodPayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions> | Null, Null, ExtArgs, GlobalOmitOptions>
+  period<T extends Prisma.SchedulePeriodDefaultArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.SchedulePeriodDefaultArgs<ExtArgs>>): Prisma.Prisma__SchedulePeriodClient<runtime.Types.Result.GetResult<Prisma.$SchedulePeriodPayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions> | Null, Null, ExtArgs, GlobalOmitOptions>
   generatedBy<T extends Prisma.UserDefaultArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.UserDefaultArgs<ExtArgs>>): Prisma.Prisma__UserClient<runtime.Types.Result.GetResult<Prisma.$UserPayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions> | Null, Null, ExtArgs, GlobalOmitOptions>
   assignments<T extends Prisma.Schedule$assignmentsArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.Schedule$assignmentsArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$ShiftAssignmentPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
   warnings<T extends Prisma.Schedule$warningsArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.Schedule$warningsArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$ScheduleWarningPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
+  changeLogs<T extends Prisma.Schedule$changeLogsArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.Schedule$changeLogsArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$ScheduleChangeLogPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
   /**
    * Attaches callbacks for the resolution and/or rejection of the Promise.
    * @param onfulfilled The callback to execute when the Promise is resolved.
@@ -1823,6 +1941,30 @@ export type Schedule$warningsArgs<ExtArgs extends runtime.Types.Extensions.Inter
   take?: number
   skip?: number
   distinct?: Prisma.ScheduleWarningScalarFieldEnum | Prisma.ScheduleWarningScalarFieldEnum[]
+}
+
+/**
+ * Schedule.changeLogs
+ */
+export type Schedule$changeLogsArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+  /**
+   * Select specific fields to fetch from the ScheduleChangeLog
+   */
+  select?: Prisma.ScheduleChangeLogSelect<ExtArgs> | null
+  /**
+   * Omit specific fields from the ScheduleChangeLog
+   */
+  omit?: Prisma.ScheduleChangeLogOmit<ExtArgs> | null
+  /**
+   * Choose, which related nodes to fetch as well
+   */
+  include?: Prisma.ScheduleChangeLogInclude<ExtArgs> | null
+  where?: Prisma.ScheduleChangeLogWhereInput
+  orderBy?: Prisma.ScheduleChangeLogOrderByWithRelationInput | Prisma.ScheduleChangeLogOrderByWithRelationInput[]
+  cursor?: Prisma.ScheduleChangeLogWhereUniqueInput
+  take?: number
+  skip?: number
+  distinct?: Prisma.ScheduleChangeLogScalarFieldEnum | Prisma.ScheduleChangeLogScalarFieldEnum[]
 }
 
 /**

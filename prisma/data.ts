@@ -21,14 +21,14 @@ export const REGIONS = [
   { name: 'מחוז חיפה', code: 'HAIFA' },
   { name: 'מחוז מרכז', code: 'CENTER' },
 ];
-export const COURTS: CourtSeed[] = [
+const COURTS: CourtSeed[] = [
   { name: 'בית משפט מחוזי ירושלים', code: 'JERUSALEM', regionCode: 'JERUSALEM' },
   { name: 'בית משפט מחוזי תל אביב (ויצמן)', code: 'VAITZMAN', regionCode: 'TEL_AVIV' },
   { name: 'בית משפט שוקן', code: 'SHOKEN', regionCode: 'TEL_AVIV' },
   { name: 'בית משפט שלום בת ים', code: 'BAT_YAM', regionCode: 'TEL_AVIV' },
   { name: 'בית משפט ראשון לציון', code: 'RISHON', regionCode: 'CENTER' },
 ];
-export const EMPLOYEES: EmployeeSeed[] = [
+const EMPLOYEES: EmployeeSeed[] = [
   // ירושלים
   {
     firstName: 'אבי',

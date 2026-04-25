@@ -1,15 +1,28 @@
 import { cn } from '@/lib/utils';
 import { AssignmentCell } from './assignment-cell';
 import { getRowLabel, assignmentKey } from '../utils';
-import type { ShiftType, AssignmentMap, GuardSummary, FullCapacityRules } from '../types';
-import type { WeekDay } from '../utils';
+import type { AssignmentMap } from '../types';
+import type { WeekDay } from '../types';
+import type { ShiftType } from '@/generated/prisma/client';
+import type { EmployeeSummary, FullCapacityRules } from '@/features/court-settings/types';
 import { Position } from '@/generated/prisma/enums';
 
 type Props = {
   shiftType: ShiftType;
   weekDays: WeekDay[];
   assignments: AssignmentMap;
-  guards: GuardSummary[];
+  guards: EmployeeSummary[];
+  capacity: FullCapacityRules;
+  scheduleId: string | null;
+  periodId: string;
+  courtId: string;
+  readonly?: boolean;
+};
+type ShiftSectionProps = {
+  shiftType: ShiftType;
+  weekDays: WeekDay[];
+  assignments: AssignmentMap;
+  guards: EmployeeSummary[];
   capacity: FullCapacityRules;
   scheduleId: string | null;
   periodId: string;
@@ -49,17 +62,8 @@ const SHIFT_STYLES: Record<ShiftType, { header: string; label: string; emoji: st
   NIGHT: { header: 'bg-[#4c1d95]', label: 'לילה', emoji: '🌙' },
 };
 
-export function ShiftSection({
-  shiftType,
-  weekDays,
-  assignments,
-  guards,
-  capacity,
-  scheduleId,
-  periodId,
-  courtId,
-  readonly = false,
-}: Props) {
+export function ShiftSection({ ...props }: ShiftSectionProps) {
+  const { shiftType, weekDays, assignments, guards, capacity, scheduleId, periodId, courtId, readonly } = props;
   const style = SHIFT_STYLES[shiftType];
   const sortedDays = [...weekDays].sort((a, b) => a.dayOfWeek - b.dayOfWeek);
 

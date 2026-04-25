@@ -4,10 +4,10 @@ import { useState, useRef, useEffect } from 'react';
 import { createPortal } from 'react-dom';
 import { X } from 'lucide-react';
 import { cn } from '@/lib/utils';
-import type { GuardSummary } from '../types';
+import type { EmployeeSummary } from '../../court-settings/types';
 
 type Props = {
-  guards: GuardSummary[];
+  guards: EmployeeSummary[];
   currentUserId: string | null;
   anchorRect: DOMRect;
   onSelect: (guardId: string) => void;

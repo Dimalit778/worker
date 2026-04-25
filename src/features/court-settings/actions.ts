@@ -5,72 +5,7 @@ import { prisma } from '@/lib/db/client';
 import { requireSession } from '@/lib/db/auth-helpers';
 import { DayCategory, Position, ShiftType, SystemRole } from '@/generated/prisma/client';
 import { parseISODateToUtcMidnight } from '@/features/schedules/utils';
-import type { AssignGuardParams, CapacityMap, FullCapacityRules } from './types';
-
-// = להוסיף מאבטח לשיבוץ
-export async function assignGuard(params: AssignGuardParams): Promise<{ scheduleId: string }> {
-  const session = await requireSession(SystemRole.MANAGER);
-
-  const {
-    scheduleId: incomingScheduleId,
-    periodId,
-    userId,
-    courtId,
-    date,
-    shiftType,
-    position,
-    slotIndex,
-    isOpeningDuty,
-  } = params;
-
-  let scheduleId = incomingScheduleId;
-
-  if (!scheduleId) {
-    const schedule = await prisma.schedule.create({
-      data: { periodId, generatedById: session.user.id },
-    });
-    scheduleId = schedule.id;
-  }
-
-  await prisma.shiftAssignment.create({
-    data: {
-      scheduleId,
-      employeeId: userId,
-      date: parseISODateToUtcMidnight(date),
-      shiftType,
-      position,
-      slotIndex,
-      isOpeningDuty,
-      isManualOverride: true,
-    },
-  });
-
-  revalidatePath('/manager/shifts');
-  revalidatePath('/manager/draft');
-  return { scheduleId };
-}
-// = להחליף מאבטח בשיבוץ
-export async function reassignGuard(assignmentId: string, newUserId: string): Promise<void> {
-  await requireSession(SystemRole.MANAGER);
-
-  await prisma.shiftAssignment.update({
-    where: { id: assignmentId },
-    data: { employeeId: newUserId },
-  });
-
-  revalidatePath('/manager/shifts');
-  revalidatePath('/manager/draft');
-}
-// = להוריד מאבטח משיבוץ
-export async function removeAssignment(assignmentId: string): Promise<void> {
-  await requireSession(SystemRole.MANAGER);
-
-  await prisma.shiftAssignment.delete({ where: { id: assignmentId } });
-
-  revalidatePath('/manager/shifts');
-  revalidatePath('/manager/draft');
-}
-
+import type { FullCapacityRules, CapacityMap } from './types';
 // = לעדכן כללי תקנים במשמרת
 export async function upsertCapacityRules(rules: FullCapacityRules): Promise<{ ok: true } | { error: string }> {
   const session = await requireSession(SystemRole.MANAGER);
@@ -97,22 +32,17 @@ export async function upsertCapacityRules(rules: FullCapacityRules): Promise<{ o
       for (const { map, dayCategory } of dayEntries) {
         for (const shiftType of shiftTypes) {
           const requiredCount = map[shiftType];
-          await tx.courtShiftRule.upsert({
+          await tx.courtShiftRole.upsert({
             where: {
-              courtId_shiftType_dayCategory_position: {
-                courtId,
-                shiftType,
-                dayCategory,
-                position: Position.GUARD,
-              },
+              courtId_code_shiftType: { courtId, code: shiftType, shiftType },
             },
-            update: { requiredCount },
+            update: { isActive: true },
             create: {
               courtId,
+              code: shiftType,
+              name: shiftType,
               shiftType,
-              dayCategory,
-              position: Position.GUARD,
-              requiredCount,
+              isActive: true,
               displayOrder: 0,
             },
           });
@@ -128,39 +58,28 @@ export async function upsertCapacityRules(rules: FullCapacityRules): Promise<{ o
   return { ok: true };
 }
 
-export type AddShiftRuleParams = {
-  shiftType: ShiftType;
-  dayCategory: DayCategory;
-  position: Position;
-  requiredCount: number;
-};
-
 // = להוסיף כלל משמרת
 export async function addCourtShiftRule(
-  params: AddShiftRuleParams,
+  shiftType: ShiftType,
+  dayCategory: DayCategory,
+  position: Position,
+  requiredCount: number,
 ): Promise<{ ok: true; id: string } | { error: string }> {
   const session = await requireSession(SystemRole.MANAGER);
   const courtId = session.user.courtId;
   if (!courtId) return { error: 'למנהל אין בית משפט משויך' };
 
-  const { shiftType, dayCategory, position, requiredCount } = params;
   if (!Number.isInteger(requiredCount) || requiredCount < 0 || requiredCount > 999) {
     return { error: 'ערך קיבולת לא תקין' };
   }
 
-  const existing = await prisma.courtShiftRule.findUnique({
-    where: { courtId_shiftType_dayCategory_position: { courtId, shiftType, dayCategory, position } },
+  const existing = await prisma.courtShiftRole.findUnique({
+    where: { courtId_code_shiftType: { courtId, code: shiftType, shiftType } },
   });
   if (existing) return { error: 'כלל עם אותן הגדרות כבר קיים' };
 
-  const maxOrder = await prisma.courtShiftRule.aggregate({
-    where: { courtId, dayCategory, shiftType },
-    _max: { displayOrder: true },
-  });
-  const displayOrder = (maxOrder._max.displayOrder ?? -1) + 1;
-
-  const rule = await prisma.courtShiftRule.create({
-    data: { courtId, shiftType, dayCategory, position, requiredCount, displayOrder },
+  const rule = await prisma.courtShiftRole.create({
+    data: { courtId, code: shiftType, name: shiftType, shiftType, isActive: true, displayOrder: 0 },
   });
 
   revalidatePath('/manager/settings');
@@ -181,10 +100,10 @@ export async function updateCourtShiftRule(
     return { error: 'ערך קיבולת לא תקין' };
   }
 
-  const rule = await prisma.courtShiftRule.findUnique({ where: { id } });
+  const rule = await prisma.courtShiftRole.findUnique({ where: { id } });
   if (!rule || rule.courtId !== courtId) return { error: 'כלל לא נמצא' };
 
-  await prisma.courtShiftRule.update({ where: { id }, data: { requiredCount } });
+  await prisma.courtShiftRole.update({ where: { id }, data: { isActive: true } });
 
   revalidatePath('/manager/settings');
   revalidatePath('/manager/shifts');
@@ -197,10 +116,10 @@ export async function deleteCourtShiftRule(id: string): Promise<{ ok: true } | {
   const courtId = session.user.courtId;
   if (!courtId) return { error: 'למנהל אין בית משפט משויך' };
 
-  const rule = await prisma.courtShiftRule.findUnique({ where: { id } });
+  const rule = await prisma.courtShiftRole.findUnique({ where: { id } });
   if (!rule || rule.courtId !== courtId) return { error: 'כלל לא נמצא' };
 
-  await prisma.courtShiftRule.delete({ where: { id } });
+  await prisma.courtShiftRole.delete({ where: { id } });
 
   revalidatePath('/manager/settings');
   revalidatePath('/manager/shifts');

@@ -1,13 +1,13 @@
 import { requireSession } from '@/lib/db/auth-helpers';
 import { SystemRole } from '@/generated/prisma/client';
-import { getShiftsPageData } from '@/features/shifts/queries';
-import { ShiftsGrid } from '@/features/shifts/components/shifts-grid';
+import { getSchedulePageData } from '@/features/shift-assignments/queries';
+import { Schedule } from '@/features/shift-assignments/components/schedule';
 
-export default async function ManagerShiftsPage() {
+export default async function ManagerSchedulePage() {
   const session = await requireSession(SystemRole.MANAGER);
   const courtId = session.user.courtId ?? '';
 
-  const data = await getShiftsPageData(courtId, { includeGuards: true });
+  const data = await getSchedulePageData(courtId, { includeGuards: true });
 
   if (!data.found) {
     return (
@@ -18,5 +18,5 @@ export default async function ManagerShiftsPage() {
     );
   }
 
-  return <ShiftsGrid {...data} />;
+  return <Schedule {...data} />;
 }

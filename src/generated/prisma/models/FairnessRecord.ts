@@ -32,7 +32,6 @@ export type FairnessRecordAvgAggregateOutputType = {
   eveningShifts: number | null
   nightShifts: number | null
   weekendShifts: number | null
-  openingDuties: number | null
 }
 
 export type FairnessRecordSumAggregateOutputType = {
@@ -41,7 +40,6 @@ export type FairnessRecordSumAggregateOutputType = {
   eveningShifts: number | null
   nightShifts: number | null
   weekendShifts: number | null
-  openingDuties: number | null
 }
 
 export type FairnessRecordMinAggregateOutputType = {
@@ -53,7 +51,6 @@ export type FairnessRecordMinAggregateOutputType = {
   eveningShifts: number | null
   nightShifts: number | null
   weekendShifts: number | null
-  openingDuties: number | null
   createdAt: Date | null
   updatedAt: Date | null
 }
@@ -67,7 +64,6 @@ export type FairnessRecordMaxAggregateOutputType = {
   eveningShifts: number | null
   nightShifts: number | null
   weekendShifts: number | null
-  openingDuties: number | null
   createdAt: Date | null
   updatedAt: Date | null
 }
@@ -81,7 +77,6 @@ export type FairnessRecordCountAggregateOutputType = {
   eveningShifts: number
   nightShifts: number
   weekendShifts: number
-  openingDuties: number
   createdAt: number
   updatedAt: number
   _all: number
@@ -94,7 +89,6 @@ export type FairnessRecordAvgAggregateInputType = {
   eveningShifts?: true
   nightShifts?: true
   weekendShifts?: true
-  openingDuties?: true
 }
 
 export type FairnessRecordSumAggregateInputType = {
@@ -103,7 +97,6 @@ export type FairnessRecordSumAggregateInputType = {
   eveningShifts?: true
   nightShifts?: true
   weekendShifts?: true
-  openingDuties?: true
 }
 
 export type FairnessRecordMinAggregateInputType = {
@@ -115,7 +108,6 @@ export type FairnessRecordMinAggregateInputType = {
   eveningShifts?: true
   nightShifts?: true
   weekendShifts?: true
-  openingDuties?: true
   createdAt?: true
   updatedAt?: true
 }
@@ -129,7 +121,6 @@ export type FairnessRecordMaxAggregateInputType = {
   eveningShifts?: true
   nightShifts?: true
   weekendShifts?: true
-  openingDuties?: true
   createdAt?: true
   updatedAt?: true
 }
@@ -143,7 +134,6 @@ export type FairnessRecordCountAggregateInputType = {
   eveningShifts?: true
   nightShifts?: true
   weekendShifts?: true
-  openingDuties?: true
   createdAt?: true
   updatedAt?: true
   _all?: true
@@ -244,7 +234,6 @@ export type FairnessRecordGroupByOutputType = {
   eveningShifts: number
   nightShifts: number
   weekendShifts: number
-  openingDuties: number
   createdAt: Date
   updatedAt: Date
   _count: FairnessRecordCountAggregateOutputType | null
@@ -281,11 +270,10 @@ export type FairnessRecordWhereInput = {
   eveningShifts?: Prisma.IntFilter<"FairnessRecord"> | number
   nightShifts?: Prisma.IntFilter<"FairnessRecord"> | number
   weekendShifts?: Prisma.IntFilter<"FairnessRecord"> | number
-  openingDuties?: Prisma.IntFilter<"FairnessRecord"> | number
   createdAt?: Prisma.DateTimeFilter<"FairnessRecord"> | Date | string
   updatedAt?: Prisma.DateTimeFilter<"FairnessRecord"> | Date | string
   employee?: Prisma.XOR<Prisma.EmployeeScalarRelationFilter, Prisma.EmployeeWhereInput>
-  period?: Prisma.XOR<Prisma.SchedulingPeriodScalarRelationFilter, Prisma.SchedulingPeriodWhereInput>
+  period?: Prisma.XOR<Prisma.SchedulePeriodScalarRelationFilter, Prisma.SchedulePeriodWhereInput>
 }
 
 export type FairnessRecordOrderByWithRelationInput = {
@@ -297,11 +285,10 @@ export type FairnessRecordOrderByWithRelationInput = {
   eveningShifts?: Prisma.SortOrder
   nightShifts?: Prisma.SortOrder
   weekendShifts?: Prisma.SortOrder
-  openingDuties?: Prisma.SortOrder
   createdAt?: Prisma.SortOrder
   updatedAt?: Prisma.SortOrder
   employee?: Prisma.EmployeeOrderByWithRelationInput
-  period?: Prisma.SchedulingPeriodOrderByWithRelationInput
+  period?: Prisma.SchedulePeriodOrderByWithRelationInput
 }
 
 export type FairnessRecordWhereUniqueInput = Prisma.AtLeast<{
@@ -317,11 +304,10 @@ export type FairnessRecordWhereUniqueInput = Prisma.AtLeast<{
   eveningShifts?: Prisma.IntFilter<"FairnessRecord"> | number
   nightShifts?: Prisma.IntFilter<"FairnessRecord"> | number
   weekendShifts?: Prisma.IntFilter<"FairnessRecord"> | number
-  openingDuties?: Prisma.IntFilter<"FairnessRecord"> | number
   createdAt?: Prisma.DateTimeFilter<"FairnessRecord"> | Date | string
   updatedAt?: Prisma.DateTimeFilter<"FairnessRecord"> | Date | string
   employee?: Prisma.XOR<Prisma.EmployeeScalarRelationFilter, Prisma.EmployeeWhereInput>
-  period?: Prisma.XOR<Prisma.SchedulingPeriodScalarRelationFilter, Prisma.SchedulingPeriodWhereInput>
+  period?: Prisma.XOR<Prisma.SchedulePeriodScalarRelationFilter, Prisma.SchedulePeriodWhereInput>
 }, "id" | "employeeId_periodId">
 
 export type FairnessRecordOrderByWithAggregationInput = {
@@ -333,7 +319,6 @@ export type FairnessRecordOrderByWithAggregationInput = {
   eveningShifts?: Prisma.SortOrder
   nightShifts?: Prisma.SortOrder
   weekendShifts?: Prisma.SortOrder
-  openingDuties?: Prisma.SortOrder
   createdAt?: Prisma.SortOrder
   updatedAt?: Prisma.SortOrder
   _count?: Prisma.FairnessRecordCountOrderByAggregateInput
@@ -355,7 +340,6 @@ export type FairnessRecordScalarWhereWithAggregatesInput = {
   eveningShifts?: Prisma.IntWithAggregatesFilter<"FairnessRecord"> | number
   nightShifts?: Prisma.IntWithAggregatesFilter<"FairnessRecord"> | number
   weekendShifts?: Prisma.IntWithAggregatesFilter<"FairnessRecord"> | number
-  openingDuties?: Prisma.IntWithAggregatesFilter<"FairnessRecord"> | number
   createdAt?: Prisma.DateTimeWithAggregatesFilter<"FairnessRecord"> | Date | string
   updatedAt?: Prisma.DateTimeWithAggregatesFilter<"FairnessRecord"> | Date | string
 }
@@ -367,11 +351,10 @@ export type FairnessRecordCreateInput = {
   eveningShifts?: number
   nightShifts?: number
   weekendShifts?: number
-  openingDuties?: number
   createdAt?: Date | string
   updatedAt?: Date | string
   employee: Prisma.EmployeeCreateNestedOneWithoutFairnessRecordsInput
-  period: Prisma.SchedulingPeriodCreateNestedOneWithoutFairnessRecordsInput
+  period: Prisma.SchedulePeriodCreateNestedOneWithoutFairnessRecordsInput
 }
 
 export type FairnessRecordUncheckedCreateInput = {
@@ -383,7 +366,6 @@ export type FairnessRecordUncheckedCreateInput = {
   eveningShifts?: number
   nightShifts?: number
   weekendShifts?: number
-  openingDuties?: number
   createdAt?: Date | string
   updatedAt?: Date | string
 }
@@ -395,11 +377,10 @@ export type FairnessRecordUpdateInput = {
   eveningShifts?: Prisma.IntFieldUpdateOperationsInput | number
   nightShifts?: Prisma.IntFieldUpdateOperationsInput | number
   weekendShifts?: Prisma.IntFieldUpdateOperationsInput | number
-  openingDuties?: Prisma.IntFieldUpdateOperationsInput | number
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   employee?: Prisma.EmployeeUpdateOneRequiredWithoutFairnessRecordsNestedInput
-  period?: Prisma.SchedulingPeriodUpdateOneRequiredWithoutFairnessRecordsNestedInput
+  period?: Prisma.SchedulePeriodUpdateOneRequiredWithoutFairnessRecordsNestedInput
 }
 
 export type FairnessRecordUncheckedUpdateInput = {
@@ -411,7 +392,6 @@ export type FairnessRecordUncheckedUpdateInput = {
   eveningShifts?: Prisma.IntFieldUpdateOperationsInput | number
   nightShifts?: Prisma.IntFieldUpdateOperationsInput | number
   weekendShifts?: Prisma.IntFieldUpdateOperationsInput | number
-  openingDuties?: Prisma.IntFieldUpdateOperationsInput | number
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
 }
@@ -425,7 +405,6 @@ export type FairnessRecordCreateManyInput = {
   eveningShifts?: number
   nightShifts?: number
   weekendShifts?: number
-  openingDuties?: number
   createdAt?: Date | string
   updatedAt?: Date | string
 }
@@ -437,7 +416,6 @@ export type FairnessRecordUpdateManyMutationInput = {
   eveningShifts?: Prisma.IntFieldUpdateOperationsInput | number
   nightShifts?: Prisma.IntFieldUpdateOperationsInput | number
   weekendShifts?: Prisma.IntFieldUpdateOperationsInput | number
-  openingDuties?: Prisma.IntFieldUpdateOperationsInput | number
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
 }
@@ -451,7 +429,6 @@ export type FairnessRecordUncheckedUpdateManyInput = {
   eveningShifts?: Prisma.IntFieldUpdateOperationsInput | number
   nightShifts?: Prisma.IntFieldUpdateOperationsInput | number
   weekendShifts?: Prisma.IntFieldUpdateOperationsInput | number
-  openingDuties?: Prisma.IntFieldUpdateOperationsInput | number
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
 }
@@ -480,7 +457,6 @@ export type FairnessRecordCountOrderByAggregateInput = {
   eveningShifts?: Prisma.SortOrder
   nightShifts?: Prisma.SortOrder
   weekendShifts?: Prisma.SortOrder
-  openingDuties?: Prisma.SortOrder
   createdAt?: Prisma.SortOrder
   updatedAt?: Prisma.SortOrder
 }
@@ -491,7 +467,6 @@ export type FairnessRecordAvgOrderByAggregateInput = {
   eveningShifts?: Prisma.SortOrder
   nightShifts?: Prisma.SortOrder
   weekendShifts?: Prisma.SortOrder
-  openingDuties?: Prisma.SortOrder
 }
 
 export type FairnessRecordMaxOrderByAggregateInput = {
@@ -503,7 +478,6 @@ export type FairnessRecordMaxOrderByAggregateInput = {
   eveningShifts?: Prisma.SortOrder
   nightShifts?: Prisma.SortOrder
   weekendShifts?: Prisma.SortOrder
-  openingDuties?: Prisma.SortOrder
   createdAt?: Prisma.SortOrder
   updatedAt?: Prisma.SortOrder
 }
@@ -517,7 +491,6 @@ export type FairnessRecordMinOrderByAggregateInput = {
   eveningShifts?: Prisma.SortOrder
   nightShifts?: Prisma.SortOrder
   weekendShifts?: Prisma.SortOrder
-  openingDuties?: Prisma.SortOrder
   createdAt?: Prisma.SortOrder
   updatedAt?: Prisma.SortOrder
 }
@@ -528,7 +501,6 @@ export type FairnessRecordSumOrderByAggregateInput = {
   eveningShifts?: Prisma.SortOrder
   nightShifts?: Prisma.SortOrder
   weekendShifts?: Prisma.SortOrder
-  openingDuties?: Prisma.SortOrder
 }
 
 export type FairnessRecordCreateNestedManyWithoutEmployeeInput = {
@@ -622,10 +594,9 @@ export type FairnessRecordCreateWithoutEmployeeInput = {
   eveningShifts?: number
   nightShifts?: number
   weekendShifts?: number
-  openingDuties?: number
   createdAt?: Date | string
   updatedAt?: Date | string
-  period: Prisma.SchedulingPeriodCreateNestedOneWithoutFairnessRecordsInput
+  period: Prisma.SchedulePeriodCreateNestedOneWithoutFairnessRecordsInput
 }
 
 export type FairnessRecordUncheckedCreateWithoutEmployeeInput = {
@@ -636,7 +607,6 @@ export type FairnessRecordUncheckedCreateWithoutEmployeeInput = {
   eveningShifts?: number
   nightShifts?: number
   weekendShifts?: number
-  openingDuties?: number
   createdAt?: Date | string
   updatedAt?: Date | string
 }
@@ -679,7 +649,6 @@ export type FairnessRecordScalarWhereInput = {
   eveningShifts?: Prisma.IntFilter<"FairnessRecord"> | number
   nightShifts?: Prisma.IntFilter<"FairnessRecord"> | number
   weekendShifts?: Prisma.IntFilter<"FairnessRecord"> | number
-  openingDuties?: Prisma.IntFilter<"FairnessRecord"> | number
   createdAt?: Prisma.DateTimeFilter<"FairnessRecord"> | Date | string
   updatedAt?: Prisma.DateTimeFilter<"FairnessRecord"> | Date | string
 }
@@ -691,7 +660,6 @@ export type FairnessRecordCreateWithoutPeriodInput = {
   eveningShifts?: number
   nightShifts?: number
   weekendShifts?: number
-  openingDuties?: number
   createdAt?: Date | string
   updatedAt?: Date | string
   employee: Prisma.EmployeeCreateNestedOneWithoutFairnessRecordsInput
@@ -705,7 +673,6 @@ export type FairnessRecordUncheckedCreateWithoutPeriodInput = {
   eveningShifts?: number
   nightShifts?: number
   weekendShifts?: number
-  openingDuties?: number
   createdAt?: Date | string
   updatedAt?: Date | string
 }
@@ -744,7 +711,6 @@ export type FairnessRecordCreateManyEmployeeInput = {
   eveningShifts?: number
   nightShifts?: number
   weekendShifts?: number
-  openingDuties?: number
   createdAt?: Date | string
   updatedAt?: Date | string
 }
@@ -756,10 +722,9 @@ export type FairnessRecordUpdateWithoutEmployeeInput = {
   eveningShifts?: Prisma.IntFieldUpdateOperationsInput | number
   nightShifts?: Prisma.IntFieldUpdateOperationsInput | number
   weekendShifts?: Prisma.IntFieldUpdateOperationsInput | number
-  openingDuties?: Prisma.IntFieldUpdateOperationsInput | number
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
-  period?: Prisma.SchedulingPeriodUpdateOneRequiredWithoutFairnessRecordsNestedInput
+  period?: Prisma.SchedulePeriodUpdateOneRequiredWithoutFairnessRecordsNestedInput
 }
 
 export type FairnessRecordUncheckedUpdateWithoutEmployeeInput = {
@@ -770,7 +735,6 @@ export type FairnessRecordUncheckedUpdateWithoutEmployeeInput = {
   eveningShifts?: Prisma.IntFieldUpdateOperationsInput | number
   nightShifts?: Prisma.IntFieldUpdateOperationsInput | number
   weekendShifts?: Prisma.IntFieldUpdateOperationsInput | number
-  openingDuties?: Prisma.IntFieldUpdateOperationsInput | number
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
 }
@@ -783,7 +747,6 @@ export type FairnessRecordUncheckedUpdateManyWithoutEmployeeInput = {
   eveningShifts?: Prisma.IntFieldUpdateOperationsInput | number
   nightShifts?: Prisma.IntFieldUpdateOperationsInput | number
   weekendShifts?: Prisma.IntFieldUpdateOperationsInput | number
-  openingDuties?: Prisma.IntFieldUpdateOperationsInput | number
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
 }
@@ -796,7 +759,6 @@ export type FairnessRecordCreateManyPeriodInput = {
   eveningShifts?: number
   nightShifts?: number
   weekendShifts?: number
-  openingDuties?: number
   createdAt?: Date | string
   updatedAt?: Date | string
 }
@@ -808,7 +770,6 @@ export type FairnessRecordUpdateWithoutPeriodInput = {
   eveningShifts?: Prisma.IntFieldUpdateOperationsInput | number
   nightShifts?: Prisma.IntFieldUpdateOperationsInput | number
   weekendShifts?: Prisma.IntFieldUpdateOperationsInput | number
-  openingDuties?: Prisma.IntFieldUpdateOperationsInput | number
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   employee?: Prisma.EmployeeUpdateOneRequiredWithoutFairnessRecordsNestedInput
@@ -822,7 +783,6 @@ export type FairnessRecordUncheckedUpdateWithoutPeriodInput = {
   eveningShifts?: Prisma.IntFieldUpdateOperationsInput | number
   nightShifts?: Prisma.IntFieldUpdateOperationsInput | number
   weekendShifts?: Prisma.IntFieldUpdateOperationsInput | number
-  openingDuties?: Prisma.IntFieldUpdateOperationsInput | number
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
 }
@@ -835,7 +795,6 @@ export type FairnessRecordUncheckedUpdateManyWithoutPeriodInput = {
   eveningShifts?: Prisma.IntFieldUpdateOperationsInput | number
   nightShifts?: Prisma.IntFieldUpdateOperationsInput | number
   weekendShifts?: Prisma.IntFieldUpdateOperationsInput | number
-  openingDuties?: Prisma.IntFieldUpdateOperationsInput | number
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
 }
@@ -851,11 +810,10 @@ export type FairnessRecordSelect<ExtArgs extends runtime.Types.Extensions.Intern
   eveningShifts?: boolean
   nightShifts?: boolean
   weekendShifts?: boolean
-  openingDuties?: boolean
   createdAt?: boolean
   updatedAt?: boolean
   employee?: boolean | Prisma.EmployeeDefaultArgs<ExtArgs>
-  period?: boolean | Prisma.SchedulingPeriodDefaultArgs<ExtArgs>
+  period?: boolean | Prisma.SchedulePeriodDefaultArgs<ExtArgs>
 }, ExtArgs["result"]["fairnessRecord"]>
 
 export type FairnessRecordSelectCreateManyAndReturn<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetSelect<{
@@ -867,11 +825,10 @@ export type FairnessRecordSelectCreateManyAndReturn<ExtArgs extends runtime.Type
   eveningShifts?: boolean
   nightShifts?: boolean
   weekendShifts?: boolean
-  openingDuties?: boolean
   createdAt?: boolean
   updatedAt?: boolean
   employee?: boolean | Prisma.EmployeeDefaultArgs<ExtArgs>
-  period?: boolean | Prisma.SchedulingPeriodDefaultArgs<ExtArgs>
+  period?: boolean | Prisma.SchedulePeriodDefaultArgs<ExtArgs>
 }, ExtArgs["result"]["fairnessRecord"]>
 
 export type FairnessRecordSelectUpdateManyAndReturn<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetSelect<{
@@ -883,11 +840,10 @@ export type FairnessRecordSelectUpdateManyAndReturn<ExtArgs extends runtime.Type
   eveningShifts?: boolean
   nightShifts?: boolean
   weekendShifts?: boolean
-  openingDuties?: boolean
   createdAt?: boolean
   updatedAt?: boolean
   employee?: boolean | Prisma.EmployeeDefaultArgs<ExtArgs>
-  period?: boolean | Prisma.SchedulingPeriodDefaultArgs<ExtArgs>
+  period?: boolean | Prisma.SchedulePeriodDefaultArgs<ExtArgs>
 }, ExtArgs["result"]["fairnessRecord"]>
 
 export type FairnessRecordSelectScalar = {
@@ -899,30 +855,29 @@ export type FairnessRecordSelectScalar = {
   eveningShifts?: boolean
   nightShifts?: boolean
   weekendShifts?: boolean
-  openingDuties?: boolean
   createdAt?: boolean
   updatedAt?: boolean
 }
 
-export type FairnessRecordOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"id" | "employeeId" | "periodId" | "totalShifts" | "morningShifts" | "eveningShifts" | "nightShifts" | "weekendShifts" | "openingDuties" | "createdAt" | "updatedAt", ExtArgs["result"]["fairnessRecord"]>
+export type FairnessRecordOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"id" | "employeeId" | "periodId" | "totalShifts" | "morningShifts" | "eveningShifts" | "nightShifts" | "weekendShifts" | "createdAt" | "updatedAt", ExtArgs["result"]["fairnessRecord"]>
 export type FairnessRecordInclude<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
   employee?: boolean | Prisma.EmployeeDefaultArgs<ExtArgs>
-  period?: boolean | Prisma.SchedulingPeriodDefaultArgs<ExtArgs>
+  period?: boolean | Prisma.SchedulePeriodDefaultArgs<ExtArgs>
 }
 export type FairnessRecordIncludeCreateManyAndReturn<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
   employee?: boolean | Prisma.EmployeeDefaultArgs<ExtArgs>
-  period?: boolean | Prisma.SchedulingPeriodDefaultArgs<ExtArgs>
+  period?: boolean | Prisma.SchedulePeriodDefaultArgs<ExtArgs>
 }
 export type FairnessRecordIncludeUpdateManyAndReturn<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
   employee?: boolean | Prisma.EmployeeDefaultArgs<ExtArgs>
-  period?: boolean | Prisma.SchedulingPeriodDefaultArgs<ExtArgs>
+  period?: boolean | Prisma.SchedulePeriodDefaultArgs<ExtArgs>
 }
 
 export type $FairnessRecordPayload<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
   name: "FairnessRecord"
   objects: {
     employee: Prisma.$EmployeePayload<ExtArgs>
-    period: Prisma.$SchedulingPeriodPayload<ExtArgs>
+    period: Prisma.$SchedulePeriodPayload<ExtArgs>
   }
   scalars: runtime.Types.Extensions.GetPayloadResult<{
     id: string
@@ -933,7 +888,6 @@ export type $FairnessRecordPayload<ExtArgs extends runtime.Types.Extensions.Inte
     eveningShifts: number
     nightShifts: number
     weekendShifts: number
-    openingDuties: number
     createdAt: Date
     updatedAt: Date
   }, ExtArgs["result"]["fairnessRecord"]>
@@ -1331,7 +1285,7 @@ readonly fields: FairnessRecordFieldRefs;
 export interface Prisma__FairnessRecordClient<T, Null = never, ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs, GlobalOmitOptions = {}> extends Prisma.PrismaPromise<T> {
   readonly [Symbol.toStringTag]: "PrismaPromise"
   employee<T extends Prisma.EmployeeDefaultArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.EmployeeDefaultArgs<ExtArgs>>): Prisma.Prisma__EmployeeClient<runtime.Types.Result.GetResult<Prisma.$EmployeePayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions> | Null, Null, ExtArgs, GlobalOmitOptions>
-  period<T extends Prisma.SchedulingPeriodDefaultArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.SchedulingPeriodDefaultArgs<ExtArgs>>): Prisma.Prisma__SchedulingPeriodClient<runtime.Types.Result.GetResult<Prisma.$SchedulingPeriodPayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions> | Null, Null, ExtArgs, GlobalOmitOptions>
+  period<T extends Prisma.SchedulePeriodDefaultArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.SchedulePeriodDefaultArgs<ExtArgs>>): Prisma.Prisma__SchedulePeriodClient<runtime.Types.Result.GetResult<Prisma.$SchedulePeriodPayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions> | Null, Null, ExtArgs, GlobalOmitOptions>
   /**
    * Attaches callbacks for the resolution and/or rejection of the Promise.
    * @param onfulfilled The callback to execute when the Promise is resolved.
@@ -1369,7 +1323,6 @@ export interface FairnessRecordFieldRefs {
   readonly eveningShifts: Prisma.FieldRef<"FairnessRecord", 'Int'>
   readonly nightShifts: Prisma.FieldRef<"FairnessRecord", 'Int'>
   readonly weekendShifts: Prisma.FieldRef<"FairnessRecord", 'Int'>
-  readonly openingDuties: Prisma.FieldRef<"FairnessRecord", 'Int'>
   readonly createdAt: Prisma.FieldRef<"FairnessRecord", 'DateTime'>
   readonly updatedAt: Prisma.FieldRef<"FairnessRecord", 'DateTime'>
 }

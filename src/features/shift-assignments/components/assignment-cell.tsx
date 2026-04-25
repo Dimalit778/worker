@@ -4,14 +4,16 @@ import { useState, useTransition, useRef } from 'react';
 import { useRouter } from 'next/navigation';
 import { cn } from '@/lib/utils';
 import { GuardPicker } from './guard-picker';
-import { assignGuard, reassignGuard, removeAssignment } from '@/features/shifts/actions';
-import type { AssignmentSummary, GuardSummary, ShiftType } from '../types';
+import { assignGuard, reassignGuard, removeAssignment } from '@/features/shift-assignments/actions';
+import type { AssignmentSummary } from '@/features/shift-assignments/types';
+import type { ShiftType } from '@/generated/prisma/client';
 import type { Position } from '@/generated/prisma/client';
+import type { EmployeeSummary } from '@/features/court-settings/types';
 
 type Props = {
   closed?: boolean;
   assignment: AssignmentSummary | null;
-  guards: GuardSummary[];
+  guards: EmployeeSummary[];
   scheduleId: string | null;
   periodId: string;
   courtId: string;
@@ -50,7 +52,7 @@ export function AssignmentCell({
   if (readonly) {
     return (
       <td className="relative border border-border text-center text-xs min-w-[62px] h-[26px] px-1">
-        <span className="truncate block max-w-[58px] mx-auto">{assignment?.userName ?? ''}</span>
+        <span className="truncate block max-w-[58px] mx-auto">{assignment?.employeeName ?? ''}</span>
       </td>
     );
   }
@@ -61,7 +63,15 @@ export function AssignmentCell({
       if (assignment) {
         await reassignGuard(assignment.id, guardId);
       } else {
-        await assignGuard({ scheduleId, periodId, userId: guardId, courtId, date, shiftType, position, slotIndex, isOpeningDuty });
+        await assignGuard({
+          scheduleId,
+          periodId,
+          employeeId: guardId,
+          courtId,
+          courtShiftRoleId: guardId,
+          date,
+          slotIndex,
+        });
       }
       router.refresh();
     });
@@ -93,12 +103,12 @@ export function AssignmentCell({
         setOpen((v) => !v);
       }}
     >
-      <span className="truncate block max-w-[58px] mx-auto">{assignment?.userName ?? ''}</span>
+      <span className="truncate block max-w-[58px] mx-auto">{assignment?.employeeName ?? ''}</span>
 
       {open && anchorRect && (
         <GuardPicker
           guards={guards}
-          currentUserId={assignment?.userId ?? null}
+          currentUserId={assignment?.employeeId ?? null}
           anchorRect={anchorRect}
           onSelect={handleSelect}
           onRemove={handleRemove}

@@ -4,9 +4,9 @@ import { useState } from 'react';
 import { WeekNavigator } from './week-navigator';
 import { ShiftSection } from './shift-section';
 import { buildWeekDays } from '../utils';
-import type { ShiftsGridProps } from '../types';
+import type { ScheduleProps } from '../types';
 
-export function ShiftsGrid({
+export function Schedule({
   periodId,
   startDate,
   scheduleId,
@@ -15,7 +15,7 @@ export function ShiftsGrid({
   capacity,
   courtId,
   readonly = false,
-}: ShiftsGridProps) {
+}: ScheduleProps) {
   const [weekIndex, setWeekIndex] = useState(0);
   const weekDays = buildWeekDays(startDate, weekIndex);
 

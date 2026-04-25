@@ -207,8 +207,9 @@ export type UserWhereInput = {
   createdAt?: Prisma.DateTimeFilter<"User"> | Date | string
   updatedAt?: Prisma.DateTimeFilter<"User"> | Date | string
   employee?: Prisma.XOR<Prisma.EmployeeNullableScalarRelationFilter, Prisma.EmployeeWhereInput> | null
-  periodsCreated?: Prisma.SchedulingPeriodListRelationFilter
+  periodsCreated?: Prisma.SchedulePeriodListRelationFilter
   schedulesGenerated?: Prisma.ScheduleListRelationFilter
+  scheduleChanges?: Prisma.ScheduleChangeLogListRelationFilter
   accounts?: Prisma.AccountListRelationFilter
   sessions?: Prisma.SessionListRelationFilter
 }
@@ -223,8 +224,9 @@ export type UserOrderByWithRelationInput = {
   createdAt?: Prisma.SortOrder
   updatedAt?: Prisma.SortOrder
   employee?: Prisma.EmployeeOrderByWithRelationInput
-  periodsCreated?: Prisma.SchedulingPeriodOrderByRelationAggregateInput
+  periodsCreated?: Prisma.SchedulePeriodOrderByRelationAggregateInput
   schedulesGenerated?: Prisma.ScheduleOrderByRelationAggregateInput
+  scheduleChanges?: Prisma.ScheduleChangeLogOrderByRelationAggregateInput
   accounts?: Prisma.AccountOrderByRelationAggregateInput
   sessions?: Prisma.SessionOrderByRelationAggregateInput
 }
@@ -242,8 +244,9 @@ export type UserWhereUniqueInput = Prisma.AtLeast<{
   createdAt?: Prisma.DateTimeFilter<"User"> | Date | string
   updatedAt?: Prisma.DateTimeFilter<"User"> | Date | string
   employee?: Prisma.XOR<Prisma.EmployeeNullableScalarRelationFilter, Prisma.EmployeeWhereInput> | null
-  periodsCreated?: Prisma.SchedulingPeriodListRelationFilter
+  periodsCreated?: Prisma.SchedulePeriodListRelationFilter
   schedulesGenerated?: Prisma.ScheduleListRelationFilter
+  scheduleChanges?: Prisma.ScheduleChangeLogListRelationFilter
   accounts?: Prisma.AccountListRelationFilter
   sessions?: Prisma.SessionListRelationFilter
 }, "id" | "email" | "employeeId">
@@ -285,8 +288,9 @@ export type UserCreateInput = {
   createdAt?: Date | string
   updatedAt?: Date | string
   employee?: Prisma.EmployeeCreateNestedOneWithoutUserInput
-  periodsCreated?: Prisma.SchedulingPeriodCreateNestedManyWithoutCreatedByInput
+  periodsCreated?: Prisma.SchedulePeriodCreateNestedManyWithoutCreatedByInput
   schedulesGenerated?: Prisma.ScheduleCreateNestedManyWithoutGeneratedByInput
+  scheduleChanges?: Prisma.ScheduleChangeLogCreateNestedManyWithoutChangedByInput
   accounts?: Prisma.AccountCreateNestedManyWithoutUserInput
   sessions?: Prisma.SessionCreateNestedManyWithoutUserInput
 }
@@ -300,8 +304,9 @@ export type UserUncheckedCreateInput = {
   employeeId?: string | null
   createdAt?: Date | string
   updatedAt?: Date | string
-  periodsCreated?: Prisma.SchedulingPeriodUncheckedCreateNestedManyWithoutCreatedByInput
+  periodsCreated?: Prisma.SchedulePeriodUncheckedCreateNestedManyWithoutCreatedByInput
   schedulesGenerated?: Prisma.ScheduleUncheckedCreateNestedManyWithoutGeneratedByInput
+  scheduleChanges?: Prisma.ScheduleChangeLogUncheckedCreateNestedManyWithoutChangedByInput
   accounts?: Prisma.AccountUncheckedCreateNestedManyWithoutUserInput
   sessions?: Prisma.SessionUncheckedCreateNestedManyWithoutUserInput
 }
@@ -315,8 +320,9 @@ export type UserUpdateInput = {
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   employee?: Prisma.EmployeeUpdateOneWithoutUserNestedInput
-  periodsCreated?: Prisma.SchedulingPeriodUpdateManyWithoutCreatedByNestedInput
+  periodsCreated?: Prisma.SchedulePeriodUpdateManyWithoutCreatedByNestedInput
   schedulesGenerated?: Prisma.ScheduleUpdateManyWithoutGeneratedByNestedInput
+  scheduleChanges?: Prisma.ScheduleChangeLogUpdateManyWithoutChangedByNestedInput
   accounts?: Prisma.AccountUpdateManyWithoutUserNestedInput
   sessions?: Prisma.SessionUpdateManyWithoutUserNestedInput
 }
@@ -330,8 +336,9 @@ export type UserUncheckedUpdateInput = {
   employeeId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
-  periodsCreated?: Prisma.SchedulingPeriodUncheckedUpdateManyWithoutCreatedByNestedInput
+  periodsCreated?: Prisma.SchedulePeriodUncheckedUpdateManyWithoutCreatedByNestedInput
   schedulesGenerated?: Prisma.ScheduleUncheckedUpdateManyWithoutGeneratedByNestedInput
+  scheduleChanges?: Prisma.ScheduleChangeLogUncheckedUpdateManyWithoutChangedByNestedInput
   accounts?: Prisma.AccountUncheckedUpdateManyWithoutUserNestedInput
   sessions?: Prisma.SessionUncheckedUpdateManyWithoutUserNestedInput
 }
@@ -507,6 +514,20 @@ export type UserUpdateOneRequiredWithoutSchedulesGeneratedNestedInput = {
   update?: Prisma.XOR<Prisma.XOR<Prisma.UserUpdateToOneWithWhereWithoutSchedulesGeneratedInput, Prisma.UserUpdateWithoutSchedulesGeneratedInput>, Prisma.UserUncheckedUpdateWithoutSchedulesGeneratedInput>
 }
 
+export type UserCreateNestedOneWithoutScheduleChangesInput = {
+  create?: Prisma.XOR<Prisma.UserCreateWithoutScheduleChangesInput, Prisma.UserUncheckedCreateWithoutScheduleChangesInput>
+  connectOrCreate?: Prisma.UserCreateOrConnectWithoutScheduleChangesInput
+  connect?: Prisma.UserWhereUniqueInput
+}
+
+export type UserUpdateOneRequiredWithoutScheduleChangesNestedInput = {
+  create?: Prisma.XOR<Prisma.UserCreateWithoutScheduleChangesInput, Prisma.UserUncheckedCreateWithoutScheduleChangesInput>
+  connectOrCreate?: Prisma.UserCreateOrConnectWithoutScheduleChangesInput
+  upsert?: Prisma.UserUpsertWithoutScheduleChangesInput
+  connect?: Prisma.UserWhereUniqueInput
+  update?: Prisma.XOR<Prisma.XOR<Prisma.UserUpdateToOneWithWhereWithoutScheduleChangesInput, Prisma.UserUpdateWithoutScheduleChangesInput>, Prisma.UserUncheckedUpdateWithoutScheduleChangesInput>
+}
+
 export type UserCreateWithoutAccountsInput = {
   id?: string
   email: string
@@ -516,8 +537,9 @@ export type UserCreateWithoutAccountsInput = {
   createdAt?: Date | string
   updatedAt?: Date | string
   employee?: Prisma.EmployeeCreateNestedOneWithoutUserInput
-  periodsCreated?: Prisma.SchedulingPeriodCreateNestedManyWithoutCreatedByInput
+  periodsCreated?: Prisma.SchedulePeriodCreateNestedManyWithoutCreatedByInput
   schedulesGenerated?: Prisma.ScheduleCreateNestedManyWithoutGeneratedByInput
+  scheduleChanges?: Prisma.ScheduleChangeLogCreateNestedManyWithoutChangedByInput
   sessions?: Prisma.SessionCreateNestedManyWithoutUserInput
 }
 
@@ -530,8 +552,9 @@ export type UserUncheckedCreateWithoutAccountsInput = {
   employeeId?: string | null
   createdAt?: Date | string
   updatedAt?: Date | string
-  periodsCreated?: Prisma.SchedulingPeriodUncheckedCreateNestedManyWithoutCreatedByInput
+  periodsCreated?: Prisma.SchedulePeriodUncheckedCreateNestedManyWithoutCreatedByInput
   schedulesGenerated?: Prisma.ScheduleUncheckedCreateNestedManyWithoutGeneratedByInput
+  scheduleChanges?: Prisma.ScheduleChangeLogUncheckedCreateNestedManyWithoutChangedByInput
   sessions?: Prisma.SessionUncheckedCreateNestedManyWithoutUserInput
 }
 
@@ -560,8 +583,9 @@ export type UserUpdateWithoutAccountsInput = {
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   employee?: Prisma.EmployeeUpdateOneWithoutUserNestedInput
-  periodsCreated?: Prisma.SchedulingPeriodUpdateManyWithoutCreatedByNestedInput
+  periodsCreated?: Prisma.SchedulePeriodUpdateManyWithoutCreatedByNestedInput
   schedulesGenerated?: Prisma.ScheduleUpdateManyWithoutGeneratedByNestedInput
+  scheduleChanges?: Prisma.ScheduleChangeLogUpdateManyWithoutChangedByNestedInput
   sessions?: Prisma.SessionUpdateManyWithoutUserNestedInput
 }
 
@@ -574,8 +598,9 @@ export type UserUncheckedUpdateWithoutAccountsInput = {
   employeeId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
-  periodsCreated?: Prisma.SchedulingPeriodUncheckedUpdateManyWithoutCreatedByNestedInput
+  periodsCreated?: Prisma.SchedulePeriodUncheckedUpdateManyWithoutCreatedByNestedInput
   schedulesGenerated?: Prisma.ScheduleUncheckedUpdateManyWithoutGeneratedByNestedInput
+  scheduleChanges?: Prisma.ScheduleChangeLogUncheckedUpdateManyWithoutChangedByNestedInput
   sessions?: Prisma.SessionUncheckedUpdateManyWithoutUserNestedInput
 }
 
@@ -588,8 +613,9 @@ export type UserCreateWithoutSessionsInput = {
   createdAt?: Date | string
   updatedAt?: Date | string
   employee?: Prisma.EmployeeCreateNestedOneWithoutUserInput
-  periodsCreated?: Prisma.SchedulingPeriodCreateNestedManyWithoutCreatedByInput
+  periodsCreated?: Prisma.SchedulePeriodCreateNestedManyWithoutCreatedByInput
   schedulesGenerated?: Prisma.ScheduleCreateNestedManyWithoutGeneratedByInput
+  scheduleChanges?: Prisma.ScheduleChangeLogCreateNestedManyWithoutChangedByInput
   accounts?: Prisma.AccountCreateNestedManyWithoutUserInput
 }
 
@@ -602,8 +628,9 @@ export type UserUncheckedCreateWithoutSessionsInput = {
   employeeId?: string | null
   createdAt?: Date | string
   updatedAt?: Date | string
-  periodsCreated?: Prisma.SchedulingPeriodUncheckedCreateNestedManyWithoutCreatedByInput
+  periodsCreated?: Prisma.SchedulePeriodUncheckedCreateNestedManyWithoutCreatedByInput
   schedulesGenerated?: Prisma.ScheduleUncheckedCreateNestedManyWithoutGeneratedByInput
+  scheduleChanges?: Prisma.ScheduleChangeLogUncheckedCreateNestedManyWithoutChangedByInput
   accounts?: Prisma.AccountUncheckedCreateNestedManyWithoutUserInput
 }
 
@@ -632,8 +659,9 @@ export type UserUpdateWithoutSessionsInput = {
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   employee?: Prisma.EmployeeUpdateOneWithoutUserNestedInput
-  periodsCreated?: Prisma.SchedulingPeriodUpdateManyWithoutCreatedByNestedInput
+  periodsCreated?: Prisma.SchedulePeriodUpdateManyWithoutCreatedByNestedInput
   schedulesGenerated?: Prisma.ScheduleUpdateManyWithoutGeneratedByNestedInput
+  scheduleChanges?: Prisma.ScheduleChangeLogUpdateManyWithoutChangedByNestedInput
   accounts?: Prisma.AccountUpdateManyWithoutUserNestedInput
 }
 
@@ -646,8 +674,9 @@ export type UserUncheckedUpdateWithoutSessionsInput = {
   employeeId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
-  periodsCreated?: Prisma.SchedulingPeriodUncheckedUpdateManyWithoutCreatedByNestedInput
+  periodsCreated?: Prisma.SchedulePeriodUncheckedUpdateManyWithoutCreatedByNestedInput
   schedulesGenerated?: Prisma.ScheduleUncheckedUpdateManyWithoutGeneratedByNestedInput
+  scheduleChanges?: Prisma.ScheduleChangeLogUncheckedUpdateManyWithoutChangedByNestedInput
   accounts?: Prisma.AccountUncheckedUpdateManyWithoutUserNestedInput
 }
 
@@ -659,8 +688,9 @@ export type UserCreateWithoutEmployeeInput = {
   mustChangePassword?: boolean
   createdAt?: Date | string
   updatedAt?: Date | string
-  periodsCreated?: Prisma.SchedulingPeriodCreateNestedManyWithoutCreatedByInput
+  periodsCreated?: Prisma.SchedulePeriodCreateNestedManyWithoutCreatedByInput
   schedulesGenerated?: Prisma.ScheduleCreateNestedManyWithoutGeneratedByInput
+  scheduleChanges?: Prisma.ScheduleChangeLogCreateNestedManyWithoutChangedByInput
   accounts?: Prisma.AccountCreateNestedManyWithoutUserInput
   sessions?: Prisma.SessionCreateNestedManyWithoutUserInput
 }
@@ -673,8 +703,9 @@ export type UserUncheckedCreateWithoutEmployeeInput = {
   mustChangePassword?: boolean
   createdAt?: Date | string
   updatedAt?: Date | string
-  periodsCreated?: Prisma.SchedulingPeriodUncheckedCreateNestedManyWithoutCreatedByInput
+  periodsCreated?: Prisma.SchedulePeriodUncheckedCreateNestedManyWithoutCreatedByInput
   schedulesGenerated?: Prisma.ScheduleUncheckedCreateNestedManyWithoutGeneratedByInput
+  scheduleChanges?: Prisma.ScheduleChangeLogUncheckedCreateNestedManyWithoutChangedByInput
   accounts?: Prisma.AccountUncheckedCreateNestedManyWithoutUserInput
   sessions?: Prisma.SessionUncheckedCreateNestedManyWithoutUserInput
 }
@@ -703,8 +734,9 @@ export type UserUpdateWithoutEmployeeInput = {
   mustChangePassword?: Prisma.BoolFieldUpdateOperationsInput | boolean
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
-  periodsCreated?: Prisma.SchedulingPeriodUpdateManyWithoutCreatedByNestedInput
+  periodsCreated?: Prisma.SchedulePeriodUpdateManyWithoutCreatedByNestedInput
   schedulesGenerated?: Prisma.ScheduleUpdateManyWithoutGeneratedByNestedInput
+  scheduleChanges?: Prisma.ScheduleChangeLogUpdateManyWithoutChangedByNestedInput
   accounts?: Prisma.AccountUpdateManyWithoutUserNestedInput
   sessions?: Prisma.SessionUpdateManyWithoutUserNestedInput
 }
@@ -717,8 +749,9 @@ export type UserUncheckedUpdateWithoutEmployeeInput = {
   mustChangePassword?: Prisma.BoolFieldUpdateOperationsInput | boolean
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
-  periodsCreated?: Prisma.SchedulingPeriodUncheckedUpdateManyWithoutCreatedByNestedInput
+  periodsCreated?: Prisma.SchedulePeriodUncheckedUpdateManyWithoutCreatedByNestedInput
   schedulesGenerated?: Prisma.ScheduleUncheckedUpdateManyWithoutGeneratedByNestedInput
+  scheduleChanges?: Prisma.ScheduleChangeLogUncheckedUpdateManyWithoutChangedByNestedInput
   accounts?: Prisma.AccountUncheckedUpdateManyWithoutUserNestedInput
   sessions?: Prisma.SessionUncheckedUpdateManyWithoutUserNestedInput
 }
@@ -733,6 +766,7 @@ export type UserCreateWithoutPeriodsCreatedInput = {
   updatedAt?: Date | string
   employee?: Prisma.EmployeeCreateNestedOneWithoutUserInput
   schedulesGenerated?: Prisma.ScheduleCreateNestedManyWithoutGeneratedByInput
+  scheduleChanges?: Prisma.ScheduleChangeLogCreateNestedManyWithoutChangedByInput
   accounts?: Prisma.AccountCreateNestedManyWithoutUserInput
   sessions?: Prisma.SessionCreateNestedManyWithoutUserInput
 }
@@ -747,6 +781,7 @@ export type UserUncheckedCreateWithoutPeriodsCreatedInput = {
   createdAt?: Date | string
   updatedAt?: Date | string
   schedulesGenerated?: Prisma.ScheduleUncheckedCreateNestedManyWithoutGeneratedByInput
+  scheduleChanges?: Prisma.ScheduleChangeLogUncheckedCreateNestedManyWithoutChangedByInput
   accounts?: Prisma.AccountUncheckedCreateNestedManyWithoutUserInput
   sessions?: Prisma.SessionUncheckedCreateNestedManyWithoutUserInput
 }
@@ -777,6 +812,7 @@ export type UserUpdateWithoutPeriodsCreatedInput = {
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   employee?: Prisma.EmployeeUpdateOneWithoutUserNestedInput
   schedulesGenerated?: Prisma.ScheduleUpdateManyWithoutGeneratedByNestedInput
+  scheduleChanges?: Prisma.ScheduleChangeLogUpdateManyWithoutChangedByNestedInput
   accounts?: Prisma.AccountUpdateManyWithoutUserNestedInput
   sessions?: Prisma.SessionUpdateManyWithoutUserNestedInput
 }
@@ -791,6 +827,7 @@ export type UserUncheckedUpdateWithoutPeriodsCreatedInput = {
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   schedulesGenerated?: Prisma.ScheduleUncheckedUpdateManyWithoutGeneratedByNestedInput
+  scheduleChanges?: Prisma.ScheduleChangeLogUncheckedUpdateManyWithoutChangedByNestedInput
   accounts?: Prisma.AccountUncheckedUpdateManyWithoutUserNestedInput
   sessions?: Prisma.SessionUncheckedUpdateManyWithoutUserNestedInput
 }
@@ -804,7 +841,8 @@ export type UserCreateWithoutSchedulesGeneratedInput = {
   createdAt?: Date | string
   updatedAt?: Date | string
   employee?: Prisma.EmployeeCreateNestedOneWithoutUserInput
-  periodsCreated?: Prisma.SchedulingPeriodCreateNestedManyWithoutCreatedByInput
+  periodsCreated?: Prisma.SchedulePeriodCreateNestedManyWithoutCreatedByInput
+  scheduleChanges?: Prisma.ScheduleChangeLogCreateNestedManyWithoutChangedByInput
   accounts?: Prisma.AccountCreateNestedManyWithoutUserInput
   sessions?: Prisma.SessionCreateNestedManyWithoutUserInput
 }
@@ -818,7 +856,8 @@ export type UserUncheckedCreateWithoutSchedulesGeneratedInput = {
   employeeId?: string | null
   createdAt?: Date | string
   updatedAt?: Date | string
-  periodsCreated?: Prisma.SchedulingPeriodUncheckedCreateNestedManyWithoutCreatedByInput
+  periodsCreated?: Prisma.SchedulePeriodUncheckedCreateNestedManyWithoutCreatedByInput
+  scheduleChanges?: Prisma.ScheduleChangeLogUncheckedCreateNestedManyWithoutChangedByInput
   accounts?: Prisma.AccountUncheckedCreateNestedManyWithoutUserInput
   sessions?: Prisma.SessionUncheckedCreateNestedManyWithoutUserInput
 }
@@ -848,7 +887,8 @@ export type UserUpdateWithoutSchedulesGeneratedInput = {
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   employee?: Prisma.EmployeeUpdateOneWithoutUserNestedInput
-  periodsCreated?: Prisma.SchedulingPeriodUpdateManyWithoutCreatedByNestedInput
+  periodsCreated?: Prisma.SchedulePeriodUpdateManyWithoutCreatedByNestedInput
+  scheduleChanges?: Prisma.ScheduleChangeLogUpdateManyWithoutChangedByNestedInput
   accounts?: Prisma.AccountUpdateManyWithoutUserNestedInput
   sessions?: Prisma.SessionUpdateManyWithoutUserNestedInput
 }
@@ -862,7 +902,84 @@ export type UserUncheckedUpdateWithoutSchedulesGeneratedInput = {
   employeeId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
-  periodsCreated?: Prisma.SchedulingPeriodUncheckedUpdateManyWithoutCreatedByNestedInput
+  periodsCreated?: Prisma.SchedulePeriodUncheckedUpdateManyWithoutCreatedByNestedInput
+  scheduleChanges?: Prisma.ScheduleChangeLogUncheckedUpdateManyWithoutChangedByNestedInput
+  accounts?: Prisma.AccountUncheckedUpdateManyWithoutUserNestedInput
+  sessions?: Prisma.SessionUncheckedUpdateManyWithoutUserNestedInput
+}
+
+export type UserCreateWithoutScheduleChangesInput = {
+  id?: string
+  email: string
+  passwordHash: string
+  systemRole?: $Enums.SystemRole
+  mustChangePassword?: boolean
+  createdAt?: Date | string
+  updatedAt?: Date | string
+  employee?: Prisma.EmployeeCreateNestedOneWithoutUserInput
+  periodsCreated?: Prisma.SchedulePeriodCreateNestedManyWithoutCreatedByInput
+  schedulesGenerated?: Prisma.ScheduleCreateNestedManyWithoutGeneratedByInput
+  accounts?: Prisma.AccountCreateNestedManyWithoutUserInput
+  sessions?: Prisma.SessionCreateNestedManyWithoutUserInput
+}
+
+export type UserUncheckedCreateWithoutScheduleChangesInput = {
+  id?: string
+  email: string
+  passwordHash: string
+  systemRole?: $Enums.SystemRole
+  mustChangePassword?: boolean
+  employeeId?: string | null
+  createdAt?: Date | string
+  updatedAt?: Date | string
+  periodsCreated?: Prisma.SchedulePeriodUncheckedCreateNestedManyWithoutCreatedByInput
+  schedulesGenerated?: Prisma.ScheduleUncheckedCreateNestedManyWithoutGeneratedByInput
+  accounts?: Prisma.AccountUncheckedCreateNestedManyWithoutUserInput
+  sessions?: Prisma.SessionUncheckedCreateNestedManyWithoutUserInput
+}
+
+export type UserCreateOrConnectWithoutScheduleChangesInput = {
+  where: Prisma.UserWhereUniqueInput
+  create: Prisma.XOR<Prisma.UserCreateWithoutScheduleChangesInput, Prisma.UserUncheckedCreateWithoutScheduleChangesInput>
+}
+
+export type UserUpsertWithoutScheduleChangesInput = {
+  update: Prisma.XOR<Prisma.UserUpdateWithoutScheduleChangesInput, Prisma.UserUncheckedUpdateWithoutScheduleChangesInput>
+  create: Prisma.XOR<Prisma.UserCreateWithoutScheduleChangesInput, Prisma.UserUncheckedCreateWithoutScheduleChangesInput>
+  where?: Prisma.UserWhereInput
+}
+
+export type UserUpdateToOneWithWhereWithoutScheduleChangesInput = {
+  where?: Prisma.UserWhereInput
+  data: Prisma.XOR<Prisma.UserUpdateWithoutScheduleChangesInput, Prisma.UserUncheckedUpdateWithoutScheduleChangesInput>
+}
+
+export type UserUpdateWithoutScheduleChangesInput = {
+  id?: Prisma.StringFieldUpdateOperationsInput | string
+  email?: Prisma.StringFieldUpdateOperationsInput | string
+  passwordHash?: Prisma.StringFieldUpdateOperationsInput | string
+  systemRole?: Prisma.EnumSystemRoleFieldUpdateOperationsInput | $Enums.SystemRole
+  mustChangePassword?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  employee?: Prisma.EmployeeUpdateOneWithoutUserNestedInput
+  periodsCreated?: Prisma.SchedulePeriodUpdateManyWithoutCreatedByNestedInput
+  schedulesGenerated?: Prisma.ScheduleUpdateManyWithoutGeneratedByNestedInput
+  accounts?: Prisma.AccountUpdateManyWithoutUserNestedInput
+  sessions?: Prisma.SessionUpdateManyWithoutUserNestedInput
+}
+
+export type UserUncheckedUpdateWithoutScheduleChangesInput = {
+  id?: Prisma.StringFieldUpdateOperationsInput | string
+  email?: Prisma.StringFieldUpdateOperationsInput | string
+  passwordHash?: Prisma.StringFieldUpdateOperationsInput | string
+  systemRole?: Prisma.EnumSystemRoleFieldUpdateOperationsInput | $Enums.SystemRole
+  mustChangePassword?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  employeeId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  periodsCreated?: Prisma.SchedulePeriodUncheckedUpdateManyWithoutCreatedByNestedInput
+  schedulesGenerated?: Prisma.ScheduleUncheckedUpdateManyWithoutGeneratedByNestedInput
   accounts?: Prisma.AccountUncheckedUpdateManyWithoutUserNestedInput
   sessions?: Prisma.SessionUncheckedUpdateManyWithoutUserNestedInput
 }
@@ -875,6 +992,7 @@ export type UserUncheckedUpdateWithoutSchedulesGeneratedInput = {
 export type UserCountOutputType = {
   periodsCreated: number
   schedulesGenerated: number
+  scheduleChanges: number
   accounts: number
   sessions: number
 }
@@ -882,6 +1000,7 @@ export type UserCountOutputType = {
 export type UserCountOutputTypeSelect<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
   periodsCreated?: boolean | UserCountOutputTypeCountPeriodsCreatedArgs
   schedulesGenerated?: boolean | UserCountOutputTypeCountSchedulesGeneratedArgs
+  scheduleChanges?: boolean | UserCountOutputTypeCountScheduleChangesArgs
   accounts?: boolean | UserCountOutputTypeCountAccountsArgs
   sessions?: boolean | UserCountOutputTypeCountSessionsArgs
 }
@@ -900,7 +1019,7 @@ export type UserCountOutputTypeDefaultArgs<ExtArgs extends runtime.Types.Extensi
  * UserCountOutputType without action
  */
 export type UserCountOutputTypeCountPeriodsCreatedArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
-  where?: Prisma.SchedulingPeriodWhereInput
+  where?: Prisma.SchedulePeriodWhereInput
 }
 
 /**
@@ -908,6 +1027,13 @@ export type UserCountOutputTypeCountPeriodsCreatedArgs<ExtArgs extends runtime.T
  */
 export type UserCountOutputTypeCountSchedulesGeneratedArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
   where?: Prisma.ScheduleWhereInput
+}
+
+/**
+ * UserCountOutputType without action
+ */
+export type UserCountOutputTypeCountScheduleChangesArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+  where?: Prisma.ScheduleChangeLogWhereInput
 }
 
 /**
@@ -937,6 +1063,7 @@ export type UserSelect<ExtArgs extends runtime.Types.Extensions.InternalArgs = r
   employee?: boolean | Prisma.User$employeeArgs<ExtArgs>
   periodsCreated?: boolean | Prisma.User$periodsCreatedArgs<ExtArgs>
   schedulesGenerated?: boolean | Prisma.User$schedulesGeneratedArgs<ExtArgs>
+  scheduleChanges?: boolean | Prisma.User$scheduleChangesArgs<ExtArgs>
   accounts?: boolean | Prisma.User$accountsArgs<ExtArgs>
   sessions?: boolean | Prisma.User$sessionsArgs<ExtArgs>
   _count?: boolean | Prisma.UserCountOutputTypeDefaultArgs<ExtArgs>
@@ -982,6 +1109,7 @@ export type UserInclude<ExtArgs extends runtime.Types.Extensions.InternalArgs = 
   employee?: boolean | Prisma.User$employeeArgs<ExtArgs>
   periodsCreated?: boolean | Prisma.User$periodsCreatedArgs<ExtArgs>
   schedulesGenerated?: boolean | Prisma.User$schedulesGeneratedArgs<ExtArgs>
+  scheduleChanges?: boolean | Prisma.User$scheduleChangesArgs<ExtArgs>
   accounts?: boolean | Prisma.User$accountsArgs<ExtArgs>
   sessions?: boolean | Prisma.User$sessionsArgs<ExtArgs>
   _count?: boolean | Prisma.UserCountOutputTypeDefaultArgs<ExtArgs>
@@ -997,8 +1125,9 @@ export type $UserPayload<ExtArgs extends runtime.Types.Extensions.InternalArgs =
   name: "User"
   objects: {
     employee: Prisma.$EmployeePayload<ExtArgs> | null
-    periodsCreated: Prisma.$SchedulingPeriodPayload<ExtArgs>[]
+    periodsCreated: Prisma.$SchedulePeriodPayload<ExtArgs>[]
     schedulesGenerated: Prisma.$SchedulePayload<ExtArgs>[]
+    scheduleChanges: Prisma.$ScheduleChangeLogPayload<ExtArgs>[]
     accounts: Prisma.$AccountPayload<ExtArgs>[]
     sessions: Prisma.$SessionPayload<ExtArgs>[]
   }
@@ -1406,8 +1535,9 @@ readonly fields: UserFieldRefs;
 export interface Prisma__UserClient<T, Null = never, ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs, GlobalOmitOptions = {}> extends Prisma.PrismaPromise<T> {
   readonly [Symbol.toStringTag]: "PrismaPromise"
   employee<T extends Prisma.User$employeeArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.User$employeeArgs<ExtArgs>>): Prisma.Prisma__EmployeeClient<runtime.Types.Result.GetResult<Prisma.$EmployeePayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions> | null, null, ExtArgs, GlobalOmitOptions>
-  periodsCreated<T extends Prisma.User$periodsCreatedArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.User$periodsCreatedArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$SchedulingPeriodPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
+  periodsCreated<T extends Prisma.User$periodsCreatedArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.User$periodsCreatedArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$SchedulePeriodPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
   schedulesGenerated<T extends Prisma.User$schedulesGeneratedArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.User$schedulesGeneratedArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$SchedulePayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
+  scheduleChanges<T extends Prisma.User$scheduleChangesArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.User$scheduleChangesArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$ScheduleChangeLogPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
   accounts<T extends Prisma.User$accountsArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.User$accountsArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$AccountPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
   sessions<T extends Prisma.User$sessionsArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.User$sessionsArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$SessionPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
   /**
@@ -1871,23 +2001,23 @@ export type User$employeeArgs<ExtArgs extends runtime.Types.Extensions.InternalA
  */
 export type User$periodsCreatedArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
   /**
-   * Select specific fields to fetch from the SchedulingPeriod
+   * Select specific fields to fetch from the SchedulePeriod
    */
-  select?: Prisma.SchedulingPeriodSelect<ExtArgs> | null
+  select?: Prisma.SchedulePeriodSelect<ExtArgs> | null
   /**
-   * Omit specific fields from the SchedulingPeriod
+   * Omit specific fields from the SchedulePeriod
    */
-  omit?: Prisma.SchedulingPeriodOmit<ExtArgs> | null
+  omit?: Prisma.SchedulePeriodOmit<ExtArgs> | null
   /**
    * Choose, which related nodes to fetch as well
    */
-  include?: Prisma.SchedulingPeriodInclude<ExtArgs> | null
-  where?: Prisma.SchedulingPeriodWhereInput
-  orderBy?: Prisma.SchedulingPeriodOrderByWithRelationInput | Prisma.SchedulingPeriodOrderByWithRelationInput[]
-  cursor?: Prisma.SchedulingPeriodWhereUniqueInput
+  include?: Prisma.SchedulePeriodInclude<ExtArgs> | null
+  where?: Prisma.SchedulePeriodWhereInput
+  orderBy?: Prisma.SchedulePeriodOrderByWithRelationInput | Prisma.SchedulePeriodOrderByWithRelationInput[]
+  cursor?: Prisma.SchedulePeriodWhereUniqueInput
   take?: number
   skip?: number
-  distinct?: Prisma.SchedulingPeriodScalarFieldEnum | Prisma.SchedulingPeriodScalarFieldEnum[]
+  distinct?: Prisma.SchedulePeriodScalarFieldEnum | Prisma.SchedulePeriodScalarFieldEnum[]
 }
 
 /**
@@ -1912,6 +2042,30 @@ export type User$schedulesGeneratedArgs<ExtArgs extends runtime.Types.Extensions
   take?: number
   skip?: number
   distinct?: Prisma.ScheduleScalarFieldEnum | Prisma.ScheduleScalarFieldEnum[]
+}
+
+/**
+ * User.scheduleChanges
+ */
+export type User$scheduleChangesArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+  /**
+   * Select specific fields to fetch from the ScheduleChangeLog
+   */
+  select?: Prisma.ScheduleChangeLogSelect<ExtArgs> | null
+  /**
+   * Omit specific fields from the ScheduleChangeLog
+   */
+  omit?: Prisma.ScheduleChangeLogOmit<ExtArgs> | null
+  /**
+   * Choose, which related nodes to fetch as well
+   */
+  include?: Prisma.ScheduleChangeLogInclude<ExtArgs> | null
+  where?: Prisma.ScheduleChangeLogWhereInput
+  orderBy?: Prisma.ScheduleChangeLogOrderByWithRelationInput | Prisma.ScheduleChangeLogOrderByWithRelationInput[]
+  cursor?: Prisma.ScheduleChangeLogWhereUniqueInput
+  take?: number
+  skip?: number
+  distinct?: Prisma.ScheduleChangeLogScalarFieldEnum | Prisma.ScheduleChangeLogScalarFieldEnum[]
 }
 
 /**

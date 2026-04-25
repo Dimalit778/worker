@@ -16,7 +16,7 @@ export default async function UserLayout({ children }: { children: React.ReactNo
       });
       if (!user?.employeeId) return false;
 
-      const openPeriod = await prisma.schedulingPeriod.findFirst({
+      const openPeriod = await prisma.schedulePeriod.findFirst({
         where: { status: PeriodStatus.OPEN_FOR_SUBMISSION },
         select: { id: true },
       });

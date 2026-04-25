@@ -1,24 +1,23 @@
 'use server';
 import { prisma } from '@/lib/db/client';
-import { PeriodStatus, PrismaClient, ScheduleStatus } from '@/generated/prisma/client';
+import { PeriodStatus, PrismaClient, SchedulePeriod, ScheduleStatus } from '@/generated/prisma/client';
 import { DEFAULT_TZ } from './utils';
 import { utcNoonFromCalendarISO } from './utils';
 import { calendarDateISO } from './utils';
-import { SchedulingPeriod } from '@/generated/prisma/client';
 import { requireSession } from '@/lib/db/auth-helpers';
 import { SystemRole } from '@/generated/prisma/client';
 import { PeriodSummary } from './types';
 import { parseISODateToUtcMidnight } from './utils';
 import { revalidatePath } from 'next/cache';
 // = מוציא תקופה פתוחה
-export async function getOpenPeriod(courtId: string): Promise<SchedulingPeriod | null> {
-  return prisma.schedulingPeriod.findFirst({ where: { courtId, status: PeriodStatus.OPEN_FOR_SUBMISSION } });
+export async function getOpenPeriod(courtId: string): Promise<SchedulePeriod | null> {
+  return prisma.schedulePeriod.findFirst({ where: { courtId, status: PeriodStatus.OPEN_FOR_SUBMISSION } });
 }
 // = מוציא רשימת תקופות למנהל
 export async function getPeriodsForManager(): Promise<PeriodSummary[]> {
   await requireSession(SystemRole.MANAGER);
 
-  const periods = await prisma.schedulingPeriod.findMany({
+  const periods = await prisma.schedulePeriod.findMany({
     orderBy: { startDate: 'desc' },
     include: {
       _count: {
@@ -66,7 +65,7 @@ export async function createPeriod(data: {
   if (isNaN(deadline.getTime())) return { error: 'מועד אחרון להגשה לא תקין' };
 
   try {
-    const period = await prisma.schedulingPeriod.create({
+    const period = await prisma.schedulePeriod.create({
       data: {
         name: data.name.trim(),
         startDate: start,
@@ -90,7 +89,7 @@ export async function deletePeriod(periodId: string): Promise<{ ok: true } | { e
   await requireSession(SystemRole.MANAGER);
 
   try {
-    await prisma.schedulingPeriod.delete({ where: { id: periodId } });
+    await prisma.schedulePeriod.delete({ where: { id: periodId } });
     revalidatePath('/manager/periods');
     revalidatePath('/manager');
     return { ok: true };
@@ -106,7 +105,7 @@ export async function updatePeriodStatus(
   await requireSession(SystemRole.MANAGER);
 
   try {
-    await prisma.schedulingPeriod.update({
+    await prisma.schedulePeriod.update({
       where: { id: periodId },
       data: { status },
     });

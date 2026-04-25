@@ -18,6 +18,17 @@ export const SystemRole = {
 export type SystemRole = (typeof SystemRole)[keyof typeof SystemRole]
 
 
+export const ScheduleChangeType = {
+  CREATE: 'CREATE',
+  UPDATE: 'UPDATE',
+  DELETE: 'DELETE',
+  PUBLISH: 'PUBLISH',
+  MANUAL_OVERRIDE: 'MANUAL_OVERRIDE'
+} as const
+
+export type ScheduleChangeType = (typeof ScheduleChangeType)[keyof typeof ScheduleChangeType]
+
+
 export const Position = {
   GUARD: 'GUARD',
   BAKAR: 'BAKAR',

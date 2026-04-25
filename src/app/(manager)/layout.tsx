@@ -7,7 +7,7 @@ import { prisma } from '@/lib/db/client';
 const navItems = [
   { href: '/manager', label: 'לוח בקרה' },
   { href: '/manager/draft', label: 'בהכנה' },
-  { href: '/manager/shifts', label: 'שיבוץ עבודה' },
+  { href: '/manager/schedule', label: 'שיבוץ עבודה' },
   { href: '/manager/periods', label: 'תקופות' },
   { href: '/manager/guards', label: 'מאבטחים' },
   { href: '/manager/settings', label: 'הגדרות' },

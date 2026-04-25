@@ -58,14 +58,17 @@ export const ModelName = {
   Region: 'Region',
   Court: 'Court',
   Employee: 'Employee',
-  CourtShiftRule: 'CourtShiftRule',
-  SchedulingPeriod: 'SchedulingPeriod',
+  CourtShiftRole: 'CourtShiftRole',
+  CourtShiftRoleAllowedPosition: 'CourtShiftRoleAllowedPosition',
+  CourtStaffRule: 'CourtStaffRule',
+  SchedulePeriod: 'SchedulePeriod',
   Availability: 'Availability',
   AvailabilityEntry: 'AvailabilityEntry',
   Schedule: 'Schedule',
   ShiftAssignment: 'ShiftAssignment',
   ScheduleWarning: 'ScheduleWarning',
   FairnessRecord: 'FairnessRecord',
+  ScheduleChangeLog: 'ScheduleChangeLog',
   SystemConfig: 'SystemConfig'
 } as const
 
@@ -174,22 +177,45 @@ export const EmployeeScalarFieldEnum = {
 export type EmployeeScalarFieldEnum = (typeof EmployeeScalarFieldEnum)[keyof typeof EmployeeScalarFieldEnum]
 
 
-export const CourtShiftRuleScalarFieldEnum = {
+export const CourtShiftRoleScalarFieldEnum = {
   id: 'id',
   courtId: 'courtId',
+  code: 'code',
+  name: 'name',
   shiftType: 'shiftType',
-  dayCategory: 'dayCategory',
+  isActive: 'isActive',
+  displayOrder: 'displayOrder',
+  createdAt: 'createdAt',
+  updatedAt: 'updatedAt'
+} as const
+
+export type CourtShiftRoleScalarFieldEnum = (typeof CourtShiftRoleScalarFieldEnum)[keyof typeof CourtShiftRoleScalarFieldEnum]
+
+
+export const CourtShiftRoleAllowedPositionScalarFieldEnum = {
+  id: 'id',
+  courtShiftRoleId: 'courtShiftRoleId',
   position: 'position',
+  createdAt: 'createdAt'
+} as const
+
+export type CourtShiftRoleAllowedPositionScalarFieldEnum = (typeof CourtShiftRoleAllowedPositionScalarFieldEnum)[keyof typeof CourtShiftRoleAllowedPositionScalarFieldEnum]
+
+
+export const CourtStaffRuleScalarFieldEnum = {
+  id: 'id',
+  courtShiftRoleId: 'courtShiftRoleId',
+  dayCategory: 'dayCategory',
   requiredCount: 'requiredCount',
   displayOrder: 'displayOrder',
   createdAt: 'createdAt',
   updatedAt: 'updatedAt'
 } as const
 
-export type CourtShiftRuleScalarFieldEnum = (typeof CourtShiftRuleScalarFieldEnum)[keyof typeof CourtShiftRuleScalarFieldEnum]
+export type CourtStaffRuleScalarFieldEnum = (typeof CourtStaffRuleScalarFieldEnum)[keyof typeof CourtStaffRuleScalarFieldEnum]
 
 
-export const SchedulingPeriodScalarFieldEnum = {
+export const SchedulePeriodScalarFieldEnum = {
   id: 'id',
   courtId: 'courtId',
   name: 'name',
@@ -202,7 +228,7 @@ export const SchedulingPeriodScalarFieldEnum = {
   updatedAt: 'updatedAt'
 } as const
 
-export type SchedulingPeriodScalarFieldEnum = (typeof SchedulingPeriodScalarFieldEnum)[keyof typeof SchedulingPeriodScalarFieldEnum]
+export type SchedulePeriodScalarFieldEnum = (typeof SchedulePeriodScalarFieldEnum)[keyof typeof SchedulePeriodScalarFieldEnum]
 
 
 export const AvailabilityScalarFieldEnum = {
@@ -249,12 +275,11 @@ export const ShiftAssignmentScalarFieldEnum = {
   id: 'id',
   scheduleId: 'scheduleId',
   employeeId: 'employeeId',
+  courtShiftRoleId: 'courtShiftRoleId',
   date: 'date',
-  shiftType: 'shiftType',
-  position: 'position',
   slotIndex: 'slotIndex',
-  isOpeningDuty: 'isOpeningDuty',
   isManualOverride: 'isManualOverride',
+  courtId: 'courtId',
   createdAt: 'createdAt',
   updatedAt: 'updatedAt'
 } as const
@@ -268,6 +293,8 @@ export const ScheduleWarningScalarFieldEnum = {
   type: 'type',
   severity: 'severity',
   employeeId: 'employeeId',
+  courtId: 'courtId',
+  courtShiftRoleId: 'courtShiftRoleId',
   date: 'date',
   message: 'message',
   createdAt: 'createdAt',
@@ -286,12 +313,27 @@ export const FairnessRecordScalarFieldEnum = {
   eveningShifts: 'eveningShifts',
   nightShifts: 'nightShifts',
   weekendShifts: 'weekendShifts',
-  openingDuties: 'openingDuties',
   createdAt: 'createdAt',
   updatedAt: 'updatedAt'
 } as const
 
 export type FairnessRecordScalarFieldEnum = (typeof FairnessRecordScalarFieldEnum)[keyof typeof FairnessRecordScalarFieldEnum]
+
+
+export const ScheduleChangeLogScalarFieldEnum = {
+  id: 'id',
+  scheduleId: 'scheduleId',
+  shiftAssignmentId: 'shiftAssignmentId',
+  changedById: 'changedById',
+  changeType: 'changeType',
+  message: 'message',
+  reason: 'reason',
+  beforeData: 'beforeData',
+  afterData: 'afterData',
+  createdAt: 'createdAt'
+} as const
+
+export type ScheduleChangeLogScalarFieldEnum = (typeof ScheduleChangeLogScalarFieldEnum)[keyof typeof ScheduleChangeLogScalarFieldEnum]
 
 
 export const SystemConfigScalarFieldEnum = {
@@ -310,6 +352,14 @@ export const SortOrder = {
 } as const
 
 export type SortOrder = (typeof SortOrder)[keyof typeof SortOrder]
+
+
+export const NullableJsonNullValueInput = {
+  DbNull: DbNull,
+  JsonNull: JsonNull
+} as const
+
+export type NullableJsonNullValueInput = (typeof NullableJsonNullValueInput)[keyof typeof NullableJsonNullValueInput]
 
 
 export const JsonNullValueInput = {

@@ -18,7 +18,7 @@ export async function getScheduleData() {
   const employee = await getEmployeeForUser(session.user.id);
   if (!employee) return { period: null, entries: {}, isSubmitted: false };
 
-  const period = await prisma.schedulingPeriod.findFirst({
+  const period = await prisma.schedulePeriod.findFirst({
     where: { courtId: employee.courtId, status: PeriodStatus.OPEN_FOR_SUBMISSION },
   });
 

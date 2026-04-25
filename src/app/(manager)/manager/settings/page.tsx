@@ -1,12 +1,12 @@
 import { requireSession } from '@/lib/db/auth-helpers';
 import { SystemRole } from '@/generated/prisma/client';
-import { getCourtShiftRules } from '@/features/shifts/queries';
-import { ShiftRulesManager } from '@/features/shifts/components/shift-rules-manager';
+import { getCourtShiftRoles } from '@/features/court-settings/queries';
+import { ShiftRulesManager } from '@/features/court-settings/components/shift-rules-manager';
 
 export default async function ManagerSettingsPage() {
   const session = await requireSession(SystemRole.MANAGER);
   const courtId = session.user.courtId ?? '';
-  const rules = await getCourtShiftRules(courtId);
+  const roles = await getCourtShiftRoles(courtId);
 
   return (
     <div className="space-y-6 max-w-2xl">
@@ -20,7 +20,7 @@ export default async function ManagerSettingsPage() {
         <p className="text-sm text-muted-foreground">
           הגדר את מספר העובדים הנדרש לכל תפקיד, משמרת וסוג יום. לחץ על כמות כדי לערוך אותה.
         </p>
-        <ShiftRulesManager initialRules={rules} />
+        <ShiftRulesManager initialRoles={roles} />
       </section>
     </div>
   );

@@ -53,15 +53,25 @@ export type Court = Prisma.CourtModel
  */
 export type Employee = Prisma.EmployeeModel
 /**
- * Model CourtShiftRule
+ * Model CourtShiftRole
  * 
  */
-export type CourtShiftRule = Prisma.CourtShiftRuleModel
+export type CourtShiftRole = Prisma.CourtShiftRoleModel
 /**
- * Model SchedulingPeriod
+ * Model CourtShiftRoleAllowedPosition
  * 
  */
-export type SchedulingPeriod = Prisma.SchedulingPeriodModel
+export type CourtShiftRoleAllowedPosition = Prisma.CourtShiftRoleAllowedPositionModel
+/**
+ * Model CourtStaffRule
+ * 
+ */
+export type CourtStaffRule = Prisma.CourtStaffRuleModel
+/**
+ * Model SchedulePeriod
+ * 
+ */
+export type SchedulePeriod = Prisma.SchedulePeriodModel
 /**
  * Model Availability
  * 
@@ -92,6 +102,11 @@ export type ScheduleWarning = Prisma.ScheduleWarningModel
  * 
  */
 export type FairnessRecord = Prisma.FairnessRecordModel
+/**
+ * Model ScheduleChangeLog
+ * 
+ */
+export type ScheduleChangeLog = Prisma.ScheduleChangeLogModel
 /**
  * Model SystemConfig
  * 
