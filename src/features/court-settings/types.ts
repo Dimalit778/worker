@@ -7,19 +7,27 @@ export type EmployeeSummary = {
   id: string;
   name: string;
 };
+export type PositionCapacityMap = Partial<Record<Position, number>>;
 
-/** Max slots to display per shift type */
-export type CapacityMap = { MORNING: number; EVENING: number; NIGHT: number };
+export type CapacityMap = Record<ShiftType, PositionCapacityMap>;
 
-/**
- * Full capacity rules: default (all regular days), plus optional overrides
- * for Friday (dayOfWeek=5) and Saturday (dayOfWeek=6).
- * A value of 0 means that shift is closed on that day.
- */
 export type FullCapacityRules = {
   default: CapacityMap;
   friday: CapacityMap;
   saturday: CapacityMap;
+};
+export type CourtShiftRoleWithRules = {
+  id: string;
+  code: string;
+  name: string;
+  shiftType: ShiftType;
+  isActive: boolean;
+  displayOrder: number;
+  staffingRules: {
+    id: string;
+    dayCategory: DayCategory;
+    requiredCount: number;
+  }[];
 };
 export type DraftScheduleData =
   | { found: false }
@@ -53,4 +61,10 @@ export type CourtShiftRoleRow = {
   shiftType: ShiftType;
   isActive: boolean;
   displayOrder: number;
+};
+
+export type StaffingRuleRow = {
+  id: string;
+  dayCategory: DayCategory;
+  requiredCount: number;
 };

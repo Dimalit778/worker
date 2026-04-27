@@ -6,8 +6,7 @@ import { cn } from '@/lib/utils';
 import { GuardPicker } from './guard-picker';
 import { assignGuard, reassignGuard, removeAssignment } from '@/features/shift-assignments/actions';
 import type { AssignmentSummary } from '@/features/shift-assignments/types';
-import type { ShiftType } from '@/generated/prisma/client';
-import type { Position } from '@/generated/prisma/client';
+import type { Position, ShiftType } from '@/generated/prisma/client';
 import type { EmployeeSummary } from '@/features/court-settings/types';
 
 type Props = {
@@ -21,7 +20,6 @@ type Props = {
   shiftType: ShiftType;
   position: Position;
   slotIndex: number;
-  isOpeningDuty: boolean;
   readonly?: boolean;
 };
 
@@ -36,7 +34,6 @@ export function AssignmentCell({
   shiftType,
   position,
   slotIndex,
-  isOpeningDuty,
   readonly = false,
 }: Props) {
   const router = useRouter();

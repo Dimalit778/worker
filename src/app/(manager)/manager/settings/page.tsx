@@ -1,12 +1,14 @@
 import { requireSession } from '@/lib/db/auth-helpers';
 import { SystemRole } from '@/generated/prisma/client';
-import { getCourtShiftRoles } from '@/features/court-settings/queries';
-import { ShiftRulesManager } from '@/features/court-settings/components/shift-rules-manager';
+import { getPositions, getShiftCapacities } from '@/features/court-settings/queries';
+import { CourtCapacityRules } from '@/features/court-settings/components/court-capacity';
 
 export default async function ManagerSettingsPage() {
   const session = await requireSession(SystemRole.MANAGER);
   const courtId = session.user.courtId ?? '';
-  const roles = await getCourtShiftRoles(courtId);
+
+  const capacities = await getShiftCapacities(courtId);
+  const positions = await getPositions(courtId);
 
   return (
     <div className="space-y-6 max-w-2xl">
@@ -18,9 +20,10 @@ export default async function ManagerSettingsPage() {
       <section className="space-y-3">
         <h2 className="text-base font-semibold">כללי קיבולת משמרות</h2>
         <p className="text-sm text-muted-foreground">
-          הגדר את מספר העובדים הנדרש לכל תפקיד, משמרת וסוג יום. לחץ על כמות כדי לערוך אותה.
+          סדר את רשימת התפקידים, ואז הגדר מספר עובדים נדרש לכל תפקיד, משמרת וסוג יום. לחץ על כמות
+          לעריכה.
         </p>
-        <ShiftRulesManager initialRoles={roles} />
+        <CourtCapacityRules positions={positions} initialCapacities={capacities} />
       </section>
     </div>
   );

@@ -29,16 +29,6 @@ export const ScheduleChangeType = {
 export type ScheduleChangeType = (typeof ScheduleChangeType)[keyof typeof ScheduleChangeType]
 
 
-export const Position = {
-  GUARD: 'GUARD',
-  BAKAR: 'BAKAR',
-  SHIFT_MANAGER: 'SHIFT_MANAGER',
-  FACILITY_OFFICER: 'FACILITY_OFFICER'
-} as const
-
-export type Position = (typeof Position)[keyof typeof Position]
-
-
 export const ShiftType = {
   MORNING: 'MORNING',
   EVENING: 'EVENING',

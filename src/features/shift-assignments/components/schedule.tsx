@@ -6,18 +6,11 @@ import { ShiftSection } from './shift-section';
 import { buildWeekDays } from '../utils';
 import type { ScheduleProps } from '../types';
 
-export function Schedule({
-  periodId,
-  startDate,
-  scheduleId,
-  assignments,
-  guards,
-  capacity,
-  courtId,
-  readonly = false,
-}: ScheduleProps) {
+export function Schedule(props: ScheduleProps) {
+  const { periodId, startDate, scheduleId, assignments, guards, capacity, courtId, readonly } = props;
   const [weekIndex, setWeekIndex] = useState(0);
   const weekDays = buildWeekDays(startDate, weekIndex);
+  console.log('capacity', JSON.stringify(capacity, null, 2));
 
   function weekRangeLabel(idx: number): string {
     const days = buildWeekDays(startDate, idx);

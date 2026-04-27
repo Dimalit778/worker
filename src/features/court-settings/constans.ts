@@ -1,9 +1,12 @@
-import { DayCategory, Position, ShiftType } from '@/generated/prisma/client';
+import { DayCategory, ShiftType } from '@/generated/prisma/client';
 
-const DAY_ORDER: DayCategory[] = ['WEEKDAY', 'FRIDAY', 'SATURDAY', 'HOLIDAY'];
+/** Real day kinds (grid, DB). For selects that also need “all days”, use `DAY_ORDER`. */
+const DAY_CATEGORIES: DayCategory[] = ['WEEKDAY', 'FRIDAY', 'SATURDAY', 'HOLIDAY'];
+
+const DAY_ORDER: (DayCategory | 'ALL')[] = [...DAY_CATEGORIES, 'ALL'];
 
 const DAY_META: Record<DayCategory, { label: string }> = {
-  WEEKDAY: { label: 'ברירת מחדל (ימים א׳–ה׳)' },
+  WEEKDAY: { label: 'שבוע' },
   FRIDAY: { label: 'יום שישי' },
   SATURDAY: { label: 'שבת' },
   HOLIDAY: { label: 'חג' },
@@ -17,10 +20,4 @@ const SHIFT_LABELS: Record<ShiftType, string> = {
   NIGHT: 'לילה',
 };
 
-const POSITIONS: { key: Position; label: string }[] = [
-  { key: 'SHIFT_MANAGER', label: 'אחמ״ש' },
-  { key: 'BAKAR', label: 'בקר' },
-  { key: 'GUARD', label: 'מאבטח' },
-];
-
-export { DAY_ORDER, DAY_META, SHIFT_ORDER, SHIFT_LABELS, POSITIONS };
+export { DAY_CATEGORIES, DAY_ORDER, DAY_META, SHIFT_ORDER, SHIFT_LABELS };

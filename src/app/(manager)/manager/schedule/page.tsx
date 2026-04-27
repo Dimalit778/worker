@@ -8,8 +8,9 @@ export default async function ManagerSchedulePage() {
   const courtId = session.user.courtId ?? '';
 
   const data = await getSchedulePageData(courtId, { includeGuards: true });
+  console.log('data', JSON.stringify(data, null, 2));
 
-  if (!data.found) {
+  if (!data) {
     return (
       <div className="space-y-4">
         <h1 className="text-2xl font-bold">שיבוץ</h1>
@@ -18,5 +19,5 @@ export default async function ManagerSchedulePage() {
     );
   }
 
-  return <Schedule {...data} />;
+  return <Schedule {...data} readonly={false} />;
 }

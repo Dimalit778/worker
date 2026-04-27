@@ -31,7 +31,8 @@ export type ScheduleWarningMinAggregateOutputType = {
   severity: $Enums.WarningSeverity | null
   employeeId: string | null
   courtId: string | null
-  courtShiftRoleId: string | null
+  positionId: string | null
+  shiftType: $Enums.ShiftType | null
   date: Date | null
   message: string | null
   createdAt: Date | null
@@ -45,7 +46,8 @@ export type ScheduleWarningMaxAggregateOutputType = {
   severity: $Enums.WarningSeverity | null
   employeeId: string | null
   courtId: string | null
-  courtShiftRoleId: string | null
+  positionId: string | null
+  shiftType: $Enums.ShiftType | null
   date: Date | null
   message: string | null
   createdAt: Date | null
@@ -59,7 +61,8 @@ export type ScheduleWarningCountAggregateOutputType = {
   severity: number
   employeeId: number
   courtId: number
-  courtShiftRoleId: number
+  positionId: number
+  shiftType: number
   date: number
   message: number
   createdAt: number
@@ -75,7 +78,8 @@ export type ScheduleWarningMinAggregateInputType = {
   severity?: true
   employeeId?: true
   courtId?: true
-  courtShiftRoleId?: true
+  positionId?: true
+  shiftType?: true
   date?: true
   message?: true
   createdAt?: true
@@ -89,7 +93,8 @@ export type ScheduleWarningMaxAggregateInputType = {
   severity?: true
   employeeId?: true
   courtId?: true
-  courtShiftRoleId?: true
+  positionId?: true
+  shiftType?: true
   date?: true
   message?: true
   createdAt?: true
@@ -103,7 +108,8 @@ export type ScheduleWarningCountAggregateInputType = {
   severity?: true
   employeeId?: true
   courtId?: true
-  courtShiftRoleId?: true
+  positionId?: true
+  shiftType?: true
   date?: true
   message?: true
   createdAt?: true
@@ -190,7 +196,8 @@ export type ScheduleWarningGroupByOutputType = {
   severity: $Enums.WarningSeverity
   employeeId: string | null
   courtId: string | null
-  courtShiftRoleId: string | null
+  positionId: string | null
+  shiftType: $Enums.ShiftType | null
   date: Date | null
   message: string
   createdAt: Date
@@ -225,7 +232,8 @@ export type ScheduleWarningWhereInput = {
   severity?: Prisma.EnumWarningSeverityFilter<"ScheduleWarning"> | $Enums.WarningSeverity
   employeeId?: Prisma.StringNullableFilter<"ScheduleWarning"> | string | null
   courtId?: Prisma.StringNullableFilter<"ScheduleWarning"> | string | null
-  courtShiftRoleId?: Prisma.StringNullableFilter<"ScheduleWarning"> | string | null
+  positionId?: Prisma.StringNullableFilter<"ScheduleWarning"> | string | null
+  shiftType?: Prisma.EnumShiftTypeNullableFilter<"ScheduleWarning"> | $Enums.ShiftType | null
   date?: Prisma.DateTimeNullableFilter<"ScheduleWarning"> | Date | string | null
   message?: Prisma.StringFilter<"ScheduleWarning"> | string
   createdAt?: Prisma.DateTimeFilter<"ScheduleWarning"> | Date | string
@@ -233,7 +241,7 @@ export type ScheduleWarningWhereInput = {
   schedule?: Prisma.XOR<Prisma.ScheduleScalarRelationFilter, Prisma.ScheduleWhereInput>
   employee?: Prisma.XOR<Prisma.EmployeeNullableScalarRelationFilter, Prisma.EmployeeWhereInput> | null
   court?: Prisma.XOR<Prisma.CourtNullableScalarRelationFilter, Prisma.CourtWhereInput> | null
-  courtShiftRole?: Prisma.XOR<Prisma.CourtShiftRoleNullableScalarRelationFilter, Prisma.CourtShiftRoleWhereInput> | null
+  position?: Prisma.XOR<Prisma.PositionNullableScalarRelationFilter, Prisma.PositionWhereInput> | null
 }
 
 export type ScheduleWarningOrderByWithRelationInput = {
@@ -243,7 +251,8 @@ export type ScheduleWarningOrderByWithRelationInput = {
   severity?: Prisma.SortOrder
   employeeId?: Prisma.SortOrderInput | Prisma.SortOrder
   courtId?: Prisma.SortOrderInput | Prisma.SortOrder
-  courtShiftRoleId?: Prisma.SortOrderInput | Prisma.SortOrder
+  positionId?: Prisma.SortOrderInput | Prisma.SortOrder
+  shiftType?: Prisma.SortOrderInput | Prisma.SortOrder
   date?: Prisma.SortOrderInput | Prisma.SortOrder
   message?: Prisma.SortOrder
   createdAt?: Prisma.SortOrder
@@ -251,7 +260,7 @@ export type ScheduleWarningOrderByWithRelationInput = {
   schedule?: Prisma.ScheduleOrderByWithRelationInput
   employee?: Prisma.EmployeeOrderByWithRelationInput
   court?: Prisma.CourtOrderByWithRelationInput
-  courtShiftRole?: Prisma.CourtShiftRoleOrderByWithRelationInput
+  position?: Prisma.PositionOrderByWithRelationInput
 }
 
 export type ScheduleWarningWhereUniqueInput = Prisma.AtLeast<{
@@ -264,7 +273,8 @@ export type ScheduleWarningWhereUniqueInput = Prisma.AtLeast<{
   severity?: Prisma.EnumWarningSeverityFilter<"ScheduleWarning"> | $Enums.WarningSeverity
   employeeId?: Prisma.StringNullableFilter<"ScheduleWarning"> | string | null
   courtId?: Prisma.StringNullableFilter<"ScheduleWarning"> | string | null
-  courtShiftRoleId?: Prisma.StringNullableFilter<"ScheduleWarning"> | string | null
+  positionId?: Prisma.StringNullableFilter<"ScheduleWarning"> | string | null
+  shiftType?: Prisma.EnumShiftTypeNullableFilter<"ScheduleWarning"> | $Enums.ShiftType | null
   date?: Prisma.DateTimeNullableFilter<"ScheduleWarning"> | Date | string | null
   message?: Prisma.StringFilter<"ScheduleWarning"> | string
   createdAt?: Prisma.DateTimeFilter<"ScheduleWarning"> | Date | string
@@ -272,7 +282,7 @@ export type ScheduleWarningWhereUniqueInput = Prisma.AtLeast<{
   schedule?: Prisma.XOR<Prisma.ScheduleScalarRelationFilter, Prisma.ScheduleWhereInput>
   employee?: Prisma.XOR<Prisma.EmployeeNullableScalarRelationFilter, Prisma.EmployeeWhereInput> | null
   court?: Prisma.XOR<Prisma.CourtNullableScalarRelationFilter, Prisma.CourtWhereInput> | null
-  courtShiftRole?: Prisma.XOR<Prisma.CourtShiftRoleNullableScalarRelationFilter, Prisma.CourtShiftRoleWhereInput> | null
+  position?: Prisma.XOR<Prisma.PositionNullableScalarRelationFilter, Prisma.PositionWhereInput> | null
 }, "id">
 
 export type ScheduleWarningOrderByWithAggregationInput = {
@@ -282,7 +292,8 @@ export type ScheduleWarningOrderByWithAggregationInput = {
   severity?: Prisma.SortOrder
   employeeId?: Prisma.SortOrderInput | Prisma.SortOrder
   courtId?: Prisma.SortOrderInput | Prisma.SortOrder
-  courtShiftRoleId?: Prisma.SortOrderInput | Prisma.SortOrder
+  positionId?: Prisma.SortOrderInput | Prisma.SortOrder
+  shiftType?: Prisma.SortOrderInput | Prisma.SortOrder
   date?: Prisma.SortOrderInput | Prisma.SortOrder
   message?: Prisma.SortOrder
   createdAt?: Prisma.SortOrder
@@ -302,7 +313,8 @@ export type ScheduleWarningScalarWhereWithAggregatesInput = {
   severity?: Prisma.EnumWarningSeverityWithAggregatesFilter<"ScheduleWarning"> | $Enums.WarningSeverity
   employeeId?: Prisma.StringNullableWithAggregatesFilter<"ScheduleWarning"> | string | null
   courtId?: Prisma.StringNullableWithAggregatesFilter<"ScheduleWarning"> | string | null
-  courtShiftRoleId?: Prisma.StringNullableWithAggregatesFilter<"ScheduleWarning"> | string | null
+  positionId?: Prisma.StringNullableWithAggregatesFilter<"ScheduleWarning"> | string | null
+  shiftType?: Prisma.EnumShiftTypeNullableWithAggregatesFilter<"ScheduleWarning"> | $Enums.ShiftType | null
   date?: Prisma.DateTimeNullableWithAggregatesFilter<"ScheduleWarning"> | Date | string | null
   message?: Prisma.StringWithAggregatesFilter<"ScheduleWarning"> | string
   createdAt?: Prisma.DateTimeWithAggregatesFilter<"ScheduleWarning"> | Date | string
@@ -313,6 +325,7 @@ export type ScheduleWarningCreateInput = {
   id?: string
   type: $Enums.WarningType
   severity: $Enums.WarningSeverity
+  shiftType?: $Enums.ShiftType | null
   date?: Date | string | null
   message: string
   createdAt?: Date | string
@@ -320,7 +333,7 @@ export type ScheduleWarningCreateInput = {
   schedule: Prisma.ScheduleCreateNestedOneWithoutWarningsInput
   employee?: Prisma.EmployeeCreateNestedOneWithoutWarningsInput
   court?: Prisma.CourtCreateNestedOneWithoutWarningsInput
-  courtShiftRole?: Prisma.CourtShiftRoleCreateNestedOneWithoutWarningsInput
+  position?: Prisma.PositionCreateNestedOneWithoutWarningsInput
 }
 
 export type ScheduleWarningUncheckedCreateInput = {
@@ -330,7 +343,8 @@ export type ScheduleWarningUncheckedCreateInput = {
   severity: $Enums.WarningSeverity
   employeeId?: string | null
   courtId?: string | null
-  courtShiftRoleId?: string | null
+  positionId?: string | null
+  shiftType?: $Enums.ShiftType | null
   date?: Date | string | null
   message: string
   createdAt?: Date | string
@@ -341,6 +355,7 @@ export type ScheduleWarningUpdateInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
   type?: Prisma.EnumWarningTypeFieldUpdateOperationsInput | $Enums.WarningType
   severity?: Prisma.EnumWarningSeverityFieldUpdateOperationsInput | $Enums.WarningSeverity
+  shiftType?: Prisma.NullableEnumShiftTypeFieldUpdateOperationsInput | $Enums.ShiftType | null
   date?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   message?: Prisma.StringFieldUpdateOperationsInput | string
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
@@ -348,7 +363,7 @@ export type ScheduleWarningUpdateInput = {
   schedule?: Prisma.ScheduleUpdateOneRequiredWithoutWarningsNestedInput
   employee?: Prisma.EmployeeUpdateOneWithoutWarningsNestedInput
   court?: Prisma.CourtUpdateOneWithoutWarningsNestedInput
-  courtShiftRole?: Prisma.CourtShiftRoleUpdateOneWithoutWarningsNestedInput
+  position?: Prisma.PositionUpdateOneWithoutWarningsNestedInput
 }
 
 export type ScheduleWarningUncheckedUpdateInput = {
@@ -358,7 +373,8 @@ export type ScheduleWarningUncheckedUpdateInput = {
   severity?: Prisma.EnumWarningSeverityFieldUpdateOperationsInput | $Enums.WarningSeverity
   employeeId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   courtId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  courtShiftRoleId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  positionId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  shiftType?: Prisma.NullableEnumShiftTypeFieldUpdateOperationsInput | $Enums.ShiftType | null
   date?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   message?: Prisma.StringFieldUpdateOperationsInput | string
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
@@ -372,7 +388,8 @@ export type ScheduleWarningCreateManyInput = {
   severity: $Enums.WarningSeverity
   employeeId?: string | null
   courtId?: string | null
-  courtShiftRoleId?: string | null
+  positionId?: string | null
+  shiftType?: $Enums.ShiftType | null
   date?: Date | string | null
   message: string
   createdAt?: Date | string
@@ -383,6 +400,7 @@ export type ScheduleWarningUpdateManyMutationInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
   type?: Prisma.EnumWarningTypeFieldUpdateOperationsInput | $Enums.WarningType
   severity?: Prisma.EnumWarningSeverityFieldUpdateOperationsInput | $Enums.WarningSeverity
+  shiftType?: Prisma.NullableEnumShiftTypeFieldUpdateOperationsInput | $Enums.ShiftType | null
   date?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   message?: Prisma.StringFieldUpdateOperationsInput | string
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
@@ -396,7 +414,8 @@ export type ScheduleWarningUncheckedUpdateManyInput = {
   severity?: Prisma.EnumWarningSeverityFieldUpdateOperationsInput | $Enums.WarningSeverity
   employeeId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   courtId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  courtShiftRoleId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  positionId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  shiftType?: Prisma.NullableEnumShiftTypeFieldUpdateOperationsInput | $Enums.ShiftType | null
   date?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   message?: Prisma.StringFieldUpdateOperationsInput | string
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
@@ -420,7 +439,8 @@ export type ScheduleWarningCountOrderByAggregateInput = {
   severity?: Prisma.SortOrder
   employeeId?: Prisma.SortOrder
   courtId?: Prisma.SortOrder
-  courtShiftRoleId?: Prisma.SortOrder
+  positionId?: Prisma.SortOrder
+  shiftType?: Prisma.SortOrder
   date?: Prisma.SortOrder
   message?: Prisma.SortOrder
   createdAt?: Prisma.SortOrder
@@ -434,7 +454,8 @@ export type ScheduleWarningMaxOrderByAggregateInput = {
   severity?: Prisma.SortOrder
   employeeId?: Prisma.SortOrder
   courtId?: Prisma.SortOrder
-  courtShiftRoleId?: Prisma.SortOrder
+  positionId?: Prisma.SortOrder
+  shiftType?: Prisma.SortOrder
   date?: Prisma.SortOrder
   message?: Prisma.SortOrder
   createdAt?: Prisma.SortOrder
@@ -448,7 +469,8 @@ export type ScheduleWarningMinOrderByAggregateInput = {
   severity?: Prisma.SortOrder
   employeeId?: Prisma.SortOrder
   courtId?: Prisma.SortOrder
-  courtShiftRoleId?: Prisma.SortOrder
+  positionId?: Prisma.SortOrder
+  shiftType?: Prisma.SortOrder
   date?: Prisma.SortOrder
   message?: Prisma.SortOrder
   createdAt?: Prisma.SortOrder
@@ -539,45 +561,45 @@ export type ScheduleWarningUncheckedUpdateManyWithoutEmployeeNestedInput = {
   deleteMany?: Prisma.ScheduleWarningScalarWhereInput | Prisma.ScheduleWarningScalarWhereInput[]
 }
 
-export type ScheduleWarningCreateNestedManyWithoutCourtShiftRoleInput = {
-  create?: Prisma.XOR<Prisma.ScheduleWarningCreateWithoutCourtShiftRoleInput, Prisma.ScheduleWarningUncheckedCreateWithoutCourtShiftRoleInput> | Prisma.ScheduleWarningCreateWithoutCourtShiftRoleInput[] | Prisma.ScheduleWarningUncheckedCreateWithoutCourtShiftRoleInput[]
-  connectOrCreate?: Prisma.ScheduleWarningCreateOrConnectWithoutCourtShiftRoleInput | Prisma.ScheduleWarningCreateOrConnectWithoutCourtShiftRoleInput[]
-  createMany?: Prisma.ScheduleWarningCreateManyCourtShiftRoleInputEnvelope
+export type ScheduleWarningCreateNestedManyWithoutPositionInput = {
+  create?: Prisma.XOR<Prisma.ScheduleWarningCreateWithoutPositionInput, Prisma.ScheduleWarningUncheckedCreateWithoutPositionInput> | Prisma.ScheduleWarningCreateWithoutPositionInput[] | Prisma.ScheduleWarningUncheckedCreateWithoutPositionInput[]
+  connectOrCreate?: Prisma.ScheduleWarningCreateOrConnectWithoutPositionInput | Prisma.ScheduleWarningCreateOrConnectWithoutPositionInput[]
+  createMany?: Prisma.ScheduleWarningCreateManyPositionInputEnvelope
   connect?: Prisma.ScheduleWarningWhereUniqueInput | Prisma.ScheduleWarningWhereUniqueInput[]
 }
 
-export type ScheduleWarningUncheckedCreateNestedManyWithoutCourtShiftRoleInput = {
-  create?: Prisma.XOR<Prisma.ScheduleWarningCreateWithoutCourtShiftRoleInput, Prisma.ScheduleWarningUncheckedCreateWithoutCourtShiftRoleInput> | Prisma.ScheduleWarningCreateWithoutCourtShiftRoleInput[] | Prisma.ScheduleWarningUncheckedCreateWithoutCourtShiftRoleInput[]
-  connectOrCreate?: Prisma.ScheduleWarningCreateOrConnectWithoutCourtShiftRoleInput | Prisma.ScheduleWarningCreateOrConnectWithoutCourtShiftRoleInput[]
-  createMany?: Prisma.ScheduleWarningCreateManyCourtShiftRoleInputEnvelope
+export type ScheduleWarningUncheckedCreateNestedManyWithoutPositionInput = {
+  create?: Prisma.XOR<Prisma.ScheduleWarningCreateWithoutPositionInput, Prisma.ScheduleWarningUncheckedCreateWithoutPositionInput> | Prisma.ScheduleWarningCreateWithoutPositionInput[] | Prisma.ScheduleWarningUncheckedCreateWithoutPositionInput[]
+  connectOrCreate?: Prisma.ScheduleWarningCreateOrConnectWithoutPositionInput | Prisma.ScheduleWarningCreateOrConnectWithoutPositionInput[]
+  createMany?: Prisma.ScheduleWarningCreateManyPositionInputEnvelope
   connect?: Prisma.ScheduleWarningWhereUniqueInput | Prisma.ScheduleWarningWhereUniqueInput[]
 }
 
-export type ScheduleWarningUpdateManyWithoutCourtShiftRoleNestedInput = {
-  create?: Prisma.XOR<Prisma.ScheduleWarningCreateWithoutCourtShiftRoleInput, Prisma.ScheduleWarningUncheckedCreateWithoutCourtShiftRoleInput> | Prisma.ScheduleWarningCreateWithoutCourtShiftRoleInput[] | Prisma.ScheduleWarningUncheckedCreateWithoutCourtShiftRoleInput[]
-  connectOrCreate?: Prisma.ScheduleWarningCreateOrConnectWithoutCourtShiftRoleInput | Prisma.ScheduleWarningCreateOrConnectWithoutCourtShiftRoleInput[]
-  upsert?: Prisma.ScheduleWarningUpsertWithWhereUniqueWithoutCourtShiftRoleInput | Prisma.ScheduleWarningUpsertWithWhereUniqueWithoutCourtShiftRoleInput[]
-  createMany?: Prisma.ScheduleWarningCreateManyCourtShiftRoleInputEnvelope
+export type ScheduleWarningUpdateManyWithoutPositionNestedInput = {
+  create?: Prisma.XOR<Prisma.ScheduleWarningCreateWithoutPositionInput, Prisma.ScheduleWarningUncheckedCreateWithoutPositionInput> | Prisma.ScheduleWarningCreateWithoutPositionInput[] | Prisma.ScheduleWarningUncheckedCreateWithoutPositionInput[]
+  connectOrCreate?: Prisma.ScheduleWarningCreateOrConnectWithoutPositionInput | Prisma.ScheduleWarningCreateOrConnectWithoutPositionInput[]
+  upsert?: Prisma.ScheduleWarningUpsertWithWhereUniqueWithoutPositionInput | Prisma.ScheduleWarningUpsertWithWhereUniqueWithoutPositionInput[]
+  createMany?: Prisma.ScheduleWarningCreateManyPositionInputEnvelope
   set?: Prisma.ScheduleWarningWhereUniqueInput | Prisma.ScheduleWarningWhereUniqueInput[]
   disconnect?: Prisma.ScheduleWarningWhereUniqueInput | Prisma.ScheduleWarningWhereUniqueInput[]
   delete?: Prisma.ScheduleWarningWhereUniqueInput | Prisma.ScheduleWarningWhereUniqueInput[]
   connect?: Prisma.ScheduleWarningWhereUniqueInput | Prisma.ScheduleWarningWhereUniqueInput[]
-  update?: Prisma.ScheduleWarningUpdateWithWhereUniqueWithoutCourtShiftRoleInput | Prisma.ScheduleWarningUpdateWithWhereUniqueWithoutCourtShiftRoleInput[]
-  updateMany?: Prisma.ScheduleWarningUpdateManyWithWhereWithoutCourtShiftRoleInput | Prisma.ScheduleWarningUpdateManyWithWhereWithoutCourtShiftRoleInput[]
+  update?: Prisma.ScheduleWarningUpdateWithWhereUniqueWithoutPositionInput | Prisma.ScheduleWarningUpdateWithWhereUniqueWithoutPositionInput[]
+  updateMany?: Prisma.ScheduleWarningUpdateManyWithWhereWithoutPositionInput | Prisma.ScheduleWarningUpdateManyWithWhereWithoutPositionInput[]
   deleteMany?: Prisma.ScheduleWarningScalarWhereInput | Prisma.ScheduleWarningScalarWhereInput[]
 }
 
-export type ScheduleWarningUncheckedUpdateManyWithoutCourtShiftRoleNestedInput = {
-  create?: Prisma.XOR<Prisma.ScheduleWarningCreateWithoutCourtShiftRoleInput, Prisma.ScheduleWarningUncheckedCreateWithoutCourtShiftRoleInput> | Prisma.ScheduleWarningCreateWithoutCourtShiftRoleInput[] | Prisma.ScheduleWarningUncheckedCreateWithoutCourtShiftRoleInput[]
-  connectOrCreate?: Prisma.ScheduleWarningCreateOrConnectWithoutCourtShiftRoleInput | Prisma.ScheduleWarningCreateOrConnectWithoutCourtShiftRoleInput[]
-  upsert?: Prisma.ScheduleWarningUpsertWithWhereUniqueWithoutCourtShiftRoleInput | Prisma.ScheduleWarningUpsertWithWhereUniqueWithoutCourtShiftRoleInput[]
-  createMany?: Prisma.ScheduleWarningCreateManyCourtShiftRoleInputEnvelope
+export type ScheduleWarningUncheckedUpdateManyWithoutPositionNestedInput = {
+  create?: Prisma.XOR<Prisma.ScheduleWarningCreateWithoutPositionInput, Prisma.ScheduleWarningUncheckedCreateWithoutPositionInput> | Prisma.ScheduleWarningCreateWithoutPositionInput[] | Prisma.ScheduleWarningUncheckedCreateWithoutPositionInput[]
+  connectOrCreate?: Prisma.ScheduleWarningCreateOrConnectWithoutPositionInput | Prisma.ScheduleWarningCreateOrConnectWithoutPositionInput[]
+  upsert?: Prisma.ScheduleWarningUpsertWithWhereUniqueWithoutPositionInput | Prisma.ScheduleWarningUpsertWithWhereUniqueWithoutPositionInput[]
+  createMany?: Prisma.ScheduleWarningCreateManyPositionInputEnvelope
   set?: Prisma.ScheduleWarningWhereUniqueInput | Prisma.ScheduleWarningWhereUniqueInput[]
   disconnect?: Prisma.ScheduleWarningWhereUniqueInput | Prisma.ScheduleWarningWhereUniqueInput[]
   delete?: Prisma.ScheduleWarningWhereUniqueInput | Prisma.ScheduleWarningWhereUniqueInput[]
   connect?: Prisma.ScheduleWarningWhereUniqueInput | Prisma.ScheduleWarningWhereUniqueInput[]
-  update?: Prisma.ScheduleWarningUpdateWithWhereUniqueWithoutCourtShiftRoleInput | Prisma.ScheduleWarningUpdateWithWhereUniqueWithoutCourtShiftRoleInput[]
-  updateMany?: Prisma.ScheduleWarningUpdateManyWithWhereWithoutCourtShiftRoleInput | Prisma.ScheduleWarningUpdateManyWithWhereWithoutCourtShiftRoleInput[]
+  update?: Prisma.ScheduleWarningUpdateWithWhereUniqueWithoutPositionInput | Prisma.ScheduleWarningUpdateWithWhereUniqueWithoutPositionInput[]
+  updateMany?: Prisma.ScheduleWarningUpdateManyWithWhereWithoutPositionInput | Prisma.ScheduleWarningUpdateManyWithWhereWithoutPositionInput[]
   deleteMany?: Prisma.ScheduleWarningScalarWhereInput | Prisma.ScheduleWarningScalarWhereInput[]
 }
 
@@ -631,17 +653,22 @@ export type EnumWarningSeverityFieldUpdateOperationsInput = {
   set?: $Enums.WarningSeverity
 }
 
+export type NullableEnumShiftTypeFieldUpdateOperationsInput = {
+  set?: $Enums.ShiftType | null
+}
+
 export type ScheduleWarningCreateWithoutCourtInput = {
   id?: string
   type: $Enums.WarningType
   severity: $Enums.WarningSeverity
+  shiftType?: $Enums.ShiftType | null
   date?: Date | string | null
   message: string
   createdAt?: Date | string
   updatedAt?: Date | string
   schedule: Prisma.ScheduleCreateNestedOneWithoutWarningsInput
   employee?: Prisma.EmployeeCreateNestedOneWithoutWarningsInput
-  courtShiftRole?: Prisma.CourtShiftRoleCreateNestedOneWithoutWarningsInput
+  position?: Prisma.PositionCreateNestedOneWithoutWarningsInput
 }
 
 export type ScheduleWarningUncheckedCreateWithoutCourtInput = {
@@ -650,7 +677,8 @@ export type ScheduleWarningUncheckedCreateWithoutCourtInput = {
   type: $Enums.WarningType
   severity: $Enums.WarningSeverity
   employeeId?: string | null
-  courtShiftRoleId?: string | null
+  positionId?: string | null
+  shiftType?: $Enums.ShiftType | null
   date?: Date | string | null
   message: string
   createdAt?: Date | string
@@ -693,7 +721,8 @@ export type ScheduleWarningScalarWhereInput = {
   severity?: Prisma.EnumWarningSeverityFilter<"ScheduleWarning"> | $Enums.WarningSeverity
   employeeId?: Prisma.StringNullableFilter<"ScheduleWarning"> | string | null
   courtId?: Prisma.StringNullableFilter<"ScheduleWarning"> | string | null
-  courtShiftRoleId?: Prisma.StringNullableFilter<"ScheduleWarning"> | string | null
+  positionId?: Prisma.StringNullableFilter<"ScheduleWarning"> | string | null
+  shiftType?: Prisma.EnumShiftTypeNullableFilter<"ScheduleWarning"> | $Enums.ShiftType | null
   date?: Prisma.DateTimeNullableFilter<"ScheduleWarning"> | Date | string | null
   message?: Prisma.StringFilter<"ScheduleWarning"> | string
   createdAt?: Prisma.DateTimeFilter<"ScheduleWarning"> | Date | string
@@ -704,13 +733,14 @@ export type ScheduleWarningCreateWithoutEmployeeInput = {
   id?: string
   type: $Enums.WarningType
   severity: $Enums.WarningSeverity
+  shiftType?: $Enums.ShiftType | null
   date?: Date | string | null
   message: string
   createdAt?: Date | string
   updatedAt?: Date | string
   schedule: Prisma.ScheduleCreateNestedOneWithoutWarningsInput
   court?: Prisma.CourtCreateNestedOneWithoutWarningsInput
-  courtShiftRole?: Prisma.CourtShiftRoleCreateNestedOneWithoutWarningsInput
+  position?: Prisma.PositionCreateNestedOneWithoutWarningsInput
 }
 
 export type ScheduleWarningUncheckedCreateWithoutEmployeeInput = {
@@ -719,7 +749,8 @@ export type ScheduleWarningUncheckedCreateWithoutEmployeeInput = {
   type: $Enums.WarningType
   severity: $Enums.WarningSeverity
   courtId?: string | null
-  courtShiftRoleId?: string | null
+  positionId?: string | null
+  shiftType?: $Enums.ShiftType | null
   date?: Date | string | null
   message: string
   createdAt?: Date | string
@@ -752,10 +783,11 @@ export type ScheduleWarningUpdateManyWithWhereWithoutEmployeeInput = {
   data: Prisma.XOR<Prisma.ScheduleWarningUpdateManyMutationInput, Prisma.ScheduleWarningUncheckedUpdateManyWithoutEmployeeInput>
 }
 
-export type ScheduleWarningCreateWithoutCourtShiftRoleInput = {
+export type ScheduleWarningCreateWithoutPositionInput = {
   id?: string
   type: $Enums.WarningType
   severity: $Enums.WarningSeverity
+  shiftType?: $Enums.ShiftType | null
   date?: Date | string | null
   message: string
   createdAt?: Date | string
@@ -765,56 +797,58 @@ export type ScheduleWarningCreateWithoutCourtShiftRoleInput = {
   court?: Prisma.CourtCreateNestedOneWithoutWarningsInput
 }
 
-export type ScheduleWarningUncheckedCreateWithoutCourtShiftRoleInput = {
+export type ScheduleWarningUncheckedCreateWithoutPositionInput = {
   id?: string
   scheduleId: string
   type: $Enums.WarningType
   severity: $Enums.WarningSeverity
   employeeId?: string | null
   courtId?: string | null
+  shiftType?: $Enums.ShiftType | null
   date?: Date | string | null
   message: string
   createdAt?: Date | string
   updatedAt?: Date | string
 }
 
-export type ScheduleWarningCreateOrConnectWithoutCourtShiftRoleInput = {
+export type ScheduleWarningCreateOrConnectWithoutPositionInput = {
   where: Prisma.ScheduleWarningWhereUniqueInput
-  create: Prisma.XOR<Prisma.ScheduleWarningCreateWithoutCourtShiftRoleInput, Prisma.ScheduleWarningUncheckedCreateWithoutCourtShiftRoleInput>
+  create: Prisma.XOR<Prisma.ScheduleWarningCreateWithoutPositionInput, Prisma.ScheduleWarningUncheckedCreateWithoutPositionInput>
 }
 
-export type ScheduleWarningCreateManyCourtShiftRoleInputEnvelope = {
-  data: Prisma.ScheduleWarningCreateManyCourtShiftRoleInput | Prisma.ScheduleWarningCreateManyCourtShiftRoleInput[]
+export type ScheduleWarningCreateManyPositionInputEnvelope = {
+  data: Prisma.ScheduleWarningCreateManyPositionInput | Prisma.ScheduleWarningCreateManyPositionInput[]
   skipDuplicates?: boolean
 }
 
-export type ScheduleWarningUpsertWithWhereUniqueWithoutCourtShiftRoleInput = {
+export type ScheduleWarningUpsertWithWhereUniqueWithoutPositionInput = {
   where: Prisma.ScheduleWarningWhereUniqueInput
-  update: Prisma.XOR<Prisma.ScheduleWarningUpdateWithoutCourtShiftRoleInput, Prisma.ScheduleWarningUncheckedUpdateWithoutCourtShiftRoleInput>
-  create: Prisma.XOR<Prisma.ScheduleWarningCreateWithoutCourtShiftRoleInput, Prisma.ScheduleWarningUncheckedCreateWithoutCourtShiftRoleInput>
+  update: Prisma.XOR<Prisma.ScheduleWarningUpdateWithoutPositionInput, Prisma.ScheduleWarningUncheckedUpdateWithoutPositionInput>
+  create: Prisma.XOR<Prisma.ScheduleWarningCreateWithoutPositionInput, Prisma.ScheduleWarningUncheckedCreateWithoutPositionInput>
 }
 
-export type ScheduleWarningUpdateWithWhereUniqueWithoutCourtShiftRoleInput = {
+export type ScheduleWarningUpdateWithWhereUniqueWithoutPositionInput = {
   where: Prisma.ScheduleWarningWhereUniqueInput
-  data: Prisma.XOR<Prisma.ScheduleWarningUpdateWithoutCourtShiftRoleInput, Prisma.ScheduleWarningUncheckedUpdateWithoutCourtShiftRoleInput>
+  data: Prisma.XOR<Prisma.ScheduleWarningUpdateWithoutPositionInput, Prisma.ScheduleWarningUncheckedUpdateWithoutPositionInput>
 }
 
-export type ScheduleWarningUpdateManyWithWhereWithoutCourtShiftRoleInput = {
+export type ScheduleWarningUpdateManyWithWhereWithoutPositionInput = {
   where: Prisma.ScheduleWarningScalarWhereInput
-  data: Prisma.XOR<Prisma.ScheduleWarningUpdateManyMutationInput, Prisma.ScheduleWarningUncheckedUpdateManyWithoutCourtShiftRoleInput>
+  data: Prisma.XOR<Prisma.ScheduleWarningUpdateManyMutationInput, Prisma.ScheduleWarningUncheckedUpdateManyWithoutPositionInput>
 }
 
 export type ScheduleWarningCreateWithoutScheduleInput = {
   id?: string
   type: $Enums.WarningType
   severity: $Enums.WarningSeverity
+  shiftType?: $Enums.ShiftType | null
   date?: Date | string | null
   message: string
   createdAt?: Date | string
   updatedAt?: Date | string
   employee?: Prisma.EmployeeCreateNestedOneWithoutWarningsInput
   court?: Prisma.CourtCreateNestedOneWithoutWarningsInput
-  courtShiftRole?: Prisma.CourtShiftRoleCreateNestedOneWithoutWarningsInput
+  position?: Prisma.PositionCreateNestedOneWithoutWarningsInput
 }
 
 export type ScheduleWarningUncheckedCreateWithoutScheduleInput = {
@@ -823,7 +857,8 @@ export type ScheduleWarningUncheckedCreateWithoutScheduleInput = {
   severity: $Enums.WarningSeverity
   employeeId?: string | null
   courtId?: string | null
-  courtShiftRoleId?: string | null
+  positionId?: string | null
+  shiftType?: $Enums.ShiftType | null
   date?: Date | string | null
   message: string
   createdAt?: Date | string
@@ -862,7 +897,8 @@ export type ScheduleWarningCreateManyCourtInput = {
   type: $Enums.WarningType
   severity: $Enums.WarningSeverity
   employeeId?: string | null
-  courtShiftRoleId?: string | null
+  positionId?: string | null
+  shiftType?: $Enums.ShiftType | null
   date?: Date | string | null
   message: string
   createdAt?: Date | string
@@ -873,13 +909,14 @@ export type ScheduleWarningUpdateWithoutCourtInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
   type?: Prisma.EnumWarningTypeFieldUpdateOperationsInput | $Enums.WarningType
   severity?: Prisma.EnumWarningSeverityFieldUpdateOperationsInput | $Enums.WarningSeverity
+  shiftType?: Prisma.NullableEnumShiftTypeFieldUpdateOperationsInput | $Enums.ShiftType | null
   date?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   message?: Prisma.StringFieldUpdateOperationsInput | string
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   schedule?: Prisma.ScheduleUpdateOneRequiredWithoutWarningsNestedInput
   employee?: Prisma.EmployeeUpdateOneWithoutWarningsNestedInput
-  courtShiftRole?: Prisma.CourtShiftRoleUpdateOneWithoutWarningsNestedInput
+  position?: Prisma.PositionUpdateOneWithoutWarningsNestedInput
 }
 
 export type ScheduleWarningUncheckedUpdateWithoutCourtInput = {
@@ -888,7 +925,8 @@ export type ScheduleWarningUncheckedUpdateWithoutCourtInput = {
   type?: Prisma.EnumWarningTypeFieldUpdateOperationsInput | $Enums.WarningType
   severity?: Prisma.EnumWarningSeverityFieldUpdateOperationsInput | $Enums.WarningSeverity
   employeeId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  courtShiftRoleId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  positionId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  shiftType?: Prisma.NullableEnumShiftTypeFieldUpdateOperationsInput | $Enums.ShiftType | null
   date?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   message?: Prisma.StringFieldUpdateOperationsInput | string
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
@@ -901,7 +939,8 @@ export type ScheduleWarningUncheckedUpdateManyWithoutCourtInput = {
   type?: Prisma.EnumWarningTypeFieldUpdateOperationsInput | $Enums.WarningType
   severity?: Prisma.EnumWarningSeverityFieldUpdateOperationsInput | $Enums.WarningSeverity
   employeeId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  courtShiftRoleId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  positionId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  shiftType?: Prisma.NullableEnumShiftTypeFieldUpdateOperationsInput | $Enums.ShiftType | null
   date?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   message?: Prisma.StringFieldUpdateOperationsInput | string
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
@@ -914,7 +953,8 @@ export type ScheduleWarningCreateManyEmployeeInput = {
   type: $Enums.WarningType
   severity: $Enums.WarningSeverity
   courtId?: string | null
-  courtShiftRoleId?: string | null
+  positionId?: string | null
+  shiftType?: $Enums.ShiftType | null
   date?: Date | string | null
   message: string
   createdAt?: Date | string
@@ -925,13 +965,14 @@ export type ScheduleWarningUpdateWithoutEmployeeInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
   type?: Prisma.EnumWarningTypeFieldUpdateOperationsInput | $Enums.WarningType
   severity?: Prisma.EnumWarningSeverityFieldUpdateOperationsInput | $Enums.WarningSeverity
+  shiftType?: Prisma.NullableEnumShiftTypeFieldUpdateOperationsInput | $Enums.ShiftType | null
   date?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   message?: Prisma.StringFieldUpdateOperationsInput | string
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   schedule?: Prisma.ScheduleUpdateOneRequiredWithoutWarningsNestedInput
   court?: Prisma.CourtUpdateOneWithoutWarningsNestedInput
-  courtShiftRole?: Prisma.CourtShiftRoleUpdateOneWithoutWarningsNestedInput
+  position?: Prisma.PositionUpdateOneWithoutWarningsNestedInput
 }
 
 export type ScheduleWarningUncheckedUpdateWithoutEmployeeInput = {
@@ -940,7 +981,8 @@ export type ScheduleWarningUncheckedUpdateWithoutEmployeeInput = {
   type?: Prisma.EnumWarningTypeFieldUpdateOperationsInput | $Enums.WarningType
   severity?: Prisma.EnumWarningSeverityFieldUpdateOperationsInput | $Enums.WarningSeverity
   courtId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  courtShiftRoleId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  positionId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  shiftType?: Prisma.NullableEnumShiftTypeFieldUpdateOperationsInput | $Enums.ShiftType | null
   date?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   message?: Prisma.StringFieldUpdateOperationsInput | string
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
@@ -953,30 +995,33 @@ export type ScheduleWarningUncheckedUpdateManyWithoutEmployeeInput = {
   type?: Prisma.EnumWarningTypeFieldUpdateOperationsInput | $Enums.WarningType
   severity?: Prisma.EnumWarningSeverityFieldUpdateOperationsInput | $Enums.WarningSeverity
   courtId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  courtShiftRoleId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  positionId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  shiftType?: Prisma.NullableEnumShiftTypeFieldUpdateOperationsInput | $Enums.ShiftType | null
   date?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   message?: Prisma.StringFieldUpdateOperationsInput | string
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
 }
 
-export type ScheduleWarningCreateManyCourtShiftRoleInput = {
+export type ScheduleWarningCreateManyPositionInput = {
   id?: string
   scheduleId: string
   type: $Enums.WarningType
   severity: $Enums.WarningSeverity
   employeeId?: string | null
   courtId?: string | null
+  shiftType?: $Enums.ShiftType | null
   date?: Date | string | null
   message: string
   createdAt?: Date | string
   updatedAt?: Date | string
 }
 
-export type ScheduleWarningUpdateWithoutCourtShiftRoleInput = {
+export type ScheduleWarningUpdateWithoutPositionInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
   type?: Prisma.EnumWarningTypeFieldUpdateOperationsInput | $Enums.WarningType
   severity?: Prisma.EnumWarningSeverityFieldUpdateOperationsInput | $Enums.WarningSeverity
+  shiftType?: Prisma.NullableEnumShiftTypeFieldUpdateOperationsInput | $Enums.ShiftType | null
   date?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   message?: Prisma.StringFieldUpdateOperationsInput | string
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
@@ -986,26 +1031,28 @@ export type ScheduleWarningUpdateWithoutCourtShiftRoleInput = {
   court?: Prisma.CourtUpdateOneWithoutWarningsNestedInput
 }
 
-export type ScheduleWarningUncheckedUpdateWithoutCourtShiftRoleInput = {
+export type ScheduleWarningUncheckedUpdateWithoutPositionInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
   scheduleId?: Prisma.StringFieldUpdateOperationsInput | string
   type?: Prisma.EnumWarningTypeFieldUpdateOperationsInput | $Enums.WarningType
   severity?: Prisma.EnumWarningSeverityFieldUpdateOperationsInput | $Enums.WarningSeverity
   employeeId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   courtId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  shiftType?: Prisma.NullableEnumShiftTypeFieldUpdateOperationsInput | $Enums.ShiftType | null
   date?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   message?: Prisma.StringFieldUpdateOperationsInput | string
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
 }
 
-export type ScheduleWarningUncheckedUpdateManyWithoutCourtShiftRoleInput = {
+export type ScheduleWarningUncheckedUpdateManyWithoutPositionInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
   scheduleId?: Prisma.StringFieldUpdateOperationsInput | string
   type?: Prisma.EnumWarningTypeFieldUpdateOperationsInput | $Enums.WarningType
   severity?: Prisma.EnumWarningSeverityFieldUpdateOperationsInput | $Enums.WarningSeverity
   employeeId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   courtId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  shiftType?: Prisma.NullableEnumShiftTypeFieldUpdateOperationsInput | $Enums.ShiftType | null
   date?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   message?: Prisma.StringFieldUpdateOperationsInput | string
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
@@ -1018,7 +1065,8 @@ export type ScheduleWarningCreateManyScheduleInput = {
   severity: $Enums.WarningSeverity
   employeeId?: string | null
   courtId?: string | null
-  courtShiftRoleId?: string | null
+  positionId?: string | null
+  shiftType?: $Enums.ShiftType | null
   date?: Date | string | null
   message: string
   createdAt?: Date | string
@@ -1029,13 +1077,14 @@ export type ScheduleWarningUpdateWithoutScheduleInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
   type?: Prisma.EnumWarningTypeFieldUpdateOperationsInput | $Enums.WarningType
   severity?: Prisma.EnumWarningSeverityFieldUpdateOperationsInput | $Enums.WarningSeverity
+  shiftType?: Prisma.NullableEnumShiftTypeFieldUpdateOperationsInput | $Enums.ShiftType | null
   date?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   message?: Prisma.StringFieldUpdateOperationsInput | string
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   employee?: Prisma.EmployeeUpdateOneWithoutWarningsNestedInput
   court?: Prisma.CourtUpdateOneWithoutWarningsNestedInput
-  courtShiftRole?: Prisma.CourtShiftRoleUpdateOneWithoutWarningsNestedInput
+  position?: Prisma.PositionUpdateOneWithoutWarningsNestedInput
 }
 
 export type ScheduleWarningUncheckedUpdateWithoutScheduleInput = {
@@ -1044,7 +1093,8 @@ export type ScheduleWarningUncheckedUpdateWithoutScheduleInput = {
   severity?: Prisma.EnumWarningSeverityFieldUpdateOperationsInput | $Enums.WarningSeverity
   employeeId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   courtId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  courtShiftRoleId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  positionId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  shiftType?: Prisma.NullableEnumShiftTypeFieldUpdateOperationsInput | $Enums.ShiftType | null
   date?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   message?: Prisma.StringFieldUpdateOperationsInput | string
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
@@ -1057,7 +1107,8 @@ export type ScheduleWarningUncheckedUpdateManyWithoutScheduleInput = {
   severity?: Prisma.EnumWarningSeverityFieldUpdateOperationsInput | $Enums.WarningSeverity
   employeeId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   courtId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  courtShiftRoleId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  positionId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  shiftType?: Prisma.NullableEnumShiftTypeFieldUpdateOperationsInput | $Enums.ShiftType | null
   date?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   message?: Prisma.StringFieldUpdateOperationsInput | string
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
@@ -1073,7 +1124,8 @@ export type ScheduleWarningSelect<ExtArgs extends runtime.Types.Extensions.Inter
   severity?: boolean
   employeeId?: boolean
   courtId?: boolean
-  courtShiftRoleId?: boolean
+  positionId?: boolean
+  shiftType?: boolean
   date?: boolean
   message?: boolean
   createdAt?: boolean
@@ -1081,7 +1133,7 @@ export type ScheduleWarningSelect<ExtArgs extends runtime.Types.Extensions.Inter
   schedule?: boolean | Prisma.ScheduleDefaultArgs<ExtArgs>
   employee?: boolean | Prisma.ScheduleWarning$employeeArgs<ExtArgs>
   court?: boolean | Prisma.ScheduleWarning$courtArgs<ExtArgs>
-  courtShiftRole?: boolean | Prisma.ScheduleWarning$courtShiftRoleArgs<ExtArgs>
+  position?: boolean | Prisma.ScheduleWarning$positionArgs<ExtArgs>
 }, ExtArgs["result"]["scheduleWarning"]>
 
 export type ScheduleWarningSelectCreateManyAndReturn<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetSelect<{
@@ -1091,7 +1143,8 @@ export type ScheduleWarningSelectCreateManyAndReturn<ExtArgs extends runtime.Typ
   severity?: boolean
   employeeId?: boolean
   courtId?: boolean
-  courtShiftRoleId?: boolean
+  positionId?: boolean
+  shiftType?: boolean
   date?: boolean
   message?: boolean
   createdAt?: boolean
@@ -1099,7 +1152,7 @@ export type ScheduleWarningSelectCreateManyAndReturn<ExtArgs extends runtime.Typ
   schedule?: boolean | Prisma.ScheduleDefaultArgs<ExtArgs>
   employee?: boolean | Prisma.ScheduleWarning$employeeArgs<ExtArgs>
   court?: boolean | Prisma.ScheduleWarning$courtArgs<ExtArgs>
-  courtShiftRole?: boolean | Prisma.ScheduleWarning$courtShiftRoleArgs<ExtArgs>
+  position?: boolean | Prisma.ScheduleWarning$positionArgs<ExtArgs>
 }, ExtArgs["result"]["scheduleWarning"]>
 
 export type ScheduleWarningSelectUpdateManyAndReturn<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetSelect<{
@@ -1109,7 +1162,8 @@ export type ScheduleWarningSelectUpdateManyAndReturn<ExtArgs extends runtime.Typ
   severity?: boolean
   employeeId?: boolean
   courtId?: boolean
-  courtShiftRoleId?: boolean
+  positionId?: boolean
+  shiftType?: boolean
   date?: boolean
   message?: boolean
   createdAt?: boolean
@@ -1117,7 +1171,7 @@ export type ScheduleWarningSelectUpdateManyAndReturn<ExtArgs extends runtime.Typ
   schedule?: boolean | Prisma.ScheduleDefaultArgs<ExtArgs>
   employee?: boolean | Prisma.ScheduleWarning$employeeArgs<ExtArgs>
   court?: boolean | Prisma.ScheduleWarning$courtArgs<ExtArgs>
-  courtShiftRole?: boolean | Prisma.ScheduleWarning$courtShiftRoleArgs<ExtArgs>
+  position?: boolean | Prisma.ScheduleWarning$positionArgs<ExtArgs>
 }, ExtArgs["result"]["scheduleWarning"]>
 
 export type ScheduleWarningSelectScalar = {
@@ -1127,31 +1181,32 @@ export type ScheduleWarningSelectScalar = {
   severity?: boolean
   employeeId?: boolean
   courtId?: boolean
-  courtShiftRoleId?: boolean
+  positionId?: boolean
+  shiftType?: boolean
   date?: boolean
   message?: boolean
   createdAt?: boolean
   updatedAt?: boolean
 }
 
-export type ScheduleWarningOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"id" | "scheduleId" | "type" | "severity" | "employeeId" | "courtId" | "courtShiftRoleId" | "date" | "message" | "createdAt" | "updatedAt", ExtArgs["result"]["scheduleWarning"]>
+export type ScheduleWarningOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"id" | "scheduleId" | "type" | "severity" | "employeeId" | "courtId" | "positionId" | "shiftType" | "date" | "message" | "createdAt" | "updatedAt", ExtArgs["result"]["scheduleWarning"]>
 export type ScheduleWarningInclude<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
   schedule?: boolean | Prisma.ScheduleDefaultArgs<ExtArgs>
   employee?: boolean | Prisma.ScheduleWarning$employeeArgs<ExtArgs>
   court?: boolean | Prisma.ScheduleWarning$courtArgs<ExtArgs>
-  courtShiftRole?: boolean | Prisma.ScheduleWarning$courtShiftRoleArgs<ExtArgs>
+  position?: boolean | Prisma.ScheduleWarning$positionArgs<ExtArgs>
 }
 export type ScheduleWarningIncludeCreateManyAndReturn<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
   schedule?: boolean | Prisma.ScheduleDefaultArgs<ExtArgs>
   employee?: boolean | Prisma.ScheduleWarning$employeeArgs<ExtArgs>
   court?: boolean | Prisma.ScheduleWarning$courtArgs<ExtArgs>
-  courtShiftRole?: boolean | Prisma.ScheduleWarning$courtShiftRoleArgs<ExtArgs>
+  position?: boolean | Prisma.ScheduleWarning$positionArgs<ExtArgs>
 }
 export type ScheduleWarningIncludeUpdateManyAndReturn<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
   schedule?: boolean | Prisma.ScheduleDefaultArgs<ExtArgs>
   employee?: boolean | Prisma.ScheduleWarning$employeeArgs<ExtArgs>
   court?: boolean | Prisma.ScheduleWarning$courtArgs<ExtArgs>
-  courtShiftRole?: boolean | Prisma.ScheduleWarning$courtShiftRoleArgs<ExtArgs>
+  position?: boolean | Prisma.ScheduleWarning$positionArgs<ExtArgs>
 }
 
 export type $ScheduleWarningPayload<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
@@ -1160,7 +1215,7 @@ export type $ScheduleWarningPayload<ExtArgs extends runtime.Types.Extensions.Int
     schedule: Prisma.$SchedulePayload<ExtArgs>
     employee: Prisma.$EmployeePayload<ExtArgs> | null
     court: Prisma.$CourtPayload<ExtArgs> | null
-    courtShiftRole: Prisma.$CourtShiftRolePayload<ExtArgs> | null
+    position: Prisma.$PositionPayload<ExtArgs> | null
   }
   scalars: runtime.Types.Extensions.GetPayloadResult<{
     id: string
@@ -1169,7 +1224,8 @@ export type $ScheduleWarningPayload<ExtArgs extends runtime.Types.Extensions.Int
     severity: $Enums.WarningSeverity
     employeeId: string | null
     courtId: string | null
-    courtShiftRoleId: string | null
+    positionId: string | null
+    shiftType: $Enums.ShiftType | null
     date: Date | null
     message: string
     createdAt: Date
@@ -1571,7 +1627,7 @@ export interface Prisma__ScheduleWarningClient<T, Null = never, ExtArgs extends 
   schedule<T extends Prisma.ScheduleDefaultArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.ScheduleDefaultArgs<ExtArgs>>): Prisma.Prisma__ScheduleClient<runtime.Types.Result.GetResult<Prisma.$SchedulePayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions> | Null, Null, ExtArgs, GlobalOmitOptions>
   employee<T extends Prisma.ScheduleWarning$employeeArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.ScheduleWarning$employeeArgs<ExtArgs>>): Prisma.Prisma__EmployeeClient<runtime.Types.Result.GetResult<Prisma.$EmployeePayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions> | null, null, ExtArgs, GlobalOmitOptions>
   court<T extends Prisma.ScheduleWarning$courtArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.ScheduleWarning$courtArgs<ExtArgs>>): Prisma.Prisma__CourtClient<runtime.Types.Result.GetResult<Prisma.$CourtPayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions> | null, null, ExtArgs, GlobalOmitOptions>
-  courtShiftRole<T extends Prisma.ScheduleWarning$courtShiftRoleArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.ScheduleWarning$courtShiftRoleArgs<ExtArgs>>): Prisma.Prisma__CourtShiftRoleClient<runtime.Types.Result.GetResult<Prisma.$CourtShiftRolePayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions> | null, null, ExtArgs, GlobalOmitOptions>
+  position<T extends Prisma.ScheduleWarning$positionArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.ScheduleWarning$positionArgs<ExtArgs>>): Prisma.Prisma__PositionClient<runtime.Types.Result.GetResult<Prisma.$PositionPayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions> | null, null, ExtArgs, GlobalOmitOptions>
   /**
    * Attaches callbacks for the resolution and/or rejection of the Promise.
    * @param onfulfilled The callback to execute when the Promise is resolved.
@@ -1607,7 +1663,8 @@ export interface ScheduleWarningFieldRefs {
   readonly severity: Prisma.FieldRef<"ScheduleWarning", 'WarningSeverity'>
   readonly employeeId: Prisma.FieldRef<"ScheduleWarning", 'String'>
   readonly courtId: Prisma.FieldRef<"ScheduleWarning", 'String'>
-  readonly courtShiftRoleId: Prisma.FieldRef<"ScheduleWarning", 'String'>
+  readonly positionId: Prisma.FieldRef<"ScheduleWarning", 'String'>
+  readonly shiftType: Prisma.FieldRef<"ScheduleWarning", 'ShiftType'>
   readonly date: Prisma.FieldRef<"ScheduleWarning", 'DateTime'>
   readonly message: Prisma.FieldRef<"ScheduleWarning", 'String'>
   readonly createdAt: Prisma.FieldRef<"ScheduleWarning", 'DateTime'>
@@ -2051,22 +2108,22 @@ export type ScheduleWarning$courtArgs<ExtArgs extends runtime.Types.Extensions.I
 }
 
 /**
- * ScheduleWarning.courtShiftRole
+ * ScheduleWarning.position
  */
-export type ScheduleWarning$courtShiftRoleArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+export type ScheduleWarning$positionArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
   /**
-   * Select specific fields to fetch from the CourtShiftRole
+   * Select specific fields to fetch from the Position
    */
-  select?: Prisma.CourtShiftRoleSelect<ExtArgs> | null
+  select?: Prisma.PositionSelect<ExtArgs> | null
   /**
-   * Omit specific fields from the CourtShiftRole
+   * Omit specific fields from the Position
    */
-  omit?: Prisma.CourtShiftRoleOmit<ExtArgs> | null
+  omit?: Prisma.PositionOmit<ExtArgs> | null
   /**
    * Choose, which related nodes to fetch as well
    */
-  include?: Prisma.CourtShiftRoleInclude<ExtArgs> | null
-  where?: Prisma.CourtShiftRoleWhereInput
+  include?: Prisma.PositionInclude<ExtArgs> | null
+  where?: Prisma.PositionWhereInput
 }
 
 /**

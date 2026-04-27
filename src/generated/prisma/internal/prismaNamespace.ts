@@ -391,9 +391,8 @@ export const ModelName = {
   Region: 'Region',
   Court: 'Court',
   Employee: 'Employee',
-  CourtShiftRole: 'CourtShiftRole',
-  CourtShiftRoleAllowedPosition: 'CourtShiftRoleAllowedPosition',
-  CourtStaffRule: 'CourtStaffRule',
+  Position: 'Position',
+  ShiftCapacity: 'ShiftCapacity',
   SchedulePeriod: 'SchedulePeriod',
   Availability: 'Availability',
   AvailabilityEntry: 'AvailabilityEntry',
@@ -418,7 +417,7 @@ export type TypeMap<ExtArgs extends runtime.Types.Extensions.InternalArgs = runt
     omit: GlobalOmitOptions
   }
   meta: {
-    modelProps: "account" | "session" | "verificationToken" | "user" | "region" | "court" | "employee" | "courtShiftRole" | "courtShiftRoleAllowedPosition" | "courtStaffRule" | "schedulePeriod" | "availability" | "availabilityEntry" | "schedule" | "shiftAssignment" | "scheduleWarning" | "fairnessRecord" | "scheduleChangeLog" | "systemConfig"
+    modelProps: "account" | "session" | "verificationToken" | "user" | "region" | "court" | "employee" | "position" | "shiftCapacity" | "schedulePeriod" | "availability" | "availabilityEntry" | "schedule" | "shiftAssignment" | "scheduleWarning" | "fairnessRecord" | "scheduleChangeLog" | "systemConfig"
     txIsolationLevel: TransactionIsolationLevel
   }
   model: {
@@ -940,225 +939,151 @@ export type TypeMap<ExtArgs extends runtime.Types.Extensions.InternalArgs = runt
         }
       }
     }
-    CourtShiftRole: {
-      payload: Prisma.$CourtShiftRolePayload<ExtArgs>
-      fields: Prisma.CourtShiftRoleFieldRefs
+    Position: {
+      payload: Prisma.$PositionPayload<ExtArgs>
+      fields: Prisma.PositionFieldRefs
       operations: {
         findUnique: {
-          args: Prisma.CourtShiftRoleFindUniqueArgs<ExtArgs>
-          result: runtime.Types.Utils.PayloadToResult<Prisma.$CourtShiftRolePayload> | null
+          args: Prisma.PositionFindUniqueArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$PositionPayload> | null
         }
         findUniqueOrThrow: {
-          args: Prisma.CourtShiftRoleFindUniqueOrThrowArgs<ExtArgs>
-          result: runtime.Types.Utils.PayloadToResult<Prisma.$CourtShiftRolePayload>
+          args: Prisma.PositionFindUniqueOrThrowArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$PositionPayload>
         }
         findFirst: {
-          args: Prisma.CourtShiftRoleFindFirstArgs<ExtArgs>
-          result: runtime.Types.Utils.PayloadToResult<Prisma.$CourtShiftRolePayload> | null
+          args: Prisma.PositionFindFirstArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$PositionPayload> | null
         }
         findFirstOrThrow: {
-          args: Prisma.CourtShiftRoleFindFirstOrThrowArgs<ExtArgs>
-          result: runtime.Types.Utils.PayloadToResult<Prisma.$CourtShiftRolePayload>
+          args: Prisma.PositionFindFirstOrThrowArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$PositionPayload>
         }
         findMany: {
-          args: Prisma.CourtShiftRoleFindManyArgs<ExtArgs>
-          result: runtime.Types.Utils.PayloadToResult<Prisma.$CourtShiftRolePayload>[]
+          args: Prisma.PositionFindManyArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$PositionPayload>[]
         }
         create: {
-          args: Prisma.CourtShiftRoleCreateArgs<ExtArgs>
-          result: runtime.Types.Utils.PayloadToResult<Prisma.$CourtShiftRolePayload>
+          args: Prisma.PositionCreateArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$PositionPayload>
         }
         createMany: {
-          args: Prisma.CourtShiftRoleCreateManyArgs<ExtArgs>
+          args: Prisma.PositionCreateManyArgs<ExtArgs>
           result: BatchPayload
         }
         createManyAndReturn: {
-          args: Prisma.CourtShiftRoleCreateManyAndReturnArgs<ExtArgs>
-          result: runtime.Types.Utils.PayloadToResult<Prisma.$CourtShiftRolePayload>[]
+          args: Prisma.PositionCreateManyAndReturnArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$PositionPayload>[]
         }
         delete: {
-          args: Prisma.CourtShiftRoleDeleteArgs<ExtArgs>
-          result: runtime.Types.Utils.PayloadToResult<Prisma.$CourtShiftRolePayload>
+          args: Prisma.PositionDeleteArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$PositionPayload>
         }
         update: {
-          args: Prisma.CourtShiftRoleUpdateArgs<ExtArgs>
-          result: runtime.Types.Utils.PayloadToResult<Prisma.$CourtShiftRolePayload>
+          args: Prisma.PositionUpdateArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$PositionPayload>
         }
         deleteMany: {
-          args: Prisma.CourtShiftRoleDeleteManyArgs<ExtArgs>
+          args: Prisma.PositionDeleteManyArgs<ExtArgs>
           result: BatchPayload
         }
         updateMany: {
-          args: Prisma.CourtShiftRoleUpdateManyArgs<ExtArgs>
+          args: Prisma.PositionUpdateManyArgs<ExtArgs>
           result: BatchPayload
         }
         updateManyAndReturn: {
-          args: Prisma.CourtShiftRoleUpdateManyAndReturnArgs<ExtArgs>
-          result: runtime.Types.Utils.PayloadToResult<Prisma.$CourtShiftRolePayload>[]
+          args: Prisma.PositionUpdateManyAndReturnArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$PositionPayload>[]
         }
         upsert: {
-          args: Prisma.CourtShiftRoleUpsertArgs<ExtArgs>
-          result: runtime.Types.Utils.PayloadToResult<Prisma.$CourtShiftRolePayload>
+          args: Prisma.PositionUpsertArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$PositionPayload>
         }
         aggregate: {
-          args: Prisma.CourtShiftRoleAggregateArgs<ExtArgs>
-          result: runtime.Types.Utils.Optional<Prisma.AggregateCourtShiftRole>
+          args: Prisma.PositionAggregateArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.AggregatePosition>
         }
         groupBy: {
-          args: Prisma.CourtShiftRoleGroupByArgs<ExtArgs>
-          result: runtime.Types.Utils.Optional<Prisma.CourtShiftRoleGroupByOutputType>[]
+          args: Prisma.PositionGroupByArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.PositionGroupByOutputType>[]
         }
         count: {
-          args: Prisma.CourtShiftRoleCountArgs<ExtArgs>
-          result: runtime.Types.Utils.Optional<Prisma.CourtShiftRoleCountAggregateOutputType> | number
+          args: Prisma.PositionCountArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.PositionCountAggregateOutputType> | number
         }
       }
     }
-    CourtShiftRoleAllowedPosition: {
-      payload: Prisma.$CourtShiftRoleAllowedPositionPayload<ExtArgs>
-      fields: Prisma.CourtShiftRoleAllowedPositionFieldRefs
+    ShiftCapacity: {
+      payload: Prisma.$ShiftCapacityPayload<ExtArgs>
+      fields: Prisma.ShiftCapacityFieldRefs
       operations: {
         findUnique: {
-          args: Prisma.CourtShiftRoleAllowedPositionFindUniqueArgs<ExtArgs>
-          result: runtime.Types.Utils.PayloadToResult<Prisma.$CourtShiftRoleAllowedPositionPayload> | null
+          args: Prisma.ShiftCapacityFindUniqueArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$ShiftCapacityPayload> | null
         }
         findUniqueOrThrow: {
-          args: Prisma.CourtShiftRoleAllowedPositionFindUniqueOrThrowArgs<ExtArgs>
-          result: runtime.Types.Utils.PayloadToResult<Prisma.$CourtShiftRoleAllowedPositionPayload>
+          args: Prisma.ShiftCapacityFindUniqueOrThrowArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$ShiftCapacityPayload>
         }
         findFirst: {
-          args: Prisma.CourtShiftRoleAllowedPositionFindFirstArgs<ExtArgs>
-          result: runtime.Types.Utils.PayloadToResult<Prisma.$CourtShiftRoleAllowedPositionPayload> | null
+          args: Prisma.ShiftCapacityFindFirstArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$ShiftCapacityPayload> | null
         }
         findFirstOrThrow: {
-          args: Prisma.CourtShiftRoleAllowedPositionFindFirstOrThrowArgs<ExtArgs>
-          result: runtime.Types.Utils.PayloadToResult<Prisma.$CourtShiftRoleAllowedPositionPayload>
+          args: Prisma.ShiftCapacityFindFirstOrThrowArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$ShiftCapacityPayload>
         }
         findMany: {
-          args: Prisma.CourtShiftRoleAllowedPositionFindManyArgs<ExtArgs>
-          result: runtime.Types.Utils.PayloadToResult<Prisma.$CourtShiftRoleAllowedPositionPayload>[]
+          args: Prisma.ShiftCapacityFindManyArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$ShiftCapacityPayload>[]
         }
         create: {
-          args: Prisma.CourtShiftRoleAllowedPositionCreateArgs<ExtArgs>
-          result: runtime.Types.Utils.PayloadToResult<Prisma.$CourtShiftRoleAllowedPositionPayload>
+          args: Prisma.ShiftCapacityCreateArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$ShiftCapacityPayload>
         }
         createMany: {
-          args: Prisma.CourtShiftRoleAllowedPositionCreateManyArgs<ExtArgs>
+          args: Prisma.ShiftCapacityCreateManyArgs<ExtArgs>
           result: BatchPayload
         }
         createManyAndReturn: {
-          args: Prisma.CourtShiftRoleAllowedPositionCreateManyAndReturnArgs<ExtArgs>
-          result: runtime.Types.Utils.PayloadToResult<Prisma.$CourtShiftRoleAllowedPositionPayload>[]
+          args: Prisma.ShiftCapacityCreateManyAndReturnArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$ShiftCapacityPayload>[]
         }
         delete: {
-          args: Prisma.CourtShiftRoleAllowedPositionDeleteArgs<ExtArgs>
-          result: runtime.Types.Utils.PayloadToResult<Prisma.$CourtShiftRoleAllowedPositionPayload>
+          args: Prisma.ShiftCapacityDeleteArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$ShiftCapacityPayload>
         }
         update: {
-          args: Prisma.CourtShiftRoleAllowedPositionUpdateArgs<ExtArgs>
-          result: runtime.Types.Utils.PayloadToResult<Prisma.$CourtShiftRoleAllowedPositionPayload>
+          args: Prisma.ShiftCapacityUpdateArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$ShiftCapacityPayload>
         }
         deleteMany: {
-          args: Prisma.CourtShiftRoleAllowedPositionDeleteManyArgs<ExtArgs>
+          args: Prisma.ShiftCapacityDeleteManyArgs<ExtArgs>
           result: BatchPayload
         }
         updateMany: {
-          args: Prisma.CourtShiftRoleAllowedPositionUpdateManyArgs<ExtArgs>
+          args: Prisma.ShiftCapacityUpdateManyArgs<ExtArgs>
           result: BatchPayload
         }
         updateManyAndReturn: {
-          args: Prisma.CourtShiftRoleAllowedPositionUpdateManyAndReturnArgs<ExtArgs>
-          result: runtime.Types.Utils.PayloadToResult<Prisma.$CourtShiftRoleAllowedPositionPayload>[]
+          args: Prisma.ShiftCapacityUpdateManyAndReturnArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$ShiftCapacityPayload>[]
         }
         upsert: {
-          args: Prisma.CourtShiftRoleAllowedPositionUpsertArgs<ExtArgs>
-          result: runtime.Types.Utils.PayloadToResult<Prisma.$CourtShiftRoleAllowedPositionPayload>
+          args: Prisma.ShiftCapacityUpsertArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$ShiftCapacityPayload>
         }
         aggregate: {
-          args: Prisma.CourtShiftRoleAllowedPositionAggregateArgs<ExtArgs>
-          result: runtime.Types.Utils.Optional<Prisma.AggregateCourtShiftRoleAllowedPosition>
+          args: Prisma.ShiftCapacityAggregateArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.AggregateShiftCapacity>
         }
         groupBy: {
-          args: Prisma.CourtShiftRoleAllowedPositionGroupByArgs<ExtArgs>
-          result: runtime.Types.Utils.Optional<Prisma.CourtShiftRoleAllowedPositionGroupByOutputType>[]
+          args: Prisma.ShiftCapacityGroupByArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.ShiftCapacityGroupByOutputType>[]
         }
         count: {
-          args: Prisma.CourtShiftRoleAllowedPositionCountArgs<ExtArgs>
-          result: runtime.Types.Utils.Optional<Prisma.CourtShiftRoleAllowedPositionCountAggregateOutputType> | number
-        }
-      }
-    }
-    CourtStaffRule: {
-      payload: Prisma.$CourtStaffRulePayload<ExtArgs>
-      fields: Prisma.CourtStaffRuleFieldRefs
-      operations: {
-        findUnique: {
-          args: Prisma.CourtStaffRuleFindUniqueArgs<ExtArgs>
-          result: runtime.Types.Utils.PayloadToResult<Prisma.$CourtStaffRulePayload> | null
-        }
-        findUniqueOrThrow: {
-          args: Prisma.CourtStaffRuleFindUniqueOrThrowArgs<ExtArgs>
-          result: runtime.Types.Utils.PayloadToResult<Prisma.$CourtStaffRulePayload>
-        }
-        findFirst: {
-          args: Prisma.CourtStaffRuleFindFirstArgs<ExtArgs>
-          result: runtime.Types.Utils.PayloadToResult<Prisma.$CourtStaffRulePayload> | null
-        }
-        findFirstOrThrow: {
-          args: Prisma.CourtStaffRuleFindFirstOrThrowArgs<ExtArgs>
-          result: runtime.Types.Utils.PayloadToResult<Prisma.$CourtStaffRulePayload>
-        }
-        findMany: {
-          args: Prisma.CourtStaffRuleFindManyArgs<ExtArgs>
-          result: runtime.Types.Utils.PayloadToResult<Prisma.$CourtStaffRulePayload>[]
-        }
-        create: {
-          args: Prisma.CourtStaffRuleCreateArgs<ExtArgs>
-          result: runtime.Types.Utils.PayloadToResult<Prisma.$CourtStaffRulePayload>
-        }
-        createMany: {
-          args: Prisma.CourtStaffRuleCreateManyArgs<ExtArgs>
-          result: BatchPayload
-        }
-        createManyAndReturn: {
-          args: Prisma.CourtStaffRuleCreateManyAndReturnArgs<ExtArgs>
-          result: runtime.Types.Utils.PayloadToResult<Prisma.$CourtStaffRulePayload>[]
-        }
-        delete: {
-          args: Prisma.CourtStaffRuleDeleteArgs<ExtArgs>
-          result: runtime.Types.Utils.PayloadToResult<Prisma.$CourtStaffRulePayload>
-        }
-        update: {
-          args: Prisma.CourtStaffRuleUpdateArgs<ExtArgs>
-          result: runtime.Types.Utils.PayloadToResult<Prisma.$CourtStaffRulePayload>
-        }
-        deleteMany: {
-          args: Prisma.CourtStaffRuleDeleteManyArgs<ExtArgs>
-          result: BatchPayload
-        }
-        updateMany: {
-          args: Prisma.CourtStaffRuleUpdateManyArgs<ExtArgs>
-          result: BatchPayload
-        }
-        updateManyAndReturn: {
-          args: Prisma.CourtStaffRuleUpdateManyAndReturnArgs<ExtArgs>
-          result: runtime.Types.Utils.PayloadToResult<Prisma.$CourtStaffRulePayload>[]
-        }
-        upsert: {
-          args: Prisma.CourtStaffRuleUpsertArgs<ExtArgs>
-          result: runtime.Types.Utils.PayloadToResult<Prisma.$CourtStaffRulePayload>
-        }
-        aggregate: {
-          args: Prisma.CourtStaffRuleAggregateArgs<ExtArgs>
-          result: runtime.Types.Utils.Optional<Prisma.AggregateCourtStaffRule>
-        }
-        groupBy: {
-          args: Prisma.CourtStaffRuleGroupByArgs<ExtArgs>
-          result: runtime.Types.Utils.Optional<Prisma.CourtStaffRuleGroupByOutputType>[]
-        }
-        count: {
-          args: Prisma.CourtStaffRuleCountArgs<ExtArgs>
-          result: runtime.Types.Utils.Optional<Prisma.CourtStaffRuleCountAggregateOutputType> | number
+          args: Prisma.ShiftCapacityCountArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.ShiftCapacityCountAggregateOutputType> | number
         }
       }
     }
@@ -1946,7 +1871,7 @@ export const EmployeeScalarFieldEnum = {
   firstName: 'firstName',
   lastName: 'lastName',
   phone: 'phone',
-  position: 'position',
+  positionId: 'positionId',
   courtId: 'courtId',
   isActive: 'isActive',
   createdAt: 'createdAt',
@@ -1956,42 +1881,33 @@ export const EmployeeScalarFieldEnum = {
 export type EmployeeScalarFieldEnum = (typeof EmployeeScalarFieldEnum)[keyof typeof EmployeeScalarFieldEnum]
 
 
-export const CourtShiftRoleScalarFieldEnum = {
+export const PositionScalarFieldEnum = {
   id: 'id',
   courtId: 'courtId',
-  code: 'code',
   name: 'name',
-  shiftType: 'shiftType',
   isActive: 'isActive',
   displayOrder: 'displayOrder',
   createdAt: 'createdAt',
   updatedAt: 'updatedAt'
 } as const
 
-export type CourtShiftRoleScalarFieldEnum = (typeof CourtShiftRoleScalarFieldEnum)[keyof typeof CourtShiftRoleScalarFieldEnum]
+export type PositionScalarFieldEnum = (typeof PositionScalarFieldEnum)[keyof typeof PositionScalarFieldEnum]
 
 
-export const CourtShiftRoleAllowedPositionScalarFieldEnum = {
+export const ShiftCapacityScalarFieldEnum = {
   id: 'id',
-  courtShiftRoleId: 'courtShiftRoleId',
-  position: 'position',
-  createdAt: 'createdAt'
-} as const
-
-export type CourtShiftRoleAllowedPositionScalarFieldEnum = (typeof CourtShiftRoleAllowedPositionScalarFieldEnum)[keyof typeof CourtShiftRoleAllowedPositionScalarFieldEnum]
-
-
-export const CourtStaffRuleScalarFieldEnum = {
-  id: 'id',
-  courtShiftRoleId: 'courtShiftRoleId',
+  courtId: 'courtId',
+  positionId: 'positionId',
+  shiftType: 'shiftType',
   dayCategory: 'dayCategory',
-  requiredCount: 'requiredCount',
+  amount: 'amount',
+  isActive: 'isActive',
   displayOrder: 'displayOrder',
   createdAt: 'createdAt',
   updatedAt: 'updatedAt'
 } as const
 
-export type CourtStaffRuleScalarFieldEnum = (typeof CourtStaffRuleScalarFieldEnum)[keyof typeof CourtStaffRuleScalarFieldEnum]
+export type ShiftCapacityScalarFieldEnum = (typeof ShiftCapacityScalarFieldEnum)[keyof typeof ShiftCapacityScalarFieldEnum]
 
 
 export const SchedulePeriodScalarFieldEnum = {
@@ -2054,11 +1970,12 @@ export const ShiftAssignmentScalarFieldEnum = {
   id: 'id',
   scheduleId: 'scheduleId',
   employeeId: 'employeeId',
-  courtShiftRoleId: 'courtShiftRoleId',
+  courtId: 'courtId',
+  positionId: 'positionId',
   date: 'date',
+  shiftType: 'shiftType',
   slotIndex: 'slotIndex',
   isManualOverride: 'isManualOverride',
-  courtId: 'courtId',
   createdAt: 'createdAt',
   updatedAt: 'updatedAt'
 } as const
@@ -2073,7 +1990,8 @@ export const ScheduleWarningScalarFieldEnum = {
   severity: 'severity',
   employeeId: 'employeeId',
   courtId: 'courtId',
-  courtShiftRoleId: 'courtShiftRoleId',
+  positionId: 'positionId',
+  shiftType: 'shiftType',
   date: 'date',
   message: 'message',
   createdAt: 'createdAt',
@@ -2239,20 +2157,6 @@ export type ListEnumSystemRoleFieldRefInput<$PrismaModel> = FieldRefInputType<$P
  * Reference to a field of type 'Boolean'
  */
 export type BooleanFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'Boolean'>
-    
-
-
-/**
- * Reference to a field of type 'Position'
- */
-export type EnumPositionFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'Position'>
-    
-
-
-/**
- * Reference to a field of type 'Position[]'
- */
-export type ListEnumPositionFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'Position[]'>
     
 
 
@@ -2483,9 +2387,8 @@ export type GlobalOmitConfig = {
   region?: Prisma.RegionOmit
   court?: Prisma.CourtOmit
   employee?: Prisma.EmployeeOmit
-  courtShiftRole?: Prisma.CourtShiftRoleOmit
-  courtShiftRoleAllowedPosition?: Prisma.CourtShiftRoleAllowedPositionOmit
-  courtStaffRule?: Prisma.CourtStaffRuleOmit
+  position?: Prisma.PositionOmit
+  shiftCapacity?: Prisma.ShiftCapacityOmit
   schedulePeriod?: Prisma.SchedulePeriodOmit
   availability?: Prisma.AvailabilityOmit
   availabilityEntry?: Prisma.AvailabilityEntryOmit

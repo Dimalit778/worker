@@ -1,4 +1,5 @@
-import { EmployeeSummary, FullCapacityRules } from '../court-settings/types';
+import type { Position } from '@/generated/prisma/client';
+import type { EmployeeSummary, FullCapacityRules } from '../court-settings/types';
 
 export type AssignmentSummary = {
   id: string;
@@ -21,6 +22,7 @@ export type AssignGuardParams = {
 };
 
 export type AssignmentMap = Record<string, AssignmentSummary[]>;
+
 export type ScheduleProps = {
   periodId: string;
   periodName: string;
@@ -30,28 +32,34 @@ export type ScheduleProps = {
   assignments: AssignmentMap;
   guards: { id: string; name: string }[];
   capacity: FullCapacityRules;
-
   courtId: string;
-
   readonly?: boolean;
 };
+
 export type WeekDay = {
-  iso: string; // YYYY-MM-DD
-  dayOfWeek: number; // 0=Sun … 6=Sat
-  letter: string; // א–ש
-  label: string; // DD/MM
+  iso: string;
+  dayOfWeek: number;
+  letter: string;
+  label: string;
 };
-export type SchedulePageData =
-  | { found: false }
-  | {
-      found: true;
-      periodId: string;
-      periodName: string;
-      startDate: string;
-      endDate: string;
-      scheduleId: string | null;
-      assignments: AssignmentMap;
-      guards: EmployeeSummary[];
-      capacity: FullCapacityRules;
-      courtId: string;
-    };
+
+export type SchedulePageData = {
+  periodId: string;
+  periodName: string;
+  startDate: string;
+  endDate: string;
+  scheduleId: string | null;
+  assignments: AssignmentMap;
+  guards: EmployeeSummary[];
+  capacity: FullCapacityRules;
+  courtId: string;
+};
+
+export type DisplayRow = {
+  key: string;
+  label: string;
+  position: Position;
+  slotIndex: number;
+  roleSlotIndex: number;
+  isGroupStart: boolean;
+};

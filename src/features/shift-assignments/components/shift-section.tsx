@@ -1,23 +1,11 @@
 import { cn } from '@/lib/utils';
 import { AssignmentCell } from './assignment-cell';
-import { getRowLabel, assignmentKey } from '../utils';
-import type { AssignmentMap } from '../types';
-import type { WeekDay } from '../types';
-import type { ShiftType } from '@/generated/prisma/client';
+import { assignmentKey, buildRowsForWeek, getDayCapacity, getShiftSummary } from '../utils';
+import type { AssignmentMap, DisplayRow, WeekDay } from '../types';
+import { POSITION_ORDER, POSITION_LABELS, POSITION_ROW_STYLES, SHIFT_STYLES } from '../constans';
+import type { Position, ShiftType } from '@/generated/prisma/client';
 import type { EmployeeSummary, FullCapacityRules } from '@/features/court-settings/types';
-import { Position } from '@/generated/prisma/enums';
 
-type Props = {
-  shiftType: ShiftType;
-  weekDays: WeekDay[];
-  assignments: AssignmentMap;
-  guards: EmployeeSummary[];
-  capacity: FullCapacityRules;
-  scheduleId: string | null;
-  periodId: string;
-  courtId: string;
-  readonly?: boolean;
-};
 type ShiftSectionProps = {
   shiftType: ShiftType;
   weekDays: WeekDay[];
@@ -30,53 +18,46 @@ type ShiftSectionProps = {
   readonly?: boolean;
 };
 
-/** Derive the position for a given shift slot based on its label/role. */
-function getSlotPosition(shiftType: ShiftType, slotIndex: number): Position {
-  if (shiftType === 'MORNING') {
-    if (slotIndex === 0) return Position.SHIFT_MANAGER;
-    if (slotIndex === 1) return Position.BAKAR;
-    if (slotIndex === 2) return Position.FACILITY_OFFICER;
-    if (slotIndex === 3) return Position.SHIFT_MANAGER;
-  }
-  if (shiftType === 'EVENING') {
-    if (slotIndex === 0) return Position.SHIFT_MANAGER;
-    if (slotIndex === 1) return Position.BAKAR;
-    if (slotIndex === 2) return Position.SHIFT_MANAGER;
-  }
-  if (shiftType === 'NIGHT') {
-    if (slotIndex === 0) return Position.FACILITY_OFFICER;
-    if (slotIndex === 1) return Position.SHIFT_MANAGER;
-  }
-  return Position.GUARD;
-}
-
-function getDayCapacity(capacity: FullCapacityRules, dayOfWeek: number) {
-  if (dayOfWeek === 5) return capacity.friday;
-  if (dayOfWeek === 6) return capacity.saturday;
-  return capacity.default;
-}
-
-const SHIFT_STYLES: Record<ShiftType, { header: string; label: string; emoji: string }> = {
-  MORNING: { header: 'bg-[#0f4c81]', label: 'בוקר', emoji: '☀️' },
-  EVENING: { header: 'bg-[#1d4ed8]', label: 'ערב', emoji: '🌆' },
-  NIGHT: { header: 'bg-[#4c1d95]', label: 'לילה', emoji: '🌙' },
-};
-
-export function ShiftSection({ ...props }: ShiftSectionProps) {
+export function ShiftSection(props: ShiftSectionProps) {
   const { shiftType, weekDays, assignments, guards, capacity, scheduleId, periodId, courtId, readonly } = props;
   const style = SHIFT_STYLES[shiftType];
   const sortedDays = [...weekDays].sort((a, b) => a.dayOfWeek - b.dayOfWeek);
+  const rows = buildRowsForWeek(capacity, sortedDays, shiftType);
 
-  const maxSlots = Math.max(...sortedDays.map((d) => getDayCapacity(capacity, d.dayOfWeek)[shiftType]), 1);
+  if (rows.length === 0) {
+    return (
+      <div className="mb-5" dir="rtl">
+        <div
+          className={cn(
+            'flex items-center justify-between gap-2 px-3 py-2 rounded-lg text-white font-bold text-sm',
+            style.header,
+          )}
+        >
+          <div className="flex items-center gap-2">
+            <span>{style.emoji}</span>
+            <span>{style.label}</span>
+          </div>
+
+          <span className="text-[11px] font-normal opacity-80">אין תקנים למשמרת</span>
+        </div>
+      </div>
+    );
+  }
 
   return (
     <div className="mb-5" dir="rtl">
-      {/* Section header */}
       <div
-        className={cn('flex items-center gap-2 px-3 py-1.5 rounded-t-lg text-white font-bold text-sm', style.header)}
+        className={cn(
+          'flex items-center justify-between gap-2 px-3 py-2 rounded-t-lg text-white font-bold text-sm',
+          style.header,
+        )}
       >
-        <span>{style.emoji}</span>
-        <span>{style.label}</span>
+        <div className="flex items-center gap-2">
+          <span>{style.emoji}</span>
+          <span>{style.label}</span>
+        </div>
+
+        <span className="text-[11px] font-normal opacity-80">{getShiftSummary(capacity, shiftType)}</span>
       </div>
 
       <div className="overflow-x-auto">
@@ -86,90 +67,93 @@ export function ShiftSection({ ...props }: ShiftSectionProps) {
         >
           <thead>
             <tr>
-              <th className={cn('w-7 px-1 py-1 border border-border text-white font-semibold', style.header)}>#</th>
+              <th className={cn('w-8 px-1 py-1 border border-border text-white font-semibold', style.header)}>#</th>
+
               <th
                 className={cn(
-                  ' border border-border text-white font-semibold text-center text-[10px] leading-tight',
+                  'w-24 border border-border text-white font-semibold text-center text-[11px] leading-tight',
                   style.header,
                 )}
               >
-                משמרת
+                תפקיד
               </th>
-              {sortedDays.map((day) => (
-                <th
-                  key={day.iso}
-                  className={cn(
-                    'w-[62px] min-w-[62px] px-1 py-0.5 border border-border text-white text-center',
-                    style.header,
-                  )}
-                >
-                  <div className="font-bold text-[13px]">{day.letter}</div>
-                  <div className="text-[10px] font-normal opacity-70">{day.label}</div>
-                </th>
-              ))}
-            </tr>
-          </thead>
-          <tbody>
-            {Array.from({ length: maxSlots }, (_, slotIndex) => {
-              const rowLabel = getRowLabel(shiftType, slotIndex);
 
-              const isSpecial =
-                (slotIndex < 3 && shiftType === 'MORNING') ||
-                (slotIndex < 2 && shiftType === 'EVENING') ||
-                (slotIndex < 1 && shiftType === 'NIGHT');
+              {sortedDays.map((day) => {
+                const isWeekend = day.dayOfWeek === 5 || day.dayOfWeek === 6;
 
-              return (
-                <tr
-                  key={slotIndex}
-                  className={cn(
-                    slotIndex === 0 && 'bg-gray-500',
-                    slotIndex === 1 && (shiftType === 'MORNING' || shiftType === 'EVENING') && 'bg-gray-500',
-                    slotIndex === 2 && shiftType === 'MORNING' && 'bg-gray-500',
-                    slotIndex === 3 && shiftType === 'MORNING' && 'border-b-2 border-b-black/30',
-                    slotIndex % 2 !== 0 && !isSpecial && 'bg-muted/20',
-                  )}
-                >
-                  <td className=" px-1 text-center border border-border text-muted-foreground font-semibold bg-muted/30">
-                    {slotIndex + 1}
-                  </td>
-                  <td
+                return (
+                  <th
+                    key={day.iso}
                     className={cn(
-                      'w-8 text-center border border-border bg-muted/30 text-[11px] leading-tight',
-                      isSpecial ? 'font-bold text-foreground' : 'font-medium text-muted-foreground',
+                      'w-[68px] min-w-[68px] px-1 py-1 border border-border text-white text-center',
+                      style.header,
+                      isWeekend && 'brightness-110',
                     )}
                   >
-                    {rowLabel}
-                  </td>
-                  {sortedDays.map((day) => {
-                    const dayCapacity = getDayCapacity(capacity, day.dayOfWeek)[shiftType];
-                    const isFriSat = day.dayOfWeek === 5 || day.dayOfWeek === 6;
-                    const isClosed = isFriSat && slotIndex >= dayCapacity;
-                    const key = assignmentKey(day.iso, shiftType);
-                    const slotAssignments = assignments[key] ?? [];
-                    const assignment = slotAssignments[slotIndex] ?? null;
-                    const isOpening = shiftType === 'MORNING' && slotIndex === 0;
+                    <div className="font-bold text-[13px]">{day.letter}</div>
+                    <div className="text-[10px] font-normal opacity-75">{day.label}</div>
+                  </th>
+                );
+              })}
+            </tr>
+          </thead>
 
-                    return (
-                      <AssignmentCell
-                        key={day.iso}
-                        closed={isClosed}
-                        assignment={assignment}
-                        guards={guards}
-                        scheduleId={scheduleId}
-                        periodId={periodId}
-                        courtId={courtId}
-                        date={day.iso}
-                        shiftType={shiftType}
-                        position={getSlotPosition(shiftType, slotIndex)}
-                        slotIndex={slotIndex}
-                        isOpeningDuty={isOpening}
-                        readonly={readonly}
-                      />
-                    );
-                  })}
-                </tr>
-              );
-            })}
+          <tbody>
+            {rows.map((row, rowIndex) => (
+              <tr
+                key={row.key}
+                className={cn(
+                  POSITION_ROW_STYLES[row.position],
+                  row.isGroupStart && rowIndex !== 0 && 'border-t-2 border-t-slate-300',
+                  row.position === 'GUARD' && rowIndex % 2 !== 0 && 'bg-muted/20',
+                )}
+              >
+                <td className="px-1 text-center border border-border text-muted-foreground font-semibold bg-muted/30">
+                  {rowIndex + 1}
+                </td>
+
+                <td
+                  className={cn(
+                    'w-24 px-1 text-center border border-border bg-muted/30 text-[11px] leading-tight',
+                    row.position !== 'GUARD' ? 'font-bold text-foreground' : 'font-medium text-muted-foreground',
+                  )}
+                >
+                  {row.label}
+                </td>
+
+                {sortedDays.map((day) => {
+                  const dayCapacity = getDayCapacity(capacity, day.dayOfWeek);
+                  const shiftCapacity = dayCapacity[shiftType];
+                  const requiredForPosition = shiftCapacity?.[row.position] ?? 0;
+
+                  const closed = row.roleSlotIndex >= requiredForPosition;
+
+                  const key = assignmentKey(day.iso, shiftType);
+                  const slotAssignments = assignments[key] ?? [];
+
+                  const assignment =
+                    slotAssignments.find((a) => a.courtShiftRoleId === row.key && a.slotIndex === row.roleSlotIndex) ??
+                    null;
+
+                  return (
+                    <AssignmentCell
+                      key={day.iso}
+                      closed={closed}
+                      assignment={assignment}
+                      guards={guards}
+                      scheduleId={scheduleId}
+                      periodId={periodId}
+                      courtId={courtId}
+                      date={day.iso}
+                      shiftType={shiftType}
+                      position={row.position}
+                      slotIndex={row.roleSlotIndex}
+                      readonly={readonly}
+                    />
+                  );
+                })}
+              </tr>
+            ))}
           </tbody>
         </table>
       </div>

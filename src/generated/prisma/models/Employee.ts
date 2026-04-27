@@ -29,7 +29,7 @@ export type EmployeeMinAggregateOutputType = {
   firstName: string | null
   lastName: string | null
   phone: string | null
-  position: $Enums.Position | null
+  positionId: string | null
   courtId: string | null
   isActive: boolean | null
   createdAt: Date | null
@@ -41,7 +41,7 @@ export type EmployeeMaxAggregateOutputType = {
   firstName: string | null
   lastName: string | null
   phone: string | null
-  position: $Enums.Position | null
+  positionId: string | null
   courtId: string | null
   isActive: boolean | null
   createdAt: Date | null
@@ -53,7 +53,7 @@ export type EmployeeCountAggregateOutputType = {
   firstName: number
   lastName: number
   phone: number
-  position: number
+  positionId: number
   courtId: number
   isActive: number
   createdAt: number
@@ -67,7 +67,7 @@ export type EmployeeMinAggregateInputType = {
   firstName?: true
   lastName?: true
   phone?: true
-  position?: true
+  positionId?: true
   courtId?: true
   isActive?: true
   createdAt?: true
@@ -79,7 +79,7 @@ export type EmployeeMaxAggregateInputType = {
   firstName?: true
   lastName?: true
   phone?: true
-  position?: true
+  positionId?: true
   courtId?: true
   isActive?: true
   createdAt?: true
@@ -91,7 +91,7 @@ export type EmployeeCountAggregateInputType = {
   firstName?: true
   lastName?: true
   phone?: true
-  position?: true
+  positionId?: true
   courtId?: true
   isActive?: true
   createdAt?: true
@@ -176,7 +176,7 @@ export type EmployeeGroupByOutputType = {
   firstName: string
   lastName: string
   phone: string | null
-  position: $Enums.Position
+  positionId: string
   courtId: string
   isActive: boolean
   createdAt: Date
@@ -209,12 +209,13 @@ export type EmployeeWhereInput = {
   firstName?: Prisma.StringFilter<"Employee"> | string
   lastName?: Prisma.StringFilter<"Employee"> | string
   phone?: Prisma.StringNullableFilter<"Employee"> | string | null
-  position?: Prisma.EnumPositionFilter<"Employee"> | $Enums.Position
+  positionId?: Prisma.StringFilter<"Employee"> | string
   courtId?: Prisma.StringFilter<"Employee"> | string
   isActive?: Prisma.BoolFilter<"Employee"> | boolean
   createdAt?: Prisma.DateTimeFilter<"Employee"> | Date | string
   updatedAt?: Prisma.DateTimeFilter<"Employee"> | Date | string
   court?: Prisma.XOR<Prisma.CourtScalarRelationFilter, Prisma.CourtWhereInput>
+  position?: Prisma.XOR<Prisma.PositionScalarRelationFilter, Prisma.PositionWhereInput>
   user?: Prisma.XOR<Prisma.UserNullableScalarRelationFilter, Prisma.UserWhereInput> | null
   availabilities?: Prisma.AvailabilityListRelationFilter
   assignments?: Prisma.ShiftAssignmentListRelationFilter
@@ -227,12 +228,13 @@ export type EmployeeOrderByWithRelationInput = {
   firstName?: Prisma.SortOrder
   lastName?: Prisma.SortOrder
   phone?: Prisma.SortOrderInput | Prisma.SortOrder
-  position?: Prisma.SortOrder
+  positionId?: Prisma.SortOrder
   courtId?: Prisma.SortOrder
   isActive?: Prisma.SortOrder
   createdAt?: Prisma.SortOrder
   updatedAt?: Prisma.SortOrder
   court?: Prisma.CourtOrderByWithRelationInput
+  position?: Prisma.PositionOrderByWithRelationInput
   user?: Prisma.UserOrderByWithRelationInput
   availabilities?: Prisma.AvailabilityOrderByRelationAggregateInput
   assignments?: Prisma.ShiftAssignmentOrderByRelationAggregateInput
@@ -248,12 +250,13 @@ export type EmployeeWhereUniqueInput = Prisma.AtLeast<{
   firstName?: Prisma.StringFilter<"Employee"> | string
   lastName?: Prisma.StringFilter<"Employee"> | string
   phone?: Prisma.StringNullableFilter<"Employee"> | string | null
-  position?: Prisma.EnumPositionFilter<"Employee"> | $Enums.Position
+  positionId?: Prisma.StringFilter<"Employee"> | string
   courtId?: Prisma.StringFilter<"Employee"> | string
   isActive?: Prisma.BoolFilter<"Employee"> | boolean
   createdAt?: Prisma.DateTimeFilter<"Employee"> | Date | string
   updatedAt?: Prisma.DateTimeFilter<"Employee"> | Date | string
   court?: Prisma.XOR<Prisma.CourtScalarRelationFilter, Prisma.CourtWhereInput>
+  position?: Prisma.XOR<Prisma.PositionScalarRelationFilter, Prisma.PositionWhereInput>
   user?: Prisma.XOR<Prisma.UserNullableScalarRelationFilter, Prisma.UserWhereInput> | null
   availabilities?: Prisma.AvailabilityListRelationFilter
   assignments?: Prisma.ShiftAssignmentListRelationFilter
@@ -266,7 +269,7 @@ export type EmployeeOrderByWithAggregationInput = {
   firstName?: Prisma.SortOrder
   lastName?: Prisma.SortOrder
   phone?: Prisma.SortOrderInput | Prisma.SortOrder
-  position?: Prisma.SortOrder
+  positionId?: Prisma.SortOrder
   courtId?: Prisma.SortOrder
   isActive?: Prisma.SortOrder
   createdAt?: Prisma.SortOrder
@@ -284,7 +287,7 @@ export type EmployeeScalarWhereWithAggregatesInput = {
   firstName?: Prisma.StringWithAggregatesFilter<"Employee"> | string
   lastName?: Prisma.StringWithAggregatesFilter<"Employee"> | string
   phone?: Prisma.StringNullableWithAggregatesFilter<"Employee"> | string | null
-  position?: Prisma.EnumPositionWithAggregatesFilter<"Employee"> | $Enums.Position
+  positionId?: Prisma.StringWithAggregatesFilter<"Employee"> | string
   courtId?: Prisma.StringWithAggregatesFilter<"Employee"> | string
   isActive?: Prisma.BoolWithAggregatesFilter<"Employee"> | boolean
   createdAt?: Prisma.DateTimeWithAggregatesFilter<"Employee"> | Date | string
@@ -296,11 +299,11 @@ export type EmployeeCreateInput = {
   firstName: string
   lastName: string
   phone?: string | null
-  position: $Enums.Position
   isActive?: boolean
   createdAt?: Date | string
   updatedAt?: Date | string
   court: Prisma.CourtCreateNestedOneWithoutEmployeesInput
+  position: Prisma.PositionCreateNestedOneWithoutEmployeesInput
   user?: Prisma.UserCreateNestedOneWithoutEmployeeInput
   availabilities?: Prisma.AvailabilityCreateNestedManyWithoutEmployeeInput
   assignments?: Prisma.ShiftAssignmentCreateNestedManyWithoutEmployeeInput
@@ -313,7 +316,7 @@ export type EmployeeUncheckedCreateInput = {
   firstName: string
   lastName: string
   phone?: string | null
-  position: $Enums.Position
+  positionId: string
   courtId: string
   isActive?: boolean
   createdAt?: Date | string
@@ -330,11 +333,11 @@ export type EmployeeUpdateInput = {
   firstName?: Prisma.StringFieldUpdateOperationsInput | string
   lastName?: Prisma.StringFieldUpdateOperationsInput | string
   phone?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  position?: Prisma.EnumPositionFieldUpdateOperationsInput | $Enums.Position
   isActive?: Prisma.BoolFieldUpdateOperationsInput | boolean
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   court?: Prisma.CourtUpdateOneRequiredWithoutEmployeesNestedInput
+  position?: Prisma.PositionUpdateOneRequiredWithoutEmployeesNestedInput
   user?: Prisma.UserUpdateOneWithoutEmployeeNestedInput
   availabilities?: Prisma.AvailabilityUpdateManyWithoutEmployeeNestedInput
   assignments?: Prisma.ShiftAssignmentUpdateManyWithoutEmployeeNestedInput
@@ -347,7 +350,7 @@ export type EmployeeUncheckedUpdateInput = {
   firstName?: Prisma.StringFieldUpdateOperationsInput | string
   lastName?: Prisma.StringFieldUpdateOperationsInput | string
   phone?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  position?: Prisma.EnumPositionFieldUpdateOperationsInput | $Enums.Position
+  positionId?: Prisma.StringFieldUpdateOperationsInput | string
   courtId?: Prisma.StringFieldUpdateOperationsInput | string
   isActive?: Prisma.BoolFieldUpdateOperationsInput | boolean
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
@@ -364,7 +367,7 @@ export type EmployeeCreateManyInput = {
   firstName: string
   lastName: string
   phone?: string | null
-  position: $Enums.Position
+  positionId: string
   courtId: string
   isActive?: boolean
   createdAt?: Date | string
@@ -376,7 +379,6 @@ export type EmployeeUpdateManyMutationInput = {
   firstName?: Prisma.StringFieldUpdateOperationsInput | string
   lastName?: Prisma.StringFieldUpdateOperationsInput | string
   phone?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  position?: Prisma.EnumPositionFieldUpdateOperationsInput | $Enums.Position
   isActive?: Prisma.BoolFieldUpdateOperationsInput | boolean
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
@@ -387,7 +389,7 @@ export type EmployeeUncheckedUpdateManyInput = {
   firstName?: Prisma.StringFieldUpdateOperationsInput | string
   lastName?: Prisma.StringFieldUpdateOperationsInput | string
   phone?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  position?: Prisma.EnumPositionFieldUpdateOperationsInput | $Enums.Position
+  positionId?: Prisma.StringFieldUpdateOperationsInput | string
   courtId?: Prisma.StringFieldUpdateOperationsInput | string
   isActive?: Prisma.BoolFieldUpdateOperationsInput | boolean
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
@@ -414,7 +416,7 @@ export type EmployeeCountOrderByAggregateInput = {
   firstName?: Prisma.SortOrder
   lastName?: Prisma.SortOrder
   phone?: Prisma.SortOrder
-  position?: Prisma.SortOrder
+  positionId?: Prisma.SortOrder
   courtId?: Prisma.SortOrder
   isActive?: Prisma.SortOrder
   createdAt?: Prisma.SortOrder
@@ -426,7 +428,7 @@ export type EmployeeMaxOrderByAggregateInput = {
   firstName?: Prisma.SortOrder
   lastName?: Prisma.SortOrder
   phone?: Prisma.SortOrder
-  position?: Prisma.SortOrder
+  positionId?: Prisma.SortOrder
   courtId?: Prisma.SortOrder
   isActive?: Prisma.SortOrder
   createdAt?: Prisma.SortOrder
@@ -438,7 +440,7 @@ export type EmployeeMinOrderByAggregateInput = {
   firstName?: Prisma.SortOrder
   lastName?: Prisma.SortOrder
   phone?: Prisma.SortOrder
-  position?: Prisma.SortOrder
+  positionId?: Prisma.SortOrder
   courtId?: Prisma.SortOrder
   isActive?: Prisma.SortOrder
   createdAt?: Prisma.SortOrder
@@ -508,8 +510,46 @@ export type EmployeeUncheckedUpdateManyWithoutCourtNestedInput = {
   deleteMany?: Prisma.EmployeeScalarWhereInput | Prisma.EmployeeScalarWhereInput[]
 }
 
-export type EnumPositionFieldUpdateOperationsInput = {
-  set?: $Enums.Position
+export type EmployeeCreateNestedManyWithoutPositionInput = {
+  create?: Prisma.XOR<Prisma.EmployeeCreateWithoutPositionInput, Prisma.EmployeeUncheckedCreateWithoutPositionInput> | Prisma.EmployeeCreateWithoutPositionInput[] | Prisma.EmployeeUncheckedCreateWithoutPositionInput[]
+  connectOrCreate?: Prisma.EmployeeCreateOrConnectWithoutPositionInput | Prisma.EmployeeCreateOrConnectWithoutPositionInput[]
+  createMany?: Prisma.EmployeeCreateManyPositionInputEnvelope
+  connect?: Prisma.EmployeeWhereUniqueInput | Prisma.EmployeeWhereUniqueInput[]
+}
+
+export type EmployeeUncheckedCreateNestedManyWithoutPositionInput = {
+  create?: Prisma.XOR<Prisma.EmployeeCreateWithoutPositionInput, Prisma.EmployeeUncheckedCreateWithoutPositionInput> | Prisma.EmployeeCreateWithoutPositionInput[] | Prisma.EmployeeUncheckedCreateWithoutPositionInput[]
+  connectOrCreate?: Prisma.EmployeeCreateOrConnectWithoutPositionInput | Prisma.EmployeeCreateOrConnectWithoutPositionInput[]
+  createMany?: Prisma.EmployeeCreateManyPositionInputEnvelope
+  connect?: Prisma.EmployeeWhereUniqueInput | Prisma.EmployeeWhereUniqueInput[]
+}
+
+export type EmployeeUpdateManyWithoutPositionNestedInput = {
+  create?: Prisma.XOR<Prisma.EmployeeCreateWithoutPositionInput, Prisma.EmployeeUncheckedCreateWithoutPositionInput> | Prisma.EmployeeCreateWithoutPositionInput[] | Prisma.EmployeeUncheckedCreateWithoutPositionInput[]
+  connectOrCreate?: Prisma.EmployeeCreateOrConnectWithoutPositionInput | Prisma.EmployeeCreateOrConnectWithoutPositionInput[]
+  upsert?: Prisma.EmployeeUpsertWithWhereUniqueWithoutPositionInput | Prisma.EmployeeUpsertWithWhereUniqueWithoutPositionInput[]
+  createMany?: Prisma.EmployeeCreateManyPositionInputEnvelope
+  set?: Prisma.EmployeeWhereUniqueInput | Prisma.EmployeeWhereUniqueInput[]
+  disconnect?: Prisma.EmployeeWhereUniqueInput | Prisma.EmployeeWhereUniqueInput[]
+  delete?: Prisma.EmployeeWhereUniqueInput | Prisma.EmployeeWhereUniqueInput[]
+  connect?: Prisma.EmployeeWhereUniqueInput | Prisma.EmployeeWhereUniqueInput[]
+  update?: Prisma.EmployeeUpdateWithWhereUniqueWithoutPositionInput | Prisma.EmployeeUpdateWithWhereUniqueWithoutPositionInput[]
+  updateMany?: Prisma.EmployeeUpdateManyWithWhereWithoutPositionInput | Prisma.EmployeeUpdateManyWithWhereWithoutPositionInput[]
+  deleteMany?: Prisma.EmployeeScalarWhereInput | Prisma.EmployeeScalarWhereInput[]
+}
+
+export type EmployeeUncheckedUpdateManyWithoutPositionNestedInput = {
+  create?: Prisma.XOR<Prisma.EmployeeCreateWithoutPositionInput, Prisma.EmployeeUncheckedCreateWithoutPositionInput> | Prisma.EmployeeCreateWithoutPositionInput[] | Prisma.EmployeeUncheckedCreateWithoutPositionInput[]
+  connectOrCreate?: Prisma.EmployeeCreateOrConnectWithoutPositionInput | Prisma.EmployeeCreateOrConnectWithoutPositionInput[]
+  upsert?: Prisma.EmployeeUpsertWithWhereUniqueWithoutPositionInput | Prisma.EmployeeUpsertWithWhereUniqueWithoutPositionInput[]
+  createMany?: Prisma.EmployeeCreateManyPositionInputEnvelope
+  set?: Prisma.EmployeeWhereUniqueInput | Prisma.EmployeeWhereUniqueInput[]
+  disconnect?: Prisma.EmployeeWhereUniqueInput | Prisma.EmployeeWhereUniqueInput[]
+  delete?: Prisma.EmployeeWhereUniqueInput | Prisma.EmployeeWhereUniqueInput[]
+  connect?: Prisma.EmployeeWhereUniqueInput | Prisma.EmployeeWhereUniqueInput[]
+  update?: Prisma.EmployeeUpdateWithWhereUniqueWithoutPositionInput | Prisma.EmployeeUpdateWithWhereUniqueWithoutPositionInput[]
+  updateMany?: Prisma.EmployeeUpdateManyWithWhereWithoutPositionInput | Prisma.EmployeeUpdateManyWithWhereWithoutPositionInput[]
+  deleteMany?: Prisma.EmployeeScalarWhereInput | Prisma.EmployeeScalarWhereInput[]
 }
 
 export type EmployeeCreateNestedOneWithoutAvailabilitiesInput = {
@@ -575,11 +615,11 @@ export type EmployeeCreateWithoutUserInput = {
   firstName: string
   lastName: string
   phone?: string | null
-  position: $Enums.Position
   isActive?: boolean
   createdAt?: Date | string
   updatedAt?: Date | string
   court: Prisma.CourtCreateNestedOneWithoutEmployeesInput
+  position: Prisma.PositionCreateNestedOneWithoutEmployeesInput
   availabilities?: Prisma.AvailabilityCreateNestedManyWithoutEmployeeInput
   assignments?: Prisma.ShiftAssignmentCreateNestedManyWithoutEmployeeInput
   fairnessRecords?: Prisma.FairnessRecordCreateNestedManyWithoutEmployeeInput
@@ -591,7 +631,7 @@ export type EmployeeUncheckedCreateWithoutUserInput = {
   firstName: string
   lastName: string
   phone?: string | null
-  position: $Enums.Position
+  positionId: string
   courtId: string
   isActive?: boolean
   createdAt?: Date | string
@@ -623,11 +663,11 @@ export type EmployeeUpdateWithoutUserInput = {
   firstName?: Prisma.StringFieldUpdateOperationsInput | string
   lastName?: Prisma.StringFieldUpdateOperationsInput | string
   phone?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  position?: Prisma.EnumPositionFieldUpdateOperationsInput | $Enums.Position
   isActive?: Prisma.BoolFieldUpdateOperationsInput | boolean
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   court?: Prisma.CourtUpdateOneRequiredWithoutEmployeesNestedInput
+  position?: Prisma.PositionUpdateOneRequiredWithoutEmployeesNestedInput
   availabilities?: Prisma.AvailabilityUpdateManyWithoutEmployeeNestedInput
   assignments?: Prisma.ShiftAssignmentUpdateManyWithoutEmployeeNestedInput
   fairnessRecords?: Prisma.FairnessRecordUpdateManyWithoutEmployeeNestedInput
@@ -639,7 +679,7 @@ export type EmployeeUncheckedUpdateWithoutUserInput = {
   firstName?: Prisma.StringFieldUpdateOperationsInput | string
   lastName?: Prisma.StringFieldUpdateOperationsInput | string
   phone?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  position?: Prisma.EnumPositionFieldUpdateOperationsInput | $Enums.Position
+  positionId?: Prisma.StringFieldUpdateOperationsInput | string
   courtId?: Prisma.StringFieldUpdateOperationsInput | string
   isActive?: Prisma.BoolFieldUpdateOperationsInput | boolean
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
@@ -655,10 +695,10 @@ export type EmployeeCreateWithoutCourtInput = {
   firstName: string
   lastName: string
   phone?: string | null
-  position: $Enums.Position
   isActive?: boolean
   createdAt?: Date | string
   updatedAt?: Date | string
+  position: Prisma.PositionCreateNestedOneWithoutEmployeesInput
   user?: Prisma.UserCreateNestedOneWithoutEmployeeInput
   availabilities?: Prisma.AvailabilityCreateNestedManyWithoutEmployeeInput
   assignments?: Prisma.ShiftAssignmentCreateNestedManyWithoutEmployeeInput
@@ -671,7 +711,7 @@ export type EmployeeUncheckedCreateWithoutCourtInput = {
   firstName: string
   lastName: string
   phone?: string | null
-  position: $Enums.Position
+  positionId: string
   isActive?: boolean
   createdAt?: Date | string
   updatedAt?: Date | string
@@ -716,11 +756,69 @@ export type EmployeeScalarWhereInput = {
   firstName?: Prisma.StringFilter<"Employee"> | string
   lastName?: Prisma.StringFilter<"Employee"> | string
   phone?: Prisma.StringNullableFilter<"Employee"> | string | null
-  position?: Prisma.EnumPositionFilter<"Employee"> | $Enums.Position
+  positionId?: Prisma.StringFilter<"Employee"> | string
   courtId?: Prisma.StringFilter<"Employee"> | string
   isActive?: Prisma.BoolFilter<"Employee"> | boolean
   createdAt?: Prisma.DateTimeFilter<"Employee"> | Date | string
   updatedAt?: Prisma.DateTimeFilter<"Employee"> | Date | string
+}
+
+export type EmployeeCreateWithoutPositionInput = {
+  id?: string
+  firstName: string
+  lastName: string
+  phone?: string | null
+  isActive?: boolean
+  createdAt?: Date | string
+  updatedAt?: Date | string
+  court: Prisma.CourtCreateNestedOneWithoutEmployeesInput
+  user?: Prisma.UserCreateNestedOneWithoutEmployeeInput
+  availabilities?: Prisma.AvailabilityCreateNestedManyWithoutEmployeeInput
+  assignments?: Prisma.ShiftAssignmentCreateNestedManyWithoutEmployeeInput
+  fairnessRecords?: Prisma.FairnessRecordCreateNestedManyWithoutEmployeeInput
+  warnings?: Prisma.ScheduleWarningCreateNestedManyWithoutEmployeeInput
+}
+
+export type EmployeeUncheckedCreateWithoutPositionInput = {
+  id?: string
+  firstName: string
+  lastName: string
+  phone?: string | null
+  courtId: string
+  isActive?: boolean
+  createdAt?: Date | string
+  updatedAt?: Date | string
+  user?: Prisma.UserUncheckedCreateNestedOneWithoutEmployeeInput
+  availabilities?: Prisma.AvailabilityUncheckedCreateNestedManyWithoutEmployeeInput
+  assignments?: Prisma.ShiftAssignmentUncheckedCreateNestedManyWithoutEmployeeInput
+  fairnessRecords?: Prisma.FairnessRecordUncheckedCreateNestedManyWithoutEmployeeInput
+  warnings?: Prisma.ScheduleWarningUncheckedCreateNestedManyWithoutEmployeeInput
+}
+
+export type EmployeeCreateOrConnectWithoutPositionInput = {
+  where: Prisma.EmployeeWhereUniqueInput
+  create: Prisma.XOR<Prisma.EmployeeCreateWithoutPositionInput, Prisma.EmployeeUncheckedCreateWithoutPositionInput>
+}
+
+export type EmployeeCreateManyPositionInputEnvelope = {
+  data: Prisma.EmployeeCreateManyPositionInput | Prisma.EmployeeCreateManyPositionInput[]
+  skipDuplicates?: boolean
+}
+
+export type EmployeeUpsertWithWhereUniqueWithoutPositionInput = {
+  where: Prisma.EmployeeWhereUniqueInput
+  update: Prisma.XOR<Prisma.EmployeeUpdateWithoutPositionInput, Prisma.EmployeeUncheckedUpdateWithoutPositionInput>
+  create: Prisma.XOR<Prisma.EmployeeCreateWithoutPositionInput, Prisma.EmployeeUncheckedCreateWithoutPositionInput>
+}
+
+export type EmployeeUpdateWithWhereUniqueWithoutPositionInput = {
+  where: Prisma.EmployeeWhereUniqueInput
+  data: Prisma.XOR<Prisma.EmployeeUpdateWithoutPositionInput, Prisma.EmployeeUncheckedUpdateWithoutPositionInput>
+}
+
+export type EmployeeUpdateManyWithWhereWithoutPositionInput = {
+  where: Prisma.EmployeeScalarWhereInput
+  data: Prisma.XOR<Prisma.EmployeeUpdateManyMutationInput, Prisma.EmployeeUncheckedUpdateManyWithoutPositionInput>
 }
 
 export type EmployeeCreateWithoutAvailabilitiesInput = {
@@ -728,11 +826,11 @@ export type EmployeeCreateWithoutAvailabilitiesInput = {
   firstName: string
   lastName: string
   phone?: string | null
-  position: $Enums.Position
   isActive?: boolean
   createdAt?: Date | string
   updatedAt?: Date | string
   court: Prisma.CourtCreateNestedOneWithoutEmployeesInput
+  position: Prisma.PositionCreateNestedOneWithoutEmployeesInput
   user?: Prisma.UserCreateNestedOneWithoutEmployeeInput
   assignments?: Prisma.ShiftAssignmentCreateNestedManyWithoutEmployeeInput
   fairnessRecords?: Prisma.FairnessRecordCreateNestedManyWithoutEmployeeInput
@@ -744,7 +842,7 @@ export type EmployeeUncheckedCreateWithoutAvailabilitiesInput = {
   firstName: string
   lastName: string
   phone?: string | null
-  position: $Enums.Position
+  positionId: string
   courtId: string
   isActive?: boolean
   createdAt?: Date | string
@@ -776,11 +874,11 @@ export type EmployeeUpdateWithoutAvailabilitiesInput = {
   firstName?: Prisma.StringFieldUpdateOperationsInput | string
   lastName?: Prisma.StringFieldUpdateOperationsInput | string
   phone?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  position?: Prisma.EnumPositionFieldUpdateOperationsInput | $Enums.Position
   isActive?: Prisma.BoolFieldUpdateOperationsInput | boolean
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   court?: Prisma.CourtUpdateOneRequiredWithoutEmployeesNestedInput
+  position?: Prisma.PositionUpdateOneRequiredWithoutEmployeesNestedInput
   user?: Prisma.UserUpdateOneWithoutEmployeeNestedInput
   assignments?: Prisma.ShiftAssignmentUpdateManyWithoutEmployeeNestedInput
   fairnessRecords?: Prisma.FairnessRecordUpdateManyWithoutEmployeeNestedInput
@@ -792,7 +890,7 @@ export type EmployeeUncheckedUpdateWithoutAvailabilitiesInput = {
   firstName?: Prisma.StringFieldUpdateOperationsInput | string
   lastName?: Prisma.StringFieldUpdateOperationsInput | string
   phone?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  position?: Prisma.EnumPositionFieldUpdateOperationsInput | $Enums.Position
+  positionId?: Prisma.StringFieldUpdateOperationsInput | string
   courtId?: Prisma.StringFieldUpdateOperationsInput | string
   isActive?: Prisma.BoolFieldUpdateOperationsInput | boolean
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
@@ -808,11 +906,11 @@ export type EmployeeCreateWithoutAssignmentsInput = {
   firstName: string
   lastName: string
   phone?: string | null
-  position: $Enums.Position
   isActive?: boolean
   createdAt?: Date | string
   updatedAt?: Date | string
   court: Prisma.CourtCreateNestedOneWithoutEmployeesInput
+  position: Prisma.PositionCreateNestedOneWithoutEmployeesInput
   user?: Prisma.UserCreateNestedOneWithoutEmployeeInput
   availabilities?: Prisma.AvailabilityCreateNestedManyWithoutEmployeeInput
   fairnessRecords?: Prisma.FairnessRecordCreateNestedManyWithoutEmployeeInput
@@ -824,7 +922,7 @@ export type EmployeeUncheckedCreateWithoutAssignmentsInput = {
   firstName: string
   lastName: string
   phone?: string | null
-  position: $Enums.Position
+  positionId: string
   courtId: string
   isActive?: boolean
   createdAt?: Date | string
@@ -856,11 +954,11 @@ export type EmployeeUpdateWithoutAssignmentsInput = {
   firstName?: Prisma.StringFieldUpdateOperationsInput | string
   lastName?: Prisma.StringFieldUpdateOperationsInput | string
   phone?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  position?: Prisma.EnumPositionFieldUpdateOperationsInput | $Enums.Position
   isActive?: Prisma.BoolFieldUpdateOperationsInput | boolean
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   court?: Prisma.CourtUpdateOneRequiredWithoutEmployeesNestedInput
+  position?: Prisma.PositionUpdateOneRequiredWithoutEmployeesNestedInput
   user?: Prisma.UserUpdateOneWithoutEmployeeNestedInput
   availabilities?: Prisma.AvailabilityUpdateManyWithoutEmployeeNestedInput
   fairnessRecords?: Prisma.FairnessRecordUpdateManyWithoutEmployeeNestedInput
@@ -872,7 +970,7 @@ export type EmployeeUncheckedUpdateWithoutAssignmentsInput = {
   firstName?: Prisma.StringFieldUpdateOperationsInput | string
   lastName?: Prisma.StringFieldUpdateOperationsInput | string
   phone?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  position?: Prisma.EnumPositionFieldUpdateOperationsInput | $Enums.Position
+  positionId?: Prisma.StringFieldUpdateOperationsInput | string
   courtId?: Prisma.StringFieldUpdateOperationsInput | string
   isActive?: Prisma.BoolFieldUpdateOperationsInput | boolean
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
@@ -888,11 +986,11 @@ export type EmployeeCreateWithoutWarningsInput = {
   firstName: string
   lastName: string
   phone?: string | null
-  position: $Enums.Position
   isActive?: boolean
   createdAt?: Date | string
   updatedAt?: Date | string
   court: Prisma.CourtCreateNestedOneWithoutEmployeesInput
+  position: Prisma.PositionCreateNestedOneWithoutEmployeesInput
   user?: Prisma.UserCreateNestedOneWithoutEmployeeInput
   availabilities?: Prisma.AvailabilityCreateNestedManyWithoutEmployeeInput
   assignments?: Prisma.ShiftAssignmentCreateNestedManyWithoutEmployeeInput
@@ -904,7 +1002,7 @@ export type EmployeeUncheckedCreateWithoutWarningsInput = {
   firstName: string
   lastName: string
   phone?: string | null
-  position: $Enums.Position
+  positionId: string
   courtId: string
   isActive?: boolean
   createdAt?: Date | string
@@ -936,11 +1034,11 @@ export type EmployeeUpdateWithoutWarningsInput = {
   firstName?: Prisma.StringFieldUpdateOperationsInput | string
   lastName?: Prisma.StringFieldUpdateOperationsInput | string
   phone?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  position?: Prisma.EnumPositionFieldUpdateOperationsInput | $Enums.Position
   isActive?: Prisma.BoolFieldUpdateOperationsInput | boolean
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   court?: Prisma.CourtUpdateOneRequiredWithoutEmployeesNestedInput
+  position?: Prisma.PositionUpdateOneRequiredWithoutEmployeesNestedInput
   user?: Prisma.UserUpdateOneWithoutEmployeeNestedInput
   availabilities?: Prisma.AvailabilityUpdateManyWithoutEmployeeNestedInput
   assignments?: Prisma.ShiftAssignmentUpdateManyWithoutEmployeeNestedInput
@@ -952,7 +1050,7 @@ export type EmployeeUncheckedUpdateWithoutWarningsInput = {
   firstName?: Prisma.StringFieldUpdateOperationsInput | string
   lastName?: Prisma.StringFieldUpdateOperationsInput | string
   phone?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  position?: Prisma.EnumPositionFieldUpdateOperationsInput | $Enums.Position
+  positionId?: Prisma.StringFieldUpdateOperationsInput | string
   courtId?: Prisma.StringFieldUpdateOperationsInput | string
   isActive?: Prisma.BoolFieldUpdateOperationsInput | boolean
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
@@ -968,11 +1066,11 @@ export type EmployeeCreateWithoutFairnessRecordsInput = {
   firstName: string
   lastName: string
   phone?: string | null
-  position: $Enums.Position
   isActive?: boolean
   createdAt?: Date | string
   updatedAt?: Date | string
   court: Prisma.CourtCreateNestedOneWithoutEmployeesInput
+  position: Prisma.PositionCreateNestedOneWithoutEmployeesInput
   user?: Prisma.UserCreateNestedOneWithoutEmployeeInput
   availabilities?: Prisma.AvailabilityCreateNestedManyWithoutEmployeeInput
   assignments?: Prisma.ShiftAssignmentCreateNestedManyWithoutEmployeeInput
@@ -984,7 +1082,7 @@ export type EmployeeUncheckedCreateWithoutFairnessRecordsInput = {
   firstName: string
   lastName: string
   phone?: string | null
-  position: $Enums.Position
+  positionId: string
   courtId: string
   isActive?: boolean
   createdAt?: Date | string
@@ -1016,11 +1114,11 @@ export type EmployeeUpdateWithoutFairnessRecordsInput = {
   firstName?: Prisma.StringFieldUpdateOperationsInput | string
   lastName?: Prisma.StringFieldUpdateOperationsInput | string
   phone?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  position?: Prisma.EnumPositionFieldUpdateOperationsInput | $Enums.Position
   isActive?: Prisma.BoolFieldUpdateOperationsInput | boolean
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   court?: Prisma.CourtUpdateOneRequiredWithoutEmployeesNestedInput
+  position?: Prisma.PositionUpdateOneRequiredWithoutEmployeesNestedInput
   user?: Prisma.UserUpdateOneWithoutEmployeeNestedInput
   availabilities?: Prisma.AvailabilityUpdateManyWithoutEmployeeNestedInput
   assignments?: Prisma.ShiftAssignmentUpdateManyWithoutEmployeeNestedInput
@@ -1032,7 +1130,7 @@ export type EmployeeUncheckedUpdateWithoutFairnessRecordsInput = {
   firstName?: Prisma.StringFieldUpdateOperationsInput | string
   lastName?: Prisma.StringFieldUpdateOperationsInput | string
   phone?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  position?: Prisma.EnumPositionFieldUpdateOperationsInput | $Enums.Position
+  positionId?: Prisma.StringFieldUpdateOperationsInput | string
   courtId?: Prisma.StringFieldUpdateOperationsInput | string
   isActive?: Prisma.BoolFieldUpdateOperationsInput | boolean
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
@@ -1048,7 +1146,7 @@ export type EmployeeCreateManyCourtInput = {
   firstName: string
   lastName: string
   phone?: string | null
-  position: $Enums.Position
+  positionId: string
   isActive?: boolean
   createdAt?: Date | string
   updatedAt?: Date | string
@@ -1059,10 +1157,10 @@ export type EmployeeUpdateWithoutCourtInput = {
   firstName?: Prisma.StringFieldUpdateOperationsInput | string
   lastName?: Prisma.StringFieldUpdateOperationsInput | string
   phone?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  position?: Prisma.EnumPositionFieldUpdateOperationsInput | $Enums.Position
   isActive?: Prisma.BoolFieldUpdateOperationsInput | boolean
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  position?: Prisma.PositionUpdateOneRequiredWithoutEmployeesNestedInput
   user?: Prisma.UserUpdateOneWithoutEmployeeNestedInput
   availabilities?: Prisma.AvailabilityUpdateManyWithoutEmployeeNestedInput
   assignments?: Prisma.ShiftAssignmentUpdateManyWithoutEmployeeNestedInput
@@ -1075,7 +1173,7 @@ export type EmployeeUncheckedUpdateWithoutCourtInput = {
   firstName?: Prisma.StringFieldUpdateOperationsInput | string
   lastName?: Prisma.StringFieldUpdateOperationsInput | string
   phone?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  position?: Prisma.EnumPositionFieldUpdateOperationsInput | $Enums.Position
+  positionId?: Prisma.StringFieldUpdateOperationsInput | string
   isActive?: Prisma.BoolFieldUpdateOperationsInput | boolean
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
@@ -1091,7 +1189,61 @@ export type EmployeeUncheckedUpdateManyWithoutCourtInput = {
   firstName?: Prisma.StringFieldUpdateOperationsInput | string
   lastName?: Prisma.StringFieldUpdateOperationsInput | string
   phone?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  position?: Prisma.EnumPositionFieldUpdateOperationsInput | $Enums.Position
+  positionId?: Prisma.StringFieldUpdateOperationsInput | string
+  isActive?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+}
+
+export type EmployeeCreateManyPositionInput = {
+  id?: string
+  firstName: string
+  lastName: string
+  phone?: string | null
+  courtId: string
+  isActive?: boolean
+  createdAt?: Date | string
+  updatedAt?: Date | string
+}
+
+export type EmployeeUpdateWithoutPositionInput = {
+  id?: Prisma.StringFieldUpdateOperationsInput | string
+  firstName?: Prisma.StringFieldUpdateOperationsInput | string
+  lastName?: Prisma.StringFieldUpdateOperationsInput | string
+  phone?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  isActive?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  court?: Prisma.CourtUpdateOneRequiredWithoutEmployeesNestedInput
+  user?: Prisma.UserUpdateOneWithoutEmployeeNestedInput
+  availabilities?: Prisma.AvailabilityUpdateManyWithoutEmployeeNestedInput
+  assignments?: Prisma.ShiftAssignmentUpdateManyWithoutEmployeeNestedInput
+  fairnessRecords?: Prisma.FairnessRecordUpdateManyWithoutEmployeeNestedInput
+  warnings?: Prisma.ScheduleWarningUpdateManyWithoutEmployeeNestedInput
+}
+
+export type EmployeeUncheckedUpdateWithoutPositionInput = {
+  id?: Prisma.StringFieldUpdateOperationsInput | string
+  firstName?: Prisma.StringFieldUpdateOperationsInput | string
+  lastName?: Prisma.StringFieldUpdateOperationsInput | string
+  phone?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  courtId?: Prisma.StringFieldUpdateOperationsInput | string
+  isActive?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  user?: Prisma.UserUncheckedUpdateOneWithoutEmployeeNestedInput
+  availabilities?: Prisma.AvailabilityUncheckedUpdateManyWithoutEmployeeNestedInput
+  assignments?: Prisma.ShiftAssignmentUncheckedUpdateManyWithoutEmployeeNestedInput
+  fairnessRecords?: Prisma.FairnessRecordUncheckedUpdateManyWithoutEmployeeNestedInput
+  warnings?: Prisma.ScheduleWarningUncheckedUpdateManyWithoutEmployeeNestedInput
+}
+
+export type EmployeeUncheckedUpdateManyWithoutPositionInput = {
+  id?: Prisma.StringFieldUpdateOperationsInput | string
+  firstName?: Prisma.StringFieldUpdateOperationsInput | string
+  lastName?: Prisma.StringFieldUpdateOperationsInput | string
+  phone?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  courtId?: Prisma.StringFieldUpdateOperationsInput | string
   isActive?: Prisma.BoolFieldUpdateOperationsInput | boolean
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
@@ -1160,12 +1312,13 @@ export type EmployeeSelect<ExtArgs extends runtime.Types.Extensions.InternalArgs
   firstName?: boolean
   lastName?: boolean
   phone?: boolean
-  position?: boolean
+  positionId?: boolean
   courtId?: boolean
   isActive?: boolean
   createdAt?: boolean
   updatedAt?: boolean
   court?: boolean | Prisma.CourtDefaultArgs<ExtArgs>
+  position?: boolean | Prisma.PositionDefaultArgs<ExtArgs>
   user?: boolean | Prisma.Employee$userArgs<ExtArgs>
   availabilities?: boolean | Prisma.Employee$availabilitiesArgs<ExtArgs>
   assignments?: boolean | Prisma.Employee$assignmentsArgs<ExtArgs>
@@ -1179,12 +1332,13 @@ export type EmployeeSelectCreateManyAndReturn<ExtArgs extends runtime.Types.Exte
   firstName?: boolean
   lastName?: boolean
   phone?: boolean
-  position?: boolean
+  positionId?: boolean
   courtId?: boolean
   isActive?: boolean
   createdAt?: boolean
   updatedAt?: boolean
   court?: boolean | Prisma.CourtDefaultArgs<ExtArgs>
+  position?: boolean | Prisma.PositionDefaultArgs<ExtArgs>
 }, ExtArgs["result"]["employee"]>
 
 export type EmployeeSelectUpdateManyAndReturn<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetSelect<{
@@ -1192,12 +1346,13 @@ export type EmployeeSelectUpdateManyAndReturn<ExtArgs extends runtime.Types.Exte
   firstName?: boolean
   lastName?: boolean
   phone?: boolean
-  position?: boolean
+  positionId?: boolean
   courtId?: boolean
   isActive?: boolean
   createdAt?: boolean
   updatedAt?: boolean
   court?: boolean | Prisma.CourtDefaultArgs<ExtArgs>
+  position?: boolean | Prisma.PositionDefaultArgs<ExtArgs>
 }, ExtArgs["result"]["employee"]>
 
 export type EmployeeSelectScalar = {
@@ -1205,16 +1360,17 @@ export type EmployeeSelectScalar = {
   firstName?: boolean
   lastName?: boolean
   phone?: boolean
-  position?: boolean
+  positionId?: boolean
   courtId?: boolean
   isActive?: boolean
   createdAt?: boolean
   updatedAt?: boolean
 }
 
-export type EmployeeOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"id" | "firstName" | "lastName" | "phone" | "position" | "courtId" | "isActive" | "createdAt" | "updatedAt", ExtArgs["result"]["employee"]>
+export type EmployeeOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"id" | "firstName" | "lastName" | "phone" | "positionId" | "courtId" | "isActive" | "createdAt" | "updatedAt", ExtArgs["result"]["employee"]>
 export type EmployeeInclude<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
   court?: boolean | Prisma.CourtDefaultArgs<ExtArgs>
+  position?: boolean | Prisma.PositionDefaultArgs<ExtArgs>
   user?: boolean | Prisma.Employee$userArgs<ExtArgs>
   availabilities?: boolean | Prisma.Employee$availabilitiesArgs<ExtArgs>
   assignments?: boolean | Prisma.Employee$assignmentsArgs<ExtArgs>
@@ -1224,15 +1380,18 @@ export type EmployeeInclude<ExtArgs extends runtime.Types.Extensions.InternalArg
 }
 export type EmployeeIncludeCreateManyAndReturn<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
   court?: boolean | Prisma.CourtDefaultArgs<ExtArgs>
+  position?: boolean | Prisma.PositionDefaultArgs<ExtArgs>
 }
 export type EmployeeIncludeUpdateManyAndReturn<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
   court?: boolean | Prisma.CourtDefaultArgs<ExtArgs>
+  position?: boolean | Prisma.PositionDefaultArgs<ExtArgs>
 }
 
 export type $EmployeePayload<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
   name: "Employee"
   objects: {
     court: Prisma.$CourtPayload<ExtArgs>
+    position: Prisma.$PositionPayload<ExtArgs>
     user: Prisma.$UserPayload<ExtArgs> | null
     availabilities: Prisma.$AvailabilityPayload<ExtArgs>[]
     assignments: Prisma.$ShiftAssignmentPayload<ExtArgs>[]
@@ -1244,7 +1403,7 @@ export type $EmployeePayload<ExtArgs extends runtime.Types.Extensions.InternalAr
     firstName: string
     lastName: string
     phone: string | null
-    position: $Enums.Position
+    positionId: string
     courtId: string
     isActive: boolean
     createdAt: Date
@@ -1644,6 +1803,7 @@ readonly fields: EmployeeFieldRefs;
 export interface Prisma__EmployeeClient<T, Null = never, ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs, GlobalOmitOptions = {}> extends Prisma.PrismaPromise<T> {
   readonly [Symbol.toStringTag]: "PrismaPromise"
   court<T extends Prisma.CourtDefaultArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.CourtDefaultArgs<ExtArgs>>): Prisma.Prisma__CourtClient<runtime.Types.Result.GetResult<Prisma.$CourtPayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions> | Null, Null, ExtArgs, GlobalOmitOptions>
+  position<T extends Prisma.PositionDefaultArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.PositionDefaultArgs<ExtArgs>>): Prisma.Prisma__PositionClient<runtime.Types.Result.GetResult<Prisma.$PositionPayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions> | Null, Null, ExtArgs, GlobalOmitOptions>
   user<T extends Prisma.Employee$userArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.Employee$userArgs<ExtArgs>>): Prisma.Prisma__UserClient<runtime.Types.Result.GetResult<Prisma.$UserPayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions> | null, null, ExtArgs, GlobalOmitOptions>
   availabilities<T extends Prisma.Employee$availabilitiesArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.Employee$availabilitiesArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$AvailabilityPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
   assignments<T extends Prisma.Employee$assignmentsArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.Employee$assignmentsArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$ShiftAssignmentPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
@@ -1682,7 +1842,7 @@ export interface EmployeeFieldRefs {
   readonly firstName: Prisma.FieldRef<"Employee", 'String'>
   readonly lastName: Prisma.FieldRef<"Employee", 'String'>
   readonly phone: Prisma.FieldRef<"Employee", 'String'>
-  readonly position: Prisma.FieldRef<"Employee", 'Position'>
+  readonly positionId: Prisma.FieldRef<"Employee", 'String'>
   readonly courtId: Prisma.FieldRef<"Employee", 'String'>
   readonly isActive: Prisma.FieldRef<"Employee", 'Boolean'>
   readonly createdAt: Prisma.FieldRef<"Employee", 'DateTime'>

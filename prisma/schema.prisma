@@ -23,12 +23,6 @@ enum ScheduleChangeType {
   MANUAL_OVERRIDE
 }
 
-enum Position {
-  GUARD
-  BAKAR
-  SHIFT_MANAGER
-  FACILITY_OFFICER
-}
 
 enum ShiftType {
   MORNING
@@ -153,7 +147,8 @@ model Court {
   region Region @relation(fields: [regionId], references: [id])
 
   employees        Employee[]
-  courtShiftRoles  CourtShiftRole[]
+  positions        Position[]
+  shiftCapacities  ShiftCapacity[]
   periods          SchedulePeriod[]
   shiftAssignments ShiftAssignment[]
   warnings         ScheduleWarning[]
@@ -169,11 +164,12 @@ model Employee {
   firstName String
   lastName  String
   phone     String?
-  position  Position
+  positionId String
   courtId   String
   isActive  Boolean  @default(true)
 
   court Court @relation(fields: [courtId], references: [id])
+  position Position @relation(fields: [positionId], references: [id])
 
   user            User?
   availabilities  Availability[]
@@ -185,63 +181,47 @@ model Employee {
   updatedAt DateTime @updatedAt
 
   @@index([courtId])
-  @@index([position])
+  @@index([positionId])
 }
-
-// אילו roles קיימים בבית משפט ובאיזו משמרת
-model CourtShiftRole {
-  id           String    @id @default(cuid())
+model Position {
+  id           String  @id @default(cuid())
   courtId      String
-  code         String
   name         String
-  shiftType    ShiftType
-  isActive     Boolean   @default(true)
-  displayOrder Int       @default(0)
-
+  isActive     Boolean @default(true)
+  displayOrder Int     @default(0)
   court Court @relation(fields: [courtId], references: [id], onDelete: Cascade)
 
-  staffingRules    CourtStaffRule[]
-  assignments      ShiftAssignment[]
-  allowedPositions CourtShiftRoleAllowedPosition[]
-  warnings         ScheduleWarning[]
+  employees         Employee[]
+  shiftCapacities   ShiftCapacity[]
+  shiftAssignments  ShiftAssignment[]
+  warnings          ScheduleWarning[]
 
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
 
-  @@unique([courtId, code, shiftType])
-  @@index([courtId, shiftType, displayOrder])
+  @@unique([courtId, name])
+  @@index([courtId, displayOrder])
 }
+model ShiftCapacity {
+  id           String      @id @default(cuid())
+  courtId      String
+  positionId   String
+  shiftType    ShiftType
+  dayCategory  DayCategory
+  amount       Int         @default(1)
+  isActive     Boolean     @default(true)
+  displayOrder Int         @default(0)
 
-// אילו Position-ים מותרים לכל CourtShiftRole
-model CourtShiftRoleAllowedPosition {
-  id               String   @id @default(cuid())
-  courtShiftRoleId String
-  position         Position
-
-  courtShiftRole CourtShiftRole @relation(fields: [courtShiftRoleId], references: [id], onDelete: Cascade)
-
-  createdAt DateTime @default(now())
-
-  @@unique([courtShiftRoleId, position])
-  @@index([position])
-}
-
-// כמה צריך מכל role בכל סוג יום
-model CourtStaffRule {
-  id               String      @id @default(cuid())
-  courtShiftRoleId String
-  dayCategory      DayCategory
-  requiredCount    Int
-  displayOrder     Int
-
-  courtShiftRole CourtShiftRole @relation(fields: [courtShiftRoleId], references: [id], onDelete: Cascade)
+  court    Court         @relation(fields: [courtId], references: [id], onDelete: Cascade)
+  position Position @relation(fields: [positionId], references: [id], onDelete: Cascade)
 
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
 
-  @@unique([dayCategory, courtShiftRoleId])
-  @@index([dayCategory, displayOrder])
-  @@index([courtShiftRoleId])
+  @@unique([courtId, positionId, shiftType, dayCategory])
+  @@index([courtId, shiftType, dayCategory])
+  @@index([positionId])
+  @@index([courtId, displayOrder])
 }
 
 model SchedulePeriod {
@@ -321,47 +301,50 @@ model Schedule {
 }
 
 model ShiftAssignment {
-  id               String   @id @default(cuid())
+  id               String    @id @default(cuid())
   scheduleId       String
   employeeId       String
-  courtShiftRoleId String
-  date             DateTime @db.Date
-  slotIndex        Int
-  isManualOverride Boolean  @default(false)
   courtId          String
+  positionId       String
+  date             DateTime  @db.Date
+  shiftType        ShiftType
+  slotIndex        Int
+  isManualOverride Boolean   @default(false)
 
-  schedule       Schedule       @relation(fields: [scheduleId], references: [id], onDelete: Cascade)
-  employee       Employee       @relation(fields: [employeeId], references: [id], onDelete: Cascade)
-  courtShiftRole CourtShiftRole @relation(fields: [courtShiftRoleId], references: [id], onDelete: Cascade)
-  court          Court          @relation(fields: [courtId], references: [id], onDelete: Cascade)
+  schedule Schedule      @relation(fields: [scheduleId], references: [id], onDelete: Cascade)
+  employee Employee      @relation(fields: [employeeId], references: [id], onDelete: Cascade)
+  court    Court         @relation(fields: [courtId], references: [id], onDelete: Cascade)
+  position Position @relation(fields: [positionId], references: [id], onDelete: Cascade)
 
   changeLogs ScheduleChangeLog[]
 
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
 
-  @@unique([scheduleId, employeeId, date, courtShiftRoleId, slotIndex])
+  @@unique([scheduleId, date, shiftType, positionId, slotIndex])
   @@index([scheduleId, date])
   @@index([employeeId, date])
-  @@index([courtShiftRoleId])
   @@index([courtId, date])
+  @@index([positionId])
+  @@index([shiftType])
 }
 
 model ScheduleWarning {
-  id               String          @id @default(cuid())
-  scheduleId       String
-  type             WarningType
-  severity         WarningSeverity
-  employeeId       String?
-  courtId          String?
-  courtShiftRoleId String?
-  date             DateTime?       @db.Date
-  message          String
+  id         String          @id @default(cuid())
+  scheduleId String
+  type       WarningType
+  severity   WarningSeverity
+  employeeId String?
+  courtId    String?  
+  positionId String?
+  shiftType  ShiftType?
+  date       DateTime?       @db.Date
+  message    String
 
-  schedule       Schedule        @relation(fields: [scheduleId], references: [id], onDelete: Cascade)
-  employee       Employee?       @relation(fields: [employeeId], references: [id])
-  court          Court?          @relation(fields: [courtId], references: [id])
-  courtShiftRole CourtShiftRole? @relation(fields: [courtShiftRoleId], references: [id])
+  schedule Schedule       @relation(fields: [scheduleId], references: [id], onDelete: Cascade)
+  employee Employee?      @relation(fields: [employeeId], references: [id])
+  court    Court?         @relation(fields: [courtId], references: [id])
+  position Position? @relation(fields: [positionId], references: [id])
 
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
@@ -369,9 +352,9 @@ model ScheduleWarning {
   @@index([scheduleId, date])
   @@index([employeeId, date])
   @@index([courtId, date])
-  @@index([courtShiftRoleId, date])
+  @@index([positionId, date])
+  @@index([shiftType])
 }
-
 model FairnessRecord {
   id            String @id @default(cuid())
   employeeId    String

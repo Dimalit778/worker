@@ -53,20 +53,15 @@ export type Court = Prisma.CourtModel
  */
 export type Employee = Prisma.EmployeeModel
 /**
- * Model CourtShiftRole
+ * Model Position
  * 
  */
-export type CourtShiftRole = Prisma.CourtShiftRoleModel
+export type Position = Prisma.PositionModel
 /**
- * Model CourtShiftRoleAllowedPosition
+ * Model ShiftCapacity
  * 
  */
-export type CourtShiftRoleAllowedPosition = Prisma.CourtShiftRoleAllowedPositionModel
-/**
- * Model CourtStaffRule
- * 
- */
-export type CourtStaffRule = Prisma.CourtStaffRuleModel
+export type ShiftCapacity = Prisma.ShiftCapacityModel
 /**
  * Model SchedulePeriod
  * 
