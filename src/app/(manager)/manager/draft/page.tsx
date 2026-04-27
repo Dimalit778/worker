@@ -1,7 +1,7 @@
 import { requireSession } from '@/lib/db/auth-helpers';
 import { SystemRole } from '@/generated/prisma/client';
 import { getDraftScheduleData } from '@/features/shift-assignments/queries';
-import { ShiftsGrid } from '@/features/shift-assignments/components/schedule';
+import { Schedule } from '@/features/shift-assignments/components/schedule';
 import { DraftActions } from '@/features/schedules/components/draft-actions';
 
 export default async function DraftPage() {
@@ -42,7 +42,7 @@ export default async function DraftPage() {
         </div>
       )}
 
-      <ShiftsGrid
+      <Schedule
         periodId={data.periodId}
         periodName={data.periodName}
         startDate={data.startDate}

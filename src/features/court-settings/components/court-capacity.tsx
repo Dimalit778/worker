@@ -1,15 +1,13 @@
 'use client';
 
 import { useLayoutEffect, useMemo, useState, useTransition } from 'react';
-import { useRouter } from 'next/navigation';
 import type { DayCategory, ShiftType } from '@/generated/prisma/client';
 import { Button } from '@/components/ui/button';
-import { Input } from '@/components/ui/input';
-import { Label } from '@/components/ui/label';
 import { DAY_CATEGORIES, DAY_META, SHIFT_ORDER, SHIFT_LABELS } from '@/features/court-settings/constans';
 import { addShiftCapacity, updateShiftCapacity } from '@/features/court-settings/actions';
 import { AddPositionModal } from './add-position-modal';
-import { PositionOrderSection } from './position-order-section';
+import { cn } from '@/lib/utils';
+import { ChevronDown, UserPlus } from 'lucide-react';
 
 type PositionOption = {
   id: string;
@@ -81,8 +79,10 @@ function Cell({
   }, [cell.value]);
 
   return (
-    <div className="flex flex-col items-center gap-1">
-      <span className="text-xs text-muted-foreground">{position.name}</span>
+    <div className="flex flex-col items-center justify-center">
+      <span className="line-clamp-2 py-1  text-center text-[11px] leading-tight text-muted-foreground sm:text-xs ">
+        {position.name}
+      </span>
 
       <input
         type="number"
@@ -105,7 +105,7 @@ function Cell({
             (e.target as HTMLInputElement).blur();
           }
         }}
-        className="w-14 rounded-md border border-input bg-background px-2 py-1 text-center text-sm shadow-sm focus:outline-none focus:ring-2 focus:ring-ring [appearance:textfield] [&::-webkit-inner-spin-button]:appearance-none [&::-webkit-outer-spin-button]:appearance-none"
+        className="h-10 w-full min-w-13 max-w-18 rounded-lg border border-input bg-background px-2 text-center text-sm shadow-sm transition-[box-shadow,background-color] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring [appearance:textfield] sm:h-9 [&::-webkit-inner-spin-button]:appearance-none [&::-webkit-outer-spin-button]:appearance-none"
         aria-label={`${SHIFT_LABELS[shift]} ${position.name}`}
       />
     </div>
@@ -115,9 +115,11 @@ function Cell({
 export function CourtCapacityRules({
   positions,
   initialCapacities,
+  className,
 }: {
   positions: PositionOption[];
   initialCapacities: ShiftCapacityRow[];
+  className?: string;
 }) {
   const initial = useMemo(
     () =>
@@ -131,7 +133,7 @@ export function CourtCapacityRules({
   const [draft, setDraft] = useState<GridState>(initial);
   const [saved, setSaved] = useState<GridState>(initial);
   const [errorMsg, setErrorMsg] = useState('');
-  const [open, setOpen] = useState<Partial<Record<DayCategory, boolean>>>({});
+  const [open, setOpen] = useState<Partial<Record<DayCategory, boolean>>>({ WEEKDAY: true });
   const [addModalOpen, setAddModalOpen] = useState(false);
   const [isPending, startTransition] = useTransition();
 
@@ -221,68 +223,68 @@ export function CourtCapacityRules({
   }
 
   return (
-    <div className="w-full max-w-2xl space-y-6" dir="rtl">
-      <PositionOrderSection positions={positions} />
-
-      <div className="max-w-sm space-y-2">
-        <h3 className="text-base font-semibold">קיבולת משמרות</h3>
-        <p className="text-sm text-muted-foreground">הגדר מספרים לפי יום, משמרת ותפקיד. להוספת תפקיד עם קיבולת ראשונית:</p>
-        <Button type="button" variant="outline" onClick={() => setAddModalOpen(true)}>
-          הוסף תפקיד (עם קיבולת)
-        </Button>
-      </div>
-
-      <AddPositionModal open={addModalOpen} onClose={() => setAddModalOpen(false)} />
-
-      <div className="max-w-sm space-y-6">
+    <div className={cn('space-y-5 ', className)} dir="rtl">
+      <div className="space-y-3">
         {DAY_CATEGORIES.map((day) => {
           const isOpen = !!open[day];
-
           return (
-            <div key={day} className="space-y-2">
+            <div
+              key={day}
+              className="overflow-hidden rounded-xl border border-border/80 bg-card/40 shadow-sm transition-shadow hover:shadow-md"
+            >
               <button
                 type="button"
                 onClick={() => toggleDay(day)}
-                className="flex w-full items-center gap-2 rounded-md bg-muted px-3 py-2 text-sm font-semibold transition-colors hover:bg-muted/70"
+                className="flex w-full items-center justify-between gap-3 px-4 py-3.5 text-right text-sm font-semibold text-foreground transition-colors hover:bg-muted/50"
               >
-                <span className="text-muted-foreground">{isOpen ? '▼' : '◀'}</span>
-                <span>{DAY_META[day].label}</span>
+                <span className="min-w-0 flex-1">{DAY_META[day].label}</span>
+                <ChevronDown
+                  className={cn('h-4 w-4 shrink-0 text-muted-foreground transition-transform', isOpen && 'rotate-180')}
+                />
               </button>
 
               {isOpen && (
-                <div className="flex gap-6 pr-2 pt-1">
-                  {SHIFT_ORDER.map((shift) => (
-                    <div key={shift} className="flex flex-col gap-2">
-                      <span className="text-center text-sm font-medium">{SHIFT_LABELS[shift]}</span>
-
-                      {positions.map((position) => (
-                        <Cell
-                          key={position.id}
-                          day={day}
-                          shift={shift}
-                          position={position}
-                          cell={draft[cellKey(day, shift, position.id)] ?? EMPTY_CELL}
-                          onChange={handleChange}
-                        />
+                <div className="border-t border-border/60 bg-muted/10 px-2 pb-4 pt-1 sm:px-4 ">
+                  <div className="overflow-x-auto overscroll-x-contain [-webkit-overflow-scrolling:touch]">
+                    <div className="inline-flex min-w-full gap-4 sm:gap-6 md:justify-center md:gap-8">
+                      {SHIFT_ORDER.map((shift) => (
+                        <div key={shift} className="flex w-full max-w-32 flex-col">
+                          <span className="select-none text-center text-xs font-semibold uppercase tracking-wide text-muted-foreground">
+                            {SHIFT_LABELS[shift]}
+                          </span>
+                          <div className="flex flex-col gap-6 rounded-lg border border-border/50 bg-background/80 p-2 shadow-inner">
+                            {positions.map((position) => (
+                              <Cell
+                                key={position.id}
+                                day={day}
+                                shift={shift}
+                                position={position}
+                                cell={draft[cellKey(day, shift, position.id)] ?? EMPTY_CELL}
+                                onChange={handleChange}
+                              />
+                            ))}
+                          </div>
+                        </div>
                       ))}
                     </div>
-                  ))}
+                  </div>
                 </div>
               )}
             </div>
           );
         })}
-
-        {errorMsg && <p className="text-sm text-destructive">{errorMsg}</p>}
-
-        {isDirty && (
-          <div className="sticky bottom-4 flex justify-start">
-            <Button type="button" onClick={handleSaveAll} disabled={isPending} className="shadow-md">
-              {isPending ? 'שומר...' : 'שמור שינויים'}
-            </Button>
-          </div>
-        )}
       </div>
+
+      {errorMsg ? <p className="text-sm text-destructive">{errorMsg}</p> : null}
+
+      {isDirty && (
+        <div className="sticky bottom-0 z-10 -mx-1 mt-2 flex flex-col gap-2 rounded-xl border border-border/80 bg-background/90 p-3 shadow-lg backdrop-blur sm:bottom-2 sm:mx-0 sm:flex-row sm:items-center sm:justify-between supports-backdrop-filter:bg-background/75">
+          <p className="text-sm text-muted-foreground">יש שינויים שטרם נשמרו</p>
+          <Button type="button" onClick={handleSaveAll} disabled={isPending} className="w-full sm:w-auto">
+            {isPending ? 'שומר...' : 'שמור שינויים'}
+          </Button>
+        </div>
+      )}
     </div>
   );
 }

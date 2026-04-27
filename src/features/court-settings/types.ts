@@ -3,11 +3,11 @@ import type { AssignmentMap } from '../shift-assignments/types';
 
 export type { ShiftType };
 
-export type EmployeeSummary = {
+export type GuardOption = {
   id: string;
   name: string;
 };
-export type PositionCapacityMap = Partial<Record<Position, number>>;
+export type PositionCapacityMap = Partial<Record<string, number>>;
 
 export type CapacityMap = Record<ShiftType, PositionCapacityMap>;
 
@@ -29,21 +29,6 @@ export type CourtShiftRoleWithRules = {
     requiredCount: number;
   }[];
 };
-export type DraftScheduleData =
-  | { found: false }
-  | {
-      found: true;
-      periodId: string;
-      periodName: string;
-      startDate: string;
-      endDate: string;
-      scheduleId: string | null;
-      scheduleStatus: ScheduleStatus | null;
-      assignments: AssignmentMap;
-      guards: EmployeeSummary[];
-      capacity: FullCapacityRules;
-      courtId: string;
-    };
 
 export type CourtStaffRuleRow = {
   id: string;

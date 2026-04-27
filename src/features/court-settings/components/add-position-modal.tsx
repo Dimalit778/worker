@@ -56,7 +56,7 @@ export const AddPositionModal = ({ open, onClose }: { open: boolean; onClose: ()
 
   return (
     <div
-      className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 p-4"
+      className="fixed inset-0 z-50 flex items-end justify-center bg-background/80 p-0 shadow-lg backdrop-blur-sm sm:items-center sm:p-4"
       dir="rtl"
       role="presentation"
       onClick={(ev) => {
@@ -66,25 +66,28 @@ export const AddPositionModal = ({ open, onClose }: { open: boolean; onClose: ()
       }}
     >
       <div
-        className="max-h-[90vh] w-full max-w-md overflow-y-auto rounded-xl bg-background p-6 shadow-2xl ring-1 ring-border"
+        className="max-h-[92vh] w-full max-w-md overflow-y-auto rounded-t-2xl border border-border/80 bg-card p-5 shadow-2xl sm:rounded-2xl sm:p-6"
         role="dialog"
         aria-modal="true"
         aria-labelledby="add-position-title"
         onClick={(e) => e.stopPropagation()}
       >
-        <div className="mb-4 flex items-center justify-between">
-          <h2 id="add-position-title" className="text-lg font-semibold">
+        <div className="mb-5 flex items-start justify-between gap-3">
+          <h2 id="add-position-title" className="text-pretty pr-2 text-lg font-semibold leading-snug sm:text-xl">
             הוספת תפקיד עם קיבולת
           </h2>
           <button
             type="button"
             onClick={onClose}
-            className="rounded-md p-1 text-muted-foreground transition-colors hover:bg-muted hover:text-foreground"
+            className="shrink-0 rounded-lg p-2 text-muted-foreground transition-colors hover:bg-muted hover:text-foreground"
             aria-label="סגור"
           >
             <X className="h-5 w-5" />
           </button>
         </div>
+        <p className="mb-5 text-sm leading-relaxed text-muted-foreground">
+          נוצרים תפקיד חדש ושורת קיבולת התואמת (יום, משמרת, כמות) בבת אחת.
+        </p>
 
         <form onSubmit={handleSubmitWithCapacities} className="space-y-4">
           <div className="space-y-2">
@@ -98,7 +101,7 @@ export const AddPositionModal = ({ open, onClose }: { open: boolean; onClose: ()
               id="day-category"
               name="dayCategory"
               required
-              className="flex h-9 w-full rounded-md border border-input bg-transparent px-3 py-1 text-sm shadow-sm focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring"
+              className="flex h-10 w-full rounded-md border border-input bg-background px-3 text-sm shadow-sm focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
               defaultValue="WEEKDAY"
             >
               {DAY_CATEGORY_OPTIONS.map((opt) => (
@@ -115,7 +118,7 @@ export const AddPositionModal = ({ open, onClose }: { open: boolean; onClose: ()
               id="shift-scope"
               name="shiftScope"
               required
-              className="flex h-9 w-full rounded-md border border-input bg-transparent px-3 py-1 text-sm shadow-sm focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring"
+              className="flex h-10 w-full rounded-md border border-input bg-background px-3 text-sm shadow-sm focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
               defaultValue="MORNING"
             >
               {SHIFT_SCOPE_OPTIONS.map((opt) => (
@@ -133,11 +136,11 @@ export const AddPositionModal = ({ open, onClose }: { open: boolean; onClose: ()
 
           {errorMsg ? <p className="text-sm text-destructive">{errorMsg}</p> : null}
 
-          <div className="flex justify-end gap-2 pt-2">
-            <Button type="button" variant="outline" onClick={onClose} disabled={isPending}>
+          <div className="flex flex-col-reverse gap-2 border-t border-border/60 pt-4 sm:flex-row sm:justify-end">
+            <Button type="button" variant="outline" className="w-full sm:w-auto" onClick={onClose} disabled={isPending}>
               ביטול
             </Button>
-            <Button type="submit" disabled={isPending}>
+            <Button type="submit" className="w-full sm:w-auto" disabled={isPending}>
               {isPending ? 'שומר...' : 'הוסף'}
             </Button>
           </div>

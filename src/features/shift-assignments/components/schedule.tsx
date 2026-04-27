@@ -10,7 +10,6 @@ export function Schedule(props: ScheduleProps) {
   const { periodId, startDate, scheduleId, assignments, guards, capacity, courtId, readonly } = props;
   const [weekIndex, setWeekIndex] = useState(0);
   const weekDays = buildWeekDays(startDate, weekIndex);
-  console.log('capacity', JSON.stringify(capacity, null, 2));
 
   function weekRangeLabel(idx: number): string {
     const days = buildWeekDays(startDate, idx);
@@ -37,7 +36,7 @@ export function Schedule(props: ScheduleProps) {
         courtId={courtId}
         readonly={readonly}
       />
-      <ShiftSection
+      {/* <ShiftSection
         shiftType="EVENING"
         weekDays={weekDays}
         assignments={assignments}
@@ -58,7 +57,7 @@ export function Schedule(props: ScheduleProps) {
         periodId={periodId}
         courtId={courtId}
         readonly={readonly}
-      />
+      /> */}
     </div>
   );
 }

@@ -1,5 +1,5 @@
 import type { Position, ShiftType } from '@/generated/prisma/client';
-import type { DisplayRow, WeekDay } from './types';
+import type { AssignmentCellKey, DisplayRow, WeekDay } from './types';
 import { CapacityMap, CourtShiftRoleWithRules, FullCapacityRules } from '../court-settings/types';
 import { HEB_LETTERS, MORNING_LABELS, EVENING_LABELS, NIGHT_LABELS, POSITION_ORDER, POSITION_LABELS } from './constans';
 const buildWeekDays = (startDateISO: string, weekIndex: number): WeekDay[] => {
@@ -33,62 +33,7 @@ const getDayCapacity = (capacity: FullCapacityRules, dayOfWeek: number) => {
   if (dayOfWeek === 6) return capacity.saturday;
   return capacity.default;
 };
-const getMaxCountForPosition = (
-  capacity: FullCapacityRules,
-  weekDays: WeekDay[],
-  shiftType: ShiftType,
-  position: Position,
-) => {
-  return Math.max(
-    ...weekDays.map((day) => {
-      const dayCapacity = getDayCapacity(capacity, day.dayOfWeek)[shiftType];
-      return dayCapacity?.[position] ?? 0;
-    }),
-    0,
-  );
-};
 
-const buildRowsForWeek = (capacity: FullCapacityRules, weekDays: WeekDay[], shiftType: ShiftType): DisplayRow[] => {
-  const rows: DisplayRow[] = [];
-  let globalSlotIndex = 0;
-
-  for (const position of POSITION_ORDER) {
-    const maxCount = getMaxCountForPosition(capacity, weekDays, shiftType, position);
-
-    for (let i = 0; i < maxCount; i++) {
-      rows.push({
-        key: `${shiftType}-${position}-${i}`,
-        label: maxCount === 1 ? POSITION_LABELS[position] : `${POSITION_LABELS[position]} ${i + 1}`,
-        position,
-        slotIndex: globalSlotIndex,
-        roleSlotIndex: i,
-        isGroupStart: i === 0,
-      });
-
-      globalSlotIndex++;
-    }
-  }
-
-  return rows;
-};
-
-function getShiftSummary(capacity: FullCapacityRules, shiftType: ShiftType) {
-  const defaultCapacity = capacity.default[shiftType];
-
-  const shiftManagerCount = defaultCapacity?.SHIFT_MANAGER ?? 0;
-  const bakarCount = defaultCapacity?.BAKAR ?? 0;
-  const facilityOfficerCount = defaultCapacity?.FACILITY_OFFICER ?? 0;
-  const guardCount = defaultCapacity?.GUARD ?? 0;
-
-  const parts = [
-    shiftManagerCount > 0 ? `${shiftManagerCount} אחמ״ש` : null,
-    bakarCount > 0 ? `${bakarCount} בקר` : null,
-    facilityOfficerCount > 0 ? `${facilityOfficerCount} קצין מתקן` : null,
-    guardCount > 0 ? `${guardCount} מאבטחים` : null,
-  ].filter(Boolean);
-
-  return parts.length > 0 ? parts.join(' · ') : 'אין תקנים';
-}
 export function buildCapacityRules(roles: CourtShiftRoleWithRules[]): FullCapacityRules {
   const emptyCapacityMap = (): CapacityMap => ({ MORNING: {}, EVENING: {}, NIGHT: {} });
   const result: FullCapacityRules = {
@@ -106,12 +51,23 @@ export function buildCapacityRules(roles: CourtShiftRoleWithRules[]): FullCapaci
 
   return result;
 }
-export {
-  buildWeekDays,
-  assignmentKey,
-  getRowLabel,
-  getDayCapacity,
-  getMaxCountForPosition,
-  buildRowsForWeek,
-  getShiftSummary,
-};
+export { buildWeekDays, assignmentKey, getRowLabel, getDayCapacity };
+// = utils for shift assignments
+export function toDateOnly(date: Date): string {
+  return date.toISOString().slice(0, 10);
+}
+
+export function formatEmployeeName(employee: { firstName: string; lastName: string }): string {
+  return `${employee.firstName} ${employee.lastName}`.trim();
+}
+
+export function getAssignmentCellKey(params: { date: Date; shiftType: ShiftType; positionId: string }) {
+  return `${toDateOnly(params.date)}-${params.shiftType}-${params.positionId}`;
+}
+export function createAssignmentCellKey(params: {
+  date: string;
+  shiftType: ShiftType;
+  positionId: string;
+}): AssignmentCellKey {
+  return `${params.date}-${params.shiftType}-${params.positionId}`;
+}
