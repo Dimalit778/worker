@@ -1,22 +1,7 @@
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import type { CurrentPeriodPanelProps } from '../types';
-import { TZ } from '../utils';
-import { PERIOD_STATUS_HE } from '../utils';
-
-function formatDateLong(d: Date): string {
-  return new Intl.DateTimeFormat('he-IL', {
-    dateStyle: 'long',
-    timeZone: TZ,
-  }).format(d);
-}
-
-function formatDateTimeLong(d: Date): string {
-  return new Intl.DateTimeFormat('he-IL', {
-    dateStyle: 'long',
-    timeStyle: 'short',
-    timeZone: TZ,
-  }).format(d);
-}
+import { TZ, PERIOD_STATUS_HE } from '../constans';
+import { formatDateLong, formatDateTimeLong } from '../utils';
 
 export function CurrentPeriodPanel({ period }: CurrentPeriodPanelProps) {
   if (!period) {

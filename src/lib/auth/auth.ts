@@ -39,8 +39,9 @@ export const authOptions: NextAuthOptions = {
         const isValid = await bcrypt.compare(credentials.password, user.passwordHash);
         if (!isValid) return null;
 
-        const courtId = user.employee?.courtId ?? null;
-
+        const courtId = user.employee?.courtId;
+        const employeeId = user.employee?.id;
+        if (!courtId || !employeeId) return null;
         return {
           id: user.id,
           email: user.email,
@@ -48,6 +49,7 @@ export const authOptions: NextAuthOptions = {
           phone: user.employee?.phone,
           systemRole: user.systemRole,
           courtId,
+          employeeId,
           mustChangePassword: user.mustChangePassword,
         };
       },
@@ -58,6 +60,7 @@ export const authOptions: NextAuthOptions = {
       if (user) {
         token.systemRole = user.systemRole;
         token.courtId = user.courtId;
+        token.employeeId = user.employeeId;
         token.mustChangePassword = user.mustChangePassword;
         token.fullName = user.fullName;
       } else {
@@ -74,6 +77,7 @@ export const authOptions: NextAuthOptions = {
         session.user.id = token.sub;
         session.user.systemRole = token.systemRole;
         session.user.courtId = token.courtId;
+        session.user.employeeId = token.employeeId;
         session.user.mustChangePassword = token.mustChangePassword ?? false;
         session.user.fullName = token.fullName;
       }

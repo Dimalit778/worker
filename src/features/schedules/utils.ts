@@ -1,7 +1,7 @@
-import { PeriodStatus } from '@/generated/prisma/client';
+import { TZ } from './constans';
 
 /** Calendar date YYYY-MM-DD for `instant` in `timeZone` (e.g. Asia/Jerusalem). */
-export function calendarDateISO(instant: Date, timeZone: string): string {
+function calendarDateISO(instant: Date, timeZone: string): string {
   const parts = new Intl.DateTimeFormat('en-CA', {
     timeZone,
     year: 'numeric',
@@ -19,7 +19,7 @@ export function calendarDateISO(instant: Date, timeZone: string): string {
 }
 
 /** UTC midnight for a civil YYYY-MM-DD (matches PostgreSQL `date` semantics for comparisons). */
-export function parseISODateToUtcMidnight(iso: string): Date {
+function parseISODateToUtcMidnight(iso: string): Date {
   const [y, m, d] = iso.split('-').map(Number);
   if (!y || !m || !d) {
     throw new Error(`parseISODateToUtcMidnight: invalid ISO date "${iso}"`);
@@ -27,12 +27,7 @@ export function parseISODateToUtcMidnight(iso: string): Date {
   return new Date(Date.UTC(y, m - 1, d));
 }
 
-/**
- * Noon UTC on the given civil date. Prefer this when binding a JS `Date` to Prisma filters on
- * `@db.Date` columns: some drivers/session time zones map midnight UTC to the previous local
- * calendar day, which breaks inclusive range checks.
- */
-export function utcNoonFromCalendarISO(iso: string): Date {
+function utcNoonFromCalendarISO(iso: string): Date {
   const [y, m, d] = iso.split('-').map(Number);
   if (!y || !m || !d) {
     throw new Error(`utcNoonFromCalendarISO: invalid ISO date "${iso}"`);
@@ -40,16 +35,103 @@ export function utcNoonFromCalendarISO(iso: string): Date {
   return new Date(Date.UTC(y, m - 1, d, 12, 0, 0));
 }
 
-export function todayUtcDateForTimeZone(timeZone: string, instant: Date = new Date()): Date {
+function todayUtcDateForTimeZone(timeZone: string, instant: Date = new Date()): Date {
   return parseISODateToUtcMidnight(calendarDateISO(instant, timeZone));
 }
+//  --> preiod-list page
+function formatDate(iso: string) {
+  const [y, m, d] = iso.split('-');
+  return `${d}/${m}/${y}`;
+}
+function addDays(isoDate: string, n: number): string {
+  const d = new Date(isoDate + 'T00:00:00Z');
+  d.setUTCDate(d.getUTCDate() + n);
+  return d.toISOString().slice(0, 10);
+}
 
-export const DEFAULT_TZ = 'Asia/Jerusalem';
-export const TZ = 'Asia/Jerusalem';
+function diffDays(a: string, b: string): number {
+  return (new Date(b + 'T00:00:00Z').getTime() - new Date(a + 'T00:00:00Z').getTime()) / 86400000;
+}
 
-export const PERIOD_STATUS_HE: Record<PeriodStatus, string> = {
-  DRAFT: 'טיוטה',
-  OPEN_FOR_SUBMISSION: 'פתוח להגשות',
-  LOCKED: 'נעול',
-  ARCHIVED: 'בארכיון',
+function isoToday(): string {
+  return new Date().toISOString().slice(0, 10);
+}
+
+function buildWeeks(startDate: string, endDate: string): string[][] {
+  const firstDay = new Date(startDate + 'T00:00:00Z');
+  const dayOfWeek = firstDay.getUTCDay(); // 0=Sun … 6=Sat
+  const paddedStart = addDays(startDate, -dayOfWeek);
+
+  const lastDay = new Date(endDate + 'T00:00:00Z');
+  const lastDayOfWeek = lastDay.getUTCDay();
+  const paddedEnd = addDays(endDate, 6 - lastDayOfWeek);
+
+  const total = diffDays(paddedStart, paddedEnd) + 1;
+  const dates: string[] = Array.from({ length: total }, (_, i) => addDays(paddedStart, i));
+
+  const weeks: string[][] = [];
+  for (let i = 0; i < dates.length; i += 7) {
+    weeks.push(dates.slice(i, i + 7));
+  }
+  return weeks;
+}
+
+// --> current-period-panel.tsx
+function formatDateLong(d: Date): string {
+  return new Intl.DateTimeFormat('he-IL', {
+    dateStyle: 'long',
+    timeZone: TZ,
+  }).format(d);
+}
+
+function formatDateTimeLong(d: Date): string {
+  return new Intl.DateTimeFormat('he-IL', {
+    dateStyle: 'long',
+    timeStyle: 'short',
+    timeZone: TZ,
+  }).format(d);
+}
+// --> create-period-form.tsx
+function upcomingSundayISO(from: Date = new Date()): string {
+  const d = new Date(from.getFullYear(), from.getMonth(), from.getDate());
+  const day = d.getDay();
+  const daysUntilSunday = (7 - day) % 7;
+  d.setDate(d.getDate() + daysUntilSunday);
+  const y = d.getFullYear();
+  const m = String(d.getMonth() + 1).padStart(2, '0');
+  const num = String(d.getDate()).padStart(2, '0');
+  return `${y}-${m}-${num}`;
+}
+
+function suggestName(start: string, days: number): string {
+  const d = new Date(`${start}T12:00:00Z`);
+  const month = d.toLocaleDateString('he-IL', { month: 'long', year: 'numeric', timeZone: 'UTC' });
+  if (days === 7) {
+    const weekNum = Math.ceil(d.getUTCDate() / 7);
+    return `${month} — שבוע ${weekNum}`;
+  }
+  return month;
+}
+
+function deriveFields(start: string, days: number) {
+  const end = addDays(start, days - 1);
+  const deadline = addDays(end, -2) + 'T17:00';
+  return { end, deadline };
+}
+
+export {
+  calendarDateISO,
+  parseISODateToUtcMidnight,
+  utcNoonFromCalendarISO,
+  todayUtcDateForTimeZone,
+  formatDate,
+  addDays,
+  diffDays,
+  isoToday,
+  buildWeeks,
+  formatDateLong,
+  formatDateTimeLong,
+  upcomingSundayISO,
+  suggestName,
+  deriveFields,
 };

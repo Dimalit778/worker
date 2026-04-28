@@ -21,3 +21,5 @@ export type PeriodSummary = {
   submittedCount: number;
   totalGuards: number;
 };
+
+export type PeriodType = 'weekly' | 'biweekly';

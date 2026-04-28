@@ -7,10 +7,9 @@ export default async function ManagerSchedulePage() {
   const session = await requireSession(SystemRole.MANAGER);
   const courtId = session.user.courtId ?? '';
 
-  const data = await getSchedulePageData(courtId, { includeGuards: true });
-  console.log('data', JSON.stringify(data, null, 2));
+  const data = await getSchedulePageData(courtId, { includeEmployees: true });
 
-  if (!data) {
+  if (!data.found) {
     return (
       <div className="space-y-4">
         <h1 className="text-2xl font-bold">שיבוץ</h1>
@@ -19,5 +18,19 @@ export default async function ManagerSchedulePage() {
     );
   }
 
-  return <Schedule {...data} readonly={false} />;
+  return (
+    <Schedule
+      periodId={data.periodId}
+      periodName={data.periodName}
+      startDate={data.startDate}
+      endDate={data.endDate}
+      scheduleId={data.scheduleId}
+      scheduleStatus={data.scheduleStatus}
+      assignments={data.assignments}
+      employees={data.employees}
+      capacity={data.capacity}
+      courtId={data.courtId}
+      readonly={false}
+    />
+  );
 }

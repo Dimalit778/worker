@@ -1,16 +1,26 @@
 import { cn } from '@/lib/utils';
+import type { AssignmentMap, ScheduleCapacityRule, ScheduleEmployeeOption, WeekDay } from '../types';
+import { SHIFT_STYLES } from '../constants';
+import type { ShiftType } from '@/generated/prisma/client';
 import { AssignmentCell } from './assignment-cell';
-import { assignmentKey, getDayCapacity } from '../utils';
-import type { AssignmentMap, DisplayRow, WeekDay } from '../types';
-import { POSITION_ORDER, POSITION_LABELS, POSITION_ROW_STYLES, SHIFT_STYLES } from '../constans';
-import type { Position, ShiftType } from '@/generated/prisma/client';
+import {
+  createAssignmentCellKey,
+  getCapacityForCell,
+  getDayCategoryForDate,
+  getOrderedPositionsForShift,
+  maxSlotsForPositionInWeek,
+} from '../utils';
+
+/** Must match <colgroup> — Tailwind `w-14` = 3.5rem; table layout reads width from <col>, not only from cells */
+const NARROW_COL_PX = '3.5rem';
+const narrowColCell = 'w-14 min-w-0 max-w-14';
 
 type ShiftSectionProps = {
   shiftType: ShiftType;
   weekDays: WeekDay[];
   assignments: AssignmentMap;
-  guards: { id: string; name: string; position: Position }[];
-  capacity: { default: {}; friday: {}; saturday: {} };
+  employees: ScheduleEmployeeOption[];
+  capacity: ScheduleCapacityRule[];
   scheduleId: string | null;
   periodId: string;
   courtId: string;
@@ -18,148 +28,158 @@ type ShiftSectionProps = {
 };
 
 export function ShiftSection(props: ShiftSectionProps) {
-  const { shiftType, weekDays, assignments, guards, capacity, scheduleId, periodId, courtId, readonly } = props;
+  const { shiftType, weekDays, assignments, employees, capacity, scheduleId, periodId, courtId, readonly } = props;
   const style = SHIFT_STYLES[shiftType];
-  console.log('capacity', JSON.stringify(capacity, null, 2));
-  console.log('weekDays', JSON.stringify(weekDays, null, 2));
-  console.log('style', JSON.stringify(style, null, 2));
   const sortedDays = [...weekDays].sort((a, b) => a.dayOfWeek - b.dayOfWeek);
-  return <div>ShiftSection</div>;
-  // const rows = buildRowsForWeek(capacity, sortedDays, shiftType);
+  const weekIsos = sortedDays.map((d) => d.iso);
 
-  // if (rows.length === 0) {
-  //   return (
-  //     <div className="mb-5" dir="rtl">
-  //       <div
-  //         className={cn(
-  //           'flex items-center justify-between gap-2 px-3 py-2 rounded-lg text-white font-bold text-sm',
-  //           style.header,
-  //         )}
-  //       >
-  //         <div className="flex items-center gap-2">
-  //           <span>{style.emoji}</span>
-  //           <span>{style.label}</span>
-  //         </div>
+  const positionsOrdered = getOrderedPositionsForShift(capacity, shiftType);
 
-  //         <span className="text-[11px] font-normal opacity-80">אין תקנים למשמרת</span>
-  //       </div>
-  //     </div>
-  //   );
-  // }
+  const bodyRows = positionsOrdered.flatMap((pos) => {
+    const maxSlots = maxSlotsForPositionInWeek(capacity, shiftType, pos.positionId, weekIsos);
+    if (maxSlots <= 0) return [];
 
-  // return (
-  //   <div className="mb-5" dir="rtl">
-  //     <div
-  //       className={cn(
-  //         'flex items-center justify-between gap-2 px-3 py-2 rounded-t-lg text-white font-bold text-sm',
-  //         style.header,
-  //       )}
-  //     >
-  //       <div className="flex items-center gap-2">
-  //         <span>{style.emoji}</span>
-  //         <span>{style.label}</span>
-  //       </div>
+    return Array.from({ length: maxSlots }, (_, slotIndex) => ({
+      pos,
+      slotIndex,
+      maxSlots,
+    }));
+  });
 
-  //       <span className="text-[11px] font-normal opacity-80">{getShiftSummary(capacity, shiftType)}</span>
-  //     </div>
+  if (bodyRows.length === 0) {
+    return (
+      <div className="mb-5" dir="rtl">
+        <div
+          className={cn(
+            'flex items-center justify-between gap-2 px-3 py-2 rounded-lg text-white font-bold text-sm',
+            style.header,
+          )}
+        >
+          <div className="flex items-center gap-2">
+            <span>{style.emoji}</span>
+            <span>{style.label}</span>
+          </div>
+          <span className="text-[11px] font-normal opacity-80">אין תקנים למשמרת זו</span>
+        </div>
+      </div>
+    );
+  }
 
-  //     <div className="overflow-x-auto">
-  //       <table
-  //         className="w-full border-collapse bg-white border border-border border-t-0 rounded-b-lg text-xs"
-  //         dir="rtl"
-  //       >
-  //         <thead>
-  //           <tr>
-  //             <th className={cn('w-8 px-1 py-1 border border-border text-white font-semibold', style.header)}>#</th>
+  return (
+    <div className="mb-5" dir="rtl">
+      <div
+        className={cn(
+          'flex items-center justify-between gap-2 px-3 py-2 rounded-t-lg text-white font-bold text-sm',
+          style.header,
+        )}
+      >
+        <div className="flex items-center gap-2">
+          <span>{style.emoji}</span>
+          <span>{style.label}</span>
+        </div>
+      </div>
 
-  //             <th
-  //               className={cn(
-  //                 'w-24 border border-border text-white font-semibold text-center text-[11px] leading-tight',
-  //                 style.header,
-  //               )}
-  //             >
-  //               תפקיד
-  //             </th>
+      <div className="overflow-x-auto rounded-b-lg border border-border border-t-0 bg-white">
+        <table className="w-full table-fixed border-collapse text-xs" dir="rtl">
+          <colgroup>
+            <col style={{ width: NARROW_COL_PX }} />
+            <col style={{ width: NARROW_COL_PX }} />
+            {sortedDays.map((day) => (
+              <col key={day.iso} />
+            ))}
+          </colgroup>
+          <thead>
+            <tr>
+              <th
+                className={cn(
+                  narrowColCell,
+                  'px-0.5 py-1.5 border border-border text-white font-semibold text-center',
+                  style.header,
+                )}
+              >
+                #
+              </th>
+              <th
+                className={cn(
+                  narrowColCell,
+                  'px-0.5 py-1.5 border border-border text-white font-semibold text-center text-[10px] leading-tight overflow-hidden text-ellipsis whitespace-nowrap',
+                  style.header,
+                )}
+                title="תפקיד"
+              >
+                תפקיד
+              </th>
+              {sortedDays.map((day) => {
+                const weekend = day.dayOfWeek === 5 || day.dayOfWeek === 6;
+                return (
+                  <th
+                    key={day.iso}
+                    className={cn(
+                      'min-w-0 px-1 py-1.5 border border-border text-white text-center',
+                      style.header,
+                      weekend && 'brightness-110',
+                    )}
+                  >
+                    <div className="font-bold text-[13px]">{day.letter}</div>
+                    <div className="text-[10px] font-normal opacity-80">{day.label}</div>
+                  </th>
+                );
+              })}
+            </tr>
+          </thead>
+          <tbody>
+            {bodyRows.map(({ pos, slotIndex, maxSlots }, rowIdx) => (
+              <tr key={`${pos.positionId}-${slotIndex}`} className="bg-white ">
+                <td
+                  className={cn(
+                    narrowColCell,
+                    'px-0.5 py-1 text-center border border-border text-muted-foreground font-semibold bg-muted/30',
+                  )}
+                >
+                  {rowIdx + 1}
+                </td>
+                {slotIndex === 0 ? (
+                  <td
+                    rowSpan={maxSlots}
+                    className={cn(
+                      narrowColCell,
+                      'align-middle px-0.5 py-1 text-center border border-border bg-muted/20 text-[10px] font-semibold leading-tight overflow-hidden',
+                    )}
+                    title={pos.positionName}
+                  >
+                    <div className="truncate">{pos.positionName}</div>
+                  </td>
+                ) : null}
+                {sortedDays.map((day) => {
+                  const cat = getDayCategoryForDate(day.iso);
+                  const required = getCapacityForCell(capacity, cat, shiftType, pos.positionId);
+                  const closed = slotIndex >= required;
+                  const cellKey = createAssignmentCellKey({ date: day.iso, shiftType, positionId: pos.positionId });
+                  const slotAssignments = assignments[cellKey] ?? [];
+                  const assignment = slotAssignments.find((a) => a.slotIndex === slotIndex) ?? null;
 
-  //             {sortedDays.map((day) => {
-  //               const isWeekend = day.dayOfWeek === 5 || day.dayOfWeek === 6;
-
-  //               return (
-  //                 <th
-  //                   key={day.iso}
-  //                   className={cn(
-  //                     'w-[68px] min-w-[68px] px-1 py-1 border border-border text-white text-center',
-  //                     style.header,
-  //                     isWeekend && 'brightness-110',
-  //                   )}
-  //                 >
-  //                   <div className="font-bold text-[13px]">{day.letter}</div>
-  //                   <div className="text-[10px] font-normal opacity-75">{day.label}</div>
-  //                 </th>
-  //               );
-  //             })}
-  //           </tr>
-  //         </thead>
-
-  //         <tbody>
-  //           {rows.map((row, rowIndex) => (
-  //             <tr
-  //               key={row.key}
-  //               className={cn(
-  //                 POSITION_ROW_STYLES[row.position],
-  //                 row.isGroupStart && rowIndex !== 0 && 'border-t-2 border-t-slate-300',
-  //                 row.position === 'GUARD' && rowIndex % 2 !== 0 && 'bg-muted/20',
-  //               )}
-  //             >
-  //               <td className="px-1 text-center border border-border text-muted-foreground font-semibold bg-muted/30">
-  //                 {rowIndex + 1}
-  //               </td>
-
-  //               <td
-  //                 className={cn(
-  //                   'w-24 px-1 text-center border border-border bg-muted/30 text-[11px] leading-tight',
-  //                   row.position !== 'GUARD' ? 'font-bold text-foreground' : 'font-medium text-muted-foreground',
-  //                 )}
-  //               >
-  //                 {row.label}
-  //               </td>
-
-  //               {sortedDays.map((day) => {
-  //                 const dayCapacity = getDayCapacity(capacity, day.dayOfWeek);
-  //                 const shiftCapacity = dayCapacity[shiftType];
-  //                 const requiredForPosition = shiftCapacity?.[row.position] ?? 0;
-
-  //                 const closed = row.roleSlotIndex >= requiredForPosition;
-
-  //                 const key = assignmentKey(day.iso, shiftType);
-  //                 const slotAssignments = assignments[key] ?? [];
-
-  //                 const assignment =
-  //                   slotAssignments.find((a) => a.courtShiftRoleId === row.key && a.slotIndex === row.roleSlotIndex) ??
-  //                   null;
-
-  //                 return (
-  //                   <AssignmentCell
-  //                     key={day.iso}
-  //                     closed={closed}
-  //                     assignment={assignment}
-  //                     guards={guards}
-  //                     scheduleId={scheduleId}
-  //                     periodId={periodId}
-  //                     courtId={courtId}
-  //                     date={day.iso}
-  //                     shiftType={shiftType}
-  //                     position={row.position}
-  //                     slotIndex={row.roleSlotIndex}
-  //                     readonly={readonly}
-  //                   />
-  //                 );
-  //               })}
-  //             </tr>
-  //           ))}
-  //         </tbody>
-  //       </table>
-  //     </div>
-  //   </div>
-  // );
+                  return (
+                    <AssignmentCell
+                      key={day.iso}
+                      closed={closed}
+                      assignment={assignment}
+                      employees={employees}
+                      scheduleId={scheduleId}
+                      periodId={periodId}
+                      courtId={courtId}
+                      date={day.iso}
+                      shiftType={shiftType}
+                      positionId={pos.positionId}
+                      slotIndex={slotIndex}
+                      readonly={readonly}
+                    />
+                  );
+                })}
+              </tr>
+            ))}
+          </tbody>
+        </table>
+      </div>
+    </div>
+  );
 }

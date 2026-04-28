@@ -32,8 +32,8 @@ export default async function UserLayout({ children }: { children: React.ReactNo
 
   const navItems = [
     { href: '/user', label: 'שיבוץ', notify: false },
-    { href: '/user/availability', label: 'זמינות', notify: false },
-    { href: '/user/schedule', label: 'לוח משמרות', notify: hasOpenPeriod },
+    { href: '/user/availability', label: 'הגש שיבוץ', notify: false },
+    { href: '/user/history', label: 'היסטוריה', notify: hasOpenPeriod },
   ];
 
   return (

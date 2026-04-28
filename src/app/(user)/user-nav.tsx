@@ -27,9 +27,7 @@ export function UserNav({ items }: { items: NavItem[] }) {
             }`}
           >
             {item.label}
-            {item.notify && (
-              <span className="absolute top-0.5 right-0.5 w-2 h-2 rounded-full bg-red-500" />
-            )}
+            {item.notify && <span className="absolute top-0.5 right-0.5 w-2 h-2 rounded-full bg-red-500" />}
           </Link>
         );
       })}

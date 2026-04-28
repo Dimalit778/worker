@@ -4,23 +4,23 @@ import { useState, useRef, useEffect } from 'react';
 import { createPortal } from 'react-dom';
 import { X } from 'lucide-react';
 import { cn } from '@/lib/utils';
-import type { EmployeeSummary } from '../../court-settings/types';
+import type { ScheduleEmployeeOption } from '../types';
 
 type Props = {
-  guards: EmployeeSummary[];
+  employees: ScheduleEmployeeOption[];
   currentUserId: string | null;
   anchorRect: DOMRect;
-  onSelect: (guardId: string) => void;
+  onSelect: (employeeId: string) => void;
   onRemove: () => void;
   onClose: () => void;
 };
 
-export function GuardPicker({ guards, currentUserId, anchorRect, onSelect, onRemove, onClose }: Props) {
+export function GuardPicker({ employees, currentUserId, anchorRect, onSelect, onRemove, onClose }: Props) {
   const [query, setQuery] = useState('');
   const inputRef = useRef<HTMLInputElement>(null);
   const panelRef = useRef<HTMLDivElement>(null);
 
-  const filtered = query.trim() ? guards.filter((g) => g.name.includes(query.trim())) : guards;
+  const filtered = query.trim() ? employees.filter((e) => e.name.includes(query.trim())) : employees;
 
   useEffect(() => {
     inputRef.current?.focus();
@@ -63,16 +63,16 @@ export function GuardPicker({ guards, currentUserId, anchorRect, onSelect, onRem
 
       <ul className="max-h-44 overflow-y-auto">
         {filtered.length === 0 && <li className="px-3 py-2 text-xs text-muted-foreground">לא נמצא</li>}
-        {filtered.map((g) => (
+        {filtered.map((e) => (
           <li
-            key={g.id}
-            onClick={() => onSelect(g.id)}
+            key={e.id}
+            onClick={() => onSelect(e.id)}
             className={cn(
               'px-3 py-1.5 text-xs cursor-pointer hover:bg-accent',
-              g.id === currentUserId && 'font-semibold bg-accent/50',
+              e.id === currentUserId && 'font-semibold bg-accent/50',
             )}
           >
-            {g.name}
+            {e.name}
           </li>
         ))}
       </ul>

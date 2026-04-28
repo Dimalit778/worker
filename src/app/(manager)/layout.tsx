@@ -14,14 +14,11 @@ const navItems = [
 
 export default async function ManagerLayout({ children }: { children: React.ReactNode }) {
   const session = await requireSession(SystemRole.MANAGER);
+
   const court = session.user.courtId ? await prisma.court.findUnique({ where: { id: session.user.courtId } }) : null;
 
   return (
-    <ManagerAppShell
-      fullName={session.user.fullName ?? ''}
-      courtName={court?.name ?? null}
-      navItems={navItems}
-    >
+    <ManagerAppShell fullName={session.user.fullName ?? ''} courtName={court?.name ?? null} navItems={navItems}>
       {children}
     </ManagerAppShell>
   );

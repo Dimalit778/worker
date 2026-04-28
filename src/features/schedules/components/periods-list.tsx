@@ -3,30 +3,11 @@
 import { useTransition } from 'react';
 import { updatePeriodStatus, deletePeriod } from '../actions';
 import { PeriodSummary } from '../types';
-import { PERIOD_STATUS_HE } from '../utils';
+import { PERIOD_STATUS_HE, NEXT_STATUS, STATUS_BADGE } from '../constans';
 import { cn } from '@/lib/utils';
+import { formatDate } from '../utils';
 
-type PeriodStatus = PeriodSummary['status'];
-
-const STATUS_BADGE: Record<PeriodStatus, string> = {
-  DRAFT: 'bg-zinc-100 text-zinc-600',
-  OPEN_FOR_SUBMISSION: 'bg-green-100 text-green-700',
-  LOCKED: 'bg-amber-100 text-amber-700',
-  ARCHIVED: 'bg-zinc-100 text-zinc-400',
-};
-
-const NEXT_STATUS: Partial<Record<PeriodStatus, { status: PeriodStatus; label: string }>> = {
-  DRAFT: { status: 'OPEN_FOR_SUBMISSION', label: 'פתח להגשות' },
-  OPEN_FOR_SUBMISSION: { status: 'LOCKED', label: 'נעל' },
-  LOCKED: { status: 'ARCHIVED', label: 'העבר לארכיון' },
-};
-
-function formatDate(iso: string) {
-  const [y, m, d] = iso.split('-');
-  return `${d}/${m}/${y}`;
-}
-
-function PeriodRow({ period }: { period: PeriodSummary }) {
+const PeriodRow = ({ period }: { period: PeriodSummary }) => {
   const [statusPending, startStatusTransition] = useTransition();
   const [deletePending, startDeleteTransition] = useTransition();
   const next = NEXT_STATUS[period.status];
@@ -89,7 +70,7 @@ function PeriodRow({ period }: { period: PeriodSummary }) {
       </button>
     </div>
   );
-}
+};
 
 export function PeriodsList({ periods }: { periods: PeriodSummary[] }) {
   if (periods.length === 0) {

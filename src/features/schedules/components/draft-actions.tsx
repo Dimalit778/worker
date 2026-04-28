@@ -6,22 +6,11 @@ import { CheckCheck, Send } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { finalizeSchedule, publishSchedule } from '@/features/schedules/actions';
 import type { ScheduleStatus } from '@/generated/prisma/client';
+import { STATUS_COLORS, STATUS_LABELS } from '../constans';
 
 type Props = {
   scheduleId: string | null;
   scheduleStatus: ScheduleStatus | null;
-};
-
-const STATUS_LABELS: Record<ScheduleStatus, string> = {
-  DRAFT: 'טיוטה',
-  FINALIZED: 'סוכם',
-  PUBLISHED: 'פורסם',
-};
-
-const STATUS_COLORS: Record<ScheduleStatus, string> = {
-  DRAFT: 'bg-yellow-100 text-yellow-800 border-yellow-200',
-  FINALIZED: 'bg-blue-100 text-blue-800 border-blue-200',
-  PUBLISHED: 'bg-green-100 text-green-800 border-green-200',
 };
 
 export function DraftActions({ scheduleId, scheduleStatus }: Props) {

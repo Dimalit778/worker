@@ -2,20 +2,13 @@ import { requireSession } from '@/lib/db/auth-helpers';
 import { SystemRole } from '@/generated/prisma/client';
 import { prisma } from '@/lib/db/client';
 import { getSchedulePageData } from '@/features/shift-assignments/queries';
-import { ShiftsGrid } from '@/features/shift-assignments/components/schedule';
+import { Schedule } from '@/features/shift-assignments/components/schedule';
 import { Card, CardContent } from '@/components/ui/card';
 
 export default async function UserShibutzPage() {
   const session = await requireSession(SystemRole.EMPLOYEE);
 
-  const employee = await prisma.employee.findFirst({
-    where: { user: { id: session.user.id } },
-    select: { courtId: true },
-  });
-  const courtId = employee?.courtId ?? '';
-
-  const data = await getSchedulePageData(courtId);
-  console.log('data', data);
+  const data = await getSchedulePageData(session.user.courtId ?? '');
 
   if (!data.found) {
     return (
@@ -29,5 +22,19 @@ export default async function UserShibutzPage() {
     );
   }
 
-  return <ShiftsGrid {...data} readonly />;
+  return (
+    <Schedule
+      periodId={data.periodId}
+      periodName={data.periodName}
+      startDate={data.startDate}
+      endDate={data.endDate}
+      scheduleId={data.scheduleId}
+      scheduleStatus={data.scheduleStatus}
+      assignments={data.assignments}
+      employees={data.employees}
+      capacity={data.capacity}
+      courtId={data.courtId}
+      readonly
+    />
+  );
 }

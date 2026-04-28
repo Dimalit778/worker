@@ -4,73 +4,67 @@ import { useState, useTransition } from 'react';
 import { useRouter } from 'next/navigation';
 import { Pencil, Trash2 } from 'lucide-react';
 import { cn } from '@/lib/utils';
-import { Position, type GuardRow } from '@/features/guards/types';
-import { deleteGuard } from '@/features/guards/actions';
-import { GuardModal } from './guard-modal';
+import { type EmployeeAndPosition, type PositionOption } from '@/features/employess/types';
+import { deleteEmployee } from '@/features/employess/actions';
+import { EmployeeModal } from './employee-modal';
+import { Button } from '@/components/ui/button';
 
-export type { GuardRow };
-
-const POSITION_HE: Record<Position, string> = {
-  GUARD: 'מאבטח',
-  BAKAR: 'בקר',
-  SHIFT_MANAGER: 'אחמ״ש',
-  FACILITY_OFFICER: 'קצין מתקן',
+const POSITION_STYLE: Record<number, string> = {
+  1: 'bg-slate-800 text-white',
+  2: 'bg-blue-100 text-blue-800',
+  3: 'bg-slate-100 text-slate-600',
+  4: 'bg-orange-100 text-orange-800',
 };
 
-const POSITION_STYLE: Record<Position, string> = {
-  SHIFT_MANAGER: 'bg-slate-800 text-white',
-  BAKAR: 'bg-blue-100 text-blue-800',
-  GUARD: 'bg-slate-100 text-slate-600',
-  FACILITY_OFFICER: 'bg-orange-100 text-orange-800',
-};
-
-type DeleteTarget = {
-  id: string;
-  name: string;
-  assignmentCount: number;
-};
-
-export function GuardsTable({ guards }: { guards: GuardRow[] }) {
+export function EmployeesTable({
+  employees,
+  positions,
+}: {
+  employees: EmployeeAndPosition[];
+  positions: PositionOption[];
+}) {
   const router = useRouter();
   const [modalOpen, setModalOpen] = useState(false);
-  const [editingGuard, setEditingGuard] = useState<GuardRow | null>(null);
-  const [deleteTarget, setDeleteTarget] = useState<DeleteTarget | null>(null);
+  const [editingEmployee, setEditingEmployee] = useState<EmployeeAndPosition | null>(null);
+  const [deleteTarget, setDeleteTarget] = useState<{ id: string; name: string } | null>(null);
   const [deletePending, startDeleteTransition] = useTransition();
+  const [error, setError] = useState<string | null>(null);
 
   function openAdd() {
-    setEditingGuard(null);
+    setEditingEmployee(null);
+    setError(null);
     setModalOpen(true);
   }
 
-  function openEdit(guard: GuardRow) {
-    setEditingGuard(guard);
+  function openEdit(employee: EmployeeAndPosition) {
+    setEditingEmployee(employee);
+    setError(null);
     setModalOpen(true);
   }
 
   function closeModal() {
     setModalOpen(false);
-    setEditingGuard(null);
+    setEditingEmployee(null);
   }
-
-  function handleDeleteClick(guard: GuardRow) {
-    startDeleteTransition(async () => {
-      const result = await deleteGuard({ employeeId: guard.id });
-      if ('needsConfirm' in result) {
-        setDeleteTarget({
-          id: guard.id,
-          name: guard.firstName + ' ' + guard.lastName,
-          assignmentCount: result.assignmentCount,
-        });
-      } else if ('ok' in result) {
-        router.refresh();
-      }
+  function handleDeleteClick(employee: EmployeeAndPosition) {
+    setError(null);
+    setDeleteTarget({
+      id: employee.id,
+      name: `${employee.firstName} ${employee.lastName}`.trim(),
     });
   }
 
-  function handleForceDelete() {
+  function handleConfirmDelete() {
     if (!deleteTarget) return;
+
     startDeleteTransition(async () => {
-      await deleteGuard({ employeeId: deleteTarget.id, force: true });
+      const result = await deleteEmployee(deleteTarget.id);
+
+      if ('error' in result) {
+        setError(result.error);
+        return;
+      }
+
       setDeleteTarget(null);
       router.refresh();
     });
@@ -79,12 +73,12 @@ export function GuardsTable({ guards }: { guards: GuardRow[] }) {
   return (
     <div className="space-y-4" dir="rtl">
       <div className="flex items-center justify-between">
-        <h1 className="text-2xl font-bold">מאבטחים</h1>
+        <h1 className="text-2xl font-bold">עובדים</h1>
         <button
           onClick={openAdd}
           className="bg-foreground text-background text-sm px-4 py-2 rounded-md hover:opacity-90"
         >
-          + הוסף מאבטח
+          + הוסף עובד
         </button>
       </div>
 
@@ -95,37 +89,46 @@ export function GuardsTable({ guards }: { guards: GuardRow[] }) {
               <th className="px-4 py-3 font-medium border-b border-border w-10">#</th>
               <th className="px-4 py-3 font-medium border-b border-border">שם</th>
               <th className="px-4 py-3 font-medium border-b border-border">תפקיד</th>
+              <th className="px-4 py-3 font-medium border-b border-border">טלפון</th>
+              <th className="px-4 py-3 font-medium border-b border-border">אימייל</th>
               <th className="px-4 py-3 font-medium border-b border-border">סטטוס</th>
               <th className="px-4 py-3 border-b border-border w-16"></th>
             </tr>
           </thead>
           <tbody>
-            {guards.length === 0 && (
+            {employees.length === 0 && (
               <tr>
                 <td colSpan={5} className="px-4 py-8 text-center text-muted-foreground">
-                  אין מאבטחים. לחץ על &quot;+ הוסף מאבטח&quot; להוספה.
+                  אין עובדים. לחץ על &quot;+ הוסף עובד&quot; להוספה.
                 </td>
               </tr>
             )}
-            {guards.map((guard, i) => (
+            {employees.map((employee, i) => (
               <tr
-                key={guard.id}
+                key={employee.id}
                 className={cn(
                   'border-b border-border last:border-0 hover:bg-muted/20 transition-colors',
-                  !guard.isActive && 'opacity-50',
+                  !employee.isActive && 'opacity-50',
                 )}
               >
                 <td className="px-4 py-3 text-muted-foreground">{i + 1}</td>
                 <td className="px-4 py-3 font-medium">
-                  {guard.firstName} {guard.lastName}
+                  {employee.firstName} {employee.lastName}
                 </td>
                 <td className="px-4 py-3">
-                  <span className={cn('text-xs px-2 py-0.5 rounded-full font-medium', POSITION_STYLE[guard.position])}>
-                    {POSITION_HE[guard.position]}
+                  <span
+                    className={cn(
+                      'text-xs  px-2 py-0.5 rounded-md font-semibold',
+                      POSITION_STYLE[employee.position?.displayOrder ?? 0],
+                    )}
+                  >
+                    {employee.position?.name}
                   </span>
                 </td>
+                <td className="px-4 py-3">{employee.phone}</td>
+                <td className="px-4 py-3">{employee.email}</td>
                 <td className="px-4 py-3">
-                  {guard.isActive ? (
+                  {employee.isActive ? (
                     <span className="text-xs px-2 py-0.5 rounded-full bg-green-100 text-green-800 font-medium">
                       פעיל
                     </span>
@@ -138,13 +141,13 @@ export function GuardsTable({ guards }: { guards: GuardRow[] }) {
                 <td className="px-4 py-3">
                   <div className="flex items-center gap-2 justify-end">
                     <button
-                      onClick={() => openEdit(guard)}
+                      onClick={() => openEdit(employee)}
                       className="text-muted-foreground hover:text-foreground p-1 rounded hover:bg-muted"
                     >
                       <Pencil className="w-3.5 h-3.5" />
                     </button>
                     <button
-                      onClick={() => handleDeleteClick(guard)}
+                      onClick={() => handleDeleteClick(employee)}
                       disabled={deletePending}
                       className="text-muted-foreground hover:text-destructive p-1 rounded hover:bg-destructive/10 disabled:opacity-50"
                     >
@@ -158,34 +161,28 @@ export function GuardsTable({ guards }: { guards: GuardRow[] }) {
         </table>
       </div>
 
-      {modalOpen && <GuardModal guard={editingGuard} onClose={closeModal} />}
+      {modalOpen && <EmployeeModal employee={editingEmployee ?? null} positions={positions} onClose={closeModal} />}
 
       {deleteTarget && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50" dir="rtl">
-          <div className="bg-white rounded-xl shadow-2xl w-full max-w-sm p-6 space-y-4">
-            <h2 className="font-bold text-lg">מחיקת מאבטח</h2>
-            <p className="text-sm text-muted-foreground">
-              למאבטח <span className="font-semibold text-foreground">{deleteTarget.name}</span> יש{' '}
-              {deleteTarget.assignmentCount} שיבוצים. מחיקה תסיר אותם לצמיתות. להמשיך?
-            </p>
-            <div className="flex gap-3">
-              <button
-                onClick={handleForceDelete}
-                disabled={deletePending}
-                className="flex-1 bg-destructive text-destructive-foreground rounded-md py-2 text-sm font-medium hover:opacity-90 disabled:opacity-50"
-              >
-                מחק
-              </button>
-              <button
-                onClick={() => setDeleteTarget(null)}
-                className="flex-1 border border-border rounded-md py-2 text-sm hover:bg-muted"
-              >
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/40">
+          <div className="w-full max-w-sm rounded-lg bg-background p-6 shadow-lg">
+            <h2 className="text-lg font-bold">מחיקת עובד</h2>
+
+            <p className="mt-2 text-sm text-muted-foreground">האם אתה בטוח שברצונך למחוק את {deleteTarget.name}?</p>
+
+            <div className="mt-6 flex justify-end gap-2">
+              <Button type="button" variant="outline" onClick={() => setDeleteTarget(null)} disabled={deletePending}>
                 ביטול
-              </button>
+              </Button>
+
+              <Button type="button" variant="destructive" onClick={handleConfirmDelete} disabled={deletePending}>
+                {deletePending ? 'מוחק...' : 'מחק'}
+              </Button>
             </div>
           </div>
         </div>
       )}
+      {error && <p className="text-sm text-destructive">{error}</p>}
     </div>
   );
 }

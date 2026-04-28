@@ -1,5 +1,4 @@
 import type { DayCategory, Position, ScheduleStatus, ShiftType } from '@/generated/prisma/client';
-import type { AssignmentMap } from '../shift-assignments/types';
 
 export type { ShiftType };
 

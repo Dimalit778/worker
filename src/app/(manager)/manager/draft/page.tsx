@@ -48,8 +48,9 @@ export default async function DraftPage() {
         startDate={data.startDate}
         endDate={data.endDate}
         scheduleId={data.scheduleId}
+        scheduleStatus={data.scheduleStatus}
         assignments={data.assignments}
-        guards={data.guards}
+        employees={data.employees}
         capacity={data.capacity}
         courtId={data.courtId}
         readonly={isReadonly}

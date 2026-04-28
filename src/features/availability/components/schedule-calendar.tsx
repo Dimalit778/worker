@@ -11,15 +11,23 @@ type Props = {
   period: PeriodInfo;
   initialEntries: Record<string, boolean>;
   initialSubmitted: boolean;
+  /** Read-only grid (e.g. history) — no submit, cells not editable even if period is open */
+  viewOnly?: boolean;
 };
 
-export function ScheduleCalendar({ period, initialEntries, initialSubmitted }: Props) {
+export function ScheduleCalendar({
+  period,
+  initialEntries,
+  initialSubmitted,
+  viewOnly = false,
+}: Props) {
   const [entries, setEntries] = useState<Record<string, boolean>>(initialEntries);
   const [submitted, setSubmitted] = useState(initialSubmitted);
   const [pending, startTransition] = useTransition();
 
   const dates = datesInRange(period.startDate, period.endDate);
-  const readonly = submitted || period.status === 'LOCKED' || period.status === 'ARCHIVED';
+  const readonly =
+    viewOnly || submitted || period.status === 'LOCKED' || period.status === 'ARCHIVED';
 
   // Split into two weeks for layout
   const week1 = dates.slice(0, 7);
@@ -45,10 +53,20 @@ export function ScheduleCalendar({ period, initialEntries, initialSubmitted }: P
       {/* Header */}
       <div className="flex items-center justify-between">
         <div>
-          <h1 className="text-xl font-bold">לוח משמרות</h1>
+          <h1 className="text-xl font-bold">{viewOnly ? 'לוח זמינות' : 'לוח משמרות'}</h1>
           <p className="text-sm text-muted-foreground mt-0.5">{period.name}</p>
         </div>
-        {submitted ? (
+        {viewOnly ? (
+          submitted ? (
+            <span className="inline-flex items-center gap-1.5 text-sm px-3 py-1.5 bg-green-100 text-green-700 rounded-full font-medium">
+              <span>✓</span> זמינות הוגשה
+            </span>
+          ) : (
+            <span className="text-xs text-muted-foreground px-2 py-1 rounded-md border border-border bg-muted/40">
+              צפייה בלבד
+            </span>
+          )
+        ) : submitted ? (
           <span className="inline-flex items-center gap-1.5 text-sm px-3 py-1.5 bg-green-100 text-green-700 rounded-full font-medium">
             <span>✓</span> זמינות הוגשה
           </span>
@@ -148,7 +166,7 @@ export function ScheduleCalendar({ period, initialEntries, initialSubmitted }: P
       ))}
 
       {/* Submit */}
-      {!submitted && period.status === 'OPEN_FOR_SUBMISSION' && (
+      {!viewOnly && !submitted && period.status === 'OPEN_FOR_SUBMISSION' && (
         <div className="flex items-center gap-3 pt-1">
           <button
             onClick={handleSubmit}
@@ -161,7 +179,7 @@ export function ScheduleCalendar({ period, initialEntries, initialSubmitted }: P
         </div>
       )}
 
-      {period.status === 'LOCKED' && !submitted && (
+      {!viewOnly && period.status === 'LOCKED' && !submitted && (
         <p className="text-sm text-muted-foreground">התקופה נעולה — לא ניתן לשנות זמינות.</p>
       )}
     </div>

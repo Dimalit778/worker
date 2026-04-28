@@ -5,28 +5,20 @@ import { PeriodStatus, ShiftType, SystemRole } from '@/generated/prisma/client';
 import { prisma } from '@/lib/db/client';
 import { requireSession } from '@/lib/db/auth-helpers';
 import { getOpenPeriod } from '../schedules/actions';
-
-async function getEmployeeForUser(userId: string) {
-  return prisma.employee.findFirst({
-    where: { user: { id: userId } },
-    select: { id: true, courtId: true },
-  });
-}
+import { EmployeeAvailabilityForPeriod } from './types';
 
 export async function getScheduleData() {
   const session = await requireSession(SystemRole.EMPLOYEE);
-  const employee = await getEmployeeForUser(session.user.id);
-  if (!employee) return { period: null, entries: {}, isSubmitted: false };
+  const { courtId, employeeId } = session.user;
 
   const period = await prisma.schedulePeriod.findFirst({
-    where: { courtId: employee.courtId, status: PeriodStatus.OPEN_FOR_SUBMISSION },
+    where: { courtId, status: PeriodStatus.OPEN_FOR_SUBMISSION },
   });
 
-  console.log('period -->', JSON.stringify(period, null, 2));
   if (!period) return { period: null, entries: {}, isSubmitted: false };
 
   const availability = await prisma.availability.findUnique({
-    where: { periodId_employeeId: { periodId: period.id, employeeId: employee.id } },
+    where: { periodId_employeeId: { periodId: period.id, employeeId } },
     include: { entries: true },
   });
 
@@ -51,18 +43,18 @@ export async function getScheduleData() {
 // = להגיש שיבוץ משמרות
 export async function submitAvailability(entries: Record<string, boolean>): Promise<{ ok: boolean }> {
   const session = await requireSession(SystemRole.EMPLOYEE);
-  const employee = await getEmployeeForUser(session.user.id);
-  if (!employee?.courtId) return { ok: false };
+  const { courtId, employeeId } = session.user;
+  if (!courtId) return { ok: false };
 
-  const period = await getOpenPeriod(employee.courtId);
+  const period = await getOpenPeriod(courtId);
   if (!period) return { ok: false };
 
   const availability = await prisma.availability.upsert({
-    where: { periodId_employeeId: { periodId: period.id, employeeId: employee.id } },
+    where: { periodId_employeeId: { periodId: period.id, employeeId } },
     update: { isSubmitted: true, submittedAt: new Date() },
     create: {
       periodId: period.id,
-      employeeId: employee.id,
+      employeeId,
       isSubmitted: true,
       submittedAt: new Date(),
     },
@@ -88,4 +80,25 @@ export async function submitAvailability(entries: Record<string, boolean>): Prom
 
   revalidatePath('/user/schedule');
   return { ok: true };
+}
+export async function getEmployeeAvailability(
+  employeeId: string,
+): Promise<EmployeeAvailabilityForPeriod[]> {
+  const rows = await prisma.availability.findMany({
+    where: { employeeId },
+    include: {
+      period: true,
+      entries: true,
+    },
+    orderBy: { period: { startDate: 'desc' } },
+  });
+  return rows.map((row) => ({
+    id: row.period.id,
+    name: row.period.name,
+    startDate: row.period.startDate.toISOString().slice(0, 10),
+    endDate: row.period.endDate.toISOString().slice(0, 10),
+    status: row.period.status,
+    isSubmitted: row.isSubmitted,
+    entries: row.entries,
+  }));
 }

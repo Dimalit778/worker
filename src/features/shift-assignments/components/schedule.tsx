@@ -4,10 +4,11 @@ import { useState } from 'react';
 import { WeekNavigator } from './week-navigator';
 import { ShiftSection } from './shift-section';
 import { buildWeekDays } from '../utils';
+import { SHIFT_ORDER } from '../constants';
 import type { ScheduleProps } from '../types';
 
 export function Schedule(props: ScheduleProps) {
-  const { periodId, startDate, scheduleId, assignments, guards, capacity, courtId, readonly } = props;
+  const { periodId, startDate, scheduleId, assignments, employees, capacity, courtId, readonly } = props;
   const [weekIndex, setWeekIndex] = useState(0);
   const weekDays = buildWeekDays(startDate, weekIndex);
 
@@ -25,39 +26,20 @@ export function Schedule(props: ScheduleProps) {
         week1Label={`${weekRangeLabel(1)}`}
       />
 
-      <ShiftSection
-        shiftType="MORNING"
-        weekDays={weekDays}
-        assignments={assignments}
-        guards={guards}
-        capacity={capacity}
-        scheduleId={scheduleId}
-        periodId={periodId}
-        courtId={courtId}
-        readonly={readonly}
-      />
-      {/* <ShiftSection
-        shiftType="EVENING"
-        weekDays={weekDays}
-        assignments={assignments}
-        guards={guards}
-        capacity={capacity}
-        scheduleId={scheduleId}
-        periodId={periodId}
-        courtId={courtId}
-        readonly={readonly}
-      />
-      <ShiftSection
-        shiftType="NIGHT"
-        weekDays={weekDays}
-        assignments={assignments}
-        guards={guards}
-        capacity={capacity}
-        scheduleId={scheduleId}
-        periodId={periodId}
-        courtId={courtId}
-        readonly={readonly}
-      /> */}
+      {SHIFT_ORDER.map((shiftType) => (
+        <ShiftSection
+          key={shiftType}
+          shiftType={shiftType}
+          weekDays={weekDays}
+          assignments={assignments}
+          employees={employees}
+          capacity={capacity}
+          scheduleId={scheduleId}
+          periodId={periodId}
+          courtId={courtId}
+          readonly={readonly}
+        />
+      ))}
     </div>
   );
 }

@@ -1,274 +1,26 @@
 import { prisma } from '@/lib/db/client';
 import { PeriodStatus, ScheduleStatus } from '@/generated/prisma/client';
 
-import type { AssignmentMap, SchedulePageData } from './types';
-import { getRulesCapacity } from '../court-settings/queries';
-import { buildCapacityRules, formatEmployeeName, getAssignmentCellKey } from './utils';
-// = למצוא שיבוץ בהכנה
-export async function getDraftScheduleData(courtId: string): Promise<DraftScheduleData | string> {
-  const periodRow = await prisma.schedulePeriod.findFirst({
-    where: {
-      courtId,
-      status: PeriodStatus.LOCKED,
-    },
-    orderBy: { startDate: 'desc' },
-  });
+import type {
+  AssignmentMap,
+  DraftScheduleData,
+  DraftScheduleFoundData,
+  ScheduleCapacityRule,
+  ScheduleEmployeeOption,
+} from './types';
+import { buildAssignmentMap, formatEmployeeName } from './utils';
 
-  if (!periodRow) {
-    return 'No period found';
-  }
-
-  const scheduleRow = await prisma.schedule.findFirst({
-    where: {
-      periodId: periodRow.id,
-      status: ScheduleStatus.DRAFT,
-    },
-  });
-
-  const rawAssignments = scheduleRow
-    ? await prisma.shiftAssignment.findMany({
-        where: { scheduleId: scheduleRow.id },
-        include: {
-          employee: {
-            select: {
-              firstName: true,
-              lastName: true,
-            },
-          },
-          position: {
-            select: {
-              id: true,
-              name: true,
-            },
-          },
-        },
-        orderBy: [{ date: 'asc' }, { createdAt: 'asc', slotIndex: 'asc' }],
-      })
-    : [];
-
-  const assignments: AssignmentMap = {};
-
-  for (const a of rawAssignments) {
-    const iso = a.date.toISOString().slice(0, 10);
-    const key = `${iso}-${a.position.name}`;
-
-    if (!assignments[key]) {
-      assignments[key] = [];
-    }
-
-    assignments[key].push({
-      id: a.id,
-      employeeId: a.employeeId,
-      employeeName: `${a.employee.firstName} ${a.employee.lastName}`.trim(),
-      positionName: a.position.name,
-      slotIndex: a.slotIndex,
-    });
-  }
-
-  const guards = await prisma.employee.findMany({
-    where: {
-      courtId,
-      isActive: true,
-    },
-    select: {
-      id: true,
-      firstName: true,
-      lastName: true,
-      position: true,
-    },
-    orderBy: [{ firstName: 'asc' }, { lastName: 'asc' }],
-  });
-
-  const capacity = buildCapacityRules(await getRulesCapacity(courtId));
-
-  return {
-    found: true,
-    periodId: periodRow.id,
-    periodName: periodRow.name,
-    startDate: periodRow.startDate.toISOString().slice(0, 10),
-    endDate: periodRow.endDate.toISOString().slice(0, 10),
-    scheduleId: scheduleRow?.id ?? null,
-    scheduleStatus: scheduleRow?.status ?? null,
-    assignments,
-    guards: guards.map((g) => ({
-      id: g.id,
-      name: `${g.firstName} ${g.lastName}`.trim(),
-      position: g.position,
-    })),
-    capacity,
-    courtId,
-  };
-}
-// = למצוא משמרות
-export async function getSchedulePageData(
-  courtId: string,
-  options: { includeGuards?: boolean } = {},
-): Promise<SchedulePageData | null> {
-  const periodRow = await prisma.schedulePeriod.findFirst({
-    where: {
-      courtId,
-      status: PeriodStatus.OPEN_FOR_SUBMISSION,
-    },
-    orderBy: { startDate: 'desc' },
-  });
-
-  if (!periodRow) return null;
-
-  const scheduleRow = await prisma.schedule.findUnique({
-    where: { periodId: periodRow.id },
-  });
-  const rawAssignments = scheduleRow
-    ? await prisma.shiftAssignment.findMany({
-        where: { scheduleId: scheduleRow.id },
-        include: {
-          employee: {
-            select: {
-              firstName: true,
-              lastName: true,
-            },
-          },
-          courtShiftRole: {
-            select: {
-              shiftType: true,
-              name: true,
-              code: true,
-            },
-          },
-        },
-        orderBy: [{ date: 'asc' }, { createdAt: 'asc' }],
-      })
-    : [];
-
-  const assignments: AssignmentMap = {};
-
-  for (const a of rawAssignments) {
-    const iso = a.date.toISOString().slice(0, 10);
-    const key = `${iso}-${a.courtShiftRole.shiftType}`;
-
-    if (!assignments[key]) {
-      assignments[key] = [];
-    }
-
-    assignments[key].push({
-      id: a.id,
-      employeeId: a.employeeId,
-      employeeName: `${a.employee.firstName} ${a.employee.lastName}`.trim(),
-      courtShiftRoleId: a.courtShiftRoleId,
-      roleName: a.courtShiftRole.name,
-      roleCode: a.courtShiftRole.code,
-      slotIndex: a.slotIndex,
-    });
-  }
-
-  const rawGuards =
-    options.includeGuards && courtId
-      ? await prisma.employee.findMany({
-          where: { courtId, isActive: true },
-          select: {
-            id: true,
-            firstName: true,
-            lastName: true,
-            position: true,
-          },
-          orderBy: [{ firstName: 'asc' }, { lastName: 'asc' }],
-        })
-      : [];
-
-  const guards = rawGuards.map((g) => ({
-    id: g.id,
-    name: `${g.firstName} ${g.lastName}`.trim(),
-    position: g.position,
-  }));
-  const getcapacity = await getRulesCapacity(courtId);
-  console.log('getcapacity', JSON.stringify(getcapacity, null, 2));
-  const capacity = buildCapacityRules(await getRulesCapacity(courtId));
-
-  return {
-    periodId: periodRow.id,
-    periodName: periodRow.name,
-    startDate: periodRow.startDate.toISOString().slice(0, 10),
-    endDate: periodRow.endDate.toISOString().slice(0, 10),
-    scheduleId: scheduleRow?.id ?? null,
-    assignments,
-    guards,
-    capacity,
-    courtId,
-  };
-}
-export async function getCapacity(courtId: string) {
-  if (!courtId) return [];
-
-  return prisma.courtShiftRole.findMany({
-    where: {
-      courtId,
-      isActive: true,
-    },
-    select: {
-      id: true,
-      code: true,
-      name: true,
-      shiftType: true,
-      displayOrder: true,
-
-      staffingRules: {
-        select: {
-          id: true,
-          dayCategory: true,
-          requiredCount: true,
-        },
-      },
-    },
-    orderBy: {
-      displayOrder: 'asc',
-    },
-  });
-}
-export async function getScheduleAssignments(scheduleId: string) {
-  return prisma.shiftAssignment.findMany({
-    where: {
-      scheduleId,
-    },
-    select: {
-      id: true,
-      date: true,
-      slotIndex: true,
-      isManualOverride: true,
-
-      employee: {
-        select: {
-          id: true,
-          firstName: true,
-          lastName: true,
-          position: true,
-        },
-      },
-
-      courtShiftRole: {
-        select: {
-          id: true,
-          code: true,
-          name: true,
-          shiftType: true,
-        },
-      },
-    },
-    orderBy: [{ date: 'asc' }, { courtShiftRole: { displayOrder: 'asc' } }, { slotIndex: 'asc' }],
-  });
-}
-// = helpers for shift assignments
-async function getLockedPeriod(courtId: string) {
+export async function getLockedPeriod(courtId: string) {
   return prisma.schedulePeriod.findFirst({
     where: {
       courtId,
       status: PeriodStatus.LOCKED,
     },
-    orderBy: {
-      startDate: 'desc',
-    },
+    orderBy: { startDate: 'desc' },
   });
 }
 
-async function getDraftSchedule(periodId: string) {
+export async function getDraftSchedule(periodId: string) {
   return prisma.schedule.findFirst({
     where: {
       periodId,
@@ -281,76 +33,161 @@ async function getDraftSchedule(periodId: string) {
   });
 }
 
-async function getAssignmentMap(scheduleId: string | undefined): Promise<AssignmentMap> {
-  if (!scheduleId) return {};
+export async function getScheduleCapacity(courtId: string): Promise<ScheduleCapacityRule[]> {
+  if (!courtId) return [];
 
-  const rows = await prisma.shiftAssignment.findMany({
-    where: {
-      scheduleId,
-    },
+  const rows = await prisma.shiftCapacity.findMany({
+    where: { courtId, isActive: true },
     include: {
-      employee: {
-        select: {
-          firstName: true,
-          lastName: true,
-        },
-      },
-      position: {
-        select: {
-          id: true,
-          name: true,
-        },
-      },
+      position: { select: { id: true, name: true, displayOrder: true } },
     },
-    orderBy: [{ date: 'asc' }, { shiftType: 'asc' }, { slotIndex: 'asc' }],
+    orderBy: [
+      { shiftType: 'asc' },
+      { position: { displayOrder: 'asc' } },
+      { position: { id: 'asc' } },
+      { dayCategory: 'asc' },
+      { displayOrder: 'asc' },
+      { id: 'asc' },
+    ],
   });
 
-  return rows.reduce<AssignmentMap>((map, assignment) => {
-    const key = getAssignmentCellKey({
-      date: assignment.date,
-      shiftType: assignment.shiftType,
-      positionId: assignment.positionId,
-    });
-
-    map[key] ??= [];
-
-    map[key].push({
-      id: assignment.id,
-      employeeId: assignment.employeeId,
-      employeeName: formatEmployeeName(assignment.employee),
-      positionId: assignment.positionId,
-      positionName: assignment.position.name,
-      shiftType: assignment.shiftType,
-      slotIndex: assignment.slotIndex,
-    });
-
-    return map;
-  }, {});
+  return rows.map((r) => ({
+    id: r.id,
+    positionId: r.positionId,
+    positionName: r.position.name,
+    positionDisplayOrder: r.position.displayOrder,
+    shiftType: r.shiftType,
+    dayCategory: r.dayCategory,
+    amount: r.amount,
+    displayOrder: r.displayOrder,
+  }));
 }
 
-async function getGuardOptions(courtId: string): Promise<GuardOption[]> {
+export async function getScheduleEmployees(courtId: string): Promise<ScheduleEmployeeOption[]> {
+  if (!courtId) return [];
+
   const employees = await prisma.employee.findMany({
-    where: {
-      courtId,
-      isActive: true,
-    },
+    where: { courtId, isActive: true },
     select: {
       id: true,
       firstName: true,
       lastName: true,
-      position: {
-        select: {
-          id: true,
-          name: true,
-        },
-      },
+      position: { select: { id: true, name: true } },
     },
     orderBy: [{ firstName: 'asc' }, { lastName: 'asc' }],
   });
 
-  return employees.map((employee) => ({
-    id: employee.id,
-    name: formatEmployeeName(employee),
-    position: employee.position,
+  return employees.map((e) => ({
+    id: e.id,
+    name: formatEmployeeName(e),
+    position: e.position,
   }));
+}
+
+export async function getAssignmentMap(scheduleId: string | null | undefined): Promise<AssignmentMap> {
+  if (!scheduleId) return {};
+
+  const rows = await prisma.shiftAssignment.findMany({
+    where: { scheduleId },
+    include: {
+      employee: { select: { firstName: true, lastName: true } },
+      position: { select: { id: true, name: true } },
+    },
+    orderBy: [{ date: 'asc' }, { shiftType: 'asc' }, { slotIndex: 'asc' }],
+  });
+
+  return buildAssignmentMap(
+    rows.map((a) => ({
+      id: a.id,
+      date: a.date,
+      shiftType: a.shiftType,
+      positionId: a.positionId,
+      positionName: a.position.name,
+      employeeId: a.employeeId,
+      employeeName: formatEmployeeName(a.employee),
+      slotIndex: a.slotIndex,
+    })),
+  );
+}
+
+function toFoundDraftPayload(
+  periodRow: {
+    id: string;
+    name: string;
+    startDate: Date;
+    endDate: Date;
+  },
+  scheduleRow: { id: string; status: ScheduleStatus } | null,
+  courtId: string,
+  employees: ScheduleEmployeeOption[],
+  capacity: ScheduleCapacityRule[],
+  assignments: AssignmentMap,
+): DraftScheduleFoundData {
+  return {
+    found: true,
+    periodId: periodRow.id,
+    periodName: periodRow.name,
+    startDate: periodRow.startDate.toISOString().slice(0, 10),
+    endDate: periodRow.endDate.toISOString().slice(0, 10),
+    scheduleId: scheduleRow?.id ?? null,
+    scheduleStatus: scheduleRow?.status ?? null,
+    courtId,
+    employees,
+    capacity,
+    assignments,
+  };
+}
+
+/** Locked submission period + draft schedule (manager “שיבוץ בהכנה”). */
+export async function getDraftScheduleData(courtId: string): Promise<DraftScheduleData> {
+  const periodRow = await getLockedPeriod(courtId);
+  if (!periodRow) {
+    return { found: false, message: 'No period found' };
+  }
+
+  const scheduleRow = await getDraftSchedule(periodRow.id);
+
+  const [assignments, employees, capacity] = await Promise.all([
+    getAssignmentMap(scheduleRow?.id),
+    getScheduleEmployees(courtId),
+    getScheduleCapacity(courtId),
+  ]);
+
+  return toFoundDraftPayload(periodRow, scheduleRow, courtId, employees, capacity, assignments);
+}
+
+/**
+ * Open submission period + its schedule (published manager view / employee view).
+ * Same payload shape as `getDraftScheduleData` for a single schedule UI.
+ */
+export async function getSchedulePageData(
+  courtId: string,
+  options: { includeEmployees?: boolean } = {},
+): Promise<DraftScheduleData> {
+  const { includeEmployees = false } = options;
+
+  const periodRow = await prisma.schedulePeriod.findFirst({
+    where: {
+      courtId,
+      status: PeriodStatus.OPEN_FOR_SUBMISSION,
+    },
+    orderBy: { startDate: 'desc' },
+  });
+
+  if (!periodRow) {
+    return { found: false, message: 'No active period' };
+  }
+
+  const scheduleRow = await prisma.schedule.findUnique({
+    where: { periodId: periodRow.id },
+    select: { id: true, status: true },
+  });
+
+  const [assignments, capacity, employees] = await Promise.all([
+    getAssignmentMap(scheduleRow?.id),
+    getScheduleCapacity(courtId),
+    includeEmployees ? getScheduleEmployees(courtId) : Promise.resolve([] as ScheduleEmployeeOption[]),
+  ]);
+
+  return toFoundDraftPayload(periodRow, scheduleRow, courtId, employees, capacity, assignments);
 }

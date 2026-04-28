@@ -1,15 +1,16 @@
 import { requireSession } from '@/lib/db/auth-helpers';
 import { SystemRole } from '@/generated/prisma/client';
-import { GuardsTable } from '@/features/guards/components/guards-table';
-import { getGuards } from '@/features/guards/actions';
+import { getEmployees, getPositions } from '@/features/employess/actions';
+import { EmployeesTable } from '@/features/employess/components/employees-table';
 
-export default async function ManagerGuardsPage() {
+export default async function ManagerEmployeesPage() {
   await requireSession(SystemRole.MANAGER);
-  const guards = await getGuards();
+  const employees = await getEmployees();
+  const positions = await getPositions();
 
   return (
     <div className="space-y-6">
-      <GuardsTable guards={guards} />
+      <EmployeesTable employees={employees} positions={positions} />
     </div>
   );
 }

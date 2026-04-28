@@ -2,16 +2,24 @@
 
 import { prisma } from '@/lib/db/client';
 import { requireSession } from '@/lib/db/auth-helpers';
-import { SystemRole } from '@/generated/prisma/client';
+import { ShiftAssignment, SystemRole } from '@/generated/prisma/client';
 import { parseISODateToUtcMidnight } from '@/features/schedules/utils';
 import { revalidatePath } from 'next/cache';
-import { AssignGuardParams } from './types';
+import type { AssignEmployeeToSlotParams } from './types';
 
-// = להוסיף מאבטח לשיבוץ
-export async function assignGuard(params: AssignGuardParams): Promise<{ scheduleId: string }> {
+export async function assignEmployeeToSlot(params: AssignEmployeeToSlotParams): Promise<{ scheduleId: string }> {
   const session = await requireSession(SystemRole.MANAGER);
 
-  const { scheduleId: incomingScheduleId, periodId, employeeId, courtId, courtShiftRoleId, date, slotIndex } = params;
+  const {
+    scheduleId: incomingScheduleId,
+    periodId,
+    employeeId,
+    courtId,
+    positionId,
+    shiftType,
+    date,
+    slotIndex,
+  } = params;
 
   let scheduleId = incomingScheduleId;
 
@@ -27,7 +35,8 @@ export async function assignGuard(params: AssignGuardParams): Promise<{ schedule
       scheduleId,
       employeeId,
       courtId,
-      courtShiftRoleId,
+      positionId,
+      shiftType,
       date: parseISODateToUtcMidnight(date),
       slotIndex,
       isManualOverride: true,
@@ -38,19 +47,19 @@ export async function assignGuard(params: AssignGuardParams): Promise<{ schedule
   revalidatePath('/manager/draft');
   return { scheduleId };
 }
-// = להחליף מאבטח בשיבוץ
-export async function reassignGuard(assignmentId: string, newUserId: string): Promise<void> {
+
+export async function updateAssignmentEmployee(assignmentId: string, newEmployeeId: string): Promise<void> {
   await requireSession(SystemRole.MANAGER);
 
   await prisma.shiftAssignment.update({
     where: { id: assignmentId },
-    data: { employeeId: newUserId },
+    data: { employeeId: newEmployeeId },
   });
 
   revalidatePath('/manager/shifts');
   revalidatePath('/manager/draft');
 }
-// = להוריד מאבטח משיבוץ
+
 export async function removeAssignment(assignmentId: string): Promise<void> {
   await requireSession(SystemRole.MANAGER);
 

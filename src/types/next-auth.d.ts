@@ -6,7 +6,8 @@ declare module 'next-auth' {
     user: {
       id: string;
       systemRole: SystemRole;
-      courtId: string | null;
+      courtId: string;
+      employeeId: string;
       mustChangePassword: boolean;
       fullName?: string;
     } & DefaultSession['user'];
@@ -14,7 +15,8 @@ declare module 'next-auth' {
 
   interface User {
     systemRole: SystemRole;
-    courtId: string | null;
+    courtId: string;
+    employeeId: string;
     mustChangePassword: boolean;
     fullName?: string;
   }
@@ -23,7 +25,8 @@ declare module 'next-auth' {
 declare module 'next-auth/jwt' {
   interface JWT {
     systemRole: SystemRole;
-    courtId: string | null;
+    courtId: string;
+    employeeId: string;
     mustChangePassword: boolean;
     fullName?: string;
   }
