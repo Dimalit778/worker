@@ -1,4 +1,4 @@
-import type { DayCategory, ScheduleStatus, ShiftType } from '@/generated/prisma/client';
+import type { DayCategory, ScheduleStatus, ShiftType, WarningSeverity, WarningType } from '@/generated/prisma/client';
 
 export type ScheduleEmployeeOption = {
   id: string;
@@ -36,6 +36,26 @@ export type AssignmentCellKey = `${string}-${ShiftType}-${string}`;
 
 export type AssignmentMap = Record<AssignmentCellKey, AssignmentSummary[]>;
 
+export type OverflowCandidateSummary = {
+  employeeId: string;
+  employeeName: string;
+};
+
+export type OverflowCandidateCellKey = `${AssignmentCellKey}-${number}`;
+
+export type OverflowCandidateMap = Record<OverflowCandidateCellKey, OverflowCandidateSummary[]>;
+
+export type ScheduleWarningSummary = {
+  id: string;
+  type: WarningType;
+  severity: WarningSeverity;
+  message: string;
+  date: string | null;
+  shiftType: ShiftType | null;
+  employeeName: string | null;
+  positionName: string | null;
+};
+
 export type DraftScheduleFoundData = {
   found: true;
   periodId: string;
@@ -48,6 +68,8 @@ export type DraftScheduleFoundData = {
   employees: ScheduleEmployeeOption[];
   capacity: ScheduleCapacityRule[];
   assignments: AssignmentMap;
+  warnings: ScheduleWarningSummary[];
+  overflowCandidates: OverflowCandidateMap;
 };
 
 export type DraftScheduleNotFoundData = {
@@ -69,6 +91,7 @@ export type ScheduleProps = {
   employees: ScheduleEmployeeOption[];
   capacity: ScheduleCapacityRule[];
   courtId: string;
+  overflowCandidates?: OverflowCandidateMap;
   readonly?: boolean;
 };
 

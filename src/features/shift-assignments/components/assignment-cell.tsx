@@ -5,7 +5,12 @@ import { useRouter } from 'next/navigation';
 import { cn } from '@/lib/utils';
 import { GuardPicker } from './guard-picker';
 import { assignEmployeeToSlot, removeAssignment, updateAssignmentEmployee } from '@/features/shift-assignments/actions';
-import type { AssignmentSummary, ScheduleEmployeeOption } from '@/features/shift-assignments/types';
+import { OverflowCandidates } from '@/features/schedules/components/overflow-candidates';
+import type {
+  AssignmentSummary,
+  OverflowCandidateSummary,
+  ScheduleEmployeeOption,
+} from '@/features/shift-assignments/types';
 import type { ShiftType } from '@/generated/prisma/client';
 
 type Props = {
@@ -19,6 +24,7 @@ type Props = {
   shiftType: ShiftType;
   positionId: string;
   slotIndex: number;
+  overflowCandidates?: OverflowCandidateSummary[];
   readonly?: boolean;
   /** Uniform empty look: no labels, same styling as normal cells; closed slots use muted fill instead of black */
   anonymousRow?: boolean;
@@ -35,6 +41,7 @@ export function AssignmentCell({
   shiftType,
   positionId,
   slotIndex,
+  overflowCandidates = [],
   readonly = false,
   anonymousRow = false,
 }: Props) {
@@ -59,6 +66,7 @@ export function AssignmentCell({
         aria-label={anonymousRow && assignment ? assignment.employeeName : undefined}
       >
         {!anonymousRow && <span className="truncate block max-w-[58px] mx-auto">{label}</span>}
+        {!anonymousRow && <OverflowCandidates candidates={overflowCandidates} />}
       </td>
     );
   }
@@ -111,6 +119,7 @@ export function AssignmentCell({
       }}
     >
       <span className="truncate block max-w-[58px] mx-auto">{assignment?.employeeName ?? ''}</span>
+      <OverflowCandidates candidates={overflowCandidates} />
 
       {open && anchorRect && (
         <GuardPicker

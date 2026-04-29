@@ -1,5 +1,5 @@
 import { cn } from '@/lib/utils';
-import type { AssignmentMap, ScheduleCapacityRule, ScheduleEmployeeOption, WeekDay } from '../types';
+import type { AssignmentMap, OverflowCandidateMap, ScheduleCapacityRule, ScheduleEmployeeOption, WeekDay } from '../types';
 import { SHIFT_STYLES } from '../constants';
 import type { ShiftType } from '@/generated/prisma/client';
 import { AssignmentCell } from './assignment-cell';
@@ -19,6 +19,7 @@ type ShiftSectionProps = {
   shiftType: ShiftType;
   weekDays: WeekDay[];
   assignments: AssignmentMap;
+  overflowCandidates?: OverflowCandidateMap;
   employees: ScheduleEmployeeOption[];
   capacity: ScheduleCapacityRule[];
   scheduleId: string | null;
@@ -28,7 +29,18 @@ type ShiftSectionProps = {
 };
 
 export function ShiftSection(props: ShiftSectionProps) {
-  const { shiftType, weekDays, assignments, employees, capacity, scheduleId, periodId, courtId, readonly } = props;
+  const {
+    shiftType,
+    weekDays,
+    assignments,
+    overflowCandidates,
+    employees,
+    capacity,
+    scheduleId,
+    periodId,
+    courtId,
+    readonly,
+  } = props;
   const style = SHIFT_STYLES[shiftType];
   const sortedDays = [...weekDays].sort((a, b) => a.dayOfWeek - b.dayOfWeek);
   const weekIsos = sortedDays.map((d) => d.iso);
@@ -157,6 +169,7 @@ export function ShiftSection(props: ShiftSectionProps) {
                   const cellKey = createAssignmentCellKey({ date: day.iso, shiftType, positionId: pos.positionId });
                   const slotAssignments = assignments[cellKey] ?? [];
                   const assignment = slotAssignments.find((a) => a.slotIndex === slotIndex) ?? null;
+                  const overflowKey = `${cellKey}-${slotIndex}` as keyof OverflowCandidateMap;
 
                   return (
                     <AssignmentCell
@@ -171,6 +184,7 @@ export function ShiftSection(props: ShiftSectionProps) {
                       shiftType={shiftType}
                       positionId={pos.positionId}
                       slotIndex={slotIndex}
+                      overflowCandidates={overflowCandidates?.[overflowKey] ?? []}
                       readonly={readonly}
                     />
                   );

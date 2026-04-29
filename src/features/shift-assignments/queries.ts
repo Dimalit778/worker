@@ -12,10 +12,12 @@ import type {
   AssignmentMap,
   DraftScheduleData,
   DraftScheduleFoundData,
+  OverflowCandidateMap,
   ScheduleCapacityRule,
   ScheduleEmployeeOption,
+  ScheduleWarningSummary,
 } from './types';
-import { buildAssignmentMap, formatEmployeeName } from './utils';
+import { buildAssignmentMap, createAssignmentCellKey, formatEmployeeName, toDateOnly } from './utils';
 
 type AutoScheduleEngineInputData = Omit<EngineInput, 'scheduleId'> & {
   scheduleId: string | null;
@@ -151,6 +153,152 @@ export async function getAssignmentMap(scheduleId: string | null | undefined): P
   );
 }
 
+export async function getScheduleWarnings(scheduleId: string | null | undefined): Promise<ScheduleWarningSummary[]> {
+  if (!scheduleId) return [];
+
+  const rows = await prisma.scheduleWarning.findMany({
+    where: { scheduleId },
+    select: {
+      id: true,
+      type: true,
+      severity: true,
+      message: true,
+      date: true,
+      shiftType: true,
+      employee: { select: { firstName: true, lastName: true } },
+      position: { select: { name: true } },
+    },
+    orderBy: [{ severity: 'asc' }, { date: 'asc' }, { shiftType: 'asc' }, { id: 'asc' }],
+  });
+
+  return rows.map((warning) => ({
+    id: warning.id,
+    type: warning.type,
+    severity: warning.severity,
+    message: warning.message,
+    date: warning.date?.toISOString().slice(0, 10) ?? null,
+    shiftType: warning.shiftType,
+    employeeName: warning.employee ? formatEmployeeName(warning.employee) : null,
+    positionName: warning.position?.name ?? null,
+  }));
+}
+
+export async function getOverflowCandidatesForSchedule(params: {
+  periodId: string;
+  scheduleId: string | null | undefined;
+  courtId: string;
+  startDate: Date;
+  endDate: Date;
+}): Promise<OverflowCandidateMap> {
+  if (!params.scheduleId) return {};
+
+  const [availabilities, assignments] = await Promise.all([
+    prisma.availability.findMany({
+      where: {
+        periodId: params.periodId,
+        isSubmitted: true,
+        employee: {
+          courtId: params.courtId,
+          isActive: true,
+        },
+      },
+      select: {
+        employee: {
+          select: {
+            id: true,
+            firstName: true,
+            lastName: true,
+            positionId: true,
+          },
+        },
+        entries: {
+          where: {
+            isAvailable: true,
+            date: { gte: params.startDate, lte: params.endDate },
+          },
+          select: {
+            date: true,
+            shiftType: true,
+          },
+        },
+      },
+    }),
+    prisma.shiftAssignment.findMany({
+      where: { scheduleId: params.scheduleId },
+      select: {
+        employeeId: true,
+        date: true,
+        shiftType: true,
+        positionId: true,
+        slotIndex: true,
+      },
+    }),
+  ]);
+
+  const assignedByDateShift = new Map<string, Set<string>>();
+  const assignedBySlot = new Map<string, Set<string>>();
+  for (const assignment of assignments) {
+    const date = toDateOnly(assignment.date);
+    const dateShiftKey = `${date}|${assignment.shiftType}`;
+    const cellKey = createAssignmentCellKey({
+      date,
+      shiftType: assignment.shiftType,
+      positionId: assignment.positionId,
+    });
+    const slotKey = `${cellKey}-${assignment.slotIndex}`;
+
+    const dateShiftAssigned = assignedByDateShift.get(dateShiftKey) ?? new Set<string>();
+    dateShiftAssigned.add(assignment.employeeId);
+    assignedByDateShift.set(dateShiftKey, dateShiftAssigned);
+
+    const slotAssigned = assignedBySlot.get(slotKey) ?? new Set<string>();
+    slotAssigned.add(assignment.employeeId);
+    assignedBySlot.set(slotKey, slotAssigned);
+  }
+
+  const candidatesByCell = new Map<string, { employeeId: string; employeeName: string }[]>();
+  for (const availability of availabilities) {
+    const employee = availability.employee;
+    for (const entry of availability.entries) {
+      const date = toDateOnly(entry.date);
+      const dateShiftKey = `${date}|${entry.shiftType}`;
+      if (assignedByDateShift.get(dateShiftKey)?.has(employee.id)) continue;
+
+      const cellKey = createAssignmentCellKey({
+        date,
+        shiftType: entry.shiftType,
+        positionId: employee.positionId,
+      });
+      const candidates = candidatesByCell.get(cellKey) ?? [];
+      candidates.push({
+        employeeId: employee.id,
+        employeeName: formatEmployeeName(employee),
+      });
+      candidatesByCell.set(cellKey, candidates);
+    }
+  }
+
+  const result: OverflowCandidateMap = {};
+  for (const assignment of assignments) {
+    const date = toDateOnly(assignment.date);
+    const cellKey = createAssignmentCellKey({
+      date,
+      shiftType: assignment.shiftType,
+      positionId: assignment.positionId,
+    });
+    const slotKey = `${cellKey}-${assignment.slotIndex}` as keyof OverflowCandidateMap;
+    const assignedInSlot = assignedBySlot.get(slotKey) ?? new Set<string>();
+    const candidates = (candidatesByCell.get(cellKey) ?? []).filter(
+      (candidate) => !assignedInSlot.has(candidate.employeeId),
+    );
+    if (candidates.length > 0) {
+      result[slotKey] = candidates.sort((a, b) => a.employeeName.localeCompare(b.employeeName, 'he'));
+    }
+  }
+
+  return result;
+}
+
 function toFoundDraftPayload(
   periodRow: {
     id: string;
@@ -163,6 +311,8 @@ function toFoundDraftPayload(
   employees: ScheduleEmployeeOption[],
   capacity: ScheduleCapacityRule[],
   assignments: AssignmentMap,
+  warnings: ScheduleWarningSummary[],
+  overflowCandidates: OverflowCandidateMap,
 ): DraftScheduleFoundData {
   return {
     found: true,
@@ -176,6 +326,8 @@ function toFoundDraftPayload(
     employees,
     capacity,
     assignments,
+    warnings,
+    overflowCandidates,
   };
 }
 
@@ -188,15 +340,30 @@ export async function getDraftScheduleData(courtId: string): Promise<DraftSchedu
   console.log('periodRow', JSON.stringify(periodRow, null, 2));
   const scheduleRow = await getDraftSchedule(periodRow.id);
   console.log('scheduleRow', JSON.stringify(scheduleRow, null, 2));
-  const [assignments, employees, capacity] = await Promise.all([
+  const [assignments, employees, capacity, warnings, overflowCandidates] = await Promise.all([
     getAssignmentMap(scheduleRow?.id),
     getScheduleEmployees(courtId),
     getScheduleCapacity(courtId),
+    getScheduleWarnings(scheduleRow?.id),
+    getOverflowCandidatesForSchedule({
+      periodId: periodRow.id,
+      scheduleId: scheduleRow?.id,
+      courtId,
+      startDate: periodRow.startDate,
+      endDate: periodRow.endDate,
+    }),
   ]);
-  console.log('assignments', JSON.stringify(assignments, null, 2));
-  console.log('employees', JSON.stringify(employees, null, 2));
-  console.log('capacity', JSON.stringify(capacity, null, 2));
-  return toFoundDraftPayload(periodRow, scheduleRow, courtId, employees, capacity, assignments);
+
+  return toFoundDraftPayload(
+    periodRow,
+    scheduleRow,
+    courtId,
+    employees,
+    capacity,
+    assignments,
+    warnings,
+    overflowCandidates,
+  );
 }
 
 /**
@@ -226,13 +393,14 @@ export async function getSchedulePageData(
     select: { id: true, status: true },
   });
 
-  const [assignments, capacity, employees] = await Promise.all([
+  const [assignments, capacity, employees, warnings] = await Promise.all([
     getAssignmentMap(scheduleRow?.id),
     getScheduleCapacity(courtId),
     includeEmployees ? getScheduleEmployees(courtId) : Promise.resolve([] as ScheduleEmployeeOption[]),
+    getScheduleWarnings(scheduleRow?.id),
   ]);
 
-  return toFoundDraftPayload(periodRow, scheduleRow, courtId, employees, capacity, assignments);
+  return toFoundDraftPayload(periodRow, scheduleRow, courtId, employees, capacity, assignments, warnings, {});
 }
 
 export async function getAutoScheduleInputData(periodId: string): Promise<AutoScheduleInputData> {
