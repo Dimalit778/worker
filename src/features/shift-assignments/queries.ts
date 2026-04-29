@@ -144,15 +144,17 @@ export async function getDraftScheduleData(courtId: string): Promise<DraftSchedu
   if (!periodRow) {
     return { found: false, message: 'No period found' };
   }
-
+  console.log('periodRow', JSON.stringify(periodRow, null, 2));
   const scheduleRow = await getDraftSchedule(periodRow.id);
-
+  console.log('scheduleRow', JSON.stringify(scheduleRow, null, 2));
   const [assignments, employees, capacity] = await Promise.all([
     getAssignmentMap(scheduleRow?.id),
     getScheduleEmployees(courtId),
     getScheduleCapacity(courtId),
   ]);
-
+  console.log('assignments', JSON.stringify(assignments, null, 2));
+  console.log('employees', JSON.stringify(employees, null, 2));
+  console.log('capacity', JSON.stringify(capacity, null, 2));
   return toFoundDraftPayload(periodRow, scheduleRow, courtId, employees, capacity, assignments);
 }
 

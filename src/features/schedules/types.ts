@@ -1,16 +1,5 @@
-import { PeriodStatus } from '@/generated/prisma/client';
+import type { PeriodStatus } from '@/generated/prisma/client';
 
-export type CurrentSchedulingPeriodSummary = {
-  name: string;
-  startDate: Date;
-  endDate: Date;
-  submissionDeadline: Date;
-  status: PeriodStatus;
-};
-
-export type CurrentPeriodPanelProps = {
-  period: CurrentSchedulingPeriodSummary | null;
-};
 export type PeriodSummary = {
   id: string;
   name: string;

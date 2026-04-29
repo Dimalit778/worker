@@ -1,19 +1,21 @@
 'use server';
 import { prisma } from '@/lib/db/client';
-import { PeriodStatus, PrismaClient, SchedulePeriod, ScheduleStatus } from '@/generated/prisma/client';
-import { DEFAULT_TZ } from './utils';
-import { utcNoonFromCalendarISO } from './utils';
-import { calendarDateISO } from './utils';
+import {
+  PeriodStatus,
+  Prisma,
+  SchedulePeriod,
+  ScheduleStatus,
+  SystemRole,
+} from '@/generated/prisma/client';
 import { requireSession } from '@/lib/db/auth-helpers';
-import { SystemRole } from '@/generated/prisma/client';
 import { PeriodSummary } from './types';
 import { parseISODateToUtcMidnight } from './utils';
 import { revalidatePath } from 'next/cache';
-// = מוציא תקופה פתוחה
+// = מוצא תקופה פתוחה
 export async function getOpenPeriod(courtId: string): Promise<SchedulePeriod | null> {
   return prisma.schedulePeriod.findFirst({ where: { courtId, status: PeriodStatus.OPEN_FOR_SUBMISSION } });
 }
-// = מוציא רשימת תקופות למנהל
+// = מוצא רשימת תקופות למנהל
 export async function getPeriodsForManager(): Promise<PeriodSummary[]> {
   await requireSession(SystemRole.MANAGER);
 
@@ -80,7 +82,12 @@ export async function createPeriod(data: {
     revalidatePath('/manager/periods');
     revalidatePath('/manager');
     return { ok: true, id: period.id };
-  } catch {
+  } catch (e) {
+    if (e instanceof Prisma.PrismaClientKnownRequestError && e.code === 'P2002') {
+      return {
+        error: 'כבר קיימת תקופה עם אותם תאריכי התחלה וסיום עבור בית המשפט. מחקו או שינו את התקופה הקיימת.',
+      };
+    }
     return { error: 'שגיאה ביצירת התקופה' };
   }
 }
@@ -116,18 +123,6 @@ export async function updatePeriodStatus(
     return { ok: true };
   } catch {
     return { error: 'שגיאה בעדכון הסטטוס' };
-  }
-}
-// = ליצור שיבוץ חדש
-export async function createSchedule(periodId: string): Promise<{ ok: true } | { error: string }> {
-  const session = await requireSession(SystemRole.MANAGER);
-  await requireSession(SystemRole.MANAGER);
-
-  try {
-    await prisma.schedule.create({ data: { periodId, generatedById: session.user.id } });
-    return { ok: true };
-  } catch {
-    return { error: 'שגיאה ביצירת השיבוץ' };
   }
 }
 // = לסיים עריכת שיבוץ

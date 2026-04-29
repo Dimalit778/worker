@@ -45,7 +45,6 @@ export function DraftActions({ scheduleId, scheduleStatus }: Props) {
   }
 
   const isPublished = scheduleStatus === 'PUBLISHED';
-  const isFinalized = scheduleStatus === 'FINALIZED';
   const isDraft = scheduleStatus === 'DRAFT' || scheduleStatus === null;
 
   return (

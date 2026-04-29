@@ -1,5 +1,3 @@
-import { TZ } from './constans';
-
 /** Calendar date YYYY-MM-DD for `instant` in `timeZone` (e.g. Asia/Jerusalem). */
 function calendarDateISO(instant: Date, timeZone: string): string {
   const parts = new Intl.DateTimeFormat('en-CA', {
@@ -76,22 +74,8 @@ function buildWeeks(startDate: string, endDate: string): string[][] {
   return weeks;
 }
 
-// --> current-period-panel.tsx
-function formatDateLong(d: Date): string {
-  return new Intl.DateTimeFormat('he-IL', {
-    dateStyle: 'long',
-    timeZone: TZ,
-  }).format(d);
-}
-
-function formatDateTimeLong(d: Date): string {
-  return new Intl.DateTimeFormat('he-IL', {
-    dateStyle: 'long',
-    timeStyle: 'short',
-    timeZone: TZ,
-  }).format(d);
-}
 // --> create-period-form.tsx
+
 function upcomingSundayISO(from: Date = new Date()): string {
   const d = new Date(from.getFullYear(), from.getMonth(), from.getDate());
   const day = d.getDay();
@@ -129,8 +113,6 @@ export {
   diffDays,
   isoToday,
   buildWeeks,
-  formatDateLong,
-  formatDateTimeLong,
   upcomingSundayISO,
   suggestName,
   deriveFields,

@@ -1,7 +1,8 @@
 import { PeriodStatus, ScheduleStatus } from '@/generated/prisma/client';
 import { PeriodType } from './types';
+
 const DEFAULT_TZ = 'Asia/Jerusalem';
-const TZ = 'Asia/Jerusalem';
+const TZ = DEFAULT_TZ;
 
 const PERIOD_STATUS_HE: Record<PeriodStatus, string> = {
   DRAFT: 'טיוטה',
