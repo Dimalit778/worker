@@ -33,7 +33,7 @@ export default async function DraftPage() {
           </p>
         </div>
 
-        <DraftActions scheduleId={data.scheduleId} scheduleStatus={data.scheduleStatus} />
+        <DraftActions periodId={data.periodId} scheduleId={data.scheduleId} scheduleStatus={data.scheduleStatus} />
       </div>
 
       {isReadonly && (

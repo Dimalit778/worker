@@ -2,45 +2,82 @@
 
 import { useState, useTransition } from 'react';
 import { useRouter } from 'next/navigation';
-import { CheckCheck, Send } from 'lucide-react';
+import { CheckCheck, Send, Sparkles } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { finalizeSchedule, publishSchedule } from '@/features/schedules/actions';
+import { generateAutoSchedule } from '@/features/shift-assignments/generate-action';
 import type { ScheduleStatus } from '@/generated/prisma/client';
 import { STATUS_COLORS, STATUS_LABELS } from '../constans';
 
 type Props = {
+  periodId: string;
   scheduleId: string | null;
   scheduleStatus: ScheduleStatus | null;
 };
 
-export function DraftActions({ scheduleId, scheduleStatus }: Props) {
+export function DraftActions({ periodId, scheduleId, scheduleStatus }: Props) {
   const router = useRouter();
   const [pending, startTransition] = useTransition();
+  const [pendingAction, setPendingAction] = useState<'generate' | 'finalize' | 'publish' | null>(null);
   const [error, setError] = useState<string | null>(null);
+  const [message, setMessage] = useState<string | null>(null);
+
+  function handleGenerate() {
+    setError(null);
+    setMessage(null);
+    setPendingAction('generate');
+    startTransition(async () => {
+      try {
+        const res = await generateAutoSchedule(periodId);
+        if ('error' in res) {
+          setError(res.error);
+          return;
+        }
+        setMessage('השיבוץ האוטומטי נוצר בהצלחה');
+        router.refresh();
+      } catch {
+        setError('שגיאה ביצירת שיבוץ אוטומטי');
+      } finally {
+        setPendingAction(null);
+      }
+    });
+  }
 
   function handleFinalize() {
     if (!scheduleId) return;
     setError(null);
+    setMessage(null);
+    setPendingAction('finalize');
     startTransition(async () => {
-      const res = await finalizeSchedule(scheduleId);
-      if ('error' in res) {
-        setError(res.error);
-        return;
+      try {
+        const res = await finalizeSchedule(scheduleId);
+        if ('error' in res) {
+          setError(res.error);
+          return;
+        }
+        router.refresh();
+      } finally {
+        setPendingAction(null);
       }
-      router.refresh();
     });
   }
 
   function handlePublish() {
     if (!scheduleId) return;
     setError(null);
+    setMessage(null);
+    setPendingAction('publish');
     startTransition(async () => {
-      const res = await publishSchedule(scheduleId);
-      if ('error' in res) {
-        setError(res.error);
-        return;
+      try {
+        const res = await publishSchedule(scheduleId);
+        if ('error' in res) {
+          setError(res.error);
+          return;
+        }
+        router.refresh();
+      } finally {
+        setPendingAction(null);
       }
-      router.refresh();
     });
   }
 
@@ -58,6 +95,14 @@ export function DraftActions({ scheduleId, scheduleStatus }: Props) {
       )}
 
       {error && <p className="text-sm text-destructive">{error}</p>}
+      {message && <p className="text-sm text-green-700">{message}</p>}
+
+      {isDraft && (
+        <Button size="sm" variant="default" onClick={handleGenerate} disabled={pending} className="gap-1.5">
+          <Sparkles className="w-4 h-4" />
+          {pendingAction === 'generate' ? 'יוצר שיבוץ...' : 'צור שיבוץ אוטומטי'}
+        </Button>
+      )}
 
       {isDraft && (
         <Button
