@@ -20,6 +20,8 @@ import {
 } from "./constraints";
 import { assignWeeklyMinimums } from "./weekly-minimums";
 import { sortCandidatesByScore } from "./scoring";
+import { computeFairnessSummary } from "./fairness";
+import { createWarnings } from "./warnings";
 
 // ─── Private helpers ──────────────────────────────────────────────────────────
 
@@ -190,9 +192,14 @@ export function generateSchedule(input: EngineInput): EngineOutput {
     assignments: autoAssignments,
     unfilledSlots,
     unmetMinimums,
-    warnings: [], // populated in Step 7 (warnings.ts)
+    warnings: createWarnings({
+      unmetMinimums,
+      slots: allSlots,
+      assignments: workingAssignments,
+      fairnessSummary: fairness,
+    }),
     overflowCandidates,
-    fairnessSummary: fairness,
+    fairnessSummary: computeFairnessSummary(workingAssignments),
     stats: {
       totalSlots: allSlots.length,
       filledSlots: filledSlotCount,
