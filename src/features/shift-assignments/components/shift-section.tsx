@@ -15,6 +15,10 @@ import {
 const NARROW_COL_PX = '3.5rem';
 const narrowColCell = 'w-14 min-w-0 max-w-14';
 
+function isRegularGuardPosition(positionName: string): boolean {
+  return positionName.trim() === 'מאבטח';
+}
+
 type ShiftSectionProps = {
   shiftType: ShiftType;
   weekDays: WeekDay[];
@@ -140,57 +144,63 @@ export function ShiftSection(props: ShiftSectionProps) {
             </tr>
           </thead>
           <tbody>
-            {bodyRows.map(({ pos, slotIndex, maxSlots }, rowIdx) => (
-              <tr key={`${pos.positionId}-${slotIndex}`} className="bg-white ">
-                <td
-                  className={cn(
-                    narrowColCell,
-                    'px-0.5 py-1 text-center border border-border text-muted-foreground font-semibold bg-muted/30',
-                  )}
-                >
-                  {rowIdx + 1}
-                </td>
-                {slotIndex === 0 ? (
+            {bodyRows.map(({ pos, slotIndex, maxSlots }, rowIdx) => {
+              const hidePositionLabel = isRegularGuardPosition(pos.positionName);
+
+              return (
+                <tr key={`${pos.positionId}-${slotIndex}`} className="bg-white ">
                   <td
-                    rowSpan={maxSlots}
                     className={cn(
                       narrowColCell,
-                      'align-middle px-0.5 py-1 text-center border border-border bg-muted/20 text-[10px] font-semibold leading-tight overflow-hidden',
+                      'px-0.5 py-1 text-center border border-border text-muted-foreground font-semibold bg-muted/30',
                     )}
-                    title={pos.positionName}
                   >
-                    <div className="truncate">{pos.positionName}</div>
+                    {rowIdx + 1}
                   </td>
-                ) : null}
-                {sortedDays.map((day) => {
-                  const cat = getDayCategoryForDate(day.iso);
-                  const required = getCapacityForCell(capacity, cat, shiftType, pos.positionId);
-                  const closed = slotIndex >= required;
-                  const cellKey = createAssignmentCellKey({ date: day.iso, shiftType, positionId: pos.positionId });
-                  const slotAssignments = assignments[cellKey] ?? [];
-                  const assignment = slotAssignments.find((a) => a.slotIndex === slotIndex) ?? null;
-                  const overflowKey = `${cellKey}-${slotIndex}` as keyof OverflowCandidateMap;
+                  {slotIndex === 0 ? (
+                    <td
+                      rowSpan={maxSlots}
+                      className={cn(
+                        narrowColCell,
+                        'align-middle px-0.5 py-1 text-center border border-border bg-muted/20 text-[10px] font-semibold leading-tight overflow-hidden',
+                        hidePositionLabel && 'text-transparent',
+                      )}
+                      title={hidePositionLabel ? undefined : pos.positionName}
+                      aria-label={hidePositionLabel ? pos.positionName : undefined}
+                    >
+                      <div className="truncate">{hidePositionLabel ? '' : pos.positionName}</div>
+                    </td>
+                  ) : null}
+                  {sortedDays.map((day) => {
+                    const cat = getDayCategoryForDate(day.iso);
+                    const required = getCapacityForCell(capacity, cat, shiftType, pos.positionId);
+                    const closed = slotIndex >= required;
+                    const cellKey = createAssignmentCellKey({ date: day.iso, shiftType, positionId: pos.positionId });
+                    const slotAssignments = assignments[cellKey] ?? [];
+                    const assignment = slotAssignments.find((a) => a.slotIndex === slotIndex) ?? null;
+                    const overflowKey = `${cellKey}-${slotIndex}` as keyof OverflowCandidateMap;
 
-                  return (
-                    <AssignmentCell
-                      key={day.iso}
-                      closed={closed}
-                      assignment={assignment}
-                      employees={employees}
-                      scheduleId={scheduleId}
-                      periodId={periodId}
-                      courtId={courtId}
-                      date={day.iso}
-                      shiftType={shiftType}
-                      positionId={pos.positionId}
-                      slotIndex={slotIndex}
-                      overflowCandidates={overflowCandidates?.[overflowKey] ?? []}
-                      readonly={readonly}
-                    />
-                  );
-                })}
-              </tr>
-            ))}
+                    return (
+                      <AssignmentCell
+                        key={day.iso}
+                        closed={closed}
+                        assignment={assignment}
+                        employees={employees}
+                        scheduleId={scheduleId}
+                        periodId={periodId}
+                        courtId={courtId}
+                        date={day.iso}
+                        shiftType={shiftType}
+                        positionId={pos.positionId}
+                        slotIndex={slotIndex}
+                        overflowCandidates={overflowCandidates?.[overflowKey] ?? []}
+                        readonly={readonly}
+                      />
+                    );
+                  })}
+                </tr>
+              );
+            })}
           </tbody>
         </table>
       </div>
