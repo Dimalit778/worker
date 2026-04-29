@@ -54,6 +54,7 @@ export function buildSlots(input: EngineInput): EngineSlot[] {
         slots.push({
           courtId: input.period.courtId,
           positionId: capacity.positionId,
+          positionName: capacity.positionName,
           date,
           shiftType: capacity.shiftType,
           dayCategory,

@@ -29,6 +29,7 @@ export interface EngineEmployee {
 
 export interface EngineCapacity {
   positionId: string;
+  positionName?: string;
   shiftType: ShiftType;
   dayCategory: DayCategory;
   amount: number;
@@ -38,6 +39,7 @@ export interface EngineAssignment {
   employeeId: string;
   courtId: string;
   positionId: string;
+  positionName?: string;
   date: Date;
   shiftType: ShiftType;
   slotIndex: number;
@@ -68,6 +70,7 @@ export interface EngineInput {
 export interface EngineSlot {
   courtId: string;
   positionId: string;
+  positionName?: string;
   date: Date;
   shiftType: ShiftType;
   dayCategory: DayCategory;

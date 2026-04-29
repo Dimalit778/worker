@@ -213,6 +213,7 @@ export function assignWeeklyMinimums(
           employeeId: employee.id,
           courtId: slot.courtId,
           positionId: slot.positionId,
+          positionName: slot.positionName,
           date: slot.date,
           shiftType: slot.shiftType,
           slotIndex: getSlotFillCount(slot, workingAssignments),

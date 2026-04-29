@@ -460,6 +460,7 @@ export async function getAutoScheduleInputData(periodId: string): Promise<AutoSc
       where: { courtId: periodRow.courtId, isActive: true },
       select: {
         positionId: true,
+        position: { select: { name: true } },
         shiftType: true,
         dayCategory: true,
         amount: true,
@@ -482,6 +483,7 @@ export async function getAutoScheduleInputData(periodId: string): Promise<AutoSc
             employeeId: true,
             courtId: true,
             positionId: true,
+            position: { select: { name: true } },
             date: true,
             shiftType: true,
             slotIndex: true,
@@ -525,6 +527,7 @@ export async function getAutoScheduleInputData(periodId: string): Promise<AutoSc
       capacities: capacities.map(
         (c): EngineCapacity => ({
           positionId: c.positionId,
+          positionName: c.position.name,
           shiftType: c.shiftType,
           dayCategory: c.dayCategory,
           amount: c.amount,
@@ -535,6 +538,7 @@ export async function getAutoScheduleInputData(periodId: string): Promise<AutoSc
           employeeId: a.employeeId,
           courtId: a.courtId,
           positionId: a.positionId,
+          positionName: a.position.name,
           date: utcDateOnly(a.date),
           shiftType: a.shiftType,
           slotIndex: a.slotIndex,

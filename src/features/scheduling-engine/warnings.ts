@@ -6,7 +6,7 @@ import {
   UnmetMinimum,
 } from "./types";
 import { getSlotFillCount } from "./constraints";
-import { createDateKey } from "./slots";
+import { createDateKey, getDayCategory } from "./slots";
 
 // ─── Minimum warnings ─────────────────────────────────────────────────────────
 
@@ -23,8 +23,8 @@ export function createMinimumWarnings(unmetMinimums: UnmetMinimum[]): EngineWarn
 
 // ─── Capacity warnings ────────────────────────────────────────────────────────
 
-// UNFILLED (ERROR): slot has 0 assigned employees.
-// UNDERSTAFFED (ERROR): slot is partially filled below requiredAmount.
+// UNFILLED/UNDERSTAFFED here means a desired ShiftCapacity target was missed.
+// Mandatory business requirements are evaluated separately as ERRORs.
 export function createCapacityWarnings(
   slots: EngineSlot[],
   assignments: EngineAssignment[]
@@ -37,7 +37,7 @@ export function createCapacityWarnings(
     if (fillCount === 0 && slot.requiredAmount > 0) {
       warnings.push({
         type: "UNFILLED",
-        severity: "ERROR",
+        severity: "WARNING",
         positionId: slot.positionId,
         date: slot.date,
         shiftType: slot.shiftType,
@@ -46,12 +46,144 @@ export function createCapacityWarnings(
     } else if (fillCount > 0 && fillCount < slot.requiredAmount) {
       warnings.push({
         type: "UNDERSTAFFED",
-        severity: "ERROR",
+        severity: "WARNING",
         positionId: slot.positionId,
         date: slot.date,
         shiftType: slot.shiftType,
         message: `${slot.shiftType} on ${createDateKey(slot.date)}: ${fillCount}/${slot.requiredAmount} assigned`,
       });
+    }
+  }
+
+  return warnings;
+}
+
+// ─── Mandatory staffing warnings ─────────────────────────────────────────────
+
+function normalizePositionName(name: string | undefined): string {
+  return (name ?? "")
+    .replace(/[״"]/g, "")
+    .replace(/[׳']/g, "")
+    .trim();
+}
+
+function isAhmash(name: string | undefined): boolean {
+  const normalized = normalizePositionName(name);
+  return normalized === "אחמש";
+}
+
+function isBakar(name: string | undefined): boolean {
+  return normalizePositionName(name) === "בקר";
+}
+
+function isGuard(name: string | undefined): boolean {
+  return normalizePositionName(name) === "מאבטח";
+}
+
+function getAssignmentPositionName(
+  assignment: EngineAssignment,
+  positionNamesById: Map<string, string | undefined>
+): string | undefined {
+  return assignment.positionName ?? positionNamesById.get(assignment.positionId);
+}
+
+function countAnyAssignmentsForSlot(assignments: EngineAssignment[], slot: EngineSlot): number {
+  return assignments.filter(
+    (assignment) =>
+      assignment.courtId === slot.courtId &&
+      assignment.shiftType === slot.shiftType &&
+      assignment.date.getTime() === slot.date.getTime()
+  ).length;
+}
+
+function hasRoleCount(
+  assignments: EngineAssignment[],
+  slot: EngineSlot,
+  positionNamesById: Map<string, string | undefined>,
+  predicate: (positionName: string | undefined) => boolean,
+  required: number
+): boolean {
+  const count = assignments.filter((assignment) => {
+    if (assignment.courtId !== slot.courtId) return false;
+    if (assignment.shiftType !== slot.shiftType) return false;
+    if (assignment.date.getTime() !== slot.date.getTime()) return false;
+    return predicate(getAssignmentPositionName(assignment, positionNamesById));
+  }).length;
+
+  return count >= required;
+}
+
+function createMandatoryWarning(slot: EngineSlot, message: string): EngineWarning {
+  return {
+    type: "UNFILLED",
+    severity: "ERROR",
+    date: slot.date,
+    shiftType: slot.shiftType,
+    message,
+  };
+}
+
+export function createMandatoryStaffingWarnings(
+  slots: EngineSlot[],
+  assignments: EngineAssignment[]
+): EngineWarning[] {
+  const warnings: EngineWarning[] = [];
+  const representativeSlots = new Map<string, EngineSlot>();
+  const positionNamesById = new Map<string, string | undefined>();
+
+  for (const slot of slots) {
+    representativeSlots.set(`${slot.courtId}|${createDateKey(slot.date)}|${slot.shiftType}`, slot);
+    positionNamesById.set(slot.positionId, slot.positionName);
+  }
+
+  for (const assignment of assignments) {
+    if (assignment.positionName) {
+      positionNamesById.set(assignment.positionId, assignment.positionName);
+    }
+  }
+
+  for (const slot of representativeSlots.values()) {
+    const dayCategory = getDayCategory(slot.date);
+    const date = createDateKey(slot.date);
+    const hasAhmash = hasRoleCount(assignments, slot, positionNamesById, isAhmash, 1);
+    const hasBakar = hasRoleCount(assignments, slot, positionNamesById, isBakar, 1);
+    const hasGuard = (required: number) =>
+      hasRoleCount(assignments, slot, positionNamesById, isGuard, required);
+    const hasAny = countAnyAssignmentsForSlot(assignments, slot) > 0;
+
+    if (dayCategory === "WEEKDAY" && slot.shiftType === "MORNING") {
+      if (!hasAhmash) warnings.push(createMandatoryWarning(slot, `${date} MORNING: missing אחמ״ש`));
+      if (!hasBakar) warnings.push(createMandatoryWarning(slot, `${date} MORNING: missing בקר`));
+      if (!hasGuard(3)) warnings.push(createMandatoryWarning(slot, `${date} MORNING: missing 3 מאבטחים`));
+      continue;
+    }
+
+    if (dayCategory === "WEEKDAY" && slot.shiftType === "EVENING") {
+      if (!hasAhmash && !hasBakar) {
+        warnings.push(createMandatoryWarning(slot, `${date} EVENING: missing אחמ״ש or בקר`));
+      }
+      if (!hasGuard(2)) warnings.push(createMandatoryWarning(slot, `${date} EVENING: missing 2 מאבטחים`));
+      continue;
+    }
+
+    if (dayCategory === "WEEKDAY" && slot.shiftType === "NIGHT") {
+      if (!hasAny) warnings.push(createMandatoryWarning(slot, `${date} NIGHT: missing employee`));
+      continue;
+    }
+
+    if (dayCategory === "FRIDAY" && slot.shiftType === "MORNING") {
+      if (!hasAhmash && !hasBakar) {
+        warnings.push(createMandatoryWarning(slot, `${date} MORNING: missing אחמ״ש or בקר`));
+      }
+      if (!hasGuard(1)) warnings.push(createMandatoryWarning(slot, `${date} MORNING: missing מאבטח`));
+      continue;
+    }
+
+    if (
+      (dayCategory === "FRIDAY" && (slot.shiftType === "EVENING" || slot.shiftType === "NIGHT")) ||
+      dayCategory === "SATURDAY"
+    ) {
+      if (!hasAny) warnings.push(createMandatoryWarning(slot, `${date} ${slot.shiftType}: missing employee`));
     }
   }
 
@@ -98,6 +230,7 @@ export function createWarnings({
 }): EngineWarning[] {
   return [
     ...createMinimumWarnings(unmetMinimums),
+    ...createMandatoryStaffingWarnings(slots, assignments),
     ...createCapacityWarnings(slots, assignments),
     ...createFairnessWarnings(fairnessSummary),
   ];
