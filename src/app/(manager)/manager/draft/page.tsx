@@ -54,6 +54,7 @@ export default async function DraftPage() {
         employees={data.employees}
         capacity={data.capacity}
         courtId={data.courtId}
+        overflowCandidates={data.overflowCandidates}
         readonly={isReadonly}
       />
 
