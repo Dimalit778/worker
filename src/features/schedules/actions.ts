@@ -6,11 +6,25 @@ import {
   SchedulePeriod,
   ScheduleStatus,
   SystemRole,
+  WarningSeverity,
 } from '@/generated/prisma/client';
 import { requireSession } from '@/lib/db/auth-helpers';
 import { PeriodSummary } from './types';
 import { parseISODateToUtcMidnight } from './utils';
 import { revalidatePath } from 'next/cache';
+
+async function getOpenErrorWarningsMessage(scheduleId: string): Promise<string | null> {
+  const errorCount = await prisma.scheduleWarning.count({
+    where: {
+      scheduleId,
+      severity: WarningSeverity.ERROR,
+    },
+  });
+
+  if (errorCount === 0) return null;
+  return `לא ניתן לאשר או לפרסם שיבוץ עם ${errorCount} שגיאות פתוחות`;
+}
+
 // = מוצא תקופה פתוחה
 export async function getOpenPeriod(courtId: string): Promise<SchedulePeriod | null> {
   return prisma.schedulePeriod.findFirst({ where: { courtId, status: PeriodStatus.OPEN_FOR_SUBMISSION } });
@@ -130,6 +144,9 @@ export async function finalizeSchedule(scheduleId: string): Promise<{ ok: true }
   await requireSession(SystemRole.MANAGER);
 
   try {
+    const errorMessage = await getOpenErrorWarningsMessage(scheduleId);
+    if (errorMessage) return { error: errorMessage };
+
     await prisma.schedule.update({
       where: { id: scheduleId },
       data: { status: ScheduleStatus.FINALIZED },
@@ -145,6 +162,9 @@ export async function publishSchedule(scheduleId: string): Promise<{ ok: true } 
   await requireSession(SystemRole.MANAGER);
 
   try {
+    const errorMessage = await getOpenErrorWarningsMessage(scheduleId);
+    if (errorMessage) return { error: errorMessage };
+
     await prisma.schedule.update({
       where: { id: scheduleId },
       data: { status: ScheduleStatus.PUBLISHED, publishedAt: new Date() },
