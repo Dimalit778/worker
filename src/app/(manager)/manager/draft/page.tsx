@@ -3,6 +3,7 @@ import { SystemRole } from '@/generated/prisma/client';
 import { getDraftScheduleData } from '@/features/shift-assignments/queries';
 import { Schedule } from '@/features/shift-assignments/components/schedule';
 import { DraftActions } from '@/features/schedules/components/draft-actions';
+import { WarningsPanel } from '@/features/schedules/components/warnings-panel';
 
 export default async function DraftPage() {
   const session = await requireSession(SystemRole.MANAGER);
@@ -55,6 +56,8 @@ export default async function DraftPage() {
         courtId={data.courtId}
         readonly={isReadonly}
       />
+
+      <WarningsPanel warnings={data.warnings} />
     </div>
   );
 }
