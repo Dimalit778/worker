@@ -126,6 +126,75 @@ export async function createPosition(name: string): Promise<{ ok: true } | { err
   }
 }
 
+export async function upsertPositionForDisplayOrder(params: {
+  displayOrder: number;
+  name: string;
+}): Promise<{ ok: true } | { error: string }> {
+  const session = await requireSession(SystemRole.MANAGER);
+  const courtId = session.user.courtId;
+  if (!courtId) {
+    return { error: 'למנהל אין בית משפט משויך' };
+  }
+
+  const displayOrder = Math.floor(Number(params.displayOrder));
+  if (Number.isNaN(displayOrder) || displayOrder < 1 || displayOrder > 200) {
+    return { error: 'מספר שורה לא תקין' };
+  }
+
+  const name = params.name.trim();
+  if (!name) {
+    return { error: 'יש להזין שם תפקיד' };
+  }
+  if (name === 'מנהל') {
+    return { error: 'לא ניתן לערוך את תפקיד המנהל' };
+  }
+
+  try {
+    const existingAtRow = await prisma.position.findFirst({
+      where: {
+        courtId,
+        displayOrder,
+        name: { not: 'מנהל' },
+      },
+      select: { id: true },
+      orderBy: [{ isActive: 'desc' }, { createdAt: 'asc' }],
+    });
+
+    if (existingAtRow) {
+      await prisma.position.update({
+        where: { id: existingAtRow.id },
+        data: { name, displayOrder, isActive: true },
+      });
+    } else {
+      await prisma.position.upsert({
+        where: {
+          courtId_name: {
+            courtId,
+            name,
+          },
+        },
+        update: {
+          displayOrder,
+          isActive: true,
+        },
+        create: {
+          courtId,
+          name,
+          displayOrder,
+          isActive: true,
+        },
+      });
+    }
+
+    revalidatePath('/manager/draft');
+    revalidatePath('/manager/settings');
+    return { ok: true };
+  } catch (error) {
+    console.error(error);
+    return { error: 'שמירת התפקיד נכשלה' };
+  }
+}
+
 async function swapPositionOrderWithNeighbor(
   sessionCourtId: string,
   positionId: string,

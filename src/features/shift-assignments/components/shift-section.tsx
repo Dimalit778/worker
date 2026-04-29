@@ -1,8 +1,16 @@
+'use client';
+
+import { useState, useTransition } from 'react';
+import { useRouter } from 'next/navigation';
 import { cn } from '@/lib/utils';
+import { Button } from '@/components/ui/button';
+import { Input } from '@/components/ui/input';
+import { Label } from '@/components/ui/label';
 import type { AssignmentMap, OverflowCandidateMap, ScheduleCapacityRule, ScheduleEmployeeOption, WeekDay } from '../types';
 import { SHIFT_STYLES } from '../constants';
 import type { ShiftType } from '@/generated/prisma/client';
 import { AssignmentCell } from './assignment-cell';
+import { upsertPositionForDisplayOrder } from '@/features/court-settings/actions';
 import {
   createAssignmentCellKey,
   getCapacityForCell,
@@ -18,6 +26,10 @@ const narrowColCell = 'w-14 min-w-0 max-w-14';
 function isRegularGuardPosition(positionName: string): boolean {
   return positionName.trim() === 'מאבטח';
 }
+
+type PositionRowModalState = {
+  rowNumber: number;
+};
 
 type ShiftSectionProps = {
   shiftType: ShiftType;
@@ -45,6 +57,11 @@ export function ShiftSection(props: ShiftSectionProps) {
     courtId,
     readonly,
   } = props;
+  const router = useRouter();
+  const [positionModal, setPositionModal] = useState<PositionRowModalState | null>(null);
+  const [positionName, setPositionName] = useState('');
+  const [positionError, setPositionError] = useState<string | null>(null);
+  const [isSavingPosition, startSavingPosition] = useTransition();
   const style = SHIFT_STYLES[shiftType];
   const sortedDays = [...weekDays].sort((a, b) => a.dayOfWeek - b.dayOfWeek);
   const weekIsos = sortedDays.map((d) => d.iso);
@@ -61,6 +78,41 @@ export function ShiftSection(props: ShiftSectionProps) {
       maxSlots,
     }));
   });
+
+  function openPositionModal(rowNumber: number, currentPositionName: string) {
+    const name = isRegularGuardPosition(currentPositionName) ? '' : currentPositionName;
+    setPositionError(null);
+    setPositionName(name);
+    setPositionModal({ rowNumber });
+  }
+
+  function closePositionModal() {
+    if (isSavingPosition) return;
+    setPositionModal(null);
+    setPositionName('');
+    setPositionError(null);
+  }
+
+  function savePositionForRow() {
+    if (!positionModal) return;
+
+    startSavingPosition(async () => {
+      const result = await upsertPositionForDisplayOrder({
+        displayOrder: positionModal.rowNumber,
+        name: positionName,
+      });
+
+      if ('error' in result) {
+        setPositionError(result.error);
+        return;
+      }
+
+      setPositionModal(null);
+      setPositionName('');
+      setPositionError(null);
+      router.refresh();
+    });
+  }
 
   if (bodyRows.length === 0) {
     return (
@@ -155,7 +207,17 @@ export function ShiftSection(props: ShiftSectionProps) {
                       'px-0.5 py-1 text-center border border-border text-muted-foreground font-semibold bg-muted/30',
                     )}
                   >
-                    {rowIdx + 1}
+                    {readonly ? (
+                      rowIdx + 1
+                    ) : (
+                      <button
+                        type="button"
+                        className="h-6 min-w-6 rounded-sm px-1 text-xs font-semibold hover:bg-accent hover:text-accent-foreground focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring"
+                        onClick={() => openPositionModal(rowIdx + 1, pos.positionName)}
+                      >
+                        {rowIdx + 1}
+                      </button>
+                    )}
                   </td>
                   {slotIndex === 0 ? (
                     <td
@@ -204,6 +266,45 @@ export function ShiftSection(props: ShiftSectionProps) {
           </tbody>
         </table>
       </div>
+
+      {positionModal ? (
+        <div
+          className="fixed inset-0 z-50 flex items-center justify-center bg-black/40 px-4"
+          dir="rtl"
+          role="dialog"
+          aria-modal="true"
+          aria-labelledby="position-row-modal-title"
+        >
+          <div className="w-full max-w-sm rounded-lg border border-border bg-background p-4 shadow-lg">
+            <div className="mb-4">
+              <h2 id="position-row-modal-title" className="text-base font-semibold">
+                הוספת תפקיד לשורה
+              </h2>
+              <p className="mt-1 text-sm text-muted-foreground">שורה {positionModal.rowNumber}</p>
+            </div>
+
+            <div className="space-y-2">
+              <Label htmlFor="position-row-name">שם התפקיד</Label>
+              <Input
+                id="position-row-name"
+                value={positionName}
+                onChange={(event) => setPositionName(event.target.value)}
+                autoFocus
+              />
+              {positionError ? <p className="text-sm text-destructive">{positionError}</p> : null}
+            </div>
+
+            <div className="mt-5 flex justify-end gap-2">
+              <Button type="button" variant="outline" onClick={closePositionModal} disabled={isSavingPosition}>
+                ביטול
+              </Button>
+              <Button type="button" onClick={savePositionForRow} disabled={isSavingPosition}>
+                {isSavingPosition ? 'שומר...' : 'שמירה'}
+              </Button>
+            </div>
+          </div>
+        </div>
+      ) : null}
     </div>
   );
 }
