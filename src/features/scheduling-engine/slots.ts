@@ -1,4 +1,5 @@
 import { DayCategory, EngineInput, EngineSlot, ShiftType } from "./types";
+import { getPositionRoleRank } from "./role-eligibility";
 
 // ─── Priority tables ──────────────────────────────────────────────────────────
 
@@ -82,6 +83,12 @@ export function sortSlotsByPriority(slots: EngineSlot[]): EngineSlot[] {
       SHIFT_TYPE_PRIORITY[a.shiftType] - SHIFT_TYPE_PRIORITY[b.shiftType];
     if (shiftDiff !== 0) return shiftDiff;
 
-    return a.date.getTime() - b.date.getTime();
+    const dateDiff = a.date.getTime() - b.date.getTime();
+    if (dateDiff !== 0) return dateDiff;
+
+    return (
+      (getPositionRoleRank(b.positionName) ?? 0) -
+      (getPositionRoleRank(a.positionName) ?? 0)
+    );
   });
 }

@@ -1,4 +1,5 @@
 import { EngineEmployee, EngineSlot, FairnessSummary } from "./types";
+import { isExactPositionMatch } from "./role-eligibility";
 
 // ─── Weights ──────────────────────────────────────────────────────────────────
 
@@ -10,6 +11,7 @@ export const SCORING_WEIGHTS = {
   NIGHT: 3,
   WEEKEND: 2,
   TOTAL: 1,
+  FALLBACK_POSITION: 20,
 } as const;
 
 // ─── Scoring ──────────────────────────────────────────────────────────────────
@@ -21,8 +23,8 @@ export const SCORING_WEIGHTS = {
 // slot is accepted for future context-specific scoring; not used in the
 // current formula.
 export function scoreCandidate(
-  _employee: EngineEmployee,
-  _slot: EngineSlot,
+  employee: EngineEmployee,
+  slot: EngineSlot,
   fairness: FairnessSummary | undefined
 ): number {
   const eveningShifts = fairness?.eveningShifts ?? 0;
@@ -35,7 +37,10 @@ export function scoreCandidate(
     eveningShifts * SCORING_WEIGHTS.EVENING -
     nightShifts * SCORING_WEIGHTS.NIGHT -
     weekendShifts * SCORING_WEIGHTS.WEEKEND -
-    totalShifts * SCORING_WEIGHTS.TOTAL
+    totalShifts * SCORING_WEIGHTS.TOTAL -
+    (isExactPositionMatch(employee.positionName, slot.positionName)
+      ? 0
+      : SCORING_WEIGHTS.FALLBACK_POSITION)
   );
 }
 

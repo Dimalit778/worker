@@ -8,6 +8,12 @@ import {
 import { getSlotFillCount } from "./constraints";
 import { createDateKey, getDayCategory } from "./slots";
 
+const SHIFT_LABELS = {
+  MORNING: "בוקר",
+  EVENING: "ערב",
+  NIGHT: "לילה",
+} as const;
+
 // ─── Minimum warnings ─────────────────────────────────────────────────────────
 
 // Every UnmetMinimum becomes a MIN_NOT_MET ERROR.
@@ -114,12 +120,15 @@ function hasRoleCount(
 }
 
 function createMandatoryWarning(slot: EngineSlot, message: string): EngineWarning {
+  const [year, month, day] = createDateKey(slot.date).split("-");
+  const dateLabel = `${day}/${month}/${year}`;
+
   return {
     type: "UNFILLED",
     severity: "ERROR",
     date: slot.date,
     shiftType: slot.shiftType,
-    message,
+    message: `${dateLabel} · ${SHIFT_LABELS[slot.shiftType]} — ${message}`,
   };
 }
 
@@ -144,7 +153,6 @@ export function createMandatoryStaffingWarnings(
 
   for (const slot of representativeSlots.values()) {
     const dayCategory = getDayCategory(slot.date);
-    const date = createDateKey(slot.date);
     const hasAhmash = hasRoleCount(assignments, slot, positionNamesById, isAhmash, 1);
     const hasBakar = hasRoleCount(assignments, slot, positionNamesById, isBakar, 1);
     const hasGuard = (required: number) =>
@@ -152,30 +160,30 @@ export function createMandatoryStaffingWarnings(
     const hasAny = countAnyAssignmentsForSlot(assignments, slot) > 0;
 
     if (dayCategory === "WEEKDAY" && slot.shiftType === "MORNING") {
-      if (!hasAhmash) warnings.push(createMandatoryWarning(slot, `${date} MORNING: missing אחמ״ש`));
-      if (!hasBakar) warnings.push(createMandatoryWarning(slot, `${date} MORNING: missing בקר`));
-      if (!hasGuard(3)) warnings.push(createMandatoryWarning(slot, `${date} MORNING: missing 3 מאבטחים`));
+      if (!hasAhmash) warnings.push(createMandatoryWarning(slot, "חסר אחמ״ש"));
+      if (!hasBakar) warnings.push(createMandatoryWarning(slot, "חסר בקר"));
+      if (!hasGuard(3)) warnings.push(createMandatoryWarning(slot, "חסרים 3 מאבטחים"));
       continue;
     }
 
     if (dayCategory === "WEEKDAY" && slot.shiftType === "EVENING") {
       if (!hasAhmash && !hasBakar) {
-        warnings.push(createMandatoryWarning(slot, `${date} EVENING: missing אחמ״ש or בקר`));
+        warnings.push(createMandatoryWarning(slot, "חסר אחמ״ש או בקר"));
       }
-      if (!hasGuard(2)) warnings.push(createMandatoryWarning(slot, `${date} EVENING: missing 2 מאבטחים`));
+      if (!hasGuard(2)) warnings.push(createMandatoryWarning(slot, "חסרים 2 מאבטחים"));
       continue;
     }
 
     if (dayCategory === "WEEKDAY" && slot.shiftType === "NIGHT") {
-      if (!hasAny) warnings.push(createMandatoryWarning(slot, `${date} NIGHT: missing employee`));
+      if (!hasAny) warnings.push(createMandatoryWarning(slot, "חסר עובד אחד לפחות"));
       continue;
     }
 
     if (dayCategory === "FRIDAY" && slot.shiftType === "MORNING") {
       if (!hasAhmash && !hasBakar) {
-        warnings.push(createMandatoryWarning(slot, `${date} MORNING: missing אחמ״ש or בקר`));
+        warnings.push(createMandatoryWarning(slot, "חסר אחמ״ש או בקר"));
       }
-      if (!hasGuard(1)) warnings.push(createMandatoryWarning(slot, `${date} MORNING: missing מאבטח`));
+      if (!hasGuard(1)) warnings.push(createMandatoryWarning(slot, "חסר מאבטח"));
       continue;
     }
 
@@ -183,7 +191,7 @@ export function createMandatoryStaffingWarnings(
       (dayCategory === "FRIDAY" && (slot.shiftType === "EVENING" || slot.shiftType === "NIGHT")) ||
       dayCategory === "SATURDAY"
     ) {
-      if (!hasAny) warnings.push(createMandatoryWarning(slot, `${date} ${slot.shiftType}: missing employee`));
+      if (!hasAny) warnings.push(createMandatoryWarning(slot, "חסר עובד אחד לפחות"));
     }
   }
 

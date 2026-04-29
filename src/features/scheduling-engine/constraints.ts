@@ -1,5 +1,6 @@
 import { EngineAssignment, EngineEmployee, EngineSlot, ShiftType } from "./types";
 import { createDateKey } from "./slots";
+import { canEmployeeFillPosition } from "./role-eligibility";
 
 // ─── Date utilities ───────────────────────────────────────────────────────────
 
@@ -90,7 +91,8 @@ export function isEligibleForSlot(
   return (
     employee.isActive &&
     employee.courtId === slot.courtId &&
-    employee.positionId === slot.positionId
+    (employee.positionId === slot.positionId ||
+      canEmployeeFillPosition(employee.positionName, slot.positionName))
   );
 }
 

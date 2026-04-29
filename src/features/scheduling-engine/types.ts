@@ -23,6 +23,7 @@ export type OverflowCandidateReason = "CAPACITY_FULL" | "LOWER_SCORE";
 export interface EngineEmployee {
   id: string;
   positionId: string;
+  positionName?: string;
   courtId: string;
   isActive: boolean;
 }

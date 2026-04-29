@@ -8,6 +8,7 @@ import type {
   EngineInput,
   ShiftType,
 } from '@/features/scheduling-engine/types';
+import { canEmployeeFillPosition } from '@/features/scheduling-engine/role-eligibility';
 import type {
   AssignmentMap,
   DraftScheduleData,
@@ -17,7 +18,13 @@ import type {
   ScheduleEmployeeOption,
   ScheduleWarningSummary,
 } from './types';
-import { buildAssignmentMap, createAssignmentCellKey, formatEmployeeName, toDateOnly } from './utils';
+import {
+  buildAssignmentMap,
+  createAssignmentCellKey,
+  formatEmployeeName,
+  getDayCategoryForDate,
+  toDateOnly,
+} from './utils';
 
 type AutoScheduleEngineInputData = Omit<EngineInput, 'scheduleId'> & {
   scheduleId: string | null;
@@ -51,6 +58,12 @@ function getPeriodDates(startDate: Date, endDate: Date): Date[] {
 
 function createAvailabilityKey(date: Date, shiftType: ShiftType): string {
   return `${utcDateOnly(date).toISOString().slice(0, 10)}|${shiftType}`;
+}
+
+function addIsoDays(isoDate: string, days: number): string {
+  const [year, month, day] = isoDate.split('-').map(Number);
+  const date = new Date(Date.UTC(year, month - 1, day + days));
+  return toDateOnly(date);
 }
 
 export async function getLockedPeriod(courtId: string) {
@@ -192,7 +205,7 @@ export async function getOverflowCandidatesForSchedule(params: {
 }): Promise<OverflowCandidateMap> {
   if (!params.scheduleId) return {};
 
-  const [availabilities, assignments] = await Promise.all([
+  const [availabilities, assignments, capacities] = await Promise.all([
     prisma.availability.findMany({
       where: {
         periodId: params.periodId,
@@ -209,6 +222,7 @@ export async function getOverflowCandidatesForSchedule(params: {
             firstName: true,
             lastName: true,
             positionId: true,
+            position: { select: { name: true } },
           },
         },
         entries: {
@@ -233,10 +247,25 @@ export async function getOverflowCandidatesForSchedule(params: {
         slotIndex: true,
       },
     }),
+    prisma.shiftCapacity.findMany({
+      where: {
+        courtId: params.courtId,
+        isActive: true,
+      },
+      select: {
+        positionId: true,
+        position: { select: { name: true } },
+        shiftType: true,
+        dayCategory: true,
+        amount: true,
+      },
+    }),
   ]);
 
   const assignedByDateShift = new Map<string, Set<string>>();
   const assignedBySlot = new Map<string, Set<string>>();
+  const assignedCountByCell = new Map<string, number>();
+  const assignedShiftByEmployeeDate = new Set<string>();
   for (const assignment of assignments) {
     const date = toDateOnly(assignment.date);
     const dateShiftKey = `${date}|${assignment.shiftType}`;
@@ -250,10 +279,75 @@ export async function getOverflowCandidatesForSchedule(params: {
     const dateShiftAssigned = assignedByDateShift.get(dateShiftKey) ?? new Set<string>();
     dateShiftAssigned.add(assignment.employeeId);
     assignedByDateShift.set(dateShiftKey, dateShiftAssigned);
+    assignedShiftByEmployeeDate.add(`${assignment.employeeId}|${date}|${assignment.shiftType}`);
 
     const slotAssigned = assignedBySlot.get(slotKey) ?? new Set<string>();
     slotAssigned.add(assignment.employeeId);
     assignedBySlot.set(slotKey, slotAssigned);
+
+    assignedCountByCell.set(cellKey, (assignedCountByCell.get(cellKey) ?? 0) + 1);
+  }
+
+  const requiredByCell = new Map<string, { amount: number; positionName: string }>();
+  for (let date = utcDateOnly(params.startDate); date <= utcDateOnly(params.endDate); date = addUtcDays(date, 1)) {
+    const iso = toDateOnly(date);
+    const dayCategory = getDayCategoryForDate(iso);
+    for (const capacity of capacities) {
+      if (capacity.dayCategory !== dayCategory) continue;
+      if (capacity.amount <= 0) continue;
+      const cellKey = createAssignmentCellKey({
+        date: iso,
+        shiftType: capacity.shiftType,
+        positionId: capacity.positionId,
+      });
+      requiredByCell.set(cellKey, { amount: capacity.amount, positionName: capacity.position.name });
+    }
+  }
+
+  function hasOpenEligibleSlot(employeePositionName: string, date: string, shiftType: ShiftType): boolean {
+    for (const [cellKey, capacity] of requiredByCell.entries()) {
+      if (!cellKey.startsWith(`${date}-${shiftType}-`)) continue;
+      if (!canEmployeeFillPosition(employeePositionName, capacity.positionName)) continue;
+      const assignedCount = assignedCountByCell.get(cellKey) ?? 0;
+      if (assignedCount < capacity.amount) return true;
+    }
+    return false;
+  }
+
+  function getOverflowCellKey(
+    employeePositionId: string,
+    employeePositionName: string,
+    date: string,
+    shiftType: ShiftType,
+  ) {
+    const exactCellKey = createAssignmentCellKey({
+      date,
+      shiftType,
+      positionId: employeePositionId,
+    });
+    const exactCapacity = requiredByCell.get(exactCellKey);
+    if (exactCapacity && (assignedCountByCell.get(exactCellKey) ?? 0) >= exactCapacity.amount) {
+      return exactCellKey;
+    }
+
+    for (const [cellKey, capacity] of requiredByCell.entries()) {
+      if (!cellKey.startsWith(`${date}-${shiftType}-`)) continue;
+      if (!canEmployeeFillPosition(employeePositionName, capacity.positionName)) continue;
+      const assignedCount = assignedCountByCell.get(cellKey) ?? 0;
+      if (assignedCount >= capacity.amount) return cellKey;
+    }
+
+    return null;
+  }
+
+  function violatesRestRule(employeeId: string, date: string, shiftType: ShiftType): boolean {
+    if (shiftType === 'MORNING') {
+      return assignedShiftByEmployeeDate.has(`${employeeId}|${addIsoDays(date, -1)}|NIGHT`);
+    }
+    if (shiftType === 'NIGHT') {
+      return assignedShiftByEmployeeDate.has(`${employeeId}|${addIsoDays(date, 1)}|MORNING`);
+    }
+    return false;
   }
 
   const candidatesByCell = new Map<string, { employeeId: string; employeeName: string }[]>();
@@ -263,12 +357,12 @@ export async function getOverflowCandidatesForSchedule(params: {
       const date = toDateOnly(entry.date);
       const dateShiftKey = `${date}|${entry.shiftType}`;
       if (assignedByDateShift.get(dateShiftKey)?.has(employee.id)) continue;
+      if (violatesRestRule(employee.id, date, entry.shiftType)) continue;
+      if (hasOpenEligibleSlot(employee.position.name, date, entry.shiftType)) continue;
 
-      const cellKey = createAssignmentCellKey({
-        date,
-        shiftType: entry.shiftType,
-        positionId: employee.positionId,
-      });
+      const cellKey = getOverflowCellKey(employee.positionId, employee.position.name, date, entry.shiftType);
+      if (!cellKey) continue;
+
       const candidates = candidatesByCell.get(cellKey) ?? [];
       candidates.push({
         employeeId: employee.id,
@@ -433,6 +527,7 @@ export async function getAutoScheduleInputData(periodId: string): Promise<AutoSc
         id: true,
         courtId: true,
         positionId: true,
+        position: { select: { name: true } },
         isActive: true,
       },
       orderBy: [{ positionId: 'asc' }, { id: 'asc' }],
@@ -519,6 +614,7 @@ export async function getAutoScheduleInputData(periodId: string): Promise<AutoSc
         (e): EngineEmployee => ({
           id: e.id,
           positionId: e.positionId,
+          positionName: e.position.name,
           courtId: e.courtId,
           isActive: e.isActive,
         }),
