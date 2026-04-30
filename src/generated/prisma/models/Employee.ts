@@ -28,10 +28,12 @@ export type EmployeeMinAggregateOutputType = {
   id: string | null
   firstName: string | null
   lastName: string | null
+  displayName: string | null
   phone: string | null
   positionId: string | null
   courtId: string | null
   isActive: boolean | null
+  isReligious: boolean | null
   createdAt: Date | null
   updatedAt: Date | null
 }
@@ -40,10 +42,12 @@ export type EmployeeMaxAggregateOutputType = {
   id: string | null
   firstName: string | null
   lastName: string | null
+  displayName: string | null
   phone: string | null
   positionId: string | null
   courtId: string | null
   isActive: boolean | null
+  isReligious: boolean | null
   createdAt: Date | null
   updatedAt: Date | null
 }
@@ -52,10 +56,12 @@ export type EmployeeCountAggregateOutputType = {
   id: number
   firstName: number
   lastName: number
+  displayName: number
   phone: number
   positionId: number
   courtId: number
   isActive: number
+  isReligious: number
   createdAt: number
   updatedAt: number
   _all: number
@@ -66,10 +72,12 @@ export type EmployeeMinAggregateInputType = {
   id?: true
   firstName?: true
   lastName?: true
+  displayName?: true
   phone?: true
   positionId?: true
   courtId?: true
   isActive?: true
+  isReligious?: true
   createdAt?: true
   updatedAt?: true
 }
@@ -78,10 +86,12 @@ export type EmployeeMaxAggregateInputType = {
   id?: true
   firstName?: true
   lastName?: true
+  displayName?: true
   phone?: true
   positionId?: true
   courtId?: true
   isActive?: true
+  isReligious?: true
   createdAt?: true
   updatedAt?: true
 }
@@ -90,10 +100,12 @@ export type EmployeeCountAggregateInputType = {
   id?: true
   firstName?: true
   lastName?: true
+  displayName?: true
   phone?: true
   positionId?: true
   courtId?: true
   isActive?: true
+  isReligious?: true
   createdAt?: true
   updatedAt?: true
   _all?: true
@@ -175,10 +187,12 @@ export type EmployeeGroupByOutputType = {
   id: string
   firstName: string
   lastName: string
+  displayName: string
   phone: string | null
   positionId: string
   courtId: string
   isActive: boolean
+  isReligious: boolean
   createdAt: Date
   updatedAt: Date
   _count: EmployeeCountAggregateOutputType | null
@@ -208,10 +222,12 @@ export type EmployeeWhereInput = {
   id?: Prisma.StringFilter<"Employee"> | string
   firstName?: Prisma.StringFilter<"Employee"> | string
   lastName?: Prisma.StringFilter<"Employee"> | string
+  displayName?: Prisma.StringFilter<"Employee"> | string
   phone?: Prisma.StringNullableFilter<"Employee"> | string | null
   positionId?: Prisma.StringFilter<"Employee"> | string
   courtId?: Prisma.StringFilter<"Employee"> | string
   isActive?: Prisma.BoolFilter<"Employee"> | boolean
+  isReligious?: Prisma.BoolFilter<"Employee"> | boolean
   createdAt?: Prisma.DateTimeFilter<"Employee"> | Date | string
   updatedAt?: Prisma.DateTimeFilter<"Employee"> | Date | string
   court?: Prisma.XOR<Prisma.CourtScalarRelationFilter, Prisma.CourtWhereInput>
@@ -227,10 +243,12 @@ export type EmployeeOrderByWithRelationInput = {
   id?: Prisma.SortOrder
   firstName?: Prisma.SortOrder
   lastName?: Prisma.SortOrder
+  displayName?: Prisma.SortOrder
   phone?: Prisma.SortOrderInput | Prisma.SortOrder
   positionId?: Prisma.SortOrder
   courtId?: Prisma.SortOrder
   isActive?: Prisma.SortOrder
+  isReligious?: Prisma.SortOrder
   createdAt?: Prisma.SortOrder
   updatedAt?: Prisma.SortOrder
   court?: Prisma.CourtOrderByWithRelationInput
@@ -249,10 +267,12 @@ export type EmployeeWhereUniqueInput = Prisma.AtLeast<{
   NOT?: Prisma.EmployeeWhereInput | Prisma.EmployeeWhereInput[]
   firstName?: Prisma.StringFilter<"Employee"> | string
   lastName?: Prisma.StringFilter<"Employee"> | string
+  displayName?: Prisma.StringFilter<"Employee"> | string
   phone?: Prisma.StringNullableFilter<"Employee"> | string | null
   positionId?: Prisma.StringFilter<"Employee"> | string
   courtId?: Prisma.StringFilter<"Employee"> | string
   isActive?: Prisma.BoolFilter<"Employee"> | boolean
+  isReligious?: Prisma.BoolFilter<"Employee"> | boolean
   createdAt?: Prisma.DateTimeFilter<"Employee"> | Date | string
   updatedAt?: Prisma.DateTimeFilter<"Employee"> | Date | string
   court?: Prisma.XOR<Prisma.CourtScalarRelationFilter, Prisma.CourtWhereInput>
@@ -268,10 +288,12 @@ export type EmployeeOrderByWithAggregationInput = {
   id?: Prisma.SortOrder
   firstName?: Prisma.SortOrder
   lastName?: Prisma.SortOrder
+  displayName?: Prisma.SortOrder
   phone?: Prisma.SortOrderInput | Prisma.SortOrder
   positionId?: Prisma.SortOrder
   courtId?: Prisma.SortOrder
   isActive?: Prisma.SortOrder
+  isReligious?: Prisma.SortOrder
   createdAt?: Prisma.SortOrder
   updatedAt?: Prisma.SortOrder
   _count?: Prisma.EmployeeCountOrderByAggregateInput
@@ -286,10 +308,12 @@ export type EmployeeScalarWhereWithAggregatesInput = {
   id?: Prisma.StringWithAggregatesFilter<"Employee"> | string
   firstName?: Prisma.StringWithAggregatesFilter<"Employee"> | string
   lastName?: Prisma.StringWithAggregatesFilter<"Employee"> | string
+  displayName?: Prisma.StringWithAggregatesFilter<"Employee"> | string
   phone?: Prisma.StringNullableWithAggregatesFilter<"Employee"> | string | null
   positionId?: Prisma.StringWithAggregatesFilter<"Employee"> | string
   courtId?: Prisma.StringWithAggregatesFilter<"Employee"> | string
   isActive?: Prisma.BoolWithAggregatesFilter<"Employee"> | boolean
+  isReligious?: Prisma.BoolWithAggregatesFilter<"Employee"> | boolean
   createdAt?: Prisma.DateTimeWithAggregatesFilter<"Employee"> | Date | string
   updatedAt?: Prisma.DateTimeWithAggregatesFilter<"Employee"> | Date | string
 }
@@ -298,8 +322,10 @@ export type EmployeeCreateInput = {
   id?: string
   firstName: string
   lastName: string
+  displayName: string
   phone?: string | null
   isActive?: boolean
+  isReligious?: boolean
   createdAt?: Date | string
   updatedAt?: Date | string
   court: Prisma.CourtCreateNestedOneWithoutEmployeesInput
@@ -315,10 +341,12 @@ export type EmployeeUncheckedCreateInput = {
   id?: string
   firstName: string
   lastName: string
+  displayName: string
   phone?: string | null
   positionId: string
   courtId: string
   isActive?: boolean
+  isReligious?: boolean
   createdAt?: Date | string
   updatedAt?: Date | string
   user?: Prisma.UserUncheckedCreateNestedOneWithoutEmployeeInput
@@ -332,8 +360,10 @@ export type EmployeeUpdateInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
   firstName?: Prisma.StringFieldUpdateOperationsInput | string
   lastName?: Prisma.StringFieldUpdateOperationsInput | string
+  displayName?: Prisma.StringFieldUpdateOperationsInput | string
   phone?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   isActive?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  isReligious?: Prisma.BoolFieldUpdateOperationsInput | boolean
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   court?: Prisma.CourtUpdateOneRequiredWithoutEmployeesNestedInput
@@ -349,10 +379,12 @@ export type EmployeeUncheckedUpdateInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
   firstName?: Prisma.StringFieldUpdateOperationsInput | string
   lastName?: Prisma.StringFieldUpdateOperationsInput | string
+  displayName?: Prisma.StringFieldUpdateOperationsInput | string
   phone?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   positionId?: Prisma.StringFieldUpdateOperationsInput | string
   courtId?: Prisma.StringFieldUpdateOperationsInput | string
   isActive?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  isReligious?: Prisma.BoolFieldUpdateOperationsInput | boolean
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   user?: Prisma.UserUncheckedUpdateOneWithoutEmployeeNestedInput
@@ -366,10 +398,12 @@ export type EmployeeCreateManyInput = {
   id?: string
   firstName: string
   lastName: string
+  displayName: string
   phone?: string | null
   positionId: string
   courtId: string
   isActive?: boolean
+  isReligious?: boolean
   createdAt?: Date | string
   updatedAt?: Date | string
 }
@@ -378,8 +412,10 @@ export type EmployeeUpdateManyMutationInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
   firstName?: Prisma.StringFieldUpdateOperationsInput | string
   lastName?: Prisma.StringFieldUpdateOperationsInput | string
+  displayName?: Prisma.StringFieldUpdateOperationsInput | string
   phone?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   isActive?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  isReligious?: Prisma.BoolFieldUpdateOperationsInput | boolean
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
 }
@@ -388,10 +424,12 @@ export type EmployeeUncheckedUpdateManyInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
   firstName?: Prisma.StringFieldUpdateOperationsInput | string
   lastName?: Prisma.StringFieldUpdateOperationsInput | string
+  displayName?: Prisma.StringFieldUpdateOperationsInput | string
   phone?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   positionId?: Prisma.StringFieldUpdateOperationsInput | string
   courtId?: Prisma.StringFieldUpdateOperationsInput | string
   isActive?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  isReligious?: Prisma.BoolFieldUpdateOperationsInput | boolean
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
 }
@@ -415,10 +453,12 @@ export type EmployeeCountOrderByAggregateInput = {
   id?: Prisma.SortOrder
   firstName?: Prisma.SortOrder
   lastName?: Prisma.SortOrder
+  displayName?: Prisma.SortOrder
   phone?: Prisma.SortOrder
   positionId?: Prisma.SortOrder
   courtId?: Prisma.SortOrder
   isActive?: Prisma.SortOrder
+  isReligious?: Prisma.SortOrder
   createdAt?: Prisma.SortOrder
   updatedAt?: Prisma.SortOrder
 }
@@ -427,10 +467,12 @@ export type EmployeeMaxOrderByAggregateInput = {
   id?: Prisma.SortOrder
   firstName?: Prisma.SortOrder
   lastName?: Prisma.SortOrder
+  displayName?: Prisma.SortOrder
   phone?: Prisma.SortOrder
   positionId?: Prisma.SortOrder
   courtId?: Prisma.SortOrder
   isActive?: Prisma.SortOrder
+  isReligious?: Prisma.SortOrder
   createdAt?: Prisma.SortOrder
   updatedAt?: Prisma.SortOrder
 }
@@ -439,10 +481,12 @@ export type EmployeeMinOrderByAggregateInput = {
   id?: Prisma.SortOrder
   firstName?: Prisma.SortOrder
   lastName?: Prisma.SortOrder
+  displayName?: Prisma.SortOrder
   phone?: Prisma.SortOrder
   positionId?: Prisma.SortOrder
   courtId?: Prisma.SortOrder
   isActive?: Prisma.SortOrder
+  isReligious?: Prisma.SortOrder
   createdAt?: Prisma.SortOrder
   updatedAt?: Prisma.SortOrder
 }
@@ -614,8 +658,10 @@ export type EmployeeCreateWithoutUserInput = {
   id?: string
   firstName: string
   lastName: string
+  displayName: string
   phone?: string | null
   isActive?: boolean
+  isReligious?: boolean
   createdAt?: Date | string
   updatedAt?: Date | string
   court: Prisma.CourtCreateNestedOneWithoutEmployeesInput
@@ -630,10 +676,12 @@ export type EmployeeUncheckedCreateWithoutUserInput = {
   id?: string
   firstName: string
   lastName: string
+  displayName: string
   phone?: string | null
   positionId: string
   courtId: string
   isActive?: boolean
+  isReligious?: boolean
   createdAt?: Date | string
   updatedAt?: Date | string
   availabilities?: Prisma.AvailabilityUncheckedCreateNestedManyWithoutEmployeeInput
@@ -662,8 +710,10 @@ export type EmployeeUpdateWithoutUserInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
   firstName?: Prisma.StringFieldUpdateOperationsInput | string
   lastName?: Prisma.StringFieldUpdateOperationsInput | string
+  displayName?: Prisma.StringFieldUpdateOperationsInput | string
   phone?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   isActive?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  isReligious?: Prisma.BoolFieldUpdateOperationsInput | boolean
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   court?: Prisma.CourtUpdateOneRequiredWithoutEmployeesNestedInput
@@ -678,10 +728,12 @@ export type EmployeeUncheckedUpdateWithoutUserInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
   firstName?: Prisma.StringFieldUpdateOperationsInput | string
   lastName?: Prisma.StringFieldUpdateOperationsInput | string
+  displayName?: Prisma.StringFieldUpdateOperationsInput | string
   phone?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   positionId?: Prisma.StringFieldUpdateOperationsInput | string
   courtId?: Prisma.StringFieldUpdateOperationsInput | string
   isActive?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  isReligious?: Prisma.BoolFieldUpdateOperationsInput | boolean
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   availabilities?: Prisma.AvailabilityUncheckedUpdateManyWithoutEmployeeNestedInput
@@ -694,8 +746,10 @@ export type EmployeeCreateWithoutCourtInput = {
   id?: string
   firstName: string
   lastName: string
+  displayName: string
   phone?: string | null
   isActive?: boolean
+  isReligious?: boolean
   createdAt?: Date | string
   updatedAt?: Date | string
   position: Prisma.PositionCreateNestedOneWithoutEmployeesInput
@@ -710,9 +764,11 @@ export type EmployeeUncheckedCreateWithoutCourtInput = {
   id?: string
   firstName: string
   lastName: string
+  displayName: string
   phone?: string | null
   positionId: string
   isActive?: boolean
+  isReligious?: boolean
   createdAt?: Date | string
   updatedAt?: Date | string
   user?: Prisma.UserUncheckedCreateNestedOneWithoutEmployeeInput
@@ -755,10 +811,12 @@ export type EmployeeScalarWhereInput = {
   id?: Prisma.StringFilter<"Employee"> | string
   firstName?: Prisma.StringFilter<"Employee"> | string
   lastName?: Prisma.StringFilter<"Employee"> | string
+  displayName?: Prisma.StringFilter<"Employee"> | string
   phone?: Prisma.StringNullableFilter<"Employee"> | string | null
   positionId?: Prisma.StringFilter<"Employee"> | string
   courtId?: Prisma.StringFilter<"Employee"> | string
   isActive?: Prisma.BoolFilter<"Employee"> | boolean
+  isReligious?: Prisma.BoolFilter<"Employee"> | boolean
   createdAt?: Prisma.DateTimeFilter<"Employee"> | Date | string
   updatedAt?: Prisma.DateTimeFilter<"Employee"> | Date | string
 }
@@ -767,8 +825,10 @@ export type EmployeeCreateWithoutPositionInput = {
   id?: string
   firstName: string
   lastName: string
+  displayName: string
   phone?: string | null
   isActive?: boolean
+  isReligious?: boolean
   createdAt?: Date | string
   updatedAt?: Date | string
   court: Prisma.CourtCreateNestedOneWithoutEmployeesInput
@@ -783,9 +843,11 @@ export type EmployeeUncheckedCreateWithoutPositionInput = {
   id?: string
   firstName: string
   lastName: string
+  displayName: string
   phone?: string | null
   courtId: string
   isActive?: boolean
+  isReligious?: boolean
   createdAt?: Date | string
   updatedAt?: Date | string
   user?: Prisma.UserUncheckedCreateNestedOneWithoutEmployeeInput
@@ -825,8 +887,10 @@ export type EmployeeCreateWithoutAvailabilitiesInput = {
   id?: string
   firstName: string
   lastName: string
+  displayName: string
   phone?: string | null
   isActive?: boolean
+  isReligious?: boolean
   createdAt?: Date | string
   updatedAt?: Date | string
   court: Prisma.CourtCreateNestedOneWithoutEmployeesInput
@@ -841,10 +905,12 @@ export type EmployeeUncheckedCreateWithoutAvailabilitiesInput = {
   id?: string
   firstName: string
   lastName: string
+  displayName: string
   phone?: string | null
   positionId: string
   courtId: string
   isActive?: boolean
+  isReligious?: boolean
   createdAt?: Date | string
   updatedAt?: Date | string
   user?: Prisma.UserUncheckedCreateNestedOneWithoutEmployeeInput
@@ -873,8 +939,10 @@ export type EmployeeUpdateWithoutAvailabilitiesInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
   firstName?: Prisma.StringFieldUpdateOperationsInput | string
   lastName?: Prisma.StringFieldUpdateOperationsInput | string
+  displayName?: Prisma.StringFieldUpdateOperationsInput | string
   phone?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   isActive?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  isReligious?: Prisma.BoolFieldUpdateOperationsInput | boolean
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   court?: Prisma.CourtUpdateOneRequiredWithoutEmployeesNestedInput
@@ -889,10 +957,12 @@ export type EmployeeUncheckedUpdateWithoutAvailabilitiesInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
   firstName?: Prisma.StringFieldUpdateOperationsInput | string
   lastName?: Prisma.StringFieldUpdateOperationsInput | string
+  displayName?: Prisma.StringFieldUpdateOperationsInput | string
   phone?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   positionId?: Prisma.StringFieldUpdateOperationsInput | string
   courtId?: Prisma.StringFieldUpdateOperationsInput | string
   isActive?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  isReligious?: Prisma.BoolFieldUpdateOperationsInput | boolean
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   user?: Prisma.UserUncheckedUpdateOneWithoutEmployeeNestedInput
@@ -905,8 +975,10 @@ export type EmployeeCreateWithoutAssignmentsInput = {
   id?: string
   firstName: string
   lastName: string
+  displayName: string
   phone?: string | null
   isActive?: boolean
+  isReligious?: boolean
   createdAt?: Date | string
   updatedAt?: Date | string
   court: Prisma.CourtCreateNestedOneWithoutEmployeesInput
@@ -921,10 +993,12 @@ export type EmployeeUncheckedCreateWithoutAssignmentsInput = {
   id?: string
   firstName: string
   lastName: string
+  displayName: string
   phone?: string | null
   positionId: string
   courtId: string
   isActive?: boolean
+  isReligious?: boolean
   createdAt?: Date | string
   updatedAt?: Date | string
   user?: Prisma.UserUncheckedCreateNestedOneWithoutEmployeeInput
@@ -953,8 +1027,10 @@ export type EmployeeUpdateWithoutAssignmentsInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
   firstName?: Prisma.StringFieldUpdateOperationsInput | string
   lastName?: Prisma.StringFieldUpdateOperationsInput | string
+  displayName?: Prisma.StringFieldUpdateOperationsInput | string
   phone?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   isActive?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  isReligious?: Prisma.BoolFieldUpdateOperationsInput | boolean
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   court?: Prisma.CourtUpdateOneRequiredWithoutEmployeesNestedInput
@@ -969,10 +1045,12 @@ export type EmployeeUncheckedUpdateWithoutAssignmentsInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
   firstName?: Prisma.StringFieldUpdateOperationsInput | string
   lastName?: Prisma.StringFieldUpdateOperationsInput | string
+  displayName?: Prisma.StringFieldUpdateOperationsInput | string
   phone?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   positionId?: Prisma.StringFieldUpdateOperationsInput | string
   courtId?: Prisma.StringFieldUpdateOperationsInput | string
   isActive?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  isReligious?: Prisma.BoolFieldUpdateOperationsInput | boolean
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   user?: Prisma.UserUncheckedUpdateOneWithoutEmployeeNestedInput
@@ -985,8 +1063,10 @@ export type EmployeeCreateWithoutWarningsInput = {
   id?: string
   firstName: string
   lastName: string
+  displayName: string
   phone?: string | null
   isActive?: boolean
+  isReligious?: boolean
   createdAt?: Date | string
   updatedAt?: Date | string
   court: Prisma.CourtCreateNestedOneWithoutEmployeesInput
@@ -1001,10 +1081,12 @@ export type EmployeeUncheckedCreateWithoutWarningsInput = {
   id?: string
   firstName: string
   lastName: string
+  displayName: string
   phone?: string | null
   positionId: string
   courtId: string
   isActive?: boolean
+  isReligious?: boolean
   createdAt?: Date | string
   updatedAt?: Date | string
   user?: Prisma.UserUncheckedCreateNestedOneWithoutEmployeeInput
@@ -1033,8 +1115,10 @@ export type EmployeeUpdateWithoutWarningsInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
   firstName?: Prisma.StringFieldUpdateOperationsInput | string
   lastName?: Prisma.StringFieldUpdateOperationsInput | string
+  displayName?: Prisma.StringFieldUpdateOperationsInput | string
   phone?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   isActive?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  isReligious?: Prisma.BoolFieldUpdateOperationsInput | boolean
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   court?: Prisma.CourtUpdateOneRequiredWithoutEmployeesNestedInput
@@ -1049,10 +1133,12 @@ export type EmployeeUncheckedUpdateWithoutWarningsInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
   firstName?: Prisma.StringFieldUpdateOperationsInput | string
   lastName?: Prisma.StringFieldUpdateOperationsInput | string
+  displayName?: Prisma.StringFieldUpdateOperationsInput | string
   phone?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   positionId?: Prisma.StringFieldUpdateOperationsInput | string
   courtId?: Prisma.StringFieldUpdateOperationsInput | string
   isActive?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  isReligious?: Prisma.BoolFieldUpdateOperationsInput | boolean
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   user?: Prisma.UserUncheckedUpdateOneWithoutEmployeeNestedInput
@@ -1065,8 +1151,10 @@ export type EmployeeCreateWithoutFairnessRecordsInput = {
   id?: string
   firstName: string
   lastName: string
+  displayName: string
   phone?: string | null
   isActive?: boolean
+  isReligious?: boolean
   createdAt?: Date | string
   updatedAt?: Date | string
   court: Prisma.CourtCreateNestedOneWithoutEmployeesInput
@@ -1081,10 +1169,12 @@ export type EmployeeUncheckedCreateWithoutFairnessRecordsInput = {
   id?: string
   firstName: string
   lastName: string
+  displayName: string
   phone?: string | null
   positionId: string
   courtId: string
   isActive?: boolean
+  isReligious?: boolean
   createdAt?: Date | string
   updatedAt?: Date | string
   user?: Prisma.UserUncheckedCreateNestedOneWithoutEmployeeInput
@@ -1113,8 +1203,10 @@ export type EmployeeUpdateWithoutFairnessRecordsInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
   firstName?: Prisma.StringFieldUpdateOperationsInput | string
   lastName?: Prisma.StringFieldUpdateOperationsInput | string
+  displayName?: Prisma.StringFieldUpdateOperationsInput | string
   phone?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   isActive?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  isReligious?: Prisma.BoolFieldUpdateOperationsInput | boolean
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   court?: Prisma.CourtUpdateOneRequiredWithoutEmployeesNestedInput
@@ -1129,10 +1221,12 @@ export type EmployeeUncheckedUpdateWithoutFairnessRecordsInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
   firstName?: Prisma.StringFieldUpdateOperationsInput | string
   lastName?: Prisma.StringFieldUpdateOperationsInput | string
+  displayName?: Prisma.StringFieldUpdateOperationsInput | string
   phone?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   positionId?: Prisma.StringFieldUpdateOperationsInput | string
   courtId?: Prisma.StringFieldUpdateOperationsInput | string
   isActive?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  isReligious?: Prisma.BoolFieldUpdateOperationsInput | boolean
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   user?: Prisma.UserUncheckedUpdateOneWithoutEmployeeNestedInput
@@ -1145,9 +1239,11 @@ export type EmployeeCreateManyCourtInput = {
   id?: string
   firstName: string
   lastName: string
+  displayName: string
   phone?: string | null
   positionId: string
   isActive?: boolean
+  isReligious?: boolean
   createdAt?: Date | string
   updatedAt?: Date | string
 }
@@ -1156,8 +1252,10 @@ export type EmployeeUpdateWithoutCourtInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
   firstName?: Prisma.StringFieldUpdateOperationsInput | string
   lastName?: Prisma.StringFieldUpdateOperationsInput | string
+  displayName?: Prisma.StringFieldUpdateOperationsInput | string
   phone?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   isActive?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  isReligious?: Prisma.BoolFieldUpdateOperationsInput | boolean
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   position?: Prisma.PositionUpdateOneRequiredWithoutEmployeesNestedInput
@@ -1172,9 +1270,11 @@ export type EmployeeUncheckedUpdateWithoutCourtInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
   firstName?: Prisma.StringFieldUpdateOperationsInput | string
   lastName?: Prisma.StringFieldUpdateOperationsInput | string
+  displayName?: Prisma.StringFieldUpdateOperationsInput | string
   phone?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   positionId?: Prisma.StringFieldUpdateOperationsInput | string
   isActive?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  isReligious?: Prisma.BoolFieldUpdateOperationsInput | boolean
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   user?: Prisma.UserUncheckedUpdateOneWithoutEmployeeNestedInput
@@ -1188,9 +1288,11 @@ export type EmployeeUncheckedUpdateManyWithoutCourtInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
   firstName?: Prisma.StringFieldUpdateOperationsInput | string
   lastName?: Prisma.StringFieldUpdateOperationsInput | string
+  displayName?: Prisma.StringFieldUpdateOperationsInput | string
   phone?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   positionId?: Prisma.StringFieldUpdateOperationsInput | string
   isActive?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  isReligious?: Prisma.BoolFieldUpdateOperationsInput | boolean
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
 }
@@ -1199,9 +1301,11 @@ export type EmployeeCreateManyPositionInput = {
   id?: string
   firstName: string
   lastName: string
+  displayName: string
   phone?: string | null
   courtId: string
   isActive?: boolean
+  isReligious?: boolean
   createdAt?: Date | string
   updatedAt?: Date | string
 }
@@ -1210,8 +1314,10 @@ export type EmployeeUpdateWithoutPositionInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
   firstName?: Prisma.StringFieldUpdateOperationsInput | string
   lastName?: Prisma.StringFieldUpdateOperationsInput | string
+  displayName?: Prisma.StringFieldUpdateOperationsInput | string
   phone?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   isActive?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  isReligious?: Prisma.BoolFieldUpdateOperationsInput | boolean
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   court?: Prisma.CourtUpdateOneRequiredWithoutEmployeesNestedInput
@@ -1226,9 +1332,11 @@ export type EmployeeUncheckedUpdateWithoutPositionInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
   firstName?: Prisma.StringFieldUpdateOperationsInput | string
   lastName?: Prisma.StringFieldUpdateOperationsInput | string
+  displayName?: Prisma.StringFieldUpdateOperationsInput | string
   phone?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   courtId?: Prisma.StringFieldUpdateOperationsInput | string
   isActive?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  isReligious?: Prisma.BoolFieldUpdateOperationsInput | boolean
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   user?: Prisma.UserUncheckedUpdateOneWithoutEmployeeNestedInput
@@ -1242,9 +1350,11 @@ export type EmployeeUncheckedUpdateManyWithoutPositionInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
   firstName?: Prisma.StringFieldUpdateOperationsInput | string
   lastName?: Prisma.StringFieldUpdateOperationsInput | string
+  displayName?: Prisma.StringFieldUpdateOperationsInput | string
   phone?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   courtId?: Prisma.StringFieldUpdateOperationsInput | string
   isActive?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  isReligious?: Prisma.BoolFieldUpdateOperationsInput | boolean
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
 }
@@ -1311,10 +1421,12 @@ export type EmployeeSelect<ExtArgs extends runtime.Types.Extensions.InternalArgs
   id?: boolean
   firstName?: boolean
   lastName?: boolean
+  displayName?: boolean
   phone?: boolean
   positionId?: boolean
   courtId?: boolean
   isActive?: boolean
+  isReligious?: boolean
   createdAt?: boolean
   updatedAt?: boolean
   court?: boolean | Prisma.CourtDefaultArgs<ExtArgs>
@@ -1331,10 +1443,12 @@ export type EmployeeSelectCreateManyAndReturn<ExtArgs extends runtime.Types.Exte
   id?: boolean
   firstName?: boolean
   lastName?: boolean
+  displayName?: boolean
   phone?: boolean
   positionId?: boolean
   courtId?: boolean
   isActive?: boolean
+  isReligious?: boolean
   createdAt?: boolean
   updatedAt?: boolean
   court?: boolean | Prisma.CourtDefaultArgs<ExtArgs>
@@ -1345,10 +1459,12 @@ export type EmployeeSelectUpdateManyAndReturn<ExtArgs extends runtime.Types.Exte
   id?: boolean
   firstName?: boolean
   lastName?: boolean
+  displayName?: boolean
   phone?: boolean
   positionId?: boolean
   courtId?: boolean
   isActive?: boolean
+  isReligious?: boolean
   createdAt?: boolean
   updatedAt?: boolean
   court?: boolean | Prisma.CourtDefaultArgs<ExtArgs>
@@ -1359,15 +1475,17 @@ export type EmployeeSelectScalar = {
   id?: boolean
   firstName?: boolean
   lastName?: boolean
+  displayName?: boolean
   phone?: boolean
   positionId?: boolean
   courtId?: boolean
   isActive?: boolean
+  isReligious?: boolean
   createdAt?: boolean
   updatedAt?: boolean
 }
 
-export type EmployeeOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"id" | "firstName" | "lastName" | "phone" | "positionId" | "courtId" | "isActive" | "createdAt" | "updatedAt", ExtArgs["result"]["employee"]>
+export type EmployeeOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"id" | "firstName" | "lastName" | "displayName" | "phone" | "positionId" | "courtId" | "isActive" | "isReligious" | "createdAt" | "updatedAt", ExtArgs["result"]["employee"]>
 export type EmployeeInclude<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
   court?: boolean | Prisma.CourtDefaultArgs<ExtArgs>
   position?: boolean | Prisma.PositionDefaultArgs<ExtArgs>
@@ -1402,10 +1520,12 @@ export type $EmployeePayload<ExtArgs extends runtime.Types.Extensions.InternalAr
     id: string
     firstName: string
     lastName: string
+    displayName: string
     phone: string | null
     positionId: string
     courtId: string
     isActive: boolean
+    isReligious: boolean
     createdAt: Date
     updatedAt: Date
   }, ExtArgs["result"]["employee"]>
@@ -1841,10 +1961,12 @@ export interface EmployeeFieldRefs {
   readonly id: Prisma.FieldRef<"Employee", 'String'>
   readonly firstName: Prisma.FieldRef<"Employee", 'String'>
   readonly lastName: Prisma.FieldRef<"Employee", 'String'>
+  readonly displayName: Prisma.FieldRef<"Employee", 'String'>
   readonly phone: Prisma.FieldRef<"Employee", 'String'>
   readonly positionId: Prisma.FieldRef<"Employee", 'String'>
   readonly courtId: Prisma.FieldRef<"Employee", 'String'>
   readonly isActive: Prisma.FieldRef<"Employee", 'Boolean'>
+  readonly isReligious: Prisma.FieldRef<"Employee", 'Boolean'>
   readonly createdAt: Prisma.FieldRef<"Employee", 'DateTime'>
   readonly updatedAt: Prisma.FieldRef<"Employee", 'DateTime'>
 }

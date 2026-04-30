@@ -2,50 +2,53 @@ import { resolve } from 'node:path';
 import { config } from 'dotenv';
 import { PrismaNeon } from '@prisma/adapter-neon';
 import bcrypt from 'bcryptjs';
-import { PrismaClient, Position, SystemRole, ShiftType, DayCategory } from '../src/generated/prisma/client';
+import { PrismaClient, SystemRole, ShiftType, DayCategory } from '../src/generated/prisma/client';
 
 config({ path: resolve(process.cwd(), '.env.local') });
 config({ path: resolve(process.cwd(), '.env') });
 
 const connectionString = process.env.DATABASE_URL;
-if (!connectionString) throw new Error('DATABASE_URL is not set');
+
+if (!connectionString) {
+  throw new Error('DATABASE_URL is not set');
+}
 
 const prisma = new PrismaClient({
   adapter: new PrismaNeon({ connectionString }),
 });
 
-export type CourtSeed = {
+type CourtSeed = {
   name: string;
   code: string;
   regionCode: string;
 };
 
-export type EmployeeSeed = {
+type PositionSeed = {
+  code: number;
+  name: string;
+  displayOrder: number;
+};
+
+type EmployeeSeed = {
   firstName: string;
   lastName: string;
+  displayName: string;
   phone?: string;
-  position: Position;
+  positionCode: number;
   courtCode: string;
   email: string;
   password: string;
+  isReligious?: boolean;
   systemRole?: SystemRole;
   mustChangePassword?: boolean;
 };
 
-type ShiftRoleSeed = {
+type ShiftCapacitySeed = {
   courtCode: string;
-  code: string;
-  name: string;
-  shiftType: ShiftType;
-  displayOrder: number;
-};
-
-type StaffingRuleSeed = {
-  courtCode: string;
-  roleCode: string;
+  positionCode: number;
   shiftType: ShiftType;
   dayCategory: DayCategory;
-  requiredCount: number;
+  amount: number;
   displayOrder: number;
 };
 
@@ -57,240 +60,257 @@ const REGIONS = [
 ];
 
 const COURTS: CourtSeed[] = [
-  { name: 'בית משפט מחוזי ירושלים', code: 'JERUSALEM', regionCode: 'JERUSALEM' },
-  { name: 'בית משפט מחוזי תל אביב (ויצמן)', code: 'VAITZMAN', regionCode: 'TEL_AVIV' },
+  { name: 'בית משפט ירושלים', code: 'JERUSALEM', regionCode: 'JERUSALEM' },
+  { name: 'בית משפט תל אביב ויצמן', code: 'VAITZMAN', regionCode: 'TEL_AVIV' },
   { name: 'בית משפט שוקן', code: 'SHOKEN', regionCode: 'TEL_AVIV' },
   { name: 'בית משפט שלום בת ים', code: 'BAT_YAM', regionCode: 'TEL_AVIV' },
   { name: 'בית משפט ראשון לציון', code: 'RISHON', regionCode: 'CENTER' },
 ];
 
+const POSITIONS: PositionSeed[] = [
+  { code: 1, name: 'קצין מתקן', displayOrder: 1 },
+  { code: 2, name: 'אחמ״ש', displayOrder: 2 },
+  { code: 3, name: 'בקר', displayOrder: 3 },
+  { code: 4, name: 'מאבטח', displayOrder: 4 },
+];
+
 const EMPLOYEES: EmployeeSeed[] = [
   // ירושלים
-  {
-    firstName: 'אבי',
-    lastName: 'כהן',
-    phone: '050-0000001',
-    position: Position.FACILITY_OFFICER,
-    courtCode: 'JERUSALEM',
-    email: 'avichoen@gmail.com',
-    password: 'avi123',
-    systemRole: SystemRole.MANAGER,
-  },
-  {
-    firstName: 'דניאל',
-    lastName: 'לוי',
-    phone: '050-0000002',
-    position: Position.SHIFT_MANAGER,
-    courtCode: 'JERUSALEM',
-    email: 'daniellevy@gmail.com',
-    password: 'daniel123',
-  },
-  {
-    firstName: 'רועי',
-    lastName: 'מזרחי',
-    phone: '050-0000003',
-    position: Position.BAKAR,
-    courtCode: 'JERUSALEM',
-    email: 'roimizrahi@gmail.com',
-    password: 'roi123',
-  },
-  {
-    firstName: 'נועם',
-    lastName: 'ביטון',
-    phone: '050-0000004',
-    position: Position.GUARD,
-    courtCode: 'JERUSALEM',
-    email: 'noambiton@gmail.com',
-    password: 'noam123',
-  },
-  {
-    firstName: 'שחר',
-    lastName: 'אוחנה',
-    phone: '050-0000005',
-    position: Position.GUARD,
-    courtCode: 'JERUSALEM',
-    email: 'shaharohana@gmail.com',
-    password: 'shahar123',
-  },
+  // {
+  //   firstName: 'אבי',
+  //   lastName: 'כהן',
+  //   phone: '050-0000001',
+  //   positionCode: 1,
+  //   courtCode: 'JERUSALEM',
+  //   email: 'avichoen@gmail.com',
+  //   password: 'avi123',
+  //   systemRole: SystemRole.MANAGER,
+  // },
+  // {
+  //   firstName: 'דניאל',
+  //   lastName: 'לוי',
+  //   phone: '050-0000002',
+  //   positionCode: 2,
+  //   courtCode: 'JERUSALEM',
+  //   email: 'daniellevy@gmail.com',
+  //   password: 'daniel123',
+  // },
+  // {
+  //   firstName: 'רועי',
+  //   lastName: 'מזרחי',
+  //   phone: '050-0000003',
+  //   positionCode: 3,
+  //   courtCode: 'JERUSALEM',
+  //   email: 'roimizrahi@gmail.com',
+  //   password: 'roi123',
+  // },
+  // {
+  //   firstName: 'נועם',
+  //   lastName: 'ביטון',
+  //   phone: '050-0000004',
+  //   positionCode: 4,
+  //   courtCode: 'JERUSALEM',
+  //   email: 'noambiton@gmail.com',
+  //   password: 'noam123',
+  // },
+  // {
+  //   firstName: 'שחר',
+  //   lastName: 'אוחנה',
+  //   phone: '050-0000005',
+  //   positionCode: 4,
+  //   courtCode: 'JERUSALEM',
+  //   email: 'shaharohana@gmail.com',
+  //   password: 'shahar123',
+  // },
 
-  // ויצמן
-  {
-    firstName: 'אלרואי',
-    lastName: 'מגידיש',
-    phone: '050-0000006',
-    position: Position.FACILITY_OFFICER,
-    courtCode: 'VAITZMAN',
-    email: 'elroimegidish@gmail.com',
-    password: 'elroi123',
-    systemRole: SystemRole.MANAGER,
-  },
-  {
-    firstName: 'שוהם',
-    lastName: 'מלכה',
-    phone: '050-0000007',
-    position: Position.SHIFT_MANAGER,
-    courtCode: 'VAITZMAN',
-    email: 'shohammalka@gmail.com',
-    password: 'shoham123',
-  },
-  {
-    firstName: 'איתי',
-    lastName: 'שלום',
-    phone: '050-0000008',
-    position: Position.BAKAR,
-    courtCode: 'VAITZMAN',
-    email: 'itaishalom@gmail.com',
-    password: 'itai123',
-  },
-  {
-    firstName: 'אתי',
-    lastName: 'לולה',
-    phone: '050-0000009',
-    position: Position.GUARD,
-    courtCode: 'VAITZMAN',
-    email: 'etilola@gmail.com',
-    password: 'etil123',
-  },
-  {
-    firstName: 'בן',
-    lastName: 'חיים',
-    phone: '050-0000010',
-    position: Position.GUARD,
-    courtCode: 'VAITZMAN',
-    email: 'benhaim@gmail.com',
-    password: 'ben123',
-  },
+  // // ויצמן
+  // {
+  //   firstName: 'אלרואי',
+  //   lastName: 'מגידיש',
+  //   phone: '050-0000006',
+  //   positionCode: 1,
+  //   courtCode: 'VAITZMAN',
+  //   email: 'elroimegidish@gmail.com',
+  //   password: 'elroi123',
+  //   systemRole: SystemRole.MANAGER,
+  // },
+  // {
+  //   firstName: 'שוהם',
+  //   lastName: 'מלכה',
+  //   phone: '050-0000007',
+  //   positionCode: 2,
+  //   courtCode: 'VAITZMAN',
+  //   email: 'shohammalka@gmail.com',
+  //   password: 'shohammalka',
+  // },
+  // {
+  //   firstName: 'איתי',
+  //   lastName: 'שלום',
+  //   phone: '050-0000008',
+  //   positionCode: 3,
+  //   courtCode: 'VAITZMAN',
+  //   email: 'itaishalom@gmail.com',
+  //   password: 'itaishalom',
+  // },
+  // {
+  //   firstName: 'אתי',
+  //   lastName: 'לולה',
+  //   phone: '050-0000009',
+  //   positionCode: 4,
+  //   courtCode: 'VAITZMAN',
+  //   email: 'etilola@gmail.com',
+  //   password: 'etil',
+  // },
+  // {
+  //   firstName: 'בן',
+  //   lastName: 'חיים',
+  //   phone: '050-0000010',
+  //   positionCode: 4,
+  //   courtCode: 'VAITZMAN',
+  //   email: 'benhaim@gmail.com',
+  //   password: 'ben',
+  // },
 
-  // שוקן
-  {
-    firstName: 'אסף',
-    lastName: 'גולן',
-    phone: '050-0000011',
-    position: Position.FACILITY_OFFICER,
-    courtCode: 'SHOKEN',
-    email: 'asafgolan@gmail.com',
-    password: 'asaf123',
-    systemRole: SystemRole.MANAGER,
-  },
-  {
-    firstName: 'אופיר',
-    lastName: 'דוד',
-    phone: '050-0000012',
-    position: Position.SHIFT_MANAGER,
-    courtCode: 'SHOKEN',
-    email: 'ofirdavid@gmail.com',
-    password: 'ofir123',
-  },
-  {
-    firstName: 'ליאור',
-    lastName: 'סבן',
-    phone: '050-0000013',
-    position: Position.BAKAR,
-    courtCode: 'SHOKEN',
-    email: 'liorsaban@gmail.com',
-    password: 'lior123',
-  },
-  {
-    firstName: 'עידן',
-    lastName: 'אמסלם',
-    phone: '050-0000014',
-    position: Position.GUARD,
-    courtCode: 'SHOKEN',
-    email: 'idanamsalem@gmail.com',
-    password: 'idan123',
-  },
+  // // שוקן
+  // {
+  //   firstName: 'אסף',
+  //   lastName: 'גולן',
+  //   phone: '050-0000011',
+  //   positionCode: 1,
+  //   courtCode: 'SHOKEN',
+  //   email: 'asafgolan@gmail.com',
+  //   password: 'asaf',
+  //   systemRole: SystemRole.MANAGER,
+  // },
+  // {
+  //   firstName: 'אופיר',
+  //   lastName: 'דוד',
+  //   phone: '050-0000012',
+  //   positionCode: 2,
+  //   courtCode: 'SHOKEN',
+  //   email: 'ofirdavid@gmail.com',
+  //   password: 'ofir',
+  // },
+  // {
+  //   firstName: 'ליאור',
+  //   lastName: 'סבן',
+  //   phone: '050-0000013',
+  //   positionCode: 3,
+  //   courtCode: 'SHOKEN',
+  //   email: 'liorsaban@gmail.com',
+  //   password: 'lior',
+  // },
+  // {
+  //   firstName: 'עידן',
+  //   lastName: 'אמסלם',
+  //   phone: '050-0000014',
+  //   positionCode: 4,
+  //   courtCode: 'SHOKEN',
+  //   email: 'idanamsalem@gmail.com',
+  //   password: 'idan',
+  // },
 
   // בת ים
   {
     firstName: 'תומר',
     lastName: 'לוי',
+    displayName: 'תומר',
     phone: '050-0000015',
-    position: FACILITY_OFFICER,
+    positionCode: 1,
     courtCode: 'BAT_YAM',
     email: 'tomerlevi@gmail.com',
-    password: 'tomer123',
+    password: 'tomerlevi',
     systemRole: SystemRole.MANAGER,
   },
   {
     firstName: 'דימה',
     lastName: 'ליטבינוב',
+    displayName: 'דימה',
     phone: '050-0000016',
-    position: SHIFT_MANAGER,
+    positionCode: 2,
     courtCode: 'BAT_YAM',
     email: 'dimalit@gmail.com',
-    password: 'dima123',
+    password: 'dimalit',
   },
   {
     firstName: 'דימה',
     lastName: 'גוכמן',
+    displayName: 'גוכמן',
     phone: '050-0000017',
-    position: SHIFT_MANAGER,
+    positionCode: 2,
     courtCode: 'BAT_YAM',
     email: 'dimagofman@gmail.com',
-    password: 'dima123',
+    password: 'dimagofman',
   },
   {
     firstName: 'איב',
     lastName: 'לוי',
+    displayName: 'איב',
     phone: '050-0000018',
-    position: SHIFT_MANAGER,
+    positionCode: 2,
     courtCode: 'BAT_YAM',
     email: 'evelevi@gmail.com',
-    password: 'eve123',
+    password: 'evelevi',
   },
   {
     firstName: 'אושר',
     lastName: 'עמר',
+    displayName: 'אושר',
     phone: '050-0000019',
-    position: BAKAR,
+    positionCode: 3,
     courtCode: 'BAT_YAM',
     email: 'oshramar@gmail.com',
-    password: 'oshr123',
+    password: 'oshramar',
   },
   {
     firstName: 'בן',
     lastName: 'הרגס',
+    displayName: 'בן',
     phone: '050-0000020',
-    position: BAKAR,
+    positionCode: 3,
     courtCode: 'BAT_YAM',
     email: 'benharges@gmail.com',
-    password: 'ben123',
+    password: 'benharges',
   },
   {
     firstName: 'יוחאי',
     lastName: 'אוחיון',
+    displayName: 'יוחאי',
     phone: '050-0000021',
-    position: BAKAR,
+    positionCode: 3,
     courtCode: 'BAT_YAM',
     email: 'yochaiohayon@gmail.com',
-    password: 'yochai123',
+    password: 'yochaiohayon',
   },
   {
     firstName: 'אילה',
     lastName: 'גין',
+    displayName: 'אילה',
     phone: '050-0000022',
-    position: GUARD,
+    positionCode: 4,
     courtCode: 'BAT_YAM',
     email: 'ayalagin@gmail.com',
-    password: 'ayala123',
+    password: 'ayalagin',
   },
   {
     firstName: 'ניק',
     lastName: 'שבדש',
+    displayName: 'ניק',
     phone: '050-0000023',
-    position: GUARD,
+    positionCode: 4,
     courtCode: 'BAT_YAM',
     email: 'nikshabdush@gmail.com',
-    password: 'nik123',
+    password: 'nikshabdush',
   },
   {
     firstName: 'שני',
     lastName: 'פנחס',
+    displayName: 'שני',
     phone: '050-0000024',
-    position: GUARD,
+    positionCode: 4,
     courtCode: 'BAT_YAM',
     email: 'shaniphenchas@gmail.com',
-    password: 'shani123',
+    password: 'shaniphenchas',
   },
 ];
 
@@ -303,46 +323,31 @@ const ALL_DAY_CATEGORIES = [
   DayCategory.HOLIDAY,
 ] as const;
 
-const SHIFT_ROLE_DEFINITIONS = [
-  {
-    code: 'SHIFT_MANAGER',
-    name: 'אחמ״ש',
-    displayOrder: 1,
-  },
-  {
-    code: 'BAKAR',
-    name: 'בקר',
-    displayOrder: 2,
-  },
-  {
-    code: 'GUARD',
-    name: 'מאבטח',
-    displayOrder: 3,
-  },
-] as const;
+function defaultAmountForPosition(positionCode: number) {
+  switch (positionCode) {
+    case 1:
+      return 0; // קצין מתקן לא חייב להופיע בכל משמרת
+    case 2:
+      return 1; // אחמ״ש
+    case 3:
+      return 1; // בקר
+    case 4:
+      return 2; // מאבטחים
+    default:
+      return 1;
+  }
+}
 
-const COURT_SHIFT_ROLES: ShiftRoleSeed[] = COURTS.flatMap((court) =>
-  ALL_SHIFT_TYPES.flatMap((shiftType) =>
-    SHIFT_ROLE_DEFINITIONS.map((role) => ({
-      courtCode: court.code,
-      code: role.code,
-      name: role.name,
-      shiftType,
-      displayOrder: role.displayOrder,
-    })),
-  ),
-);
-
-const STAFFING_RULES: StaffingRuleSeed[] = COURTS.flatMap((court) =>
+const SHIFT_CAPACITIES: ShiftCapacitySeed[] = COURTS.flatMap((court) =>
   ALL_SHIFT_TYPES.flatMap((shiftType) =>
     ALL_DAY_CATEGORIES.flatMap((dayCategory) =>
-      SHIFT_ROLE_DEFINITIONS.map((role) => ({
+      POSITIONS.map((position) => ({
         courtCode: court.code,
-        roleCode: role.code,
+        positionCode: position.code,
         shiftType,
         dayCategory,
-        requiredCount: 1,
-        displayOrder: role.displayOrder,
+        amount: defaultAmountForPosition(position.code),
+        displayOrder: position.displayOrder,
       })),
     ),
   ),
@@ -359,8 +364,7 @@ async function clearDatabase() {
 
   await prisma.fairnessRecord.deleteMany();
 
-  await prisma.courtStaffRule.deleteMany();
-  await prisma.courtShiftRole.deleteMany();
+  await prisma.shiftCapacity.deleteMany();
 
   await prisma.schedulePeriod.deleteMany();
 
@@ -369,6 +373,8 @@ async function clearDatabase() {
   await prisma.user.deleteMany();
 
   await prisma.employee.deleteMany();
+  await prisma.position.deleteMany();
+
   await prisma.court.deleteMany();
   await prisma.region.deleteMany();
 
@@ -380,11 +386,14 @@ async function seedRegionsAndCourts() {
   const regionIdByCode = new Map<string, string>();
 
   for (const region of REGIONS) {
-    const created = await prisma.region.create({
-      data: region,
+    const createdRegion = await prisma.region.create({
+      data: {
+        name: region.name,
+        code: region.code,
+      },
     });
 
-    regionIdByCode.set(region.code, created.id);
+    regionIdByCode.set(region.code, createdRegion.id);
   }
 
   for (const court of COURTS) {
@@ -404,24 +413,56 @@ async function seedRegionsAndCourts() {
   }
 }
 
+async function seedPositions() {
+  const courts = await prisma.court.findMany();
+
+  for (const court of courts) {
+    await prisma.position.createMany({
+      data: POSITIONS.map((position) => ({
+        courtId: court.id,
+        code: position.code,
+        name: position.name,
+        isActive: true,
+      })),
+    });
+  }
+}
+
 async function seedEmployeesAndUsers() {
   for (const emp of EMPLOYEES) {
     const court = await prisma.court.findUnique({
-      where: { code: emp.courtCode },
+      where: {
+        code: emp.courtCode,
+      },
     });
 
     if (!court) {
       throw new Error(`Court not found for employee: ${emp.email}`);
     }
 
+    const position = await prisma.position.findFirst({
+      where: {
+        courtId: court.id,
+        code: emp.positionCode,
+      },
+    });
+
+    if (!position) {
+      throw new Error(
+        `Position not found for employee: ${emp.email}. courtCode=${emp.courtCode}, positionCode=${emp.positionCode}`,
+      );
+    }
+
     const employee = await prisma.employee.create({
       data: {
         firstName: emp.firstName,
         lastName: emp.lastName,
+        displayName: emp.displayName,
         phone: emp.phone ?? null,
-        positionId: emp.position.id,
+        positionId: position.id,
         courtId: court.id,
         isActive: true,
+        isReligious: emp.isReligious ?? false,
       },
     });
 
@@ -439,57 +480,40 @@ async function seedEmployeesAndUsers() {
   }
 }
 
-async function seedCourtShiftRoles() {
-  for (const role of COURT_SHIFT_ROLES) {
+async function seedShiftCapacities() {
+  for (const capacity of SHIFT_CAPACITIES) {
     const court = await prisma.court.findUnique({
-      where: { code: role.courtCode },
-    });
-
-    if (!court) {
-      throw new Error(`Court not found for role: ${role.courtCode} / ${role.code}`);
-    }
-
-    const createdRole = await prisma.courtShiftRole.create({
-      data: {
-        courtId: court.id,
-        code: role.code,
-        name: role.name,
-        shiftType: role.shiftType,
-        isActive: true,
-        displayOrder: role.displayOrder,
+      where: {
+        code: capacity.courtCode,
       },
     });
-  }
-}
-
-async function seedStaffRules() {
-  for (const rule of STAFFING_RULES) {
-    const court = await prisma.court.findUnique({
-      where: { code: rule.courtCode },
-    });
 
     if (!court) {
-      throw new Error(`Court not found for staffing rule: ${rule.courtCode}`);
+      throw new Error(`Court not found for shift capacity: ${capacity.courtCode}`);
     }
 
-    const courtShiftRole = await prisma.courtShiftRole.findFirst({
+    const position = await prisma.position.findFirst({
       where: {
         courtId: court.id,
-        code: rule.roleCode,
-        shiftType: rule.shiftType,
+        code: capacity.positionCode,
       },
     });
 
-    if (!courtShiftRole) {
-      throw new Error(`CourtShiftRole not found for ${rule.courtCode} / ${rule.roleCode} / ${rule.shiftType}`);
+    if (!position) {
+      throw new Error(
+        `Position not found for shift capacity. courtCode=${capacity.courtCode}, positionCode=${capacity.positionCode}`,
+      );
     }
 
-    await prisma.courtStaffRule.create({
+    await prisma.shiftCapacity.create({
       data: {
-        courtShiftRoleId: courtShiftRole.id,
-        dayCategory: rule.dayCategory,
-        requiredCount: rule.requiredCount,
-        displayOrder: rule.displayOrder,
+        courtId: court.id,
+        positionId: position.id,
+        shiftType: capacity.shiftType,
+        dayCategory: capacity.dayCategory,
+        amount: capacity.amount,
+        isActive: true,
+        displayOrder: capacity.displayOrder,
       },
     });
   }
@@ -504,17 +528,17 @@ async function main() {
   await seedRegionsAndCourts();
   console.log('✅ Regions and courts seeded');
 
+  console.log('🧩 Seeding positions...');
+  await seedPositions();
+  console.log('✅ Positions seeded');
+
   console.log('👥 Seeding employees and users...');
   await seedEmployeesAndUsers();
   console.log('✅ Employees and users seeded');
 
-  console.log('🧩 Seeding court shift roles...');
-  await seedCourtShiftRoles();
-  console.log('✅ Court shift roles seeded');
-
-  console.log('📐 Seeding staff rules...');
-  await seedStaffRules();
-  console.log('✅ Staff rules seeded');
+  console.log('📐 Seeding shift capacities...');
+  await seedShiftCapacities();
+  console.log('✅ Shift capacities seeded');
 
   console.log('🎉 Seed completed successfully');
 }

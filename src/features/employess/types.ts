@@ -1,15 +1,9 @@
-export const Position = {
-  GUARD: 'GUARD',
-  BAKAR: 'BAKAR',
-  SHIFT_MANAGER: 'SHIFT_MANAGER',
-} as const;
-
-export type Position = (typeof Position)[keyof typeof Position];
-
 export type CreateEmployeeParams = {
   firstName: string;
   lastName: string;
   phone: string | null;
+  displayName: string;
+  isReligious?: boolean;
   email: string;
   positionId: string;
 };
@@ -19,25 +13,38 @@ export type UpdateEmployeeParams = {
   firstName: string;
   lastName: string;
   phone: string | null;
+  displayName: string;
+  isReligious: boolean;
   positionId: string;
   isActive: boolean;
 };
+export type PositionOption = {
+  id: string;
+  name: string;
+  code: number;
+};
 
-export type EmployeeAndPosition = {
+export type EmployeeListItem = {
   id: string;
   firstName: string;
   lastName: string;
   phone: string | null;
   email: string;
+  displayName: string;
+  isReligious: boolean;
   isActive: boolean;
   position: {
     id: string;
     name: string;
-    displayOrder: number;
+    code: number;
   };
 };
-export type PositionOption = {
-  id: string;
-  name: string;
-  displayOrder: number;
-};
+
+export type EmployeesPageData =
+  | {
+      employees: EmployeeListItem[];
+      positions: PositionOption[];
+    }
+  | {
+      error: string;
+    };

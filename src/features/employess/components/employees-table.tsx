@@ -4,7 +4,7 @@ import { useState, useTransition } from 'react';
 import { useRouter } from 'next/navigation';
 import { Pencil, Trash2 } from 'lucide-react';
 import { cn } from '@/lib/utils';
-import { type EmployeeAndPosition, type PositionOption } from '@/features/employess/types';
+import { EmployeeListItem, PositionOption } from '@/features/employess/types';
 import { deleteEmployee } from '@/features/employess/actions';
 import { EmployeeModal } from './employee-modal';
 import { Button } from '@/components/ui/button';
@@ -20,12 +20,12 @@ export function EmployeesTable({
   employees,
   positions,
 }: {
-  employees: EmployeeAndPosition[];
+  employees: EmployeeListItem[];
   positions: PositionOption[];
 }) {
   const router = useRouter();
   const [modalOpen, setModalOpen] = useState(false);
-  const [editingEmployee, setEditingEmployee] = useState<EmployeeAndPosition | null>(null);
+  const [editingEmployee, setEditingEmployee] = useState<EmployeeListItem | null>(null);
   const [deleteTarget, setDeleteTarget] = useState<{ id: string; name: string } | null>(null);
   const [deletePending, startDeleteTransition] = useTransition();
   const [error, setError] = useState<string | null>(null);
@@ -36,7 +36,7 @@ export function EmployeesTable({
     setModalOpen(true);
   }
 
-  function openEdit(employee: EmployeeAndPosition) {
+  function openEdit(employee: EmployeeListItem) {
     setEditingEmployee(employee);
     setError(null);
     setModalOpen(true);
@@ -46,7 +46,7 @@ export function EmployeesTable({
     setModalOpen(false);
     setEditingEmployee(null);
   }
-  function handleDeleteClick(employee: EmployeeAndPosition) {
+  function handleDeleteClick(employee: EmployeeListItem) {
     setError(null);
     setDeleteTarget({
       id: employee.id,
@@ -119,10 +119,10 @@ export function EmployeesTable({
                   <span
                     className={cn(
                       'text-xs  px-2 py-0.5 rounded-md font-semibold',
-                      POSITION_STYLE[employee.position?.displayOrder ?? 0],
+                      POSITION_STYLE[employee.position.code],
                     )}
                   >
-                    {employee.position?.name}
+                    {employee.position.name}
                   </span>
                 </td>
                 <td className="px-4 py-3">{employee.phone}</td>

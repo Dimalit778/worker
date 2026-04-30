@@ -47,9 +47,9 @@ export async function getPositions(courtId: string) {
     select: {
       id: true,
       name: true,
-      displayOrder: true,
+      code: true,
     },
-    orderBy: [{ displayOrder: 'asc' }, { createdAt: 'asc' }],
+    orderBy: [{ code: 'asc' }, { createdAt: 'asc' }],
   });
 }
 
@@ -68,9 +68,6 @@ export async function getShiftCapacities(courtId: string) {
       dayCategory: true,
       amount: true,
     },
-    orderBy: [
-      { position: { displayOrder: 'asc' } },
-      { position: { createdAt: 'asc' } },
-    ],
+    orderBy: [{ position: { code: 'asc' } }, { position: { createdAt: 'asc' } }],
   });
 }

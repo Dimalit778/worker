@@ -12,6 +12,8 @@ export default async function ManagerSettingsPage() {
 
   const capacities = await getShiftCapacities(courtId);
   const positions = await getPositions(courtId);
+  console.log('capacities', JSON.stringify(capacities, null, 2));
+  console.log('positions', JSON.stringify(positions, null, 2));
 
   return (
     <div className="mx-auto w-full max-w-4xl space-y-8 pb-8 pt-1" dir="rtl">

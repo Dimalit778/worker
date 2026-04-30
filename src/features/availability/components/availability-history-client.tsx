@@ -5,7 +5,7 @@ import type { PeriodStatus } from '@/generated/prisma/client';
 import { cn } from '@/lib/utils';
 import { ScheduleCalendar } from './schedule-calendar';
 
-export type HistoryPeriodPayload = {
+export type SubmissionsPeriodPayload = {
   id: string;
   name: string;
   startDate: string;
@@ -17,21 +17,16 @@ export type HistoryPeriodPayload = {
 };
 
 type Props = {
-  periods: HistoryPeriodPayload[];
+  periods: SubmissionsPeriodPayload[];
 };
 
-export function AvailabilityHistoryClient({ periods }: Props) {
+export function SubmissionsTable({ periods }: Props) {
   const [selectedId, setSelectedId] = useState(periods[0]?.id ?? null);
 
-  const selected = useMemo(
-    () => periods.find((p) => p.id === selectedId) ?? null,
-    [periods, selectedId],
-  );
+  const selected = useMemo(() => periods.find((p) => p.id === selectedId) ?? null, [periods, selectedId]);
 
   if (periods.length === 0) {
-    return (
-      <p className="text-muted-foreground text-sm">אין תקופות עם הגשות זמינות.</p>
-    );
+    return <p className="text-muted-foreground text-sm">אין תקופות עם הגשות זמינות.</p>;
   }
 
   return (
@@ -59,9 +54,7 @@ export function AvailabilityHistoryClient({ periods }: Props) {
                 {p.isSubmitted ? (
                   <span className="rounded-md bg-green-100 px-2 py-0.5 text-green-800">הוגש</span>
                 ) : (
-                  <span className="rounded-md border border-border px-2 py-0.5 text-muted-foreground">
-                    טיוטה
-                  </span>
+                  <span className="rounded-md border border-border px-2 py-0.5 text-muted-foreground">טיוטה</span>
                 )}
                 <span className="text-muted-foreground">{p.selectedSlotCount} משמרות מסומנות</span>
               </div>

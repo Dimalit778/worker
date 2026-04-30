@@ -12,7 +12,7 @@ import { ChevronDown, UserPlus } from 'lucide-react';
 type PositionOption = {
   id: string;
   name: string;
-  displayOrder: number;
+  code: number;
 };
 
 type ShiftCapacityRow = {

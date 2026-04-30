@@ -163,10 +163,12 @@ model Employee {
   id        String   @id @default(cuid())
   firstName String
   lastName  String
+  displayName String
   phone     String?
   positionId String
   courtId   String
   isActive  Boolean  @default(true)
+  isReligious Boolean @default(false)
 
   court Court @relation(fields: [courtId], references: [id])
   position Position @relation(fields: [positionId], references: [id])
@@ -184,23 +186,25 @@ model Employee {
   @@index([positionId])
 }
 model Position {
-  id           String  @id @default(cuid())
-  courtId      String
-  name         String
-  isActive     Boolean @default(true)
-  displayOrder Int     @default(0)
+  id       String  @id @default(cuid())
+  courtId  String
+  name     String
+  code     Int
+  isActive Boolean @default(true)
+
   court Court @relation(fields: [courtId], references: [id], onDelete: Cascade)
 
-  employees         Employee[]
-  shiftCapacities   ShiftCapacity[]
-  shiftAssignments  ShiftAssignment[]
-  warnings          ScheduleWarning[]
+  employees        Employee[]
+  shiftCapacities  ShiftCapacity[]
+  shiftAssignments ShiftAssignment[]
+  warnings         ScheduleWarning[]
 
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
 
   @@unique([courtId, name])
-  @@index([courtId, displayOrder])
+  @@unique([courtId, code])
+  @@index([courtId])
 }
 model ShiftCapacity {
   id           String      @id @default(cuid())

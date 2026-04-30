@@ -165,10 +165,12 @@ export const EmployeeScalarFieldEnum = {
   id: 'id',
   firstName: 'firstName',
   lastName: 'lastName',
+  displayName: 'displayName',
   phone: 'phone',
   positionId: 'positionId',
   courtId: 'courtId',
   isActive: 'isActive',
+  isReligious: 'isReligious',
   createdAt: 'createdAt',
   updatedAt: 'updatedAt'
 } as const
@@ -180,8 +182,8 @@ export const PositionScalarFieldEnum = {
   id: 'id',
   courtId: 'courtId',
   name: 'name',
+  code: 'code',
   isActive: 'isActive',
-  displayOrder: 'displayOrder',
   createdAt: 'createdAt',
   updatedAt: 'updatedAt'
 } as const

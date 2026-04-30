@@ -12,7 +12,7 @@ import { ChevronDown, ChevronUp } from 'lucide-react';
 type PositionRow = {
   id: string;
   name: string;
-  displayOrder: number;
+  code: number;
 };
 
 type Props = {
@@ -74,12 +74,9 @@ export function PositionOrderSection({ positions, className }: Props) {
               </tr>
             ) : (
               positions.map((p, i) => (
-                <tr
-                  key={p.id}
-                  className="border-b border-border/80 transition-colors last:border-0 hover:bg-muted/30"
-                >
+                <tr key={p.id} className="border-b border-border/80 transition-colors last:border-0 hover:bg-muted/30">
                   <td className="px-3 py-2.5 font-medium">{p.name}</td>
-                  <td className="px-2 py-2.5 text-center text-xs tabular-nums text-muted-foreground">{p.displayOrder}</td>
+                  <td className="px-2 py-2.5 text-center text-xs tabular-nums text-muted-foreground">{p.code}</td>
                   <td className="px-2 py-2">
                     <div className="flex items-center justify-center gap-1.5">
                       <Button

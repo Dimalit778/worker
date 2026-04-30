@@ -11,23 +11,17 @@ type Props = {
   period: PeriodInfo;
   initialEntries: Record<string, boolean>;
   initialSubmitted: boolean;
-  /** Read-only grid (e.g. history) — no submit, cells not editable even if period is open */
+
   viewOnly?: boolean;
 };
 
-export function ScheduleCalendar({
-  period,
-  initialEntries,
-  initialSubmitted,
-  viewOnly = false,
-}: Props) {
+export function ScheduleCalendar({ period, initialEntries, initialSubmitted, viewOnly = false }: Props) {
   const [entries, setEntries] = useState<Record<string, boolean>>(initialEntries);
   const [submitted, setSubmitted] = useState(initialSubmitted);
   const [pending, startTransition] = useTransition();
 
   const dates = datesInRange(period.startDate, period.endDate);
-  const readonly =
-    viewOnly || submitted || period.status === 'LOCKED' || period.status === 'ARCHIVED';
+  const readonly = viewOnly || submitted || period.status === 'LOCKED' || period.status === 'ARCHIVED';
 
   // Split into two weeks for layout
   const week1 = dates.slice(0, 7);

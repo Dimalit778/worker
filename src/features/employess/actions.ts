@@ -2,15 +2,10 @@
 
 import bcrypt from 'bcryptjs';
 import { revalidatePath } from 'next/cache';
-import { Position, SystemRole } from '@/generated/prisma/client';
+import { SystemRole } from '@/generated/prisma/client';
 import { prisma } from '@/lib/db/client';
 import { requireSession } from '@/lib/db/auth-helpers';
-import type {
-  CreateEmployeeParams,
-  UpdateEmployeeParams,
-  EmployeeAndPosition,
-  PositionOption,
-} from '@/features/employess/types';
+import type { CreateEmployeeParams, UpdateEmployeeParams, EmployeesPageData } from '@/features/employess/types';
 import { getInitialPasswordFromEmail } from './utils';
 
 export async function createEmployee(params: CreateEmployeeParams): Promise<{ ok: true } | { error: string }> {
@@ -24,8 +19,9 @@ export async function createEmployee(params: CreateEmployeeParams): Promise<{ ok
   const phone = params.phone?.trim() || null;
   const email = params.email.trim().toLowerCase();
   const positionId = params.positionId;
-
-  if (!firstName || !lastName || !email || !positionId) {
+  const displayName = params.displayName.trim();
+  const isReligious = params.isReligious ?? false;
+  if (!firstName || !lastName || !email || !positionId || !displayName) {
     return { error: 'שם פרטי, שם משפחה, אימייל ותפקיד הם שדות חובה' };
   }
 
@@ -51,10 +47,12 @@ export async function createEmployee(params: CreateEmployeeParams): Promise<{ ok
         data: {
           firstName,
           lastName,
+          displayName,
           phone,
           positionId,
           courtId,
           isActive: true,
+          isReligious,
         },
       });
 
@@ -84,7 +82,7 @@ export async function updateEmployee(params: UpdateEmployeeParams): Promise<{ ok
   const session = await requireSession(SystemRole.MANAGER);
   const courtId = session.user.courtId;
 
-  const { employeeId, firstName, lastName, phone, positionId, isActive } = params;
+  const { employeeId, firstName, lastName, phone, displayName, isReligious, positionId, isActive } = params;
 
   const employee = await prisma.employee.findFirst({
     where: { id: employeeId, courtId: courtId ?? '' },
@@ -93,7 +91,7 @@ export async function updateEmployee(params: UpdateEmployeeParams): Promise<{ ok
 
   await prisma.employee.update({
     where: { id: employeeId },
-    data: { firstName, lastName, phone, positionId, isActive },
+    data: { firstName, lastName, phone, displayName, isReligious, positionId, isActive },
   });
 
   revalidatePath('/manager/guards');
@@ -117,70 +115,70 @@ export async function deleteEmployee(employeeId: string): Promise<{ ok: true } |
   revalidatePath('/manager/employees');
   return { ok: true };
 }
-//get current manager's guards
-export async function getEmployees(): Promise<EmployeeAndPosition[]> {
+
+export async function getEmployeesPageData(): Promise<EmployeesPageData> {
   const session = await requireSession(SystemRole.MANAGER);
 
-  const managerEmployee = await prisma.employee.findFirst({
-    where: { user: { id: session.user.id } },
-    select: { courtId: true },
-  });
-  const courtId = managerEmployee?.courtId ?? null;
+  const courtId = session.user.courtId;
+  if (!courtId) return { error: 'למנהל אין בית משפט משויך' };
 
-  if (!courtId) return [];
+  const [employees, positions] = await Promise.all([
+    prisma.employee.findMany({
+      where: { courtId },
+      select: {
+        id: true,
+        firstName: true,
+        lastName: true,
+        phone: true,
+        displayName: true,
+        isReligious: true,
+        isActive: true,
+        position: {
+          select: {
+            id: true,
+            name: true,
+            code: true,
+          },
+        },
+        user: {
+          select: {
+            email: true,
+          },
+        },
+      },
+      orderBy: [{ position: { code: 'asc' } }, { displayName: 'asc' }],
+    }),
 
-  const employees = await prisma.employee.findMany({
-    where: { courtId },
-    select: {
-      id: true,
-      firstName: true,
-      lastName: true,
-      phone: true,
-      user: { select: { id: true, email: true } },
-      position: { select: { id: true, name: true, displayOrder: true } },
-      isActive: true,
-    },
-  });
-  return employees.map((employee) => {
-    if (!employee.user) {
-      throw new Error(`Employee ${employee.id} has no user`);
-    }
+    prisma.position.findMany({
+      where: {
+        courtId,
+        isActive: true,
+      },
+      select: {
+        id: true,
+        name: true,
+        code: true,
+      },
+      orderBy: [{ code: 'asc' }, { createdAt: 'asc' }],
+    }),
+  ]);
 
-    return {
+  return {
+    employees: employees.map((employee) => ({
       id: employee.id,
       firstName: employee.firstName,
       lastName: employee.lastName,
       phone: employee.phone,
-      email: employee.user.email,
+      email: employee.user?.email ?? '',
+      displayName: employee.displayName,
+      isReligious: employee.isReligious,
       isActive: employee.isActive,
       position: {
         id: employee.position.id,
         name: employee.position.name,
-        displayOrder: employee.position.displayOrder,
+        code: employee.position.code,
       },
-    };
-  });
-}
-
-export async function getPositions(): Promise<PositionOption[]> {
-  const session = await requireSession(SystemRole.MANAGER);
-
-  const courtId = session.user.courtId;
-
-  if (!courtId) {
-    return [];
-  }
-
-  return prisma.position.findMany({
-    where: {
-      courtId,
-      isActive: true,
-    },
-    select: {
-      id: true,
-      name: true,
-      displayOrder: true,
-    },
-    orderBy: [{ displayOrder: 'asc' }, { createdAt: 'asc' }],
-  });
+    })),
+    positions,
+  };
 }
