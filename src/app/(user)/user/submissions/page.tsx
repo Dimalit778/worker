@@ -1,7 +1,7 @@
 import { requireSession } from '@/lib/db/auth-helpers';
 import { SystemRole } from '@/generated/prisma/client';
 import { getEmployeeAvailability } from '@/features/availability/actions';
-import { SubmissionsTable } from '@/features/availability/components/availability-history-client';
+import { SubmissionsTable } from '@/features/availability/components/submissions-table';
 import { availabilityEntriesToRecord } from '@/features/availability/utils';
 
 export default async function UserSubmissionsPage() {

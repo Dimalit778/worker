@@ -1,10 +1,10 @@
 import { requireSession } from '@/lib/db/auth-helpers';
 import { SystemRole } from '@/generated/prisma/client';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
-import { getPeriodsForManager } from '@/features/schedules/actions';
-import { PeriodsList } from '@/features/schedules/components/periods-list';
-import { CreatePeriodForm } from '@/features/schedules/components/create-period-form';
-import { PeriodCalendar } from '@/features/schedules/components/period-calendar';
+import { getPeriodsForManager } from '@/features/periods/actions';
+import { PeriodsList } from '@/features/periods/components/periods-list';
+import { CreatePeriodForm } from '@/features/periods/components/create-period-form';
+import { PeriodCalendar } from '@/features/periods/components/period-calendar';
 
 export default async function ManagerPeriodsPage() {
   await requireSession(SystemRole.MANAGER);

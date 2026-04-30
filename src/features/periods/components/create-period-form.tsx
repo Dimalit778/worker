@@ -3,7 +3,7 @@
 import { useCallback, useEffect, useState, useTransition } from 'react';
 import { createPortal } from 'react-dom';
 import { cn } from '@/lib/utils';
-import { PERIOD_OPTIONS } from '../constans';
+import { PERIOD_OPTIONS } from '../constants';
 import { createPeriod } from '../actions';
 import { PeriodType } from '../types';
 

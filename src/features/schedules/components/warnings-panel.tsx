@@ -6,8 +6,8 @@ import { AlertTriangle, CheckCircle2, ChevronDown, ChevronLeft, Info } from 'luc
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { cn } from '@/lib/utils';
-import { SHIFT_LABELS } from '@/features/shift-assignments/constants';
-import type { ScheduleWarningSummary } from '@/features/shift-assignments/types';
+import { SHIFT_LABELS } from '@/features/schedules/constants';
+import type { ScheduleWarningSummary } from '@/features/schedules/types';
 import type { WarningSeverity, WarningType } from '@/generated/prisma/client';
 
 type Props = {

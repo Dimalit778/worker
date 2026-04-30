@@ -5,9 +5,9 @@ import { useRouter } from 'next/navigation';
 import { CheckCheck, Send, Sparkles } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { finalizeSchedule, publishSchedule } from '@/features/schedules/actions';
-import { generateAutoSchedule } from '@/features/shift-assignments/generate-action';
+import { generateAutoSchedule } from '@/features/schedules/generate-action';
 import type { ScheduleStatus } from '@/generated/prisma/client';
-import { STATUS_COLORS, STATUS_LABELS } from '../constans';
+import { STATUS_COLORS, STATUS_LABELS } from '../constants';
 
 type Props = {
   periodId: string;

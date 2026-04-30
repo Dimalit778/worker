@@ -1,6 +1,6 @@
 import { cn } from '@/lib/utils';
 import type { PeriodSummary } from '../types';
-import { IL_HOLIDAYS, DAY_NAMES, DAY_NAMES_FULL } from '../constans';
+import { IL_HOLIDAYS, DAY_NAMES, DAY_NAMES_FULL } from '../constants';
 import { buildWeeks, isoToday, diffDays } from '../utils';
 
 export function PeriodCalendar({ period }: { period: PeriodSummary }) {

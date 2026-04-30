@@ -4,7 +4,7 @@ import { revalidatePath } from 'next/cache';
 import { PeriodStatus, ShiftType, SystemRole } from '@/generated/prisma/client';
 import { prisma } from '@/lib/db/client';
 import { requireSession } from '@/lib/db/auth-helpers';
-import { getOpenPeriod } from '../schedules/actions';
+import { getOpenPeriod } from '../periods/actions';
 import { EmployeeAvailabilityForPeriod } from './types';
 
 export async function getScheduleData() {

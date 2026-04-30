@@ -3,7 +3,7 @@
 import { prisma } from '@/lib/db/client';
 import { requireSession } from '@/lib/db/auth-helpers';
 import { ShiftAssignment, SystemRole } from '@/generated/prisma/client';
-import { parseISODateToUtcMidnight } from '@/features/schedules/utils';
+import { parseISODateToUtcMidnight } from '@/features/periods/utils';
 import { revalidatePath } from 'next/cache';
 import type { AssignEmployeeToSlotParams } from './types';
 

@@ -3,7 +3,7 @@
 import { useTransition } from 'react';
 import { updatePeriodStatus, deletePeriod } from '../actions';
 import { PeriodSummary } from '../types';
-import { PERIOD_STATUS_HE, NEXT_STATUS, STATUS_BADGE } from '../constans';
+import { PERIOD_STATUS_HE, NEXT_STATUS, STATUS_BADGE } from '../constants';
 import { cn } from '@/lib/utils';
 import { formatDate } from '../utils';
 

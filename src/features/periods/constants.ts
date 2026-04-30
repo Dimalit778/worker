@@ -1,4 +1,4 @@
-import { PeriodStatus, ScheduleStatus } from '@/generated/prisma/client';
+import { PeriodStatus } from '@/generated/prisma/client';
 import { PeriodType } from './types';
 
 const DEFAULT_TZ = 'Asia/Jerusalem';
@@ -79,20 +79,6 @@ const IL_HOLIDAYS: Record<string, string> = {
 const DAY_NAMES = ['א׳', 'ב׳', 'ג׳', 'ד׳', 'ה׳', 'ו׳', 'ש׳'];
 const DAY_NAMES_FULL = ['ראשון', 'שני', 'שלישי', 'רביעי', 'חמישי', 'שישי', 'שבת'];
 
-// --> draft-actions.tsx
-const STATUS_LABELS: Record<ScheduleStatus, string> = {
-  DRAFT: 'טיוטה',
-  FINALIZED: 'סוכם',
-  PUBLISHED: 'פורסם',
-};
-
-const STATUS_COLORS: Record<ScheduleStatus, string> = {
-  DRAFT: 'bg-yellow-100 text-yellow-800 border-yellow-200',
-  FINALIZED: 'bg-blue-100 text-blue-800 border-blue-200',
-  PUBLISHED: 'bg-green-100 text-green-800 border-green-200',
-};
-// --> create-period-form.tsx
-
 const PERIOD_OPTIONS: { value: PeriodType; label: string; days: number; desc: string }[] = [
   { value: 'weekly', label: 'שבועי', days: 7, desc: '7 ימים' },
   { value: 'biweekly', label: 'דו-שבועי', days: 14, desc: '14 ימים' },
@@ -107,7 +93,5 @@ export {
   IL_HOLIDAYS,
   DAY_NAMES,
   DAY_NAMES_FULL,
-  STATUS_LABELS,
-  STATUS_COLORS,
   PERIOD_OPTIONS,
 };

@@ -3,7 +3,7 @@
 import { useState } from 'react';
 import { ChevronDown, ChevronLeft } from 'lucide-react';
 
-import type { OverflowCandidateSummary } from '@/features/shift-assignments/types';
+import type { OverflowCandidateSummary } from '@/features/schedules/types';
 
 type Props = {
   candidates: OverflowCandidateSummary[];

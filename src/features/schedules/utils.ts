@@ -1,119 +1,175 @@
-/** Calendar date YYYY-MM-DD for `instant` in `timeZone` (e.g. Asia/Jerusalem). */
-function calendarDateISO(instant: Date, timeZone: string): string {
-  const parts = new Intl.DateTimeFormat('en-CA', {
-    timeZone,
-    year: 'numeric',
-    month: '2-digit',
-    day: '2-digit',
-  }).formatToParts(instant);
+import type { DayCategory, ShiftType } from '@/generated/prisma/client';
+import type { AssignmentCellKey, AssignmentMap, AssignmentSummary, ScheduleCapacityRule, WeekDay } from './types';
+import {
+  EVENING_SLOT_LABELS,
+  MORNING_SLOT_LABELS,
+  NIGHT_SLOT_LABELS,
+  WEEKDAY_HEADER_LETTERS,
+} from './constants';
 
-  const y = parts.find((p) => p.type === 'year')?.value;
-  const m = parts.find((p) => p.type === 'month')?.value;
-  const d = parts.find((p) => p.type === 'day')?.value;
-  if (!y || !m || !d) {
-    throw new Error('calendarDateISO: missing date parts');
+export function toDateOnly(date: Date): string {
+  return date.toISOString().slice(0, 10);
+}
+
+export function formatEmployeeName(employee: { firstName: string; lastName: string }): string {
+  return `${employee.firstName} ${employee.lastName}`.trim();
+}
+
+export function getAssignmentCellKey(params: { date: Date; shiftType: ShiftType; positionId: string }): AssignmentCellKey {
+  return `${toDateOnly(params.date)}-${params.shiftType}-${params.positionId}`;
+}
+
+export function createAssignmentCellKey(params: {
+  date: string;
+  shiftType: ShiftType;
+  positionId: string;
+}): AssignmentCellKey {
+  return `${params.date}-${params.shiftType}-${params.positionId}`;
+}
+
+/** ISO week slice starting at period `startDate` + `weekIndex` × 7 days */
+export function buildWeekDays(startDateISO: string, weekIndex: number): WeekDay[] {
+  const [y, m, d] = startDateISO.split('-').map(Number);
+  const base = new Date(Date.UTC(y, m - 1, d + weekIndex * 7));
+
+  return Array.from({ length: 7 }, (_, i) => {
+    const date = new Date(Date.UTC(base.getUTCFullYear(), base.getUTCMonth(), base.getUTCDate() + i));
+    const iso = date.toISOString().slice(0, 10);
+    const dayOfWeek = date.getUTCDay();
+    const letter = WEEKDAY_HEADER_LETTERS[dayOfWeek];
+    const dd = String(date.getUTCDate()).padStart(2, '0');
+    const mm = String(date.getUTCMonth() + 1).padStart(2, '0');
+    return { iso, dayOfWeek, letter, label: `${dd}/${mm}` };
+  });
+}
+
+/** Inclusive list of calendar dates from start through end (UTC date-only). */
+export function buildScheduleDates(startDateISO: string, endDateISO: string): string[] {
+  const [ys, ms, ds] = startDateISO.split('-').map(Number);
+  const [ye, me, de] = endDateISO.split('-').map(Number);
+  const dates: string[] = [];
+  const cursor = new Date(Date.UTC(ys, ms - 1, ds));
+  const end = new Date(Date.UTC(ye, me - 1, de));
+  while (cursor <= end) {
+    dates.push(toDateOnly(cursor));
+    cursor.setUTCDate(cursor.getUTCDate() + 1);
   }
-  return `${y}-${m}-${d}`;
+  return dates;
 }
 
-/** UTC midnight for a civil YYYY-MM-DD (matches PostgreSQL `date` semantics for comparisons). */
-function parseISODateToUtcMidnight(iso: string): Date {
-  const [y, m, d] = iso.split('-').map(Number);
-  if (!y || !m || !d) {
-    throw new Error(`parseISODateToUtcMidnight: invalid ISO date "${iso}"`);
+/**
+ * Maps a calendar date to staffing day category.
+ * Holidays are not detected here; use HOLIDAY only when the caller supplies holiday dates.
+ */
+export function getDayCategoryForDate(isoDate: string, holidayIsoSet?: ReadonlySet<string>): DayCategory {
+  if (holidayIsoSet?.has(isoDate)) return 'HOLIDAY';
+  const [y, m, d] = isoDate.split('-').map(Number);
+  const day = new Date(Date.UTC(y, m - 1, d)).getUTCDay();
+  if (day === 5) return 'FRIDAY';
+  if (day === 6) return 'SATURDAY';
+  return 'WEEKDAY';
+}
+
+export function getCapacityForCell(
+  rules: ScheduleCapacityRule[],
+  dayCategory: DayCategory,
+  shiftType: ShiftType,
+  positionId: string,
+): number {
+  const row = rules.find(
+    (r) => r.dayCategory === dayCategory && r.shiftType === shiftType && r.positionId === positionId,
+  );
+  return row?.amount ?? 0;
+}
+
+/** Unique positions that have capacity for this shift, sorted by `Position.displayOrder` then name */
+export function getOrderedPositionsForShift(
+  rules: ScheduleCapacityRule[],
+  shiftType: ShiftType,
+): Array<{ positionId: string; positionName: string; positionDisplayOrder: number }> {
+  const map = new Map<string, { positionId: string; positionName: string; positionDisplayOrder: number }>();
+  for (const r of rules) {
+    if (r.shiftType !== shiftType) continue;
+    const prev = map.get(r.positionId);
+    if (!prev) {
+      map.set(r.positionId, {
+        positionId: r.positionId,
+        positionName: r.positionName,
+        positionDisplayOrder: r.positionDisplayOrder,
+      });
+    }
   }
-  return new Date(Date.UTC(y, m - 1, d));
+  return [...map.values()].sort(
+    (a, b) => a.positionDisplayOrder - b.positionDisplayOrder || a.positionName.localeCompare(b.positionName, 'he'),
+  );
 }
 
-function utcNoonFromCalendarISO(iso: string): Date {
-  const [y, m, d] = iso.split('-').map(Number);
-  if (!y || !m || !d) {
-    throw new Error(`utcNoonFromCalendarISO: invalid ISO date "${iso}"`);
+/** Max required headcount for this position+shift across the given dates (for slot rows). */
+/** Guard rows use a blank תפקיד label (DB `Position.name` is often מאבטח or legacy GUARD). */
+export function isGuardPositionLabel(positionName: string): boolean {
+  const t = positionName.trim();
+  if (t === 'מאבטח') return true;
+  const u = t.toUpperCase();
+  return u === 'GUARD' || u === 'GUARDE';
+}
+
+export function maxSlotsForPositionInWeek(
+  rules: ScheduleCapacityRule[],
+  shiftType: ShiftType,
+  positionId: string,
+  weekIsoDates: string[],
+  holidayIsoSet?: ReadonlySet<string>,
+): number {
+  let max = 0;
+  for (const iso of weekIsoDates) {
+    const cat = getDayCategoryForDate(iso, holidayIsoSet);
+    max = Math.max(max, getCapacityForCell(rules, cat, shiftType, positionId));
   }
-  return new Date(Date.UTC(y, m - 1, d, 12, 0, 0));
+  return max;
 }
 
-function todayUtcDateForTimeZone(timeZone: string, instant: Date = new Date()): Date {
-  return parseISODateToUtcMidnight(calendarDateISO(instant, timeZone));
-}
-//  --> preiod-list page
-function formatDate(iso: string) {
-  const [y, m, d] = iso.split('-');
-  return `${d}/${m}/${y}`;
-}
-function addDays(isoDate: string, n: number): string {
-  const d = new Date(isoDate + 'T00:00:00Z');
-  d.setUTCDate(d.getUTCDate() + n);
-  return d.toISOString().slice(0, 10);
+export function getShiftSlotLabel(shiftType: ShiftType, slotIndex: number): string {
+  const map =
+    shiftType === 'MORNING' ? MORNING_SLOT_LABELS : shiftType === 'EVENING' ? EVENING_SLOT_LABELS : NIGHT_SLOT_LABELS;
+  if (map[slotIndex] !== undefined) return map[slotIndex];
+  const keys = Object.keys(map)
+    .map(Number)
+    .sort((a, b) => a - b);
+  return map[keys[keys.length - 1]] ?? '';
 }
 
-function diffDays(a: string, b: string): number {
-  return (new Date(b + 'T00:00:00Z').getTime() - new Date(a + 'T00:00:00Z').getTime()) / 86400000;
-}
-
-function isoToday(): string {
-  return new Date().toISOString().slice(0, 10);
-}
-
-function buildWeeks(startDate: string, endDate: string): string[][] {
-  const firstDay = new Date(startDate + 'T00:00:00Z');
-  const dayOfWeek = firstDay.getUTCDay(); // 0=Sun … 6=Sat
-  const paddedStart = addDays(startDate, -dayOfWeek);
-
-  const lastDay = new Date(endDate + 'T00:00:00Z');
-  const lastDayOfWeek = lastDay.getUTCDay();
-  const paddedEnd = addDays(endDate, 6 - lastDayOfWeek);
-
-  const total = diffDays(paddedStart, paddedEnd) + 1;
-  const dates: string[] = Array.from({ length: total }, (_, i) => addDays(paddedStart, i));
-
-  const weeks: string[][] = [];
-  for (let i = 0; i < dates.length; i += 7) {
-    weeks.push(dates.slice(i, i + 7));
+export function buildAssignmentMap(
+  rows: Array<{
+    date: Date;
+    shiftType: ShiftType;
+    positionId: string;
+    positionName: string;
+    id: string;
+    employeeId: string;
+    employeeName: string;
+    slotIndex: number;
+  }>,
+): AssignmentMap {
+  const map: AssignmentMap = {};
+  for (const row of rows) {
+    const key = getAssignmentCellKey({
+      date: row.date,
+      shiftType: row.shiftType,
+      positionId: row.positionId,
+    });
+    const list = (map[key] ??= []);
+    list.push({
+      id: row.id,
+      employeeId: row.employeeId,
+      employeeName: row.employeeName,
+      positionId: row.positionId,
+      positionName: row.positionName,
+      shiftType: row.shiftType,
+      slotIndex: row.slotIndex,
+    });
   }
-  return weeks;
-}
-
-// --> create-period-form.tsx
-
-function upcomingSundayISO(from: Date = new Date()): string {
-  const d = new Date(from.getFullYear(), from.getMonth(), from.getDate());
-  const day = d.getDay();
-  const daysUntilSunday = (7 - day) % 7;
-  d.setDate(d.getDate() + daysUntilSunday);
-  const y = d.getFullYear();
-  const m = String(d.getMonth() + 1).padStart(2, '0');
-  const num = String(d.getDate()).padStart(2, '0');
-  return `${y}-${m}-${num}`;
-}
-
-function suggestName(start: string, days: number): string {
-  const d = new Date(`${start}T12:00:00Z`);
-  const month = d.toLocaleDateString('he-IL', { month: 'long', year: 'numeric', timeZone: 'UTC' });
-  if (days === 7) {
-    const weekNum = Math.ceil(d.getUTCDate() / 7);
-    return `${month} — שבוע ${weekNum}`;
+  for (const list of Object.values(map)) {
+    list.sort((a, b) => a.slotIndex - b.slotIndex);
   }
-  return month;
+  return map;
 }
-
-function deriveFields(start: string, days: number) {
-  const end = addDays(start, days - 1);
-  const deadline = addDays(end, -2) + 'T17:00';
-  return { end, deadline };
-}
-
-export {
-  calendarDateISO,
-  parseISODateToUtcMidnight,
-  utcNoonFromCalendarISO,
-  todayUtcDateForTimeZone,
-  formatDate,
-  addDays,
-  diffDays,
-  isoToday,
-  buildWeeks,
-  upcomingSundayISO,
-  suggestName,
-  deriveFields,
-};
