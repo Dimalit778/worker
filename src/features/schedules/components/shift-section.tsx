@@ -10,7 +10,7 @@ import type { AssignmentMap, OverflowCandidateMap, ScheduleCapacityRule, Schedul
 import { SHIFT_STYLES } from '../constants';
 import type { ShiftType } from '@/generated/prisma/client';
 import { AssignmentCell } from './assignment-cell';
-import { upsertPositionForDisplayOrder } from '@/features/court-settings/actions';
+import { upsertPositionForDisplayOrder } from '@/features/settings/actions';
 import {
   createAssignmentCellKey,
   getCapacityForCell,

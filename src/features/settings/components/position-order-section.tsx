@@ -111,18 +111,14 @@ export function PositionOrderSection({ positions, className }: Props) {
       </div>
 
       <div className="rounded-xl border border-dashed border-border/90 bg-background/50 p-4 sm:p-5">
-        <p className="mb-3 text-sm font-medium text-foreground">הוספת תפקיד (שם בלבד)</p>
         <form onSubmit={handleCreate} className="flex flex-col gap-3 sm:flex-row sm:items-end">
           <div className="min-w-0 flex-1 space-y-1.5">
-            <Label htmlFor="new-position-name-inline" className="text-muted-foreground">
-              שם
-            </Label>
             <Input
               id="new-position-name-inline"
               name="newPositionName"
               required
               autoComplete="off"
-              placeholder="לדוגמה: רכז משמרת"
+              placeholder="שם התפקיד"
               disabled={isPending}
               className="h-10"
             />

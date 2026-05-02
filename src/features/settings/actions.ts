@@ -4,18 +4,18 @@ import { revalidatePath } from 'next/cache';
 import { prisma } from '@/lib/db/client';
 import { requireSession } from '@/lib/db/auth-helpers';
 import { SystemRole, type DayCategory, type ShiftType } from '@/generated/prisma/client';
-import { managerCourtPositionsWhere } from '@/features/court-settings/queries';
+import { managerCourtPositionsWhere } from '@/features/settings/queries';
 
 const ALL_SHIFTS: ShiftType[] = ['MORNING', 'EVENING', 'NIGHT'];
 
 const DAY_VALUES = new Set<DayCategory>(['WEEKDAY', 'FRIDAY', 'SATURDAY', 'HOLIDAY']);
 const SHIFT_SCOPE_VALUES = new Set<ShiftType | 'ALL'>(['MORNING', 'EVENING', 'NIGHT', 'ALL']);
 
-function nextManagerPositionDisplayOrder(maxDisplayOrder: number | null) {
-  if (maxDisplayOrder == null) {
+function nextManagerPositionCode(maxCode: number | null) {
+  if (maxCode == null) {
     return 1;
   }
-  return maxDisplayOrder + 1;
+  return maxCode + 1;
 }
 
 export async function addPositionWithCapacities(params: {
@@ -50,18 +50,18 @@ export async function addPositionWithCapacities(params: {
   const shifts: ShiftType[] = params.shiftScope === 'ALL' ? ALL_SHIFTS : [params.shiftScope];
 
   try {
-    const maxOrder = await prisma.position.aggregate({
+    const maxCode = await prisma.position.aggregate({
       where: managerCourtPositionsWhere(courtId),
-      _max: { displayOrder: true },
+      _max: { code: true },
     });
-    const displayOrder = nextManagerPositionDisplayOrder(maxOrder._max.displayOrder);
+    const code = nextManagerPositionCode(maxCode._max?.code ?? null);
 
     await prisma.$transaction(async (tx) => {
       const position = await tx.position.create({
         data: {
           courtId,
           name,
-          displayOrder,
+          code,
           isActive: true,
         },
       });
@@ -74,8 +74,8 @@ export async function addPositionWithCapacities(params: {
             shiftType,
             dayCategory: params.dayCategory,
             amount,
-            displayOrder,
             isActive: true,
+            displayOrder: code,
           },
         });
       }
@@ -103,17 +103,17 @@ export async function createPosition(name: string): Promise<{ ok: true } | { err
   }
 
   try {
-    const maxOrder = await prisma.position.aggregate({
+    const maxCode = await prisma.position.aggregate({
       where: managerCourtPositionsWhere(courtId),
-      _max: { displayOrder: true },
+      _max: { code: true },
     });
-    const displayOrder = nextManagerPositionDisplayOrder(maxOrder._max.displayOrder);
+    const code = nextManagerPositionCode(maxCode._max?.code ?? null);
 
     await prisma.position.create({
       data: {
         courtId,
         name: trimmed,
-        displayOrder,
+        code,
         isActive: true,
       },
     });
@@ -136,8 +136,8 @@ export async function upsertPositionForDisplayOrder(params: {
     return { error: 'למנהל אין בית משפט משויך' };
   }
 
-  const displayOrder = Math.floor(Number(params.displayOrder));
-  if (Number.isNaN(displayOrder) || displayOrder < 1 || displayOrder > 200) {
+  const rowCode = Math.floor(Number(params.displayOrder));
+  if (Number.isNaN(rowCode) || rowCode < 1 || rowCode > 200) {
     return { error: 'מספר שורה לא תקין' };
   }
 
@@ -153,7 +153,7 @@ export async function upsertPositionForDisplayOrder(params: {
     const existingAtRow = await prisma.position.findFirst({
       where: {
         courtId,
-        displayOrder,
+        code: rowCode,
         name: { not: 'מנהל' },
       },
       select: { id: true },
@@ -163,7 +163,7 @@ export async function upsertPositionForDisplayOrder(params: {
     if (existingAtRow) {
       await prisma.position.update({
         where: { id: existingAtRow.id },
-        data: { name, displayOrder, isActive: true },
+        data: { name, code: rowCode, isActive: true },
       });
     } else {
       await prisma.position.upsert({
@@ -174,13 +174,13 @@ export async function upsertPositionForDisplayOrder(params: {
           },
         },
         update: {
-          displayOrder,
+          code: rowCode,
           isActive: true,
         },
         create: {
           courtId,
           name,
-          displayOrder,
+          code: rowCode,
           isActive: true,
         },
       });
@@ -216,8 +216,8 @@ async function swapPositionOrderWithNeighbor(
 
     const ordered = await tx.position.findMany({
       where: managerCourtPositionsWhere(sessionCourtId),
-      select: { id: true, displayOrder: true },
-      orderBy: [{ displayOrder: 'asc' }, { createdAt: 'asc' }],
+      select: { id: true, code: true },
+      orderBy: [{ code: 'asc' }, { createdAt: 'asc' }],
     });
 
     const index = ordered.findIndex((p) => p.id === positionId);
@@ -232,28 +232,36 @@ async function swapPositionOrderWithNeighbor(
 
     const a = ordered[index]!;
     const b = ordered[j]!;
-    const oa = a.displayOrder;
-    const ob = b.displayOrder;
+    const codeA = a.code;
+    const codeB = b.code;
 
-    await tx.position.update({ where: { id: a.id }, data: { displayOrder: ob } });
-    await tx.position.update({ where: { id: b.id }, data: { displayOrder: oa } });
+    const maxRow = await tx.position.aggregate({
+      where: { courtId: sessionCourtId },
+      _max: { code: true },
+    });
+    let tempCode = (maxRow._max.code ?? 0) + 1;
+    while (tempCode === codeA || tempCode === codeB) {
+      tempCode += 1;
+    }
+
+    await tx.position.update({ where: { id: a.id }, data: { code: tempCode } });
+    await tx.position.update({ where: { id: b.id }, data: { code: codeA } });
+    await tx.position.update({ where: { id: a.id }, data: { code: codeB } });
 
     await tx.shiftCapacity.updateMany({
       where: { positionId: a.id },
-      data: { displayOrder: ob },
+      data: { displayOrder: codeB },
     });
     await tx.shiftCapacity.updateMany({
       where: { positionId: b.id },
-      data: { displayOrder: oa },
+      data: { displayOrder: codeA },
     });
 
     return { ok: true };
   });
 }
 
-export async function movePositionUp(
-  positionId: string,
-): Promise<{ ok: true } | { error: string }> {
+export async function movePositionUp(positionId: string): Promise<{ ok: true } | { error: string }> {
   const session = await requireSession(SystemRole.MANAGER);
   const courtId = session.user.courtId;
   if (!courtId) {
@@ -267,9 +275,7 @@ export async function movePositionUp(
   return res;
 }
 
-export async function movePositionDown(
-  positionId: string,
-): Promise<{ ok: true } | { error: string }> {
+export async function movePositionDown(positionId: string): Promise<{ ok: true } | { error: string }> {
   const session = await requireSession(SystemRole.MANAGER);
   const courtId = session.user.courtId;
   if (!courtId) {
@@ -296,7 +302,7 @@ export async function addShiftCapacity(params: {
       },
       select: {
         courtId: true,
-        displayOrder: true,
+        code: true,
       },
     });
 
@@ -324,7 +330,7 @@ export async function addShiftCapacity(params: {
         dayCategory: params.dayCategory,
         amount: params.amount,
         isActive: true,
-        displayOrder: position.displayOrder,
+        displayOrder: position.code,
       },
       select: {
         id: true,

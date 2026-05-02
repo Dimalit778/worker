@@ -8,7 +8,7 @@ const navItems = [
   { href: '/manager/draft', label: 'בהכנה' },
   { href: '/manager/schedule', label: 'שיבוץ עבודה' },
   { href: '/manager/periods', label: 'תקופות' },
-  { href: '/manager/guards', label: 'מאבטחים' },
+  { href: '/manager/employees', label: 'עובדים' },
   { href: '/manager/settings', label: 'הגדרות' },
 ] as const;
 

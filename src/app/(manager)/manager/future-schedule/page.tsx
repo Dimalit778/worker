@@ -1,7 +1,7 @@
 import { requireSession } from '@/lib/db/auth-helpers';
 import { SystemRole } from '@/generated/prisma/client';
-import { getDraftScheduleData } from '@/features/shift-assignments/queries';
-import { Schedule } from '@/features/shift-assignments/components/schedule';
+import { getDraftScheduleData } from '@/features/schedules/queries';
+import { Schedule } from '@/features/schedules/components/schedule';
 import { DraftActions } from '@/features/schedules/components/draft-actions';
 import { WarningsPanel } from '@/features/schedules/components/warnings-panel';
 

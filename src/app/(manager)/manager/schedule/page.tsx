@@ -1,7 +1,7 @@
 import { requireSession } from '@/lib/db/auth-helpers';
 import { SystemRole } from '@/generated/prisma/client';
-import { getSchedulePageData } from '@/features/shift-assignments/queries';
-import { Schedule } from '@/features/shift-assignments/components/schedule';
+import { getSchedulePageData } from '@/features/schedules/queries';
+import { Schedule } from '@/features/schedules/components/schedule';
 
 export default async function ManagerSchedulePage() {
   const session = await requireSession(SystemRole.MANAGER);

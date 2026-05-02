@@ -5,7 +5,14 @@ import { revalidatePath } from 'next/cache';
 import { SystemRole } from '@/generated/prisma/client';
 import { prisma } from '@/lib/db/client';
 import { requireSession } from '@/lib/db/auth-helpers';
-import type { CreateEmployeeParams, UpdateEmployeeParams, EmployeesPageData } from '@/features/employess/types';
+import type {
+  CreateEmployeeParams,
+  EmployeeDetailData,
+  EmployeeSubmissionsData,
+  EmployeesPageData,
+  UpdateEmployeeParams,
+} from '@/features/employess/types';
+import { availabilityEntriesToRecord } from '@/features/availability/utils';
 import { getInitialPasswordFromEmail } from './utils';
 
 export async function createEmployee(params: CreateEmployeeParams): Promise<{ ok: true } | { error: string }> {
@@ -180,5 +187,260 @@ export async function getEmployeesPageData(): Promise<EmployeesPageData> {
       },
     })),
     positions,
+  };
+}
+
+export async function getManagerEmployeeDetail(employeeId: string): Promise<EmployeeDetailData> {
+  const session = await requireSession(SystemRole.MANAGER);
+  const courtId = session.user.courtId;
+  if (!courtId) return { error: 'למנהל אין בית משפט משויך' };
+
+  const employee = await prisma.employee.findFirst({
+    where: { id: employeeId, courtId },
+    select: {
+      id: true,
+      firstName: true,
+      lastName: true,
+      displayName: true,
+      phone: true,
+      isActive: true,
+      isReligious: true,
+      createdAt: true,
+      updatedAt: true,
+      position: {
+        select: {
+          id: true,
+          name: true,
+          code: true,
+          isActive: true,
+        },
+      },
+      court: {
+        select: {
+          id: true,
+          name: true,
+          code: true,
+          region: {
+            select: {
+              name: true,
+            },
+          },
+        },
+      },
+      user: {
+        select: {
+          id: true,
+          email: true,
+          mustChangePassword: true,
+          createdAt: true,
+          updatedAt: true,
+        },
+      },
+    },
+  });
+
+  if (!employee) return { error: 'עובד לא נמצא' };
+
+  const [
+    submittedCount,
+    totalAvailabilityRecords,
+    selectedSlots,
+    assignments,
+    manualAssignments,
+    warnings,
+    fairnessRecordCount,
+    recentAssignments,
+    fairnessRecords,
+  ] = await Promise.all([
+    prisma.availability.count({ where: { employeeId, isSubmitted: true } }),
+    prisma.availability.count({ where: { employeeId } }),
+    prisma.availabilityEntry.count({
+      where: {
+        isAvailable: true,
+        availability: {
+          employeeId,
+        },
+      },
+    }),
+    prisma.shiftAssignment.count({ where: { employeeId, courtId } }),
+    prisma.shiftAssignment.count({ where: { employeeId, courtId, isManualOverride: true } }),
+    prisma.scheduleWarning.count({ where: { employeeId, courtId } }),
+    prisma.fairnessRecord.count({ where: { employeeId } }),
+    prisma.shiftAssignment.findMany({
+      where: { employeeId, courtId },
+      orderBy: { date: 'desc' },
+      take: 8,
+      select: {
+        id: true,
+        date: true,
+        shiftType: true,
+        isManualOverride: true,
+        position: {
+          select: {
+            name: true,
+          },
+        },
+        schedule: {
+          select: {
+            period: {
+              select: {
+                name: true,
+              },
+            },
+          },
+        },
+      },
+    }),
+    prisma.fairnessRecord.findMany({
+      where: { employeeId },
+      orderBy: { period: { startDate: 'desc' } },
+      take: 6,
+      select: {
+        id: true,
+        totalShifts: true,
+        morningShifts: true,
+        eveningShifts: true,
+        nightShifts: true,
+        weekendShifts: true,
+        period: {
+          select: {
+            name: true,
+          },
+        },
+      },
+    }),
+  ]);
+
+  return {
+    employee: {
+      id: employee.id,
+      firstName: employee.firstName,
+      lastName: employee.lastName,
+      displayName: employee.displayName,
+      phone: employee.phone,
+      email: employee.user?.email ?? '',
+      isActive: employee.isActive,
+      isReligious: employee.isReligious,
+      createdAt: employee.createdAt.toISOString(),
+      updatedAt: employee.updatedAt.toISOString(),
+      position: employee.position,
+      court: {
+        id: employee.court.id,
+        name: employee.court.name,
+        code: employee.court.code,
+        regionName: employee.court.region.name,
+      },
+      user: employee.user
+        ? {
+            id: employee.user.id,
+            email: employee.user.email,
+            mustChangePassword: employee.user.mustChangePassword,
+            createdAt: employee.user.createdAt.toISOString(),
+            updatedAt: employee.user.updatedAt.toISOString(),
+          }
+        : null,
+    },
+    stats: {
+      submissions: submittedCount,
+      totalAvailabilityRecords,
+      selectedSlots,
+      assignments,
+      manualAssignments,
+      warnings,
+      fairnessRecords: fairnessRecordCount,
+    },
+    recentAssignments: recentAssignments.map((assignment) => ({
+      id: assignment.id,
+      date: assignment.date.toISOString().slice(0, 10),
+      shiftType: assignment.shiftType,
+      isManualOverride: assignment.isManualOverride,
+      positionName: assignment.position.name,
+      periodName: assignment.schedule.period.name,
+    })),
+    fairnessRecords: fairnessRecords.map((record) => ({
+      id: record.id,
+      periodName: record.period.name,
+      totalShifts: record.totalShifts,
+      morningShifts: record.morningShifts,
+      eveningShifts: record.eveningShifts,
+      nightShifts: record.nightShifts,
+      weekendShifts: record.weekendShifts,
+    })),
+  };
+}
+
+export async function getManagerEmployeeSubmissions(employeeId: string): Promise<EmployeeSubmissionsData> {
+  const session = await requireSession(SystemRole.MANAGER);
+  const courtId = session.user.courtId;
+  if (!courtId) return { error: 'למנהל אין בית משפט משויך' };
+
+  const employee = await prisma.employee.findFirst({
+    where: { id: employeeId, courtId },
+    select: {
+      id: true,
+      firstName: true,
+      lastName: true,
+      displayName: true,
+      isActive: true,
+      position: {
+        select: {
+          name: true,
+        },
+      },
+    },
+  });
+
+  if (!employee) return { error: 'עובד לא נמצא' };
+
+  const periods = await prisma.schedulePeriod.findMany({
+    where: { courtId },
+    orderBy: { startDate: 'desc' },
+    select: {
+      id: true,
+      name: true,
+      startDate: true,
+      endDate: true,
+      submissionDeadline: true,
+      status: true,
+      availabilities: {
+        where: { employeeId },
+        take: 1,
+        select: {
+          id: true,
+          isSubmitted: true,
+          submittedAt: true,
+          entries: true,
+        },
+      },
+    },
+  });
+
+  return {
+    employee: {
+      id: employee.id,
+      displayName: employee.displayName,
+      firstName: employee.firstName,
+      lastName: employee.lastName,
+      positionName: employee.position.name,
+      isActive: employee.isActive,
+    },
+    periods: periods.map((period) => {
+      const availability = period.availabilities[0] ?? null;
+      const entries = availabilityEntriesToRecord(availability?.entries ?? []);
+
+      return {
+        id: period.id,
+        name: period.name,
+        startDate: period.startDate.toISOString().slice(0, 10),
+        endDate: period.endDate.toISOString().slice(0, 10),
+        submissionDeadline: period.submissionDeadline.toISOString(),
+        status: period.status,
+        availabilityId: availability?.id ?? null,
+        isSubmitted: availability?.isSubmitted ?? false,
+        submittedAt: availability?.submittedAt?.toISOString() ?? null,
+        entries,
+        selectedSlotCount: Object.values(entries).filter(Boolean).length,
+      };
+    }),
   };
 }

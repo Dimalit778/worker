@@ -4,13 +4,13 @@ import { useState, useTransition, useRef } from 'react';
 import { useRouter } from 'next/navigation';
 import { cn } from '@/lib/utils';
 import { GuardPicker } from './guard-picker';
-import { assignEmployeeToSlot, removeAssignment, updateAssignmentEmployee } from '@/features/shift-assignments/actions';
+import { assignEmployeeToSlot, removeAssignment, updateAssignmentEmployee } from '@/features/schedules/actions';
 import { OverflowCandidates } from '@/features/schedules/components/overflow-candidates';
 import type {
   AssignmentSummary,
   OverflowCandidateSummary,
   ScheduleEmployeeOption,
-} from '@/features/shift-assignments/types';
+} from '@/features/schedules/types';
 import type { ShiftType } from '@/generated/prisma/client';
 
 type Props = {

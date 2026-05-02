@@ -17,10 +17,7 @@ export default async function ManagerPeriodsPage() {
 
   return (
     <div className="space-y-6" dir="rtl">
-      <div className="flex items-center justify-between">
-        <h1 className="text-2xl font-bold">תקופות שיבוץ</h1>
-        <CreatePeriodForm />
-      </div>
+      <CreatePeriodForm />
 
       <div className="grid grid-cols-2 sm:grid-cols-3 gap-4">
         <Card>

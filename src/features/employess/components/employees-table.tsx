@@ -1,8 +1,9 @@
 'use client';
 
 import { useState, useTransition } from 'react';
+import Link from 'next/link';
 import { useRouter } from 'next/navigation';
-import { Pencil, Trash2 } from 'lucide-react';
+import { Eye, Pencil, Trash2 } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { EmployeeListItem, PositionOption } from '@/features/employess/types';
 import { deleteEmployee } from '@/features/employess/actions';
@@ -113,7 +114,12 @@ export function EmployeesTable({
               >
                 <td className="px-4 py-3 text-muted-foreground">{i + 1}</td>
                 <td className="px-4 py-3 font-medium">
-                  {employee.firstName} {employee.lastName}
+                  <Link
+                    href={`/manager/employees/${employee.id}`}
+                    className="hover:text-primary hover:underline underline-offset-4"
+                  >
+                    {employee.firstName} {employee.lastName}
+                  </Link>
                 </td>
                 <td className="px-4 py-3">
                   <span
@@ -140,6 +146,13 @@ export function EmployeesTable({
                 </td>
                 <td className="px-4 py-3">
                   <div className="flex items-center gap-2 justify-end">
+                    <Link
+                      href={`/manager/employees/${employee.id}`}
+                      className="text-muted-foreground hover:text-foreground p-1 rounded hover:bg-muted"
+                      aria-label={`פתח פרטי עובד ${employee.displayName}`}
+                    >
+                      <Eye className="w-3.5 h-3.5" />
+                    </Link>
                     <button
                       onClick={() => openEdit(employee)}
                       className="text-muted-foreground hover:text-foreground p-1 rounded hover:bg-muted"

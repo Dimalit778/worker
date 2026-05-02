@@ -1,8 +1,8 @@
 import { requireSession } from '@/lib/db/auth-helpers';
 import { SystemRole } from '@/generated/prisma/client';
-import { getPositions, getShiftCapacities } from '@/features/court-settings/queries';
-import { CourtCapacityRules } from '@/features/court-settings/components/court-capacity';
-import { PositionOrderSection } from '@/features/court-settings/components/position-order-section';
+import { getPositions, getShiftCapacities } from '@/features/settings/queries';
+import { CourtCapacityRules } from '@/features/settings/components/court-capacity';
+import { PositionOrderSection } from '@/features/settings/components/position-order-section';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { ListOrdered, SlidersHorizontal } from 'lucide-react';
 
@@ -12,8 +12,6 @@ export default async function ManagerSettingsPage() {
 
   const capacities = await getShiftCapacities(courtId);
   const positions = await getPositions(courtId);
-  console.log('capacities', JSON.stringify(capacities, null, 2));
-  console.log('positions', JSON.stringify(positions, null, 2));
 
   return (
     <div className="mx-auto w-full max-w-4xl space-y-8 pb-8 pt-1" dir="rtl">

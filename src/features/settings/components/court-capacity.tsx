@@ -3,8 +3,8 @@
 import { useLayoutEffect, useMemo, useState, useTransition } from 'react';
 import type { DayCategory, ShiftType } from '@/generated/prisma/client';
 import { Button } from '@/components/ui/button';
-import { DAY_CATEGORIES, DAY_META, SHIFT_ORDER, SHIFT_LABELS } from '@/features/court-settings/constans';
-import { addShiftCapacity, updateShiftCapacity } from '@/features/court-settings/actions';
+import { DAY_CATEGORIES, DAY_META, SHIFT_ORDER, SHIFT_LABELS } from '@/features/settings/constans';
+import { addShiftCapacity, updateShiftCapacity } from '@/features/settings/actions';
 import { AddPositionModal } from './add-position-modal';
 import { cn } from '@/lib/utils';
 import { ChevronDown, UserPlus } from 'lucide-react';
