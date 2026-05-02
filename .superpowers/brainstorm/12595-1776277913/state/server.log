@@ -1,5 +1,0 @@
-{"type":"server-started","port":55509,"host":"127.0.0.1","url_host":"localhost","url":"http://localhost:55509","screen_dir":"/Users/dimalitvinov/Mac/Dev/Projects/worker/.superpowers/brainstorm/12595-1776277913/content","state_dir":"/Users/dimalitvinov/Mac/Dev/Projects/worker/.superpowers/brainstorm/12595-1776277913/state"}
-{"type":"screen-added","file":"/Users/dimalitvinov/Mac/Dev/Projects/worker/.superpowers/brainstorm/12595-1776277913/content/guards-layout.html"}
-{"type":"screen-added","file":"/Users/dimalitvinov/Mac/Dev/Projects/worker/.superpowers/brainstorm/12595-1776277913/content/add-edit-form.html"}
-{"type":"screen-added","file":"/Users/dimalitvinov/Mac/Dev/Projects/worker/.superpowers/brainstorm/12595-1776277913/content/waiting-1.html"}
-{"type":"server-stopped","reason":"idle timeout"}
