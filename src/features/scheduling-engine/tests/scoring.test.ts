@@ -5,7 +5,7 @@ import { EngineEmployee, EngineSlot, FairnessSummary } from "../types";
 // ─── Fixtures ─────────────────────────────────────────────────────────────────
 
 function emp(id: string): EngineEmployee {
-  return { id, courtId: "court1", positionId: "pos1", isActive: true };
+  return { id, courtId: "court1", positionId: "pos1", positionName: "מאבטח", isActive: true };
 }
 
 function fairness(
@@ -26,6 +26,7 @@ function fairness(
 const SLOT: EngineSlot = {
   courtId: "court1",
   positionId: "pos1",
+  positionName: "מאבטח",
   date: new Date("2024-01-01T00:00:00.000Z"),
   shiftType: "MORNING",
   dayCategory: "WEEKDAY",

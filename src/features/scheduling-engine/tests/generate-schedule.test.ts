@@ -28,30 +28,39 @@ const WEEK2 = [
 const ALL_DATES = [...WEEK1, ...WEEK2];
 const COURT = "court1";
 const POSITION = "pos1";
+const POSITION_NAME = "מאבטח";
+const AHMASH_POSITION = "pos-ahmash";
+const BAKAR_POSITION = "pos-bakar";
+const AHMASH_POSITION_NAME = "אחמ״ש";
+const BAKAR_POSITION_NAME = "בקר";
 
 // Capacities: 2 slots per MORNING/EVENING per day so two employees can both be
 // assigned on the same date, satisfying minimums without conflict.
 const CAPACITIES_2: EngineCapacity[] = [
-  { positionId: POSITION, shiftType: "MORNING", dayCategory: "WEEKDAY", amount: 2 },
-  { positionId: POSITION, shiftType: "EVENING", dayCategory: "WEEKDAY", amount: 2 },
-  { positionId: POSITION, shiftType: "MORNING", dayCategory: "FRIDAY", amount: 2 },
-  { positionId: POSITION, shiftType: "EVENING", dayCategory: "FRIDAY", amount: 2 },
-  { positionId: POSITION, shiftType: "MORNING", dayCategory: "SATURDAY", amount: 2 },
+  { positionId: POSITION, positionName: POSITION_NAME, shiftType: "MORNING", dayCategory: "WEEKDAY", amount: 2 },
+  { positionId: POSITION, positionName: POSITION_NAME, shiftType: "EVENING", dayCategory: "WEEKDAY", amount: 2 },
+  { positionId: POSITION, positionName: POSITION_NAME, shiftType: "MORNING", dayCategory: "FRIDAY", amount: 2 },
+  { positionId: POSITION, positionName: POSITION_NAME, shiftType: "EVENING", dayCategory: "FRIDAY", amount: 2 },
+  { positionId: POSITION, positionName: POSITION_NAME, shiftType: "MORNING", dayCategory: "SATURDAY", amount: 2 },
 ];
 
 // Capacities: 1 slot per shift type per day (for single-employee or overflow tests).
 const CAPACITIES_1: EngineCapacity[] = [
-  { positionId: POSITION, shiftType: "MORNING", dayCategory: "WEEKDAY", amount: 1 },
-  { positionId: POSITION, shiftType: "EVENING", dayCategory: "WEEKDAY", amount: 1 },
-  { positionId: POSITION, shiftType: "MORNING", dayCategory: "FRIDAY", amount: 1 },
-  { positionId: POSITION, shiftType: "EVENING", dayCategory: "FRIDAY", amount: 1 },
-  { positionId: POSITION, shiftType: "MORNING", dayCategory: "SATURDAY", amount: 1 },
+  { positionId: POSITION, positionName: POSITION_NAME, shiftType: "MORNING", dayCategory: "WEEKDAY", amount: 1 },
+  { positionId: POSITION, positionName: POSITION_NAME, shiftType: "EVENING", dayCategory: "WEEKDAY", amount: 1 },
+  { positionId: POSITION, positionName: POSITION_NAME, shiftType: "MORNING", dayCategory: "FRIDAY", amount: 1 },
+  { positionId: POSITION, positionName: POSITION_NAME, shiftType: "EVENING", dayCategory: "FRIDAY", amount: 1 },
+  { positionId: POSITION, positionName: POSITION_NAME, shiftType: "MORNING", dayCategory: "SATURDAY", amount: 1 },
 ];
 
 // ─── Fixture builders ─────────────────────────────────────────────────────────
 
 function emp(id: string): EngineEmployee {
-  return { id, courtId: COURT, positionId: POSITION, isActive: true };
+  return { id, courtId: COURT, positionId: POSITION, positionName: POSITION_NAME, isActive: true };
+}
+
+function roleEmp(id: string, positionId: string, positionName: string): EngineEmployee {
+  return { id, courtId: COURT, positionId, positionName, isActive: true };
 }
 
 function availAll(employeeId: string, dates: Date[]): Map<string, Set<string>> {
@@ -102,11 +111,81 @@ function makeInput(
 // ─── Tests ────────────────────────────────────────────────────────────────────
 
 describe("generateSchedule", () => {
-  it("full run with two employees and generous availability returns no ERROR warnings", () => {
-    const e1 = emp("emp1");
-    const e2 = emp("emp2");
-    const availability = mergeAvail(availAll("emp1", ALL_DATES), availAll("emp2", ALL_DATES));
-    const output = generateSchedule(makeInput([e1, e2], availability));
+  it("full run with staffed roles and generous availability returns no ERROR warnings", () => {
+    const employees = [
+      roleEmp("ahmash", AHMASH_POSITION, AHMASH_POSITION_NAME),
+      roleEmp("bakar", BAKAR_POSITION, BAKAR_POSITION_NAME),
+      emp("guard1"),
+      emp("guard2"),
+      emp("guard3"),
+    ];
+    const availability = mergeAvail(...employees.map((employee) => availAll(employee.id, ALL_DATES)));
+    const capacities: EngineCapacity[] = [
+      {
+        positionId: AHMASH_POSITION,
+        positionName: AHMASH_POSITION_NAME,
+        shiftType: "MORNING",
+        dayCategory: "WEEKDAY",
+        amount: 1,
+      },
+      {
+        positionId: BAKAR_POSITION,
+        positionName: BAKAR_POSITION_NAME,
+        shiftType: "MORNING",
+        dayCategory: "WEEKDAY",
+        amount: 1,
+      },
+      {
+        positionId: POSITION,
+        positionName: POSITION_NAME,
+        shiftType: "MORNING",
+        dayCategory: "WEEKDAY",
+        amount: 3,
+      },
+      {
+        positionId: AHMASH_POSITION,
+        positionName: AHMASH_POSITION_NAME,
+        shiftType: "EVENING",
+        dayCategory: "WEEKDAY",
+        amount: 1,
+      },
+      {
+        positionId: POSITION,
+        positionName: POSITION_NAME,
+        shiftType: "EVENING",
+        dayCategory: "WEEKDAY",
+        amount: 2,
+      },
+      {
+        positionId: AHMASH_POSITION,
+        positionName: AHMASH_POSITION_NAME,
+        shiftType: "MORNING",
+        dayCategory: "FRIDAY",
+        amount: 1,
+      },
+      {
+        positionId: POSITION,
+        positionName: POSITION_NAME,
+        shiftType: "MORNING",
+        dayCategory: "FRIDAY",
+        amount: 1,
+      },
+      {
+        positionId: POSITION,
+        positionName: POSITION_NAME,
+        shiftType: "EVENING",
+        dayCategory: "FRIDAY",
+        amount: 1,
+      },
+      {
+        positionId: POSITION,
+        positionName: POSITION_NAME,
+        shiftType: "MORNING",
+        dayCategory: "SATURDAY",
+        amount: 1,
+      },
+    ];
+    const output = generateSchedule(makeInput(employees, availability, { capacities }));
 
     const errors = output.warnings.filter((w) => w.severity === "ERROR");
     expect(errors).toHaveLength(0);
@@ -142,6 +221,7 @@ describe("generateSchedule", () => {
       employeeId: "emp1",
       courtId: COURT,
       positionId: POSITION,
+      positionName: POSITION_NAME,
       date: manualDate,
       shiftType: "MORNING",
       slotIndex: 0,
@@ -164,6 +244,7 @@ describe("generateSchedule", () => {
       employeeId: "emp1",
       courtId: COURT,
       positionId: POSITION,
+      positionName: POSITION_NAME,
       date: manualDate,
       shiftType: "MORNING",
       slotIndex: 0,
@@ -184,7 +265,11 @@ describe("generateSchedule", () => {
 
     // week 1 MORNING unmet should not appear (manual + 1 auto = 2)
     const week1MorningErrors = output.warnings.filter(
-      (w) => w.type === "MIN_NOT_MET" && w.employeeId === "emp1"
+      (w) =>
+        w.type === "MIN_NOT_MET" &&
+        w.employeeId === "emp1" &&
+        w.shiftType === "MORNING" &&
+        w.message.startsWith("Week 1:")
     );
     // Cannot have MIN_NOT_MET for MORNING in week 1 since manual + 1 auto satisfies it
     const autoWeek1Mornings = output.assignments.filter(
@@ -193,9 +278,7 @@ describe("generateSchedule", () => {
         WEEK1.some((d) => d.getTime() === a.date.getTime())
     );
     expect(autoWeek1Mornings.length).toBeGreaterThanOrEqual(1);
-    expect(
-      week1MorningErrors.filter((w) => w.shiftType === "MORNING")
-    ).toHaveLength(0);
+    expect(week1MorningErrors).toHaveLength(0);
   });
 
   it("no auto-generated assignment violates double-booking", () => {
@@ -241,7 +324,7 @@ describe("generateSchedule", () => {
     );
 
     const capacities: EngineCapacity[] = [
-      { positionId: POSITION, shiftType: "MORNING", dayCategory: "WEEKDAY", amount: 1 },
+      { positionId: POSITION, positionName: POSITION_NAME, shiftType: "MORNING", dayCategory: "WEEKDAY", amount: 1 },
     ];
 
     const output = generateSchedule(makeInput([e1, e2], availability, { capacities }));

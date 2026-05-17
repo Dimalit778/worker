@@ -33,7 +33,7 @@ function NavLinks({
           href={item.href}
           onClick={() => {
             // Defer so the browser can process navigation before the drawer closes / becomes inert.
-            onNavigate && queueMicrotask(onNavigate);
+            if (onNavigate) queueMicrotask(onNavigate);
           }}
           className="flex items-center gap-2 rounded-md px-3 py-2 text-sm hover:bg-accent hover:text-accent-foreground transition-colors"
         >

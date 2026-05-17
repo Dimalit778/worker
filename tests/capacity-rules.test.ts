@@ -1,25 +1,42 @@
-import { describe, it, expect } from 'vitest';
-import { mergeCapacityRules } from '@/features/shifts/queries';
-import type { CapacityMap } from '@/features/court-settings/types';
+import { describe, expect, it } from 'vitest';
+import { getCapacityForCell } from '@/features/schedules/utils';
+import type { ScheduleCapacityRule } from '@/features/schedules/types';
 
-const DEFAULT: CapacityMap = { MORNING: 15, EVENING: 6, NIGHT: 3 };
+const RULES: ScheduleCapacityRule[] = [
+  {
+    positionId: 'guard',
+    displayName: 'מאבטח',
+    code: 1,
+    shiftType: 'MORNING',
+    dayCategory: 'WEEKDAY',
+    amount: 15,
+  },
+  {
+    positionId: 'guard',
+    displayName: 'מאבטח',
+    code: 1,
+    shiftType: 'EVENING',
+    dayCategory: 'WEEKDAY',
+    amount: 6,
+  },
+  {
+    positionId: 'guard',
+    displayName: 'מאבטח',
+    code: 1,
+    shiftType: 'NIGHT',
+    dayCategory: 'SATURDAY',
+    amount: 3,
+  },
+];
 
-describe('mergeCapacityRules', () => {
-  it('returns defaults when no rules provided', () => {
-    expect(mergeCapacityRules([], DEFAULT)).toEqual({ MORNING: 15, EVENING: 6, NIGHT: 3 });
+describe('getCapacityForCell', () => {
+  it('returns the configured amount for a matching position, day category, and shift', () => {
+    expect(getCapacityForCell(RULES, 'WEEKDAY', 'MORNING', 'guard')).toBe(15);
+    expect(getCapacityForCell(RULES, 'WEEKDAY', 'EVENING', 'guard')).toBe(6);
   });
 
-  it('overrides a single shift type', () => {
-    const rules = [{ shiftType: 'MORNING' as const, maxStaff: 20 }];
-    expect(mergeCapacityRules(rules, DEFAULT)).toEqual({ MORNING: 20, EVENING: 6, NIGHT: 3 });
-  });
-
-  it('overrides all shift types', () => {
-    const rules = [
-      { shiftType: 'MORNING' as const, maxStaff: 10 },
-      { shiftType: 'EVENING' as const, maxStaff: 4 },
-      { shiftType: 'NIGHT' as const, maxStaff: 2 },
-    ];
-    expect(mergeCapacityRules(rules, DEFAULT)).toEqual({ MORNING: 10, EVENING: 4, NIGHT: 2 });
+  it('returns 0 when no capacity rule exists for the cell', () => {
+    expect(getCapacityForCell(RULES, 'FRIDAY', 'MORNING', 'guard')).toBe(0);
+    expect(getCapacityForCell(RULES, 'WEEKDAY', 'MORNING', 'bakar')).toBe(0);
   });
 });

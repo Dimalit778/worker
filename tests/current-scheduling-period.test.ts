@@ -4,7 +4,7 @@ import {
   parseISODateToUtcMidnight,
   todayUtcDateForTimeZone,
   utcNoonFromCalendarISO,
-} from '@/lib/periods/current-scheduling-period'
+} from '@/features/periods/utils'
 
 describe('parseISODateToUtcMidnight', () => {
   it('maps YYYY-MM-DD to UTC midnight of that civil date', () => {

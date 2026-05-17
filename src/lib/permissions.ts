@@ -1,5 +1,5 @@
-import { SystemRole } from '@/generated/prisma'
-import { prisma } from '@/lib/db'
+import { SystemRole } from '@/generated/prisma/client'
+import { prisma } from '@/lib/db/client'
 
 // ─── הגדרת ההרשאות ───────────────────────────────────────────────────────────
 

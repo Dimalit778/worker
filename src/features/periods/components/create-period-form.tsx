@@ -1,6 +1,6 @@
 'use client';
 
-import { useEffect, useState, useTransition } from 'react';
+import { useState, useTransition } from 'react';
 import { cn } from '@/lib/utils';
 import { PERIOD_OPTIONS } from '../constants';
 import { createPeriod } from '../actions';
@@ -26,15 +26,14 @@ export function CreatePeriodForm({ onCreated }: { onCreated?: () => void }) {
 
   function handleOpenChange(next: boolean) {
     setOpen(next);
-    if (!next) setError(null);
+    if (next) {
+      const sun = upcomingSundayISO();
+      const d = PERIOD_OPTIONS.find((o) => o.value === periodType)!.days;
+      setName(suggestName(sun, d));
+    } else {
+      setError(null);
+    }
   }
-
-  useEffect(() => {
-    if (!open) return;
-    const sun = upcomingSundayISO();
-    const d = PERIOD_OPTIONS.find((o) => o.value === periodType)!.days;
-    setName(suggestName(sun, d));
-  }, [open, periodType]);
 
   const days = PERIOD_OPTIONS.find((o) => o.value === periodType)!.days;
   const startSunday = upcomingSundayISO();
@@ -42,6 +41,11 @@ export function CreatePeriodForm({ onCreated }: { onCreated?: () => void }) {
 
   function handleTypeChange(t: PeriodType) {
     setPeriodType(t);
+    if (open) {
+      const sun = upcomingSundayISO();
+      const d = PERIOD_OPTIONS.find((o) => o.value === t)!.days;
+      setName(suggestName(sun, d));
+    }
   }
 
   function handleSubmit(e: React.FormEvent) {

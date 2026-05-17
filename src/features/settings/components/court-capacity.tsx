@@ -5,9 +5,8 @@ import type { DayCategory, ShiftType } from '@/generated/prisma/client';
 import { Button } from '@/components/ui/button';
 import { DAY_CATEGORIES, DAY_META, SHIFT_ORDER, SHIFT_LABELS } from '@/features/settings/constans';
 import { addShiftCapacity, updateShiftCapacity } from '@/features/settings/actions';
-import { AddPositionModal } from './add-position-modal';
 import { cn } from '@/lib/utils';
-import { ChevronDown, UserPlus } from 'lucide-react';
+import { ChevronDown } from 'lucide-react';
 import { Input } from '@/components/ui/input';
 
 type PositionOption = {
@@ -73,12 +72,6 @@ function Cell({
   cell: CellState;
   onChange: (day: DayCategory, shift: ShiftType, positionId: string, raw: string) => void;
 }) {
-  const [local, setLocal] = useState(cell.value);
-
-  useLayoutEffect(() => {
-    setLocal(cell.value);
-  }, [cell.value]);
-
   return (
     <div className="flex w-full min-w-0 flex-col items-center gap-1 py-0.5">
       <span className="line-clamp-2 min-h-9 w-full px-0.5 text-center text-[11px] font-medium leading-snug text-muted-foreground sm:text-xs">
@@ -90,12 +83,10 @@ function Cell({
         min={0}
         max={50}
         inputMode="numeric"
-        value={local}
-        onChange={(e) => setLocal(e.target.value)}
-        onFocus={() => setLocal(cell.value)}
+        value={cell.value}
+        onChange={(e) => onChange(day, shift, position.id, e.target.value)}
         onBlur={(e) => {
           onChange(day, shift, position.id, e.target.value);
-          setLocal(e.target.value);
         }}
         onKeyDown={(e) => {
           if (e.key === 'Enter') {
@@ -103,7 +94,6 @@ function Cell({
           }
 
           if (e.key === 'Escape') {
-            setLocal(cell.value);
             (e.target as HTMLInputElement).blur();
           }
         }}
@@ -140,10 +130,11 @@ export function CourtCapacityRules({
   const [saved, setSaved] = useState<GridState>(initial);
   const [errorMsg, setErrorMsg] = useState('');
   const [open, setOpen] = useState<Partial<Record<DayCategory, boolean>>>({ WEEKDAY: true });
-  const [addModalOpen, setAddModalOpen] = useState(false);
   const [isPending, startTransition] = useTransition();
 
   useLayoutEffect(() => {
+    // The grid is editable local state, but server revalidation can replace the source rows.
+    // eslint-disable-next-line react-hooks/set-state-in-effect
     setDraft(initial);
     setSaved(initial);
   }, [initial]);
