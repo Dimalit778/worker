@@ -102,7 +102,7 @@ export function ManagerAppShell({ fullName, courtName, navItems, children }: Man
   }, []);
 
   return (
-    <div className="min-h-screen flex bg-background">
+    <div className="h-screen flex bg-background">
       <aside className="hidden md:flex w-56 border-e bg-card flex-col shrink-0">
         <SidebarContent fullName={fullName} courtName={courtName} navItems={navItems} />
       </aside>
@@ -124,15 +124,11 @@ export function ManagerAppShell({ fullName, courtName, navItems, children }: Man
         <p className="min-w-0 flex-1 text-sm font-medium text-foreground truncate">{courtName ?? fullName}</p>
       </div>
 
-      <div
-        className="md:hidden fixed inset-0 z-40 pointer-events-none"
-        role="presentation"
-        aria-hidden={!open}
-      >
+      <div className="md:hidden fixed inset-0 z-40 pointer-events-none" role="presentation" aria-hidden={!open}>
         <div
           className={cn(
             'absolute top-12 left-0 right-0 bottom-0 z-40 transition-opacity duration-300 ease-out',
-            open ? 'pointer-events-auto bg-black/50 opacity-100' : 'pointer-events-none opacity-0'
+            open ? 'pointer-events-auto bg-black/50 opacity-100' : 'pointer-events-none opacity-0',
           )}
           aria-hidden={!open}
           onClick={close}
@@ -142,7 +138,7 @@ export function ManagerAppShell({ fullName, courtName, navItems, children }: Man
           className={cn(
             'absolute z-50 top-12 bottom-0 right-0 w-[min(16rem,85vw)] max-w-full flex flex-col border-l bg-card shadow-lg',
             'transition-transform duration-300 ease-out will-change-transform',
-            open ? 'translate-x-0 pointer-events-auto' : 'translate-x-full pointer-events-none'
+            open ? 'translate-x-0 pointer-events-auto' : 'translate-x-full pointer-events-none',
           )}
           role="dialog"
           aria-modal={open}
@@ -153,18 +149,11 @@ export function ManagerAppShell({ fullName, courtName, navItems, children }: Man
           <h2 id={titleId} className="sr-only">
             ניווט
           </h2>
-          <SidebarContent
-            fullName={fullName}
-            courtName={courtName}
-            navItems={navItems}
-            onNavigate={close}
-          />
+          <SidebarContent fullName={fullName} courtName={courtName} navItems={navItems} onNavigate={close} />
         </div>
       </div>
 
-      <main className="flex-1 p-4 md:p-6 overflow-auto w-full min-w-0 pt-16 md:pt-6">
-        {children}
-      </main>
+      <main className="flex-1 p-4 md:p-6 overflow-auto w-full min-w-0 pt-16 md:pt-6">{children}</main>
     </div>
   );
 }

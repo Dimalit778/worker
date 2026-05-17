@@ -121,10 +121,32 @@ model User {
   schedulesGenerated Schedule[]          @relation("ScheduleGeneratedBy")
   scheduleChanges    ScheduleChangeLog[] @relation("ScheduleChangedBy")
 
+  receivedPermissions UserPermission[] @relation("ReceivedPermissions")
+  grantedPermissions  UserPermission[] @relation("GrantedPermissions")
+
   accounts Account[]
   sessions Session[]
 
   @@index([systemRole])
+}
+
+model UserPermission {
+  id            String    @id @default(cuid())
+  userId        String
+  permissionKey String
+  granted       Boolean   @default(true)
+  grantedById   String
+  note          String?
+  expiresAt     DateTime?
+  createdAt     DateTime  @default(now())
+  updatedAt     DateTime  @updatedAt
+
+  user      User @relation("ReceivedPermissions", fields: [userId], references: [id], onDelete: Cascade)
+  grantedBy User @relation("GrantedPermissions", fields: [grantedById], references: [id])
+
+  @@unique([userId, permissionKey])
+  @@index([userId])
+  @@index([grantedById])
 }
 
 model Region {
@@ -148,7 +170,7 @@ model Court {
 
   employees        Employee[]
   positions        Position[]
-  shiftCapacities  ShiftCapacity[]
+    staffingRequirements StaffingRequirement[]
   periods          SchedulePeriod[]
   shiftAssignments ShiftAssignment[]
   warnings         ScheduleWarning[]
@@ -174,7 +196,7 @@ model Employee {
   position Position @relation(fields: [positionId], references: [id])
 
   user            User?
-  availabilities  Availability[]
+  availabilitySubmissions AvailabilitySubmission[]
   assignments     ShiftAssignment[]
   fairnessRecords FairnessRecord[]
   warnings        ScheduleWarning[]
@@ -195,7 +217,7 @@ model Position {
   court Court @relation(fields: [courtId], references: [id], onDelete: Cascade)
 
   employees        Employee[]
-  shiftCapacities  ShiftCapacity[]
+  staffingRequirements StaffingRequirement[]
   shiftAssignments ShiftAssignment[]
   warnings         ScheduleWarning[]
 
@@ -206,13 +228,13 @@ model Position {
   @@unique([courtId, code])
   @@index([courtId])
 }
-model ShiftCapacity {
+model StaffingRequirement {
   id           String      @id @default(cuid())
   courtId      String
   positionId   String
   shiftType    ShiftType
   dayCategory  DayCategory
-  amount       Int         @default(1)
+  requiredCount Int         @default(1)
   isActive     Boolean     @default(true)
   displayOrder Int         @default(0)
 
@@ -240,7 +262,7 @@ model SchedulePeriod {
 
   court           Court            @relation(fields: [courtId], references: [id], onDelete: Cascade)
   createdBy       User             @relation("PeriodCreatedBy", fields: [createdById], references: [id])
-  availabilities  Availability[]
+  availabilitySubmissions AvailabilitySubmission[]
   schedule        Schedule?
   fairnessRecords FairnessRecord[]
 
@@ -252,7 +274,7 @@ model SchedulePeriod {
   @@index([startDate, endDate])
 }
 
-model Availability {
+model AvailabilitySubmission {
   id          String    @id @default(cuid())
   periodId    String
   employeeId  String
@@ -261,7 +283,7 @@ model Availability {
 
   period   SchedulePeriod      @relation(fields: [periodId], references: [id], onDelete: Cascade)
   employee Employee            @relation(fields: [employeeId], references: [id], onDelete: Cascade)
-  entries  AvailabilityEntry[]
+  slots    AvailabilitySlot[]
 
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
@@ -270,19 +292,19 @@ model Availability {
   @@index([employeeId])
 }
 
-model AvailabilityEntry {
+model AvailabilitySlot {
   id             String    @id @default(cuid())
-  availabilityId String
+  submissionId String
   date           DateTime  @db.Date
   shiftType      ShiftType
   isAvailable    Boolean   @default(false)
 
-  availability Availability @relation(fields: [availabilityId], references: [id], onDelete: Cascade)
+  submission AvailabilitySubmission @relation(fields: [submissionId], references: [id], onDelete: Cascade)
 
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
 
-  @@unique([availabilityId, date, shiftType])
+  @@unique([submissionId, date, shiftType])
   @@index([date, shiftType])
 }
 

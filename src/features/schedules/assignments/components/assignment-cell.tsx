@@ -4,13 +4,9 @@ import { useState, useTransition, useRef } from 'react';
 import { useRouter } from 'next/navigation';
 import { cn } from '@/lib/utils';
 import { GuardPicker } from './guard-picker';
-import { assignEmployeeToSlot, removeAssignment, updateAssignmentEmployee } from '@/features/schedules/actions';
+import { createAssignment, removeAssignment, updateAssignment } from '@/features/schedules/assignments/actions';
 import { OverflowCandidates } from '@/features/schedules/components/overflow-candidates';
-import type {
-  AssignmentSummary,
-  OverflowCandidateSummary,
-  ScheduleEmployeeOption,
-} from '@/features/schedules/types';
+import type { AssignmentSummary, OverflowCandidateSummary, ScheduleEmployeeOption } from '@/features/schedules/types';
 import type { ShiftType } from '@/generated/prisma/client';
 
 type Props = {
@@ -59,11 +55,11 @@ export function AssignmentCell({
   }
 
   if (readonly) {
-    const label = anonymousRow && assignment ? assignment.employeeName : (assignment?.employeeName ?? '');
+    const label = anonymousRow && assignment ? assignment.employeeDisplayName : (assignment?.employeeDisplayName ?? '');
     return (
       <td
         className="relative border border-border text-center text-xs min-w-[62px] min-h-[26px] px-1 py-0.5"
-        aria-label={anonymousRow && assignment ? assignment.employeeName : undefined}
+        aria-label={anonymousRow && assignment ? assignment.employeeDisplayName : undefined}
       >
         {!anonymousRow && <span className="truncate block max-w-[58px] mx-auto">{label}</span>}
         {!anonymousRow && <OverflowCandidates candidates={overflowCandidates} />}
@@ -75,9 +71,9 @@ export function AssignmentCell({
     setOpen(false);
     startTransition(async () => {
       if (assignment) {
-        await updateAssignmentEmployee(assignment.id, employeeId);
+        await updateAssignment(assignment.id, employeeId);
       } else {
-        await assignEmployeeToSlot({
+        await createAssignment({
           scheduleId,
           periodId,
           employeeId,
@@ -118,7 +114,7 @@ export function AssignmentCell({
         setOpen((v) => !v);
       }}
     >
-      <span className="truncate block max-w-[58px] mx-auto">{assignment?.employeeName ?? ''}</span>
+      <span className="truncate block max-w-[58px] mx-auto">{assignment?.employeeDisplayName ?? ''}</span>
       <OverflowCandidates candidates={overflowCandidates} />
 
       {open && anchorRect && (

@@ -1,22 +1,9 @@
 import type { DayCategory, ShiftType } from '@/generated/prisma/client';
 import type { AssignmentCellKey, AssignmentMap, AssignmentSummary, ScheduleCapacityRule, WeekDay } from './types';
-import {
-  EVENING_SLOT_LABELS,
-  MORNING_SLOT_LABELS,
-  NIGHT_SLOT_LABELS,
-  WEEKDAY_HEADER_LETTERS,
-} from './constants';
+import { EVENING_SLOT_LABELS, MORNING_SLOT_LABELS, NIGHT_SLOT_LABELS, WEEKDAY_HEADER_LETTERS } from './constants';
 
 export function toDateOnly(date: Date): string {
   return date.toISOString().slice(0, 10);
-}
-
-export function formatEmployeeName(employee: { firstName: string; lastName: string }): string {
-  return `${employee.firstName} ${employee.lastName}`.trim();
-}
-
-export function getAssignmentCellKey(params: { date: Date; shiftType: ShiftType; positionId: string }): AssignmentCellKey {
-  return `${toDateOnly(params.date)}-${params.shiftType}-${params.positionId}`;
 }
 
 export function createAssignmentCellKey(params: {
@@ -86,21 +73,21 @@ export function getCapacityForCell(
 export function getOrderedPositionsForShift(
   rules: ScheduleCapacityRule[],
   shiftType: ShiftType,
-): Array<{ positionId: string; positionName: string; positionDisplayOrder: number }> {
-  const map = new Map<string, { positionId: string; positionName: string; positionDisplayOrder: number }>();
+): Array<{ positionId: string; positionName: string; positionCode: number }> {
+  const map = new Map<string, { positionId: string; positionName: string; positionCode: number }>();
   for (const r of rules) {
     if (r.shiftType !== shiftType) continue;
     const prev = map.get(r.positionId);
     if (!prev) {
       map.set(r.positionId, {
         positionId: r.positionId,
-        positionName: r.positionName,
-        positionDisplayOrder: r.positionDisplayOrder,
+        positionName: r.displayName,
+        positionCode: r.code,
       });
     }
   }
   return [...map.values()].sort(
-    (a, b) => a.positionDisplayOrder - b.positionDisplayOrder || a.positionName.localeCompare(b.positionName, 'he'),
+    (a, b) => a.positionCode - b.positionCode || a.positionName.localeCompare(b.positionName, 'he'),
   );
 }
 
@@ -136,40 +123,4 @@ export function getShiftSlotLabel(shiftType: ShiftType, slotIndex: number): stri
     .map(Number)
     .sort((a, b) => a - b);
   return map[keys[keys.length - 1]] ?? '';
-}
-
-export function buildAssignmentMap(
-  rows: Array<{
-    date: Date;
-    shiftType: ShiftType;
-    positionId: string;
-    positionName: string;
-    id: string;
-    employeeId: string;
-    employeeName: string;
-    slotIndex: number;
-  }>,
-): AssignmentMap {
-  const map: AssignmentMap = {};
-  for (const row of rows) {
-    const key = getAssignmentCellKey({
-      date: row.date,
-      shiftType: row.shiftType,
-      positionId: row.positionId,
-    });
-    const list = (map[key] ??= []);
-    list.push({
-      id: row.id,
-      employeeId: row.employeeId,
-      employeeName: row.employeeName,
-      positionId: row.positionId,
-      positionName: row.positionName,
-      shiftType: row.shiftType,
-      slotIndex: row.slotIndex,
-    });
-  }
-  for (const list of Object.values(map)) {
-    list.sort((a, b) => a.slotIndex - b.slotIndex);
-  }
-  return map;
 }

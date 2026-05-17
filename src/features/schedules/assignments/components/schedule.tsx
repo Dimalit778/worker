@@ -3,9 +3,9 @@
 import { useState } from 'react';
 import { WeekNavigator } from './week-navigator';
 import { ShiftSection } from './shift-section';
-import { buildWeekDays } from '../utils';
-import { SHIFT_ORDER } from '../constants';
-import type { ScheduleProps } from '../types';
+import { buildWeekDays } from '../../utils';
+import { SHIFT_ORDER } from '../../constants';
+import type { ScheduleProps } from '../../types';
 
 export function Schedule(props: ScheduleProps) {
   const {

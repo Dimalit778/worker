@@ -6,15 +6,9 @@ import { generateSchedule } from '@/features/scheduling-engine/generate-schedule
 import type { EngineInput, EngineStats } from '@/features/scheduling-engine/types';
 import { requireSession } from '@/lib/db/auth-helpers';
 import { prisma } from '@/lib/db/client';
-import {
-  PeriodStatus,
-  ScheduleStatus,
-  SystemRole,
-  WarningSeverity,
-  WarningType,
-} from '@/generated/prisma/client';
+import { PeriodStatus, ScheduleStatus, SystemRole, WarningSeverity, WarningType } from '@/generated/prisma/client';
 
-import { getAutoScheduleInputData } from './queries';
+import { getAutoScheduleInputData } from './generation/quries';
 
 export type GenerateAutoScheduleResult =
   | {

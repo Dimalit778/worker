@@ -8,6 +8,7 @@ import { addShiftCapacity, updateShiftCapacity } from '@/features/settings/actio
 import { AddPositionModal } from './add-position-modal';
 import { cn } from '@/lib/utils';
 import { ChevronDown, UserPlus } from 'lucide-react';
+import { Input } from '@/components/ui/input';
 
 type PositionOption = {
   id: string;
@@ -79,15 +80,16 @@ function Cell({
   }, [cell.value]);
 
   return (
-    <div className="flex flex-col items-center justify-center">
-      <span className="line-clamp-2 py-1  text-center text-[11px] leading-tight text-muted-foreground sm:text-xs ">
+    <div className="flex w-full min-w-0 flex-col items-center gap-1 py-0.5">
+      <span className="line-clamp-2 min-h-9 w-full px-0.5 text-center text-[11px] font-medium leading-snug text-muted-foreground sm:text-xs">
         {position.name}
       </span>
 
-      <input
+      <Input
         type="number"
         min={0}
         max={50}
+        inputMode="numeric"
         value={local}
         onChange={(e) => setLocal(e.target.value)}
         onFocus={() => setLocal(cell.value)}
@@ -105,8 +107,12 @@ function Cell({
             (e.target as HTMLInputElement).blur();
           }
         }}
-        className="h-10 w-full min-w-13 max-w-18 rounded-lg border border-input bg-background px-2 text-center text-sm shadow-sm transition-[box-shadow,background-color] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring [appearance:textfield] sm:h-9 [&::-webkit-inner-spin-button]:appearance-none [&::-webkit-outer-spin-button]:appearance-none"
         aria-label={`${SHIFT_LABELS[shift]} ${position.name}`}
+        className={cn(
+          'mx-auto h-8 max-w-18 md:h-9 md:max-w-20',
+          'px-2 text-center text-sm font-semibold tabular-nums md:text-sm',
+          '[appearance:textfield] [&::-webkit-inner-spin-button]:appearance-none [&::-webkit-outer-spin-button]:appearance-none',
+        )}
       />
     </div>
   );
@@ -252,7 +258,7 @@ export function CourtCapacityRules({
                           <span className="select-none text-center text-xs font-semibold uppercase tracking-wide text-muted-foreground">
                             {SHIFT_LABELS[shift]}
                           </span>
-                          <div className="flex flex-col gap-6 rounded-lg border border-border/50 bg-background/80 p-2 shadow-inner">
+                          <div className="flex flex-col gap-6 rounded-lg border border-border/50  p-2 shadow-inner">
                             {positions.map((position) => (
                               <Cell
                                 key={position.id}

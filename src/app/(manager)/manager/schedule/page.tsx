@@ -1,13 +1,13 @@
 import { requireSession } from '@/lib/db/auth-helpers';
 import { SystemRole } from '@/generated/prisma/client';
-import { getSchedulePageData } from '@/features/schedules/queries';
-import { Schedule } from '@/features/schedules/components/schedule';
+import { getFutureScheduleData } from '@/features/schedules/assignments/quries';
+import { Schedule } from '@/features/schedules/assignments/components/schedule';
 
 export default async function ManagerSchedulePage() {
   const session = await requireSession(SystemRole.MANAGER);
   const courtId = session.user.courtId ?? '';
 
-  const data = await getSchedulePageData(courtId, { includeEmployees: true });
+  const data = await getFutureScheduleData(courtId);
 
   if (!data.found) {
     return (

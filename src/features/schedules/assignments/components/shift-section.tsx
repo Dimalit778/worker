@@ -6,8 +6,8 @@ import { cn } from '@/lib/utils';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
-import type { AssignmentMap, OverflowCandidateMap, ScheduleCapacityRule, ScheduleEmployeeOption, WeekDay } from '../types';
-import { SHIFT_STYLES } from '../constants';
+import type { AssignmentMap, OverflowCandidateMap, ScheduleCapacityRule, ScheduleEmployeeOption, WeekDay } from '../../types';
+import { SHIFT_STYLES } from '../../constants';
 import type { ShiftType } from '@/generated/prisma/client';
 import { AssignmentCell } from './assignment-cell';
 import { upsertPositionForDisplayOrder } from '@/features/settings/actions';
@@ -17,7 +17,7 @@ import {
   getDayCategoryForDate,
   getOrderedPositionsForShift,
   maxSlotsForPositionInWeek,
-} from '../utils';
+} from '../../utils';
 
 /** Must match <colgroup> — Tailwind `w-14` = 3.5rem; table layout reads width from <col>, not only from cells */
 const NARROW_COL_PX = '3.5rem';

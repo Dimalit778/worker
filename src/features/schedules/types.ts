@@ -2,29 +2,28 @@ import type { DayCategory, ScheduleStatus, ShiftType, WarningSeverity, WarningTy
 
 export type ScheduleEmployeeOption = {
   id: string;
-  name: string;
+  displayName: string;
   position: {
     id: string;
     name: string;
+    code: number;
   } | null;
 };
 
 export type ScheduleCapacityRule = {
   id: string;
   positionId: string;
-  positionName: string;
-  /** From `Position.displayOrder` — sort rows by this within a shift */
-  positionDisplayOrder: number;
+  displayName: string;
+  code: number;
   shiftType: ShiftType;
   dayCategory: DayCategory;
   amount: number;
-  displayOrder: number;
 };
 
 export type AssignmentSummary = {
   id: string;
   employeeId: string;
-  employeeName: string;
+  employeeDisplayName: string;
   positionId: string;
   positionName: string;
   shiftType: ShiftType;
@@ -56,7 +55,7 @@ export type ScheduleWarningSummary = {
   positionName: string | null;
 };
 
-export type DraftScheduleFoundData = {
+export type FutureScheduleData = {
   found: true;
   periodId: string;
   periodName: string;
@@ -71,13 +70,6 @@ export type DraftScheduleFoundData = {
   warnings: ScheduleWarningSummary[];
   overflowCandidates: OverflowCandidateMap;
 };
-
-export type DraftScheduleNotFoundData = {
-  found: false;
-  message?: string;
-};
-
-export type DraftScheduleData = DraftScheduleFoundData | DraftScheduleNotFoundData;
 
 /** Props for the week / shift schedule UI */
 export type ScheduleProps = {

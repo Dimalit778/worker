@@ -5,7 +5,10 @@ import { useRouter } from 'next/navigation';
 import { X } from 'lucide-react';
 import { EmployeeListItem, PositionOption } from '@/features/employess/types';
 import { createEmployee, updateEmployee } from '@/features/employess/actions';
+import { Button } from '@/components/ui/button';
 import { getInitialPasswordFromEmail } from '../utils';
+
+import { Select, SelectTrigger, SelectValue, SelectContent, SelectItem, Label, Input, Checkbox } from '@/components/ui';
 
 type Props = {
   employee: EmployeeListItem | null;
@@ -19,6 +22,7 @@ export function EmployeeModal({ employee, positions, onClose }: Props) {
   const [error, setError] = useState<string | null>(null);
   const [created, setCreated] = useState(false);
   const [createdEmail, setCreatedEmail] = useState('');
+  const [positionId, setPositionId] = useState(employee?.position.id ?? '');
   const isEdit = !!employee;
 
   function handleSubmit(e: React.FormEvent<HTMLFormElement>) {
@@ -86,12 +90,9 @@ export function EmployeeModal({ employee, positions, onClose }: Props) {
             <span className="font-mono font-semibold"> {getInitialPasswordFromEmail(createdEmail)}</span>. המאבטח יתבקש
             לשנות אותה בכניסה הראשונה.
           </p>
-          <button
-            onClick={onClose}
-            className="w-full bg-foreground text-background rounded-md py-2 text-sm font-medium hover:opacity-90"
-          >
+          <Button onClick={onClose} className="w-full">
             סגור
-          </button>
+          </Button>
         </div>
       </div>
     );
@@ -102,97 +103,74 @@ export function EmployeeModal({ employee, positions, onClose }: Props) {
       <div className="bg-white rounded-xl shadow-2xl w-full max-w-md p-6">
         <div className="flex items-center justify-between mb-4">
           <h2 className="font-bold text-lg">{isEdit ? 'עריכת עובד' : 'הוספת עובד'}</h2>
-          <button onClick={onClose} className="text-muted-foreground hover:text-foreground">
+          <Button variant="ghost" onClick={onClose} className="text-muted-foreground hover:text-foreground">
             <X className="w-4 h-4" />
-          </button>
+          </Button>
         </div>
 
         <form onSubmit={handleSubmit} className="space-y-4">
           <div>
-            <label className="block text-sm font-medium mb-1">שם פרטי *</label>
-            <input
-              name="firstName"
-              defaultValue={employee?.firstName ?? ''}
-              required
-              className="w-full border border-border rounded-md px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-primary"
-            />
+            <Label className="block text-sm font-medium mb-1">שם פרטי *</Label>
+            <Input name="firstName" defaultValue={employee?.firstName ?? ''} required />
           </div>
           <div>
-            <label className="block text-sm font-medium mb-1">שם משפחה *</label>
-            <input
-              name="lastName"
-              defaultValue={employee?.lastName ?? ''}
-              required
-              className="w-full border border-border rounded-md px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-primary"
-            />
+            <Label className="block text-sm font-medium mb-1">שם משפחה *</Label>
+            <Input name="lastName" defaultValue={employee?.lastName ?? ''} required />
+          </div>
+          <div className="space-y-1.5">
+            <Label htmlFor="employee-position" className="block text-sm font-medium">
+              תפקיד *
+            </Label>
+            <input type="hidden" name="positionId" value={positionId} required={positions.length > 0} />
+            <Select value={positionId} onValueChange={setPositionId} disabled={positions.length === 0}>
+              <SelectTrigger id="employee-position" className="h-auto min-h-10 w-full py-2">
+                <SelectValue placeholder={positions.length === 0 ? 'אין תפקידים זמינים' : 'בחר תפקיד'} />
+              </SelectTrigger>
+              <SelectContent>
+                {positions.map((position) => (
+                  <SelectItem key={position.id} value={position.id}>
+                    {position.name}
+                  </SelectItem>
+                ))}
+              </SelectContent>
+            </Select>
           </div>
           <div>
-            <label className="block text-sm font-medium mb-1">תפקיד *</label>
-            <select
-              name="positionId"
-              defaultValue={employee?.position.id ?? ''}
-              required
-              className="w-full border border-border rounded-md px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-primary bg-white"
-            >
-              {positions.map((position) => (
-                <option key={position.id} value={position.id}>
-                  {position.name}
-                </option>
-              ))}
-            </select>
+            <Label className="block text-sm font-medium mb-1">טלפון</Label>
+            <Input name="phone" defaultValue={employee?.phone ?? ''} />
           </div>
           <div>
-            <label className="block text-sm font-medium mb-1">טלפון</label>
-            <input
-              name="phone"
-              defaultValue={employee?.phone ?? ''}
-              className="w-full border border-border rounded-md px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-primary"
-            />
+            <Label className="block text-sm font-medium mb-1">אימייל *</Label>
+            <Input name="email" defaultValue={employee?.email ?? ''} required />
           </div>
           <div>
-            <label className="block text-sm font-medium mb-1">אימייל *</label>
-            <input
-              name="email"
-              defaultValue={employee?.email ?? ''}
-              required
-              className="w-full border border-border rounded-md px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-primary"
-            />
-          </div>
-          <div>
-            <label className="block text-sm font-medium mb-1">שם תצוגה *</label>
-            <input
-              name="displayName"
-              defaultValue={employee?.displayName ?? ''}
-              required
-              className="w-full border border-border rounded-md px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-primary"
-            />
+            <Label className="block text-sm font-medium mb-1">שם תצוגה *</Label>
+            <Input name="displayName" defaultValue={employee?.displayName ?? ''} required />
           </div>
 
           {isEdit && (
             <div className="flex justify-between">
               <div className="flex items-center gap-2">
-                <input
-                  type="checkbox"
+                <Checkbox
                   name="isActive"
                   id="isActive"
                   defaultChecked={employee?.isActive ?? false}
                   className="w-4 h-4"
                 />
-                <label htmlFor="isActive" className="text-sm font-medium">
+                <Label htmlFor="isActive" className="text-sm font-medium">
                   פעיל
-                </label>
+                </Label>
               </div>
               <div className="flex items-center gap-2">
-                <input
-                  type="checkbox"
+                <Checkbox
                   name="isReligious"
                   id="isReligious"
                   defaultChecked={employee?.isReligious ?? false}
                   className="w-4 h-4"
                 />
-                <label htmlFor="isReligious" className="text-sm font-medium">
+                <Label htmlFor="isReligious" className="text-sm font-medium">
                   מאבטח דתי
-                </label>
+                </Label>
               </div>
             </div>
           )}
@@ -200,20 +178,21 @@ export function EmployeeModal({ employee, positions, onClose }: Props) {
           {error && <p className="text-sm text-destructive">{error}</p>}
 
           <div className="flex gap-3 pt-2">
-            <button
+            <Button
               type="submit"
               disabled={pending}
               className="flex-1 bg-foreground text-background rounded-md py-2 text-sm font-medium hover:opacity-90 disabled:opacity-50"
             >
               {pending ? 'שומר...' : 'שמור'}
-            </button>
-            <button
+            </Button>
+            <Button
               type="button"
+              variant="ghost"
               onClick={onClose}
-              className="flex-1 border border-border rounded-md py-2 text-sm hover:bg-muted"
+              className="flex-1 bg-background text-foreground rounded-md py-2 text-sm font-medium hover:opacity-90 disabled:opacity-50"
             >
               ביטול
-            </button>
+            </Button>
           </div>
         </form>
       </div>

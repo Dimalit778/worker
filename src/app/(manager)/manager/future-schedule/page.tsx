@@ -1,26 +1,15 @@
 import { requireSession } from '@/lib/db/auth-helpers';
 import { SystemRole } from '@/generated/prisma/client';
-import { getDraftScheduleData } from '@/features/schedules/queries';
-import { Schedule } from '@/features/schedules/components/schedule';
+import { getFutureScheduleData } from '@/features/schedules/assignments/quries';
+import { Schedule } from '@/features/schedules/assignments/components/schedule';
 import { DraftActions } from '@/features/schedules/components/draft-actions';
 import { WarningsPanel } from '@/features/schedules/components/warnings-panel';
 
-export default async function DraftPage() {
+export default async function FutureSchedulePage() {
   const session = await requireSession(SystemRole.MANAGER);
   const courtId = session.user.courtId ?? '';
 
-  const data = await getDraftScheduleData(courtId);
-
-  if (!data.found) {
-    return (
-      <div className="space-y-4" dir="rtl">
-        <h1 className="text-2xl font-bold">שיבוץ בהכנה</h1>
-        <p className="text-sm text-muted-foreground">
-          אין תקופה נעולה כרגע. נעל תקופה בדף &quot;תקופות&quot; כדי להתחיל בעריכת השיבוץ.
-        </p>
-      </div>
-    );
-  }
+  const data = await getFutureScheduleData(courtId);
 
   const isReadonly = data.scheduleStatus === 'PUBLISHED';
 

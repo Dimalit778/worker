@@ -1,21 +1,26 @@
 'use client';
 
-import { useState, useTransition } from 'react';
-import Link from 'next/link';
+import { useMemo, useState, useTransition } from 'react';
 import { useRouter } from 'next/navigation';
-import { Eye, Pencil, Trash2 } from 'lucide-react';
-import { cn } from '@/lib/utils';
+import { Plus } from 'lucide-react';
+
 import { EmployeeListItem, PositionOption } from '@/features/employess/types';
 import { deleteEmployee } from '@/features/employess/actions';
-import { EmployeeModal } from './employee-modal';
 import { Button } from '@/components/ui/button';
+import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+} from '@/components/ui/alert-dialog';
 
-const POSITION_STYLE: Record<number, string> = {
-  1: 'bg-slate-800 text-white',
-  2: 'bg-blue-100 text-blue-800',
-  3: 'bg-slate-100 text-slate-600',
-  4: 'bg-orange-100 text-orange-800',
-};
+import { EmployeeModal } from './employee-modal';
+import { EmployeesDataTable } from './emplloyee-data-table';
+import { createEmployeesColumns } from './employee-columns';
 
 export function EmployeesTable({
   employees,
@@ -25,9 +30,13 @@ export function EmployeesTable({
   positions: PositionOption[];
 }) {
   const router = useRouter();
+
   const [modalOpen, setModalOpen] = useState(false);
   const [editingEmployee, setEditingEmployee] = useState<EmployeeListItem | null>(null);
-  const [deleteTarget, setDeleteTarget] = useState<{ id: string; name: string } | null>(null);
+  const [deleteTarget, setDeleteTarget] = useState<{
+    id: string;
+    name: string;
+  } | null>(null);
   const [deletePending, startDeleteTransition] = useTransition();
   const [error, setError] = useState<string | null>(null);
 
@@ -47,6 +56,7 @@ export function EmployeesTable({
     setModalOpen(false);
     setEditingEmployee(null);
   }
+
   function handleDeleteClick(employee: EmployeeListItem) {
     setError(null);
     setDeleteTarget({
@@ -71,130 +81,65 @@ export function EmployeesTable({
     });
   }
 
+  const columns = useMemo(
+    () =>
+      createEmployeesColumns({
+        onEdit: openEdit,
+        onDelete: handleDeleteClick,
+        deletePending,
+      }),
+    [deletePending],
+  );
+
   return (
     <div className="space-y-4" dir="rtl">
       <div className="flex items-center justify-between">
-        <h1 className="text-2xl font-bold">עובדים</h1>
-        <button
-          onClick={openAdd}
-          className="bg-foreground text-background text-sm px-4 py-2 rounded-md hover:opacity-90"
-        >
-          + הוסף עובד
-        </button>
-      </div>
-
-      <div className="border border-border rounded-lg overflow-hidden bg-white">
-        <table className="w-full text-sm border-collapse">
-          <thead>
-            <tr className="bg-muted/50 text-right">
-              <th className="px-4 py-3 font-medium border-b border-border w-10">#</th>
-              <th className="px-4 py-3 font-medium border-b border-border">שם</th>
-              <th className="px-4 py-3 font-medium border-b border-border">תפקיד</th>
-              <th className="px-4 py-3 font-medium border-b border-border">טלפון</th>
-              <th className="px-4 py-3 font-medium border-b border-border">אימייל</th>
-              <th className="px-4 py-3 font-medium border-b border-border">סטטוס</th>
-              <th className="px-4 py-3 border-b border-border w-16"></th>
-            </tr>
-          </thead>
-          <tbody>
-            {employees.length === 0 && (
-              <tr>
-                <td colSpan={5} className="px-4 py-8 text-center text-muted-foreground">
-                  אין עובדים. לחץ על &quot;+ הוסף עובד&quot; להוספה.
-                </td>
-              </tr>
-            )}
-            {employees.map((employee, i) => (
-              <tr
-                key={employee.id}
-                className={cn(
-                  'border-b border-border last:border-0 hover:bg-muted/20 transition-colors',
-                  !employee.isActive && 'opacity-50',
-                )}
-              >
-                <td className="px-4 py-3 text-muted-foreground">{i + 1}</td>
-                <td className="px-4 py-3 font-medium">
-                  <Link
-                    href={`/manager/employees/${employee.id}`}
-                    className="hover:text-primary hover:underline underline-offset-4"
-                  >
-                    {employee.firstName} {employee.lastName}
-                  </Link>
-                </td>
-                <td className="px-4 py-3">
-                  <span
-                    className={cn(
-                      'text-xs  px-2 py-0.5 rounded-md font-semibold',
-                      POSITION_STYLE[employee.position.code],
-                    )}
-                  >
-                    {employee.position.name}
-                  </span>
-                </td>
-                <td className="px-4 py-3">{employee.phone}</td>
-                <td className="px-4 py-3">{employee.email}</td>
-                <td className="px-4 py-3">
-                  {employee.isActive ? (
-                    <span className="text-xs px-2 py-0.5 rounded-full bg-green-100 text-green-800 font-medium">
-                      פעיל
-                    </span>
-                  ) : (
-                    <span className="text-xs px-2 py-0.5 rounded-full bg-slate-100 text-slate-600 font-medium">
-                      לא פעיל
-                    </span>
-                  )}
-                </td>
-                <td className="px-4 py-3">
-                  <div className="flex items-center gap-2 justify-end">
-                    <Link
-                      href={`/manager/employees/${employee.id}`}
-                      className="text-muted-foreground hover:text-foreground p-1 rounded hover:bg-muted"
-                      aria-label={`פתח פרטי עובד ${employee.displayName}`}
-                    >
-                      <Eye className="w-3.5 h-3.5" />
-                    </Link>
-                    <button
-                      onClick={() => openEdit(employee)}
-                      className="text-muted-foreground hover:text-foreground p-1 rounded hover:bg-muted"
-                    >
-                      <Pencil className="w-3.5 h-3.5" />
-                    </button>
-                    <button
-                      onClick={() => handleDeleteClick(employee)}
-                      disabled={deletePending}
-                      className="text-muted-foreground hover:text-destructive p-1 rounded hover:bg-destructive/10 disabled:opacity-50"
-                    >
-                      <Trash2 className="w-3.5 h-3.5" />
-                    </button>
-                  </div>
-                </td>
-              </tr>
-            ))}
-          </tbody>
-        </table>
-      </div>
-
-      {modalOpen && <EmployeeModal employee={editingEmployee ?? null} positions={positions} onClose={closeModal} />}
-
-      {deleteTarget && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/40">
-          <div className="w-full max-w-sm rounded-lg bg-background p-6 shadow-lg">
-            <h2 className="text-lg font-bold">מחיקת עובד</h2>
-
-            <p className="mt-2 text-sm text-muted-foreground">האם אתה בטוח שברצונך למחוק את {deleteTarget.name}?</p>
-
-            <div className="mt-6 flex justify-end gap-2">
-              <Button type="button" variant="outline" onClick={() => setDeleteTarget(null)} disabled={deletePending}>
-                ביטול
-              </Button>
-
-              <Button type="button" variant="destructive" onClick={handleConfirmDelete} disabled={deletePending}>
-                {deletePending ? 'מוחק...' : 'מחק'}
-              </Button>
-            </div>
-          </div>
+        <div>
+          <h1 className="text-2xl font-bold">עובדים</h1>
+          <p className="text-sm text-muted-foreground">ניהול עובדים, תפקידים וסטטוס פעילות.</p>
         </div>
-      )}
+
+        <Button type="button" onClick={openAdd}>
+          <Plus className="ml-2 h-4 w-4" />
+          הוסף עובד
+        </Button>
+      </div>
+
+      <EmployeesDataTable columns={columns} data={employees} />
+
+      {modalOpen && <EmployeeModal employee={editingEmployee} positions={positions} onClose={closeModal} />}
+
+      <AlertDialog
+        open={Boolean(deleteTarget)}
+        onOpenChange={(open) => {
+          if (!open) setDeleteTarget(null);
+        }}
+      >
+        <AlertDialogContent dir="rtl">
+          <AlertDialogHeader>
+            <AlertDialogTitle>מחיקת עובד</AlertDialogTitle>
+            <AlertDialogDescription>
+              האם אתה בטוח שברצונך למחוק את {deleteTarget?.name}? פעולה זו לא ניתנת לביטול.
+            </AlertDialogDescription>
+          </AlertDialogHeader>
+
+          <AlertDialogFooter className="gap-2 sm:justify-start">
+            <AlertDialogCancel disabled={deletePending}>ביטול</AlertDialogCancel>
+
+            <AlertDialogAction
+              disabled={deletePending}
+              onClick={(event) => {
+                event.preventDefault();
+                handleConfirmDelete();
+              }}
+              className="bg-destructive text-destructive-foreground hover:bg-destructive/90"
+            >
+              {deletePending ? 'מוחק...' : 'מחק'}
+            </AlertDialogAction>
+          </AlertDialogFooter>
+        </AlertDialogContent>
+      </AlertDialog>
+
       {error && <p className="text-sm text-destructive">{error}</p>}
     </div>
   );

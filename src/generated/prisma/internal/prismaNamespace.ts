@@ -388,14 +388,15 @@ export const ModelName = {
   Session: 'Session',
   VerificationToken: 'VerificationToken',
   User: 'User',
+  UserPermission: 'UserPermission',
   Region: 'Region',
   Court: 'Court',
   Employee: 'Employee',
   Position: 'Position',
-  ShiftCapacity: 'ShiftCapacity',
+  StaffingRequirement: 'StaffingRequirement',
   SchedulePeriod: 'SchedulePeriod',
-  Availability: 'Availability',
-  AvailabilityEntry: 'AvailabilityEntry',
+  AvailabilitySubmission: 'AvailabilitySubmission',
+  AvailabilitySlot: 'AvailabilitySlot',
   Schedule: 'Schedule',
   ShiftAssignment: 'ShiftAssignment',
   ScheduleWarning: 'ScheduleWarning',
@@ -417,7 +418,7 @@ export type TypeMap<ExtArgs extends runtime.Types.Extensions.InternalArgs = runt
     omit: GlobalOmitOptions
   }
   meta: {
-    modelProps: "account" | "session" | "verificationToken" | "user" | "region" | "court" | "employee" | "position" | "shiftCapacity" | "schedulePeriod" | "availability" | "availabilityEntry" | "schedule" | "shiftAssignment" | "scheduleWarning" | "fairnessRecord" | "scheduleChangeLog" | "systemConfig"
+    modelProps: "account" | "session" | "verificationToken" | "user" | "userPermission" | "region" | "court" | "employee" | "position" | "staffingRequirement" | "schedulePeriod" | "availabilitySubmission" | "availabilitySlot" | "schedule" | "shiftAssignment" | "scheduleWarning" | "fairnessRecord" | "scheduleChangeLog" | "systemConfig"
     txIsolationLevel: TransactionIsolationLevel
   }
   model: {
@@ -717,6 +718,80 @@ export type TypeMap<ExtArgs extends runtime.Types.Extensions.InternalArgs = runt
         }
       }
     }
+    UserPermission: {
+      payload: Prisma.$UserPermissionPayload<ExtArgs>
+      fields: Prisma.UserPermissionFieldRefs
+      operations: {
+        findUnique: {
+          args: Prisma.UserPermissionFindUniqueArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$UserPermissionPayload> | null
+        }
+        findUniqueOrThrow: {
+          args: Prisma.UserPermissionFindUniqueOrThrowArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$UserPermissionPayload>
+        }
+        findFirst: {
+          args: Prisma.UserPermissionFindFirstArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$UserPermissionPayload> | null
+        }
+        findFirstOrThrow: {
+          args: Prisma.UserPermissionFindFirstOrThrowArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$UserPermissionPayload>
+        }
+        findMany: {
+          args: Prisma.UserPermissionFindManyArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$UserPermissionPayload>[]
+        }
+        create: {
+          args: Prisma.UserPermissionCreateArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$UserPermissionPayload>
+        }
+        createMany: {
+          args: Prisma.UserPermissionCreateManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        createManyAndReturn: {
+          args: Prisma.UserPermissionCreateManyAndReturnArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$UserPermissionPayload>[]
+        }
+        delete: {
+          args: Prisma.UserPermissionDeleteArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$UserPermissionPayload>
+        }
+        update: {
+          args: Prisma.UserPermissionUpdateArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$UserPermissionPayload>
+        }
+        deleteMany: {
+          args: Prisma.UserPermissionDeleteManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        updateMany: {
+          args: Prisma.UserPermissionUpdateManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        updateManyAndReturn: {
+          args: Prisma.UserPermissionUpdateManyAndReturnArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$UserPermissionPayload>[]
+        }
+        upsert: {
+          args: Prisma.UserPermissionUpsertArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$UserPermissionPayload>
+        }
+        aggregate: {
+          args: Prisma.UserPermissionAggregateArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.AggregateUserPermission>
+        }
+        groupBy: {
+          args: Prisma.UserPermissionGroupByArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.UserPermissionGroupByOutputType>[]
+        }
+        count: {
+          args: Prisma.UserPermissionCountArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.UserPermissionCountAggregateOutputType> | number
+        }
+      }
+    }
     Region: {
       payload: Prisma.$RegionPayload<ExtArgs>
       fields: Prisma.RegionFieldRefs
@@ -1013,77 +1088,77 @@ export type TypeMap<ExtArgs extends runtime.Types.Extensions.InternalArgs = runt
         }
       }
     }
-    ShiftCapacity: {
-      payload: Prisma.$ShiftCapacityPayload<ExtArgs>
-      fields: Prisma.ShiftCapacityFieldRefs
+    StaffingRequirement: {
+      payload: Prisma.$StaffingRequirementPayload<ExtArgs>
+      fields: Prisma.StaffingRequirementFieldRefs
       operations: {
         findUnique: {
-          args: Prisma.ShiftCapacityFindUniqueArgs<ExtArgs>
-          result: runtime.Types.Utils.PayloadToResult<Prisma.$ShiftCapacityPayload> | null
+          args: Prisma.StaffingRequirementFindUniqueArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$StaffingRequirementPayload> | null
         }
         findUniqueOrThrow: {
-          args: Prisma.ShiftCapacityFindUniqueOrThrowArgs<ExtArgs>
-          result: runtime.Types.Utils.PayloadToResult<Prisma.$ShiftCapacityPayload>
+          args: Prisma.StaffingRequirementFindUniqueOrThrowArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$StaffingRequirementPayload>
         }
         findFirst: {
-          args: Prisma.ShiftCapacityFindFirstArgs<ExtArgs>
-          result: runtime.Types.Utils.PayloadToResult<Prisma.$ShiftCapacityPayload> | null
+          args: Prisma.StaffingRequirementFindFirstArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$StaffingRequirementPayload> | null
         }
         findFirstOrThrow: {
-          args: Prisma.ShiftCapacityFindFirstOrThrowArgs<ExtArgs>
-          result: runtime.Types.Utils.PayloadToResult<Prisma.$ShiftCapacityPayload>
+          args: Prisma.StaffingRequirementFindFirstOrThrowArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$StaffingRequirementPayload>
         }
         findMany: {
-          args: Prisma.ShiftCapacityFindManyArgs<ExtArgs>
-          result: runtime.Types.Utils.PayloadToResult<Prisma.$ShiftCapacityPayload>[]
+          args: Prisma.StaffingRequirementFindManyArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$StaffingRequirementPayload>[]
         }
         create: {
-          args: Prisma.ShiftCapacityCreateArgs<ExtArgs>
-          result: runtime.Types.Utils.PayloadToResult<Prisma.$ShiftCapacityPayload>
+          args: Prisma.StaffingRequirementCreateArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$StaffingRequirementPayload>
         }
         createMany: {
-          args: Prisma.ShiftCapacityCreateManyArgs<ExtArgs>
+          args: Prisma.StaffingRequirementCreateManyArgs<ExtArgs>
           result: BatchPayload
         }
         createManyAndReturn: {
-          args: Prisma.ShiftCapacityCreateManyAndReturnArgs<ExtArgs>
-          result: runtime.Types.Utils.PayloadToResult<Prisma.$ShiftCapacityPayload>[]
+          args: Prisma.StaffingRequirementCreateManyAndReturnArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$StaffingRequirementPayload>[]
         }
         delete: {
-          args: Prisma.ShiftCapacityDeleteArgs<ExtArgs>
-          result: runtime.Types.Utils.PayloadToResult<Prisma.$ShiftCapacityPayload>
+          args: Prisma.StaffingRequirementDeleteArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$StaffingRequirementPayload>
         }
         update: {
-          args: Prisma.ShiftCapacityUpdateArgs<ExtArgs>
-          result: runtime.Types.Utils.PayloadToResult<Prisma.$ShiftCapacityPayload>
+          args: Prisma.StaffingRequirementUpdateArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$StaffingRequirementPayload>
         }
         deleteMany: {
-          args: Prisma.ShiftCapacityDeleteManyArgs<ExtArgs>
+          args: Prisma.StaffingRequirementDeleteManyArgs<ExtArgs>
           result: BatchPayload
         }
         updateMany: {
-          args: Prisma.ShiftCapacityUpdateManyArgs<ExtArgs>
+          args: Prisma.StaffingRequirementUpdateManyArgs<ExtArgs>
           result: BatchPayload
         }
         updateManyAndReturn: {
-          args: Prisma.ShiftCapacityUpdateManyAndReturnArgs<ExtArgs>
-          result: runtime.Types.Utils.PayloadToResult<Prisma.$ShiftCapacityPayload>[]
+          args: Prisma.StaffingRequirementUpdateManyAndReturnArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$StaffingRequirementPayload>[]
         }
         upsert: {
-          args: Prisma.ShiftCapacityUpsertArgs<ExtArgs>
-          result: runtime.Types.Utils.PayloadToResult<Prisma.$ShiftCapacityPayload>
+          args: Prisma.StaffingRequirementUpsertArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$StaffingRequirementPayload>
         }
         aggregate: {
-          args: Prisma.ShiftCapacityAggregateArgs<ExtArgs>
-          result: runtime.Types.Utils.Optional<Prisma.AggregateShiftCapacity>
+          args: Prisma.StaffingRequirementAggregateArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.AggregateStaffingRequirement>
         }
         groupBy: {
-          args: Prisma.ShiftCapacityGroupByArgs<ExtArgs>
-          result: runtime.Types.Utils.Optional<Prisma.ShiftCapacityGroupByOutputType>[]
+          args: Prisma.StaffingRequirementGroupByArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.StaffingRequirementGroupByOutputType>[]
         }
         count: {
-          args: Prisma.ShiftCapacityCountArgs<ExtArgs>
-          result: runtime.Types.Utils.Optional<Prisma.ShiftCapacityCountAggregateOutputType> | number
+          args: Prisma.StaffingRequirementCountArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.StaffingRequirementCountAggregateOutputType> | number
         }
       }
     }
@@ -1161,151 +1236,151 @@ export type TypeMap<ExtArgs extends runtime.Types.Extensions.InternalArgs = runt
         }
       }
     }
-    Availability: {
-      payload: Prisma.$AvailabilityPayload<ExtArgs>
-      fields: Prisma.AvailabilityFieldRefs
+    AvailabilitySubmission: {
+      payload: Prisma.$AvailabilitySubmissionPayload<ExtArgs>
+      fields: Prisma.AvailabilitySubmissionFieldRefs
       operations: {
         findUnique: {
-          args: Prisma.AvailabilityFindUniqueArgs<ExtArgs>
-          result: runtime.Types.Utils.PayloadToResult<Prisma.$AvailabilityPayload> | null
+          args: Prisma.AvailabilitySubmissionFindUniqueArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$AvailabilitySubmissionPayload> | null
         }
         findUniqueOrThrow: {
-          args: Prisma.AvailabilityFindUniqueOrThrowArgs<ExtArgs>
-          result: runtime.Types.Utils.PayloadToResult<Prisma.$AvailabilityPayload>
+          args: Prisma.AvailabilitySubmissionFindUniqueOrThrowArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$AvailabilitySubmissionPayload>
         }
         findFirst: {
-          args: Prisma.AvailabilityFindFirstArgs<ExtArgs>
-          result: runtime.Types.Utils.PayloadToResult<Prisma.$AvailabilityPayload> | null
+          args: Prisma.AvailabilitySubmissionFindFirstArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$AvailabilitySubmissionPayload> | null
         }
         findFirstOrThrow: {
-          args: Prisma.AvailabilityFindFirstOrThrowArgs<ExtArgs>
-          result: runtime.Types.Utils.PayloadToResult<Prisma.$AvailabilityPayload>
+          args: Prisma.AvailabilitySubmissionFindFirstOrThrowArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$AvailabilitySubmissionPayload>
         }
         findMany: {
-          args: Prisma.AvailabilityFindManyArgs<ExtArgs>
-          result: runtime.Types.Utils.PayloadToResult<Prisma.$AvailabilityPayload>[]
+          args: Prisma.AvailabilitySubmissionFindManyArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$AvailabilitySubmissionPayload>[]
         }
         create: {
-          args: Prisma.AvailabilityCreateArgs<ExtArgs>
-          result: runtime.Types.Utils.PayloadToResult<Prisma.$AvailabilityPayload>
+          args: Prisma.AvailabilitySubmissionCreateArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$AvailabilitySubmissionPayload>
         }
         createMany: {
-          args: Prisma.AvailabilityCreateManyArgs<ExtArgs>
+          args: Prisma.AvailabilitySubmissionCreateManyArgs<ExtArgs>
           result: BatchPayload
         }
         createManyAndReturn: {
-          args: Prisma.AvailabilityCreateManyAndReturnArgs<ExtArgs>
-          result: runtime.Types.Utils.PayloadToResult<Prisma.$AvailabilityPayload>[]
+          args: Prisma.AvailabilitySubmissionCreateManyAndReturnArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$AvailabilitySubmissionPayload>[]
         }
         delete: {
-          args: Prisma.AvailabilityDeleteArgs<ExtArgs>
-          result: runtime.Types.Utils.PayloadToResult<Prisma.$AvailabilityPayload>
+          args: Prisma.AvailabilitySubmissionDeleteArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$AvailabilitySubmissionPayload>
         }
         update: {
-          args: Prisma.AvailabilityUpdateArgs<ExtArgs>
-          result: runtime.Types.Utils.PayloadToResult<Prisma.$AvailabilityPayload>
+          args: Prisma.AvailabilitySubmissionUpdateArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$AvailabilitySubmissionPayload>
         }
         deleteMany: {
-          args: Prisma.AvailabilityDeleteManyArgs<ExtArgs>
+          args: Prisma.AvailabilitySubmissionDeleteManyArgs<ExtArgs>
           result: BatchPayload
         }
         updateMany: {
-          args: Prisma.AvailabilityUpdateManyArgs<ExtArgs>
+          args: Prisma.AvailabilitySubmissionUpdateManyArgs<ExtArgs>
           result: BatchPayload
         }
         updateManyAndReturn: {
-          args: Prisma.AvailabilityUpdateManyAndReturnArgs<ExtArgs>
-          result: runtime.Types.Utils.PayloadToResult<Prisma.$AvailabilityPayload>[]
+          args: Prisma.AvailabilitySubmissionUpdateManyAndReturnArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$AvailabilitySubmissionPayload>[]
         }
         upsert: {
-          args: Prisma.AvailabilityUpsertArgs<ExtArgs>
-          result: runtime.Types.Utils.PayloadToResult<Prisma.$AvailabilityPayload>
+          args: Prisma.AvailabilitySubmissionUpsertArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$AvailabilitySubmissionPayload>
         }
         aggregate: {
-          args: Prisma.AvailabilityAggregateArgs<ExtArgs>
-          result: runtime.Types.Utils.Optional<Prisma.AggregateAvailability>
+          args: Prisma.AvailabilitySubmissionAggregateArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.AggregateAvailabilitySubmission>
         }
         groupBy: {
-          args: Prisma.AvailabilityGroupByArgs<ExtArgs>
-          result: runtime.Types.Utils.Optional<Prisma.AvailabilityGroupByOutputType>[]
+          args: Prisma.AvailabilitySubmissionGroupByArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.AvailabilitySubmissionGroupByOutputType>[]
         }
         count: {
-          args: Prisma.AvailabilityCountArgs<ExtArgs>
-          result: runtime.Types.Utils.Optional<Prisma.AvailabilityCountAggregateOutputType> | number
+          args: Prisma.AvailabilitySubmissionCountArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.AvailabilitySubmissionCountAggregateOutputType> | number
         }
       }
     }
-    AvailabilityEntry: {
-      payload: Prisma.$AvailabilityEntryPayload<ExtArgs>
-      fields: Prisma.AvailabilityEntryFieldRefs
+    AvailabilitySlot: {
+      payload: Prisma.$AvailabilitySlotPayload<ExtArgs>
+      fields: Prisma.AvailabilitySlotFieldRefs
       operations: {
         findUnique: {
-          args: Prisma.AvailabilityEntryFindUniqueArgs<ExtArgs>
-          result: runtime.Types.Utils.PayloadToResult<Prisma.$AvailabilityEntryPayload> | null
+          args: Prisma.AvailabilitySlotFindUniqueArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$AvailabilitySlotPayload> | null
         }
         findUniqueOrThrow: {
-          args: Prisma.AvailabilityEntryFindUniqueOrThrowArgs<ExtArgs>
-          result: runtime.Types.Utils.PayloadToResult<Prisma.$AvailabilityEntryPayload>
+          args: Prisma.AvailabilitySlotFindUniqueOrThrowArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$AvailabilitySlotPayload>
         }
         findFirst: {
-          args: Prisma.AvailabilityEntryFindFirstArgs<ExtArgs>
-          result: runtime.Types.Utils.PayloadToResult<Prisma.$AvailabilityEntryPayload> | null
+          args: Prisma.AvailabilitySlotFindFirstArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$AvailabilitySlotPayload> | null
         }
         findFirstOrThrow: {
-          args: Prisma.AvailabilityEntryFindFirstOrThrowArgs<ExtArgs>
-          result: runtime.Types.Utils.PayloadToResult<Prisma.$AvailabilityEntryPayload>
+          args: Prisma.AvailabilitySlotFindFirstOrThrowArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$AvailabilitySlotPayload>
         }
         findMany: {
-          args: Prisma.AvailabilityEntryFindManyArgs<ExtArgs>
-          result: runtime.Types.Utils.PayloadToResult<Prisma.$AvailabilityEntryPayload>[]
+          args: Prisma.AvailabilitySlotFindManyArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$AvailabilitySlotPayload>[]
         }
         create: {
-          args: Prisma.AvailabilityEntryCreateArgs<ExtArgs>
-          result: runtime.Types.Utils.PayloadToResult<Prisma.$AvailabilityEntryPayload>
+          args: Prisma.AvailabilitySlotCreateArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$AvailabilitySlotPayload>
         }
         createMany: {
-          args: Prisma.AvailabilityEntryCreateManyArgs<ExtArgs>
+          args: Prisma.AvailabilitySlotCreateManyArgs<ExtArgs>
           result: BatchPayload
         }
         createManyAndReturn: {
-          args: Prisma.AvailabilityEntryCreateManyAndReturnArgs<ExtArgs>
-          result: runtime.Types.Utils.PayloadToResult<Prisma.$AvailabilityEntryPayload>[]
+          args: Prisma.AvailabilitySlotCreateManyAndReturnArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$AvailabilitySlotPayload>[]
         }
         delete: {
-          args: Prisma.AvailabilityEntryDeleteArgs<ExtArgs>
-          result: runtime.Types.Utils.PayloadToResult<Prisma.$AvailabilityEntryPayload>
+          args: Prisma.AvailabilitySlotDeleteArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$AvailabilitySlotPayload>
         }
         update: {
-          args: Prisma.AvailabilityEntryUpdateArgs<ExtArgs>
-          result: runtime.Types.Utils.PayloadToResult<Prisma.$AvailabilityEntryPayload>
+          args: Prisma.AvailabilitySlotUpdateArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$AvailabilitySlotPayload>
         }
         deleteMany: {
-          args: Prisma.AvailabilityEntryDeleteManyArgs<ExtArgs>
+          args: Prisma.AvailabilitySlotDeleteManyArgs<ExtArgs>
           result: BatchPayload
         }
         updateMany: {
-          args: Prisma.AvailabilityEntryUpdateManyArgs<ExtArgs>
+          args: Prisma.AvailabilitySlotUpdateManyArgs<ExtArgs>
           result: BatchPayload
         }
         updateManyAndReturn: {
-          args: Prisma.AvailabilityEntryUpdateManyAndReturnArgs<ExtArgs>
-          result: runtime.Types.Utils.PayloadToResult<Prisma.$AvailabilityEntryPayload>[]
+          args: Prisma.AvailabilitySlotUpdateManyAndReturnArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$AvailabilitySlotPayload>[]
         }
         upsert: {
-          args: Prisma.AvailabilityEntryUpsertArgs<ExtArgs>
-          result: runtime.Types.Utils.PayloadToResult<Prisma.$AvailabilityEntryPayload>
+          args: Prisma.AvailabilitySlotUpsertArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$AvailabilitySlotPayload>
         }
         aggregate: {
-          args: Prisma.AvailabilityEntryAggregateArgs<ExtArgs>
-          result: runtime.Types.Utils.Optional<Prisma.AggregateAvailabilityEntry>
+          args: Prisma.AvailabilitySlotAggregateArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.AggregateAvailabilitySlot>
         }
         groupBy: {
-          args: Prisma.AvailabilityEntryGroupByArgs<ExtArgs>
-          result: runtime.Types.Utils.Optional<Prisma.AvailabilityEntryGroupByOutputType>[]
+          args: Prisma.AvailabilitySlotGroupByArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.AvailabilitySlotGroupByOutputType>[]
         }
         count: {
-          args: Prisma.AvailabilityEntryCountArgs<ExtArgs>
-          result: runtime.Types.Utils.Optional<Prisma.AvailabilityEntryCountAggregateOutputType> | number
+          args: Prisma.AvailabilitySlotCountArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.AvailabilitySlotCountAggregateOutputType> | number
         }
       }
     }
@@ -1843,6 +1918,21 @@ export const UserScalarFieldEnum = {
 export type UserScalarFieldEnum = (typeof UserScalarFieldEnum)[keyof typeof UserScalarFieldEnum]
 
 
+export const UserPermissionScalarFieldEnum = {
+  id: 'id',
+  userId: 'userId',
+  permissionKey: 'permissionKey',
+  granted: 'granted',
+  grantedById: 'grantedById',
+  note: 'note',
+  expiresAt: 'expiresAt',
+  createdAt: 'createdAt',
+  updatedAt: 'updatedAt'
+} as const
+
+export type UserPermissionScalarFieldEnum = (typeof UserPermissionScalarFieldEnum)[keyof typeof UserPermissionScalarFieldEnum]
+
+
 export const RegionScalarFieldEnum = {
   id: 'id',
   name: 'name',
@@ -1896,20 +1986,20 @@ export const PositionScalarFieldEnum = {
 export type PositionScalarFieldEnum = (typeof PositionScalarFieldEnum)[keyof typeof PositionScalarFieldEnum]
 
 
-export const ShiftCapacityScalarFieldEnum = {
+export const StaffingRequirementScalarFieldEnum = {
   id: 'id',
   courtId: 'courtId',
   positionId: 'positionId',
   shiftType: 'shiftType',
   dayCategory: 'dayCategory',
-  amount: 'amount',
+  requiredCount: 'requiredCount',
   isActive: 'isActive',
   displayOrder: 'displayOrder',
   createdAt: 'createdAt',
   updatedAt: 'updatedAt'
 } as const
 
-export type ShiftCapacityScalarFieldEnum = (typeof ShiftCapacityScalarFieldEnum)[keyof typeof ShiftCapacityScalarFieldEnum]
+export type StaffingRequirementScalarFieldEnum = (typeof StaffingRequirementScalarFieldEnum)[keyof typeof StaffingRequirementScalarFieldEnum]
 
 
 export const SchedulePeriodScalarFieldEnum = {
@@ -1928,7 +2018,7 @@ export const SchedulePeriodScalarFieldEnum = {
 export type SchedulePeriodScalarFieldEnum = (typeof SchedulePeriodScalarFieldEnum)[keyof typeof SchedulePeriodScalarFieldEnum]
 
 
-export const AvailabilityScalarFieldEnum = {
+export const AvailabilitySubmissionScalarFieldEnum = {
   id: 'id',
   periodId: 'periodId',
   employeeId: 'employeeId',
@@ -1938,12 +2028,12 @@ export const AvailabilityScalarFieldEnum = {
   updatedAt: 'updatedAt'
 } as const
 
-export type AvailabilityScalarFieldEnum = (typeof AvailabilityScalarFieldEnum)[keyof typeof AvailabilityScalarFieldEnum]
+export type AvailabilitySubmissionScalarFieldEnum = (typeof AvailabilitySubmissionScalarFieldEnum)[keyof typeof AvailabilitySubmissionScalarFieldEnum]
 
 
-export const AvailabilityEntryScalarFieldEnum = {
+export const AvailabilitySlotScalarFieldEnum = {
   id: 'id',
-  availabilityId: 'availabilityId',
+  submissionId: 'submissionId',
   date: 'date',
   shiftType: 'shiftType',
   isAvailable: 'isAvailable',
@@ -1951,7 +2041,7 @@ export const AvailabilityEntryScalarFieldEnum = {
   updatedAt: 'updatedAt'
 } as const
 
-export type AvailabilityEntryScalarFieldEnum = (typeof AvailabilityEntryScalarFieldEnum)[keyof typeof AvailabilityEntryScalarFieldEnum]
+export type AvailabilitySlotScalarFieldEnum = (typeof AvailabilitySlotScalarFieldEnum)[keyof typeof AvailabilitySlotScalarFieldEnum]
 
 
 export const ScheduleScalarFieldEnum = {
@@ -2401,14 +2491,15 @@ export type GlobalOmitConfig = {
   session?: Prisma.SessionOmit
   verificationToken?: Prisma.VerificationTokenOmit
   user?: Prisma.UserOmit
+  userPermission?: Prisma.UserPermissionOmit
   region?: Prisma.RegionOmit
   court?: Prisma.CourtOmit
   employee?: Prisma.EmployeeOmit
   position?: Prisma.PositionOmit
-  shiftCapacity?: Prisma.ShiftCapacityOmit
+  staffingRequirement?: Prisma.StaffingRequirementOmit
   schedulePeriod?: Prisma.SchedulePeriodOmit
-  availability?: Prisma.AvailabilityOmit
-  availabilityEntry?: Prisma.AvailabilityEntryOmit
+  availabilitySubmission?: Prisma.AvailabilitySubmissionOmit
+  availabilitySlot?: Prisma.AvailabilitySlotOmit
   schedule?: Prisma.ScheduleOmit
   shiftAssignment?: Prisma.ShiftAssignmentOmit
   scheduleWarning?: Prisma.ScheduleWarningOmit

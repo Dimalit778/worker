@@ -4,7 +4,9 @@ import { useState, useRef, useEffect } from 'react';
 import { createPortal } from 'react-dom';
 import { X } from 'lucide-react';
 import { cn } from '@/lib/utils';
-import type { ScheduleEmployeeOption } from '../types';
+import type { ScheduleEmployeeOption } from '../../types';
+import { Input } from '@/components/ui/input';
+import { Button } from '@/components/ui/button';
 
 type Props = {
   employees: ScheduleEmployeeOption[];
@@ -20,7 +22,7 @@ export function GuardPicker({ employees, currentUserId, anchorRect, onSelect, on
   const inputRef = useRef<HTMLInputElement>(null);
   const panelRef = useRef<HTMLDivElement>(null);
 
-  const filtered = query.trim() ? employees.filter((e) => e.name.includes(query.trim())) : employees;
+  const filtered = query.trim() ? employees.filter((e) => e.displayName.includes(query.trim())) : employees;
 
   useEffect(() => {
     inputRef.current?.focus();
@@ -52,13 +54,7 @@ export function GuardPicker({ employees, currentUserId, anchorRect, onSelect, on
       dir="rtl"
     >
       <div className="px-2 pb-1 pt-1 border-b border-border">
-        <input
-          ref={inputRef}
-          value={query}
-          onChange={(e) => setQuery(e.target.value)}
-          placeholder="חיפוש..."
-          className="w-full text-xs px-2 py-1 border border-border rounded-md outline-none focus:ring-1 focus:ring-primary"
-        />
+        <Input ref={inputRef} value={query} onChange={(e) => setQuery(e.target.value)} placeholder="חיפוש..." />
       </div>
 
       <ul className="max-h-44 overflow-y-auto">
@@ -72,20 +68,17 @@ export function GuardPicker({ employees, currentUserId, anchorRect, onSelect, on
               e.id === currentUserId && 'font-semibold bg-accent/50',
             )}
           >
-            {e.name}
+            {e.displayName}
           </li>
         ))}
       </ul>
 
       {currentUserId && (
         <div className="border-t border-border mt-1">
-          <button
-            onClick={onRemove}
-            className="flex items-center gap-1.5 w-full px-3 py-1.5 text-xs text-destructive hover:bg-destructive/10"
-          >
+          <Button variant="destructive" onClick={onRemove}>
             <X className="w-3 h-3" />
             הסר שיבוץ
-          </button>
+          </Button>
         </div>
       )}
     </div>

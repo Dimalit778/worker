@@ -10,9 +10,5 @@ export default async function ManagerEmployeesPage() {
   if ('error' in data) {
     return <div>Error: {data.error}</div>;
   }
-  return (
-    <div className="space-y-6">
-      <EmployeesTable employees={data.employees} positions={data.positions} />
-    </div>
-  );
+  return <EmployeesTable employees={data.employees} positions={data.positions} />;
 }

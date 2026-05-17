@@ -1,8 +1,7 @@
 import { requireSession } from '@/lib/db/auth-helpers';
 import { SystemRole } from '@/generated/prisma/client';
-import { prisma } from '@/lib/db/client';
-import { getSchedulePageData } from '@/features/schedules/queries';
-import { Schedule } from '@/features/schedules/components/schedule';
+import { getSchedulePageData } from '@/features/schedules/assignments/quries';
+import { Schedule } from '@/features/schedules/assignments/components/schedule';
 import { Card, CardContent } from '@/components/ui/card';
 
 export default async function UserShibutzPage() {

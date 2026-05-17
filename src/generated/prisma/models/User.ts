@@ -210,6 +210,8 @@ export type UserWhereInput = {
   periodsCreated?: Prisma.SchedulePeriodListRelationFilter
   schedulesGenerated?: Prisma.ScheduleListRelationFilter
   scheduleChanges?: Prisma.ScheduleChangeLogListRelationFilter
+  receivedPermissions?: Prisma.UserPermissionListRelationFilter
+  grantedPermissions?: Prisma.UserPermissionListRelationFilter
   accounts?: Prisma.AccountListRelationFilter
   sessions?: Prisma.SessionListRelationFilter
 }
@@ -227,6 +229,8 @@ export type UserOrderByWithRelationInput = {
   periodsCreated?: Prisma.SchedulePeriodOrderByRelationAggregateInput
   schedulesGenerated?: Prisma.ScheduleOrderByRelationAggregateInput
   scheduleChanges?: Prisma.ScheduleChangeLogOrderByRelationAggregateInput
+  receivedPermissions?: Prisma.UserPermissionOrderByRelationAggregateInput
+  grantedPermissions?: Prisma.UserPermissionOrderByRelationAggregateInput
   accounts?: Prisma.AccountOrderByRelationAggregateInput
   sessions?: Prisma.SessionOrderByRelationAggregateInput
 }
@@ -247,6 +251,8 @@ export type UserWhereUniqueInput = Prisma.AtLeast<{
   periodsCreated?: Prisma.SchedulePeriodListRelationFilter
   schedulesGenerated?: Prisma.ScheduleListRelationFilter
   scheduleChanges?: Prisma.ScheduleChangeLogListRelationFilter
+  receivedPermissions?: Prisma.UserPermissionListRelationFilter
+  grantedPermissions?: Prisma.UserPermissionListRelationFilter
   accounts?: Prisma.AccountListRelationFilter
   sessions?: Prisma.SessionListRelationFilter
 }, "id" | "email" | "employeeId">
@@ -291,6 +297,8 @@ export type UserCreateInput = {
   periodsCreated?: Prisma.SchedulePeriodCreateNestedManyWithoutCreatedByInput
   schedulesGenerated?: Prisma.ScheduleCreateNestedManyWithoutGeneratedByInput
   scheduleChanges?: Prisma.ScheduleChangeLogCreateNestedManyWithoutChangedByInput
+  receivedPermissions?: Prisma.UserPermissionCreateNestedManyWithoutUserInput
+  grantedPermissions?: Prisma.UserPermissionCreateNestedManyWithoutGrantedByInput
   accounts?: Prisma.AccountCreateNestedManyWithoutUserInput
   sessions?: Prisma.SessionCreateNestedManyWithoutUserInput
 }
@@ -307,6 +315,8 @@ export type UserUncheckedCreateInput = {
   periodsCreated?: Prisma.SchedulePeriodUncheckedCreateNestedManyWithoutCreatedByInput
   schedulesGenerated?: Prisma.ScheduleUncheckedCreateNestedManyWithoutGeneratedByInput
   scheduleChanges?: Prisma.ScheduleChangeLogUncheckedCreateNestedManyWithoutChangedByInput
+  receivedPermissions?: Prisma.UserPermissionUncheckedCreateNestedManyWithoutUserInput
+  grantedPermissions?: Prisma.UserPermissionUncheckedCreateNestedManyWithoutGrantedByInput
   accounts?: Prisma.AccountUncheckedCreateNestedManyWithoutUserInput
   sessions?: Prisma.SessionUncheckedCreateNestedManyWithoutUserInput
 }
@@ -323,6 +333,8 @@ export type UserUpdateInput = {
   periodsCreated?: Prisma.SchedulePeriodUpdateManyWithoutCreatedByNestedInput
   schedulesGenerated?: Prisma.ScheduleUpdateManyWithoutGeneratedByNestedInput
   scheduleChanges?: Prisma.ScheduleChangeLogUpdateManyWithoutChangedByNestedInput
+  receivedPermissions?: Prisma.UserPermissionUpdateManyWithoutUserNestedInput
+  grantedPermissions?: Prisma.UserPermissionUpdateManyWithoutGrantedByNestedInput
   accounts?: Prisma.AccountUpdateManyWithoutUserNestedInput
   sessions?: Prisma.SessionUpdateManyWithoutUserNestedInput
 }
@@ -339,6 +351,8 @@ export type UserUncheckedUpdateInput = {
   periodsCreated?: Prisma.SchedulePeriodUncheckedUpdateManyWithoutCreatedByNestedInput
   schedulesGenerated?: Prisma.ScheduleUncheckedUpdateManyWithoutGeneratedByNestedInput
   scheduleChanges?: Prisma.ScheduleChangeLogUncheckedUpdateManyWithoutChangedByNestedInput
+  receivedPermissions?: Prisma.UserPermissionUncheckedUpdateManyWithoutUserNestedInput
+  grantedPermissions?: Prisma.UserPermissionUncheckedUpdateManyWithoutGrantedByNestedInput
   accounts?: Prisma.AccountUncheckedUpdateManyWithoutUserNestedInput
   sessions?: Prisma.SessionUncheckedUpdateManyWithoutUserNestedInput
 }
@@ -454,6 +468,34 @@ export type BoolFieldUpdateOperationsInput = {
   set?: boolean
 }
 
+export type UserCreateNestedOneWithoutReceivedPermissionsInput = {
+  create?: Prisma.XOR<Prisma.UserCreateWithoutReceivedPermissionsInput, Prisma.UserUncheckedCreateWithoutReceivedPermissionsInput>
+  connectOrCreate?: Prisma.UserCreateOrConnectWithoutReceivedPermissionsInput
+  connect?: Prisma.UserWhereUniqueInput
+}
+
+export type UserCreateNestedOneWithoutGrantedPermissionsInput = {
+  create?: Prisma.XOR<Prisma.UserCreateWithoutGrantedPermissionsInput, Prisma.UserUncheckedCreateWithoutGrantedPermissionsInput>
+  connectOrCreate?: Prisma.UserCreateOrConnectWithoutGrantedPermissionsInput
+  connect?: Prisma.UserWhereUniqueInput
+}
+
+export type UserUpdateOneRequiredWithoutReceivedPermissionsNestedInput = {
+  create?: Prisma.XOR<Prisma.UserCreateWithoutReceivedPermissionsInput, Prisma.UserUncheckedCreateWithoutReceivedPermissionsInput>
+  connectOrCreate?: Prisma.UserCreateOrConnectWithoutReceivedPermissionsInput
+  upsert?: Prisma.UserUpsertWithoutReceivedPermissionsInput
+  connect?: Prisma.UserWhereUniqueInput
+  update?: Prisma.XOR<Prisma.XOR<Prisma.UserUpdateToOneWithWhereWithoutReceivedPermissionsInput, Prisma.UserUpdateWithoutReceivedPermissionsInput>, Prisma.UserUncheckedUpdateWithoutReceivedPermissionsInput>
+}
+
+export type UserUpdateOneRequiredWithoutGrantedPermissionsNestedInput = {
+  create?: Prisma.XOR<Prisma.UserCreateWithoutGrantedPermissionsInput, Prisma.UserUncheckedCreateWithoutGrantedPermissionsInput>
+  connectOrCreate?: Prisma.UserCreateOrConnectWithoutGrantedPermissionsInput
+  upsert?: Prisma.UserUpsertWithoutGrantedPermissionsInput
+  connect?: Prisma.UserWhereUniqueInput
+  update?: Prisma.XOR<Prisma.XOR<Prisma.UserUpdateToOneWithWhereWithoutGrantedPermissionsInput, Prisma.UserUpdateWithoutGrantedPermissionsInput>, Prisma.UserUncheckedUpdateWithoutGrantedPermissionsInput>
+}
+
 export type UserCreateNestedOneWithoutEmployeeInput = {
   create?: Prisma.XOR<Prisma.UserCreateWithoutEmployeeInput, Prisma.UserUncheckedCreateWithoutEmployeeInput>
   connectOrCreate?: Prisma.UserCreateOrConnectWithoutEmployeeInput
@@ -540,6 +582,8 @@ export type UserCreateWithoutAccountsInput = {
   periodsCreated?: Prisma.SchedulePeriodCreateNestedManyWithoutCreatedByInput
   schedulesGenerated?: Prisma.ScheduleCreateNestedManyWithoutGeneratedByInput
   scheduleChanges?: Prisma.ScheduleChangeLogCreateNestedManyWithoutChangedByInput
+  receivedPermissions?: Prisma.UserPermissionCreateNestedManyWithoutUserInput
+  grantedPermissions?: Prisma.UserPermissionCreateNestedManyWithoutGrantedByInput
   sessions?: Prisma.SessionCreateNestedManyWithoutUserInput
 }
 
@@ -555,6 +599,8 @@ export type UserUncheckedCreateWithoutAccountsInput = {
   periodsCreated?: Prisma.SchedulePeriodUncheckedCreateNestedManyWithoutCreatedByInput
   schedulesGenerated?: Prisma.ScheduleUncheckedCreateNestedManyWithoutGeneratedByInput
   scheduleChanges?: Prisma.ScheduleChangeLogUncheckedCreateNestedManyWithoutChangedByInput
+  receivedPermissions?: Prisma.UserPermissionUncheckedCreateNestedManyWithoutUserInput
+  grantedPermissions?: Prisma.UserPermissionUncheckedCreateNestedManyWithoutGrantedByInput
   sessions?: Prisma.SessionUncheckedCreateNestedManyWithoutUserInput
 }
 
@@ -586,6 +632,8 @@ export type UserUpdateWithoutAccountsInput = {
   periodsCreated?: Prisma.SchedulePeriodUpdateManyWithoutCreatedByNestedInput
   schedulesGenerated?: Prisma.ScheduleUpdateManyWithoutGeneratedByNestedInput
   scheduleChanges?: Prisma.ScheduleChangeLogUpdateManyWithoutChangedByNestedInput
+  receivedPermissions?: Prisma.UserPermissionUpdateManyWithoutUserNestedInput
+  grantedPermissions?: Prisma.UserPermissionUpdateManyWithoutGrantedByNestedInput
   sessions?: Prisma.SessionUpdateManyWithoutUserNestedInput
 }
 
@@ -601,6 +649,8 @@ export type UserUncheckedUpdateWithoutAccountsInput = {
   periodsCreated?: Prisma.SchedulePeriodUncheckedUpdateManyWithoutCreatedByNestedInput
   schedulesGenerated?: Prisma.ScheduleUncheckedUpdateManyWithoutGeneratedByNestedInput
   scheduleChanges?: Prisma.ScheduleChangeLogUncheckedUpdateManyWithoutChangedByNestedInput
+  receivedPermissions?: Prisma.UserPermissionUncheckedUpdateManyWithoutUserNestedInput
+  grantedPermissions?: Prisma.UserPermissionUncheckedUpdateManyWithoutGrantedByNestedInput
   sessions?: Prisma.SessionUncheckedUpdateManyWithoutUserNestedInput
 }
 
@@ -616,6 +666,8 @@ export type UserCreateWithoutSessionsInput = {
   periodsCreated?: Prisma.SchedulePeriodCreateNestedManyWithoutCreatedByInput
   schedulesGenerated?: Prisma.ScheduleCreateNestedManyWithoutGeneratedByInput
   scheduleChanges?: Prisma.ScheduleChangeLogCreateNestedManyWithoutChangedByInput
+  receivedPermissions?: Prisma.UserPermissionCreateNestedManyWithoutUserInput
+  grantedPermissions?: Prisma.UserPermissionCreateNestedManyWithoutGrantedByInput
   accounts?: Prisma.AccountCreateNestedManyWithoutUserInput
 }
 
@@ -631,6 +683,8 @@ export type UserUncheckedCreateWithoutSessionsInput = {
   periodsCreated?: Prisma.SchedulePeriodUncheckedCreateNestedManyWithoutCreatedByInput
   schedulesGenerated?: Prisma.ScheduleUncheckedCreateNestedManyWithoutGeneratedByInput
   scheduleChanges?: Prisma.ScheduleChangeLogUncheckedCreateNestedManyWithoutChangedByInput
+  receivedPermissions?: Prisma.UserPermissionUncheckedCreateNestedManyWithoutUserInput
+  grantedPermissions?: Prisma.UserPermissionUncheckedCreateNestedManyWithoutGrantedByInput
   accounts?: Prisma.AccountUncheckedCreateNestedManyWithoutUserInput
 }
 
@@ -662,6 +716,8 @@ export type UserUpdateWithoutSessionsInput = {
   periodsCreated?: Prisma.SchedulePeriodUpdateManyWithoutCreatedByNestedInput
   schedulesGenerated?: Prisma.ScheduleUpdateManyWithoutGeneratedByNestedInput
   scheduleChanges?: Prisma.ScheduleChangeLogUpdateManyWithoutChangedByNestedInput
+  receivedPermissions?: Prisma.UserPermissionUpdateManyWithoutUserNestedInput
+  grantedPermissions?: Prisma.UserPermissionUpdateManyWithoutGrantedByNestedInput
   accounts?: Prisma.AccountUpdateManyWithoutUserNestedInput
 }
 
@@ -677,7 +733,177 @@ export type UserUncheckedUpdateWithoutSessionsInput = {
   periodsCreated?: Prisma.SchedulePeriodUncheckedUpdateManyWithoutCreatedByNestedInput
   schedulesGenerated?: Prisma.ScheduleUncheckedUpdateManyWithoutGeneratedByNestedInput
   scheduleChanges?: Prisma.ScheduleChangeLogUncheckedUpdateManyWithoutChangedByNestedInput
+  receivedPermissions?: Prisma.UserPermissionUncheckedUpdateManyWithoutUserNestedInput
+  grantedPermissions?: Prisma.UserPermissionUncheckedUpdateManyWithoutGrantedByNestedInput
   accounts?: Prisma.AccountUncheckedUpdateManyWithoutUserNestedInput
+}
+
+export type UserCreateWithoutReceivedPermissionsInput = {
+  id?: string
+  email: string
+  passwordHash: string
+  systemRole?: $Enums.SystemRole
+  mustChangePassword?: boolean
+  createdAt?: Date | string
+  updatedAt?: Date | string
+  employee?: Prisma.EmployeeCreateNestedOneWithoutUserInput
+  periodsCreated?: Prisma.SchedulePeriodCreateNestedManyWithoutCreatedByInput
+  schedulesGenerated?: Prisma.ScheduleCreateNestedManyWithoutGeneratedByInput
+  scheduleChanges?: Prisma.ScheduleChangeLogCreateNestedManyWithoutChangedByInput
+  grantedPermissions?: Prisma.UserPermissionCreateNestedManyWithoutGrantedByInput
+  accounts?: Prisma.AccountCreateNestedManyWithoutUserInput
+  sessions?: Prisma.SessionCreateNestedManyWithoutUserInput
+}
+
+export type UserUncheckedCreateWithoutReceivedPermissionsInput = {
+  id?: string
+  email: string
+  passwordHash: string
+  systemRole?: $Enums.SystemRole
+  mustChangePassword?: boolean
+  employeeId?: string | null
+  createdAt?: Date | string
+  updatedAt?: Date | string
+  periodsCreated?: Prisma.SchedulePeriodUncheckedCreateNestedManyWithoutCreatedByInput
+  schedulesGenerated?: Prisma.ScheduleUncheckedCreateNestedManyWithoutGeneratedByInput
+  scheduleChanges?: Prisma.ScheduleChangeLogUncheckedCreateNestedManyWithoutChangedByInput
+  grantedPermissions?: Prisma.UserPermissionUncheckedCreateNestedManyWithoutGrantedByInput
+  accounts?: Prisma.AccountUncheckedCreateNestedManyWithoutUserInput
+  sessions?: Prisma.SessionUncheckedCreateNestedManyWithoutUserInput
+}
+
+export type UserCreateOrConnectWithoutReceivedPermissionsInput = {
+  where: Prisma.UserWhereUniqueInput
+  create: Prisma.XOR<Prisma.UserCreateWithoutReceivedPermissionsInput, Prisma.UserUncheckedCreateWithoutReceivedPermissionsInput>
+}
+
+export type UserCreateWithoutGrantedPermissionsInput = {
+  id?: string
+  email: string
+  passwordHash: string
+  systemRole?: $Enums.SystemRole
+  mustChangePassword?: boolean
+  createdAt?: Date | string
+  updatedAt?: Date | string
+  employee?: Prisma.EmployeeCreateNestedOneWithoutUserInput
+  periodsCreated?: Prisma.SchedulePeriodCreateNestedManyWithoutCreatedByInput
+  schedulesGenerated?: Prisma.ScheduleCreateNestedManyWithoutGeneratedByInput
+  scheduleChanges?: Prisma.ScheduleChangeLogCreateNestedManyWithoutChangedByInput
+  receivedPermissions?: Prisma.UserPermissionCreateNestedManyWithoutUserInput
+  accounts?: Prisma.AccountCreateNestedManyWithoutUserInput
+  sessions?: Prisma.SessionCreateNestedManyWithoutUserInput
+}
+
+export type UserUncheckedCreateWithoutGrantedPermissionsInput = {
+  id?: string
+  email: string
+  passwordHash: string
+  systemRole?: $Enums.SystemRole
+  mustChangePassword?: boolean
+  employeeId?: string | null
+  createdAt?: Date | string
+  updatedAt?: Date | string
+  periodsCreated?: Prisma.SchedulePeriodUncheckedCreateNestedManyWithoutCreatedByInput
+  schedulesGenerated?: Prisma.ScheduleUncheckedCreateNestedManyWithoutGeneratedByInput
+  scheduleChanges?: Prisma.ScheduleChangeLogUncheckedCreateNestedManyWithoutChangedByInput
+  receivedPermissions?: Prisma.UserPermissionUncheckedCreateNestedManyWithoutUserInput
+  accounts?: Prisma.AccountUncheckedCreateNestedManyWithoutUserInput
+  sessions?: Prisma.SessionUncheckedCreateNestedManyWithoutUserInput
+}
+
+export type UserCreateOrConnectWithoutGrantedPermissionsInput = {
+  where: Prisma.UserWhereUniqueInput
+  create: Prisma.XOR<Prisma.UserCreateWithoutGrantedPermissionsInput, Prisma.UserUncheckedCreateWithoutGrantedPermissionsInput>
+}
+
+export type UserUpsertWithoutReceivedPermissionsInput = {
+  update: Prisma.XOR<Prisma.UserUpdateWithoutReceivedPermissionsInput, Prisma.UserUncheckedUpdateWithoutReceivedPermissionsInput>
+  create: Prisma.XOR<Prisma.UserCreateWithoutReceivedPermissionsInput, Prisma.UserUncheckedCreateWithoutReceivedPermissionsInput>
+  where?: Prisma.UserWhereInput
+}
+
+export type UserUpdateToOneWithWhereWithoutReceivedPermissionsInput = {
+  where?: Prisma.UserWhereInput
+  data: Prisma.XOR<Prisma.UserUpdateWithoutReceivedPermissionsInput, Prisma.UserUncheckedUpdateWithoutReceivedPermissionsInput>
+}
+
+export type UserUpdateWithoutReceivedPermissionsInput = {
+  id?: Prisma.StringFieldUpdateOperationsInput | string
+  email?: Prisma.StringFieldUpdateOperationsInput | string
+  passwordHash?: Prisma.StringFieldUpdateOperationsInput | string
+  systemRole?: Prisma.EnumSystemRoleFieldUpdateOperationsInput | $Enums.SystemRole
+  mustChangePassword?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  employee?: Prisma.EmployeeUpdateOneWithoutUserNestedInput
+  periodsCreated?: Prisma.SchedulePeriodUpdateManyWithoutCreatedByNestedInput
+  schedulesGenerated?: Prisma.ScheduleUpdateManyWithoutGeneratedByNestedInput
+  scheduleChanges?: Prisma.ScheduleChangeLogUpdateManyWithoutChangedByNestedInput
+  grantedPermissions?: Prisma.UserPermissionUpdateManyWithoutGrantedByNestedInput
+  accounts?: Prisma.AccountUpdateManyWithoutUserNestedInput
+  sessions?: Prisma.SessionUpdateManyWithoutUserNestedInput
+}
+
+export type UserUncheckedUpdateWithoutReceivedPermissionsInput = {
+  id?: Prisma.StringFieldUpdateOperationsInput | string
+  email?: Prisma.StringFieldUpdateOperationsInput | string
+  passwordHash?: Prisma.StringFieldUpdateOperationsInput | string
+  systemRole?: Prisma.EnumSystemRoleFieldUpdateOperationsInput | $Enums.SystemRole
+  mustChangePassword?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  employeeId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  periodsCreated?: Prisma.SchedulePeriodUncheckedUpdateManyWithoutCreatedByNestedInput
+  schedulesGenerated?: Prisma.ScheduleUncheckedUpdateManyWithoutGeneratedByNestedInput
+  scheduleChanges?: Prisma.ScheduleChangeLogUncheckedUpdateManyWithoutChangedByNestedInput
+  grantedPermissions?: Prisma.UserPermissionUncheckedUpdateManyWithoutGrantedByNestedInput
+  accounts?: Prisma.AccountUncheckedUpdateManyWithoutUserNestedInput
+  sessions?: Prisma.SessionUncheckedUpdateManyWithoutUserNestedInput
+}
+
+export type UserUpsertWithoutGrantedPermissionsInput = {
+  update: Prisma.XOR<Prisma.UserUpdateWithoutGrantedPermissionsInput, Prisma.UserUncheckedUpdateWithoutGrantedPermissionsInput>
+  create: Prisma.XOR<Prisma.UserCreateWithoutGrantedPermissionsInput, Prisma.UserUncheckedCreateWithoutGrantedPermissionsInput>
+  where?: Prisma.UserWhereInput
+}
+
+export type UserUpdateToOneWithWhereWithoutGrantedPermissionsInput = {
+  where?: Prisma.UserWhereInput
+  data: Prisma.XOR<Prisma.UserUpdateWithoutGrantedPermissionsInput, Prisma.UserUncheckedUpdateWithoutGrantedPermissionsInput>
+}
+
+export type UserUpdateWithoutGrantedPermissionsInput = {
+  id?: Prisma.StringFieldUpdateOperationsInput | string
+  email?: Prisma.StringFieldUpdateOperationsInput | string
+  passwordHash?: Prisma.StringFieldUpdateOperationsInput | string
+  systemRole?: Prisma.EnumSystemRoleFieldUpdateOperationsInput | $Enums.SystemRole
+  mustChangePassword?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  employee?: Prisma.EmployeeUpdateOneWithoutUserNestedInput
+  periodsCreated?: Prisma.SchedulePeriodUpdateManyWithoutCreatedByNestedInput
+  schedulesGenerated?: Prisma.ScheduleUpdateManyWithoutGeneratedByNestedInput
+  scheduleChanges?: Prisma.ScheduleChangeLogUpdateManyWithoutChangedByNestedInput
+  receivedPermissions?: Prisma.UserPermissionUpdateManyWithoutUserNestedInput
+  accounts?: Prisma.AccountUpdateManyWithoutUserNestedInput
+  sessions?: Prisma.SessionUpdateManyWithoutUserNestedInput
+}
+
+export type UserUncheckedUpdateWithoutGrantedPermissionsInput = {
+  id?: Prisma.StringFieldUpdateOperationsInput | string
+  email?: Prisma.StringFieldUpdateOperationsInput | string
+  passwordHash?: Prisma.StringFieldUpdateOperationsInput | string
+  systemRole?: Prisma.EnumSystemRoleFieldUpdateOperationsInput | $Enums.SystemRole
+  mustChangePassword?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  employeeId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  periodsCreated?: Prisma.SchedulePeriodUncheckedUpdateManyWithoutCreatedByNestedInput
+  schedulesGenerated?: Prisma.ScheduleUncheckedUpdateManyWithoutGeneratedByNestedInput
+  scheduleChanges?: Prisma.ScheduleChangeLogUncheckedUpdateManyWithoutChangedByNestedInput
+  receivedPermissions?: Prisma.UserPermissionUncheckedUpdateManyWithoutUserNestedInput
+  accounts?: Prisma.AccountUncheckedUpdateManyWithoutUserNestedInput
+  sessions?: Prisma.SessionUncheckedUpdateManyWithoutUserNestedInput
 }
 
 export type UserCreateWithoutEmployeeInput = {
@@ -691,6 +917,8 @@ export type UserCreateWithoutEmployeeInput = {
   periodsCreated?: Prisma.SchedulePeriodCreateNestedManyWithoutCreatedByInput
   schedulesGenerated?: Prisma.ScheduleCreateNestedManyWithoutGeneratedByInput
   scheduleChanges?: Prisma.ScheduleChangeLogCreateNestedManyWithoutChangedByInput
+  receivedPermissions?: Prisma.UserPermissionCreateNestedManyWithoutUserInput
+  grantedPermissions?: Prisma.UserPermissionCreateNestedManyWithoutGrantedByInput
   accounts?: Prisma.AccountCreateNestedManyWithoutUserInput
   sessions?: Prisma.SessionCreateNestedManyWithoutUserInput
 }
@@ -706,6 +934,8 @@ export type UserUncheckedCreateWithoutEmployeeInput = {
   periodsCreated?: Prisma.SchedulePeriodUncheckedCreateNestedManyWithoutCreatedByInput
   schedulesGenerated?: Prisma.ScheduleUncheckedCreateNestedManyWithoutGeneratedByInput
   scheduleChanges?: Prisma.ScheduleChangeLogUncheckedCreateNestedManyWithoutChangedByInput
+  receivedPermissions?: Prisma.UserPermissionUncheckedCreateNestedManyWithoutUserInput
+  grantedPermissions?: Prisma.UserPermissionUncheckedCreateNestedManyWithoutGrantedByInput
   accounts?: Prisma.AccountUncheckedCreateNestedManyWithoutUserInput
   sessions?: Prisma.SessionUncheckedCreateNestedManyWithoutUserInput
 }
@@ -737,6 +967,8 @@ export type UserUpdateWithoutEmployeeInput = {
   periodsCreated?: Prisma.SchedulePeriodUpdateManyWithoutCreatedByNestedInput
   schedulesGenerated?: Prisma.ScheduleUpdateManyWithoutGeneratedByNestedInput
   scheduleChanges?: Prisma.ScheduleChangeLogUpdateManyWithoutChangedByNestedInput
+  receivedPermissions?: Prisma.UserPermissionUpdateManyWithoutUserNestedInput
+  grantedPermissions?: Prisma.UserPermissionUpdateManyWithoutGrantedByNestedInput
   accounts?: Prisma.AccountUpdateManyWithoutUserNestedInput
   sessions?: Prisma.SessionUpdateManyWithoutUserNestedInput
 }
@@ -752,6 +984,8 @@ export type UserUncheckedUpdateWithoutEmployeeInput = {
   periodsCreated?: Prisma.SchedulePeriodUncheckedUpdateManyWithoutCreatedByNestedInput
   schedulesGenerated?: Prisma.ScheduleUncheckedUpdateManyWithoutGeneratedByNestedInput
   scheduleChanges?: Prisma.ScheduleChangeLogUncheckedUpdateManyWithoutChangedByNestedInput
+  receivedPermissions?: Prisma.UserPermissionUncheckedUpdateManyWithoutUserNestedInput
+  grantedPermissions?: Prisma.UserPermissionUncheckedUpdateManyWithoutGrantedByNestedInput
   accounts?: Prisma.AccountUncheckedUpdateManyWithoutUserNestedInput
   sessions?: Prisma.SessionUncheckedUpdateManyWithoutUserNestedInput
 }
@@ -767,6 +1001,8 @@ export type UserCreateWithoutPeriodsCreatedInput = {
   employee?: Prisma.EmployeeCreateNestedOneWithoutUserInput
   schedulesGenerated?: Prisma.ScheduleCreateNestedManyWithoutGeneratedByInput
   scheduleChanges?: Prisma.ScheduleChangeLogCreateNestedManyWithoutChangedByInput
+  receivedPermissions?: Prisma.UserPermissionCreateNestedManyWithoutUserInput
+  grantedPermissions?: Prisma.UserPermissionCreateNestedManyWithoutGrantedByInput
   accounts?: Prisma.AccountCreateNestedManyWithoutUserInput
   sessions?: Prisma.SessionCreateNestedManyWithoutUserInput
 }
@@ -782,6 +1018,8 @@ export type UserUncheckedCreateWithoutPeriodsCreatedInput = {
   updatedAt?: Date | string
   schedulesGenerated?: Prisma.ScheduleUncheckedCreateNestedManyWithoutGeneratedByInput
   scheduleChanges?: Prisma.ScheduleChangeLogUncheckedCreateNestedManyWithoutChangedByInput
+  receivedPermissions?: Prisma.UserPermissionUncheckedCreateNestedManyWithoutUserInput
+  grantedPermissions?: Prisma.UserPermissionUncheckedCreateNestedManyWithoutGrantedByInput
   accounts?: Prisma.AccountUncheckedCreateNestedManyWithoutUserInput
   sessions?: Prisma.SessionUncheckedCreateNestedManyWithoutUserInput
 }
@@ -813,6 +1051,8 @@ export type UserUpdateWithoutPeriodsCreatedInput = {
   employee?: Prisma.EmployeeUpdateOneWithoutUserNestedInput
   schedulesGenerated?: Prisma.ScheduleUpdateManyWithoutGeneratedByNestedInput
   scheduleChanges?: Prisma.ScheduleChangeLogUpdateManyWithoutChangedByNestedInput
+  receivedPermissions?: Prisma.UserPermissionUpdateManyWithoutUserNestedInput
+  grantedPermissions?: Prisma.UserPermissionUpdateManyWithoutGrantedByNestedInput
   accounts?: Prisma.AccountUpdateManyWithoutUserNestedInput
   sessions?: Prisma.SessionUpdateManyWithoutUserNestedInput
 }
@@ -828,6 +1068,8 @@ export type UserUncheckedUpdateWithoutPeriodsCreatedInput = {
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   schedulesGenerated?: Prisma.ScheduleUncheckedUpdateManyWithoutGeneratedByNestedInput
   scheduleChanges?: Prisma.ScheduleChangeLogUncheckedUpdateManyWithoutChangedByNestedInput
+  receivedPermissions?: Prisma.UserPermissionUncheckedUpdateManyWithoutUserNestedInput
+  grantedPermissions?: Prisma.UserPermissionUncheckedUpdateManyWithoutGrantedByNestedInput
   accounts?: Prisma.AccountUncheckedUpdateManyWithoutUserNestedInput
   sessions?: Prisma.SessionUncheckedUpdateManyWithoutUserNestedInput
 }
@@ -843,6 +1085,8 @@ export type UserCreateWithoutSchedulesGeneratedInput = {
   employee?: Prisma.EmployeeCreateNestedOneWithoutUserInput
   periodsCreated?: Prisma.SchedulePeriodCreateNestedManyWithoutCreatedByInput
   scheduleChanges?: Prisma.ScheduleChangeLogCreateNestedManyWithoutChangedByInput
+  receivedPermissions?: Prisma.UserPermissionCreateNestedManyWithoutUserInput
+  grantedPermissions?: Prisma.UserPermissionCreateNestedManyWithoutGrantedByInput
   accounts?: Prisma.AccountCreateNestedManyWithoutUserInput
   sessions?: Prisma.SessionCreateNestedManyWithoutUserInput
 }
@@ -858,6 +1102,8 @@ export type UserUncheckedCreateWithoutSchedulesGeneratedInput = {
   updatedAt?: Date | string
   periodsCreated?: Prisma.SchedulePeriodUncheckedCreateNestedManyWithoutCreatedByInput
   scheduleChanges?: Prisma.ScheduleChangeLogUncheckedCreateNestedManyWithoutChangedByInput
+  receivedPermissions?: Prisma.UserPermissionUncheckedCreateNestedManyWithoutUserInput
+  grantedPermissions?: Prisma.UserPermissionUncheckedCreateNestedManyWithoutGrantedByInput
   accounts?: Prisma.AccountUncheckedCreateNestedManyWithoutUserInput
   sessions?: Prisma.SessionUncheckedCreateNestedManyWithoutUserInput
 }
@@ -889,6 +1135,8 @@ export type UserUpdateWithoutSchedulesGeneratedInput = {
   employee?: Prisma.EmployeeUpdateOneWithoutUserNestedInput
   periodsCreated?: Prisma.SchedulePeriodUpdateManyWithoutCreatedByNestedInput
   scheduleChanges?: Prisma.ScheduleChangeLogUpdateManyWithoutChangedByNestedInput
+  receivedPermissions?: Prisma.UserPermissionUpdateManyWithoutUserNestedInput
+  grantedPermissions?: Prisma.UserPermissionUpdateManyWithoutGrantedByNestedInput
   accounts?: Prisma.AccountUpdateManyWithoutUserNestedInput
   sessions?: Prisma.SessionUpdateManyWithoutUserNestedInput
 }
@@ -904,6 +1152,8 @@ export type UserUncheckedUpdateWithoutSchedulesGeneratedInput = {
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   periodsCreated?: Prisma.SchedulePeriodUncheckedUpdateManyWithoutCreatedByNestedInput
   scheduleChanges?: Prisma.ScheduleChangeLogUncheckedUpdateManyWithoutChangedByNestedInput
+  receivedPermissions?: Prisma.UserPermissionUncheckedUpdateManyWithoutUserNestedInput
+  grantedPermissions?: Prisma.UserPermissionUncheckedUpdateManyWithoutGrantedByNestedInput
   accounts?: Prisma.AccountUncheckedUpdateManyWithoutUserNestedInput
   sessions?: Prisma.SessionUncheckedUpdateManyWithoutUserNestedInput
 }
@@ -919,6 +1169,8 @@ export type UserCreateWithoutScheduleChangesInput = {
   employee?: Prisma.EmployeeCreateNestedOneWithoutUserInput
   periodsCreated?: Prisma.SchedulePeriodCreateNestedManyWithoutCreatedByInput
   schedulesGenerated?: Prisma.ScheduleCreateNestedManyWithoutGeneratedByInput
+  receivedPermissions?: Prisma.UserPermissionCreateNestedManyWithoutUserInput
+  grantedPermissions?: Prisma.UserPermissionCreateNestedManyWithoutGrantedByInput
   accounts?: Prisma.AccountCreateNestedManyWithoutUserInput
   sessions?: Prisma.SessionCreateNestedManyWithoutUserInput
 }
@@ -934,6 +1186,8 @@ export type UserUncheckedCreateWithoutScheduleChangesInput = {
   updatedAt?: Date | string
   periodsCreated?: Prisma.SchedulePeriodUncheckedCreateNestedManyWithoutCreatedByInput
   schedulesGenerated?: Prisma.ScheduleUncheckedCreateNestedManyWithoutGeneratedByInput
+  receivedPermissions?: Prisma.UserPermissionUncheckedCreateNestedManyWithoutUserInput
+  grantedPermissions?: Prisma.UserPermissionUncheckedCreateNestedManyWithoutGrantedByInput
   accounts?: Prisma.AccountUncheckedCreateNestedManyWithoutUserInput
   sessions?: Prisma.SessionUncheckedCreateNestedManyWithoutUserInput
 }
@@ -965,6 +1219,8 @@ export type UserUpdateWithoutScheduleChangesInput = {
   employee?: Prisma.EmployeeUpdateOneWithoutUserNestedInput
   periodsCreated?: Prisma.SchedulePeriodUpdateManyWithoutCreatedByNestedInput
   schedulesGenerated?: Prisma.ScheduleUpdateManyWithoutGeneratedByNestedInput
+  receivedPermissions?: Prisma.UserPermissionUpdateManyWithoutUserNestedInput
+  grantedPermissions?: Prisma.UserPermissionUpdateManyWithoutGrantedByNestedInput
   accounts?: Prisma.AccountUpdateManyWithoutUserNestedInput
   sessions?: Prisma.SessionUpdateManyWithoutUserNestedInput
 }
@@ -980,6 +1236,8 @@ export type UserUncheckedUpdateWithoutScheduleChangesInput = {
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   periodsCreated?: Prisma.SchedulePeriodUncheckedUpdateManyWithoutCreatedByNestedInput
   schedulesGenerated?: Prisma.ScheduleUncheckedUpdateManyWithoutGeneratedByNestedInput
+  receivedPermissions?: Prisma.UserPermissionUncheckedUpdateManyWithoutUserNestedInput
+  grantedPermissions?: Prisma.UserPermissionUncheckedUpdateManyWithoutGrantedByNestedInput
   accounts?: Prisma.AccountUncheckedUpdateManyWithoutUserNestedInput
   sessions?: Prisma.SessionUncheckedUpdateManyWithoutUserNestedInput
 }
@@ -993,6 +1251,8 @@ export type UserCountOutputType = {
   periodsCreated: number
   schedulesGenerated: number
   scheduleChanges: number
+  receivedPermissions: number
+  grantedPermissions: number
   accounts: number
   sessions: number
 }
@@ -1001,6 +1261,8 @@ export type UserCountOutputTypeSelect<ExtArgs extends runtime.Types.Extensions.I
   periodsCreated?: boolean | UserCountOutputTypeCountPeriodsCreatedArgs
   schedulesGenerated?: boolean | UserCountOutputTypeCountSchedulesGeneratedArgs
   scheduleChanges?: boolean | UserCountOutputTypeCountScheduleChangesArgs
+  receivedPermissions?: boolean | UserCountOutputTypeCountReceivedPermissionsArgs
+  grantedPermissions?: boolean | UserCountOutputTypeCountGrantedPermissionsArgs
   accounts?: boolean | UserCountOutputTypeCountAccountsArgs
   sessions?: boolean | UserCountOutputTypeCountSessionsArgs
 }
@@ -1039,6 +1301,20 @@ export type UserCountOutputTypeCountScheduleChangesArgs<ExtArgs extends runtime.
 /**
  * UserCountOutputType without action
  */
+export type UserCountOutputTypeCountReceivedPermissionsArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+  where?: Prisma.UserPermissionWhereInput
+}
+
+/**
+ * UserCountOutputType without action
+ */
+export type UserCountOutputTypeCountGrantedPermissionsArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+  where?: Prisma.UserPermissionWhereInput
+}
+
+/**
+ * UserCountOutputType without action
+ */
 export type UserCountOutputTypeCountAccountsArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
   where?: Prisma.AccountWhereInput
 }
@@ -1064,6 +1340,8 @@ export type UserSelect<ExtArgs extends runtime.Types.Extensions.InternalArgs = r
   periodsCreated?: boolean | Prisma.User$periodsCreatedArgs<ExtArgs>
   schedulesGenerated?: boolean | Prisma.User$schedulesGeneratedArgs<ExtArgs>
   scheduleChanges?: boolean | Prisma.User$scheduleChangesArgs<ExtArgs>
+  receivedPermissions?: boolean | Prisma.User$receivedPermissionsArgs<ExtArgs>
+  grantedPermissions?: boolean | Prisma.User$grantedPermissionsArgs<ExtArgs>
   accounts?: boolean | Prisma.User$accountsArgs<ExtArgs>
   sessions?: boolean | Prisma.User$sessionsArgs<ExtArgs>
   _count?: boolean | Prisma.UserCountOutputTypeDefaultArgs<ExtArgs>
@@ -1110,6 +1388,8 @@ export type UserInclude<ExtArgs extends runtime.Types.Extensions.InternalArgs = 
   periodsCreated?: boolean | Prisma.User$periodsCreatedArgs<ExtArgs>
   schedulesGenerated?: boolean | Prisma.User$schedulesGeneratedArgs<ExtArgs>
   scheduleChanges?: boolean | Prisma.User$scheduleChangesArgs<ExtArgs>
+  receivedPermissions?: boolean | Prisma.User$receivedPermissionsArgs<ExtArgs>
+  grantedPermissions?: boolean | Prisma.User$grantedPermissionsArgs<ExtArgs>
   accounts?: boolean | Prisma.User$accountsArgs<ExtArgs>
   sessions?: boolean | Prisma.User$sessionsArgs<ExtArgs>
   _count?: boolean | Prisma.UserCountOutputTypeDefaultArgs<ExtArgs>
@@ -1128,6 +1408,8 @@ export type $UserPayload<ExtArgs extends runtime.Types.Extensions.InternalArgs =
     periodsCreated: Prisma.$SchedulePeriodPayload<ExtArgs>[]
     schedulesGenerated: Prisma.$SchedulePayload<ExtArgs>[]
     scheduleChanges: Prisma.$ScheduleChangeLogPayload<ExtArgs>[]
+    receivedPermissions: Prisma.$UserPermissionPayload<ExtArgs>[]
+    grantedPermissions: Prisma.$UserPermissionPayload<ExtArgs>[]
     accounts: Prisma.$AccountPayload<ExtArgs>[]
     sessions: Prisma.$SessionPayload<ExtArgs>[]
   }
@@ -1538,6 +1820,8 @@ export interface Prisma__UserClient<T, Null = never, ExtArgs extends runtime.Typ
   periodsCreated<T extends Prisma.User$periodsCreatedArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.User$periodsCreatedArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$SchedulePeriodPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
   schedulesGenerated<T extends Prisma.User$schedulesGeneratedArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.User$schedulesGeneratedArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$SchedulePayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
   scheduleChanges<T extends Prisma.User$scheduleChangesArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.User$scheduleChangesArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$ScheduleChangeLogPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
+  receivedPermissions<T extends Prisma.User$receivedPermissionsArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.User$receivedPermissionsArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$UserPermissionPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
+  grantedPermissions<T extends Prisma.User$grantedPermissionsArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.User$grantedPermissionsArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$UserPermissionPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
   accounts<T extends Prisma.User$accountsArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.User$accountsArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$AccountPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
   sessions<T extends Prisma.User$sessionsArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.User$sessionsArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$SessionPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
   /**
@@ -2066,6 +2350,54 @@ export type User$scheduleChangesArgs<ExtArgs extends runtime.Types.Extensions.In
   take?: number
   skip?: number
   distinct?: Prisma.ScheduleChangeLogScalarFieldEnum | Prisma.ScheduleChangeLogScalarFieldEnum[]
+}
+
+/**
+ * User.receivedPermissions
+ */
+export type User$receivedPermissionsArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+  /**
+   * Select specific fields to fetch from the UserPermission
+   */
+  select?: Prisma.UserPermissionSelect<ExtArgs> | null
+  /**
+   * Omit specific fields from the UserPermission
+   */
+  omit?: Prisma.UserPermissionOmit<ExtArgs> | null
+  /**
+   * Choose, which related nodes to fetch as well
+   */
+  include?: Prisma.UserPermissionInclude<ExtArgs> | null
+  where?: Prisma.UserPermissionWhereInput
+  orderBy?: Prisma.UserPermissionOrderByWithRelationInput | Prisma.UserPermissionOrderByWithRelationInput[]
+  cursor?: Prisma.UserPermissionWhereUniqueInput
+  take?: number
+  skip?: number
+  distinct?: Prisma.UserPermissionScalarFieldEnum | Prisma.UserPermissionScalarFieldEnum[]
+}
+
+/**
+ * User.grantedPermissions
+ */
+export type User$grantedPermissionsArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+  /**
+   * Select specific fields to fetch from the UserPermission
+   */
+  select?: Prisma.UserPermissionSelect<ExtArgs> | null
+  /**
+   * Omit specific fields from the UserPermission
+   */
+  omit?: Prisma.UserPermissionOmit<ExtArgs> | null
+  /**
+   * Choose, which related nodes to fetch as well
+   */
+  include?: Prisma.UserPermissionInclude<ExtArgs> | null
+  where?: Prisma.UserPermissionWhereInput
+  orderBy?: Prisma.UserPermissionOrderByWithRelationInput | Prisma.UserPermissionOrderByWithRelationInput[]
+  cursor?: Prisma.UserPermissionWhereUniqueInput
+  take?: number
+  skip?: number
+  distinct?: Prisma.UserPermissionScalarFieldEnum | Prisma.UserPermissionScalarFieldEnum[]
 }
 
 /**

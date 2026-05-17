@@ -62,6 +62,11 @@ export type VerificationToken = Prisma.VerificationTokenModel
  */
 export type User = Prisma.UserModel
 /**
+ * Model UserPermission
+ * 
+ */
+export type UserPermission = Prisma.UserPermissionModel
+/**
  * Model Region
  * 
  */
@@ -82,25 +87,25 @@ export type Employee = Prisma.EmployeeModel
  */
 export type Position = Prisma.PositionModel
 /**
- * Model ShiftCapacity
+ * Model StaffingRequirement
  * 
  */
-export type ShiftCapacity = Prisma.ShiftCapacityModel
+export type StaffingRequirement = Prisma.StaffingRequirementModel
 /**
  * Model SchedulePeriod
  * 
  */
 export type SchedulePeriod = Prisma.SchedulePeriodModel
 /**
- * Model Availability
+ * Model AvailabilitySubmission
  * 
  */
-export type Availability = Prisma.AvailabilityModel
+export type AvailabilitySubmission = Prisma.AvailabilitySubmissionModel
 /**
- * Model AvailabilityEntry
+ * Model AvailabilitySlot
  * 
  */
-export type AvailabilityEntry = Prisma.AvailabilityEntryModel
+export type AvailabilitySlot = Prisma.AvailabilitySlotModel
 /**
  * Model Schedule
  * 

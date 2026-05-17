@@ -5,7 +5,7 @@ import { ManagerAppShell } from './manager-app-shell';
 
 const navItems = [
   { href: '/manager', label: 'לוח בקרה' },
-  { href: '/manager/draft', label: 'בהכנה' },
+  { href: '/manager/future-schedule', label: 'שיבוץ עתידי' },
   { href: '/manager/schedule', label: 'שיבוץ עבודה' },
   { href: '/manager/periods', label: 'תקופות' },
   { href: '/manager/employees', label: 'עובדים' },
