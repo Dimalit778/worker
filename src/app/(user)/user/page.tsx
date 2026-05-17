@@ -1,13 +1,13 @@
 import { requireSession } from '@/lib/db/auth-helpers';
 import { SystemRole } from '@/generated/prisma/client';
-import { getSchedulePageData } from '@/features/schedules/assignments/quries';
+import { getCurrentSchedule } from '@/features/schedules/assignments/quries';
 import { Schedule } from '@/features/schedules/assignments/components/schedule';
 import { Card, CardContent } from '@/components/ui/card';
 
 export default async function UserShibutzPage() {
   const session = await requireSession(SystemRole.EMPLOYEE);
 
-  const data = await getSchedulePageData(session.user.courtId ?? '');
+  const data = await getCurrentSchedule(session.user.courtId ?? '');
 
   if (!data.found) {
     return (

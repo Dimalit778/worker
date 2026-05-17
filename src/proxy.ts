@@ -16,6 +16,7 @@ export default withAuth(
     return NextResponse.next();
   },
   {
+    pages: { signIn: '/login' },
     callbacks: {
       // Let the middleware function handle all authorization decisions.
       // Return true here so withAuth always calls our middleware function.

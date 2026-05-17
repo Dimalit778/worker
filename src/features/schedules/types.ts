@@ -55,6 +55,12 @@ export type ScheduleWarningSummary = {
   positionName: string | null;
 };
 
+/** Submitted availability vs active employees for a period (manager-facing). */
+export type AvailabilitySubmissionSummary = {
+  submittedCount: number;
+  eligibleEmployeeCount: number;
+};
+
 export type FutureScheduleData =
   | { found: false; message: string }
   | {
@@ -71,6 +77,7 @@ export type FutureScheduleData =
       assignments: AssignmentMap;
       warnings: ScheduleWarningSummary[];
       overflowCandidates: OverflowCandidateMap;
+      availabilitySubmissionSummary?: AvailabilitySubmissionSummary;
     };
 
 /** Props for the week / shift schedule UI */

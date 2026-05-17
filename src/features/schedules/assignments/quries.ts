@@ -9,6 +9,7 @@ import {
 } from '../types';
 import { buildAssignmentMap, toFutureScheduleData } from './utils';
 import { PeriodStatus, ScheduleStatus } from '@/generated/prisma/client';
+
 export async function getScheduleCapacity(courtId: string): Promise<ScheduleCapacityRule[]> {
   if (!courtId) return [];
 
@@ -84,7 +85,7 @@ export async function getAssignmentMap(scheduleId: string | null | undefined): P
     })),
   );
 }
-export async function getSchedulePageData(
+export async function getCurrentSchedule(
   courtId: string,
   options: { includeEmployees?: boolean } = {},
 ): Promise<FutureScheduleData> {
@@ -93,7 +94,7 @@ export async function getSchedulePageData(
   const periodRow = await prisma.schedulePeriod.findFirst({
     where: {
       courtId,
-      status: PeriodStatus.OPEN_FOR_SUBMISSION,
+      status: PeriodStatus.LOCKED,
     },
     orderBy: { startDate: 'desc' },
   });
@@ -120,7 +121,7 @@ export async function getFutureScheduleData(courtId: string): Promise<FutureSche
   const data = await prisma.schedulePeriod.findFirst({
     where: {
       courtId,
-      status: PeriodStatus.LOCKED,
+      status: PeriodStatus.OPEN_FOR_SUBMISSION,
     },
     include: {
       schedule: {
@@ -135,15 +136,20 @@ export async function getFutureScheduleData(courtId: string): Promise<FutureSche
     return { found: false, message: 'לא נמצאה תקופה (נדרשת תקופה נעולה עם לוח טיוטה).' };
   }
 
-  const [assignments, employees, capacity, warnings, overflowCandidates] = await Promise.all([
-    getAssignmentMap(data.schedule?.id),
-    getScheduleEmployees(courtId),
-    getScheduleCapacity(courtId),
-    getScheduleWarnings(data.schedule?.id),
-    Promise.resolve({} as OverflowCandidateMap),
-  ]);
+  const [assignments, employees, capacity, warnings, overflowCandidates, submittedCount, eligibleEmployeeCount] =
+    await Promise.all([
+      getAssignmentMap(data.schedule?.id),
+      getScheduleEmployees(courtId),
+      getScheduleCapacity(courtId),
+      getScheduleWarnings(data.schedule?.id),
+      Promise.resolve({} as OverflowCandidateMap),
+      prisma.availabilitySubmission.count({
+        where: { periodId: data.id, isSubmitted: true },
+      }),
+      prisma.employee.count({ where: { courtId, isActive: true } }),
+    ]);
 
-  return toFutureScheduleData(
+  const base = toFutureScheduleData(
     data,
     data.schedule,
     courtId,
@@ -153,6 +159,17 @@ export async function getFutureScheduleData(courtId: string): Promise<FutureSche
     warnings,
     overflowCandidates,
   );
+  if (!base.found) {
+    return base;
+  }
+
+  return {
+    ...base,
+    availabilitySubmissionSummary: {
+      submittedCount,
+      eligibleEmployeeCount,
+    },
+  };
 }
 export async function getScheduleWarnings(scheduleId: string | null | undefined): Promise<ScheduleWarningSummary[]> {
   if (!scheduleId) return [];

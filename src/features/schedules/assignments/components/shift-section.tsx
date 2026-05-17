@@ -6,7 +6,13 @@ import { cn } from '@/lib/utils';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
-import type { AssignmentMap, OverflowCandidateMap, ScheduleCapacityRule, ScheduleEmployeeOption, WeekDay } from '../../types';
+import type {
+  AssignmentMap,
+  OverflowCandidateMap,
+  ScheduleCapacityRule,
+  ScheduleEmployeeOption,
+  WeekDay,
+} from '../../types';
 import { SHIFT_STYLES } from '../../constants';
 import type { ShiftType } from '@/generated/prisma/client';
 import { AssignmentCell } from './assignment-cell';

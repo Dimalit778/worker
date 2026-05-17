@@ -3,7 +3,7 @@ import { Input } from './input';
 import { Label } from './label';
 import { RadioGroup, RadioGroupItem } from './radio-group';
 import { Card, CardHeader, CardFooter, CardTitle, CardAction, CardDescription, CardContent } from './card';
-import { Dialog, DialogTrigger, DialogContent } from './dialog';
+import { Dialog, DialogTrigger, DialogContent, DialogTitle, DialogDescription } from './dialog';
 import { Table, TableHeader, TableBody, TableFooter, TableHead, TableRow, TableCell, TableCaption } from './table';
 import {
   Select,
@@ -40,6 +40,8 @@ export {
   Dialog,
   DialogTrigger,
   DialogContent,
+  DialogTitle,
+  DialogDescription,
   Table,
   TableHeader,
   TableBody,

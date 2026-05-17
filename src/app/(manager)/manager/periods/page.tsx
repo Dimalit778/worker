@@ -5,6 +5,7 @@ import { getPeriodsForManager } from '@/features/periods/actions';
 import { PeriodsList } from '@/features/periods/components/periods-list';
 import { CreatePeriodForm } from '@/features/periods/components/create-period-form';
 import { PeriodCalendar } from '@/features/periods/components/period-calendar';
+import ScheduleInformation from '@/features/schedules/components/schduleInformation';
 
 export default async function ManagerPeriodsPage() {
   await requireSession(SystemRole.MANAGER);
@@ -19,32 +20,7 @@ export default async function ManagerPeriodsPage() {
     <div className="space-y-6" dir="rtl">
       <CreatePeriodForm />
 
-      <div className="grid grid-cols-2 sm:grid-cols-3 gap-4">
-        <Card>
-          <CardHeader className="pb-1">
-            <CardTitle className="text-xs font-medium text-muted-foreground">פעילות</CardTitle>
-          </CardHeader>
-          <CardContent>
-            <p className="text-2xl font-bold">{activeCount}</p>
-          </CardContent>
-        </Card>
-        <Card>
-          <CardHeader className="pb-1">
-            <CardTitle className="text-xs font-medium text-muted-foreground">סה״כ הגשות</CardTitle>
-          </CardHeader>
-          <CardContent>
-            <p className="text-2xl font-bold">{totalSubmissions}</p>
-          </CardContent>
-        </Card>
-        <Card>
-          <CardHeader className="pb-1">
-            <CardTitle className="text-xs font-medium text-muted-foreground">תקופות סה״כ</CardTitle>
-          </CardHeader>
-          <CardContent>
-            <p className="text-2xl font-bold">{periods.length}</p>
-          </CardContent>
-        </Card>
-      </div>
+      <ScheduleInformation activeCount={activeCount} totalSubmissions={totalSubmissions} periods={periods} />
 
       {openPeriod && (
         <Card>

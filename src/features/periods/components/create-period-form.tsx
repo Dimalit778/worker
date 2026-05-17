@@ -13,6 +13,8 @@ import {
   Dialog,
   DialogTrigger,
   DialogContent,
+  DialogTitle,
+  DialogDescription,
   Input,
 } from '@/components/ui';
 import { upcomingSundayISO, suggestName, deriveFields } from '../utils';
@@ -77,14 +79,11 @@ export function CreatePeriodForm({ onCreated }: { onCreated?: () => void }) {
       </DialogTrigger>
       <DialogContent
         showCloseButton={false}
-        aria-labelledby="create-period-title"
         className="max-h-[min(90vh,720px)] w-full max-w-lg overflow-y-auto rounded-xl border border-border bg-card p-5 shadow-lg sm:max-w-lg"
         dir="rtl"
       >
         <div className="flex items-center justify-between">
-          <h2 id="create-period-title" className="font-semibold text-sm">
-            תקופת שיבוץ חדשה
-          </h2>
+          <DialogTitle className="font-semibold text-sm">תקופת שיבוץ חדשה</DialogTitle>
           <Button
             type="button"
             variant="ghost"
@@ -96,6 +95,9 @@ export function CreatePeriodForm({ onCreated }: { onCreated?: () => void }) {
             ×
           </Button>
         </div>
+        <DialogDescription className="sr-only">
+          טופס ליצירת תקופת שיבוץ חדשה: בחרו סוג תקופה, שם והגשת דדליין.
+        </DialogDescription>
 
         <form onSubmit={handleSubmit} className="space-y-4">
           <div className="space-y-1.5">
@@ -140,7 +142,7 @@ export function CreatePeriodForm({ onCreated }: { onCreated?: () => void }) {
 
           <div className="space-y-1.5">
             <label htmlFor="period-start" className="text-xs font-medium text-muted-foreground block">
-              תאריך התחלה — ראשון הקרוב
+              תאריך התחלה — ראשון הבא
             </label>
             <Input
               id="period-start"
@@ -151,7 +153,7 @@ export function CreatePeriodForm({ onCreated }: { onCreated?: () => void }) {
               className="w-full border border-border rounded-md px-3 py-2 text-sm bg-muted/40 cursor-default focus:outline-none focus:ring-2 focus:ring-foreground/20"
             />
             <p className="text-[11px] text-muted-foreground mt-1 leading-snug">
-              מחליפים שבועי / דו-שבועי או פותחים את החלון — תאריך ההתחלה מתעדכן לראשון הקרוב. יצירת התקופה משתמשת בתאריך
+              מחליפים שבועי / דו-שבועי או פותחים את החלון — תאריך ההתחלה מתעדכן לראשון הבא. יצירת התקופה משתמשת בתאריך
               זה.
             </p>
           </div>

@@ -77,7 +77,8 @@ function buildWeeks(startDate: string, endDate: string): string[][] {
 function upcomingSundayISO(from: Date = new Date()): string {
   const d = new Date(from.getFullYear(), from.getMonth(), from.getDate());
   const day = d.getDay();
-  const daysUntilSunday = (7 - day) % 7;
+  // Exclude "today" when it's already Sunday — periods start on the next Sunday.
+  const daysUntilSunday = day === 0 ? 7 : (7 - day) % 7;
   d.setDate(d.getDate() + daysUntilSunday);
   const y = d.getFullYear();
   const m = String(d.getMonth() + 1).padStart(2, '0');
