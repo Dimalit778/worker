@@ -252,14 +252,12 @@ export async function getManagerEmployeeDetail(employeeId: string): Promise<Empl
     recentAssignments,
     fairnessRecords,
   ] = await Promise.all([
-    prisma.availability.count({ where: { employeeId, isSubmitted: true } }),
-    prisma.availability.count({ where: { employeeId } }),
-    prisma.availabilityEntry.count({
+    prisma.availabilitySubmission.count({ where: { employeeId, isSubmitted: true } }),
+    prisma.availabilitySubmission.count({ where: { employeeId } }),
+    prisma.availabilitySlot.count({
       where: {
         isAvailable: true,
-        availability: {
-          employeeId,
-        },
+        submission: { employeeId },
       },
     }),
     prisma.shiftAssignment.count({ where: { employeeId, courtId } }),
@@ -402,14 +400,14 @@ export async function getManagerEmployeeSubmissions(employeeId: string): Promise
       endDate: true,
       submissionDeadline: true,
       status: true,
-      availabilities: {
+      availabilitySubmissions: {
         where: { employeeId },
         take: 1,
         select: {
           id: true,
           isSubmitted: true,
           submittedAt: true,
-          entries: true,
+          slots: true,
         },
       },
     },
@@ -425,8 +423,9 @@ export async function getManagerEmployeeSubmissions(employeeId: string): Promise
       isActive: employee.isActive,
     },
     periods: periods.map((period) => {
-      const availability = period.availabilities[0] ?? null;
-      const entries = availabilityEntriesToRecord(availability?.entries ?? []);
+      const availability = period.availabilitySubmissions[0] ?? null;
+      const slots = availability?.slots ?? [];
+      const entries = availabilityEntriesToRecord(slots);
 
       return {
         id: period.id,

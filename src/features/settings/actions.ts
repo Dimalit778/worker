@@ -67,13 +67,13 @@ export async function addPositionWithCapacities(params: {
       });
 
       for (const shiftType of shifts) {
-        await tx.shiftCapacity.create({
+        await tx.staffingRequirement.create({
           data: {
             courtId,
             positionId: position.id,
             shiftType,
             dayCategory: params.dayCategory,
-            amount,
+            requiredCount: amount,
             isActive: true,
             displayOrder: code,
           },
@@ -248,11 +248,11 @@ async function swapPositionOrderWithNeighbor(
     await tx.position.update({ where: { id: b.id }, data: { code: codeA } });
     await tx.position.update({ where: { id: a.id }, data: { code: codeB } });
 
-    await tx.shiftCapacity.updateMany({
+    await tx.staffingRequirement.updateMany({
       where: { positionId: a.id },
       data: { displayOrder: codeB },
     });
-    await tx.shiftCapacity.updateMany({
+    await tx.staffingRequirement.updateMany({
       where: { positionId: b.id },
       data: { displayOrder: codeA },
     });
@@ -310,7 +310,7 @@ export async function addShiftCapacity(params: {
       return { error: 'התפקיד לא נמצא' };
     }
 
-    const capacity = await prisma.shiftCapacity.upsert({
+    const capacity = await prisma.staffingRequirement.upsert({
       where: {
         courtId_positionId_shiftType_dayCategory: {
           courtId: position.courtId,
@@ -320,7 +320,7 @@ export async function addShiftCapacity(params: {
         },
       },
       update: {
-        amount: params.amount,
+        requiredCount: params.amount,
         isActive: true,
       },
       create: {
@@ -328,7 +328,7 @@ export async function addShiftCapacity(params: {
         positionId: params.positionId,
         shiftType: params.shiftType,
         dayCategory: params.dayCategory,
-        amount: params.amount,
+        requiredCount: params.amount,
         isActive: true,
         displayOrder: position.code,
       },
@@ -351,12 +351,12 @@ export async function addShiftCapacity(params: {
 
 export async function updateShiftCapacity(id: string, amount: number) {
   try {
-    await prisma.shiftCapacity.update({
+    await prisma.staffingRequirement.update({
       where: {
         id,
       },
       data: {
-        amount,
+        requiredCount: amount,
       },
     });
 

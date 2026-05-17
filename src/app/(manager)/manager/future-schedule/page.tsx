@@ -11,6 +11,15 @@ export default async function FutureSchedulePage() {
 
   const data = await getFutureScheduleData(courtId);
 
+  if (!data.found) {
+    return (
+      <div className="space-y-4" dir="rtl">
+        <h1 className="text-2xl font-bold">שיבוץ בהכנה</h1>
+        <p className="text-sm text-muted-foreground">{data.message}</p>
+      </div>
+    );
+  }
+
   const isReadonly = data.scheduleStatus === 'PUBLISHED';
 
   return (

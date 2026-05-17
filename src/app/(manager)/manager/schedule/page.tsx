@@ -13,7 +13,7 @@ export default async function ManagerSchedulePage() {
     return (
       <div className="space-y-4">
         <h1 className="text-2xl font-bold">שיבוץ</h1>
-        <p className="text-sm text-muted-foreground">אין תקופת תזמון פעילה.</p>
+        <p className="text-sm text-muted-foreground">{data.message}</p>
       </div>
     );
   }

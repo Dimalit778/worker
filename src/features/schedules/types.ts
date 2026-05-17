@@ -55,21 +55,23 @@ export type ScheduleWarningSummary = {
   positionName: string | null;
 };
 
-export type FutureScheduleData = {
-  found: true;
-  periodId: string;
-  periodName: string;
-  startDate: string;
-  endDate: string;
-  scheduleId: string | null;
-  scheduleStatus: ScheduleStatus | null;
-  courtId: string;
-  employees: ScheduleEmployeeOption[];
-  capacity: ScheduleCapacityRule[];
-  assignments: AssignmentMap;
-  warnings: ScheduleWarningSummary[];
-  overflowCandidates: OverflowCandidateMap;
-};
+export type FutureScheduleData =
+  | { found: false; message: string }
+  | {
+      found: true;
+      periodId: string;
+      periodName: string;
+      startDate: string;
+      endDate: string;
+      scheduleId: string | null;
+      scheduleStatus: ScheduleStatus | null;
+      courtId: string;
+      employees: ScheduleEmployeeOption[];
+      capacity: ScheduleCapacityRule[];
+      assignments: AssignmentMap;
+      warnings: ScheduleWarningSummary[];
+      overflowCandidates: OverflowCandidateMap;
+    };
 
 /** Props for the week / shift schedule UI */
 export type ScheduleProps = {

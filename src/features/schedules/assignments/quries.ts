@@ -12,7 +12,7 @@ import { PeriodStatus, ScheduleStatus } from '@/generated/prisma/client';
 export async function getScheduleCapacity(courtId: string): Promise<ScheduleCapacityRule[]> {
   if (!courtId) return [];
 
-  const rows = await prisma.shiftCapacity.findMany({
+  const rows = await prisma.staffingRequirement.findMany({
     where: { courtId, isActive: true },
     include: {
       position: { select: { id: true, name: true, code: true } },
@@ -33,7 +33,7 @@ export async function getScheduleCapacity(courtId: string): Promise<ScheduleCapa
     code: r.position.code,
     shiftType: r.shiftType,
     dayCategory: r.dayCategory,
-    amount: r.amount,
+    amount: r.requiredCount,
   }));
 }
 export async function getScheduleEmployees(courtId: string): Promise<ScheduleEmployeeOption[]> {
@@ -99,7 +99,7 @@ export async function getSchedulePageData(
   });
 
   if (!periodRow) {
-    throw new Error('No active period');
+    return { found: false, message: 'אין תקופת תזמון פתוחה להגשת זמינות.' };
   }
 
   const scheduleRow = await prisma.schedule.findUnique({
@@ -131,7 +131,9 @@ export async function getFutureScheduleData(courtId: string): Promise<FutureSche
     },
     orderBy: { startDate: 'desc' },
   });
-  if (!data) throw new Error('No period found');
+  if (!data) {
+    return { found: false, message: 'לא נמצאה תקופה (נדרשת תקופה נעולה עם לוח טיוטה).' };
+  }
 
   const [assignments, employees, capacity, warnings, overflowCandidates] = await Promise.all([
     getAssignmentMap(data.schedule?.id),

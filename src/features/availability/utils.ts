@@ -1,4 +1,4 @@
-import type { AvailabilityEntry, ShiftType } from '@/generated/prisma/client';
+import type { ShiftType } from '@/generated/prisma/client';
 
 const SHIFTS: { key: ShiftType; label: string; bg: string; text: string; border: string }[] = [
   { key: 'MORNING', label: 'בוקר', bg: 'bg-amber-400', text: 'text-amber-950', border: 'border-amber-300' },
@@ -18,7 +18,13 @@ const datesInRange = (start: string, end: string): string[] => {
   return dates;
 };
 
-function availabilityEntriesToRecord(entries: AvailabilityEntry[]): Record<string, boolean> {
+export type AvailabilityRecordInput = {
+  date: Date | string;
+  shiftType: ShiftType;
+  isAvailable: boolean;
+};
+
+function availabilityEntriesToRecord(entries: AvailabilityRecordInput[]): Record<string, boolean> {
   const out: Record<string, boolean> = {};
   for (const e of entries) {
     const iso =

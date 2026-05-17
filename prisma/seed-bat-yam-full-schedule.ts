@@ -99,7 +99,7 @@ async function ensureShiftCapacities(
       for (const pk of keys) {
         const pos = byKey.get(pk)!;
         display += 1;
-        await prisma.shiftCapacity.upsert({
+        await prisma.staffingRequirement.upsert({
           where: {
             courtId_positionId_shiftType_dayCategory: {
               courtId,
@@ -113,11 +113,11 @@ async function ensureShiftCapacities(
             positionId: pos.id,
             shiftType: st,
             dayCategory: dc,
-            amount: 1,
+            requiredCount: 1,
             isActive: true,
             displayOrder: display,
           },
-          update: { amount: 1, isActive: true, displayOrder: display },
+          update: { requiredCount: 1, isActive: true, displayOrder: display },
         });
       }
     }
@@ -316,9 +316,9 @@ export async function seedBatYamFullSchedule() {
     return { id: p.id, name: p.name };
   });
 
-  const capacityRows = await prisma.shiftCapacity.findMany({
+  const capacityRows = await prisma.staffingRequirement.findMany({
     where: { courtId: court.id, isActive: true },
-    select: { positionId: true, shiftType: true, dayCategory: true, amount: true },
+    select: { positionId: true, shiftType: true, dayCategory: true, requiredCount: true },
   });
 
   const capKey = (positionId: string, st: ShiftType, dc: DayCategory) =>
@@ -326,7 +326,7 @@ export async function seedBatYamFullSchedule() {
 
   const capMap = new Map<string, number>();
   for (const r of capacityRows) {
-    capMap.set(capKey(r.positionId, r.shiftType, r.dayCategory), r.amount);
+    capMap.set(capKey(r.positionId, r.shiftType, r.dayCategory), r.requiredCount);
   }
 
   const dates = eachDateInclusive(BAT_YAM_DEMO_PERIOD.startDate, BAT_YAM_DEMO_PERIOD.endDate);

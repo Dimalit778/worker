@@ -14,7 +14,7 @@ export default async function UserShibutzPage() {
       <div className="space-y-4">
         <Card>
           <CardContent className="pt-6">
-            <p className="text-sm text-muted-foreground text-center">אין תקופת תזמון פעילה.</p>
+            <p className="text-sm text-muted-foreground text-center">{data.message}</p>
           </CardContent>
         </Card>
       </div>

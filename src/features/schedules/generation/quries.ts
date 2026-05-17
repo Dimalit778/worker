@@ -1,7 +1,7 @@
 import { prisma } from '@/lib/db/client';
-import { AutoScheduleInputData } from '../queries';
 import { PeriodStatus } from '@/generated/prisma/client';
-import { ShiftType } from '@/features/scheduling-engine/types';
+import type { EngineAssignment, EngineCapacity, EngineEmployee, ShiftType } from '@/features/scheduling-engine/types';
+import { AutoScheduleInputData, getPeriodDates, utcDateOnly } from '../queries';
 import { toDateOnly } from '../utils';
 function createAvailabilityKey(date: Date, shiftType: ShiftType): string {
   return `${toDateOnly(date)}|${shiftType}`;
@@ -42,14 +42,14 @@ export async function getAutoScheduleInputData(periodId: string): Promise<AutoSc
       },
       orderBy: [{ positionId: 'asc' }, { id: 'asc' }],
     }),
-    prisma.availability.findMany({
+    prisma.availabilitySubmission.findMany({
       where: {
         periodId: periodRow.id,
         employee: employeeWhere,
       },
       select: {
         employeeId: true,
-        entries: {
+        slots: {
           where: {
             isAvailable: true,
             date: { gte: periodRow.startDate, lte: periodRow.endDate },
@@ -61,14 +61,14 @@ export async function getAutoScheduleInputData(periodId: string): Promise<AutoSc
         },
       },
     }),
-    prisma.shiftCapacity.findMany({
+    prisma.staffingRequirement.findMany({
       where: { courtId: periodRow.courtId, isActive: true },
       select: {
         positionId: true,
         position: { select: { name: true, code: true } },
         shiftType: true,
         dayCategory: true,
-        amount: true,
+        requiredCount: true,
       },
       orderBy: [{ shiftType: 'asc' }, { positionId: 'asc' }, { dayCategory: 'asc' }, { position: { code: 'asc' } }],
     }),
@@ -96,7 +96,7 @@ export async function getAutoScheduleInputData(periodId: string): Promise<AutoSc
   const availability = new Map<string, Set<string>>();
   for (const row of availabilities) {
     const keys = availability.get(row.employeeId) ?? new Set<string>();
-    for (const entry of row.entries) {
+    for (const entry of row.slots) {
       keys.add(createAvailabilityKey(entry.date, entry.shiftType));
     }
     availability.set(row.employeeId, keys);
@@ -130,7 +130,7 @@ export async function getAutoScheduleInputData(periodId: string): Promise<AutoSc
           positionName: c.position.name,
           shiftType: c.shiftType,
           dayCategory: c.dayCategory,
-          amount: c.amount,
+          amount: c.requiredCount,
         }),
       ),
       manualAssignments: manualAssignments.map(

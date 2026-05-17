@@ -170,7 +170,7 @@ model Court {
 
   employees        Employee[]
   positions        Position[]
-    staffingRequirements StaffingRequirement[]
+  staffingRequirements StaffingRequirement[]
   periods          SchedulePeriod[]
   shiftAssignments ShiftAssignment[]
   warnings         ScheduleWarning[]
@@ -361,7 +361,7 @@ model ScheduleWarning {
   type       WarningType
   severity   WarningSeverity
   employeeId String?
-  courtId    String?  
+  courtId    String?
   positionId String?
   shiftType  ShiftType?
   date       DateTime?       @db.Date

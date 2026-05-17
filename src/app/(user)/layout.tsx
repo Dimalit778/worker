@@ -22,7 +22,7 @@ export default async function UserLayout({ children }: { children: React.ReactNo
       });
       if (!openPeriod) return false;
 
-      const submitted = await prisma.availability.findUnique({
+      const submitted = await prisma.availabilitySubmission.findUnique({
         where: { periodId_employeeId: { periodId: openPeriod.id, employeeId: user.employeeId } },
         select: { isSubmitted: true },
       });

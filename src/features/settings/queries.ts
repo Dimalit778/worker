@@ -20,7 +20,7 @@ export function managerCourtPositionsWhere(courtId: string): Prisma.PositionWher
 export async function getRulesCapacity(courtId: string) {
   if (!courtId) return [];
 
-  const result = await prisma.shiftCapacity.findMany({
+  const result = await prisma.staffingRequirement.findMany({
     where: {
       courtId,
       isActive: true,
@@ -29,7 +29,7 @@ export async function getRulesCapacity(courtId: string) {
       id: true,
       shiftType: true,
       dayCategory: true,
-      amount: true,
+      requiredCount: true,
       isActive: true,
       displayOrder: true,
     },
@@ -56,7 +56,7 @@ export async function getPositions(courtId: string) {
 export async function getShiftCapacities(courtId: string) {
   if (!courtId) return [];
 
-  return prisma.shiftCapacity.findMany({
+  return prisma.staffingRequirement.findMany({
     where: {
       courtId,
       isActive: true,
@@ -66,7 +66,7 @@ export async function getShiftCapacities(courtId: string) {
       positionId: true,
       shiftType: true,
       dayCategory: true,
-      amount: true,
+      requiredCount: true,
     },
     orderBy: [{ position: { code: 'asc' } }, { position: { createdAt: 'asc' } }],
   });

@@ -31,7 +31,7 @@ export type AutoScheduleInputData =
       schedule: { id: string; status: ScheduleStatus } | null;
     };
 
-function utcDateOnly(date: Date): Date {
+export function utcDateOnly(date: Date): Date {
   return new Date(Date.UTC(date.getUTCFullYear(), date.getUTCMonth(), date.getUTCDate()));
 }
 
@@ -41,7 +41,7 @@ function addUtcDays(date: Date, days: number): Date {
   return next;
 }
 
-function getPeriodDates(startDate: Date, endDate: Date): Date[] {
+export function getPeriodDates(startDate: Date, endDate: Date): Date[] {
   const dates: Date[] = [];
   for (let date = utcDateOnly(startDate); date <= utcDateOnly(endDate); date = addUtcDays(date, 1)) {
     dates.push(date);

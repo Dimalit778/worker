@@ -16,12 +16,12 @@ type PositionOption = {
   code: number;
 };
 
-type ShiftCapacityRow = {
+type StaffingRow = {
   id: string;
   positionId: string;
   shiftType: ShiftType;
   dayCategory: DayCategory;
-  amount: number;
+  requiredCount: number;
 };
 
 type CellKey = `${DayCategory}-${ShiftType}-${string}`;
@@ -39,7 +39,7 @@ function cellKey(day: DayCategory, shift: ShiftType, positionId: string): CellKe
   return `${day}-${shift}-${positionId}`;
 }
 
-function buildGrid(params: { positions: PositionOption[]; capacities: ShiftCapacityRow[] }): GridState {
+function buildGrid(params: { positions: PositionOption[]; capacities: StaffingRow[] }): GridState {
   const grid: GridState = {};
 
   for (const day of DAY_CATEGORIES) {
@@ -51,7 +51,7 @@ function buildGrid(params: { positions: PositionOption[]; capacities: ShiftCapac
 
         grid[cellKey(day, shift, position.id)] = {
           id: capacity?.id ?? null,
-          value: String(capacity?.amount ?? 0),
+          value: String(capacity?.requiredCount ?? 0),
         };
       }
     }
@@ -124,7 +124,7 @@ export function CourtCapacityRules({
   className,
 }: {
   positions: PositionOption[];
-  initialCapacities: ShiftCapacityRow[];
+  initialCapacities: StaffingRow[];
   className?: string;
 }) {
   const initial = useMemo(

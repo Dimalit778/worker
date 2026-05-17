@@ -1,11 +1,6 @@
 'use server';
 import { prisma } from '@/lib/db/client';
-import {
-  PeriodStatus,
-  Prisma,
-  SchedulePeriod,
-  SystemRole,
-} from '@/generated/prisma/client';
+import { PeriodStatus, Prisma, SchedulePeriod, SystemRole } from '@/generated/prisma/client';
 import { requireSession } from '@/lib/db/auth-helpers';
 import { PeriodSummary } from './types';
 import { parseISODateToUtcMidnight } from './utils';
@@ -24,7 +19,7 @@ export async function getPeriodsForManager(): Promise<PeriodSummary[]> {
     include: {
       _count: {
         select: {
-          availabilities: { where: { isSubmitted: true } },
+          availabilitySubmissions: { where: { isSubmitted: true } },
         },
       },
     },
@@ -41,7 +36,7 @@ export async function getPeriodsForManager(): Promise<PeriodSummary[]> {
     endDate: p.endDate.toISOString().slice(0, 10),
     submissionDeadline: p.submissionDeadline.toISOString(),
     status: p.status,
-    submittedCount: p._count.availabilities,
+    submittedCount: p._count.availabilitySubmissions,
     totalGuards,
   }));
 }

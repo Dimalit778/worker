@@ -1,4 +1,4 @@
-import { AvailabilityEntry, PeriodStatus } from '@/generated/prisma/client';
+import type { PeriodStatus, ShiftType } from '@/generated/prisma/client';
 
 export type PeriodInfo = {
   id: string;
@@ -8,6 +8,13 @@ export type PeriodInfo = {
   status: PeriodStatus;
 };
 
+/** Slot rows for a submission; same shape expected by `availabilityEntriesToRecord`. */
+export type AvailabilitySlotInfo = {
+  date: Date;
+  shiftType: ShiftType;
+  isAvailable: boolean;
+};
+
 export type EmployeeAvailabilityForPeriod = {
   id: string;
   name: string;
@@ -15,5 +22,5 @@ export type EmployeeAvailabilityForPeriod = {
   endDate: string;
   status: PeriodStatus;
   isSubmitted: boolean;
-  entries: AvailabilityEntry[];
+  entries: AvailabilitySlotInfo[];
 };
