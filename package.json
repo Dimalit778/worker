@@ -18,8 +18,6 @@
     "db:push": "prisma db push",
     "db:migrate": "prisma migrate dev",
     "db:seed": "tsx --env-file=.env.local prisma/seed.ts",
-    "db:seed-data": "tsx --env-file=.env.local prisma/seed-data.ts",
-    "db:seed-region-courts": "tsx --env-file=.env.local prisma/seed-region-courts.ts",
     "db:studio": "prisma studio"
   },
   "dependencies": {
