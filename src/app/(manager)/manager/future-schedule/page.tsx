@@ -84,6 +84,7 @@ export default async function FutureSchedulePage() {
               warnings={data.warnings}
               submittedCount={submission.submittedCount}
               eligibleCount={submission.eligibleEmployeeCount}
+              missingEmployees={submission.missingEmployees}
             />
           </CardContent>
         )}

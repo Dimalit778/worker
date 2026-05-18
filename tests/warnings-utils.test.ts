@@ -54,13 +54,20 @@ describe('groupWarningsByEmployee', () => {
     expect(group.worstSeverity).toBe('INFO');
   });
 
-  it('skips warnings without employeeName', () => {
+  it('groups warnings without employeeName by positionName', () => {
     const warnings = [
-      make({ employeeName: null }),
-      make({ employeeName: 'דוד לוי' }),
+      make({ employeeName: null, positionName: 'מאבטחים' }),
+      make({ employeeName: 'דוד לוי', positionName: 'אחמ"ש' }),
     ];
     const result = groupWarningsByEmployee(warnings);
-    expect(result).toHaveLength(1);
+    expect(result).toHaveLength(2);
+    expect(result.find(g => g.employeeName === 'מאבטחים')).toBeDefined();
+    expect(result.find(g => g.employeeName === 'דוד לוי')).toBeDefined();
+  });
+
+  it('falls back to "כללי" when both employeeName and positionName are null', () => {
+    const [group] = groupWarningsByEmployee([make({ employeeName: null, positionName: null })]);
+    expect(group.employeeName).toBe('כללי');
   });
 
   it('sorts groups: ERROR first, then WARNING, then INFO', () => {

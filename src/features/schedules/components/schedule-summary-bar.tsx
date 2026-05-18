@@ -7,15 +7,18 @@ import { EmployeeWarningsPanel } from './warnings-panel';
 import { groupWarningsByEmployee } from '@/features/schedules/warnings-utils';
 import type { ScheduleWarningSummary } from '@/features/schedules/types';
 
-type ActivePanel = 'errors' | 'warnings' | null;
+type ActivePanel = 'errors' | 'warnings' | 'submissions' | null;
+
+type MissingEmployee = { id: string; displayName: string; positionName: string | null };
 
 type Props = {
   warnings: ScheduleWarningSummary[];
   submittedCount: number;
   eligibleCount: number;
+  missingEmployees: MissingEmployee[];
 };
 
-export function ScheduleSummaryBar({ warnings, submittedCount, eligibleCount }: Props) {
+export function ScheduleSummaryBar({ warnings, submittedCount, eligibleCount, missingEmployees }: Props) {
   const [activePanel, setActivePanel] = useState<ActivePanel>(null);
 
   const errorWarnings = warnings.filter((w) => w.severity === 'ERROR');
@@ -41,7 +44,20 @@ export function ScheduleSummaryBar({ warnings, submittedCount, eligibleCount }: 
       {/* Stat cards */}
       <div className="grid grid-cols-2 gap-2 sm:grid-cols-3">
         {/* Submissions — spans full width on mobile */}
-        <div className="col-span-2 sm:col-span-1 rounded-xl border border-border/60 bg-muted/30 px-4 py-3">
+        <button
+          type="button"
+          onClick={() => toggle('submissions')}
+          disabled={missingEmployees.length === 0}
+          className={cn(
+            'col-span-2 sm:col-span-1 rounded-xl border px-4 py-3 text-right transition-all',
+            missingEmployees.length === 0
+              ? 'border-border/60 bg-muted/30 cursor-default'
+              : 'cursor-pointer hover:-translate-y-px hover:shadow-md active:translate-y-0',
+            activePanel === 'submissions'
+              ? 'border-primary bg-primary/5 ring-2 ring-primary'
+              : 'border-border/60 bg-muted/30',
+          )}
+        >
           <p className="text-xs font-medium text-muted-foreground">הגשות זמינות</p>
           <p className="mt-1 tabular-nums">
             <span className="text-2xl font-bold tracking-tight">{submittedCount}</span>
@@ -58,8 +74,12 @@ export function ScheduleSummaryBar({ warnings, submittedCount, eligibleCount }: 
               aria-label={`${pct} אחוז הגישו זמינות`}
             />
           </div>
-          <p className="mt-1.5 text-xs text-muted-foreground">{pct}% מהעובדים הגישו</p>
-        </div>
+          <p className="mt-1.5 text-xs text-muted-foreground">
+            {missingEmployees.length > 0
+              ? `${missingEmployees.length} לא הגישו · לחץ לפרטים`
+              : `${pct}% מהעובדים הגישו`}
+          </p>
+        </button>
 
         {/* Errors */}
         <button
@@ -130,8 +150,31 @@ export function ScheduleSummaryBar({ warnings, submittedCount, eligibleCount }: 
         </button>
       </div>
 
-      {/* Collapsible employee warnings panel */}
-      {activePanel !== null && activeGroups.length > 0 && (
+      {/* Collapsible panel */}
+      {activePanel === 'submissions' && (
+        <Card className="rounded-xl shadow-none border-border/60 animate-in fade-in slide-in-from-top-1 duration-150">
+          <CardContent className="p-4">
+            <p className="text-xs font-semibold uppercase tracking-wide text-muted-foreground mb-3">
+              עובדים שלא הגישו זמינות ({missingEmployees.length})
+            </p>
+            <div className="flex flex-col gap-1">
+              {missingEmployees.map((emp) => (
+                <div
+                  key={emp.id}
+                  className="flex items-center justify-between rounded-lg bg-muted/40 px-3 py-2 text-sm"
+                >
+                  <span className="font-medium">{emp.displayName}</span>
+                  {emp.positionName && (
+                    <span className="text-xs text-muted-foreground">{emp.positionName}</span>
+                  )}
+                </div>
+              ))}
+            </div>
+          </CardContent>
+        </Card>
+      )}
+
+      {(activePanel === 'errors' || activePanel === 'warnings') && activeGroups.length > 0 && (
         <Card className="rounded-xl shadow-none border-border/60 animate-in fade-in slide-in-from-top-1 duration-150">
           <CardContent className="p-4">
             <p className="text-xs font-semibold uppercase tracking-wide text-muted-foreground mb-3">

@@ -21,14 +21,15 @@ export function groupWarningsByEmployee(warnings: ScheduleWarningSummary[]): Emp
   const map = new Map<string, EmployeeWarningGroup>();
 
   for (const w of warnings) {
-    if (!w.employeeName) continue;
-    const existing = map.get(w.employeeName);
+    // Use employeeName if available, fall back to positionName for slot-level warnings (UNFILLED, UNDERSTAFFED)
+    const key = w.employeeName ?? w.positionName ?? 'כללי';
+    const existing = map.get(key);
     if (existing) {
       existing.warnings.push(w);
     } else {
-      map.set(w.employeeName, {
-        employeeName: w.employeeName,
-        positionName: w.positionName,
+      map.set(key, {
+        employeeName: key,
+        positionName: w.employeeName ? w.positionName : null,
         warnings: [w],
         worstSeverity: w.severity,
       });
