@@ -23,8 +23,8 @@ export async function getAutoScheduleInputData(periodId: string): Promise<AutoSc
   });
 
   if (!periodRow) return { found: false, message: 'Period not found' };
-  if (periodRow.status !== PeriodStatus.LOCKED) {
-    return { found: false, message: 'Period must be locked before auto scheduling' };
+  if (periodRow.status !== PeriodStatus.LOCKED && periodRow.status !== PeriodStatus.OPEN_FOR_SUBMISSION) {
+    return { found: false, message: 'Period must be open or locked before auto scheduling' };
   }
 
   const employeeWhere = { courtId: periodRow.courtId, isActive: true };

@@ -1,5 +1,5 @@
 import { Card, CardHeader, CardTitle, CardContent } from '@/components/ui/card';
-import { SchedulePeriod } from '@/generated/prisma/client';
+import type { PeriodSummary } from '@/features/periods/types';
 
 const ScheduleInformation = ({
   activeCount,
@@ -8,7 +8,7 @@ const ScheduleInformation = ({
 }: {
   activeCount: number;
   totalSubmissions: number;
-  periods: SchedulePeriod[];
+  periods: PeriodSummary[];
 }) => {
   return (
     <div className="grid grid-cols-2 sm:grid-cols-3 gap-4">

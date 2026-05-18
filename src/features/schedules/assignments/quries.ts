@@ -8,7 +8,7 @@ import {
   ScheduleWarningSummary,
 } from '../types';
 import { buildAssignmentMap, toFutureScheduleData } from './utils';
-import { PeriodStatus, ScheduleStatus } from '@/generated/prisma/client';
+import { PeriodStatus } from '@/generated/prisma/client';
 
 export async function getScheduleCapacity(courtId: string): Promise<ScheduleCapacityRule[]> {
   if (!courtId) return [];
@@ -121,33 +121,42 @@ export async function getFutureScheduleData(courtId: string): Promise<FutureSche
   const data = await prisma.schedulePeriod.findFirst({
     where: {
       courtId,
-      status: PeriodStatus.OPEN_FOR_SUBMISSION,
+      status: { in: [PeriodStatus.OPEN_FOR_SUBMISSION, PeriodStatus.LOCKED] },
     },
     include: {
       schedule: {
-        where: {
-          status: ScheduleStatus.DRAFT,
-        },
+        select: { id: true, status: true },
       },
     },
     orderBy: { startDate: 'desc' },
   });
   if (!data) {
-    return { found: false, message: 'לא נמצאה תקופה (נדרשת תקופה נעולה עם לוח טיוטה).' };
+    return { found: false, message: 'לא נמצאה תקופה פתוחה להגשות או נעולה לשיבוץ.' };
   }
 
-  const [assignments, employees, capacity, warnings, overflowCandidates, submittedCount, eligibleEmployeeCount] =
-    await Promise.all([
-      getAssignmentMap(data.schedule?.id),
-      getScheduleEmployees(courtId),
-      getScheduleCapacity(courtId),
-      getScheduleWarnings(data.schedule?.id),
-      Promise.resolve({} as OverflowCandidateMap),
-      prisma.availabilitySubmission.count({
-        where: { periodId: data.id, isSubmitted: true },
-      }),
-      prisma.employee.count({ where: { courtId, isActive: true } }),
-    ]);
+  const [assignments, employees, capacity, warnings, overflowCandidates, submittedSubmissions] = await Promise.all([
+    getAssignmentMap(data.schedule?.id),
+    getScheduleEmployees(courtId),
+    getScheduleCapacity(courtId),
+    getScheduleWarnings(data.schedule?.id),
+    Promise.resolve({} as OverflowCandidateMap),
+    prisma.availabilitySubmission.findMany({
+      where: {
+        periodId: data.id,
+        isSubmitted: true,
+        employee: { courtId, isActive: true },
+      },
+      select: { employeeId: true },
+    }),
+  ]);
+  const submittedEmployeeIds = new Set(submittedSubmissions.map((submission) => submission.employeeId));
+  const missingEmployees = employees
+    .filter((employee) => !submittedEmployeeIds.has(employee.id))
+    .map((employee) => ({
+      id: employee.id,
+      displayName: employee.displayName,
+      positionName: employee.position?.name ?? null,
+    }));
 
   const base = toFutureScheduleData(
     data,
@@ -166,8 +175,9 @@ export async function getFutureScheduleData(courtId: string): Promise<FutureSche
   return {
     ...base,
     availabilitySubmissionSummary: {
-      submittedCount,
-      eligibleEmployeeCount,
+      submittedCount: submittedEmployeeIds.size,
+      eligibleEmployeeCount: employees.length,
+      missingEmployees,
     },
   };
 }

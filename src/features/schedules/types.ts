@@ -59,6 +59,11 @@ export type ScheduleWarningSummary = {
 export type AvailabilitySubmissionSummary = {
   submittedCount: number;
   eligibleEmployeeCount: number;
+  missingEmployees: Array<{
+    id: string;
+    displayName: string;
+    positionName: string | null;
+  }>;
 };
 
 export type FutureScheduleData =
