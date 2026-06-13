@@ -4,9 +4,8 @@ import { prisma } from '@/lib/db/client';
 import { ManagerAppShell } from './manager-app-shell';
 
 const navItems = [
-  { href: '/manager', label: 'לוח בקרה' },
-  { href: '/manager/future-schedule', label: 'שיבוץ עתידי' },
-  { href: '/manager/schedule', label: 'שיבוץ עבודה' },
+  { href: '/manager', label: 'ראשי' },
+  { href: '/manager/schedule', label: 'שיבוץ פעיל' },
   { href: '/manager/periods', label: 'תקופות' },
   { href: '/manager/employees', label: 'עובדים' },
   { href: '/manager/settings', label: 'הגדרות' },

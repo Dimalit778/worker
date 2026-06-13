@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest';
-import { groupWarningsByEmployee } from '@/features/schedules/warnings-utils';
+import { groupWarningsByEmployee } from '@/features/schedules/warnings/utils';
 import type { ScheduleWarningSummary } from '@/features/schedules/types';
 
 const make = (overrides: Partial<ScheduleWarningSummary>): ScheduleWarningSummary => ({

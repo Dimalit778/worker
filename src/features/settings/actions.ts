@@ -261,6 +261,28 @@ async function swapPositionOrderWithNeighbor(
   });
 }
 
+export async function updatePositionColor(
+  positionId: string,
+  color: string | null,
+): Promise<{ ok: true } | { error: string }> {
+  const session = await requireSession(SystemRole.MANAGER);
+  const courtId = session.user.courtId;
+  if (!courtId) return { error: 'למנהל אין בית משפט משויך' };
+
+  try {
+    await prisma.position.update({
+      where: { id: positionId, courtId },
+      data: { color },
+    });
+    revalidatePath('/manager/settings');
+    revalidatePath('/manager/schedule');
+    revalidatePath('/manager/future-schedule');
+    return { ok: true };
+  } catch {
+    return { error: 'עדכון הצבע נכשל' };
+  }
+}
+
 export async function movePositionUp(positionId: string): Promise<{ ok: true } | { error: string }> {
   const session = await requireSession(SystemRole.MANAGER);
   const courtId = session.user.courtId;

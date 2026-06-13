@@ -55,6 +55,31 @@ function isoToday(): string {
   return new Date().toISOString().slice(0, 10);
 }
 
+/** Days in calendar month (1–12), UTC civil dates. */
+function daysInCalendarMonth(year: number, calendarMonth: number): number {
+  return new Date(Date.UTC(year, calendarMonth, 0)).getUTCDate();
+}
+
+/** Week rows (Sun→Sat) covering one calendar month with leading/trailing padding. */
+function buildMonthGrid(year: number, calendarMonth: number): string[][] {
+  const pad = (n: number) => String(n).padStart(2, '0');
+  const firstISO = `${year}-${pad(calendarMonth)}-01`;
+  const firstDow = new Date(`${firstISO}T00:00:00Z`).getUTCDay();
+  const gridStart = addDays(firstISO, -firstDow);
+  const dim = daysInCalendarMonth(year, calendarMonth);
+  const lastISO = `${year}-${pad(calendarMonth)}-${pad(dim)}`;
+  const lastDow = new Date(`${lastISO}T00:00:00Z`).getUTCDay();
+  const gridEnd = addDays(lastISO, 6 - lastDow);
+
+  const total = diffDays(gridStart, gridEnd) + 1;
+  const dates: string[] = Array.from({ length: total }, (_, i) => addDays(gridStart, i));
+  const weeks: string[][] = [];
+  for (let i = 0; i < dates.length; i += 7) {
+    weeks.push(dates.slice(i, i + 7));
+  }
+  return weeks;
+}
+
 function buildWeeks(startDate: string, endDate: string): string[][] {
   const firstDay = new Date(startDate + 'T00:00:00Z');
   const dayOfWeek = firstDay.getUTCDay(); // 0=Sun … 6=Sat
@@ -111,6 +136,8 @@ export {
   addDays,
   diffDays,
   isoToday,
+  daysInCalendarMonth,
+  buildMonthGrid,
   buildWeeks,
   upcomingSundayISO,
   suggestName,

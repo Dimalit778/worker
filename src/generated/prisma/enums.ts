@@ -60,8 +60,8 @@ export type PeriodStatus = (typeof PeriodStatus)[keyof typeof PeriodStatus]
 
 export const ScheduleStatus = {
   DRAFT: 'DRAFT',
-  FINALIZED: 'FINALIZED',
-  PUBLISHED: 'PUBLISHED'
+  ACTIVE: 'ACTIVE',
+  ARCHIVED: 'ARCHIVED'
 } as const
 
 export type ScheduleStatus = (typeof ScheduleStatus)[keyof typeof ScheduleStatus]

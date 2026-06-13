@@ -15,6 +15,7 @@ export type ScheduleCapacityRule = {
   positionId: string;
   displayName: string;
   code: number;
+  color: string | null;
   shiftType: ShiftType;
   dayCategory: DayCategory;
   amount: number;
@@ -66,27 +67,24 @@ export type AvailabilitySubmissionSummary = {
   }>;
 };
 
-export type FutureScheduleData =
-  | { found: false; message: string }
-  | {
-      found: true;
-      periodId: string;
-      periodName: string;
-      startDate: string;
-      endDate: string;
-      scheduleId: string | null;
-      scheduleStatus: ScheduleStatus | null;
-      courtId: string;
-      employees: ScheduleEmployeeOption[];
-      capacity: ScheduleCapacityRule[];
-      assignments: AssignmentMap;
-      warnings: ScheduleWarningSummary[];
-      overflowCandidates: OverflowCandidateMap;
-      availabilitySubmissionSummary?: AvailabilitySubmissionSummary;
-    };
+export type CurrentScheduleData = {
+  periodId: string;
+  periodName: string;
+  startDate: string;
+  endDate: string;
+  scheduleId: string | null;
+  scheduleStatus: ScheduleStatus | null;
+  courtId: string;
+  employees: ScheduleEmployeeOption[];
+  capacity: ScheduleCapacityRule[];
+  assignments: AssignmentMap;
+  warnings: ScheduleWarningSummary[];
+  overflowCandidates: OverflowCandidateMap;
+  availabilitySubmissionSummary?: AvailabilitySubmissionSummary;
+};
 
 /** Props for the week / shift schedule UI */
-export type ScheduleProps = {
+export type ScheduleViewProps = {
   periodId: string;
   periodName: string;
   startDate: string;
@@ -117,4 +115,16 @@ export type AssignEmployeeToSlotParams = {
   shiftType: ShiftType;
   date: string;
   slotIndex: number;
+};
+// Schedule mode: current or future
+export type ScheduleMode = 'current' | 'future';
+
+export type ScheduleViewerRole = 'manager' | 'employee';
+
+export type ScheduleAccess = {
+  canEdit: boolean;
+  canGenerate: boolean;
+  canPublish: boolean;
+  canViewWarnings: boolean;
+  canViewSubmissions: boolean;
 };

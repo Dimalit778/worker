@@ -200,6 +200,7 @@ export const PositionScalarFieldEnum = {
   name: 'name',
   code: 'code',
   isActive: 'isActive',
+  color: 'color',
   createdAt: 'createdAt',
   updatedAt: 'updatedAt'
 } as const

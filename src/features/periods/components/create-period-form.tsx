@@ -95,9 +95,6 @@ export function CreatePeriodForm({ onCreated }: { onCreated?: () => void }) {
             ×
           </Button>
         </div>
-        <DialogDescription className="sr-only">
-          טופס ליצירת תקופת שיבוץ חדשה: בחרו סוג תקופה, שם והגשת דדליין.
-        </DialogDescription>
 
         <form onSubmit={handleSubmit} className="space-y-4">
           <div className="space-y-1.5">

@@ -1,10 +1,9 @@
 'use client';
-
 import { useState } from 'react';
-import { Card, CardContent } from '@/components/ui/card';
 import { cn } from '@/lib/utils';
-import { EmployeeWarningsPanel } from './warnings-panel';
-import { groupWarningsByEmployee } from '@/features/schedules/warnings-utils';
+import { Card, CardContent } from '@/components/ui/card';
+import { EmployeeWarningsPanel } from '@/features/schedules/warnings/components/warnings-panel';
+import { groupWarningsByEmployee } from '@/features/schedules/warnings/utils';
 import type { ScheduleWarningSummary } from '@/features/schedules/types';
 
 type ActivePanel = 'errors' | 'warnings' | 'submissions' | null;
@@ -18,7 +17,7 @@ type Props = {
   missingEmployees: MissingEmployee[];
 };
 
-export function ScheduleSummaryBar({ warnings, submittedCount, eligibleCount, missingEmployees }: Props) {
+export function ScheduleStats({ warnings, submittedCount, eligibleCount, missingEmployees }: Props) {
   const [activePanel, setActivePanel] = useState<ActivePanel>(null);
 
   const errorWarnings = warnings.filter((w) => w.severity === 'ERROR');
@@ -164,9 +163,7 @@ export function ScheduleSummaryBar({ warnings, submittedCount, eligibleCount, mi
                   className="flex items-center justify-between rounded-lg bg-muted/40 px-3 py-2 text-sm"
                 >
                   <span className="font-medium">{emp.displayName}</span>
-                  {emp.positionName && (
-                    <span className="text-xs text-muted-foreground">{emp.positionName}</span>
-                  )}
+                  {emp.positionName && <span className="text-xs text-muted-foreground">{emp.positionName}</span>}
                 </div>
               ))}
             </div>

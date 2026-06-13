@@ -40,6 +40,7 @@ export type PositionMinAggregateOutputType = {
   name: string | null
   code: number | null
   isActive: boolean | null
+  color: string | null
   createdAt: Date | null
   updatedAt: Date | null
 }
@@ -50,6 +51,7 @@ export type PositionMaxAggregateOutputType = {
   name: string | null
   code: number | null
   isActive: boolean | null
+  color: string | null
   createdAt: Date | null
   updatedAt: Date | null
 }
@@ -60,6 +62,7 @@ export type PositionCountAggregateOutputType = {
   name: number
   code: number
   isActive: number
+  color: number
   createdAt: number
   updatedAt: number
   _all: number
@@ -80,6 +83,7 @@ export type PositionMinAggregateInputType = {
   name?: true
   code?: true
   isActive?: true
+  color?: true
   createdAt?: true
   updatedAt?: true
 }
@@ -90,6 +94,7 @@ export type PositionMaxAggregateInputType = {
   name?: true
   code?: true
   isActive?: true
+  color?: true
   createdAt?: true
   updatedAt?: true
 }
@@ -100,6 +105,7 @@ export type PositionCountAggregateInputType = {
   name?: true
   code?: true
   isActive?: true
+  color?: true
   createdAt?: true
   updatedAt?: true
   _all?: true
@@ -197,6 +203,7 @@ export type PositionGroupByOutputType = {
   name: string
   code: number
   isActive: boolean
+  color: string | null
   createdAt: Date
   updatedAt: Date
   _count: PositionCountAggregateOutputType | null
@@ -230,6 +237,7 @@ export type PositionWhereInput = {
   name?: Prisma.StringFilter<"Position"> | string
   code?: Prisma.IntFilter<"Position"> | number
   isActive?: Prisma.BoolFilter<"Position"> | boolean
+  color?: Prisma.StringNullableFilter<"Position"> | string | null
   createdAt?: Prisma.DateTimeFilter<"Position"> | Date | string
   updatedAt?: Prisma.DateTimeFilter<"Position"> | Date | string
   court?: Prisma.XOR<Prisma.CourtScalarRelationFilter, Prisma.CourtWhereInput>
@@ -245,6 +253,7 @@ export type PositionOrderByWithRelationInput = {
   name?: Prisma.SortOrder
   code?: Prisma.SortOrder
   isActive?: Prisma.SortOrder
+  color?: Prisma.SortOrderInput | Prisma.SortOrder
   createdAt?: Prisma.SortOrder
   updatedAt?: Prisma.SortOrder
   court?: Prisma.CourtOrderByWithRelationInput
@@ -265,6 +274,7 @@ export type PositionWhereUniqueInput = Prisma.AtLeast<{
   name?: Prisma.StringFilter<"Position"> | string
   code?: Prisma.IntFilter<"Position"> | number
   isActive?: Prisma.BoolFilter<"Position"> | boolean
+  color?: Prisma.StringNullableFilter<"Position"> | string | null
   createdAt?: Prisma.DateTimeFilter<"Position"> | Date | string
   updatedAt?: Prisma.DateTimeFilter<"Position"> | Date | string
   court?: Prisma.XOR<Prisma.CourtScalarRelationFilter, Prisma.CourtWhereInput>
@@ -280,6 +290,7 @@ export type PositionOrderByWithAggregationInput = {
   name?: Prisma.SortOrder
   code?: Prisma.SortOrder
   isActive?: Prisma.SortOrder
+  color?: Prisma.SortOrderInput | Prisma.SortOrder
   createdAt?: Prisma.SortOrder
   updatedAt?: Prisma.SortOrder
   _count?: Prisma.PositionCountOrderByAggregateInput
@@ -298,6 +309,7 @@ export type PositionScalarWhereWithAggregatesInput = {
   name?: Prisma.StringWithAggregatesFilter<"Position"> | string
   code?: Prisma.IntWithAggregatesFilter<"Position"> | number
   isActive?: Prisma.BoolWithAggregatesFilter<"Position"> | boolean
+  color?: Prisma.StringNullableWithAggregatesFilter<"Position"> | string | null
   createdAt?: Prisma.DateTimeWithAggregatesFilter<"Position"> | Date | string
   updatedAt?: Prisma.DateTimeWithAggregatesFilter<"Position"> | Date | string
 }
@@ -307,6 +319,7 @@ export type PositionCreateInput = {
   name: string
   code: number
   isActive?: boolean
+  color?: string | null
   createdAt?: Date | string
   updatedAt?: Date | string
   court: Prisma.CourtCreateNestedOneWithoutPositionsInput
@@ -322,6 +335,7 @@ export type PositionUncheckedCreateInput = {
   name: string
   code: number
   isActive?: boolean
+  color?: string | null
   createdAt?: Date | string
   updatedAt?: Date | string
   employees?: Prisma.EmployeeUncheckedCreateNestedManyWithoutPositionInput
@@ -335,6 +349,7 @@ export type PositionUpdateInput = {
   name?: Prisma.StringFieldUpdateOperationsInput | string
   code?: Prisma.IntFieldUpdateOperationsInput | number
   isActive?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  color?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   court?: Prisma.CourtUpdateOneRequiredWithoutPositionsNestedInput
@@ -350,6 +365,7 @@ export type PositionUncheckedUpdateInput = {
   name?: Prisma.StringFieldUpdateOperationsInput | string
   code?: Prisma.IntFieldUpdateOperationsInput | number
   isActive?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  color?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   employees?: Prisma.EmployeeUncheckedUpdateManyWithoutPositionNestedInput
@@ -364,6 +380,7 @@ export type PositionCreateManyInput = {
   name: string
   code: number
   isActive?: boolean
+  color?: string | null
   createdAt?: Date | string
   updatedAt?: Date | string
 }
@@ -373,6 +390,7 @@ export type PositionUpdateManyMutationInput = {
   name?: Prisma.StringFieldUpdateOperationsInput | string
   code?: Prisma.IntFieldUpdateOperationsInput | number
   isActive?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  color?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
 }
@@ -383,6 +401,7 @@ export type PositionUncheckedUpdateManyInput = {
   name?: Prisma.StringFieldUpdateOperationsInput | string
   code?: Prisma.IntFieldUpdateOperationsInput | number
   isActive?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  color?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
 }
@@ -418,6 +437,7 @@ export type PositionCountOrderByAggregateInput = {
   name?: Prisma.SortOrder
   code?: Prisma.SortOrder
   isActive?: Prisma.SortOrder
+  color?: Prisma.SortOrder
   createdAt?: Prisma.SortOrder
   updatedAt?: Prisma.SortOrder
 }
@@ -432,6 +452,7 @@ export type PositionMaxOrderByAggregateInput = {
   name?: Prisma.SortOrder
   code?: Prisma.SortOrder
   isActive?: Prisma.SortOrder
+  color?: Prisma.SortOrder
   createdAt?: Prisma.SortOrder
   updatedAt?: Prisma.SortOrder
 }
@@ -442,6 +463,7 @@ export type PositionMinOrderByAggregateInput = {
   name?: Prisma.SortOrder
   code?: Prisma.SortOrder
   isActive?: Prisma.SortOrder
+  color?: Prisma.SortOrder
   createdAt?: Prisma.SortOrder
   updatedAt?: Prisma.SortOrder
 }
@@ -568,6 +590,7 @@ export type PositionCreateWithoutCourtInput = {
   name: string
   code: number
   isActive?: boolean
+  color?: string | null
   createdAt?: Date | string
   updatedAt?: Date | string
   employees?: Prisma.EmployeeCreateNestedManyWithoutPositionInput
@@ -581,6 +604,7 @@ export type PositionUncheckedCreateWithoutCourtInput = {
   name: string
   code: number
   isActive?: boolean
+  color?: string | null
   createdAt?: Date | string
   updatedAt?: Date | string
   employees?: Prisma.EmployeeUncheckedCreateNestedManyWithoutPositionInput
@@ -624,6 +648,7 @@ export type PositionScalarWhereInput = {
   name?: Prisma.StringFilter<"Position"> | string
   code?: Prisma.IntFilter<"Position"> | number
   isActive?: Prisma.BoolFilter<"Position"> | boolean
+  color?: Prisma.StringNullableFilter<"Position"> | string | null
   createdAt?: Prisma.DateTimeFilter<"Position"> | Date | string
   updatedAt?: Prisma.DateTimeFilter<"Position"> | Date | string
 }
@@ -633,6 +658,7 @@ export type PositionCreateWithoutEmployeesInput = {
   name: string
   code: number
   isActive?: boolean
+  color?: string | null
   createdAt?: Date | string
   updatedAt?: Date | string
   court: Prisma.CourtCreateNestedOneWithoutPositionsInput
@@ -647,6 +673,7 @@ export type PositionUncheckedCreateWithoutEmployeesInput = {
   name: string
   code: number
   isActive?: boolean
+  color?: string | null
   createdAt?: Date | string
   updatedAt?: Date | string
   staffingRequirements?: Prisma.StaffingRequirementUncheckedCreateNestedManyWithoutPositionInput
@@ -675,6 +702,7 @@ export type PositionUpdateWithoutEmployeesInput = {
   name?: Prisma.StringFieldUpdateOperationsInput | string
   code?: Prisma.IntFieldUpdateOperationsInput | number
   isActive?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  color?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   court?: Prisma.CourtUpdateOneRequiredWithoutPositionsNestedInput
@@ -689,6 +717,7 @@ export type PositionUncheckedUpdateWithoutEmployeesInput = {
   name?: Prisma.StringFieldUpdateOperationsInput | string
   code?: Prisma.IntFieldUpdateOperationsInput | number
   isActive?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  color?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   staffingRequirements?: Prisma.StaffingRequirementUncheckedUpdateManyWithoutPositionNestedInput
@@ -701,6 +730,7 @@ export type PositionCreateWithoutStaffingRequirementsInput = {
   name: string
   code: number
   isActive?: boolean
+  color?: string | null
   createdAt?: Date | string
   updatedAt?: Date | string
   court: Prisma.CourtCreateNestedOneWithoutPositionsInput
@@ -715,6 +745,7 @@ export type PositionUncheckedCreateWithoutStaffingRequirementsInput = {
   name: string
   code: number
   isActive?: boolean
+  color?: string | null
   createdAt?: Date | string
   updatedAt?: Date | string
   employees?: Prisma.EmployeeUncheckedCreateNestedManyWithoutPositionInput
@@ -743,6 +774,7 @@ export type PositionUpdateWithoutStaffingRequirementsInput = {
   name?: Prisma.StringFieldUpdateOperationsInput | string
   code?: Prisma.IntFieldUpdateOperationsInput | number
   isActive?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  color?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   court?: Prisma.CourtUpdateOneRequiredWithoutPositionsNestedInput
@@ -757,6 +789,7 @@ export type PositionUncheckedUpdateWithoutStaffingRequirementsInput = {
   name?: Prisma.StringFieldUpdateOperationsInput | string
   code?: Prisma.IntFieldUpdateOperationsInput | number
   isActive?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  color?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   employees?: Prisma.EmployeeUncheckedUpdateManyWithoutPositionNestedInput
@@ -769,6 +802,7 @@ export type PositionCreateWithoutShiftAssignmentsInput = {
   name: string
   code: number
   isActive?: boolean
+  color?: string | null
   createdAt?: Date | string
   updatedAt?: Date | string
   court: Prisma.CourtCreateNestedOneWithoutPositionsInput
@@ -783,6 +817,7 @@ export type PositionUncheckedCreateWithoutShiftAssignmentsInput = {
   name: string
   code: number
   isActive?: boolean
+  color?: string | null
   createdAt?: Date | string
   updatedAt?: Date | string
   employees?: Prisma.EmployeeUncheckedCreateNestedManyWithoutPositionInput
@@ -811,6 +846,7 @@ export type PositionUpdateWithoutShiftAssignmentsInput = {
   name?: Prisma.StringFieldUpdateOperationsInput | string
   code?: Prisma.IntFieldUpdateOperationsInput | number
   isActive?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  color?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   court?: Prisma.CourtUpdateOneRequiredWithoutPositionsNestedInput
@@ -825,6 +861,7 @@ export type PositionUncheckedUpdateWithoutShiftAssignmentsInput = {
   name?: Prisma.StringFieldUpdateOperationsInput | string
   code?: Prisma.IntFieldUpdateOperationsInput | number
   isActive?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  color?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   employees?: Prisma.EmployeeUncheckedUpdateManyWithoutPositionNestedInput
@@ -837,6 +874,7 @@ export type PositionCreateWithoutWarningsInput = {
   name: string
   code: number
   isActive?: boolean
+  color?: string | null
   createdAt?: Date | string
   updatedAt?: Date | string
   court: Prisma.CourtCreateNestedOneWithoutPositionsInput
@@ -851,6 +889,7 @@ export type PositionUncheckedCreateWithoutWarningsInput = {
   name: string
   code: number
   isActive?: boolean
+  color?: string | null
   createdAt?: Date | string
   updatedAt?: Date | string
   employees?: Prisma.EmployeeUncheckedCreateNestedManyWithoutPositionInput
@@ -879,6 +918,7 @@ export type PositionUpdateWithoutWarningsInput = {
   name?: Prisma.StringFieldUpdateOperationsInput | string
   code?: Prisma.IntFieldUpdateOperationsInput | number
   isActive?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  color?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   court?: Prisma.CourtUpdateOneRequiredWithoutPositionsNestedInput
@@ -893,6 +933,7 @@ export type PositionUncheckedUpdateWithoutWarningsInput = {
   name?: Prisma.StringFieldUpdateOperationsInput | string
   code?: Prisma.IntFieldUpdateOperationsInput | number
   isActive?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  color?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   employees?: Prisma.EmployeeUncheckedUpdateManyWithoutPositionNestedInput
@@ -905,6 +946,7 @@ export type PositionCreateManyCourtInput = {
   name: string
   code: number
   isActive?: boolean
+  color?: string | null
   createdAt?: Date | string
   updatedAt?: Date | string
 }
@@ -914,6 +956,7 @@ export type PositionUpdateWithoutCourtInput = {
   name?: Prisma.StringFieldUpdateOperationsInput | string
   code?: Prisma.IntFieldUpdateOperationsInput | number
   isActive?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  color?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   employees?: Prisma.EmployeeUpdateManyWithoutPositionNestedInput
@@ -927,6 +970,7 @@ export type PositionUncheckedUpdateWithoutCourtInput = {
   name?: Prisma.StringFieldUpdateOperationsInput | string
   code?: Prisma.IntFieldUpdateOperationsInput | number
   isActive?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  color?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   employees?: Prisma.EmployeeUncheckedUpdateManyWithoutPositionNestedInput
@@ -940,6 +984,7 @@ export type PositionUncheckedUpdateManyWithoutCourtInput = {
   name?: Prisma.StringFieldUpdateOperationsInput | string
   code?: Prisma.IntFieldUpdateOperationsInput | number
   isActive?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  color?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
 }
@@ -1008,6 +1053,7 @@ export type PositionSelect<ExtArgs extends runtime.Types.Extensions.InternalArgs
   name?: boolean
   code?: boolean
   isActive?: boolean
+  color?: boolean
   createdAt?: boolean
   updatedAt?: boolean
   court?: boolean | Prisma.CourtDefaultArgs<ExtArgs>
@@ -1024,6 +1070,7 @@ export type PositionSelectCreateManyAndReturn<ExtArgs extends runtime.Types.Exte
   name?: boolean
   code?: boolean
   isActive?: boolean
+  color?: boolean
   createdAt?: boolean
   updatedAt?: boolean
   court?: boolean | Prisma.CourtDefaultArgs<ExtArgs>
@@ -1035,6 +1082,7 @@ export type PositionSelectUpdateManyAndReturn<ExtArgs extends runtime.Types.Exte
   name?: boolean
   code?: boolean
   isActive?: boolean
+  color?: boolean
   createdAt?: boolean
   updatedAt?: boolean
   court?: boolean | Prisma.CourtDefaultArgs<ExtArgs>
@@ -1046,11 +1094,12 @@ export type PositionSelectScalar = {
   name?: boolean
   code?: boolean
   isActive?: boolean
+  color?: boolean
   createdAt?: boolean
   updatedAt?: boolean
 }
 
-export type PositionOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"id" | "courtId" | "name" | "code" | "isActive" | "createdAt" | "updatedAt", ExtArgs["result"]["position"]>
+export type PositionOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"id" | "courtId" | "name" | "code" | "isActive" | "color" | "createdAt" | "updatedAt", ExtArgs["result"]["position"]>
 export type PositionInclude<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
   court?: boolean | Prisma.CourtDefaultArgs<ExtArgs>
   employees?: boolean | Prisma.Position$employeesArgs<ExtArgs>
@@ -1081,6 +1130,7 @@ export type $PositionPayload<ExtArgs extends runtime.Types.Extensions.InternalAr
     name: string
     code: number
     isActive: boolean
+    color: string | null
     createdAt: Date
     updatedAt: Date
   }, ExtArgs["result"]["position"]>
@@ -1516,6 +1566,7 @@ export interface PositionFieldRefs {
   readonly name: Prisma.FieldRef<"Position", 'String'>
   readonly code: Prisma.FieldRef<"Position", 'Int'>
   readonly isActive: Prisma.FieldRef<"Position", 'Boolean'>
+  readonly color: Prisma.FieldRef<"Position", 'String'>
   readonly createdAt: Prisma.FieldRef<"Position", 'DateTime'>
   readonly updatedAt: Prisma.FieldRef<"Position", 'DateTime'>
 }

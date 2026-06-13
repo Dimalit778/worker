@@ -1,46 +1,73 @@
 import { requireSession } from '@/lib/db/auth-helpers';
-import { SystemRole } from '@/generated/prisma/client';
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
+import { ScheduleStatus, SystemRole } from '@/generated/prisma/client';
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
+import { getPeriodsForManager } from '@/features/periods/actions';
+import { getDraftScheduleData } from '@/features/schedules/assignments/queries';
+import { TopBar } from '@/features/schedules/draft-schedule/topbar';
+import { ScheduleStats } from '@/features/schedules/draft-schedule/schedule-stats';
+import { ScheduleView } from '@/features/schedules/active-schedule/schedule-view';
 
 export default async function ManagerDashboardPage() {
-  await requireSession(SystemRole.MANAGER);
+  const session = await requireSession(SystemRole.MANAGER);
+  const courtId = session.user.courtId ?? '';
 
-  return (
-    <div className="space-y-6">
-      <h1 className="text-2xl font-bold">לוח בקרה</h1>
+  const data = await getDraftScheduleData(courtId);
 
-      <div className="grid grid-cols-3 gap-4">
-        <Card>
-          <CardHeader className="pb-2">
-            <CardTitle className="text-sm font-medium text-muted-foreground">תקופות פעילות</CardTitle>
+  if (!data) {
+    return (
+      <div className="space-y-4" dir="rtl">
+        <Card size="sm" className="border-dashed">
+          <CardHeader>
+            <CardTitle className="text-lg">שיבוץ בהכנה</CardTitle>
+            <CardDescription className="text-base">לא נמצאה תקופת תזמון פתוחה לשיבוץ.</CardDescription>
           </CardHeader>
-          <CardContent>
-            <p className="text-2xl font-bold">—</p>
-          </CardContent>
-        </Card>
-        <Card>
-          <CardHeader className="pb-2">
-            <CardTitle className="text-sm font-medium text-muted-foreground">הגשות</CardTitle>
-          </CardHeader>
-          <CardContent>
-            <p className="text-2xl font-bold">—</p>
-          </CardContent>
-        </Card>
-        <Card>
-          <CardHeader className="pb-2">
-            <CardTitle className="text-sm font-medium text-muted-foreground">שומרים</CardTitle>
-          </CardHeader>
-          <CardContent>
-            <p className="text-2xl font-bold">—</p>
-          </CardContent>
         </Card>
       </div>
+    );
+  }
 
-      <Card>
-        <CardContent className="pt-6">
-          <p className="text-muted-foreground text-sm">שלח שיבוץ חדש</p>
-        </CardContent>
-      </Card>
+  const isReadonly = data.scheduleStatus === ScheduleStatus.ACTIVE;
+  const submission = data.availabilitySubmissionSummary;
+  const eligible = submission?.eligibleEmployeeCount ?? 0;
+  const submitted = submission?.submittedCount ?? 0;
+  const missingEmployees = submission?.missingEmployees ?? [];
+
+  return (
+    <div className="space-y-6" dir="rtl">
+      <TopBar data={data} />
+      <ScheduleStats
+        warnings={data.warnings}
+        submittedCount={submitted}
+        eligibleCount={eligible}
+        missingEmployees={missingEmployees}
+      />
+
+      {isReadonly && (
+        <div
+          className="flex gap-3 rounded-2xl border border-green-200/80 bg-green-50 px-4 py-3 text-sm text-green-900 shadow-sm ring-1 ring-green-100"
+          role="status"
+        >
+          <span className="select-none text-base leading-none" aria-hidden>
+            ✓
+          </span>
+          <p className="leading-snug">השיבוץ פורסם ומוצג לכלל העובדים. לעריכה נוספת יש לפנות להגדרות.</p>
+        </div>
+      )}
+
+      <ScheduleView
+        periodId={data.periodId}
+        periodName={data.periodName}
+        startDate={data.startDate}
+        endDate={data.endDate}
+        scheduleId={data.scheduleId}
+        scheduleStatus={data.scheduleStatus}
+        assignments={data.assignments}
+        employees={data.employees}
+        capacity={data.capacity}
+        courtId={data.courtId}
+        overflowCandidates={data.overflowCandidates}
+        readonly={isReadonly}
+      />
     </div>
   );
 }

@@ -4,7 +4,7 @@ import { SystemRole } from '@/generated/prisma/client';
 function homeFor(role: SystemRole): string {
   switch (role) {
     case SystemRole.EMPLOYEE:
-      return '/user';
+      return '/employee';
     case SystemRole.MANAGER:
       return '/manager';
     case SystemRole.ADMIN:
@@ -41,8 +41,8 @@ export function resolveRedirect(pathname: string, role: SystemRole | null, mustC
     return homeFor(role);
   }
 
-  // User (employee) routes
-  if (pathname.startsWith('/user')) {
+  // Employee routes
+  if (pathname.startsWith('/employee')) {
     if (!role) return '/login';
     if (role !== SystemRole.EMPLOYEE) return homeFor(role);
     return null;

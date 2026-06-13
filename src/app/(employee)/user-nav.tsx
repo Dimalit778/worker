@@ -15,7 +15,7 @@ export function UserNav({ items }: { items: NavItem[] }) {
   return (
     <nav className="max-w-lg mx-auto flex flex-wrap gap-2 justify-center border-t border-border pt-3">
       {items.map((item) => {
-        const isActive = item.href === '/user' ? pathname === '/user' : pathname.startsWith(item.href);
+        const isActive = item.href === '/employee' ? pathname === '/employee' : pathname.startsWith(item.href);
         return (
           <Link
             key={item.href}

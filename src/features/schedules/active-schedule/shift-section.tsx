@@ -8,12 +8,13 @@ import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import type {
   AssignmentMap,
+  AssignmentSummary,
   OverflowCandidateMap,
   ScheduleCapacityRule,
   ScheduleEmployeeOption,
   WeekDay,
-} from '../../types';
-import { SHIFT_STYLES } from '../../constants';
+} from '../types';
+import { SHIFT_STYLES } from '../constants';
 import type { ShiftType } from '@/generated/prisma/client';
 import { AssignmentCell } from './assignment-cell';
 import { upsertPositionForDisplayOrder } from '@/features/settings/actions';
@@ -22,16 +23,14 @@ import {
   getCapacityForCell,
   getDayCategoryForDate,
   getOrderedPositionsForShift,
+  isGuardPositionLabel,
   maxSlotsForPositionInWeek,
-} from '../../utils';
+} from '../utils';
 
-/** Must match <colgroup> — Tailwind `w-14` = 3.5rem; table layout reads width from <col>, not only from cells */
-const NARROW_COL_PX = '3.5rem';
+/** table-fixed reads width from <col>, not only from cells */
+const ROW_NUM_COL_PX = '2rem';
+const POSITION_COL_PX = '3.5rem';
 const narrowColCell = 'w-14 min-w-0 max-w-14';
-
-function isRegularGuardPosition(positionName: string): boolean {
-  return positionName.trim() === 'מאבטח';
-}
 
 type PositionRowModalState = {
   rowNumber: number;
@@ -74,19 +73,34 @@ export function ShiftSection(props: ShiftSectionProps) {
 
   const positionsOrdered = getOrderedPositionsForShift(capacity, shiftType);
 
-  const bodyRows = positionsOrdered.flatMap((pos) => {
-    const maxSlots = maxSlotsForPositionInWeek(capacity, shiftType, pos.positionId, weekIsos);
-    if (maxSlots <= 0) return [];
+  type VisualRow = {
+    pos: { positionId: string; positionName: string; positionCode: number; positionColor: string | null };
+    visualRow: number;
+    rowSpan: number;
+    isFirstRow: boolean;
+    assignmentsByDay: Map<string, AssignmentSummary[]>;
+  };
 
-    return Array.from({ length: maxSlots }, (_, slotIndex) => ({
-      pos,
-      slotIndex,
-      maxSlots,
-    }));
-  });
+  const bodyRows: VisualRow[] = [];
+
+  for (const pos of positionsOrdered) {
+    const maxSlotsInWeek = maxSlotsForPositionInWeek(capacity, shiftType, pos.positionId, weekIsos);
+    if (maxSlotsInWeek <= 0) continue;
+
+    const assignmentsByDay = new Map<string, AssignmentSummary[]>();
+    for (const day of sortedDays) {
+      const cellKey = createAssignmentCellKey({ date: day.iso, shiftType, positionId: pos.positionId });
+      const sorted = [...(assignments[cellKey] ?? [])].sort((a, b) => a.slotIndex - b.slotIndex);
+      assignmentsByDay.set(day.iso, sorted);
+    }
+
+    Array.from({ length: maxSlotsInWeek }, (_, vr) => vr).forEach((vr, i) => {
+      bodyRows.push({ pos, visualRow: vr, rowSpan: maxSlotsInWeek, isFirstRow: i === 0, assignmentsByDay });
+    });
+  }
 
   function openPositionModal(rowNumber: number, currentPositionName: string) {
-    const name = isRegularGuardPosition(currentPositionName) ? '' : currentPositionName;
+    const name = isGuardPositionLabel(currentPositionName) ? '' : currentPositionName;
     setPositionError(null);
     setPositionName(name);
     setPositionModal({ rowNumber });
@@ -156,8 +170,8 @@ export function ShiftSection(props: ShiftSectionProps) {
       <div className="overflow-x-auto rounded-b-lg border border-border border-t-0 bg-white">
         <table className="w-full table-fixed border-collapse text-xs" dir="rtl">
           <colgroup>
-            <col style={{ width: NARROW_COL_PX }} />
-            <col style={{ width: NARROW_COL_PX }} />
+            <col style={{ width: ROW_NUM_COL_PX }} />
+            <col style={{ width: POSITION_COL_PX }} />
             {sortedDays.map((day) => (
               <col key={day.iso} />
             ))}
@@ -165,17 +179,12 @@ export function ShiftSection(props: ShiftSectionProps) {
           <thead>
             <tr>
               <th
-                className={cn(
-                  narrowColCell,
-                  'px-0.5 py-1.5 border border-border text-white font-semibold text-center',
-                  style.header,
-                )}
+                className={cn('px-0.5 py-1.5 border border-border text-white font-semibold text-center', style.header)}
               >
                 #
               </th>
               <th
                 className={cn(
-                  narrowColCell,
                   'px-0.5 py-1.5 border border-border text-white font-semibold text-center text-[10px] leading-tight overflow-hidden text-ellipsis whitespace-nowrap',
                   style.header,
                 )}
@@ -202,14 +211,17 @@ export function ShiftSection(props: ShiftSectionProps) {
             </tr>
           </thead>
           <tbody>
-            {bodyRows.map(({ pos, slotIndex, maxSlots }, rowIdx) => {
-              const hidePositionLabel = isRegularGuardPosition(pos.positionName);
+            {bodyRows.map(({ pos, visualRow, rowSpan, isFirstRow, assignmentsByDay }, rowIdx) => {
+              const hidePositionLabel = isGuardPositionLabel(pos.positionName);
 
               return (
-                <tr key={`${pos.positionId}-${slotIndex}`} className="bg-white ">
+                <tr
+                  key={`${pos.positionId}-${visualRow}`}
+                  className="bg-white"
+                  style={pos.positionColor ? { backgroundColor: pos.positionColor + '28' } : undefined}
+                >
                   <td
                     className={cn(
-                      narrowColCell,
                       'px-0.5 py-1 text-center border border-border text-muted-foreground font-semibold bg-muted/30',
                     )}
                   >
@@ -218,16 +230,16 @@ export function ShiftSection(props: ShiftSectionProps) {
                     ) : (
                       <button
                         type="button"
-                        className="h-6 min-w-6 rounded-sm px-1 text-xs font-semibold hover:bg-accent hover:text-accent-foreground focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring"
+                        className="h-6 w-6 min-w-0 rounded-sm px-0 text-xs font-semibold hover:bg-accent hover:text-accent-foreground focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring"
                         onClick={() => openPositionModal(rowIdx + 1, pos.positionName)}
                       >
                         {rowIdx + 1}
                       </button>
                     )}
                   </td>
-                  {slotIndex === 0 ? (
+                  {isFirstRow ? (
                     <td
-                      rowSpan={maxSlots}
+                      rowSpan={rowSpan}
                       className={cn(
                         narrowColCell,
                         'align-middle px-0.5 py-1 text-center border border-border bg-muted/20 text-[10px] font-semibold leading-tight overflow-hidden',
@@ -242,11 +254,22 @@ export function ShiftSection(props: ShiftSectionProps) {
                   {sortedDays.map((day) => {
                     const cat = getDayCategoryForDate(day.iso);
                     const required = getCapacityForCell(capacity, cat, shiftType, pos.positionId);
-                    const closed = slotIndex >= required;
+                    const closed = visualRow >= required;
+                    const sortedAssignments = assignmentsByDay.get(day.iso)!;
+                    const assignment = sortedAssignments[visualRow] ?? null;
+                    const usedSlots = new Set(sortedAssignments.map((a) => a.slotIndex));
+                    const targetSlotIndex =
+                      assignment?.slotIndex ??
+                      Array.from({ length: required }, (_, i) => i).find((i) => !usedSlots.has(i)) ??
+                      visualRow;
                     const cellKey = createAssignmentCellKey({ date: day.iso, shiftType, positionId: pos.positionId });
-                    const slotAssignments = assignments[cellKey] ?? [];
-                    const assignment = slotAssignments.find((a) => a.slotIndex === slotIndex) ?? null;
-                    const overflowKey = `${cellKey}-${slotIndex}` as keyof OverflowCandidateMap;
+                    const overflowKey = `${cellKey}-${targetSlotIndex}` as keyof OverflowCandidateMap;
+
+                    const assignedOnShift = new Set(
+                      Object.entries(assignments)
+                        .filter(([key]) => key.startsWith(`${day.iso}-${shiftType}-`))
+                        .flatMap(([, list]) => list.map((a) => a.employeeId)),
+                    );
 
                     return (
                       <AssignmentCell
@@ -254,13 +277,14 @@ export function ShiftSection(props: ShiftSectionProps) {
                         closed={closed}
                         assignment={assignment}
                         employees={employees}
+                        assignedEmployeeIds={assignedOnShift}
                         scheduleId={scheduleId}
                         periodId={periodId}
                         courtId={courtId}
                         date={day.iso}
                         shiftType={shiftType}
                         positionId={pos.positionId}
-                        slotIndex={slotIndex}
+                        slotIndex={targetSlotIndex}
                         overflowCandidates={overflowCandidates?.[overflowKey] ?? []}
                         readonly={readonly}
                       />

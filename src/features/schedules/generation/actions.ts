@@ -8,7 +8,7 @@ import { requireSession } from '@/lib/db/auth-helpers';
 import { prisma } from '@/lib/db/client';
 import { PeriodStatus, ScheduleStatus, SystemRole, WarningSeverity, WarningType } from '@/generated/prisma/client';
 
-import { getAutoScheduleInputData } from './generation/quries';
+import { getAutoScheduleInputData } from './queries';
 
 export type GenerateAutoScheduleResult =
   | {
@@ -26,7 +26,7 @@ export async function generateAutoSchedule(periodId: string): Promise<GenerateAu
 
   const data = await getAutoScheduleInputData(periodId);
   if (!data.found) return { error: data.message };
-  if (data.schedule?.status === ScheduleStatus.PUBLISHED) {
+  if (data.schedule?.status === ScheduleStatus.ACTIVE) {
     return { error: 'Cannot regenerate a published schedule' };
   }
 
@@ -43,7 +43,7 @@ export async function generateAutoSchedule(periodId: string): Promise<GenerateAu
     },
   });
 
-  if (schedule.status === ScheduleStatus.PUBLISHED) {
+  if (schedule.status === ScheduleStatus.ACTIVE) {
     return { error: 'Cannot regenerate a published schedule' };
   }
 
@@ -64,7 +64,7 @@ export async function generateAutoSchedule(periodId: string): Promise<GenerateAu
       });
 
       if (!currentSchedule) throw new Error('Schedule not found');
-      if (currentSchedule.status === ScheduleStatus.PUBLISHED) {
+      if (currentSchedule.status === ScheduleStatus.ACTIVE) {
         throw new Error('Cannot regenerate a published schedule');
       }
       if (currentSchedule.period.status === PeriodStatus.OPEN_FOR_SUBMISSION) {

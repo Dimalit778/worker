@@ -30,6 +30,11 @@ export async function createAssignment(params: AssignEmployeeToSlotParams): Prom
     scheduleId = schedule.id;
   }
 
+  const duplicate = await prisma.shiftAssignment.findFirst({
+    where: { scheduleId, employeeId, shiftType, date: parseISODateToUtcMidnight(date) },
+  });
+  if (duplicate) throw new Error('העובד כבר משובץ במשמרת זו');
+
   await prisma.shiftAssignment.create({
     data: {
       scheduleId,
@@ -51,6 +56,20 @@ export async function createAssignment(params: AssignEmployeeToSlotParams): Prom
 
 export async function updateAssignment(assignmentId: string, newEmployeeId: string): Promise<void> {
   await requireSession(SystemRole.MANAGER);
+
+  const existing = await prisma.shiftAssignment.findUnique({ where: { id: assignmentId } });
+  if (existing) {
+    const duplicate = await prisma.shiftAssignment.findFirst({
+      where: {
+        scheduleId: existing.scheduleId,
+        employeeId: newEmployeeId,
+        shiftType: existing.shiftType,
+        date: existing.date,
+        NOT: { id: assignmentId },
+      },
+    });
+    if (duplicate) throw new Error('העובד כבר משובץ במשמרת זו');
+  }
 
   await prisma.shiftAssignment.update({
     where: { id: assignmentId },

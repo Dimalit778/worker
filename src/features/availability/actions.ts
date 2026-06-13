@@ -4,7 +4,7 @@ import { revalidatePath } from 'next/cache';
 import { PeriodStatus, ShiftType, SystemRole } from '@/generated/prisma/client';
 import { prisma } from '@/lib/db/client';
 import { requireSession } from '@/lib/db/auth-helpers';
-import { getOpenPeriod } from '../periods/actions';
+import { getPeriodsForManager } from '../periods/actions';
 import { EmployeeAvailabilityForPeriod } from './types';
 
 export async function getScheduleData() {
@@ -48,7 +48,7 @@ export async function submitAvailability(entries: Record<string, boolean>): Prom
   const { courtId, employeeId } = session.user;
   if (!courtId || !employeeId) return { ok: false };
 
-  const period = await getOpenPeriod(courtId);
+  const period = await getPeriodsForManager();
   if (!period) return { ok: false };
 
   const submission = await prisma.availabilitySubmission.upsert({
@@ -80,12 +80,10 @@ export async function submitAvailability(entries: Record<string, boolean>): Prom
     ...(rows.length > 0 ? [prisma.availabilitySlot.createMany({ data: rows })] : []),
   ]);
 
-  revalidatePath('/user/schedule');
+  revalidatePath('/employee');
   return { ok: true };
 }
-export async function getEmployeeAvailability(
-  employeeId: string,
-): Promise<EmployeeAvailabilityForPeriod[]> {
+export async function getEmployeeAvailability(employeeId: string): Promise<EmployeeAvailabilityForPeriod[]> {
   const rows = await prisma.availabilitySubmission.findMany({
     where: { employeeId },
     include: {

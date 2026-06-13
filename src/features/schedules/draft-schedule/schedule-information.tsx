@@ -1,15 +1,13 @@
 import { Card, CardHeader, CardTitle, CardContent } from '@/components/ui/card';
 import type { PeriodSummary } from '@/features/periods/types';
 
-const ScheduleInformation = ({
-  activeCount,
-  totalSubmissions,
-  periods,
-}: {
+type ScheduleInformationProps = {
   activeCount: number;
   totalSubmissions: number;
   periods: PeriodSummary[];
-}) => {
+};
+
+const ScheduleInformation = ({ activeCount, totalSubmissions, periods }: ScheduleInformationProps) => {
   return (
     <div className="grid grid-cols-2 sm:grid-cols-3 gap-4">
       <Card>

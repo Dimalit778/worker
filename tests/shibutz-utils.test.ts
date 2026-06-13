@@ -1,6 +1,7 @@
 import { describe, expect, it } from 'vitest';
 import {
   buildWeekDays,
+  createAssignmentCellKey,
   getDayCategoryForDate,
   getShiftSlotLabel,
   isGuardPositionLabel,
@@ -37,6 +38,18 @@ describe('getDayCategoryForDate', () => {
 
   it('uses HOLIDAY when the caller supplies a holiday date', () => {
     expect(getDayCategoryForDate('2024-03-17', new Set(['2024-03-17']))).toBe('HOLIDAY');
+  });
+});
+
+describe('createAssignmentCellKey', () => {
+  it('builds a stable key from date, shift, and position', () => {
+    expect(
+      createAssignmentCellKey({
+        date: '2026-05-18',
+        shiftType: 'MORNING',
+        positionId: 'position-1',
+      }),
+    ).toBe('2026-05-18-MORNING-position-1');
   });
 });
 

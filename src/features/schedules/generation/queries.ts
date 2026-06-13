@@ -1,8 +1,44 @@
 import { prisma } from '@/lib/db/client';
-import { PeriodStatus } from '@/generated/prisma/client';
-import type { EngineAssignment, EngineCapacity, EngineEmployee, ShiftType } from '@/features/scheduling-engine/types';
-import { AutoScheduleInputData, getPeriodDates, utcDateOnly } from '../queries';
+import { PeriodStatus, ScheduleStatus } from '@/generated/prisma/client';
+import type {
+  EngineAssignment,
+  EngineCapacity,
+  EngineEmployee,
+  EngineInput,
+  ShiftType,
+} from '@/features/scheduling-engine/types';
 import { toDateOnly } from '../utils';
+
+type AutoScheduleEngineInputData = Omit<EngineInput, 'scheduleId'> & {
+  scheduleId: string | null;
+};
+
+export type AutoScheduleInputData =
+  | { found: false; message: string }
+  | {
+      found: true;
+      input: AutoScheduleEngineInputData;
+      schedule: { id: string; status: ScheduleStatus } | null;
+    };
+
+function utcDateOnly(date: Date): Date {
+  return new Date(Date.UTC(date.getUTCFullYear(), date.getUTCMonth(), date.getUTCDate()));
+}
+
+function addUtcDays(date: Date, days: number): Date {
+  const next = utcDateOnly(date);
+  next.setUTCDate(next.getUTCDate() + days);
+  return next;
+}
+
+function getPeriodDates(startDate: Date, endDate: Date): Date[] {
+  const dates: Date[] = [];
+  for (let date = utcDateOnly(startDate); date <= utcDateOnly(endDate); date = addUtcDays(date, 1)) {
+    dates.push(date);
+  }
+  return dates;
+}
+
 function createAvailabilityKey(date: Date, shiftType: ShiftType): string {
   return `${toDateOnly(date)}|${shiftType}`;
 }

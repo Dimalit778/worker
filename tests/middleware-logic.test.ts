@@ -18,8 +18,8 @@ describe('resolveRedirect', () => {
     expect(resolveRedirect('/', null)).toBe('/login');
   });
 
-  it('redirects EMPLOYEE from / to /user', () => {
-    expect(resolveRedirect('/', SystemRole.EMPLOYEE)).toBe('/user');
+  it('redirects EMPLOYEE from / to /employee', () => {
+    expect(resolveRedirect('/', SystemRole.EMPLOYEE)).toBe('/employee');
   });
 
   it('redirects MANAGER from / to /manager', () => {
@@ -30,26 +30,25 @@ describe('resolveRedirect', () => {
     expect(resolveRedirect('/', SystemRole.ADMIN)).toBe('/admin');
   });
 
-  // /user routes
-  it('returns null (no redirect) when EMPLOYEE accesses /user routes', () => {
-    expect(resolveRedirect('/user', SystemRole.EMPLOYEE)).toBeNull();
-    expect(resolveRedirect('/user/availability/abc', SystemRole.EMPLOYEE)).toBeNull();
-    expect(resolveRedirect('/user/schedule/xyz', SystemRole.EMPLOYEE)).toBeNull();
-    expect(resolveRedirect('/user/shibutz', SystemRole.EMPLOYEE)).toBeNull();
+  // /employee routes
+  it('returns null (no redirect) when EMPLOYEE accesses /employee routes', () => {
+    expect(resolveRedirect('/employee', SystemRole.EMPLOYEE)).toBeNull();
+    expect(resolveRedirect('/employee/availability/abc', SystemRole.EMPLOYEE)).toBeNull();
+    expect(resolveRedirect('/employee/submissions/xyz', SystemRole.EMPLOYEE)).toBeNull();
   });
 
-  it('redirects unauthenticated user from /user to /login', () => {
-    expect(resolveRedirect('/user', null)).toBe('/login');
-    expect(resolveRedirect('/user/availability/abc', null)).toBe('/login');
+  it('redirects unauthenticated user from /employee to /login', () => {
+    expect(resolveRedirect('/employee', null)).toBe('/login');
+    expect(resolveRedirect('/employee/availability/abc', null)).toBe('/login');
   });
 
-  it('redirects MANAGER away from /user to /manager', () => {
-    expect(resolveRedirect('/user', SystemRole.MANAGER)).toBe('/manager');
-    expect(resolveRedirect('/user/availability/abc', SystemRole.MANAGER)).toBe('/manager');
+  it('redirects MANAGER away from /employee to /manager', () => {
+    expect(resolveRedirect('/employee', SystemRole.MANAGER)).toBe('/manager');
+    expect(resolveRedirect('/employee/availability/abc', SystemRole.MANAGER)).toBe('/manager');
   });
 
-  it('redirects ADMIN away from /user to /admin', () => {
-    expect(resolveRedirect('/user', SystemRole.ADMIN)).toBe('/admin');
+  it('redirects ADMIN away from /employee to /admin', () => {
+    expect(resolveRedirect('/employee', SystemRole.ADMIN)).toBe('/admin');
   });
 
   // /manager routes
@@ -65,9 +64,9 @@ describe('resolveRedirect', () => {
     expect(resolveRedirect('/manager/periods/new', null)).toBe('/login');
   });
 
-  it('redirects EMPLOYEE away from /manager to /user', () => {
-    expect(resolveRedirect('/manager', SystemRole.EMPLOYEE)).toBe('/user');
-    expect(resolveRedirect('/manager/periods/new', SystemRole.EMPLOYEE)).toBe('/user');
+  it('redirects EMPLOYEE away from /manager to /employee', () => {
+    expect(resolveRedirect('/manager', SystemRole.EMPLOYEE)).toBe('/employee');
+    expect(resolveRedirect('/manager/periods/new', SystemRole.EMPLOYEE)).toBe('/employee');
   });
 
   it('redirects ADMIN away from /manager to /admin', () => {
@@ -88,8 +87,8 @@ describe('resolveRedirect', () => {
     expect(resolveRedirect('/admin/config', null)).toBe('/login');
   });
 
-  it('redirects EMPLOYEE away from /admin to /user', () => {
-    expect(resolveRedirect('/admin', SystemRole.EMPLOYEE)).toBe('/user');
+  it('redirects EMPLOYEE away from /admin to /employee', () => {
+    expect(resolveRedirect('/admin', SystemRole.EMPLOYEE)).toBe('/employee');
   });
 
   it('redirects MANAGER away from /admin to /manager', () => {
@@ -104,7 +103,7 @@ describe('resolveRedirect', () => {
 
   describe('mustChangePassword', () => {
     it('redirects authenticated EMPLOYEE with mustChangePassword to /change-password', () => {
-      expect(resolveRedirect('/user', SystemRole.EMPLOYEE, true)).toBe('/change-password');
+      expect(resolveRedirect('/employee', SystemRole.EMPLOYEE, true)).toBe('/change-password');
     });
 
     it('redirects authenticated MANAGER with mustChangePassword to /change-password', () => {
@@ -120,15 +119,15 @@ describe('resolveRedirect', () => {
     });
 
     it('does not redirect unauthenticated user even when mustChangePassword is true', () => {
-      expect(resolveRedirect('/user', null, true)).toBe('/login');
+      expect(resolveRedirect('/employee', null, true)).toBe('/login');
     });
 
     it('returns null for authenticated user with mustChangePassword false', () => {
-      expect(resolveRedirect('/user', SystemRole.EMPLOYEE, false)).toBeNull();
+      expect(resolveRedirect('/employee', SystemRole.EMPLOYEE, false)).toBeNull();
     });
 
     it('returns null when mustChangePassword omitted (defaults false)', () => {
-      expect(resolveRedirect('/user', SystemRole.EMPLOYEE)).toBeNull();
+      expect(resolveRedirect('/employee', SystemRole.EMPLOYEE)).toBeNull();
     });
   });
 });

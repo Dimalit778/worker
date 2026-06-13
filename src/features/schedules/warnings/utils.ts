@@ -1,5 +1,5 @@
 import type { WarningSeverity } from '@/generated/prisma/client';
-import type { ScheduleWarningSummary } from './types';
+import type { ScheduleWarningSummary } from '../types';
 
 export type EmployeeWarningGroup = {
   employeeName: string;
@@ -37,6 +37,6 @@ export function groupWarningsByEmployee(warnings: ScheduleWarningSummary[]): Emp
   }
 
   // Recompute worstSeverity after all warnings are grouped
-  const groups = Array.from(map.values()).map(g => ({ ...g, worstSeverity: worstOf(g.warnings) }));
+  const groups = Array.from(map.values()).map((g) => ({ ...g, worstSeverity: worstOf(g.warnings) }));
   return groups.sort((a, b) => SEVERITY_RANK[a.worstSeverity] - SEVERITY_RANK[b.worstSeverity]);
 }

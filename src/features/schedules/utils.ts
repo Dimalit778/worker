@@ -1,5 +1,5 @@
 import type { DayCategory, ShiftType } from '@/generated/prisma/client';
-import type { AssignmentCellKey, AssignmentMap, AssignmentSummary, ScheduleCapacityRule, WeekDay } from './types';
+import type { AssignmentCellKey, ScheduleCapacityRule, WeekDay } from './types';
 import { EVENING_SLOT_LABELS, MORNING_SLOT_LABELS, NIGHT_SLOT_LABELS, WEEKDAY_HEADER_LETTERS } from './constants';
 
 export function toDateOnly(date: Date): string {
@@ -73,16 +73,16 @@ export function getCapacityForCell(
 export function getOrderedPositionsForShift(
   rules: ScheduleCapacityRule[],
   shiftType: ShiftType,
-): Array<{ positionId: string; positionName: string; positionCode: number }> {
-  const map = new Map<string, { positionId: string; positionName: string; positionCode: number }>();
+): Array<{ positionId: string; positionName: string; positionCode: number; positionColor: string | null }> {
+  const map = new Map<string, { positionId: string; positionName: string; positionCode: number; positionColor: string | null }>();
   for (const r of rules) {
     if (r.shiftType !== shiftType) continue;
-    const prev = map.get(r.positionId);
-    if (!prev) {
+    if (!map.has(r.positionId)) {
       map.set(r.positionId, {
         positionId: r.positionId,
         positionName: r.displayName,
         positionCode: r.code,
+        positionColor: r.color,
       });
     }
   }

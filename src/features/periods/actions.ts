@@ -1,20 +1,17 @@
 'use server';
 import { prisma } from '@/lib/db/client';
-import { PeriodStatus, Prisma, SchedulePeriod, SystemRole } from '@/generated/prisma/client';
+import { PeriodStatus, Prisma, SystemRole } from '@/generated/prisma/client';
 import { requireSession } from '@/lib/db/auth-helpers';
 import { PeriodSummary } from './types';
 import { parseISODateToUtcMidnight } from './utils';
 import { revalidatePath } from 'next/cache';
 
-// = מוצא תקופה פתוחה
-export async function getOpenPeriod(courtId: string): Promise<SchedulePeriod | null> {
-  return prisma.schedulePeriod.findFirst({ where: { courtId, status: PeriodStatus.OPEN_FOR_SUBMISSION } });
-}
 // = מוצא רשימת תקופות למנהל
-export async function getPeriodsForManager(): Promise<PeriodSummary[]> {
+export async function getPeriodsForManager(activeOnly: boolean = false): Promise<PeriodSummary[]> {
   await requireSession(SystemRole.MANAGER);
 
   const periods = await prisma.schedulePeriod.findMany({
+    where: activeOnly ? { status: PeriodStatus.OPEN_FOR_SUBMISSION } : undefined,
     orderBy: { startDate: 'desc' },
     include: {
       _count: {
@@ -25,7 +22,7 @@ export async function getPeriodsForManager(): Promise<PeriodSummary[]> {
     },
   });
 
-  const totalGuards = await prisma.employee.count({
+  const totalEmployees = await prisma.employee.count({
     where: { isActive: true },
   });
 
@@ -36,8 +33,8 @@ export async function getPeriodsForManager(): Promise<PeriodSummary[]> {
     endDate: p.endDate.toISOString().slice(0, 10),
     submissionDeadline: p.submissionDeadline.toISOString(),
     status: p.status,
-    submittedCount: p._count.availabilitySubmissions,
-    totalGuards,
+    submittedCount: p._count.availabilitySubmissions ?? 0,
+    totalEmployees: totalEmployees ?? 0,
   }));
 }
 // = ליצור תקופה חדשה
@@ -114,7 +111,7 @@ export async function updatePeriodStatus(
 
     revalidatePath('/manager/periods');
     revalidatePath('/manager');
-    revalidatePath('/user/schedule');
+    revalidatePath('/employee');
     return { ok: true };
   } catch {
     return { error: 'שגיאה בעדכון הסטטוס' };

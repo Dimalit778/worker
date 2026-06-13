@@ -23,7 +23,7 @@ export default async function UserSubmissionPeriodPage({ params }: UserSubmissio
   return (
     <div className="space-y-6" dir="rtl">
       <Button asChild variant="ghost" size="sm" className="px-0 text-muted-foreground hover:bg-transparent">
-        <Link href="/user/submissions">
+        <Link href="/employee/submissions">
           <ArrowRight className="size-4" aria-hidden />
           חזרה להגשות
         </Link>

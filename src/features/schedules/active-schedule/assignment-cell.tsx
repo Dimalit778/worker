@@ -5,7 +5,7 @@ import { useRouter } from 'next/navigation';
 import { cn } from '@/lib/utils';
 import { GuardPicker } from './guard-picker';
 import { createAssignment, removeAssignment, updateAssignment } from '@/features/schedules/assignments/actions';
-import { OverflowCandidates } from '@/features/schedules/components/overflow-candidates';
+import { OverflowCandidates } from './overflow-candidates';
 import type { AssignmentSummary, OverflowCandidateSummary, ScheduleEmployeeOption } from '@/features/schedules/types';
 import type { ShiftType } from '@/generated/prisma/client';
 
@@ -13,6 +13,7 @@ type Props = {
   closed?: boolean;
   assignment: AssignmentSummary | null;
   employees: ScheduleEmployeeOption[];
+  assignedEmployeeIds?: Set<string>;
   scheduleId: string | null;
   periodId: string;
   courtId: string;
@@ -22,7 +23,6 @@ type Props = {
   slotIndex: number;
   overflowCandidates?: OverflowCandidateSummary[];
   readonly?: boolean;
-  /** Uniform empty look: no labels, same styling as normal cells; closed slots use muted fill instead of black */
   anonymousRow?: boolean;
 };
 
@@ -30,6 +30,7 @@ export function AssignmentCell({
   closed = false,
   assignment,
   employees,
+  assignedEmployeeIds,
   scheduleId,
   periodId,
   courtId,
@@ -45,20 +46,24 @@ export function AssignmentCell({
   const [open, setOpen] = useState(false);
   const [anchorRect, setAnchorRect] = useState<DOMRect | null>(null);
   const [pending, startTransition] = useTransition();
+  const [error, setError] = useState<string | null>(null);
   const tdRef = useRef<HTMLTableCellElement>(null);
 
   if (closed) {
     if (anonymousRow) {
-      return <td className="border border-border bg-muted/30 min-w-[62px] min-h-[26px] px-1 py-0.5" aria-hidden />;
+      return <td className="border border-border bg-white min-w-[62px] min-h-[26px] px-1 py-0.5" aria-hidden />;
     }
-    return <td className="bg-black" />;
+    return <td className="bg-gray-200" />;
   }
 
   if (readonly) {
     const label = anonymousRow && assignment ? assignment.employeeDisplayName : (assignment?.employeeDisplayName ?? '');
     return (
       <td
-        className="relative border border-border text-center text-xs min-w-[62px] min-h-[26px] px-1 py-0.5"
+        className={cn(
+          'relative border border-border text-center text-xs min-w-[62px] min-h-[26px] px-1 py-0.5',
+          anonymousRow && 'bg-white',
+        )}
         aria-label={anonymousRow && assignment ? assignment.employeeDisplayName : undefined}
       >
         {!anonymousRow && <span className="truncate block max-w-[58px] mx-auto">{label}</span>}
@@ -69,22 +74,27 @@ export function AssignmentCell({
 
   function handleSelect(employeeId: string) {
     setOpen(false);
+    setError(null);
     startTransition(async () => {
-      if (assignment) {
-        await updateAssignment(assignment.id, employeeId);
-      } else {
-        await createAssignment({
-          scheduleId,
-          periodId,
-          employeeId,
-          courtId,
-          positionId,
-          shiftType,
-          date,
-          slotIndex,
-        });
+      try {
+        if (assignment) {
+          await updateAssignment(assignment.id, employeeId);
+        } else {
+          await createAssignment({
+            scheduleId,
+            periodId,
+            employeeId,
+            courtId,
+            positionId,
+            shiftType,
+            date,
+            slotIndex,
+          });
+        }
+        router.refresh();
+      } catch (e) {
+        setError(e instanceof Error ? e.message : 'שגיאה בשיבוץ');
       }
-      router.refresh();
     });
   }
 
@@ -103,7 +113,7 @@ export function AssignmentCell({
       className={cn(
         'relative border border-border text-center text-xs cursor-pointer select-none transition-colors',
         'min-w-[62px] min-h-[26px] px-1 py-0.5',
-        assignment ? 'hover:bg-accent/60' : 'bg-muted/40 hover:bg-accent/30',
+        anonymousRow ? 'bg-white' : assignment ? 'hover:bg-accent/60' : 'bg-muted/40 hover:bg-accent/30',
         pending && 'opacity-50 pointer-events-none',
         open && 'ring-2 ring-primary ring-inset',
       )}
@@ -115,12 +125,18 @@ export function AssignmentCell({
       }}
     >
       <span className="truncate block max-w-[58px] mx-auto">{assignment?.employeeDisplayName ?? ''}</span>
+      {error && (
+        <span className="absolute inset-0 flex items-center justify-center bg-red-50 text-red-600 text-[10px] leading-tight px-0.5 z-10">
+          {error}
+        </span>
+      )}
       <OverflowCandidates candidates={overflowCandidates} />
 
       {open && anchorRect && (
         <GuardPicker
           employees={employees}
           currentUserId={assignment?.employeeId ?? null}
+          disabledEmployeeIds={assignedEmployeeIds}
           anchorRect={anchorRect}
           onSelect={handleSelect}
           onRemove={handleRemove}

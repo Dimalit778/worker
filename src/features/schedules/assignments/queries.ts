@@ -1,22 +1,24 @@
 import { prisma } from '@/lib/db/client';
 import {
   AssignmentMap,
-  FutureScheduleData,
   OverflowCandidateMap,
   ScheduleCapacityRule,
   ScheduleEmployeeOption,
   ScheduleWarningSummary,
+  CurrentScheduleData,
 } from '../types';
-import { buildAssignmentMap, toFutureScheduleData } from './utils';
-import { PeriodStatus } from '@/generated/prisma/client';
-
-export async function getScheduleCapacity(courtId: string): Promise<ScheduleCapacityRule[]> {
+import { buildAssignmentMap, toScheduleData } from './utils';
+import { ScheduleStatus } from '@/generated/prisma/client';
+import { todayUtcDateForTimeZone } from '@/features/periods/utils';
+const SCHEDULE_TIME_ZONE = 'Asia/Jerusalem';
+// Helper functions
+async function getScheduleCapacity(courtId: string): Promise<ScheduleCapacityRule[]> {
   if (!courtId) return [];
 
   const rows = await prisma.staffingRequirement.findMany({
     where: { courtId, isActive: true },
     include: {
-      position: { select: { id: true, name: true, code: true } },
+      position: { select: { id: true, name: true, code: true, color: true } },
     },
     orderBy: [
       { shiftType: 'asc' },
@@ -32,12 +34,13 @@ export async function getScheduleCapacity(courtId: string): Promise<ScheduleCapa
     positionId: r.positionId,
     displayName: r.position.name,
     code: r.position.code,
+    color: r.position.color,
     shiftType: r.shiftType,
     dayCategory: r.dayCategory,
     amount: r.requiredCount,
   }));
 }
-export async function getScheduleEmployees(courtId: string): Promise<ScheduleEmployeeOption[]> {
+async function getScheduleEmployees(courtId: string): Promise<ScheduleEmployeeOption[]> {
   if (!courtId) return [];
 
   const employees = await prisma.employee.findMany({
@@ -60,7 +63,7 @@ export async function getScheduleEmployees(courtId: string): Promise<ScheduleEmp
     },
   }));
 }
-export async function getAssignmentMap(scheduleId: string | null | undefined): Promise<AssignmentMap> {
+async function getAssignmentMap(scheduleId: string | null | undefined): Promise<AssignmentMap> {
   if (!scheduleId) return {};
 
   const rows = await prisma.shiftAssignment.findMany({
@@ -85,43 +88,47 @@ export async function getAssignmentMap(scheduleId: string | null | undefined): P
     })),
   );
 }
-export async function getCurrentSchedule(
-  courtId: string,
-  options: { includeEmployees?: boolean } = {},
-): Promise<FutureScheduleData> {
-  const { includeEmployees = false } = options;
+// Queries
+export async function getActiveSchedule(courtId: string): Promise<CurrentScheduleData | null> {
+  const scheduleRow = await prisma.schedule.findFirst({
+    where: {
+      status: ScheduleStatus.ACTIVE,
+      period: { courtId },
+    },
+    select: {
+      id: true,
+      status: true,
+      period: {
+        select: { id: true, name: true, startDate: true, endDate: true },
+      },
+    },
+    orderBy: { period: { startDate: 'desc' } },
+  });
 
+  if (!scheduleRow) return null;
+  const today = todayUtcDateForTimeZone(SCHEDULE_TIME_ZONE);
+  if (scheduleRow.period.endDate < today) {
+    await prisma.schedule.update({
+      where: { id: scheduleRow.id },
+      data: { status: ScheduleStatus.ARCHIVED },
+    });
+    return null;
+  }
+
+  const [assignments, capacity, employees] = await Promise.all([
+    getAssignmentMap(scheduleRow.id),
+    getScheduleCapacity(courtId),
+    getScheduleEmployees(courtId),
+  ]);
+
+  return toScheduleData(scheduleRow.period, scheduleRow, courtId, employees, capacity, assignments, [], {});
+}
+
+export async function getDraftScheduleData(courtId: string): Promise<CurrentScheduleData | null> {
   const periodRow = await prisma.schedulePeriod.findFirst({
     where: {
       courtId,
-      status: PeriodStatus.LOCKED,
-    },
-    orderBy: { startDate: 'desc' },
-  });
-
-  if (!periodRow) {
-    return { found: false, message: 'אין תקופת תזמון פתוחה להגשת זמינות.' };
-  }
-
-  const scheduleRow = await prisma.schedule.findUnique({
-    where: { periodId: periodRow.id },
-    select: { id: true, status: true },
-  });
-
-  const [assignments, capacity, employees, warnings] = await Promise.all([
-    getAssignmentMap(scheduleRow?.id),
-    getScheduleCapacity(courtId),
-    includeEmployees ? getScheduleEmployees(courtId) : Promise.resolve([] as ScheduleEmployeeOption[]),
-    getScheduleWarnings(scheduleRow?.id),
-  ]);
-
-  return toFutureScheduleData(periodRow, scheduleRow, courtId, employees, capacity, assignments, warnings, {});
-}
-export async function getFutureScheduleData(courtId: string): Promise<FutureScheduleData> {
-  const data = await prisma.schedulePeriod.findFirst({
-    where: {
-      courtId,
-      status: { in: [PeriodStatus.OPEN_FOR_SUBMISSION, PeriodStatus.LOCKED] },
+      status: { not: ScheduleStatus.ARCHIVED },
     },
     include: {
       schedule: {
@@ -130,19 +137,17 @@ export async function getFutureScheduleData(courtId: string): Promise<FutureSche
     },
     orderBy: { startDate: 'desc' },
   });
-  if (!data) {
-    return { found: false, message: 'לא נמצאה תקופה פתוחה להגשות או נעולה לשיבוץ.' };
-  }
+  if (!periodRow) return null;
 
   const [assignments, employees, capacity, warnings, overflowCandidates, submittedSubmissions] = await Promise.all([
-    getAssignmentMap(data.schedule?.id),
+    getAssignmentMap(periodRow.schedule?.id),
     getScheduleEmployees(courtId),
     getScheduleCapacity(courtId),
-    getScheduleWarnings(data.schedule?.id),
+    getScheduleWarnings(periodRow.schedule?.id),
     Promise.resolve({} as OverflowCandidateMap),
     prisma.availabilitySubmission.findMany({
       where: {
-        periodId: data.id,
+        periodId: periodRow.id,
         isSubmitted: true,
         employee: { courtId, isActive: true },
       },
@@ -158,9 +163,9 @@ export async function getFutureScheduleData(courtId: string): Promise<FutureSche
       positionName: employee.position?.name ?? null,
     }));
 
-  const base = toFutureScheduleData(
-    data,
-    data.schedule,
+  const base = toScheduleData(
+    periodRow,
+    periodRow.schedule,
     courtId,
     employees,
     capacity,
@@ -168,8 +173,8 @@ export async function getFutureScheduleData(courtId: string): Promise<FutureSche
     warnings,
     overflowCandidates,
   );
-  if (!base.found) {
-    return base;
+  if (!base) {
+    return null;
   }
 
   return {

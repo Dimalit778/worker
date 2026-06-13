@@ -1,52 +1,40 @@
 import { requireSession } from '@/lib/db/auth-helpers';
 import { SystemRole } from '@/generated/prisma/client';
-import { Schedule } from '@/features/schedules/assignments/components/schedule';
-import { getCurrentSchedule } from '@/features/schedules/assignments/quries';
-import { Card, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 
-export default async function ManagerSchedulePage() {
+import { getActiveSchedule } from '@/features/schedules/assignments/queries';
+import { ScheduleView } from '@/features/schedules/active-schedule/schedule-view';
+
+export default async function ManagerActiveSchedulePage() {
   const session = await requireSession(SystemRole.MANAGER);
-  const courtId = session.user.courtId ?? '';
 
-  const data = await getCurrentSchedule(courtId);
+  if (!session.user.courtId) {
+    return <div dir="rtl">המשתמש לא משויך לבית משפט.</div>;
+  }
 
-  if (!data.found) {
+  const data = await getActiveSchedule(session.user.courtId);
+
+  if (!data) {
     return (
-      <div className="space-y-4" dir="rtl">
-        <Card size="sm" className="border-dashed">
-          <CardHeader>
-            <CardTitle className="text-lg">שיבוץ</CardTitle>
-            <CardDescription className="text-base">{data.message}</CardDescription>
-          </CardHeader>
-        </Card>
+      <div className="flex flex-col items-center justify-center h-full" dir="rtl">
+        <h1 className="text-2xl font-bold">אין שיבוץ פעיל</h1>
       </div>
     );
   }
 
   return (
-    <div className="space-y-6" dir="rtl">
-      <header className="space-y-1 border-b border-border/50 pb-4">
-        <h1 className="font-heading text-xl font-semibold tracking-tight">שיבוץ</h1>
-        <p className="text-sm text-muted-foreground">
-          <span className="font-medium text-foreground/90">{data.periodName}</span>
-          {' · '}
-          {data.startDate} – {data.endDate}
-        </p>
-      </header>
-
-      <Schedule
-        periodId={data.periodId}
-        periodName={data.periodName}
-        startDate={data.startDate}
-        endDate={data.endDate}
-        scheduleId={data.scheduleId}
-        scheduleStatus={data.scheduleStatus}
-        assignments={data.assignments}
-        employees={data.employees}
-        capacity={data.capacity}
-        courtId={data.courtId}
-        readonly={false}
-      />
-    </div>
+    <ScheduleView
+      periodId={data.periodId}
+      periodName={data.periodName}
+      startDate={data.startDate}
+      endDate={data.endDate}
+      scheduleId={data.scheduleId}
+      scheduleStatus={data.scheduleStatus}
+      assignments={data.assignments}
+      employees={data.employees}
+      capacity={data.capacity}
+      courtId={data.courtId}
+      overflowCandidates={data.overflowCandidates}
+      readonly={false}
+    />
   );
 }

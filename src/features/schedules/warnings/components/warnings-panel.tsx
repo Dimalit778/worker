@@ -3,11 +3,16 @@
 import { AlertTriangle, Info } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { SHIFT_LABELS } from '@/features/schedules/constants';
-import type { EmployeeWarningGroup } from '@/features/schedules/warnings-utils';
+import type { ScheduleWarningSummary } from '@/features/schedules/types';
 import type { WarningSeverity, WarningType } from '@/generated/prisma/client';
+import { groupWarningsByEmployee, type EmployeeWarningGroup } from '../utils';
 
-type Props = {
+type EmployeeWarningsPanelProps = {
   groups: EmployeeWarningGroup[];
+};
+
+type WarningsPanelProps = {
+  warnings: ScheduleWarningSummary[];
 };
 
 const WARNING_TYPE_LABELS: Record<WarningType, string> = {
@@ -56,7 +61,7 @@ function SeverityIcon({ severity, className }: { severity: WarningSeverity; clas
   return <AlertTriangle className={cn('h-3.5 w-3.5', className)} />;
 }
 
-export function EmployeeWarningsPanel({ groups }: Props) {
+export function EmployeeWarningsPanel({ groups }: EmployeeWarningsPanelProps) {
   if (groups.length === 0) return null;
 
   return (
@@ -67,10 +72,7 @@ export function EmployeeWarningsPanel({ groups }: Props) {
         const label = count === 1 ? `1 ${SEVERITY_LABELS[group.worstSeverity]}` : `${count} בעיות`;
 
         return (
-          <div
-            key={group.employeeName}
-            className={cn('rounded-xl border overflow-hidden', s.wrap)}
-          >
+          <div key={group.employeeName} className={cn('rounded-xl border overflow-hidden', s.wrap)}>
             <div className={cn('flex items-center justify-between px-4 py-2.5', s.header)}>
               <span className="font-semibold text-sm">
                 {group.employeeName}
@@ -90,15 +92,14 @@ export function EmployeeWarningsPanel({ groups }: Props) {
             </div>
             <div className="border-t border-black/5 px-4 py-2 flex flex-col gap-1">
               {group.warnings.map((w) => {
-                const context = [
-                  w.date ? formatDate(w.date) : null,
-                  w.shiftType ? SHIFT_LABELS[w.shiftType] : null,
-                ]
+                const context = [w.date ? formatDate(w.date) : null, w.shiftType ? SHIFT_LABELS[w.shiftType] : null]
                   .filter(Boolean)
                   .join(' · ');
                 return (
                   <p key={w.id} className="text-xs text-foreground/75 flex gap-1.5 items-baseline">
-                    <span className={cn('text-base leading-none', s.bullet)} aria-hidden>·</span>
+                    <span className={cn('text-base leading-none', s.bullet)} aria-hidden>
+                      ·
+                    </span>
                     <span>
                       {WARNING_TYPE_LABELS[w.type]}
                       {context && <span className="text-muted-foreground mr-1">— {context}</span>}
@@ -112,4 +113,8 @@ export function EmployeeWarningsPanel({ groups }: Props) {
       })}
     </div>
   );
+}
+
+export function WarningsPanel({ warnings }: WarningsPanelProps) {
+  return <EmployeeWarningsPanel groups={groupWarningsByEmployee(warnings)} />;
 }

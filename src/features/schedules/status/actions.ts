@@ -1,10 +1,8 @@
 'use server';
 import { prisma } from '@/lib/db/client';
-import { ScheduleStatus, SystemRole, WarningSeverity } from '@/generated/prisma/client';
+import { ScheduleChangeType, ScheduleStatus, SystemRole, WarningSeverity } from '@/generated/prisma/client';
 import { requireSession } from '@/lib/db/auth-helpers';
-import { parseISODateToUtcMidnight } from '@/features/periods/utils';
 import { revalidatePath } from 'next/cache';
-import type { AssignEmployeeToSlotParams } from './types';
 
 async function getOpenErrorWarningsMessage(scheduleId: string): Promise<string | null> {
   const errorCount = await prisma.scheduleWarning.count({
@@ -18,7 +16,7 @@ async function getOpenErrorWarningsMessage(scheduleId: string): Promise<string |
   return `לא ניתן לאשר או לפרסם שיבוץ עם ${errorCount} שגיאות פתוחות`;
 }
 
-// = לסיים עריכת שיבוץ
+// = לסיים עריכת שיבוץ (בדיקת שגיאות בלבד — אין עוד סטטוס ביניים אחרי DRAFT)
 export async function finalizeSchedule(scheduleId: string): Promise<{ ok: true } | { error: string }> {
   await requireSession(SystemRole.MANAGER);
 
@@ -26,10 +24,6 @@ export async function finalizeSchedule(scheduleId: string): Promise<{ ok: true }
     const errorMessage = await getOpenErrorWarningsMessage(scheduleId);
     if (errorMessage) return { error: errorMessage };
 
-    await prisma.schedule.update({
-      where: { id: scheduleId },
-      data: { status: ScheduleStatus.FINALIZED },
-    });
     revalidatePath('/manager/draft');
     return { ok: true };
   } catch {
@@ -38,18 +32,41 @@ export async function finalizeSchedule(scheduleId: string): Promise<{ ok: true }
 }
 // = לפרסם שיבוץ
 export async function publishSchedule(scheduleId: string): Promise<{ ok: true } | { error: string }> {
-  await requireSession(SystemRole.MANAGER);
+  const session = await requireSession(SystemRole.MANAGER);
 
   try {
     const errorMessage = await getOpenErrorWarningsMessage(scheduleId);
     if (errorMessage) return { error: errorMessage };
 
-    await prisma.schedule.update({
-      where: { id: scheduleId },
-      data: { status: ScheduleStatus.PUBLISHED, publishedAt: new Date() },
+    const assignments = await prisma.shiftAssignment.findMany({
+      where: { scheduleId },
+      select: {
+        employeeId: true,
+        positionId: true,
+        courtId: true,
+        date: true,
+        shiftType: true,
+        slotIndex: true,
+      },
     });
+
+    await prisma.$transaction([
+      prisma.schedule.update({
+        where: { id: scheduleId },
+        data: { status: ScheduleStatus.ACTIVE, publishedAt: new Date() },
+      }),
+      prisma.scheduleChangeLog.create({
+        data: {
+          scheduleId,
+          changedById: session.user.id,
+          changeType: ScheduleChangeType.PUBLISH,
+          beforeData: assignments,
+        },
+      }),
+    ]);
+
     revalidatePath('/manager/draft');
-    revalidatePath('/user/schedule');
+    revalidatePath('/employee');
     return { ok: true };
   } catch {
     return { error: 'שגיאה בפרסום השיבוץ' };

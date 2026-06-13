@@ -5,10 +5,11 @@ import {
   ScheduleEmployeeOption,
   ScheduleCapacityRule,
   ScheduleWarningSummary,
-  FutureScheduleData,
+  CurrentScheduleData,
   OverflowCandidateMap,
 } from '../types';
 import { toDateOnly } from '../utils';
+
 export function getAssignmentCellKey(params: {
   date: Date;
   shiftType: ShiftType;
@@ -52,7 +53,7 @@ export function buildAssignmentMap(
   }
   return map;
 }
-export function toFutureScheduleData(
+export function toScheduleData(
   periodRow: {
     id: string;
     name: string;
@@ -66,9 +67,8 @@ export function toFutureScheduleData(
   assignments: AssignmentMap,
   warnings: ScheduleWarningSummary[],
   overflowCandidates: OverflowCandidateMap,
-): FutureScheduleData {
+): CurrentScheduleData {
   return {
-    found: true,
     periodId: periodRow.id,
     periodName: periodRow.name,
     startDate: periodRow.startDate.toISOString().slice(0, 10),

@@ -4,10 +4,10 @@ import { useState, useTransition } from 'react';
 import { useRouter } from 'next/navigation';
 import { CheckCheck, Send, Sparkles } from 'lucide-react';
 import { Button } from '@/components/ui/button';
-import { finalizeSchedule, publishSchedule } from '@/features/schedules/actions';
-import { generateAutoSchedule } from '@/features/schedules/generate-action';
+import { generateAutoSchedule } from '@/features/schedules/generation/actions';
+import { finalizeSchedule, publishSchedule } from '@/features/schedules/status/actions';
 import type { ScheduleStatus } from '@/generated/prisma/client';
-import { STATUS_COLORS, STATUS_LABELS } from '../constants';
+import { STATUS_COLORS, STATUS_LABELS } from '../../constants';
 
 type Props = {
   periodId: string;
@@ -55,6 +55,7 @@ export function DraftActions({ periodId, scheduleId, scheduleStatus }: Props) {
           setError(res.error);
           return;
         }
+        setMessage('אין שגיאות חוסמות — ניתן לפרסם');
         router.refresh();
       } finally {
         setPendingAction(null);
@@ -81,7 +82,8 @@ export function DraftActions({ periodId, scheduleId, scheduleStatus }: Props) {
     });
   }
 
-  const isPublished = scheduleStatus === 'PUBLISHED';
+  // Compare string literals — do not import Prisma enum values here (client bundle cannot load @/generated/prisma runtime).
+  const isPublished = scheduleStatus === 'ACTIVE';
   const isDraft = scheduleStatus === 'DRAFT' || scheduleStatus === null;
 
   return (

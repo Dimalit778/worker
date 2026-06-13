@@ -48,6 +48,7 @@ export async function getPositions(courtId: string) {
       id: true,
       name: true,
       code: true,
+      color: true,
     },
     orderBy: [{ code: 'asc' }, { createdAt: 'asc' }],
   });

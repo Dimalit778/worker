@@ -60,12 +60,12 @@ export const SHIFT_STYLES: Record<ShiftType, { header: string; label: string; em
 
 export const STATUS_LABELS: Record<ScheduleStatus, string> = {
   DRAFT: 'טיוטה',
-  FINALIZED: 'סוכם',
-  PUBLISHED: 'פורסם',
+  ACTIVE: 'פורסם',
+  ARCHIVED: 'בארכיון',
 };
 
 export const STATUS_COLORS: Record<ScheduleStatus, string> = {
   DRAFT: 'bg-yellow-100 text-yellow-800 border-yellow-200',
-  FINALIZED: 'bg-blue-100 text-blue-800 border-blue-200',
-  PUBLISHED: 'bg-green-100 text-green-800 border-green-200',
+  ACTIVE: 'bg-green-100 text-green-800 border-green-200',
+  ARCHIVED: 'bg-neutral-100 text-neutral-700 border-neutral-200',
 };

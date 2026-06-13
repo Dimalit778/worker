@@ -46,8 +46,8 @@ enum PeriodStatus {
 
 enum ScheduleStatus {
   DRAFT
-  FINALIZED
-  PUBLISHED
+  ACTIVE
+  ARCHIVED
 }
 
 enum WarningType {
@@ -220,6 +220,8 @@ model Position {
   staffingRequirements StaffingRequirement[]
   shiftAssignments ShiftAssignment[]
   warnings         ScheduleWarning[]
+
+  color     String?
 
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt

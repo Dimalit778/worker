@@ -31,9 +31,9 @@ export default async function UserLayout({ children }: { children: React.ReactNo
   ]);
 
   const navItems = [
-    { href: '/user', label: 'שיבוץ', notify: false },
-    { href: '/user/availability', label: 'הגש שיבוץ', notify: false },
-    { href: '/user/submissions', label: 'ההגשות שלי', notify: hasOpenPeriod },
+    { href: '/employee', label: 'שיבוץ', notify: false },
+    { href: '/employee/availability', label: 'הגש שיבוץ', notify: false },
+    { href: '/employee/submissions', label: 'ההגשות שלי', notify: hasOpenPeriod },
   ];
 
   return (

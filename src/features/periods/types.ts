@@ -8,7 +8,7 @@ export type PeriodSummary = {
   submissionDeadline: string;
   status: PeriodStatus;
   submittedCount: number;
-  totalGuards: number;
+  totalEmployees: number;
 };
 
 export type PeriodType = 'weekly' | 'biweekly';

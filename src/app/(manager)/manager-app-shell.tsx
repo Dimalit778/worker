@@ -103,7 +103,7 @@ export function ManagerAppShell({ fullName, courtName, navItems, children }: Man
 
   return (
     <div className="h-screen flex bg-background">
-      <aside className="hidden md:flex w-56 border-e bg-card flex-col shrink-0">
+      <aside className="hidden md:flex w-40 border-e bg-card flex-col shrink-0">
         <SidebarContent fullName={fullName} courtName={courtName} navItems={navItems} />
       </aside>
 

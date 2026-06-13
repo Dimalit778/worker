@@ -4,25 +4,37 @@ import { useState, useRef, useEffect } from 'react';
 import { createPortal } from 'react-dom';
 import { X } from 'lucide-react';
 import { cn } from '@/lib/utils';
-import type { ScheduleEmployeeOption } from '../../types';
+import type { ScheduleEmployeeOption } from '../types';
 import { Input } from '@/components/ui/input';
 import { Button } from '@/components/ui/button';
 
 type Props = {
   employees: ScheduleEmployeeOption[];
   currentUserId: string | null;
+  disabledEmployeeIds?: Set<string>;
   anchorRect: DOMRect;
   onSelect: (employeeId: string) => void;
   onRemove: () => void;
   onClose: () => void;
 };
 
-export function GuardPicker({ employees, currentUserId, anchorRect, onSelect, onRemove, onClose }: Props) {
+export function GuardPicker({
+  employees,
+  currentUserId,
+  disabledEmployeeIds,
+  anchorRect,
+  onSelect,
+  onRemove,
+  onClose,
+}: Props) {
   const [query, setQuery] = useState('');
   const inputRef = useRef<HTMLInputElement>(null);
   const panelRef = useRef<HTMLDivElement>(null);
 
-  const filtered = query.trim() ? employees.filter((e) => e.displayName.includes(query.trim())) : employees;
+  const available = disabledEmployeeIds
+    ? employees.filter((e) => e.id === currentUserId || !disabledEmployeeIds.has(e.id))
+    : employees;
+  const filtered = query.trim() ? available.filter((e) => e.displayName.includes(query.trim())) : available;
 
   useEffect(() => {
     inputRef.current?.focus();
