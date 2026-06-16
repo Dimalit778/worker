@@ -1,7 +1,6 @@
 import { requireSession } from '@/lib/db/auth-helpers';
 import { ScheduleStatus, SystemRole } from '@/generated/prisma/client';
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
-import { getPeriodsForManager } from '@/features/periods/actions';
+import { Card, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { getDraftScheduleData } from '@/features/schedules/assignments/queries';
 import { TopBar } from '@/features/schedules/draft-schedule/topbar';
 import { ScheduleStats } from '@/features/schedules/draft-schedule/schedule-stats';

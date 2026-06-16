@@ -9,7 +9,6 @@ import type { ScheduleViewProps } from '../types';
 
 export function ScheduleView(props: ScheduleViewProps) {
   const {
-    scheduleName,
     startDate,
     scheduleId,
     assignments,

@@ -1,9 +1,8 @@
 'use client';
 
 import { useRouter } from 'next/navigation';
-import { useRef, useState, useTransition } from 'react';
+import { useEffect, useRef, useState, useTransition } from 'react';
 import { createPosition, movePositionDown, movePositionUp, updatePositionColor } from '../actions';
-import { Label } from '@/components/ui/label';
 import { Input } from '@/components/ui/input';
 import { Button } from '@/components/ui/button';
 import { cn } from '@/lib/utils';
@@ -22,13 +21,13 @@ function ColorPicker({
   const ref = useRef<HTMLDivElement>(null);
 
   // סגירה בלחיצה מחוץ
-  useState(() => {
+  useEffect(() => {
     function handleClick(e: MouseEvent) {
       if (ref.current && !ref.current.contains(e.target as Node)) setOpen(false);
     }
     document.addEventListener('mousedown', handleClick);
     return () => document.removeEventListener('mousedown', handleClick);
-  });
+  }, []);
 
   return (
     <div ref={ref} className="relative inline-block">

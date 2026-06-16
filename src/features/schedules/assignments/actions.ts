@@ -8,7 +8,7 @@ import { revalidatePath } from 'next/cache';
 import type { AssignEmployeeToSlotParams } from '../types';
 
 export async function createAssignment(params: AssignEmployeeToSlotParams): Promise<{ scheduleId: string }> {
-  const session = await requireSession(SystemRole.MANAGER);
+  await requireSession(SystemRole.MANAGER);
 
   const { scheduleId, employeeId, courtId, positionId, shiftType, date, slotIndex } = params;
 

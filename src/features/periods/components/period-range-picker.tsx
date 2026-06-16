@@ -1,6 +1,6 @@
 'use client';
 
-import { useEffect, useMemo, useState } from 'react';
+import { useMemo, useState } from 'react';
 import { cn } from '@/lib/utils';
 import { DAY_NAMES, DAY_NAMES_FULL } from '../constants';
 import { buildMonthGrid, deriveFields } from '../utils';
@@ -25,11 +25,13 @@ export function PeriodRangePicker({ periodDays, startDate, onPickStart }: Props)
 
   const [viewY, setViewY] = useState(parsedStart.y);
   const [viewM, setViewM] = useState(parsedStart.m);
+  const [prevStartDate, setPrevStartDate] = useState(startDate);
 
-  useEffect(() => {
+  if (startDate !== prevStartDate) {
+    setPrevStartDate(startDate);
     setViewY(parsedStart.y);
     setViewM(parsedStart.m);
-  }, [parsedStart.y, parsedStart.m]);
+  }
 
   const weeks = useMemo(() => buildMonthGrid(viewY, viewM), [viewY, viewM]);
   const rangeEnd = deriveFields(startDate, periodDays).end;

@@ -26,6 +26,8 @@ export function EmployeesDataTable<TData, TValue>({ columns, data }: EmployeesDa
   const [sorting, setSorting] = React.useState<SortingState>([]);
   const [columnFilters, setColumnFilters] = React.useState<ColumnFiltersState>([]);
 
+  // TanStack Table returns unstable refs; React Compiler skips memoizing this hook by design.
+  // eslint-disable-next-line react-hooks/incompatible-library -- known limitation of @tanstack/react-table
   const table = useReactTable({
     data,
     columns,

@@ -1,12 +1,5 @@
 import type { Prisma } from '@/generated/prisma/client';
 import { prisma } from '@/lib/db/client';
-import type {
-  CapacityMap,
-  CourtShiftRoleRow,
-  CourtShiftRoleWithRules,
-  CourtStaffRuleRow,
-  FullCapacityRules,
-} from './types';
 
 /** Positions listed for managers (ordering UI, capacity rules). Excludes the synthetic manager role row. */
 export function managerCourtPositionsWhere(courtId: string): Prisma.PositionWhereInput {

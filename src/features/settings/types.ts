@@ -1,4 +1,4 @@
-import type { DayCategory, Position, ScheduleStatus, ShiftType } from '@/generated/prisma/client';
+import type { DayCategory, ShiftType } from '@/generated/prisma/client';
 
 export type { ShiftType };
 

@@ -14,7 +14,6 @@ import {
   DialogTrigger,
   DialogContent,
   DialogTitle,
-  DialogDescription,
   Input,
 } from '@/components/ui';
 import { upcomingSundayISO, suggestName, deriveFields } from '../utils';
