@@ -1,22 +1,13 @@
 import { resolve } from 'node:path';
 import { config } from 'dotenv';
 import { PrismaNeon } from '@prisma/adapter-neon';
-import bcrypt from 'bcryptjs';
 import {
   PrismaClient,
   DayCategory,
-  PeriodStatus,
   ScheduleStatus,
   ShiftType,
   SystemRole,
 } from '../src/generated/prisma/client';
-import {
-  BAT_YAM_DEMO_PERIOD,
-  BAT_YAM_DEMO_USERS,
-  BAT_YAM_COURT_CODE,
-  BAT_YAM_POSITION_NAME,
-  type BatYamPositionKey,
-} from './users-data';
 
 config({ path: resolve(process.cwd(), '.env.local') });
 config({ path: resolve(process.cwd(), '.env') });
@@ -30,6 +21,15 @@ const prisma = new PrismaClient({
   adapter: new PrismaNeon({ connectionString }),
 });
 
+const COURT_CODE = 'BAT_YAM';
+
+const DEMO_PERIOD = {
+  name: 'אפריל 2026 - שיבוץ דמו',
+  startDate: '2026-04-26',
+  endDate: '2026-05-09',
+  submissionDeadline: '2026-04-25T20:00:00.000Z',
+};
+
 const SHIFT_TYPES = [ShiftType.MORNING, ShiftType.EVENING, ShiftType.NIGHT] as const;
 const DAY_CATEGORIES = [
   DayCategory.WEEKDAY,
@@ -38,7 +38,8 @@ const DAY_CATEGORIES = [
   DayCategory.HOLIDAY,
 ] as const;
 
-const DEMO_MANAGER_EMAIL = 'dimalit@gmail.com';
+/** תקנים עם כוח אדם נדרש — אחמ״ש, בקר, מאבטח */
+const STAFFED_POSITION_CODES = [2, 3, 4] as const;
 
 function parseDateOnly(iso: string): Date {
   return new Date(`${iso}T00:00:00.000Z`);
@@ -58,161 +59,64 @@ function eachDateInclusive(startISO: string, endISO: string): string[] {
 
 function dayCategoryForDate(iso: string): DayCategory {
   const [y, m, d] = iso.split('-').map(Number);
-  const day = new Date(Date.UTC(y, m - 1, d)).getUTCDay();
+  const day = new Date(Date.UTC(y!, m! - 1, d!)).getUTCDay();
   if (day === 5) return DayCategory.FRIDAY;
   if (day === 6) return DayCategory.SATURDAY;
   return DayCategory.WEEKDAY;
 }
 
-async function ensurePositions(courtId: string) {
-  const order: Array<{ key: BatYamPositionKey; displayOrder: number }> = [
-    { key: 'SHIFT_MANAGER', displayOrder: 1 },
-    { key: 'BAKAR', displayOrder: 2 },
-    { key: 'GUARD', displayOrder: 3 },
-  ];
+async function getStaffedPositions(courtId: string) {
+  const positions = await prisma.position.findMany({
+    where: {
+      courtId,
+      isActive: true,
+      code: { in: [...STAFFED_POSITION_CODES] },
+    },
+    select: { id: true, code: true, name: true },
+    orderBy: { code: 'asc' },
+  });
 
-  const byKey = new Map<BatYamPositionKey, { id: string; name: string }>();
-
-  for (const { key, displayOrder } of order) {
-    const name = BAT_YAM_POSITION_NAME[key];
-    const row = await prisma.position.upsert({
-      where: { courtId_name: { courtId, name } },
-      create: { courtId, name, isActive: true, displayOrder },
-      update: { isActive: true, displayOrder },
-      select: { id: true, name: true },
-    });
-    byKey.set(key, { id: row.id, name: row.name });
+  if (positions.length !== STAFFED_POSITION_CODES.length) {
+    throw new Error(
+      `Expected positions ${STAFFED_POSITION_CODES.join(', ')} for court ${courtId}. Run prisma/seed.ts first.`,
+    );
   }
 
-  return byKey;
+  return positions;
 }
 
-async function ensureShiftCapacities(
-  courtId: string,
-  byKey: Map<BatYamPositionKey, { id: string; name: string }>,
-) {
-  const keys: BatYamPositionKey[] = ['SHIFT_MANAGER', 'BAKAR', 'GUARD'];
+async function ensureShiftCapacities(courtId: string, positions: Array<{ id: string; code: number }>) {
   let display = 0;
 
-  for (const st of SHIFT_TYPES) {
-    for (const dc of DAY_CATEGORIES) {
-      for (const pk of keys) {
-        const pos = byKey.get(pk)!;
+  for (const shiftType of SHIFT_TYPES) {
+    for (const dayCategory of DAY_CATEGORIES) {
+      for (const position of positions) {
         display += 1;
+        const requiredCount = position.code === 4 ? 2 : 1;
+
         await prisma.staffingRequirement.upsert({
           where: {
             courtId_positionId_shiftType_dayCategory: {
               courtId,
-              positionId: pos.id,
-              shiftType: st,
-              dayCategory: dc,
+              positionId: position.id,
+              shiftType,
+              dayCategory,
             },
           },
           create: {
             courtId,
-            positionId: pos.id,
-            shiftType: st,
-            dayCategory: dc,
-            requiredCount: 1,
+            positionId: position.id,
+            shiftType,
+            dayCategory,
+            requiredCount,
             isActive: true,
             displayOrder: display,
           },
-          update: { requiredCount: 1, isActive: true, displayOrder: display },
+          update: { requiredCount, isActive: true, displayOrder: display },
         });
       }
     }
   }
-}
-
-async function seedDemoUsers(
-  courtId: string,
-  byKey: Map<BatYamPositionKey, { id: string; name: string }>,
-) {
-  for (const u of BAT_YAM_DEMO_USERS) {
-    const pos = byKey.get(u.position);
-    if (!pos) {
-      throw new Error(`Unknown position key: ${u.position}`);
-    }
-
-    const existing = await prisma.user.findUnique({
-      where: { email: u.email },
-      select: { id: true, employeeId: true },
-    });
-
-    if (existing?.employeeId) {
-      await prisma.employee.update({
-        where: { id: existing.employeeId },
-        data: {
-          firstName: u.firstName,
-          lastName: u.lastName,
-          phone: u.phone,
-          positionId: pos.id,
-          courtId,
-          isActive: true,
-        },
-      });
-      const passwordHash = await bcrypt.hash(u.password, 10);
-      await prisma.user.update({
-        where: { id: existing.id },
-        data: { passwordHash },
-      });
-      continue;
-    }
-
-    if (existing && !existing.employeeId) {
-      const employee = await prisma.employee.create({
-        data: {
-          firstName: u.firstName,
-          lastName: u.lastName,
-          phone: u.phone,
-          positionId: pos.id,
-          courtId,
-          isActive: true,
-        },
-      });
-      const passwordHash = await bcrypt.hash(u.password, 10);
-      await prisma.user.update({
-        where: { id: existing.id },
-        data: { employeeId: employee.id, passwordHash },
-      });
-      continue;
-    }
-
-    const employee = await prisma.employee.create({
-      data: {
-        firstName: u.firstName,
-        lastName: u.lastName,
-        phone: u.phone,
-        positionId: pos.id,
-        courtId,
-        isActive: true,
-      },
-    });
-    const passwordHash = await bcrypt.hash(u.password, 10);
-    await prisma.user.create({
-      data: {
-        email: u.email,
-        passwordHash,
-        systemRole: SystemRole.EMPLOYEE,
-        employeeId: employee.id,
-      },
-    });
-  }
-}
-
-/** So `/manager/schedule` can open — requires `SystemRole.MANAGER` + court on session. */
-async function ensureDemoManagerForBatYam() {
-  const u = await prisma.user.findUnique({
-    where: { email: DEMO_MANAGER_EMAIL },
-    include: { employee: { include: { court: true } } },
-  });
-  if (!u?.employeeId || u.employee?.court?.code !== BAT_YAM_COURT_CODE) {
-    throw new Error(`Expected user ${DEMO_MANAGER_EMAIL} with Bat Yam employee for manager promotion`);
-  }
-  await prisma.user.update({
-    where: { id: u.id },
-    data: { systemRole: SystemRole.MANAGER },
-  });
 }
 
 function pickEmployeeForSlot(params: {
@@ -232,66 +136,63 @@ function pickEmployeeForSlot(params: {
   return all[rotation % all.length]!;
 }
 
+async function deleteExistingSchedules(courtId: string, startDate: Date, endDate: Date) {
+  const existingSameRange = await prisma.schedule.findFirst({
+    where: { courtId, startDate, endDate },
+    select: { id: true },
+  });
+
+  if (existingSameRange) {
+    await prisma.schedule.delete({ where: { id: existingSameRange.id } });
+  }
+
+  await prisma.schedule.deleteMany({
+    where: {
+      courtId,
+      status: ScheduleStatus.OPEN_FOR_SUBMISSION,
+    },
+  });
+}
+
 export async function seedBatYamFullSchedule() {
   const court = await prisma.court.findUnique({
-    where: { code: BAT_YAM_COURT_CODE },
+    where: { code: COURT_CODE },
     select: { id: true, name: true, code: true },
   });
+
   if (!court) {
-    throw new Error(`Court ${BAT_YAM_COURT_CODE} not found. Run region/court seed first.`);
+    throw new Error(`Court ${COURT_CODE} not found. Run prisma/seed.ts first.`);
   }
 
-  const byKey = await ensurePositions(court.id);
-  await ensureShiftCapacities(court.id, byKey);
-  await seedDemoUsers(court.id, byKey);
-  await ensureDemoManagerForBatYam();
+  const positions = await getStaffedPositions(court.id);
+  await ensureShiftCapacities(court.id, positions);
 
-  const startDate = parseDateOnly(BAT_YAM_DEMO_PERIOD.startDate);
-  const endDate = parseDateOnly(BAT_YAM_DEMO_PERIOD.endDate);
-
-  const existingSameRange = await prisma.schedulePeriod.findUnique({
+  const manager = await prisma.user.findFirst({
     where: {
-      courtId_startDate_endDate: {
-        courtId: court.id,
-        startDate,
-        endDate,
-      },
+      systemRole: SystemRole.MANAGER,
+      employee: { courtId: court.id },
     },
-    select: { id: true },
+    select: { id: true, email: true },
   });
-  if (existingSameRange) {
-    await prisma.schedulePeriod.delete({ where: { id: existingSameRange.id } });
+
+  if (!manager) {
+    throw new Error(`Manager user not found for court: ${court.name}`);
   }
 
-  await prisma.schedulePeriod.deleteMany({
-    where: {
-      courtId: court.id,
-      status: PeriodStatus.OPEN_FOR_SUBMISSION,
-    },
-  });
+  const startDate = parseDateOnly(DEMO_PERIOD.startDate);
+  const endDate = parseDateOnly(DEMO_PERIOD.endDate);
 
-  const createdBy = await prisma.user.findUniqueOrThrow({
-    where: { email: DEMO_MANAGER_EMAIL },
-    select: { id: true },
-  });
-
-  const period = await prisma.schedulePeriod.create({
-    data: {
-      courtId: court.id,
-      name: BAT_YAM_DEMO_PERIOD.name,
-      startDate,
-      endDate,
-      submissionDeadline: new Date(BAT_YAM_DEMO_PERIOD.submissionDeadline),
-      status: PeriodStatus.OPEN_FOR_SUBMISSION,
-      createdById: createdBy.id,
-    },
-  });
+  await deleteExistingSchedules(court.id, startDate, endDate);
 
   const schedule = await prisma.schedule.create({
     data: {
-      periodId: period.id,
+      courtId: court.id,
+      name: DEMO_PERIOD.name,
+      startDate,
+      endDate,
+      submissionDeadline: new Date(DEMO_PERIOD.submissionDeadline),
       status: ScheduleStatus.DRAFT,
-      generatedById: createdBy.id,
+      createdById: manager.id,
     },
   });
 
@@ -300,36 +201,32 @@ export async function seedBatYamFullSchedule() {
     include: { position: { select: { name: true } } },
   });
 
-  const byPositionName = new Map<string, { id: string; firstName: string; lastName: string }[]>();
-  for (const e of employees) {
-    const n = e.position.name;
-    const list = byPositionName.get(n) ?? [];
-    list.push({ id: e.id, firstName: e.firstName, lastName: e.lastName });
-    byPositionName.set(n, list);
+  if (employees.length === 0) {
+    throw new Error(`No active employees found for ${court.name}. Run prisma/seed.ts first.`);
   }
 
-  const posMeta = (['SHIFT_MANAGER', 'BAKAR', 'GUARD'] as const).map((k) => {
-    const p = byKey.get(k);
-    if (!p) {
-      throw new Error(`Missing position: ${k}`);
-    }
-    return { id: p.id, name: p.name };
-  });
+  const byPositionName = new Map<string, { id: string; firstName: string; lastName: string }[]>();
+  for (const employee of employees) {
+    const name = employee.position.name;
+    const list = byPositionName.get(name) ?? [];
+    list.push({ id: employee.id, firstName: employee.firstName, lastName: employee.lastName });
+    byPositionName.set(name, list);
+  }
 
   const capacityRows = await prisma.staffingRequirement.findMany({
     where: { courtId: court.id, isActive: true },
     select: { positionId: true, shiftType: true, dayCategory: true, requiredCount: true },
   });
 
-  const capKey = (positionId: string, st: ShiftType, dc: DayCategory) =>
-    `${positionId}|${st}|${dc}`;
+  const capKey = (positionId: string, shiftType: ShiftType, dayCategory: DayCategory) =>
+    `${positionId}|${shiftType}|${dayCategory}`;
 
   const capMap = new Map<string, number>();
-  for (const r of capacityRows) {
-    capMap.set(capKey(r.positionId, r.shiftType, r.dayCategory), r.requiredCount);
+  for (const row of capacityRows) {
+    capMap.set(capKey(row.positionId, row.shiftType, row.dayCategory), row.requiredCount);
   }
 
-  const dates = eachDateInclusive(BAT_YAM_DEMO_PERIOD.startDate, BAT_YAM_DEMO_PERIOD.endDate);
+  const dates = eachDateInclusive(DEMO_PERIOD.startDate, DEMO_PERIOD.endDate);
   const assignmentRows: Array<{
     scheduleId: string;
     employeeId: string;
@@ -343,25 +240,25 @@ export async function seedBatYamFullSchedule() {
   let rotation = 0;
 
   for (const iso of dates) {
-    const dc = dayCategoryForDate(iso);
+    const dayCategory = dayCategoryForDate(iso);
     const date = parseDateOnly(iso);
 
-    for (const st of SHIFT_TYPES) {
-      for (const { id: positionId, name: positionName } of posMeta) {
-        const amount = capMap.get(capKey(positionId, st, dc)) ?? 0;
+    for (const shiftType of SHIFT_TYPES) {
+      for (const { id: positionId, name: positionName } of positions) {
+        const amount = capMap.get(capKey(positionId, shiftType, dayCategory)) ?? 0;
         for (let slotIndex = 0; slotIndex < amount; slotIndex += 1) {
-          const emp = pickEmployeeForSlot({
+          const employee = pickEmployeeForSlot({
             positionName,
             byPositionName,
             rotation: rotation++,
           });
           assignmentRows.push({
             scheduleId: schedule.id,
-            employeeId: emp.id,
+            employeeId: employee.id,
             courtId: court.id,
             positionId,
             date,
-            shiftType: st,
+            shiftType,
             slotIndex,
           });
         }
@@ -375,10 +272,9 @@ export async function seedBatYamFullSchedule() {
 
   return {
     court,
-    periodId: period.id,
     scheduleId: schedule.id,
     assignmentCount: assignmentRows.length,
-    periodRange: { start: BAT_YAM_DEMO_PERIOD.startDate, end: BAT_YAM_DEMO_PERIOD.endDate },
+    periodRange: { start: DEMO_PERIOD.startDate, end: DEMO_PERIOD.endDate },
   };
 }
 
@@ -391,9 +287,9 @@ function chunk<T>(arr: T[], size: number): T[][] {
 }
 
 seedBatYamFullSchedule()
-  .then((r) => {
+  .then((result) => {
     console.log('✅ Bat Yam full schedule seeded');
-    console.log(r);
+    console.log(result);
   })
   .catch(async (err) => {
     console.error('❌ seedBatYamFullSchedule failed');

@@ -1,5 +1,5 @@
 import { requireSession } from '@/lib/db/auth-helpers';
-import { PeriodStatus, SystemRole } from '@/generated/prisma/client';
+import { ScheduleStatus, SystemRole } from '@/generated/prisma/client';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { getPeriodsForManager } from '@/features/periods/actions';
 import { PeriodsList } from '@/features/periods/components/periods-list';
@@ -12,9 +12,9 @@ export default async function ManagerPeriodsPage() {
 
   const periods = await getPeriodsForManager();
 
-  const activeCount = periods.filter((p) => p.status === PeriodStatus.OPEN_FOR_SUBMISSION).length;
+  const activeCount = periods.filter((p) => p.status === ScheduleStatus.OPEN_FOR_SUBMISSION).length;
   const totalSubmissions = periods.reduce((sum, p) => sum + p.submittedCount, 0);
-  const openPeriod = periods.find((p) => p.status === PeriodStatus.OPEN_FOR_SUBMISSION);
+  const openPeriod = periods.find((p) => p.status === ScheduleStatus.OPEN_FOR_SUBMISSION);
 
   return (
     <div className="space-y-6" dir="rtl">

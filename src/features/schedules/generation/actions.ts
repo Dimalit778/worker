@@ -6,7 +6,7 @@ import { generateSchedule } from '@/features/scheduling-engine/generate-schedule
 import type { EngineInput, EngineStats } from '@/features/scheduling-engine/types';
 import { requireSession } from '@/lib/db/auth-helpers';
 import { prisma } from '@/lib/db/client';
-import { PeriodStatus, ScheduleStatus, SystemRole, WarningSeverity, WarningType } from '@/generated/prisma/client';
+import { ScheduleStatus, SystemRole, WarningSeverity, WarningType } from '@/generated/prisma/client';
 
 import { getAutoScheduleInputData } from './queries';
 
@@ -21,64 +21,54 @@ export type GenerateAutoScheduleResult =
     }
   | { error: string };
 
-export async function generateAutoSchedule(periodId: string): Promise<GenerateAutoScheduleResult> {
+export async function generateAutoSchedule(scheduleId: string): Promise<GenerateAutoScheduleResult> {
   const session = await requireSession(SystemRole.MANAGER);
 
-  const data = await getAutoScheduleInputData(periodId);
+  const data = await getAutoScheduleInputData(scheduleId);
   if (!data.found) return { error: data.message };
   if (data.schedule?.status === ScheduleStatus.ACTIVE) {
     return { error: 'Cannot regenerate a published schedule' };
   }
 
-  const schedule = await prisma.schedule.upsert({
-    where: { periodId },
-    update: {},
-    create: {
-      periodId,
-      generatedById: session.user.id,
-    },
-    select: {
-      id: true,
-      status: true,
-    },
+  const currentSchedule = await prisma.schedule.findUnique({
+    where: { id: scheduleId },
+    select: { id: true, status: true },
   });
 
-  if (schedule.status === ScheduleStatus.ACTIVE) {
+  if (!currentSchedule) return { error: 'Schedule not found' };
+  if (currentSchedule.status === ScheduleStatus.ACTIVE) {
     return { error: 'Cannot regenerate a published schedule' };
   }
 
   const input: EngineInput = {
     ...data.input,
-    scheduleId: schedule.id,
+    scheduleId: currentSchedule.id,
   };
   const output = generateSchedule(input);
 
   await prisma.$transaction(
     async (tx) => {
-      const currentSchedule = await tx.schedule.findUnique({
-        where: { id: schedule.id },
-        select: {
-          status: true,
-          period: { select: { status: true } },
-        },
+      const freshSchedule = await tx.schedule.findUnique({
+        where: { id: scheduleId },
+        select: { status: true },
       });
 
-      if (!currentSchedule) throw new Error('Schedule not found');
-      if (currentSchedule.status === ScheduleStatus.ACTIVE) {
+      if (!freshSchedule) throw new Error('Schedule not found');
+      if (freshSchedule.status === ScheduleStatus.ACTIVE) {
         throw new Error('Cannot regenerate a published schedule');
       }
-      if (currentSchedule.period.status === PeriodStatus.OPEN_FOR_SUBMISSION) {
-        await tx.schedulePeriod.update({
-          where: { id: periodId },
-          data: { status: PeriodStatus.LOCKED },
+      if (freshSchedule.status === ScheduleStatus.OPEN_FOR_SUBMISSION) {
+        await tx.schedule.update({
+          where: { id: scheduleId },
+          data: { status: ScheduleStatus.LOCKED },
         });
-      } else if (currentSchedule.period.status !== PeriodStatus.LOCKED) {
+      } else if (freshSchedule.status !== ScheduleStatus.LOCKED) {
         throw new Error('Period must be open or locked before auto scheduling');
       }
 
       await tx.shiftAssignment.deleteMany({
         where: {
-          scheduleId: schedule.id,
+          scheduleId,
           isManualOverride: false,
         },
       });
@@ -86,7 +76,7 @@ export async function generateAutoSchedule(periodId: string): Promise<GenerateAu
       if (output.assignments.length > 0) {
         await tx.shiftAssignment.createMany({
           data: output.assignments.map((assignment) => ({
-            scheduleId: schedule.id,
+            scheduleId,
             employeeId: assignment.employeeId,
             courtId: assignment.courtId,
             positionId: assignment.positionId,
@@ -99,13 +89,13 @@ export async function generateAutoSchedule(periodId: string): Promise<GenerateAu
       }
 
       await tx.scheduleWarning.deleteMany({
-        where: { scheduleId: schedule.id },
+        where: { scheduleId },
       });
 
       if (output.warnings.length > 0) {
         await tx.scheduleWarning.createMany({
           data: output.warnings.map((warning) => ({
-            scheduleId: schedule.id,
+            scheduleId,
             type: warning.type as WarningType,
             severity: warning.severity as WarningSeverity,
             employeeId: warning.employeeId ?? null,
@@ -119,14 +109,14 @@ export async function generateAutoSchedule(periodId: string): Promise<GenerateAu
       }
 
       await tx.fairnessRecord.deleteMany({
-        where: { periodId },
+        where: { scheduleId },
       });
 
       if (output.fairnessSummary.size > 0) {
         await tx.fairnessRecord.createMany({
           data: Array.from(output.fairnessSummary.values()).map((fairness) => ({
             employeeId: fairness.employeeId,
-            periodId,
+            scheduleId,
             totalShifts: fairness.totalShifts,
             morningShifts: fairness.morningShifts,
             eveningShifts: fairness.eveningShifts,
@@ -137,7 +127,7 @@ export async function generateAutoSchedule(periodId: string): Promise<GenerateAu
       }
 
       await tx.schedule.update({
-        where: { id: schedule.id },
+        where: { id: scheduleId },
         data: {
           generatedAt: new Date(),
           generatedById: session.user.id,
@@ -154,7 +144,7 @@ export async function generateAutoSchedule(periodId: string): Promise<GenerateAu
 
   return {
     ok: true,
-    scheduleId: schedule.id,
+    scheduleId,
     totalAssignments: output.assignments.length,
     warningCount: output.warnings.length,
     errorWarningCount: output.warnings.filter((warning) => warning.severity === 'ERROR').length,

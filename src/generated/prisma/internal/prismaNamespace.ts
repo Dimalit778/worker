@@ -394,7 +394,6 @@ export const ModelName = {
   Employee: 'Employee',
   Position: 'Position',
   StaffingRequirement: 'StaffingRequirement',
-  SchedulePeriod: 'SchedulePeriod',
   AvailabilitySubmission: 'AvailabilitySubmission',
   AvailabilitySlot: 'AvailabilitySlot',
   Schedule: 'Schedule',
@@ -418,7 +417,7 @@ export type TypeMap<ExtArgs extends runtime.Types.Extensions.InternalArgs = runt
     omit: GlobalOmitOptions
   }
   meta: {
-    modelProps: "account" | "session" | "verificationToken" | "user" | "userPermission" | "region" | "court" | "employee" | "position" | "staffingRequirement" | "schedulePeriod" | "availabilitySubmission" | "availabilitySlot" | "schedule" | "shiftAssignment" | "scheduleWarning" | "fairnessRecord" | "scheduleChangeLog" | "systemConfig"
+    modelProps: "account" | "session" | "verificationToken" | "user" | "userPermission" | "region" | "court" | "employee" | "position" | "staffingRequirement" | "availabilitySubmission" | "availabilitySlot" | "schedule" | "shiftAssignment" | "scheduleWarning" | "fairnessRecord" | "scheduleChangeLog" | "systemConfig"
     txIsolationLevel: TransactionIsolationLevel
   }
   model: {
@@ -1159,80 +1158,6 @@ export type TypeMap<ExtArgs extends runtime.Types.Extensions.InternalArgs = runt
         count: {
           args: Prisma.StaffingRequirementCountArgs<ExtArgs>
           result: runtime.Types.Utils.Optional<Prisma.StaffingRequirementCountAggregateOutputType> | number
-        }
-      }
-    }
-    SchedulePeriod: {
-      payload: Prisma.$SchedulePeriodPayload<ExtArgs>
-      fields: Prisma.SchedulePeriodFieldRefs
-      operations: {
-        findUnique: {
-          args: Prisma.SchedulePeriodFindUniqueArgs<ExtArgs>
-          result: runtime.Types.Utils.PayloadToResult<Prisma.$SchedulePeriodPayload> | null
-        }
-        findUniqueOrThrow: {
-          args: Prisma.SchedulePeriodFindUniqueOrThrowArgs<ExtArgs>
-          result: runtime.Types.Utils.PayloadToResult<Prisma.$SchedulePeriodPayload>
-        }
-        findFirst: {
-          args: Prisma.SchedulePeriodFindFirstArgs<ExtArgs>
-          result: runtime.Types.Utils.PayloadToResult<Prisma.$SchedulePeriodPayload> | null
-        }
-        findFirstOrThrow: {
-          args: Prisma.SchedulePeriodFindFirstOrThrowArgs<ExtArgs>
-          result: runtime.Types.Utils.PayloadToResult<Prisma.$SchedulePeriodPayload>
-        }
-        findMany: {
-          args: Prisma.SchedulePeriodFindManyArgs<ExtArgs>
-          result: runtime.Types.Utils.PayloadToResult<Prisma.$SchedulePeriodPayload>[]
-        }
-        create: {
-          args: Prisma.SchedulePeriodCreateArgs<ExtArgs>
-          result: runtime.Types.Utils.PayloadToResult<Prisma.$SchedulePeriodPayload>
-        }
-        createMany: {
-          args: Prisma.SchedulePeriodCreateManyArgs<ExtArgs>
-          result: BatchPayload
-        }
-        createManyAndReturn: {
-          args: Prisma.SchedulePeriodCreateManyAndReturnArgs<ExtArgs>
-          result: runtime.Types.Utils.PayloadToResult<Prisma.$SchedulePeriodPayload>[]
-        }
-        delete: {
-          args: Prisma.SchedulePeriodDeleteArgs<ExtArgs>
-          result: runtime.Types.Utils.PayloadToResult<Prisma.$SchedulePeriodPayload>
-        }
-        update: {
-          args: Prisma.SchedulePeriodUpdateArgs<ExtArgs>
-          result: runtime.Types.Utils.PayloadToResult<Prisma.$SchedulePeriodPayload>
-        }
-        deleteMany: {
-          args: Prisma.SchedulePeriodDeleteManyArgs<ExtArgs>
-          result: BatchPayload
-        }
-        updateMany: {
-          args: Prisma.SchedulePeriodUpdateManyArgs<ExtArgs>
-          result: BatchPayload
-        }
-        updateManyAndReturn: {
-          args: Prisma.SchedulePeriodUpdateManyAndReturnArgs<ExtArgs>
-          result: runtime.Types.Utils.PayloadToResult<Prisma.$SchedulePeriodPayload>[]
-        }
-        upsert: {
-          args: Prisma.SchedulePeriodUpsertArgs<ExtArgs>
-          result: runtime.Types.Utils.PayloadToResult<Prisma.$SchedulePeriodPayload>
-        }
-        aggregate: {
-          args: Prisma.SchedulePeriodAggregateArgs<ExtArgs>
-          result: runtime.Types.Utils.Optional<Prisma.AggregateSchedulePeriod>
-        }
-        groupBy: {
-          args: Prisma.SchedulePeriodGroupByArgs<ExtArgs>
-          result: runtime.Types.Utils.Optional<Prisma.SchedulePeriodGroupByOutputType>[]
-        }
-        count: {
-          args: Prisma.SchedulePeriodCountArgs<ExtArgs>
-          result: runtime.Types.Utils.Optional<Prisma.SchedulePeriodCountAggregateOutputType> | number
         }
       }
     }
@@ -2003,25 +1928,9 @@ export const StaffingRequirementScalarFieldEnum = {
 export type StaffingRequirementScalarFieldEnum = (typeof StaffingRequirementScalarFieldEnum)[keyof typeof StaffingRequirementScalarFieldEnum]
 
 
-export const SchedulePeriodScalarFieldEnum = {
-  id: 'id',
-  courtId: 'courtId',
-  name: 'name',
-  startDate: 'startDate',
-  endDate: 'endDate',
-  submissionDeadline: 'submissionDeadline',
-  status: 'status',
-  createdById: 'createdById',
-  createdAt: 'createdAt',
-  updatedAt: 'updatedAt'
-} as const
-
-export type SchedulePeriodScalarFieldEnum = (typeof SchedulePeriodScalarFieldEnum)[keyof typeof SchedulePeriodScalarFieldEnum]
-
-
 export const AvailabilitySubmissionScalarFieldEnum = {
   id: 'id',
-  periodId: 'periodId',
+  scheduleId: 'scheduleId',
   employeeId: 'employeeId',
   isSubmitted: 'isSubmitted',
   submittedAt: 'submittedAt',
@@ -2047,11 +1956,15 @@ export type AvailabilitySlotScalarFieldEnum = (typeof AvailabilitySlotScalarFiel
 
 export const ScheduleScalarFieldEnum = {
   id: 'id',
-  periodId: 'periodId',
+  courtId: 'courtId',
+  name: 'name',
   status: 'status',
   generatedAt: 'generatedAt',
   publishedAt: 'publishedAt',
-  generatedById: 'generatedById',
+  createdById: 'createdById',
+  submissionDeadline: 'submissionDeadline',
+  startDate: 'startDate',
+  endDate: 'endDate',
   createdAt: 'createdAt',
   updatedAt: 'updatedAt'
 } as const
@@ -2097,7 +2010,7 @@ export type ScheduleWarningScalarFieldEnum = (typeof ScheduleWarningScalarFieldE
 export const FairnessRecordScalarFieldEnum = {
   id: 'id',
   employeeId: 'employeeId',
-  periodId: 'periodId',
+  scheduleId: 'scheduleId',
   totalShifts: 'totalShifts',
   morningShifts: 'morningShifts',
   eveningShifts: 'eveningShifts',
@@ -2278,20 +2191,6 @@ export type EnumDayCategoryFieldRefInput<$PrismaModel> = FieldRefInputType<$Pris
  * Reference to a field of type 'DayCategory[]'
  */
 export type ListEnumDayCategoryFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'DayCategory[]'>
-    
-
-
-/**
- * Reference to a field of type 'PeriodStatus'
- */
-export type EnumPeriodStatusFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'PeriodStatus'>
-    
-
-
-/**
- * Reference to a field of type 'PeriodStatus[]'
- */
-export type ListEnumPeriodStatusFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'PeriodStatus[]'>
     
 
 
@@ -2498,7 +2397,6 @@ export type GlobalOmitConfig = {
   employee?: Prisma.EmployeeOmit
   position?: Prisma.PositionOmit
   staffingRequirement?: Prisma.StaffingRequirementOmit
-  schedulePeriod?: Prisma.SchedulePeriodOmit
   availabilitySubmission?: Prisma.AvailabilitySubmissionOmit
   availabilitySlot?: Prisma.AvailabilitySlotOmit
   schedule?: Prisma.ScheduleOmit

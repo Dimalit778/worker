@@ -1,5 +1,5 @@
 import { prisma } from '@/lib/db/client';
-import { PeriodStatus, ScheduleStatus } from '@/generated/prisma/client';
+import { ScheduleStatus } from '@/generated/prisma/client';
 import type {
   EngineAssignment,
   EngineCapacity,
@@ -43,28 +43,27 @@ function createAvailabilityKey(date: Date, shiftType: ShiftType): string {
   return `${toDateOnly(date)}|${shiftType}`;
 }
 
-export async function getAutoScheduleInputData(periodId: string): Promise<AutoScheduleInputData> {
-  if (!periodId) return { found: false, message: 'Missing period id' };
+export async function getAutoScheduleInputData(scheduleId: string): Promise<AutoScheduleInputData> {
+  if (!scheduleId) return { found: false, message: 'Missing schedule id' };
 
-  const periodRow = await prisma.schedulePeriod.findUnique({
-    where: { id: periodId },
+  const scheduleRow = await prisma.schedule.findUnique({
+    where: { id: scheduleId },
     select: {
       id: true,
       courtId: true,
       startDate: true,
       endDate: true,
       status: true,
-      schedule: { select: { id: true, status: true } },
     },
   });
 
-  if (!periodRow) return { found: false, message: 'Period not found' };
-  if (periodRow.status !== PeriodStatus.LOCKED && periodRow.status !== PeriodStatus.OPEN_FOR_SUBMISSION) {
+  if (!scheduleRow) return { found: false, message: 'Schedule not found' };
+  if (scheduleRow.status !== ScheduleStatus.LOCKED && scheduleRow.status !== ScheduleStatus.OPEN_FOR_SUBMISSION) {
     return { found: false, message: 'Period must be open or locked before auto scheduling' };
   }
 
-  const employeeWhere = { courtId: periodRow.courtId, isActive: true };
-  const periodDates = getPeriodDates(periodRow.startDate, periodRow.endDate);
+  const employeeWhere = { courtId: scheduleRow.courtId, isActive: true };
+  const periodDates = getPeriodDates(scheduleRow.startDate, scheduleRow.endDate);
 
   const [employees, availabilities, capacities, manualAssignments] = await Promise.all([
     prisma.employee.findMany({
@@ -80,7 +79,7 @@ export async function getAutoScheduleInputData(periodId: string): Promise<AutoSc
     }),
     prisma.availabilitySubmission.findMany({
       where: {
-        periodId: periodRow.id,
+        scheduleId: scheduleRow.id,
         employee: employeeWhere,
       },
       select: {
@@ -88,7 +87,7 @@ export async function getAutoScheduleInputData(periodId: string): Promise<AutoSc
         slots: {
           where: {
             isAvailable: true,
-            date: { gte: periodRow.startDate, lte: periodRow.endDate },
+            date: { gte: scheduleRow.startDate, lte: scheduleRow.endDate },
           },
           select: {
             date: true,
@@ -98,7 +97,7 @@ export async function getAutoScheduleInputData(periodId: string): Promise<AutoSc
       },
     }),
     prisma.staffingRequirement.findMany({
-      where: { courtId: periodRow.courtId, isActive: true },
+      where: { courtId: scheduleRow.courtId, isActive: true },
       select: {
         positionId: true,
         position: { select: { name: true, code: true } },
@@ -108,25 +107,23 @@ export async function getAutoScheduleInputData(periodId: string): Promise<AutoSc
       },
       orderBy: [{ shiftType: 'asc' }, { positionId: 'asc' }, { dayCategory: 'asc' }, { position: { code: 'asc' } }],
     }),
-    periodRow.schedule
-      ? prisma.shiftAssignment.findMany({
-          where: {
-            scheduleId: periodRow.schedule.id,
-            isManualOverride: true,
-          },
-          select: {
-            employeeId: true,
-            courtId: true,
-            positionId: true,
-            position: { select: { name: true, code: true } },
-            date: true,
-            shiftType: true,
-            slotIndex: true,
-            isManualOverride: true,
-          },
-          orderBy: [{ date: 'asc' }, { shiftType: 'asc' }, { slotIndex: 'asc' }],
-        })
-      : Promise.resolve([]),
+    prisma.shiftAssignment.findMany({
+      where: {
+        scheduleId: scheduleRow.id,
+        isManualOverride: true,
+      },
+      select: {
+        employeeId: true,
+        courtId: true,
+        positionId: true,
+        position: { select: { name: true, code: true } },
+        date: true,
+        shiftType: true,
+        slotIndex: true,
+        isManualOverride: true,
+      },
+      orderBy: [{ date: 'asc' }, { shiftType: 'asc' }, { slotIndex: 'asc' }],
+    }),
   ]);
 
   const availability = new Map<string, Set<string>>();
@@ -140,13 +137,13 @@ export async function getAutoScheduleInputData(periodId: string): Promise<AutoSc
 
   return {
     found: true,
-    schedule: periodRow.schedule,
+    schedule: { id: scheduleRow.id, status: scheduleRow.status },
     input: {
       period: {
-        id: periodRow.id,
-        courtId: periodRow.courtId,
-        startDate: utcDateOnly(periodRow.startDate),
-        endDate: utcDateOnly(periodRow.endDate),
+        id: scheduleRow.id,
+        courtId: scheduleRow.courtId,
+        startDate: utcDateOnly(scheduleRow.startDate),
+        endDate: utcDateOnly(scheduleRow.endDate),
       },
       week1Dates: periodDates.slice(0, 7),
       week2Dates: periodDates.slice(7),
@@ -181,7 +178,7 @@ export async function getAutoScheduleInputData(periodId: string): Promise<AutoSc
           isManualOverride: a.isManualOverride,
         }),
       ),
-      scheduleId: periodRow.schedule?.id ?? null,
+      scheduleId: scheduleRow.id,
     },
   };
 }

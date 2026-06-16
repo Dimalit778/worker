@@ -253,23 +253,6 @@ export type EnumDayCategoryWithAggregatesFilter<$PrismaModel = never> = {
   _max?: Prisma.NestedEnumDayCategoryFilter<$PrismaModel>
 }
 
-export type EnumPeriodStatusFilter<$PrismaModel = never> = {
-  equals?: $Enums.PeriodStatus | Prisma.EnumPeriodStatusFieldRefInput<$PrismaModel>
-  in?: $Enums.PeriodStatus[] | Prisma.ListEnumPeriodStatusFieldRefInput<$PrismaModel>
-  notIn?: $Enums.PeriodStatus[] | Prisma.ListEnumPeriodStatusFieldRefInput<$PrismaModel>
-  not?: Prisma.NestedEnumPeriodStatusFilter<$PrismaModel> | $Enums.PeriodStatus
-}
-
-export type EnumPeriodStatusWithAggregatesFilter<$PrismaModel = never> = {
-  equals?: $Enums.PeriodStatus | Prisma.EnumPeriodStatusFieldRefInput<$PrismaModel>
-  in?: $Enums.PeriodStatus[] | Prisma.ListEnumPeriodStatusFieldRefInput<$PrismaModel>
-  notIn?: $Enums.PeriodStatus[] | Prisma.ListEnumPeriodStatusFieldRefInput<$PrismaModel>
-  not?: Prisma.NestedEnumPeriodStatusWithAggregatesFilter<$PrismaModel> | $Enums.PeriodStatus
-  _count?: Prisma.NestedIntFilter<$PrismaModel>
-  _min?: Prisma.NestedEnumPeriodStatusFilter<$PrismaModel>
-  _max?: Prisma.NestedEnumPeriodStatusFilter<$PrismaModel>
-}
-
 export type EnumScheduleStatusFilter<$PrismaModel = never> = {
   equals?: $Enums.ScheduleStatus | Prisma.EnumScheduleStatusFieldRefInput<$PrismaModel>
   in?: $Enums.ScheduleStatus[] | Prisma.ListEnumScheduleStatusFieldRefInput<$PrismaModel>
@@ -707,23 +690,6 @@ export type NestedEnumDayCategoryWithAggregatesFilter<$PrismaModel = never> = {
   _count?: Prisma.NestedIntFilter<$PrismaModel>
   _min?: Prisma.NestedEnumDayCategoryFilter<$PrismaModel>
   _max?: Prisma.NestedEnumDayCategoryFilter<$PrismaModel>
-}
-
-export type NestedEnumPeriodStatusFilter<$PrismaModel = never> = {
-  equals?: $Enums.PeriodStatus | Prisma.EnumPeriodStatusFieldRefInput<$PrismaModel>
-  in?: $Enums.PeriodStatus[] | Prisma.ListEnumPeriodStatusFieldRefInput<$PrismaModel>
-  notIn?: $Enums.PeriodStatus[] | Prisma.ListEnumPeriodStatusFieldRefInput<$PrismaModel>
-  not?: Prisma.NestedEnumPeriodStatusFilter<$PrismaModel> | $Enums.PeriodStatus
-}
-
-export type NestedEnumPeriodStatusWithAggregatesFilter<$PrismaModel = never> = {
-  equals?: $Enums.PeriodStatus | Prisma.EnumPeriodStatusFieldRefInput<$PrismaModel>
-  in?: $Enums.PeriodStatus[] | Prisma.ListEnumPeriodStatusFieldRefInput<$PrismaModel>
-  notIn?: $Enums.PeriodStatus[] | Prisma.ListEnumPeriodStatusFieldRefInput<$PrismaModel>
-  not?: Prisma.NestedEnumPeriodStatusWithAggregatesFilter<$PrismaModel> | $Enums.PeriodStatus
-  _count?: Prisma.NestedIntFilter<$PrismaModel>
-  _min?: Prisma.NestedEnumPeriodStatusFilter<$PrismaModel>
-  _max?: Prisma.NestedEnumPeriodStatusFilter<$PrismaModel>
 }
 
 export type NestedEnumScheduleStatusFilter<$PrismaModel = never> = {

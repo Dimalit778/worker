@@ -68,11 +68,10 @@ export type AvailabilitySubmissionSummary = {
 };
 
 export type CurrentScheduleData = {
-  periodId: string;
-  periodName: string;
+  scheduleId: string;
+  scheduleName: string;
   startDate: string;
   endDate: string;
-  scheduleId: string | null;
   scheduleStatus: ScheduleStatus | null;
   courtId: string;
   employees: ScheduleEmployeeOption[];
@@ -85,11 +84,10 @@ export type CurrentScheduleData = {
 
 /** Props for the week / shift schedule UI */
 export type ScheduleViewProps = {
-  periodId: string;
-  periodName: string;
+  scheduleId: string;
+  scheduleName: string;
   startDate: string;
   endDate: string;
-  scheduleId: string | null;
   scheduleStatus?: ScheduleStatus | null;
   assignments: AssignmentMap;
   employees: ScheduleEmployeeOption[];
@@ -107,8 +105,7 @@ export type WeekDay = {
 };
 
 export type AssignEmployeeToSlotParams = {
-  scheduleId: string | null;
-  periodId: string;
+  scheduleId: string;
   employeeId: string;
   courtId: string;
   positionId: string;

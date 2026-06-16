@@ -61,7 +61,6 @@ export const ModelName = {
   Employee: 'Employee',
   Position: 'Position',
   StaffingRequirement: 'StaffingRequirement',
-  SchedulePeriod: 'SchedulePeriod',
   AvailabilitySubmission: 'AvailabilitySubmission',
   AvailabilitySlot: 'AvailabilitySlot',
   Schedule: 'Schedule',
@@ -224,25 +223,9 @@ export const StaffingRequirementScalarFieldEnum = {
 export type StaffingRequirementScalarFieldEnum = (typeof StaffingRequirementScalarFieldEnum)[keyof typeof StaffingRequirementScalarFieldEnum]
 
 
-export const SchedulePeriodScalarFieldEnum = {
-  id: 'id',
-  courtId: 'courtId',
-  name: 'name',
-  startDate: 'startDate',
-  endDate: 'endDate',
-  submissionDeadline: 'submissionDeadline',
-  status: 'status',
-  createdById: 'createdById',
-  createdAt: 'createdAt',
-  updatedAt: 'updatedAt'
-} as const
-
-export type SchedulePeriodScalarFieldEnum = (typeof SchedulePeriodScalarFieldEnum)[keyof typeof SchedulePeriodScalarFieldEnum]
-
-
 export const AvailabilitySubmissionScalarFieldEnum = {
   id: 'id',
-  periodId: 'periodId',
+  scheduleId: 'scheduleId',
   employeeId: 'employeeId',
   isSubmitted: 'isSubmitted',
   submittedAt: 'submittedAt',
@@ -268,11 +251,15 @@ export type AvailabilitySlotScalarFieldEnum = (typeof AvailabilitySlotScalarFiel
 
 export const ScheduleScalarFieldEnum = {
   id: 'id',
-  periodId: 'periodId',
+  courtId: 'courtId',
+  name: 'name',
   status: 'status',
   generatedAt: 'generatedAt',
   publishedAt: 'publishedAt',
-  generatedById: 'generatedById',
+  createdById: 'createdById',
+  submissionDeadline: 'submissionDeadline',
+  startDate: 'startDate',
+  endDate: 'endDate',
   createdAt: 'createdAt',
   updatedAt: 'updatedAt'
 } as const
@@ -318,7 +305,7 @@ export type ScheduleWarningScalarFieldEnum = (typeof ScheduleWarningScalarFieldE
 export const FairnessRecordScalarFieldEnum = {
   id: 'id',
   employeeId: 'employeeId',
-  periodId: 'periodId',
+  scheduleId: 'scheduleId',
   totalShifts: 'totalShifts',
   morningShifts: 'morningShifts',
   eveningShifts: 'eveningShifts',

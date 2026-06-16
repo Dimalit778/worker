@@ -10,25 +10,7 @@ import type { AssignEmployeeToSlotParams } from '../types';
 export async function createAssignment(params: AssignEmployeeToSlotParams): Promise<{ scheduleId: string }> {
   const session = await requireSession(SystemRole.MANAGER);
 
-  const {
-    scheduleId: incomingScheduleId,
-    periodId,
-    employeeId,
-    courtId,
-    positionId,
-    shiftType,
-    date,
-    slotIndex,
-  } = params;
-
-  let scheduleId = incomingScheduleId;
-
-  if (!scheduleId) {
-    const schedule = await prisma.schedule.create({
-      data: { periodId, generatedById: session.user.id },
-    });
-    scheduleId = schedule.id;
-  }
+  const { scheduleId, employeeId, courtId, positionId, shiftType, date, slotIndex } = params;
 
   const duplicate = await prisma.shiftAssignment.findFirst({
     where: { scheduleId, employeeId, shiftType, date: parseISODateToUtcMidnight(date) },

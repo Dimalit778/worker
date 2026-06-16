@@ -1,4 +1,4 @@
-import { SystemRole } from '@/generated/prisma/client';
+import { SystemRole } from '../src/generated/prisma/client';
 
 export const BAT_YAM_EMPLOYEES = [
   {

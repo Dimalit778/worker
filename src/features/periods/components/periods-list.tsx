@@ -40,7 +40,7 @@ const PeriodRow = ({ period }: { period: PeriodSummary }) => {
         <p className="text-xs text-muted-foreground">הגשות</p>
         <p className="text-sm font-semibold">
           {period.submittedCount}
-          <span className="text-muted-foreground font-normal">/{period.totalGuards}</span>
+          <span className="text-muted-foreground font-normal">/{period.totalEmployees}</span>
         </p>
       </div>
 

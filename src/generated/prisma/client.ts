@@ -92,11 +92,6 @@ export type Position = Prisma.PositionModel
  */
 export type StaffingRequirement = Prisma.StaffingRequirementModel
 /**
- * Model SchedulePeriod
- * 
- */
-export type SchedulePeriod = Prisma.SchedulePeriodModel
-/**
  * Model AvailabilitySubmission
  * 
  */

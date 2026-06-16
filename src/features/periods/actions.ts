@@ -1,17 +1,17 @@
 'use server';
 import { prisma } from '@/lib/db/client';
-import { PeriodStatus, Prisma, SystemRole } from '@/generated/prisma/client';
+import { ScheduleStatus, Prisma, SystemRole } from '@/generated/prisma/client';
 import { requireSession } from '@/lib/db/auth-helpers';
 import { PeriodSummary } from './types';
 import { parseISODateToUtcMidnight } from './utils';
 import { revalidatePath } from 'next/cache';
 
 // = מוצא רשימת תקופות למנהל
-export async function getPeriodsForManager(activeOnly: boolean = false): Promise<PeriodSummary[]> {
+export async function getSchedulesForManager(activeOnly: boolean = false): Promise<PeriodSummary[]> {
   await requireSession(SystemRole.MANAGER);
 
-  const periods = await prisma.schedulePeriod.findMany({
-    where: activeOnly ? { status: PeriodStatus.OPEN_FOR_SUBMISSION } : undefined,
+  const periods = await prisma.schedule.findMany({
+    where: activeOnly ? { status: ScheduleStatus.OPEN_FOR_SUBMISSION } : undefined,
     orderBy: { startDate: 'desc' },
     include: {
       _count: {
@@ -37,6 +37,9 @@ export async function getPeriodsForManager(activeOnly: boolean = false): Promise
     totalEmployees: totalEmployees ?? 0,
   }));
 }
+// Keep old name as alias for backwards compatibility
+export const getPeriodsForManager = getSchedulesForManager;
+
 // = ליצור תקופה חדשה
 export async function createPeriod(data: {
   name: string;
@@ -59,13 +62,13 @@ export async function createPeriod(data: {
   if (isNaN(deadline.getTime())) return { error: 'מועד אחרון להגשה לא תקין' };
 
   try {
-    const period = await prisma.schedulePeriod.create({
+    const period = await prisma.schedule.create({
       data: {
         name: data.name.trim(),
         startDate: start,
         endDate: end,
         submissionDeadline: deadline,
-        status: PeriodStatus.OPEN_FOR_SUBMISSION,
+        status: ScheduleStatus.OPEN_FOR_SUBMISSION,
         courtId: session.user.courtId,
         createdById: session.user.id,
       },
@@ -84,11 +87,11 @@ export async function createPeriod(data: {
   }
 }
 // = למחוק תקופה
-export async function deletePeriod(periodId: string): Promise<{ ok: true } | { error: string }> {
+export async function deleteSchedule(scheduleId: string): Promise<{ ok: true } | { error: string }> {
   await requireSession(SystemRole.MANAGER);
 
   try {
-    await prisma.schedulePeriod.delete({ where: { id: periodId } });
+    await prisma.schedule.delete({ where: { id: scheduleId } });
     revalidatePath('/manager/periods');
     revalidatePath('/manager');
     return { ok: true };
@@ -96,16 +99,19 @@ export async function deletePeriod(periodId: string): Promise<{ ok: true } | { e
     return { error: 'שגיאה במחיקת התקופה' };
   }
 }
+// Keep old name as alias
+export const deletePeriod = deleteSchedule;
+
 // = לעדכן סטטוס תקופה
-export async function updatePeriodStatus(
-  periodId: string,
-  status: PeriodStatus,
+export async function updateScheduleStatus(
+  scheduleId: string,
+  status: ScheduleStatus,
 ): Promise<{ ok: true } | { error: string }> {
   await requireSession(SystemRole.MANAGER);
 
   try {
-    await prisma.schedulePeriod.update({
-      where: { id: periodId },
+    await prisma.schedule.update({
+      where: { id: scheduleId },
       data: { status },
     });
 
@@ -117,3 +123,5 @@ export async function updatePeriodStatus(
     return { error: 'שגיאה בעדכון הסטטוס' };
   }
 }
+// Keep old name as alias
+export const updatePeriodStatus = updateScheduleStatus;

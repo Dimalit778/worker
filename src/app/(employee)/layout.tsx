@@ -1,5 +1,5 @@
 import { requireSession } from '@/lib/db/auth-helpers';
-import { PeriodStatus, SystemRole } from '@/generated/prisma/client';
+import { ScheduleStatus, SystemRole } from '@/generated/prisma/client';
 import { prisma } from '@/lib/db/client';
 import { LogoutButton } from '@/components/ui/logout-button';
 import { UserNav } from './user-nav';
@@ -16,14 +16,14 @@ export default async function UserLayout({ children }: { children: React.ReactNo
       });
       if (!user?.employeeId) return false;
 
-      const openPeriod = await prisma.schedulePeriod.findFirst({
-        where: { status: PeriodStatus.OPEN_FOR_SUBMISSION },
+      const openPeriod = await prisma.schedule.findFirst({
+        where: { status: ScheduleStatus.OPEN_FOR_SUBMISSION },
         select: { id: true },
       });
       if (!openPeriod) return false;
 
       const submitted = await prisma.availabilitySubmission.findUnique({
-        where: { periodId_employeeId: { periodId: openPeriod.id, employeeId: user.employeeId } },
+        where: { scheduleId_employeeId: { scheduleId: openPeriod.id, employeeId: user.employeeId } },
         select: { isSubmitted: true },
       });
       return !submitted?.isSubmitted;

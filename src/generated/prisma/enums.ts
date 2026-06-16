@@ -48,18 +48,10 @@ export const DayCategory = {
 export type DayCategory = (typeof DayCategory)[keyof typeof DayCategory]
 
 
-export const PeriodStatus = {
+export const ScheduleStatus = {
   DRAFT: 'DRAFT',
   OPEN_FOR_SUBMISSION: 'OPEN_FOR_SUBMISSION',
   LOCKED: 'LOCKED',
-  ARCHIVED: 'ARCHIVED'
-} as const
-
-export type PeriodStatus = (typeof PeriodStatus)[keyof typeof PeriodStatus]
-
-
-export const ScheduleStatus = {
-  DRAFT: 'DRAFT',
   ACTIVE: 'ACTIVE',
   ARCHIVED: 'ARCHIVED'
 } as const

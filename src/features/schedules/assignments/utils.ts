@@ -54,13 +54,13 @@ export function buildAssignmentMap(
   return map;
 }
 export function toScheduleData(
-  periodRow: {
+  scheduleRow: {
     id: string;
     name: string;
     startDate: Date;
     endDate: Date;
+    status: ScheduleStatus;
   },
-  scheduleRow: { id: string; status: ScheduleStatus } | null,
   courtId: string,
   employees: ScheduleEmployeeOption[],
   capacity: ScheduleCapacityRule[],
@@ -69,12 +69,11 @@ export function toScheduleData(
   overflowCandidates: OverflowCandidateMap,
 ): CurrentScheduleData {
   return {
-    periodId: periodRow.id,
-    periodName: periodRow.name,
-    startDate: periodRow.startDate.toISOString().slice(0, 10),
-    endDate: periodRow.endDate.toISOString().slice(0, 10),
-    scheduleId: scheduleRow?.id ?? null,
-    scheduleStatus: scheduleRow?.status ?? null,
+    scheduleId: scheduleRow.id,
+    scheduleName: scheduleRow.name,
+    startDate: scheduleRow.startDate.toISOString().slice(0, 10),
+    endDate: scheduleRow.endDate.toISOString().slice(0, 10),
+    scheduleStatus: scheduleRow.status,
     courtId,
     employees,
     capacity,

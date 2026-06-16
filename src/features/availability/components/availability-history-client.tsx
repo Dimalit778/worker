@@ -1,7 +1,7 @@
 'use client';
 
 import { useMemo, useState } from 'react';
-import type { PeriodStatus } from '@/generated/prisma/client';
+import type { ScheduleStatus } from '@/generated/prisma/client';
 import { cn } from '@/lib/utils';
 import { ScheduleCalendar } from './schedule-calendar';
 
@@ -10,7 +10,7 @@ export type SubmissionsPeriodPayload = {
   name: string;
   startDate: string;
   endDate: string;
-  status: PeriodStatus;
+  status: ScheduleStatus;
   isSubmitted: boolean;
   entries: Record<string, boolean>;
   selectedSlotCount: number;

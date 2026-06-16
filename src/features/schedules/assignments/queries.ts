@@ -93,21 +93,21 @@ export async function getActiveSchedule(courtId: string): Promise<CurrentSchedul
   const scheduleRow = await prisma.schedule.findFirst({
     where: {
       status: ScheduleStatus.ACTIVE,
-      period: { courtId },
+      courtId,
     },
     select: {
       id: true,
+      name: true,
+      startDate: true,
+      endDate: true,
       status: true,
-      period: {
-        select: { id: true, name: true, startDate: true, endDate: true },
-      },
     },
-    orderBy: { period: { startDate: 'desc' } },
+    orderBy: { startDate: 'desc' },
   });
 
   if (!scheduleRow) return null;
   const today = todayUtcDateForTimeZone(SCHEDULE_TIME_ZONE);
-  if (scheduleRow.period.endDate < today) {
+  if (scheduleRow.endDate < today) {
     await prisma.schedule.update({
       where: { id: scheduleRow.id },
       data: { status: ScheduleStatus.ARCHIVED },
@@ -121,33 +121,35 @@ export async function getActiveSchedule(courtId: string): Promise<CurrentSchedul
     getScheduleEmployees(courtId),
   ]);
 
-  return toScheduleData(scheduleRow.period, scheduleRow, courtId, employees, capacity, assignments, [], {});
+  return toScheduleData(scheduleRow, courtId, employees, capacity, assignments, [], {});
 }
 
 export async function getDraftScheduleData(courtId: string): Promise<CurrentScheduleData | null> {
-  const periodRow = await prisma.schedulePeriod.findFirst({
+  const scheduleRow = await prisma.schedule.findFirst({
     where: {
       courtId,
       status: { not: ScheduleStatus.ARCHIVED },
     },
-    include: {
-      schedule: {
-        select: { id: true, status: true },
-      },
+    select: {
+      id: true,
+      name: true,
+      startDate: true,
+      endDate: true,
+      status: true,
     },
     orderBy: { startDate: 'desc' },
   });
-  if (!periodRow) return null;
+  if (!scheduleRow) return null;
 
   const [assignments, employees, capacity, warnings, overflowCandidates, submittedSubmissions] = await Promise.all([
-    getAssignmentMap(periodRow.schedule?.id),
+    getAssignmentMap(scheduleRow.id),
     getScheduleEmployees(courtId),
     getScheduleCapacity(courtId),
-    getScheduleWarnings(periodRow.schedule?.id),
+    getScheduleWarnings(scheduleRow.id),
     Promise.resolve({} as OverflowCandidateMap),
     prisma.availabilitySubmission.findMany({
       where: {
-        periodId: periodRow.id,
+        scheduleId: scheduleRow.id,
         isSubmitted: true,
         employee: { courtId, isActive: true },
       },
@@ -163,16 +165,7 @@ export async function getDraftScheduleData(courtId: string): Promise<CurrentSche
       positionName: employee.position?.name ?? null,
     }));
 
-  const base = toScheduleData(
-    periodRow,
-    periodRow.schedule,
-    courtId,
-    employees,
-    capacity,
-    assignments,
-    warnings,
-    overflowCandidates,
-  );
+  const base = toScheduleData(scheduleRow, courtId, employees, capacity, assignments, warnings, overflowCandidates);
   if (!base) {
     return null;
   }

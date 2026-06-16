@@ -23,11 +23,10 @@ export default async function ManagerActiveSchedulePage() {
 
   return (
     <ScheduleView
-      periodId={data.periodId}
-      periodName={data.periodName}
+      scheduleId={data.scheduleId}
+      scheduleName={data.scheduleName}
       startDate={data.startDate}
       endDate={data.endDate}
-      scheduleId={data.scheduleId}
       scheduleStatus={data.scheduleStatus}
       assignments={data.assignments}
       employees={data.employees}

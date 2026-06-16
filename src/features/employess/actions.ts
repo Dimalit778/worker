@@ -280,18 +280,14 @@ export async function getManagerEmployeeDetail(employeeId: string): Promise<Empl
         },
         schedule: {
           select: {
-            period: {
-              select: {
-                name: true,
-              },
-            },
+            name: true,
           },
         },
       },
     }),
     prisma.fairnessRecord.findMany({
       where: { employeeId },
-      orderBy: { period: { startDate: 'desc' } },
+      orderBy: { schedule: { startDate: 'desc' } },
       take: 6,
       select: {
         id: true,
@@ -300,7 +296,7 @@ export async function getManagerEmployeeDetail(employeeId: string): Promise<Empl
         eveningShifts: true,
         nightShifts: true,
         weekendShifts: true,
-        period: {
+        schedule: {
           select: {
             name: true,
           },
@@ -353,11 +349,11 @@ export async function getManagerEmployeeDetail(employeeId: string): Promise<Empl
       shiftType: assignment.shiftType,
       isManualOverride: assignment.isManualOverride,
       positionName: assignment.position.name,
-      periodName: assignment.schedule.period.name,
+      periodName: assignment.schedule.name,
     })),
     fairnessRecords: fairnessRecords.map((record) => ({
       id: record.id,
-      periodName: record.period.name,
+      periodName: record.schedule.name,
       totalShifts: record.totalShifts,
       morningShifts: record.morningShifts,
       eveningShifts: record.eveningShifts,
@@ -390,7 +386,7 @@ export async function getManagerEmployeeSubmissions(employeeId: string): Promise
 
   if (!employee) return { error: 'עובד לא נמצא' };
 
-  const periods = await prisma.schedulePeriod.findMany({
+  const periods = await prisma.schedule.findMany({
     where: { courtId },
     orderBy: { startDate: 'desc' },
     select: {

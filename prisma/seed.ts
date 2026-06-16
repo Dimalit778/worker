@@ -128,8 +128,6 @@ async function clearDatabase() {
 
   await prisma.staffingRequirement.deleteMany();
 
-  await prisma.schedulePeriod.deleteMany();
-
   await prisma.session.deleteMany();
   await prisma.account.deleteMany();
   await prisma.userPermission.deleteMany();

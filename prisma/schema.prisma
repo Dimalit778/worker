@@ -37,15 +37,11 @@ enum DayCategory {
   HOLIDAY
 }
 
-enum PeriodStatus {
-  DRAFT
-  OPEN_FOR_SUBMISSION
-  LOCKED
-  ARCHIVED
-}
 
 enum ScheduleStatus {
   DRAFT
+  OPEN_FOR_SUBMISSION  // ← חסר
+  LOCKED               // ← חסר
   ACTIVE
   ARCHIVED
 }
@@ -117,8 +113,7 @@ model User {
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
 
-  periodsCreated     SchedulePeriod[]    @relation("PeriodCreatedBy")
-  schedulesGenerated Schedule[]          @relation("ScheduleGeneratedBy")
+  schedulesCreated Schedule[]          @relation("ScheduleCreatedBy")
   scheduleChanges    ScheduleChangeLog[] @relation("ScheduleChangedBy")
 
   receivedPermissions UserPermission[] @relation("ReceivedPermissions")
@@ -171,7 +166,7 @@ model Court {
   employees        Employee[]
   positions        Position[]
   staffingRequirements StaffingRequirement[]
-  periods          SchedulePeriod[]
+  schedules          Schedule[]
   shiftAssignments ShiftAssignment[]
   warnings         ScheduleWarning[]
 
@@ -252,45 +247,23 @@ model StaffingRequirement {
   @@index([courtId, displayOrder])
 }
 
-model SchedulePeriod {
-  id                 String       @id @default(cuid())
-  courtId            String
-  name               String
-  startDate          DateTime     @db.Date
-  endDate            DateTime     @db.Date
-  submissionDeadline DateTime
-  status             PeriodStatus @default(DRAFT)
-  createdById        String
 
-  court           Court            @relation(fields: [courtId], references: [id], onDelete: Cascade)
-  createdBy       User             @relation("PeriodCreatedBy", fields: [createdById], references: [id])
-  availabilitySubmissions AvailabilitySubmission[]
-  schedule        Schedule?
-  fairnessRecords FairnessRecord[]
-
-  createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt
-
-  @@unique([courtId, startDate, endDate])
-  @@index([courtId, status])
-  @@index([startDate, endDate])
-}
 
 model AvailabilitySubmission {
   id          String    @id @default(cuid())
-  periodId    String
+  scheduleId    String
   employeeId  String
   isSubmitted Boolean   @default(false)
   submittedAt DateTime?
 
-  period   SchedulePeriod      @relation(fields: [periodId], references: [id], onDelete: Cascade)
+  schedule Schedule      @relation(fields: [scheduleId], references: [id], onDelete: Cascade)
   employee Employee            @relation(fields: [employeeId], references: [id], onDelete: Cascade)
   slots    AvailabilitySlot[]
 
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
 
-  @@unique([periodId, employeeId])
+  @@unique([scheduleId, employeeId])
   @@index([employeeId])
 }
 
@@ -312,17 +285,23 @@ model AvailabilitySlot {
 
 model Schedule {
   id            String         @id @default(cuid())
-  periodId      String         @unique
+  courtId            String
+  name               String
   status        ScheduleStatus @default(DRAFT)
   generatedAt   DateTime       @default(now())
   publishedAt   DateTime?
-  generatedById String
+  createdById String
+   submissionDeadline DateTime  
+  startDate          DateTime     @db.Date
+  endDate            DateTime     @db.Date
 
-  period      SchedulePeriod      @relation(fields: [periodId], references: [id], onDelete: Cascade)
-  generatedBy User                @relation("ScheduleGeneratedBy", fields: [generatedById], references: [id])
+  court           Court            @relation(fields: [courtId], references: [id], onDelete: Cascade)
+  createdBy User                @relation("ScheduleCreatedBy", fields: [createdById], references: [id])
   assignments ShiftAssignment[]
+   availabilitySubmissions AvailabilitySubmission[]
   warnings    ScheduleWarning[]
   changeLogs  ScheduleChangeLog[]
+   fairnessRecords FairnessRecord[]
 
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
@@ -386,7 +365,7 @@ model ScheduleWarning {
 model FairnessRecord {
   id            String @id @default(cuid())
   employeeId    String
-  periodId      String
+  scheduleId      String
   totalShifts   Int    @default(0)
   morningShifts Int    @default(0)
   eveningShifts Int    @default(0)
@@ -394,13 +373,13 @@ model FairnessRecord {
   weekendShifts Int    @default(0)
 
   employee Employee       @relation(fields: [employeeId], references: [id], onDelete: Cascade)
-  period   SchedulePeriod @relation(fields: [periodId], references: [id], onDelete: Cascade)
+  schedule   Schedule @relation(fields: [scheduleId], references: [id], onDelete: Cascade)
 
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
 
-  @@unique([employeeId, periodId])
-  @@index([periodId])
+  @@unique([employeeId, scheduleId])
+  @@index([scheduleId])
 }
 
 model ScheduleChangeLog {

@@ -14,8 +14,7 @@ type Props = {
   assignment: AssignmentSummary | null;
   employees: ScheduleEmployeeOption[];
   assignedEmployeeIds?: Set<string>;
-  scheduleId: string | null;
-  periodId: string;
+  scheduleId: string;
   courtId: string;
   date: string;
   shiftType: ShiftType;
@@ -32,7 +31,6 @@ export function AssignmentCell({
   employees,
   assignedEmployeeIds,
   scheduleId,
-  periodId,
   courtId,
   date,
   shiftType,
@@ -82,7 +80,6 @@ export function AssignmentCell({
         } else {
           await createAssignment({
             scheduleId,
-            periodId,
             employeeId,
             courtId,
             positionId,

@@ -1,4 +1,4 @@
-import type { PeriodStatus } from '@/generated/prisma/client';
+import type { ScheduleStatus } from '@/generated/prisma/client';
 
 export type CreateEmployeeParams = {
   firstName: string;
@@ -121,7 +121,7 @@ export type EmployeeSubmissionPeriod = {
   startDate: string;
   endDate: string;
   submissionDeadline: string;
-  status: PeriodStatus;
+  status: ScheduleStatus;
   availabilityId: string | null;
   isSubmitted: boolean;
   submittedAt: string | null;

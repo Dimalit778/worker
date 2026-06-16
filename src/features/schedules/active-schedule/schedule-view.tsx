@@ -8,8 +8,17 @@ import { SHIFT_ORDER } from '../constants';
 import type { ScheduleViewProps } from '../types';
 
 export function ScheduleView(props: ScheduleViewProps) {
-  const { periodId, startDate, scheduleId, assignments, employees, capacity, courtId, overflowCandidates, readonly } =
-    props;
+  const {
+    scheduleName,
+    startDate,
+    scheduleId,
+    assignments,
+    employees,
+    capacity,
+    courtId,
+    overflowCandidates,
+    readonly,
+  } = props;
   const [weekIndex, setWeekIndex] = useState(0);
   const weekDays = buildWeekDays(startDate, weekIndex);
 
@@ -37,7 +46,6 @@ export function ScheduleView(props: ScheduleViewProps) {
           employees={employees}
           capacity={capacity}
           scheduleId={scheduleId}
-          periodId={periodId}
           courtId={courtId}
           readonly={readonly}
         />

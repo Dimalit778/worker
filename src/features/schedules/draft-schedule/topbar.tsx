@@ -32,14 +32,14 @@ export function TopBar({ data }: { data: CurrentScheduleData }) {
               <ScheduleStatusBadge status={data.scheduleStatus} />
             </div>
             <CardDescription className="text-[0.9375rem] leading-relaxed">
-              <span className="font-medium text-foreground/90">{data.periodName}</span>
+              <span className="font-medium text-foreground/90">{data.scheduleName}</span>
               <span className="text-muted-foreground">
                 · {data.startDate} – {data.endDate}
               </span>
             </CardDescription>
           </div>
           <div className="flex w-full shrink-0 flex-col gap-2 sm:w-auto sm:flex-row sm:flex-wrap sm:justify-end">
-            <DraftActions periodId={data.periodId} scheduleId={data.scheduleId} scheduleStatus={data.scheduleStatus} />
+            <DraftActions scheduleId={data.scheduleId} scheduleStatus={data.scheduleStatus} />
           </div>
         </div>
       </CardHeader>

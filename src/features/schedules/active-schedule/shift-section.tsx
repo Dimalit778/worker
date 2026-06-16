@@ -43,25 +43,15 @@ type ShiftSectionProps = {
   overflowCandidates?: OverflowCandidateMap;
   employees: ScheduleEmployeeOption[];
   capacity: ScheduleCapacityRule[];
-  scheduleId: string | null;
-  periodId: string;
+  scheduleId: string;
+
   courtId: string;
   readonly?: boolean;
 };
 
 export function ShiftSection(props: ShiftSectionProps) {
-  const {
-    shiftType,
-    weekDays,
-    assignments,
-    overflowCandidates,
-    employees,
-    capacity,
-    scheduleId,
-    periodId,
-    courtId,
-    readonly,
-  } = props;
+  const { shiftType, weekDays, assignments, overflowCandidates, employees, capacity, scheduleId, courtId, readonly } =
+    props;
   const router = useRouter();
   const [positionModal, setPositionModal] = useState<PositionRowModalState | null>(null);
   const [positionName, setPositionName] = useState('');
@@ -279,7 +269,6 @@ export function ShiftSection(props: ShiftSectionProps) {
                         employees={employees}
                         assignedEmployeeIds={assignedOnShift}
                         scheduleId={scheduleId}
-                        periodId={periodId}
                         courtId={courtId}
                         date={day.iso}
                         shiftType={shiftType}

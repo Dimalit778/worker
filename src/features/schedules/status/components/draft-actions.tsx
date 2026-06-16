@@ -10,12 +10,11 @@ import type { ScheduleStatus } from '@/generated/prisma/client';
 import { STATUS_COLORS, STATUS_LABELS } from '../../constants';
 
 type Props = {
-  periodId: string;
-  scheduleId: string | null;
+  scheduleId: string;
   scheduleStatus: ScheduleStatus | null;
 };
 
-export function DraftActions({ periodId, scheduleId, scheduleStatus }: Props) {
+export function DraftActions({ scheduleId, scheduleStatus }: Props) {
   const router = useRouter();
   const [pending, startTransition] = useTransition();
   const [pendingAction, setPendingAction] = useState<'generate' | 'finalize' | 'publish' | null>(null);
@@ -28,7 +27,7 @@ export function DraftActions({ periodId, scheduleId, scheduleStatus }: Props) {
     setPendingAction('generate');
     startTransition(async () => {
       try {
-        const res = await generateAutoSchedule(periodId);
+        const res = await generateAutoSchedule(scheduleId);
         if ('error' in res) {
           setError(res.error);
           return;
