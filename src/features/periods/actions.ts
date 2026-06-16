@@ -6,12 +6,14 @@ import { PeriodSummary } from './types';
 import { parseISODateToUtcMidnight } from './utils';
 import { revalidatePath } from 'next/cache';
 
-// = מוצא רשימת תקופות למנהל
-export async function getSchedulesForManager(activeOnly: boolean = false): Promise<PeriodSummary[]> {
-  await requireSession(SystemRole.MANAGER);
+// = מוצא רשימת שיבוצים למנהל
+export async function getSchedulesList(): Promise<PeriodSummary[]> {
+  const session = await requireSession(SystemRole.MANAGER);
 
   const periods = await prisma.schedule.findMany({
-    where: activeOnly ? { status: ScheduleStatus.OPEN_FOR_SUBMISSION } : undefined,
+    where: {
+      courtId: session.user.courtId,
+    },
     orderBy: { startDate: 'desc' },
     include: {
       _count: {
@@ -37,11 +39,9 @@ export async function getSchedulesForManager(activeOnly: boolean = false): Promi
     totalEmployees: totalEmployees ?? 0,
   }));
 }
-// Keep old name as alias for backwards compatibility
-export const getPeriodsForManager = getSchedulesForManager;
 
 // = ליצור תקופה חדשה
-export async function createPeriod(data: {
+export async function createSchedule(data: {
   name: string;
   startDate: string;
   endDate: string;
@@ -49,7 +49,7 @@ export async function createPeriod(data: {
 }): Promise<{ ok: true; id: string } | { error: string }> {
   const session = await requireSession(SystemRole.MANAGER);
 
-  if (!data.name.trim()) return { error: 'שם התקופה חובה' };
+  if (!data.name.trim()) return { error: 'שם השיבוץ חובה' };
   if (!data.startDate || !data.endDate || !data.submissionDeadline) return { error: 'כל השדות חובה' };
   if (!session.user.courtId) return { error: 'למנהל אין בית משפט משויך' };
   if (!session.user.id) return { error: 'למנהל אין משתמש משויך' };
@@ -62,7 +62,7 @@ export async function createPeriod(data: {
   if (isNaN(deadline.getTime())) return { error: 'מועד אחרון להגשה לא תקין' };
 
   try {
-    const period = await prisma.schedule.create({
+    const schedule = await prisma.schedule.create({
       data: {
         name: data.name.trim(),
         startDate: start,
@@ -76,42 +76,40 @@ export async function createPeriod(data: {
 
     revalidatePath('/manager/periods');
     revalidatePath('/manager');
-    return { ok: true, id: period.id };
+    return { ok: true, id: schedule.id };
   } catch (e) {
     if (e instanceof Prisma.PrismaClientKnownRequestError && e.code === 'P2002') {
       return {
-        error: 'כבר קיימת תקופה עם אותם תאריכי התחלה וסיום עבור בית המשפט. מחקו או שינו את התקופה הקיימת.',
+        error: 'כבר קיים שיבוץ עם אותם תאריכי התחלה וסיום עבור בית המשפט. מחקו או שינו את השיבוץ הקיים.',
       };
     }
-    return { error: 'שגיאה ביצירת התקופה' };
+    return { error: 'שגיאה ביצירת השיבוץ' };
   }
 }
 // = למחוק תקופה
 export async function deleteSchedule(scheduleId: string): Promise<{ ok: true } | { error: string }> {
-  await requireSession(SystemRole.MANAGER);
+  const session = await requireSession(SystemRole.MANAGER);
 
   try {
-    await prisma.schedule.delete({ where: { id: scheduleId } });
+    await prisma.schedule.delete({ where: { id: scheduleId, courtId: session.user.courtId } });
     revalidatePath('/manager/periods');
     revalidatePath('/manager');
     return { ok: true };
   } catch {
-    return { error: 'שגיאה במחיקת התקופה' };
+    return { error: 'שגיאה במחיקת השיבוץ' };
   }
 }
-// Keep old name as alias
-export const deletePeriod = deleteSchedule;
 
 // = לעדכן סטטוס תקופה
 export async function updateScheduleStatus(
   scheduleId: string,
   status: ScheduleStatus,
 ): Promise<{ ok: true } | { error: string }> {
-  await requireSession(SystemRole.MANAGER);
+  const session = await requireSession(SystemRole.MANAGER);
 
   try {
     await prisma.schedule.update({
-      where: { id: scheduleId },
+      where: { id: scheduleId, courtId: session.user.courtId },
       data: { status },
     });
 
@@ -123,5 +121,3 @@ export async function updateScheduleStatus(
     return { error: 'שגיאה בעדכון הסטטוס' };
   }
 }
-// Keep old name as alias
-export const updatePeriodStatus = updateScheduleStatus;

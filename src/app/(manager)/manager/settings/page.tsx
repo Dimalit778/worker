@@ -1,6 +1,6 @@
 import { requireSession } from '@/lib/db/auth-helpers';
 import { SystemRole } from '@/generated/prisma/client';
-import { getPositions, getShiftCapacities } from '@/features/settings/queries';
+import { getPositions, getShiftCapacities, getShiftStaffingPositions } from '@/features/settings/queries';
 import { CourtCapacityRules } from '@/features/settings/components/court-capacity';
 import { PositionOrderSection } from '@/features/settings/components/position-order-section';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
@@ -12,6 +12,7 @@ export default async function ManagerSettingsPage() {
 
   const capacities = await getShiftCapacities(courtId);
   const positions = await getPositions(courtId);
+  const shiftStaffingPositions = await getShiftStaffingPositions(courtId);
 
   return (
     <div className="mx-auto w-full max-w-4xl space-y-8 pb-8 pt-1" dir="rtl">
@@ -63,7 +64,7 @@ export default async function ManagerSettingsPage() {
             </div>
           </CardHeader>
           <CardContent className="pt-5 sm:pt-6">
-            <CourtCapacityRules positions={positions} initialCapacities={capacities} />
+            <CourtCapacityRules positions={shiftStaffingPositions} initialCapacities={capacities} />
           </CardContent>
         </Card>
       </div>

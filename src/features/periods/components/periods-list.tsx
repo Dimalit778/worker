@@ -1,51 +1,51 @@
 'use client';
 
 import { useTransition } from 'react';
-import { updatePeriodStatus, deletePeriod } from '../actions';
-import { PeriodSummary } from '../types';
+import { updateScheduleStatus, deleteSchedule } from '../actions';
 import { PERIOD_STATUS_HE, NEXT_STATUS, STATUS_BADGE } from '../constants';
 import { cn } from '@/lib/utils';
 import { formatDate } from '../utils';
+import { ScheduleSummary } from '@/features/schedules/types';
 
-const PeriodRow = ({ period }: { period: PeriodSummary }) => {
+const ScheduleRow = ({ schedule }: { schedule: ScheduleSummary }) => {
   const [statusPending, startStatusTransition] = useTransition();
   const [deletePending, startDeleteTransition] = useTransition();
-  const next = NEXT_STATUS[period.status];
+  const next = NEXT_STATUS[schedule.status];
   const pending = statusPending || deletePending;
 
   function handleStatusChange() {
     if (!next) return;
     startStatusTransition(async () => {
-      await updatePeriodStatus(period.id, next.status);
+      await updateScheduleStatus(schedule.id, next.status);
     });
   }
 
   function handleDelete() {
-    if (!confirm(`למחוק את התקופה "${period.name}"? הפעולה תמחק גם את כל ההגשות והשיבוצים שלה.`)) return;
+    if (!confirm(`למחוק את השיבוץ "${schedule.name}"? הפעולה תמחק גם את כל ההגשות והשיבוצים שלה.`)) return;
     startDeleteTransition(async () => {
-      await deletePeriod(period.id);
+      await deleteSchedule(schedule.id);
     });
   }
 
   return (
     <div className="flex items-center gap-3 px-4 py-3 border-b last:border-b-0 border-border hover:bg-muted/30 transition-colors">
       <div className="flex-1 min-w-0">
-        <p className="font-medium text-sm truncate">{period.name}</p>
+        <p className="font-medium text-sm truncate">{schedule.name}</p>
         <p className="text-xs text-muted-foreground mt-0.5">
-          {formatDate(period.startDate)} – {formatDate(period.endDate)}
+          {formatDate(schedule.startDate)} – {formatDate(schedule.endDate)}
         </p>
       </div>
 
       <div className="text-center hidden sm:block">
         <p className="text-xs text-muted-foreground">הגשות</p>
         <p className="text-sm font-semibold">
-          {period.submittedCount}
-          <span className="text-muted-foreground font-normal">/{period.totalEmployees}</span>
+          {schedule.submittedCount}
+          <span className="text-muted-foreground font-normal">/{schedule.totalEmployees}</span>
         </p>
       </div>
 
-      <span className={cn('text-xs font-medium px-2.5 py-1 rounded-full shrink-0', STATUS_BADGE[period.status])}>
-        {PERIOD_STATUS_HE[period.status]}
+      <span className={cn('text-xs font-medium px-2.5 py-1 rounded-full shrink-0', STATUS_BADGE[schedule.status])}>
+        {PERIOD_STATUS_HE[schedule.status]}
       </span>
 
       {next && (
@@ -72,15 +72,15 @@ const PeriodRow = ({ period }: { period: PeriodSummary }) => {
   );
 };
 
-export function PeriodsList({ periods }: { periods: PeriodSummary[] }) {
-  if (periods.length === 0) {
+export function SchedulesList({ schedules }: { schedules: ScheduleSummary[] }) {
+  if (schedules.length === 0) {
     return <p className="text-sm text-muted-foreground text-center py-8">אין תקופות — צור תקופה חדשה כדי להתחיל.</p>;
   }
 
   return (
     <div className="divide-y-0">
-      {periods.map((p) => (
-        <PeriodRow key={p.id} period={p} />
+      {schedules.map((s) => (
+        <ScheduleRow key={s.id} schedule={s} />
       ))}
     </div>
   );

@@ -7,11 +7,9 @@ config({ path: resolve(process.cwd(), '.env.local') });
 config({ path: resolve(process.cwd(), '.env') });
 
 function datasourceUrl(): string {
-  const url = process.env.DIRECT_URL ?? process.env.DATABASE_URL;
+  const url = process.env.DATABASE_URL;
   if (!url) {
-    throw new Error(
-      'Set DATABASE_URL (and DIRECT_URL for Neon migrations) in .env or .env.local.',
-    );
+    throw new Error('Set DATABASE_URL (and DIRECT_URL for Neon migrations) in .env or .env.local.');
   }
   return url;
 }

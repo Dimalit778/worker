@@ -87,8 +87,6 @@ const ALL_DAY_CATEGORIES = [
 
 function defaultRequiredCountForPosition(positionCode: number) {
   switch (positionCode) {
-    case 1:
-      return 0; // קצין מתקן לא חייב להופיע בכל משמרת
     case 2:
       return 1; // אחמ״ש
     case 3:

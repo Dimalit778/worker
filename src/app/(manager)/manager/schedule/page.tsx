@@ -12,6 +12,7 @@ export default async function ManagerActiveSchedulePage() {
   }
 
   const data = await getActiveSchedule(session.user.courtId);
+  console.log(data);
 
   if (!data) {
     return (

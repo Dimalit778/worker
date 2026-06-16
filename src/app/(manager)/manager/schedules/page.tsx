@@ -1,26 +1,26 @@
 import { requireSession } from '@/lib/db/auth-helpers';
 import { ScheduleStatus, SystemRole } from '@/generated/prisma/client';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
-import { getPeriodsForManager } from '@/features/periods/actions';
-import { PeriodsList } from '@/features/periods/components/periods-list';
+import { getSchedulesList } from '@/features/periods/actions';
+import { SchedulesList } from '@/features/periods/components/periods-list';
 import { CreatePeriodForm } from '@/features/periods/components/create-period-form';
 import { PeriodCalendar } from '@/features/periods/components/period-calendar';
 import ScheduleInformation from '@/features/schedules/draft-schedule/schedule-information';
 
-export default async function ManagerPeriodsPage() {
+export default async function SchedulesListPage() {
   await requireSession(SystemRole.MANAGER);
 
-  const periods = await getPeriodsForManager();
+  const schedules = await getSchedulesList();
 
-  const activeCount = periods.filter((p) => p.status === ScheduleStatus.OPEN_FOR_SUBMISSION).length;
-  const totalSubmissions = periods.reduce((sum, p) => sum + p.submittedCount, 0);
-  const openPeriod = periods.find((p) => p.status === ScheduleStatus.OPEN_FOR_SUBMISSION);
+  const activeCount = schedules.filter((p) => p.status === ScheduleStatus.OPEN_FOR_SUBMISSION).length;
+  const totalSubmissions = schedules.reduce((sum, p) => sum + p.submittedCount, 0);
+  const openPeriod = schedules.find((p) => p.status === ScheduleStatus.OPEN_FOR_SUBMISSION);
 
   return (
     <div className="space-y-6" dir="rtl">
       <CreatePeriodForm />
 
-      <ScheduleInformation activeCount={activeCount} totalSubmissions={totalSubmissions} periods={periods} />
+      <ScheduleInformation activeCount={activeCount} totalSubmissions={totalSubmissions} schedules={schedules} />
 
       {openPeriod && (
         <Card>
@@ -41,7 +41,7 @@ export default async function ManagerPeriodsPage() {
           <CardTitle className="text-base">כל התקופות</CardTitle>
         </CardHeader>
         <CardContent className="p-0">
-          <PeriodsList periods={periods} />
+          <SchedulesList schedules={schedules} />
         </CardContent>
       </Card>
     </div>

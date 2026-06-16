@@ -5,8 +5,9 @@ import { ManagerAppShell } from './manager-app-shell';
 
 const navItems = [
   { href: '/manager', label: 'ראשי' },
-  { href: '/manager/schedule', label: 'שיבוץ פעיל' },
-  { href: '/manager/periods', label: 'תקופות' },
+  { href: '/manager/schedule', label: 'שיבוץ ' },
+  { href: '/manager/schedules', label: 'שיבוצים' },
+  { href: '/manager/draft', label: 'שיבוץ בהכנה' },
   { href: '/manager/employees', label: 'עובדים' },
   { href: '/manager/settings', label: 'הגדרות' },
 ] as const;

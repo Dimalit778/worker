@@ -1,71 +1,42 @@
 import { requireSession } from '@/lib/db/auth-helpers';
-import { ScheduleStatus, SystemRole } from '@/generated/prisma/client';
-import { Card, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
-import { getDraftScheduleData } from '@/features/schedules/assignments/queries';
-import { TopBar } from '@/features/schedules/draft-schedule/topbar';
-import { ScheduleStats } from '@/features/schedules/draft-schedule/schedule-stats';
-import { ScheduleView } from '@/features/schedules/active-schedule/schedule-view';
+import { SystemRole } from '@/generated/prisma/client';
+import { ScheduleStatusCards } from '@/features/dashboard/components/schedule-status-cards';
+import { FairnessHighlights } from '@/features/dashboard/components/fairness-highlights';
+import { RecentActivity } from '@/features/dashboard/components/recent-activity';
+import { StaffSummary } from '@/features/dashboard/components/staff-summary';
+import { WeekCoverageCard } from '@/features/dashboard/components/week-coverage-card';
+import { YearSchedulesSection } from '@/features/dashboard/components/year-schedules-section';
+import { getManagerDashboardData } from '@/features/dashboard/queries';
+import { parseMonthParam } from '@/features/dashboard/utils';
 
-export default async function ManagerDashboardPage() {
+type ManagerDashboardPageProps = {
+  searchParams: Promise<{ month?: string }>;
+};
+
+export default async function ManagerDashboardPage({ searchParams }: ManagerDashboardPageProps) {
   const session = await requireSession(SystemRole.MANAGER);
   const courtId = session.user.courtId ?? '';
+  const { month } = await searchParams;
+  const selection = parseMonthParam(month);
 
-  const data = await getDraftScheduleData(courtId);
-
-  if (!data) {
-    return (
-      <div className="space-y-4" dir="rtl">
-        <Card size="sm" className="border-dashed">
-          <CardHeader>
-            <CardTitle className="text-lg">שיבוץ בהכנה</CardTitle>
-            <CardDescription className="text-base">לא נמצאה תקופת תזמון פתוחה לשיבוץ.</CardDescription>
-          </CardHeader>
-        </Card>
-      </div>
-    );
-  }
-
-  const isReadonly = data.scheduleStatus === ScheduleStatus.ACTIVE;
-  const submission = data.availabilitySubmissionSummary;
-  const eligible = submission?.eligibleEmployeeCount ?? 0;
-  const submitted = submission?.submittedCount ?? 0;
-  const missingEmployees = submission?.missingEmployees ?? [];
+  const data = await getManagerDashboardData(courtId, selection.year);
 
   return (
-    <div className="space-y-6" dir="rtl">
-      <TopBar data={data} />
-      <ScheduleStats
+    <div className="space-y-8" dir="rtl">
+      <ScheduleStatusCards
+        activeSchedule={data.activeSchedule}
+        draftSchedule={data.draftSchedule}
         warnings={data.warnings}
-        submittedCount={submitted}
-        eligibleCount={eligible}
-        missingEmployees={missingEmployees}
+        submissionSummary={data.submissionSummary}
       />
 
-      {isReadonly && (
-        <div
-          className="flex gap-3 rounded-2xl border border-green-200/80 bg-green-50 px-4 py-3 text-sm text-green-900 shadow-sm ring-1 ring-green-100"
-          role="status"
-        >
-          <span className="select-none text-base leading-none" aria-hidden>
-            ✓
-          </span>
-          <p className="leading-snug">השיבוץ פורסם ומוצג לכלל העובדים. לעריכה נוספת יש לפנות להגדרות.</p>
-        </div>
-      )}
+      <StaffSummary byPosition={data.staff.byPosition} totalActive={data.staff.totalActive} />
 
-      <ScheduleView
-        scheduleId={data.scheduleId}
-        scheduleName={data.scheduleName}
-        startDate={data.startDate}
-        endDate={data.endDate}
-        scheduleStatus={data.scheduleStatus}
-        assignments={data.assignments}
-        employees={data.employees}
-        capacity={data.capacity}
-        courtId={data.courtId}
-        overflowCandidates={data.overflowCandidates}
-        readonly={isReadonly}
-      />
+      {/* <FairnessHighlights items={data.fairness} /> */}
+
+      <YearSchedulesSection yearSchedules={data.yearSchedules} initialSelection={selection} />
+
+      {/* <RecentActivity items={data.recentActivity} /> */}
     </div>
   );
 }

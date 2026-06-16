@@ -1,5 +1,15 @@
 import type { DayCategory, ScheduleStatus, ShiftType, WarningSeverity, WarningType } from '@/generated/prisma/client';
 
+export type ScheduleSummary = {
+  id: string;
+  name: string;
+  startDate: string;
+  endDate: string;
+  submissionDeadline: string;
+  status: ScheduleStatus;
+  submittedCount: number;
+  totalEmployees: number;
+};
 export type ScheduleEmployeeOption = {
   id: string;
   displayName: string;

@@ -10,6 +10,15 @@ export function managerCourtPositionsWhere(courtId: string): Prisma.PositionWher
   };
 }
 
+/** Positions that appear in per-shift staffing grids. Excludes roles not staffed on shifts. */
+export function shiftStaffingPositionsWhere(courtId: string): Prisma.PositionWhereInput {
+  return {
+    courtId,
+    isActive: true,
+    name: { notIn: ['מנהל', 'קצין מתקן'] },
+  };
+}
+
 export async function getRulesCapacity(courtId: string) {
   if (!courtId) return [];
 
@@ -37,6 +46,21 @@ export async function getPositions(courtId: string) {
 
   return prisma.position.findMany({
     where: managerCourtPositionsWhere(courtId),
+    select: {
+      id: true,
+      name: true,
+      code: true,
+      color: true,
+    },
+    orderBy: [{ code: 'asc' }, { createdAt: 'asc' }],
+  });
+}
+
+export async function getShiftStaffingPositions(courtId: string) {
+  if (!courtId) return [];
+
+  return prisma.position.findMany({
+    where: shiftStaffingPositionsWhere(courtId),
     select: {
       id: true,
       name: true,

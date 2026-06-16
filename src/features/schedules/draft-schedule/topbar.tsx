@@ -1,4 +1,5 @@
 import { CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
+import { CreatePeriodForm } from '@/features/periods/components/create-period-form';
 import { DraftActions } from '../status/components/draft-actions';
 import { Card } from '@/components/ui/card';
 import type { CurrentScheduleData } from '../types';
@@ -21,7 +22,7 @@ function ScheduleStatusBadge({ status }: { status: ScheduleStatus | null }) {
   );
 }
 
-export function TopBar({ data }: { data: CurrentScheduleData }) {
+export function TopBar({ data, showCreateButton = false }: { data: CurrentScheduleData; showCreateButton?: boolean }) {
   return (
     <Card size="sm" className="shadow-sm">
       <CardHeader className="border-b border-border/50 space-y-4 pb-4">
@@ -39,6 +40,7 @@ export function TopBar({ data }: { data: CurrentScheduleData }) {
             </CardDescription>
           </div>
           <div className="flex w-full shrink-0 flex-col gap-2 sm:w-auto sm:flex-row sm:flex-wrap sm:justify-end">
+            {showCreateButton && <CreatePeriodForm triggerLabel="צור שיבוץ חדש" />}
             <DraftActions scheduleId={data.scheduleId} scheduleStatus={data.scheduleStatus} />
           </div>
         </div>

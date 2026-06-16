@@ -1,9 +1,10 @@
 'use client';
 
 import { useState, useTransition } from 'react';
+import { useRouter } from 'next/navigation';
 import { cn } from '@/lib/utils';
 import { PERIOD_OPTIONS } from '../constants';
-import { createPeriod } from '../actions';
+import { createSchedule } from '../actions';
 import { PeriodType } from '../types';
 import {
   RadioGroup,
@@ -18,7 +19,14 @@ import {
 } from '@/components/ui';
 import { upcomingSundayISO, suggestName, deriveFields } from '../utils';
 
-export function CreatePeriodForm({ onCreated }: { onCreated?: () => void }) {
+export function CreatePeriodForm({
+  onCreated,
+  triggerLabel = 'תקופה חדשה',
+}: {
+  onCreated?: () => void;
+  triggerLabel?: string;
+}) {
+  const router = useRouter();
   const [open, setOpen] = useState(false);
   const [periodType, setPeriodType] = useState<PeriodType>('biweekly');
   const [name, setName] = useState(() => suggestName(upcomingSundayISO(), 14));
@@ -56,12 +64,13 @@ export function CreatePeriodForm({ onCreated }: { onCreated?: () => void }) {
       const sun = upcomingSundayISO();
       const d = PERIOD_OPTIONS.find((o) => o.value === periodType)!.days;
       const { end, deadline } = deriveFields(sun, d);
-      const res = await createPeriod({ name, startDate: sun, endDate: end, submissionDeadline: deadline });
+      const res = await createSchedule({ name, startDate: sun, endDate: end, submissionDeadline: deadline });
       if ('error' in res) {
         setError(res.error);
       } else {
         setOpen(false);
         onCreated?.();
+        router.refresh();
       }
     });
   }
@@ -73,7 +82,7 @@ export function CreatePeriodForm({ onCreated }: { onCreated?: () => void }) {
           <svg className="size-4" viewBox="0 0 16 16" fill="currentColor" aria-hidden>
             <path d="M8 2a.75.75 0 0 1 .75.75v4.5h4.5a.75.75 0 0 1 0 1.5h-4.5v4.5a.75.75 0 0 1-1.5 0v-4.5h-4.5a.75.75 0 0 1 0-1.5h4.5v-4.5A.75.75 0 0 1 8 2Z" />
           </svg>
-          תקופה חדשה
+          {triggerLabel}
         </Button>
       </DialogTrigger>
       <DialogContent
