@@ -12,7 +12,6 @@ export default async function ManagerActiveSchedulePage() {
   }
 
   const data = await getActiveSchedule(session.user.courtId);
-  console.log(data);
 
   if (!data) {
     return (
@@ -34,6 +33,7 @@ export default async function ManagerActiveSchedulePage() {
       capacity={data.capacity}
       courtId={data.courtId}
       overflowCandidates={data.overflowCandidates}
+      currentEmployeeId={session.user.employeeId ?? null}
       readonly={false}
     />
   );

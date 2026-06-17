@@ -2,10 +2,23 @@
 
 import { useCallback, useEffect, useId, useState } from 'react';
 import Link from 'next/link';
-import { LogoutButton } from '@/components/ui/logout-button';
+import { usePathname } from 'next/navigation';
+import {
+  CalendarDays,
+  ClipboardList,
+  LayoutDashboard,
+  LogOut,
+  Menu,
+  PenLine,
+  Scale,
+  Settings,
+  Users,
+  X,
+  type LucideIcon,
+} from 'lucide-react';
 import { Button } from '@/components/ui/button';
-import { Menu, X } from 'lucide-react';
 import { cn } from '@/lib/utils';
+import { signOut } from 'next-auth/react';
 
 export type ManagerNavItem = { href: string; label: string };
 
@@ -16,31 +29,124 @@ type ManagerAppShellProps = {
   children: React.ReactNode;
 };
 
+const NAV_ICONS: Record<string, LucideIcon> = {
+  '/manager': LayoutDashboard,
+  '/manager/schedule': CalendarDays,
+  '/manager/schedules': ClipboardList,
+  '/manager/draft': PenLine,
+  '/manager/employees': Users,
+  '/manager/settings': Settings,
+};
+
+function isNavActive(pathname: string, href: string): boolean {
+  if (href === '/manager') return pathname === '/manager';
+  return pathname === href || pathname.startsWith(`${href}/`);
+}
+
+function BrandHeader({ courtName }: { courtName: string | null }) {
+  const title = courtName || 'מערכת שיבוץ';
+
+  return (
+    <div className="flex min-h-24 min-w-0 shrink-0 items-center gap-3 border-b border-sidebar-border px-4 py-4">
+      <div className="flex size-11 shrink-0 items-center justify-center rounded-md bg-sidebar-primary text-sidebar-primary-foreground shadow-sm">
+        <Scale className="size-6" aria-hidden />
+      </div>
+
+      <div className="min-w-0 flex-1">
+        <p className="line-clamp-2 text-base font-semibold leading-tight text-sidebar-foreground" title={title}>
+          {title}
+        </p>
+        <p className="mt-1 truncate text-xs font-medium text-muted-foreground">ניהול סידור עבודה</p>
+      </div>
+    </div>
+  );
+}
+
 function NavLinks({
   items,
+  pathname,
   onNavigate,
   className,
 }: {
   items: readonly ManagerNavItem[];
+  pathname: string;
   onNavigate?: () => void;
   className?: string;
 }) {
   return (
-    <nav className={cn('flex-1 p-2 space-y-1', className)}>
-      {items.map((item) => (
-        <Link
-          key={item.href}
-          href={item.href}
-          onClick={() => {
-            // Defer so the browser can process navigation before the drawer closes / becomes inert.
-            if (onNavigate) queueMicrotask(onNavigate);
-          }}
-          className="flex items-center gap-2 rounded-md px-3 py-2 text-sm hover:bg-accent hover:text-accent-foreground transition-colors"
-        >
-          {item.label}
-        </Link>
-      ))}
+    <nav className={cn('flex-1 space-y-1 overflow-y-auto px-3 py-4', className)} aria-label="ניווט מנהל">
+      {items.map((item) => {
+        const active = isNavActive(pathname, item.href);
+        const Icon = NAV_ICONS[item.href] ?? LayoutDashboard;
+
+        return (
+          <Link
+            key={item.href}
+            href={item.href}
+            onClick={() => {
+              if (onNavigate) queueMicrotask(onNavigate);
+            }}
+            aria-current={active ? 'page' : undefined}
+            className={cn(
+              'group relative flex min-h-11 min-w-0 items-center gap-3 rounded-md px-3 py-2.5 text-sm font-medium transition-all focus-visible:outline-none focus-visible:ring-3 focus-visible:ring-sidebar-ring/25',
+              active
+                ? 'bg-sidebar-primary text-sidebar-primary-foreground shadow-sm'
+                : 'text-sidebar-foreground/72 hover:bg-sidebar-accent hover:text-sidebar-accent-foreground',
+            )}
+          >
+            <span
+              className={cn(
+                'absolute inset-y-2 start-0 w-1 rounded-e-full transition-opacity',
+                active ? 'bg-sidebar-primary-foreground/70 opacity-100' : 'opacity-0',
+              )}
+              aria-hidden
+            />
+            <Icon
+              className={cn(
+                'size-5 shrink-0 transition-colors',
+                active
+                  ? 'text-sidebar-primary-foreground'
+                  : 'text-muted-foreground group-hover:text-sidebar-accent-foreground',
+              )}
+              aria-hidden
+            />
+            <p className="truncate" title={item.label}>
+              {item.label}
+            </p>
+          </Link>
+        );
+      })}
     </nav>
+  );
+}
+
+function SidebarFooter({ fullName }: { fullName: string }) {
+  const displayName = fullName || 'משתמש';
+  const initial = displayName.trim().charAt(0) || 'מ';
+
+  return (
+    <div className="shrink-0 border-t border-sidebar-border p-3">
+      <div className="mb-3 flex min-w-0 items-center gap-3 rounded-md bg-sidebar-accent/65 px-3 py-2.5">
+        <div className="flex size-9 shrink-0 items-center justify-center rounded-md bg-card text-sm font-semibold text-sidebar-accent-foreground shadow-sm">
+          {initial}
+        </div>
+        <div className="min-w-0 flex-1 overflow-hidden">
+          <p className="truncate text-sm font-semibold text-sidebar-foreground" title={displayName}>
+            {displayName}
+          </p>
+          <p className="truncate text-xs text-muted-foreground">מנהל מערכת</p>
+        </div>
+      </div>
+      <Button
+        variant="ghost"
+        size="sm"
+        className="h-9 w-full justify-start gap-2 px-3 text-destructive hover:bg-destructive/10 hover:text-destructive"
+        onClick={() => signOut({ callbackUrl: '/login' })}
+      >
+        <LogOut className="size-4" aria-hidden />
+        יציאה
+      </Button>
+    </div>
   );
 }
 
@@ -48,28 +154,26 @@ function SidebarContent({
   fullName,
   courtName,
   navItems,
+  pathname,
   onNavigate,
 }: {
   fullName: string;
   courtName: string | null;
   navItems: readonly ManagerNavItem[];
+  pathname: string;
   onNavigate?: () => void;
 }) {
   return (
     <>
-      <div className="p-4 border-b">
-        <p className="text-lg font-bold text-primary text-center mb-2">{fullName}</p>
-        <p className="text-md text-muted-foreground mt-0.5">{courtName}</p>
-      </div>
-      <NavLinks items={navItems} onNavigate={onNavigate} />
-      <div className="p-2 border-t">
-        <LogoutButton className="w-full justify-start" />
-      </div>
+      <BrandHeader courtName={courtName} />
+      <NavLinks items={navItems} pathname={pathname} onNavigate={onNavigate} />
+      <SidebarFooter fullName={fullName} />
     </>
   );
 }
 
 export function ManagerAppShell({ fullName, courtName, navItems, children }: ManagerAppShellProps) {
+  const pathname = usePathname();
   const [open, setOpen] = useState(false);
   const titleId = useId();
 
@@ -102,13 +206,12 @@ export function ManagerAppShell({ fullName, courtName, navItems, children }: Man
   }, []);
 
   return (
-    <div className="h-screen flex bg-background">
-      <aside className="hidden md:flex w-40 border-e bg-card flex-col shrink-0">
-        <SidebarContent fullName={fullName} courtName={courtName} navItems={navItems} />
+    <div className="flex h-screen bg-background">
+      <aside className="hidden w-64 shrink-0 flex-col overflow-hidden border-s border-sidebar-border bg-sidebar text-sidebar-foreground shadow-sm md:flex">
+        <SidebarContent fullName={fullName} courtName={courtName} navItems={navItems} pathname={pathname} />
       </aside>
 
-      {/* Mobile top bar + drawer (bar must stay above overlay stack so the menu/close control always receives clicks) */}
-      <div className="md:hidden fixed top-0 inset-x-0 z-100 border-b bg-card flex items-center gap-2 px-3 h-12 shrink-0">
+      <div className="fixed inset-x-0 top-0 z-100 flex h-14 shrink-0 items-center gap-3 border-b border-border bg-card/95 px-3 shadow-sm backdrop-blur supports-backdrop-filter:bg-card/80 md:hidden">
         <Button
           type="button"
           variant="ghost"
@@ -121,14 +224,28 @@ export function ManagerAppShell({ fullName, courtName, navItems, children }: Man
           {open ? <X className="size-5" aria-hidden /> : <Menu className="size-5" aria-hidden />}
           <span className="sr-only">{open ? 'סגור תפריט' : 'פתח תפריט'}</span>
         </Button>
-        <p className="min-w-0 flex-1 text-sm font-medium text-foreground truncate">{courtName ?? fullName}</p>
+        <div className="flex min-w-0 flex-1 items-center gap-2.5">
+          <div className="flex size-8 shrink-0 items-center justify-center rounded-md bg-primary/15 text-primary">
+            <Scale className="size-4" aria-hidden />
+          </div>
+          <div className="min-w-0 flex-1 overflow-hidden">
+            <p className="truncate text-sm font-semibold text-foreground" title={courtName ?? fullName}>
+              {courtName ?? fullName}
+            </p>
+            {courtName ? (
+              <p className="truncate text-xs text-muted-foreground" title={fullName}>
+                {fullName}
+              </p>
+            ) : null}
+          </div>
+        </div>
       </div>
 
-      <div className="md:hidden fixed inset-0 z-40 pointer-events-none" role="presentation" aria-hidden={!open}>
+      <div className="pointer-events-none fixed inset-0 z-40 md:hidden" role="presentation" aria-hidden={!open}>
         <div
           className={cn(
-            'absolute top-12 left-0 right-0 bottom-0 z-40 transition-opacity duration-300 ease-out',
-            open ? 'pointer-events-auto bg-black/50 opacity-100' : 'pointer-events-none opacity-0',
+            'absolute inset-x-0 top-14 bottom-0 z-40 transition-opacity duration-300 ease-out',
+            open ? 'pointer-events-auto bg-black/45 opacity-100' : 'pointer-events-none opacity-0',
           )}
           aria-hidden={!open}
           onClick={close}
@@ -136,9 +253,9 @@ export function ManagerAppShell({ fullName, courtName, navItems, children }: Man
         <div
           id={titleId + '-nav'}
           className={cn(
-            'absolute z-50 top-12 bottom-0 right-0 w-[min(16rem,85vw)] max-w-full flex flex-col border-l bg-card shadow-lg',
+            'absolute top-14 bottom-0 right-0 z-50 flex w-64 max-w-[85vw] flex-col border-s border-sidebar-border bg-sidebar text-sidebar-foreground shadow-xl',
             'transition-transform duration-300 ease-out will-change-transform',
-            open ? 'translate-x-0 pointer-events-auto' : 'translate-x-full pointer-events-none',
+            open ? 'pointer-events-auto translate-x-0' : 'pointer-events-none translate-x-full',
           )}
           role="dialog"
           aria-modal={open}
@@ -149,11 +266,19 @@ export function ManagerAppShell({ fullName, courtName, navItems, children }: Man
           <h2 id={titleId} className="sr-only">
             ניווט
           </h2>
-          <SidebarContent fullName={fullName} courtName={courtName} navItems={navItems} onNavigate={close} />
+          <SidebarContent
+            fullName={fullName}
+            courtName={courtName}
+            navItems={navItems}
+            pathname={pathname}
+            onNavigate={close}
+          />
         </div>
       </div>
 
-      <main className="flex-1 p-4 md:p-6 overflow-auto w-full min-w-0 pt-16 md:pt-6">{children}</main>
+      <main className="min-w-0 flex-1 overflow-auto pt-14 md:pt-0">
+        <div className="min-h-full p-4 md:p-6">{children}</div>
+      </main>
     </div>
   );
 }

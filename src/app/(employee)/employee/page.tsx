@@ -31,6 +31,7 @@ export default async function EmployeeActiveSchedulePage() {
       capacity={data.capacity}
       courtId={data.courtId}
       overflowCandidates={data.overflowCandidates}
+      currentEmployeeId={session.user.employeeId}
       readonly={true}
     />
   );

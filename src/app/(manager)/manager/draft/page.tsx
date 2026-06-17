@@ -72,6 +72,7 @@ export default async function ManagerDraftSchedulePage() {
         courtId={data.courtId}
         overflowCandidates={data.overflowCandidates}
         readonly={isReadonly}
+        viewMode="table"
       />
     </div>
   );

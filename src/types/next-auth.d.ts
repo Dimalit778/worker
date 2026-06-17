@@ -9,7 +9,7 @@ declare module 'next-auth' {
       courtId: string;
       employeeId: string;
       mustChangePassword: boolean;
-      fullName?: string;
+      fullName: string;
     } & DefaultSession['user'];
   }
 
@@ -18,7 +18,7 @@ declare module 'next-auth' {
     courtId: string;
     employeeId: string;
     mustChangePassword: boolean;
-    fullName?: string;
+    fullName: string;
   }
 }
 
@@ -28,6 +28,6 @@ declare module 'next-auth/jwt' {
     courtId: string;
     employeeId: string;
     mustChangePassword: boolean;
-    fullName?: string;
+    fullName: string;
   }
 }

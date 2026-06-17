@@ -3,6 +3,7 @@
 import { useState } from 'react';
 import { WeekNavigator } from './week-navigator';
 import { ShiftSection } from './shift-section';
+import { ScheduleCardsView } from './schedule-cards-view';
 import { buildWeekDays } from '../utils';
 import { SHIFT_ORDER } from '../constants';
 import type { ScheduleViewProps } from '../types';
@@ -17,6 +18,8 @@ export function ScheduleView(props: ScheduleViewProps) {
     courtId,
     overflowCandidates,
     readonly,
+    currentEmployeeId,
+    viewMode = 'cards',
   } = props;
   const [weekIndex, setWeekIndex] = useState(0);
   const weekDays = buildWeekDays(startDate, weekIndex);
@@ -24,6 +27,19 @@ export function ScheduleView(props: ScheduleViewProps) {
   function weekRangeLabel(idx: number): string {
     const days = buildWeekDays(startDate, idx);
     return `${days[0].label} - ${days[6].label}`;
+  }
+
+  if (viewMode === 'cards') {
+    return (
+      <ScheduleCardsView
+        startDate={startDate}
+        endDate={props.endDate}
+        scheduleName={props.scheduleName}
+        assignments={assignments}
+        capacity={capacity}
+        currentEmployeeId={currentEmployeeId}
+      />
+    );
   }
 
   return (

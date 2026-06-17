@@ -6,7 +6,6 @@ import { ManagerAppShell } from './manager-app-shell';
 const navItems = [
   { href: '/manager', label: 'ראשי' },
   { href: '/manager/schedule', label: 'שיבוץ ' },
-  { href: '/manager/schedules', label: 'שיבוצים' },
   { href: '/manager/draft', label: 'שיבוץ בהכנה' },
   { href: '/manager/employees', label: 'עובדים' },
   { href: '/manager/settings', label: 'הגדרות' },
@@ -18,7 +17,7 @@ export default async function ManagerLayout({ children }: { children: React.Reac
   const court = session.user.courtId ? await prisma.court.findUnique({ where: { id: session.user.courtId } }) : null;
 
   return (
-    <ManagerAppShell fullName={session.user.fullName ?? ''} courtName={court?.name ?? null} navItems={navItems}>
+    <ManagerAppShell fullName={session.user.fullName} courtName={court?.name ?? null} navItems={navItems}>
       {children}
     </ManagerAppShell>
   );

@@ -105,6 +105,8 @@ export type ScheduleViewProps = {
   courtId: string;
   overflowCandidates?: OverflowCandidateMap;
   readonly?: boolean;
+  currentEmployeeId?: string | null;
+  viewMode?: 'cards' | 'table';
 };
 
 export type WeekDay = {

@@ -40,14 +40,16 @@ export const authOptions: NextAuthOptions = {
         const isValid = await bcrypt.compare(credentials.password, user.passwordHash);
         if (!isValid) return null;
 
-        const courtId = user.employee?.courtId;
-        const employeeId = user.employee?.id;
-        if (!courtId || !employeeId) return null;
+        const employee = user.employee;
+        if (!employee) return null;
+
+        const courtId = employee.courtId;
+        const employeeId = employee.id;
         return {
           id: user.id,
           email: user.email,
-          fullName: user.employee?.firstName + ' ' + user.employee?.lastName,
-          phone: user.employee?.phone,
+          fullName: employee.displayName,
+          phone: employee.phone,
           systemRole: user.systemRole,
           courtId,
           employeeId,
@@ -80,7 +82,7 @@ export const authOptions: NextAuthOptions = {
         session.user.courtId = token.courtId;
         session.user.employeeId = token.employeeId;
         session.user.mustChangePassword = token.mustChangePassword ?? false;
-        session.user.fullName = token.fullName;
+        session.user.fullName = token.fullName || session.user.name || session.user.email || '';
       }
       return session;
     },
