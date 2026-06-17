@@ -3,13 +3,6 @@ import type { PeriodSummary } from '@/features/periods/types';
 import type { ScheduleWarningSummary } from '@/features/schedules/types';
 import type { StaffPositionCount } from './queries';
 
-export type StaffingGap = {
-  positionName: string;
-  employeeCount: number;
-  requiredPerShift: number;
-  gap: number;
-};
-
 export type MissingEmployee = {
   id: string;
   displayName: string;
@@ -55,20 +48,14 @@ export type ManagerDashboardData = {
   staff: {
     byPosition: StaffPositionCount[];
     totalActive: number;
-    gaps: StaffingGap[];
   };
   activeSchedule: ScheduleSnapshot | null;
   draftSchedule: ScheduleSnapshot | null;
-  workingSchedule: ScheduleSnapshot | null;
-  nextSchedule: ScheduleSnapshot | null;
   warnings: ScheduleWarningSummary[];
   submissionSummary: {
     submittedCount: number;
     eligibleCount: number;
     missingEmployees: MissingEmployee[];
   } | null;
-  weekCoverage: WeekCoverage;
-  fairness: FairnessHighlight[];
-  recentActivity: RecentActivityItem[];
   yearSchedules: PeriodSummary[];
 };

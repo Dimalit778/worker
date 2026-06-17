@@ -6,13 +6,7 @@ import { useRouter } from 'next/navigation';
 import { CalendarDays, ChevronLeft, ChevronRight } from 'lucide-react';
 import { Card, CardContent, CardHeader } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
-import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from '@/components/ui/select';
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { PERIOD_STATUS_HE, STATUS_BADGE } from '@/features/periods/constants';
 import { formatDate } from '@/features/periods/utils';
 import type { PeriodSummary } from '@/features/periods/types';
@@ -104,11 +98,6 @@ export function YearSchedulesSection({ yearSchedules, initialSelection }: YearSc
 
   return (
     <section className="space-y-4">
-      <div className="space-y-1">
-        <h2 className="text-lg font-semibold">שיבוצים לפי חודש</h2>
-        <p className="text-sm text-muted-foreground">כל שיבוץ מכסה תקופה דו-שבועית (14 ימים)</p>
-      </div>
-
       <Card className="overflow-hidden">
         <CardHeader className="space-y-4 border-b border-border/60 bg-muted/20 pb-4">
           <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
@@ -117,8 +106,8 @@ export function YearSchedulesSection({ yearSchedules, initialSelection }: YearSc
                 <CalendarDays className="size-4" />
               </div>
               <div>
-                <p className="text-sm font-medium">תקופה נבחרת</p>
-                <p className="text-xs text-muted-foreground">{formatMonthLabel(selection.year, selection.month)}</p>
+                <h2 className="text-lg font-medium">סידורי עבודה</h2>
+                <p className="text-sm text-muted-foreground">{formatMonthLabel(selection.year, selection.month)}</p>
               </div>
             </div>
 
