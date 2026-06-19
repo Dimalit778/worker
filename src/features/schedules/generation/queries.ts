@@ -46,7 +46,7 @@ function createAvailabilityKey(date: Date, shiftType: ShiftType): string {
 export async function getAutoScheduleInputData(scheduleId: string): Promise<AutoScheduleInputData> {
   if (!scheduleId) return { found: false, message: 'Missing schedule id' };
 
-  const scheduleRow = await prisma.schedule.findUnique({
+  const scheduleRow = await prisma.workSchedule.findUnique({
     where: { id: scheduleId },
     select: {
       id: true,
@@ -58,14 +58,14 @@ export async function getAutoScheduleInputData(scheduleId: string): Promise<Auto
   });
 
   if (!scheduleRow) return { found: false, message: 'Schedule not found' };
-  if (scheduleRow.status !== ScheduleStatus.LOCKED && scheduleRow.status !== ScheduleStatus.OPEN_FOR_SUBMISSION) {
+  if (scheduleRow.status !== ScheduleStatus.LOCKED && scheduleRow.status !== ScheduleStatus.OPEN) {
     return { found: false, message: 'Period must be open or locked before auto scheduling' };
   }
 
   const employeeWhere = { courtId: scheduleRow.courtId, isActive: true };
   const periodDates = getPeriodDates(scheduleRow.startDate, scheduleRow.endDate);
 
-  const [employees, availabilities, capacities, manualAssignments] = await Promise.all([
+  const [employees, availabilities, capacities, existingAssignments] = await Promise.all([
     prisma.employee.findMany({
       where: employeeWhere,
       select: {
@@ -77,16 +77,15 @@ export async function getAutoScheduleInputData(scheduleId: string): Promise<Auto
       },
       orderBy: [{ positionId: 'asc' }, { id: 'asc' }],
     }),
-    prisma.availabilitySubmission.findMany({
+    prisma.availabilityForm.findMany({
       where: {
         scheduleId: scheduleRow.id,
         employee: employeeWhere,
       },
       select: {
         employeeId: true,
-        slots: {
+        shifts: {
           where: {
-            isAvailable: true,
             date: { gte: scheduleRow.startDate, lte: scheduleRow.endDate },
           },
           select: {
@@ -96,7 +95,7 @@ export async function getAutoScheduleInputData(scheduleId: string): Promise<Auto
         },
       },
     }),
-    prisma.staffingRequirement.findMany({
+    prisma.shiftCapacity.findMany({
       where: { courtId: scheduleRow.courtId, isActive: true },
       select: {
         positionId: true,
@@ -110,7 +109,6 @@ export async function getAutoScheduleInputData(scheduleId: string): Promise<Auto
     prisma.shiftAssignment.findMany({
       where: {
         scheduleId: scheduleRow.id,
-        isManualOverride: true,
       },
       select: {
         employeeId: true,
@@ -119,21 +117,36 @@ export async function getAutoScheduleInputData(scheduleId: string): Promise<Auto
         position: { select: { name: true, code: true } },
         date: true,
         shiftType: true,
-        slotIndex: true,
-        isManualOverride: true,
       },
-      orderBy: [{ date: 'asc' }, { shiftType: 'asc' }, { slotIndex: 'asc' }],
+      orderBy: [{ date: 'asc' }, { shiftType: 'asc' }, { position: { code: 'asc' } }, { id: 'asc' }],
     }),
   ]);
 
   const availability = new Map<string, Set<string>>();
   for (const row of availabilities) {
     const keys = availability.get(row.employeeId) ?? new Set<string>();
-    for (const entry of row.slots) {
+    for (const entry of row.shifts) {
       keys.add(createAvailabilityKey(entry.date, entry.shiftType));
     }
     availability.set(row.employeeId, keys);
   }
+
+  const cellOrder = new Map<string, number>();
+  const manualAssignments = existingAssignments.map((a): EngineAssignment => {
+    const cellKey = `${toDateOnly(a.date)}|${a.shiftType}|${a.positionId}`;
+    const slotIndex = cellOrder.get(cellKey) ?? 0;
+    cellOrder.set(cellKey, slotIndex + 1);
+    return {
+      employeeId: a.employeeId,
+      courtId: a.courtId,
+      positionId: a.positionId,
+      positionName: a.position.name,
+      date: utcDateOnly(a.date),
+      shiftType: a.shiftType,
+      slotIndex,
+      isManualOverride: true,
+    };
+  });
 
   return {
     found: true,
@@ -166,18 +179,7 @@ export async function getAutoScheduleInputData(scheduleId: string): Promise<Auto
           amount: c.requiredCount,
         }),
       ),
-      manualAssignments: manualAssignments.map(
-        (a): EngineAssignment => ({
-          employeeId: a.employeeId,
-          courtId: a.courtId,
-          positionId: a.positionId,
-          positionName: a.position.name,
-          date: utcDateOnly(a.date),
-          shiftType: a.shiftType,
-          slotIndex: a.slotIndex,
-          isManualOverride: a.isManualOverride,
-        }),
-      ),
+      manualAssignments,
       scheduleId: scheduleRow.id,
     },
   };

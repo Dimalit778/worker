@@ -7,15 +7,15 @@ import {
   ScheduleWarningSummary,
   CurrentScheduleData,
 } from '../types';
-import { buildAssignmentMap, toScheduleData } from './utils';
+import { buildAssignmentMap, getAssignmentCellKey, toScheduleData } from './utils';
 import { ScheduleStatus } from '@/generated/prisma/client';
 import { todayUtcDateForTimeZone } from '@/features/periods/utils';
 const SCHEDULE_TIME_ZONE = 'Asia/Jerusalem';
-// Helper functions
+
 async function getScheduleCapacity(courtId: string): Promise<ScheduleCapacityRule[]> {
   if (!courtId) return [];
 
-  const rows = await prisma.staffingRequirement.findMany({
+  const rows = await prisma.shiftCapacity.findMany({
     where: {
       courtId,
       isActive: true,
@@ -44,6 +44,7 @@ async function getScheduleCapacity(courtId: string): Promise<ScheduleCapacityRul
     amount: r.requiredCount,
   }));
 }
+
 async function getScheduleEmployees(courtId: string): Promise<ScheduleEmployeeOption[]> {
   if (!courtId) return [];
 
@@ -67,6 +68,7 @@ async function getScheduleEmployees(courtId: string): Promise<ScheduleEmployeeOp
     },
   }));
 }
+
 async function getAssignmentMap(scheduleId: string | null | undefined): Promise<AssignmentMap> {
   if (!scheduleId) return {};
 
@@ -76,38 +78,48 @@ async function getAssignmentMap(scheduleId: string | null | undefined): Promise<
       employee: { select: { displayName: true } },
       position: { select: { id: true, name: true, code: true } },
     },
-    orderBy: [{ date: 'asc' }, { shiftType: 'asc' }, { slotIndex: 'asc' }, { position: { code: 'asc' } }],
+    orderBy: [{ date: 'asc' }, { shiftType: 'asc' }, { position: { code: 'asc' } }, { id: 'asc' }],
   });
 
+  const cellOrder = new Map<string, number>();
   return buildAssignmentMap(
-    rows.map((a) => ({
-      id: a.id,
-      date: a.date,
-      shiftType: a.shiftType,
-      positionId: a.positionId,
-      positionName: a.position.name,
-      employeeId: a.employeeId,
-      employeeDisplayName: a.employee.displayName,
-      slotIndex: a.slotIndex,
-    })),
+    rows.map((a) => {
+      const cellKey = getAssignmentCellKey({
+        date: a.date,
+        shiftType: a.shiftType,
+        positionId: a.positionId,
+      });
+      const slotIndex = cellOrder.get(cellKey) ?? 0;
+      cellOrder.set(cellKey, slotIndex + 1);
+      return {
+        id: a.id,
+        date: a.date,
+        shiftType: a.shiftType,
+        positionId: a.positionId,
+        positionName: a.position.name,
+        employeeId: a.employeeId,
+        employeeDisplayName: a.employee.displayName,
+        slotIndex,
+      };
+    }),
   );
 }
-// Queries
+
 export async function getActiveSchedule(courtId: string): Promise<CurrentScheduleData | null> {
   const today = todayUtcDateForTimeZone(SCHEDULE_TIME_ZONE);
 
-  await prisma.schedule.updateMany({
+  await prisma.workSchedule.updateMany({
     where: {
-      status: ScheduleStatus.ACTIVE,
+      status: ScheduleStatus.PUBLISHED,
       courtId,
       endDate: { lt: today },
     },
     data: { status: ScheduleStatus.ARCHIVED },
   });
 
-  const scheduleRows = await prisma.schedule.findMany({
+  const scheduleRows = await prisma.workSchedule.findMany({
     where: {
-      status: ScheduleStatus.ACTIVE,
+      status: ScheduleStatus.PUBLISHED,
       courtId,
       startDate: { lte: today },
       endDate: { gte: today },
@@ -137,7 +149,7 @@ export async function getActiveSchedule(courtId: string): Promise<CurrentSchedul
 }
 
 export async function getDraftScheduleData(courtId: string): Promise<CurrentScheduleData | null> {
-  const schedule = await prisma.schedule.findFirst({
+  const schedule = await prisma.workSchedule.findFirst({
     where: {
       courtId,
       status: { not: ScheduleStatus.ARCHIVED },
@@ -159,7 +171,7 @@ export async function getDraftScheduleData(courtId: string): Promise<CurrentSche
     getScheduleCapacity(courtId),
     getScheduleWarnings(schedule.id),
     Promise.resolve({} as OverflowCandidateMap),
-    prisma.availabilitySubmission.findMany({
+    prisma.availabilityForm.findMany({
       where: {
         scheduleId: schedule.id,
         isSubmitted: true,
@@ -191,6 +203,7 @@ export async function getDraftScheduleData(courtId: string): Promise<CurrentSche
     },
   };
 }
+
 export async function getScheduleWarnings(scheduleId: string | null | undefined): Promise<ScheduleWarningSummary[]> {
   if (!scheduleId) return [];
 

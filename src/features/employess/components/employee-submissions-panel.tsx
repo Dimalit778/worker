@@ -12,8 +12,9 @@ type EmployeeSubmissionsPanelProps = {
 
 const STATUS_LABELS: Record<string, string> = {
   DRAFT: 'טיוטה',
-  OPEN_FOR_SUBMISSION: 'פתוחה להגשה',
+  OPEN: 'פתוחה להגשה',
   LOCKED: 'נעולה',
+  PUBLISHED: 'פעילה',
   ARCHIVED: 'בארכיון',
 };
 

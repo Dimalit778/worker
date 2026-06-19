@@ -44,14 +44,13 @@ export async function publishSchedule(scheduleId: string): Promise<{ ok: true } 
         courtId: true,
         date: true,
         shiftType: true,
-        slotIndex: true,
       },
     });
 
     await prisma.$transaction([
-      prisma.schedule.update({
+      prisma.workSchedule.update({
         where: { id: scheduleId },
-        data: { status: ScheduleStatus.ACTIVE, publishedAt: new Date() },
+        data: { status: ScheduleStatus.PUBLISHED, publishedAt: new Date() },
       }),
       prisma.scheduleChangeLog.create({
         data: {

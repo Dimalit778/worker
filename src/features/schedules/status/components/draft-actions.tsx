@@ -88,8 +88,8 @@ export function DraftActions({ scheduleId, scheduleStatus }: Props) {
   }
 
   // Compare string literals — do not import Prisma enum values here (client bundle cannot load @/generated/prisma runtime).
-  const isPublished = scheduleStatus === 'ACTIVE';
-  const isDraft = scheduleStatus === 'DRAFT' || scheduleStatus === null;
+  const isPublished = scheduleStatus === 'PUBLISHED';
+  const isDraft = scheduleStatus === 'DRAFT' || scheduleStatus === 'OPEN' || scheduleStatus === null;
 
   return (
     <div className="flex items-center gap-3 flex-wrap" dir="rtl">
