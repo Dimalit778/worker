@@ -1,10 +1,11 @@
 'use client';
 
-import { useState, useTransition } from 'react';
-import { useRouter } from 'next/navigation';
+import { useState } from 'react';
+import { useMutation, useQueryClient } from '@tanstack/react-query';
 import { cn } from '@/lib/utils';
 import { PERIOD_OPTIONS } from '../constants';
 import { createSchedule } from '../actions';
+import { invalidateScheduleQueries } from '@/features/schedules/hooks';
 import { PeriodType } from '../types';
 import {
   RadioGroup,
@@ -26,12 +27,12 @@ export function CreatePeriodForm({
   onCreated?: () => void;
   triggerLabel?: string;
 }) {
-  const router = useRouter();
+  const queryClient = useQueryClient();
   const [open, setOpen] = useState(false);
   const [periodType, setPeriodType] = useState<PeriodType>('biweekly');
   const [name, setName] = useState(() => suggestName(upcomingSundayISO(), 14));
   const [error, setError] = useState<string | null>(null);
-  const [pending, startTransition] = useTransition();
+
 
   function handleOpenChange(next: boolean) {
     setOpen(next);
@@ -57,22 +58,30 @@ export function CreatePeriodForm({
     }
   }
 
-  function handleSubmit(e: React.FormEvent) {
-    e.preventDefault();
-    setError(null);
-    startTransition(async () => {
+  const createMutation = useMutation({
+    mutationFn: () => {
       const sun = upcomingSundayISO();
       const d = PERIOD_OPTIONS.find((o) => o.value === periodType)!.days;
       const { end, deadline } = deriveFields(sun, d);
-      const res = await createSchedule({ name, startDate: sun, endDate: end, submissionDeadline: deadline });
+      return createSchedule({ name, startDate: sun, endDate: end, submissionDeadline: deadline });
+    },
+    onSuccess: (res) => {
       if ('error' in res) {
         setError(res.error);
-      } else {
-        setOpen(false);
-        onCreated?.();
-        router.refresh();
+        return;
       }
-    });
+      setOpen(false);
+      onCreated?.();
+      invalidateScheduleQueries(queryClient);
+    },
+  });
+
+  const pending = createMutation.isPending;
+
+  function handleSubmit(e: React.FormEvent) {
+    e.preventDefault();
+    setError(null);
+    createMutation.mutate();
   }
 
   return (

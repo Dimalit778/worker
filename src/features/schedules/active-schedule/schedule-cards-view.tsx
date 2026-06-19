@@ -1,10 +1,11 @@
 'use client';
 
-import { useMemo, useRef, useState, useTransition } from 'react';
-import { useRouter } from 'next/navigation';
+import { useMemo, useRef, useState } from 'react';
+import { useMutation, useQueryClient } from '@tanstack/react-query';
 import { cn } from '@/lib/utils';
 import { calendarDateISO } from '@/features/periods/utils';
 import { createAssignment, removeAssignment, updateAssignment } from '@/features/schedules/assignments/actions';
+import { invalidateScheduleQueries } from '@/features/schedules/hooks';
 import type {
   AssignmentMap,
   AssignmentSummary,
@@ -285,12 +286,37 @@ function AssignmentSlotCard({
   currentEmployeeId?: string | null;
   readonly?: boolean;
 }) {
-  const router = useRouter();
+  const queryClient = useQueryClient();
   const anchorRef = useRef<HTMLButtonElement>(null);
   const [open, setOpen] = useState(false);
   const [anchorRect, setAnchorRect] = useState<DOMRect | null>(null);
-  const [pending, startTransition] = useTransition();
   const [error, setError] = useState<string | null>(null);
+
+  const assignmentMutation = useMutation({
+    mutationFn: async (input: { type: 'select'; employeeId: string } | { type: 'remove'; assignmentId: string }) => {
+      if (input.type === 'remove') {
+        await removeAssignment(input.assignmentId);
+        return;
+      }
+      if (slot.assignment) {
+        await updateAssignment(slot.assignment.id, input.employeeId);
+        return;
+      }
+      await createAssignment({
+        scheduleId,
+        employeeId: input.employeeId,
+        courtId,
+        positionId: slot.positionId,
+        shiftType,
+        date,
+        slotIndex: slot.slotIndex,
+      });
+    },
+    onSuccess: () => invalidateScheduleQueries(queryClient, scheduleId),
+    onError: (e: Error) => setError(e.message || 'שגיאה בשיבוץ'),
+  });
+
+  const pending = assignmentMutation.isPending;
   const isCurrentEmployee = currentEmployeeId === slot.assignment?.employeeId;
   const showPosition = !isGuardPositionLabel(slot.positionName);
   const employeeName = resolveEmployeeDisplayName(slot.assignment, employees);
@@ -305,27 +331,7 @@ function AssignmentSlotCard({
   function handleSelect(employeeId: string) {
     setOpen(false);
     setError(null);
-
-    startTransition(async () => {
-      try {
-        if (slot.assignment) {
-          await updateAssignment(slot.assignment.id, employeeId);
-        } else {
-          await createAssignment({
-            scheduleId,
-            employeeId,
-            courtId,
-            positionId: slot.positionId,
-            shiftType,
-            date,
-            slotIndex: slot.slotIndex,
-          });
-        }
-        router.refresh();
-      } catch (e) {
-        setError(e instanceof Error ? e.message : 'שגיאה בשיבוץ');
-      }
-    });
+    assignmentMutation.mutate({ type: 'select', employeeId });
   }
 
   function handleRemove() {
@@ -334,14 +340,7 @@ function AssignmentSlotCard({
 
     setOpen(false);
     setError(null);
-    startTransition(async () => {
-      try {
-        await removeAssignment(assignmentId);
-        router.refresh();
-      } catch (e) {
-        setError(e instanceof Error ? e.message : 'שגיאה בהסרת שיבוץ');
-      }
-    });
+    assignmentMutation.mutate({ type: 'remove', assignmentId });
   }
 
   return (

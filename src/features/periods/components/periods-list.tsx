@@ -1,30 +1,39 @@
 'use client';
 
-import { useTransition } from 'react';
+import { useMutation, useQueryClient } from '@tanstack/react-query';
 import { updateScheduleStatus, deleteSchedule } from '../actions';
 import { PERIOD_STATUS_HE, NEXT_STATUS, STATUS_BADGE } from '../constants';
 import { cn } from '@/lib/utils';
 import { formatDate } from '../utils';
 import { ScheduleSummary } from '@/features/schedules/types';
+import { invalidateScheduleQueries } from '@/features/schedules/hooks';
 
 const ScheduleRow = ({ schedule }: { schedule: ScheduleSummary }) => {
-  const [statusPending, startStatusTransition] = useTransition();
-  const [deletePending, startDeleteTransition] = useTransition();
+  const queryClient = useQueryClient();
   const next = NEXT_STATUS[schedule.status];
-  const pending = statusPending || deletePending;
+
+  const statusMutation = useMutation({
+    mutationFn: (status: string) => updateScheduleStatus(schedule.id, status as ScheduleSummary['status']),
+    onSuccess: () => invalidateScheduleQueries(queryClient, schedule.id),
+  });
+
+  const deleteMutation = useMutation({
+    mutationFn: () => deleteSchedule(schedule.id),
+    onSuccess: () => invalidateScheduleQueries(queryClient, schedule.id),
+  });
+
+  const pending = statusMutation.isPending || deleteMutation.isPending;
+  const statusPending = statusMutation.isPending;
+  const deletePending = deleteMutation.isPending;
 
   function handleStatusChange() {
     if (!next) return;
-    startStatusTransition(async () => {
-      await updateScheduleStatus(schedule.id, next.status);
-    });
+    statusMutation.mutate(next.status);
   }
 
   function handleDelete() {
     if (!confirm(`למחוק את השיבוץ "${schedule.name}"? הפעולה תמחק גם את כל ההגשות והשיבוצים שלה.`)) return;
-    startDeleteTransition(async () => {
-      await deleteSchedule(schedule.id);
-    });
+    deleteMutation.mutate();
   }
 
   return (

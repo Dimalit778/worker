@@ -1,13 +1,14 @@
 'use client';
 
-import { useState, useTransition } from 'react';
-import { useRouter } from 'next/navigation';
+import { useState } from 'react';
+import { useMutation, useQueryClient } from '@tanstack/react-query';
 import { CheckCheck, Send, Sparkles } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { generateAutoSchedule } from '@/features/schedules/generation/actions';
 import { finalizeSchedule, publishSchedule } from '@/features/schedules/status/actions';
 import type { ScheduleStatus } from '@/generated/prisma/client';
 import { STATUS_COLORS, STATUS_LABELS } from '../../constants';
+import { invalidateScheduleQueries } from '@/features/schedules/hooks';
 
 type Props = {
   scheduleId: string;
@@ -15,31 +16,59 @@ type Props = {
 };
 
 export function DraftActions({ scheduleId, scheduleStatus }: Props) {
-  const router = useRouter();
-  const [pending, startTransition] = useTransition();
+  const queryClient = useQueryClient();
   const [pendingAction, setPendingAction] = useState<'generate' | 'finalize' | 'publish' | null>(null);
   const [error, setError] = useState<string | null>(null);
   const [message, setMessage] = useState<string | null>(null);
+
+  const invalidate = () => invalidateScheduleQueries(queryClient, scheduleId);
+
+  const generateMutation = useMutation({
+    mutationFn: () => generateAutoSchedule(scheduleId),
+    onSuccess: (res) => {
+      if ('error' in res) {
+        setError(res.error);
+        return;
+      }
+      setMessage('השיבוץ האוטומטי נוצר בהצלחה');
+      invalidate();
+    },
+    onError: () => setError('שגיאה ביצירת שיבוץ אוטומטי'),
+    onSettled: () => setPendingAction(null),
+  });
+
+  const finalizeMutation = useMutation({
+    mutationFn: () => finalizeSchedule(scheduleId),
+    onSuccess: (res) => {
+      if ('error' in res) {
+        setError(res.error);
+        return;
+      }
+      setMessage('אין שגיאות חוסמות — ניתן לפרסם');
+      invalidate();
+    },
+    onSettled: () => setPendingAction(null),
+  });
+
+  const publishMutation = useMutation({
+    mutationFn: () => publishSchedule(scheduleId),
+    onSuccess: (res) => {
+      if ('error' in res) {
+        setError(res.error);
+        return;
+      }
+      invalidate();
+    },
+    onSettled: () => setPendingAction(null),
+  });
+
+  const pending = generateMutation.isPending || finalizeMutation.isPending || publishMutation.isPending;
 
   function handleGenerate() {
     setError(null);
     setMessage(null);
     setPendingAction('generate');
-    startTransition(async () => {
-      try {
-        const res = await generateAutoSchedule(scheduleId);
-        if ('error' in res) {
-          setError(res.error);
-          return;
-        }
-        setMessage('השיבוץ האוטומטי נוצר בהצלחה');
-        router.refresh();
-      } catch {
-        setError('שגיאה ביצירת שיבוץ אוטומטי');
-      } finally {
-        setPendingAction(null);
-      }
-    });
+    generateMutation.mutate();
   }
 
   function handleFinalize() {
@@ -47,19 +76,7 @@ export function DraftActions({ scheduleId, scheduleStatus }: Props) {
     setError(null);
     setMessage(null);
     setPendingAction('finalize');
-    startTransition(async () => {
-      try {
-        const res = await finalizeSchedule(scheduleId);
-        if ('error' in res) {
-          setError(res.error);
-          return;
-        }
-        setMessage('אין שגיאות חוסמות — ניתן לפרסם');
-        router.refresh();
-      } finally {
-        setPendingAction(null);
-      }
-    });
+    finalizeMutation.mutate();
   }
 
   function handlePublish() {
@@ -67,18 +84,7 @@ export function DraftActions({ scheduleId, scheduleStatus }: Props) {
     setError(null);
     setMessage(null);
     setPendingAction('publish');
-    startTransition(async () => {
-      try {
-        const res = await publishSchedule(scheduleId);
-        if ('error' in res) {
-          setError(res.error);
-          return;
-        }
-        router.refresh();
-      } finally {
-        setPendingAction(null);
-      }
-    });
+    publishMutation.mutate();
   }
 
   // Compare string literals — do not import Prisma enum values here (client bundle cannot load @/generated/prisma runtime).
