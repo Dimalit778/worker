@@ -71,7 +71,7 @@ export async function addPositionWithCapacities(params: {
       });
 
       for (const shiftType of shifts) {
-        await tx.staffingRequirement.create({
+        await tx.shiftCapacity.create({
           data: {
             courtId,
             positionId: position.id,
@@ -248,11 +248,11 @@ async function swapPositionOrderWithNeighbor(
     await tx.position.update({ where: { id: b.id }, data: { code: codeA } });
     await tx.position.update({ where: { id: a.id }, data: { code: codeB } });
 
-    await tx.staffingRequirement.updateMany({
+    await tx.shiftCapacity.updateMany({
       where: { positionId: a.id },
       data: { displayOrder: codeB },
     });
-    await tx.staffingRequirement.updateMany({
+    await tx.shiftCapacity.updateMany({
       where: { positionId: b.id },
       data: { displayOrder: codeA },
     });
@@ -327,7 +327,7 @@ export async function addShiftCapacity(params: {
       return { error: 'התפקיד לא נמצא' };
     }
 
-    const capacity = await prisma.staffingRequirement.upsert({
+    const capacity = await prisma.shiftCapacity.upsert({
       where: {
         courtId_positionId_shiftType_dayCategory: {
           courtId: position.courtId,
@@ -367,7 +367,7 @@ export async function addShiftCapacity(params: {
 
 export async function updateShiftCapacity(id: string, amount: number) {
   try {
-    await prisma.staffingRequirement.update({
+    await prisma.shiftCapacity.update({
       where: {
         id,
       },

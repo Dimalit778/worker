@@ -248,16 +248,15 @@ export async function getManagerEmployeeDetail(employeeId: string): Promise<Empl
     recentAssignments,
     fairnessRecords,
   ] = await Promise.all([
-    prisma.availabilitySubmission.count({ where: { employeeId, isSubmitted: true } }),
-    prisma.availabilitySubmission.count({ where: { employeeId } }),
-    prisma.availabilitySlot.count({
+    prisma.availabilityForm.count({ where: { employeeId, isSubmitted: true } }),
+    prisma.availabilityForm.count({ where: { employeeId } }),
+    prisma.availabilityShift.count({
       where: {
-        isAvailable: true,
-        submission: { employeeId },
+        form: { employeeId },
       },
     }),
     prisma.shiftAssignment.count({ where: { employeeId, courtId } }),
-    prisma.shiftAssignment.count({ where: { employeeId, courtId, isManualOverride: true } }),
+    Promise.resolve(0),
     prisma.scheduleWarning.count({ where: { employeeId, courtId } }),
     prisma.fairnessRecord.count({ where: { employeeId } }),
     prisma.shiftAssignment.findMany({
@@ -268,7 +267,6 @@ export async function getManagerEmployeeDetail(employeeId: string): Promise<Empl
         id: true,
         date: true,
         shiftType: true,
-        isManualOverride: true,
         position: {
           select: {
             name: true,
@@ -343,7 +341,7 @@ export async function getManagerEmployeeDetail(employeeId: string): Promise<Empl
       id: assignment.id,
       date: assignment.date.toISOString().slice(0, 10),
       shiftType: assignment.shiftType,
-      isManualOverride: assignment.isManualOverride,
+      isManualOverride: false,
       positionName: assignment.position.name,
       periodName: assignment.schedule.name,
     })),
@@ -382,7 +380,7 @@ export async function getManagerEmployeeSubmissions(employeeId: string): Promise
 
   if (!employee) return { error: 'עובד לא נמצא' };
 
-  const periods = await prisma.schedule.findMany({
+  const periods = await prisma.workSchedule.findMany({
     where: { courtId },
     orderBy: { startDate: 'desc' },
     select: {
@@ -392,14 +390,14 @@ export async function getManagerEmployeeSubmissions(employeeId: string): Promise
       endDate: true,
       submissionDeadline: true,
       status: true,
-      availabilitySubmissions: {
+      availabilityForms: {
         where: { employeeId },
         take: 1,
         select: {
           id: true,
           isSubmitted: true,
           submittedAt: true,
-          slots: true,
+          shifts: true,
         },
       },
     },
@@ -415,9 +413,15 @@ export async function getManagerEmployeeSubmissions(employeeId: string): Promise
       isActive: employee.isActive,
     },
     periods: periods.map((period) => {
-      const availability = period.availabilitySubmissions[0] ?? null;
-      const slots = availability?.slots ?? [];
-      const entries = availabilityEntriesToRecord(slots);
+      const availability = period.availabilityForms[0] ?? null;
+      const shifts = availability?.shifts ?? [];
+      const entries = availabilityEntriesToRecord(
+        shifts.map((shift) => ({
+          date: shift.date,
+          shiftType: shift.shiftType,
+          isAvailable: true,
+        })),
+      );
 
       return {
         id: period.id,

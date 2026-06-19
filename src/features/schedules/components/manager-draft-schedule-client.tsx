@@ -36,7 +36,7 @@ export function ManagerDraftScheduleClient() {
     );
   }
 
-  const isReadonly = data.scheduleStatus === 'ACTIVE';
+  const isReadonly = data.scheduleStatus === 'PUBLISHED';
   const canCreateNewSchedule = isReadonly;
   const submission = data.availabilitySubmissionSummary;
   const eligible = submission?.eligibleEmployeeCount ?? 0;

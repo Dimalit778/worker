@@ -23,7 +23,6 @@ enum ScheduleChangeType {
   MANUAL_OVERRIDE
 }
 
-
 enum ShiftType {
   MORNING
   EVENING
@@ -37,12 +36,11 @@ enum DayCategory {
   HOLIDAY
 }
 
-
 enum ScheduleStatus {
   DRAFT
-  OPEN_FOR_SUBMISSION  // ← חסר
-  LOCKED               // ← חסר
-  ACTIVE
+  OPEN
+  LOCKED
+  PUBLISHED
   ARCHIVED
 }
 
@@ -113,8 +111,8 @@ model User {
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
 
-  schedulesCreated Schedule[]          @relation("ScheduleCreatedBy")
-  scheduleChanges    ScheduleChangeLog[] @relation("ScheduleChangedBy")
+  schedulesCreated WorkSchedule[]      @relation("ScheduleCreatedBy")
+  scheduleChanges   ScheduleChangeLog[] @relation("ScheduleChangedBy")
 
   receivedPermissions UserPermission[] @relation("ReceivedPermissions")
   grantedPermissions  UserPermission[] @relation("GrantedPermissions")
@@ -163,12 +161,12 @@ model Court {
 
   region Region @relation(fields: [regionId], references: [id])
 
-  employees        Employee[]
-  positions        Position[]
-  staffingRequirements StaffingRequirement[]
-  schedules          Schedule[]
-  shiftAssignments ShiftAssignment[]
-  warnings         ScheduleWarning[]
+  employees            Employee[]
+  positions            Position[]
+  shiftCapacities      ShiftCapacity[]
+  schedules            WorkSchedule[]
+  shiftAssignments     ShiftAssignment[]
+  warnings             ScheduleWarning[]
 
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
@@ -177,21 +175,21 @@ model Court {
 }
 
 model Employee {
-  id        String   @id @default(cuid())
-  firstName String
-  lastName  String
+  id          String  @id @default(cuid())
+  firstName   String
+  lastName    String
   displayName String
-  phone     String?
-  positionId String
-  courtId   String
-  isActive  Boolean  @default(true)
+  phone       String?
+  positionId  String
+  courtId     String
+  isActive    Boolean @default(true)
   isReligious Boolean @default(false)
 
-  court Court @relation(fields: [courtId], references: [id])
+  court    Court    @relation(fields: [courtId], references: [id])
   position Position @relation(fields: [positionId], references: [id])
 
   user            User?
-  availabilitySubmissions AvailabilitySubmission[]
+  availabilityForms AvailabilityForm[]
   assignments     ShiftAssignment[]
   fairnessRecords FairnessRecord[]
   warnings        ScheduleWarning[]
@@ -202,21 +200,22 @@ model Employee {
   @@index([courtId])
   @@index([positionId])
 }
+
 model Position {
-  id       String  @id @default(cuid())
-  courtId  String
-  name     String
-  code     Int
-  isActive Boolean @default(true)
+  id           String  @id @default(cuid())
+  courtId      String
+  name         String
+  code         Int
+  displayOrder Int     @default(0)
+  isActive     Boolean @default(true)
+  color        String?
 
   court Court @relation(fields: [courtId], references: [id], onDelete: Cascade)
 
-  employees        Employee[]
-  staffingRequirements StaffingRequirement[]
-  shiftAssignments ShiftAssignment[]
-  warnings         ScheduleWarning[]
-
-  color     String?
+  employees            Employee[]
+  shiftCapacities      ShiftCapacity[]
+  shiftAssignments     ShiftAssignment[]
+  warnings             ScheduleWarning[]
 
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
@@ -224,18 +223,20 @@ model Position {
   @@unique([courtId, name])
   @@unique([courtId, code])
   @@index([courtId])
+  @@index([courtId, displayOrder])
 }
-model StaffingRequirement {
-  id           String      @id @default(cuid())
-  courtId      String
-  positionId   String
-  shiftType    ShiftType
-  dayCategory  DayCategory
-  requiredCount Int         @default(1)
-  isActive     Boolean     @default(true)
-  displayOrder Int         @default(0)
 
-  court    Court         @relation(fields: [courtId], references: [id], onDelete: Cascade)
+model ShiftCapacity {
+  id            String      @id @default(cuid())
+  courtId       String
+  positionId    String
+  shiftType     ShiftType
+  dayCategory   DayCategory
+  requiredCount Int         @default(1)
+  isActive      Boolean     @default(true)
+  displayOrder  Int         @default(0)
+
+  court    Court    @relation(fields: [courtId], references: [id], onDelete: Cascade)
   position Position @relation(fields: [positionId], references: [id], onDelete: Cascade)
 
   createdAt DateTime @default(now())
@@ -247,64 +248,75 @@ model StaffingRequirement {
   @@index([courtId, displayOrder])
 }
 
+// ─── Availability / Employee Requests ────────────────────────────────────────
 
-
-model AvailabilitySubmission {
+model AvailabilityForm {
   id          String    @id @default(cuid())
-  scheduleId    String
-  employeeId  String
+  scheduleId String
+  employeeId String
   isSubmitted Boolean   @default(false)
   submittedAt DateTime?
 
-  schedule Schedule      @relation(fields: [scheduleId], references: [id], onDelete: Cascade)
-  employee Employee            @relation(fields: [employeeId], references: [id], onDelete: Cascade)
-  slots    AvailabilitySlot[]
+  note String?
+
+  schedule WorkSchedule @relation(fields: [scheduleId], references: [id], onDelete: Cascade)
+  employee Employee     @relation(fields: [employeeId], references: [id], onDelete: Cascade)
+
+  shifts AvailabilityShift[]
 
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
 
   @@unique([scheduleId, employeeId])
   @@index([employeeId])
+  @@index([scheduleId])
 }
 
-model AvailabilitySlot {
-  id             String    @id @default(cuid())
-  submissionId String
-  date           DateTime  @db.Date
-  shiftType      ShiftType
-  isAvailable    Boolean   @default(false)
+model AvailabilityShift {
+  id        String   @id @default(cuid())
+  formId    String
+  date      DateTime @db.Date
+  shiftType ShiftType
 
-  submission AvailabilitySubmission @relation(fields: [submissionId], references: [id], onDelete: Cascade)
+  form AvailabilityForm @relation(fields: [formId], references: [id], onDelete: Cascade)
 
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
 
-  @@unique([submissionId, date, shiftType])
+  @@unique([formId, date, shiftType])
   @@index([date, shiftType])
 }
 
-model Schedule {
-  id            String         @id @default(cuid())
-  courtId            String
-  name               String
-  status        ScheduleStatus @default(DRAFT)
-  generatedAt   DateTime       @default(now())
-  publishedAt   DateTime?
-  createdById String
-   submissionDeadline DateTime  
-  startDate          DateTime     @db.Date
-  endDate            DateTime     @db.Date
+// ─── Work Schedule ───────────────────────────────────────────────────────────
 
-  court           Court            @relation(fields: [courtId], references: [id], onDelete: Cascade)
-  createdBy User                @relation("ScheduleCreatedBy", fields: [createdById], references: [id])
-  assignments ShiftAssignment[]
-   availabilitySubmissions AvailabilitySubmission[]
-  warnings    ScheduleWarning[]
-  changeLogs  ScheduleChangeLog[]
-   fairnessRecords FairnessRecord[]
+model WorkSchedule {
+  id                 String         @id @default(cuid())
+  courtId             String
+  name                String
+  status              ScheduleStatus @default(DRAFT)
+  generatedAt         DateTime       @default(now())
+  publishedAt         DateTime?
+  createdById         String
+  submissionDeadline  DateTime
+  startDate           DateTime       @db.Date
+  endDate             DateTime       @db.Date
+
+  court     Court @relation(fields: [courtId], references: [id], onDelete: Cascade)
+  createdBy User  @relation("ScheduleCreatedBy", fields: [createdById], references: [id])
+
+  assignments       ShiftAssignment[]
+  availabilityForms AvailabilityForm[]
+  warnings          ScheduleWarning[]
+  changeLogs        ScheduleChangeLog[]
+  fairnessRecords   FairnessRecord[]
 
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
+
+  @@index([courtId])
+  @@index([status])
+  @@index([startDate, endDate])
+  @@index([createdById])
 }
 
 model ShiftAssignment {
@@ -315,21 +327,21 @@ model ShiftAssignment {
   positionId       String
   date             DateTime  @db.Date
   shiftType        ShiftType
-  slotIndex        Int
-  isManualOverride Boolean   @default(false)
 
-  schedule Schedule      @relation(fields: [scheduleId], references: [id], onDelete: Cascade)
-  employee Employee      @relation(fields: [employeeId], references: [id], onDelete: Cascade)
-  court    Court         @relation(fields: [courtId], references: [id], onDelete: Cascade)
-  position Position @relation(fields: [positionId], references: [id], onDelete: Cascade)
+  schedule WorkSchedule @relation(fields: [scheduleId], references: [id], onDelete: Cascade)
+  employee Employee     @relation(fields: [employeeId], references: [id], onDelete: Cascade)
+  court    Court        @relation(fields: [courtId], references: [id], onDelete: Cascade)
+  position Position     @relation(fields: [positionId], references: [id], onDelete: Cascade)
 
   changeLogs ScheduleChangeLog[]
 
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
 
-  @@unique([scheduleId, date, shiftType, positionId, slotIndex])
+  @@unique([scheduleId, employeeId, date, shiftType])
+
   @@index([scheduleId, date])
+  @@index([scheduleId, date, shiftType, positionId])
   @@index([employeeId, date])
   @@index([courtId, date])
   @@index([positionId])
@@ -348,10 +360,10 @@ model ScheduleWarning {
   date       DateTime?       @db.Date
   message    String
 
-  schedule Schedule       @relation(fields: [scheduleId], references: [id], onDelete: Cascade)
-  employee Employee?      @relation(fields: [employeeId], references: [id])
-  court    Court?         @relation(fields: [courtId], references: [id])
-  position Position? @relation(fields: [positionId], references: [id])
+  schedule WorkSchedule @relation(fields: [scheduleId], references: [id], onDelete: Cascade)
+  employee Employee?    @relation(fields: [employeeId], references: [id])
+  court    Court?       @relation(fields: [courtId], references: [id])
+  position Position?    @relation(fields: [positionId], references: [id])
 
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
@@ -362,18 +374,20 @@ model ScheduleWarning {
   @@index([positionId, date])
   @@index([shiftType])
 }
+
 model FairnessRecord {
   id            String @id @default(cuid())
   employeeId    String
-  scheduleId      String
+  scheduleId    String
   totalShifts   Int    @default(0)
   morningShifts Int    @default(0)
   eveningShifts Int    @default(0)
   nightShifts   Int    @default(0)
   weekendShifts Int    @default(0)
+  totalHours    Int    @default(0)
 
-  employee Employee       @relation(fields: [employeeId], references: [id], onDelete: Cascade)
-  schedule   Schedule @relation(fields: [scheduleId], references: [id], onDelete: Cascade)
+  employee Employee     @relation(fields: [employeeId], references: [id], onDelete: Cascade)
+  schedule WorkSchedule @relation(fields: [scheduleId], references: [id], onDelete: Cascade)
 
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
@@ -394,7 +408,7 @@ model ScheduleChangeLog {
   afterData         Json?
   createdAt         DateTime           @default(now())
 
-  schedule        Schedule         @relation(fields: [scheduleId], references: [id], onDelete: Cascade)
+  schedule        WorkSchedule     @relation(fields: [scheduleId], references: [id], onDelete: Cascade)
   shiftAssignment ShiftAssignment? @relation(fields: [shiftAssignmentId], references: [id], onDelete: SetNull)
   changedBy       User             @relation("ScheduleChangedBy", fields: [changedById], references: [id])
 

@@ -6,23 +6,23 @@ const TZ = DEFAULT_TZ;
 
 const PERIOD_STATUS_HE: Record<ScheduleStatus, string> = {
   DRAFT: 'טיוטה',
-  OPEN_FOR_SUBMISSION: 'פתוח להגשות',
+  OPEN: 'פתוח להגשות',
   LOCKED: 'נעול',
-  ACTIVE: 'פעיל',
+  PUBLISHED: 'פעיל',
   ARCHIVED: 'בארכיון',
 };
 const STATUS_BADGE: Record<ScheduleStatus, string> = {
   DRAFT: 'bg-zinc-100 text-zinc-600',
-  OPEN_FOR_SUBMISSION: 'bg-green-100 text-green-700',
+  OPEN: 'bg-green-100 text-green-700',
   LOCKED: 'bg-amber-100 text-amber-700',
-  ACTIVE: 'bg-blue-100 text-blue-700',
+  PUBLISHED: 'bg-blue-100 text-blue-700',
   ARCHIVED: 'bg-zinc-100 text-zinc-400',
 };
 
 const NEXT_STATUS: Partial<Record<ScheduleStatus, { status: ScheduleStatus; label: string }>> = {
-  DRAFT: { status: 'OPEN_FOR_SUBMISSION', label: 'פתח להגשות' },
-  OPEN_FOR_SUBMISSION: { status: 'LOCKED', label: 'נעל' },
-  LOCKED: { status: 'ARCHIVED', label: 'העבר לארכיון' },
+  DRAFT: { status: 'OPEN', label: 'פתח להגשות' },
+  OPEN: { status: 'LOCKED', label: 'נעל' },
+  LOCKED: { status: 'PUBLISHED', label: 'פרסם' },
 };
 // Israeli public holidays (Gregorian dates). Covers 2025–2027.
 const IL_HOLIDAYS: Record<string, string> = {

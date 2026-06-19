@@ -172,7 +172,7 @@ export function ScheduleCalendar({ period, initialEntries, initialSubmitted, vie
       ))}
 
       {/* Submit */}
-      {!viewOnly && !submitted && period.status === 'OPEN_FOR_SUBMISSION' && (
+      {!viewOnly && !submitted && period.status === 'OPEN' && (
         <div className="flex items-center gap-3 pt-1">
           <button
             onClick={handleSubmit}

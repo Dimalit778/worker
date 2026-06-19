@@ -1,6 +1,5 @@
 'use server';
 
-
 import { generateSchedule } from '@/features/scheduling-engine/generate-schedule';
 import type { EngineInput, EngineStats } from '@/features/scheduling-engine/types';
 import { requireSession } from '@/lib/db/auth-helpers';
@@ -25,17 +24,17 @@ export async function generateAutoSchedule(scheduleId: string): Promise<Generate
 
   const data = await getAutoScheduleInputData(scheduleId);
   if (!data.found) return { error: data.message };
-  if (data.schedule?.status === ScheduleStatus.ACTIVE) {
+  if (data.schedule?.status === ScheduleStatus.PUBLISHED) {
     return { error: 'Cannot regenerate a published schedule' };
   }
 
-  const currentSchedule = await prisma.schedule.findUnique({
+  const currentSchedule = await prisma.workSchedule.findUnique({
     where: { id: scheduleId },
     select: { id: true, status: true },
   });
 
   if (!currentSchedule) return { error: 'Schedule not found' };
-  if (currentSchedule.status === ScheduleStatus.ACTIVE) {
+  if (currentSchedule.status === ScheduleStatus.PUBLISHED) {
     return { error: 'Cannot regenerate a published schedule' };
   }
 
@@ -47,17 +46,17 @@ export async function generateAutoSchedule(scheduleId: string): Promise<Generate
 
   await prisma.$transaction(
     async (tx) => {
-      const freshSchedule = await tx.schedule.findUnique({
+      const freshSchedule = await tx.workSchedule.findUnique({
         where: { id: scheduleId },
         select: { status: true },
       });
 
       if (!freshSchedule) throw new Error('Schedule not found');
-      if (freshSchedule.status === ScheduleStatus.ACTIVE) {
+      if (freshSchedule.status === ScheduleStatus.PUBLISHED) {
         throw new Error('Cannot regenerate a published schedule');
       }
-      if (freshSchedule.status === ScheduleStatus.OPEN_FOR_SUBMISSION) {
-        await tx.schedule.update({
+      if (freshSchedule.status === ScheduleStatus.OPEN) {
+        await tx.workSchedule.update({
           where: { id: scheduleId },
           data: { status: ScheduleStatus.LOCKED },
         });
@@ -66,10 +65,7 @@ export async function generateAutoSchedule(scheduleId: string): Promise<Generate
       }
 
       await tx.shiftAssignment.deleteMany({
-        where: {
-          scheduleId,
-          isManualOverride: false,
-        },
+        where: { scheduleId },
       });
 
       if (output.assignments.length > 0) {
@@ -81,8 +77,6 @@ export async function generateAutoSchedule(scheduleId: string): Promise<Generate
             positionId: assignment.positionId,
             date: assignment.date,
             shiftType: assignment.shiftType,
-            slotIndex: assignment.slotIndex,
-            isManualOverride: false,
           })),
         });
       }
@@ -125,17 +119,15 @@ export async function generateAutoSchedule(scheduleId: string): Promise<Generate
         });
       }
 
-      await tx.schedule.update({
+      await tx.workSchedule.update({
         where: { id: scheduleId },
         data: {
           generatedAt: new Date(),
-          generatedById: session.user.id,
         },
       });
     },
     { timeout: 20_000 },
   );
-
 
   return {
     ok: true,

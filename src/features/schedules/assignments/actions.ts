@@ -10,7 +10,7 @@ import { getActiveSchedule, getDraftScheduleData } from './queries';
 export async function createAssignment(params: AssignEmployeeToSlotParams): Promise<{ scheduleId: string }> {
   await requireSession(SystemRole.MANAGER);
 
-  const { scheduleId, employeeId, courtId, positionId, shiftType, date, slotIndex } = params;
+  const { scheduleId, employeeId, courtId, positionId, shiftType, date } = params;
 
   const duplicate = await prisma.shiftAssignment.findFirst({
     where: { scheduleId, employeeId, shiftType, date: parseISODateToUtcMidnight(date) },
@@ -25,8 +25,6 @@ export async function createAssignment(params: AssignEmployeeToSlotParams): Prom
       positionId,
       shiftType,
       date: parseISODateToUtcMidnight(date),
-      slotIndex,
-      isManualOverride: true,
     },
   });
 

@@ -238,7 +238,7 @@ export type ScheduleWarningWhereInput = {
   message?: Prisma.StringFilter<"ScheduleWarning"> | string
   createdAt?: Prisma.DateTimeFilter<"ScheduleWarning"> | Date | string
   updatedAt?: Prisma.DateTimeFilter<"ScheduleWarning"> | Date | string
-  schedule?: Prisma.XOR<Prisma.ScheduleScalarRelationFilter, Prisma.ScheduleWhereInput>
+  schedule?: Prisma.XOR<Prisma.WorkScheduleScalarRelationFilter, Prisma.WorkScheduleWhereInput>
   employee?: Prisma.XOR<Prisma.EmployeeNullableScalarRelationFilter, Prisma.EmployeeWhereInput> | null
   court?: Prisma.XOR<Prisma.CourtNullableScalarRelationFilter, Prisma.CourtWhereInput> | null
   position?: Prisma.XOR<Prisma.PositionNullableScalarRelationFilter, Prisma.PositionWhereInput> | null
@@ -257,7 +257,7 @@ export type ScheduleWarningOrderByWithRelationInput = {
   message?: Prisma.SortOrder
   createdAt?: Prisma.SortOrder
   updatedAt?: Prisma.SortOrder
-  schedule?: Prisma.ScheduleOrderByWithRelationInput
+  schedule?: Prisma.WorkScheduleOrderByWithRelationInput
   employee?: Prisma.EmployeeOrderByWithRelationInput
   court?: Prisma.CourtOrderByWithRelationInput
   position?: Prisma.PositionOrderByWithRelationInput
@@ -279,7 +279,7 @@ export type ScheduleWarningWhereUniqueInput = Prisma.AtLeast<{
   message?: Prisma.StringFilter<"ScheduleWarning"> | string
   createdAt?: Prisma.DateTimeFilter<"ScheduleWarning"> | Date | string
   updatedAt?: Prisma.DateTimeFilter<"ScheduleWarning"> | Date | string
-  schedule?: Prisma.XOR<Prisma.ScheduleScalarRelationFilter, Prisma.ScheduleWhereInput>
+  schedule?: Prisma.XOR<Prisma.WorkScheduleScalarRelationFilter, Prisma.WorkScheduleWhereInput>
   employee?: Prisma.XOR<Prisma.EmployeeNullableScalarRelationFilter, Prisma.EmployeeWhereInput> | null
   court?: Prisma.XOR<Prisma.CourtNullableScalarRelationFilter, Prisma.CourtWhereInput> | null
   position?: Prisma.XOR<Prisma.PositionNullableScalarRelationFilter, Prisma.PositionWhereInput> | null
@@ -330,7 +330,7 @@ export type ScheduleWarningCreateInput = {
   message: string
   createdAt?: Date | string
   updatedAt?: Date | string
-  schedule: Prisma.ScheduleCreateNestedOneWithoutWarningsInput
+  schedule: Prisma.WorkScheduleCreateNestedOneWithoutWarningsInput
   employee?: Prisma.EmployeeCreateNestedOneWithoutWarningsInput
   court?: Prisma.CourtCreateNestedOneWithoutWarningsInput
   position?: Prisma.PositionCreateNestedOneWithoutWarningsInput
@@ -360,7 +360,7 @@ export type ScheduleWarningUpdateInput = {
   message?: Prisma.StringFieldUpdateOperationsInput | string
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
-  schedule?: Prisma.ScheduleUpdateOneRequiredWithoutWarningsNestedInput
+  schedule?: Prisma.WorkScheduleUpdateOneRequiredWithoutWarningsNestedInput
   employee?: Prisma.EmployeeUpdateOneWithoutWarningsNestedInput
   court?: Prisma.CourtUpdateOneWithoutWarningsNestedInput
   position?: Prisma.PositionUpdateOneWithoutWarningsNestedInput
@@ -666,7 +666,7 @@ export type ScheduleWarningCreateWithoutCourtInput = {
   message: string
   createdAt?: Date | string
   updatedAt?: Date | string
-  schedule: Prisma.ScheduleCreateNestedOneWithoutWarningsInput
+  schedule: Prisma.WorkScheduleCreateNestedOneWithoutWarningsInput
   employee?: Prisma.EmployeeCreateNestedOneWithoutWarningsInput
   position?: Prisma.PositionCreateNestedOneWithoutWarningsInput
 }
@@ -738,7 +738,7 @@ export type ScheduleWarningCreateWithoutEmployeeInput = {
   message: string
   createdAt?: Date | string
   updatedAt?: Date | string
-  schedule: Prisma.ScheduleCreateNestedOneWithoutWarningsInput
+  schedule: Prisma.WorkScheduleCreateNestedOneWithoutWarningsInput
   court?: Prisma.CourtCreateNestedOneWithoutWarningsInput
   position?: Prisma.PositionCreateNestedOneWithoutWarningsInput
 }
@@ -792,7 +792,7 @@ export type ScheduleWarningCreateWithoutPositionInput = {
   message: string
   createdAt?: Date | string
   updatedAt?: Date | string
-  schedule: Prisma.ScheduleCreateNestedOneWithoutWarningsInput
+  schedule: Prisma.WorkScheduleCreateNestedOneWithoutWarningsInput
   employee?: Prisma.EmployeeCreateNestedOneWithoutWarningsInput
   court?: Prisma.CourtCreateNestedOneWithoutWarningsInput
 }
@@ -914,7 +914,7 @@ export type ScheduleWarningUpdateWithoutCourtInput = {
   message?: Prisma.StringFieldUpdateOperationsInput | string
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
-  schedule?: Prisma.ScheduleUpdateOneRequiredWithoutWarningsNestedInput
+  schedule?: Prisma.WorkScheduleUpdateOneRequiredWithoutWarningsNestedInput
   employee?: Prisma.EmployeeUpdateOneWithoutWarningsNestedInput
   position?: Prisma.PositionUpdateOneWithoutWarningsNestedInput
 }
@@ -970,7 +970,7 @@ export type ScheduleWarningUpdateWithoutEmployeeInput = {
   message?: Prisma.StringFieldUpdateOperationsInput | string
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
-  schedule?: Prisma.ScheduleUpdateOneRequiredWithoutWarningsNestedInput
+  schedule?: Prisma.WorkScheduleUpdateOneRequiredWithoutWarningsNestedInput
   court?: Prisma.CourtUpdateOneWithoutWarningsNestedInput
   position?: Prisma.PositionUpdateOneWithoutWarningsNestedInput
 }
@@ -1026,7 +1026,7 @@ export type ScheduleWarningUpdateWithoutPositionInput = {
   message?: Prisma.StringFieldUpdateOperationsInput | string
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
-  schedule?: Prisma.ScheduleUpdateOneRequiredWithoutWarningsNestedInput
+  schedule?: Prisma.WorkScheduleUpdateOneRequiredWithoutWarningsNestedInput
   employee?: Prisma.EmployeeUpdateOneWithoutWarningsNestedInput
   court?: Prisma.CourtUpdateOneWithoutWarningsNestedInput
 }
@@ -1130,7 +1130,7 @@ export type ScheduleWarningSelect<ExtArgs extends runtime.Types.Extensions.Inter
   message?: boolean
   createdAt?: boolean
   updatedAt?: boolean
-  schedule?: boolean | Prisma.ScheduleDefaultArgs<ExtArgs>
+  schedule?: boolean | Prisma.WorkScheduleDefaultArgs<ExtArgs>
   employee?: boolean | Prisma.ScheduleWarning$employeeArgs<ExtArgs>
   court?: boolean | Prisma.ScheduleWarning$courtArgs<ExtArgs>
   position?: boolean | Prisma.ScheduleWarning$positionArgs<ExtArgs>
@@ -1149,7 +1149,7 @@ export type ScheduleWarningSelectCreateManyAndReturn<ExtArgs extends runtime.Typ
   message?: boolean
   createdAt?: boolean
   updatedAt?: boolean
-  schedule?: boolean | Prisma.ScheduleDefaultArgs<ExtArgs>
+  schedule?: boolean | Prisma.WorkScheduleDefaultArgs<ExtArgs>
   employee?: boolean | Prisma.ScheduleWarning$employeeArgs<ExtArgs>
   court?: boolean | Prisma.ScheduleWarning$courtArgs<ExtArgs>
   position?: boolean | Prisma.ScheduleWarning$positionArgs<ExtArgs>
@@ -1168,7 +1168,7 @@ export type ScheduleWarningSelectUpdateManyAndReturn<ExtArgs extends runtime.Typ
   message?: boolean
   createdAt?: boolean
   updatedAt?: boolean
-  schedule?: boolean | Prisma.ScheduleDefaultArgs<ExtArgs>
+  schedule?: boolean | Prisma.WorkScheduleDefaultArgs<ExtArgs>
   employee?: boolean | Prisma.ScheduleWarning$employeeArgs<ExtArgs>
   court?: boolean | Prisma.ScheduleWarning$courtArgs<ExtArgs>
   position?: boolean | Prisma.ScheduleWarning$positionArgs<ExtArgs>
@@ -1191,19 +1191,19 @@ export type ScheduleWarningSelectScalar = {
 
 export type ScheduleWarningOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"id" | "scheduleId" | "type" | "severity" | "employeeId" | "courtId" | "positionId" | "shiftType" | "date" | "message" | "createdAt" | "updatedAt", ExtArgs["result"]["scheduleWarning"]>
 export type ScheduleWarningInclude<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
-  schedule?: boolean | Prisma.ScheduleDefaultArgs<ExtArgs>
+  schedule?: boolean | Prisma.WorkScheduleDefaultArgs<ExtArgs>
   employee?: boolean | Prisma.ScheduleWarning$employeeArgs<ExtArgs>
   court?: boolean | Prisma.ScheduleWarning$courtArgs<ExtArgs>
   position?: boolean | Prisma.ScheduleWarning$positionArgs<ExtArgs>
 }
 export type ScheduleWarningIncludeCreateManyAndReturn<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
-  schedule?: boolean | Prisma.ScheduleDefaultArgs<ExtArgs>
+  schedule?: boolean | Prisma.WorkScheduleDefaultArgs<ExtArgs>
   employee?: boolean | Prisma.ScheduleWarning$employeeArgs<ExtArgs>
   court?: boolean | Prisma.ScheduleWarning$courtArgs<ExtArgs>
   position?: boolean | Prisma.ScheduleWarning$positionArgs<ExtArgs>
 }
 export type ScheduleWarningIncludeUpdateManyAndReturn<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
-  schedule?: boolean | Prisma.ScheduleDefaultArgs<ExtArgs>
+  schedule?: boolean | Prisma.WorkScheduleDefaultArgs<ExtArgs>
   employee?: boolean | Prisma.ScheduleWarning$employeeArgs<ExtArgs>
   court?: boolean | Prisma.ScheduleWarning$courtArgs<ExtArgs>
   position?: boolean | Prisma.ScheduleWarning$positionArgs<ExtArgs>
@@ -1212,7 +1212,7 @@ export type ScheduleWarningIncludeUpdateManyAndReturn<ExtArgs extends runtime.Ty
 export type $ScheduleWarningPayload<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
   name: "ScheduleWarning"
   objects: {
-    schedule: Prisma.$SchedulePayload<ExtArgs>
+    schedule: Prisma.$WorkSchedulePayload<ExtArgs>
     employee: Prisma.$EmployeePayload<ExtArgs> | null
     court: Prisma.$CourtPayload<ExtArgs> | null
     position: Prisma.$PositionPayload<ExtArgs> | null
@@ -1624,7 +1624,7 @@ readonly fields: ScheduleWarningFieldRefs;
  */
 export interface Prisma__ScheduleWarningClient<T, Null = never, ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs, GlobalOmitOptions = {}> extends Prisma.PrismaPromise<T> {
   readonly [Symbol.toStringTag]: "PrismaPromise"
-  schedule<T extends Prisma.ScheduleDefaultArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.ScheduleDefaultArgs<ExtArgs>>): Prisma.Prisma__ScheduleClient<runtime.Types.Result.GetResult<Prisma.$SchedulePayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions> | Null, Null, ExtArgs, GlobalOmitOptions>
+  schedule<T extends Prisma.WorkScheduleDefaultArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.WorkScheduleDefaultArgs<ExtArgs>>): Prisma.Prisma__WorkScheduleClient<runtime.Types.Result.GetResult<Prisma.$WorkSchedulePayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions> | Null, Null, ExtArgs, GlobalOmitOptions>
   employee<T extends Prisma.ScheduleWarning$employeeArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.ScheduleWarning$employeeArgs<ExtArgs>>): Prisma.Prisma__EmployeeClient<runtime.Types.Result.GetResult<Prisma.$EmployeePayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions> | null, null, ExtArgs, GlobalOmitOptions>
   court<T extends Prisma.ScheduleWarning$courtArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.ScheduleWarning$courtArgs<ExtArgs>>): Prisma.Prisma__CourtClient<runtime.Types.Result.GetResult<Prisma.$CourtPayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions> | null, null, ExtArgs, GlobalOmitOptions>
   position<T extends Prisma.ScheduleWarning$positionArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.ScheduleWarning$positionArgs<ExtArgs>>): Prisma.Prisma__PositionClient<runtime.Types.Result.GetResult<Prisma.$PositionPayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions> | null, null, ExtArgs, GlobalOmitOptions>

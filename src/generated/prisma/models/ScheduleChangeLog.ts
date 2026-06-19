@@ -214,7 +214,7 @@ export type ScheduleChangeLogWhereInput = {
   beforeData?: Prisma.JsonNullableFilter<"ScheduleChangeLog">
   afterData?: Prisma.JsonNullableFilter<"ScheduleChangeLog">
   createdAt?: Prisma.DateTimeFilter<"ScheduleChangeLog"> | Date | string
-  schedule?: Prisma.XOR<Prisma.ScheduleScalarRelationFilter, Prisma.ScheduleWhereInput>
+  schedule?: Prisma.XOR<Prisma.WorkScheduleScalarRelationFilter, Prisma.WorkScheduleWhereInput>
   shiftAssignment?: Prisma.XOR<Prisma.ShiftAssignmentNullableScalarRelationFilter, Prisma.ShiftAssignmentWhereInput> | null
   changedBy?: Prisma.XOR<Prisma.UserScalarRelationFilter, Prisma.UserWhereInput>
 }
@@ -230,7 +230,7 @@ export type ScheduleChangeLogOrderByWithRelationInput = {
   beforeData?: Prisma.SortOrderInput | Prisma.SortOrder
   afterData?: Prisma.SortOrderInput | Prisma.SortOrder
   createdAt?: Prisma.SortOrder
-  schedule?: Prisma.ScheduleOrderByWithRelationInput
+  schedule?: Prisma.WorkScheduleOrderByWithRelationInput
   shiftAssignment?: Prisma.ShiftAssignmentOrderByWithRelationInput
   changedBy?: Prisma.UserOrderByWithRelationInput
 }
@@ -249,7 +249,7 @@ export type ScheduleChangeLogWhereUniqueInput = Prisma.AtLeast<{
   beforeData?: Prisma.JsonNullableFilter<"ScheduleChangeLog">
   afterData?: Prisma.JsonNullableFilter<"ScheduleChangeLog">
   createdAt?: Prisma.DateTimeFilter<"ScheduleChangeLog"> | Date | string
-  schedule?: Prisma.XOR<Prisma.ScheduleScalarRelationFilter, Prisma.ScheduleWhereInput>
+  schedule?: Prisma.XOR<Prisma.WorkScheduleScalarRelationFilter, Prisma.WorkScheduleWhereInput>
   shiftAssignment?: Prisma.XOR<Prisma.ShiftAssignmentNullableScalarRelationFilter, Prisma.ShiftAssignmentWhereInput> | null
   changedBy?: Prisma.XOR<Prisma.UserScalarRelationFilter, Prisma.UserWhereInput>
 }, "id">
@@ -294,7 +294,7 @@ export type ScheduleChangeLogCreateInput = {
   beforeData?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
   afterData?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
   createdAt?: Date | string
-  schedule: Prisma.ScheduleCreateNestedOneWithoutChangeLogsInput
+  schedule: Prisma.WorkScheduleCreateNestedOneWithoutChangeLogsInput
   shiftAssignment?: Prisma.ShiftAssignmentCreateNestedOneWithoutChangeLogsInput
   changedBy: Prisma.UserCreateNestedOneWithoutScheduleChangesInput
 }
@@ -320,7 +320,7 @@ export type ScheduleChangeLogUpdateInput = {
   beforeData?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
   afterData?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
-  schedule?: Prisma.ScheduleUpdateOneRequiredWithoutChangeLogsNestedInput
+  schedule?: Prisma.WorkScheduleUpdateOneRequiredWithoutChangeLogsNestedInput
   shiftAssignment?: Prisma.ShiftAssignmentUpdateOneWithoutChangeLogsNestedInput
   changedBy?: Prisma.UserUpdateOneRequiredWithoutScheduleChangesNestedInput
 }
@@ -557,7 +557,7 @@ export type ScheduleChangeLogCreateWithoutChangedByInput = {
   beforeData?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
   afterData?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
   createdAt?: Date | string
-  schedule: Prisma.ScheduleCreateNestedOneWithoutChangeLogsInput
+  schedule: Prisma.WorkScheduleCreateNestedOneWithoutChangeLogsInput
   shiftAssignment?: Prisma.ShiftAssignmentCreateNestedOneWithoutChangeLogsInput
 }
 
@@ -673,7 +673,7 @@ export type ScheduleChangeLogCreateWithoutShiftAssignmentInput = {
   beforeData?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
   afterData?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
   createdAt?: Date | string
-  schedule: Prisma.ScheduleCreateNestedOneWithoutChangeLogsInput
+  schedule: Prisma.WorkScheduleCreateNestedOneWithoutChangeLogsInput
   changedBy: Prisma.UserCreateNestedOneWithoutScheduleChangesInput
 }
 
@@ -735,7 +735,7 @@ export type ScheduleChangeLogUpdateWithoutChangedByInput = {
   beforeData?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
   afterData?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
-  schedule?: Prisma.ScheduleUpdateOneRequiredWithoutChangeLogsNestedInput
+  schedule?: Prisma.WorkScheduleUpdateOneRequiredWithoutChangeLogsNestedInput
   shiftAssignment?: Prisma.ShiftAssignmentUpdateOneWithoutChangeLogsNestedInput
 }
 
@@ -831,7 +831,7 @@ export type ScheduleChangeLogUpdateWithoutShiftAssignmentInput = {
   beforeData?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
   afterData?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
-  schedule?: Prisma.ScheduleUpdateOneRequiredWithoutChangeLogsNestedInput
+  schedule?: Prisma.WorkScheduleUpdateOneRequiredWithoutChangeLogsNestedInput
   changedBy?: Prisma.UserUpdateOneRequiredWithoutScheduleChangesNestedInput
 }
 
@@ -872,7 +872,7 @@ export type ScheduleChangeLogSelect<ExtArgs extends runtime.Types.Extensions.Int
   beforeData?: boolean
   afterData?: boolean
   createdAt?: boolean
-  schedule?: boolean | Prisma.ScheduleDefaultArgs<ExtArgs>
+  schedule?: boolean | Prisma.WorkScheduleDefaultArgs<ExtArgs>
   shiftAssignment?: boolean | Prisma.ScheduleChangeLog$shiftAssignmentArgs<ExtArgs>
   changedBy?: boolean | Prisma.UserDefaultArgs<ExtArgs>
 }, ExtArgs["result"]["scheduleChangeLog"]>
@@ -888,7 +888,7 @@ export type ScheduleChangeLogSelectCreateManyAndReturn<ExtArgs extends runtime.T
   beforeData?: boolean
   afterData?: boolean
   createdAt?: boolean
-  schedule?: boolean | Prisma.ScheduleDefaultArgs<ExtArgs>
+  schedule?: boolean | Prisma.WorkScheduleDefaultArgs<ExtArgs>
   shiftAssignment?: boolean | Prisma.ScheduleChangeLog$shiftAssignmentArgs<ExtArgs>
   changedBy?: boolean | Prisma.UserDefaultArgs<ExtArgs>
 }, ExtArgs["result"]["scheduleChangeLog"]>
@@ -904,7 +904,7 @@ export type ScheduleChangeLogSelectUpdateManyAndReturn<ExtArgs extends runtime.T
   beforeData?: boolean
   afterData?: boolean
   createdAt?: boolean
-  schedule?: boolean | Prisma.ScheduleDefaultArgs<ExtArgs>
+  schedule?: boolean | Prisma.WorkScheduleDefaultArgs<ExtArgs>
   shiftAssignment?: boolean | Prisma.ScheduleChangeLog$shiftAssignmentArgs<ExtArgs>
   changedBy?: boolean | Prisma.UserDefaultArgs<ExtArgs>
 }, ExtArgs["result"]["scheduleChangeLog"]>
@@ -924,17 +924,17 @@ export type ScheduleChangeLogSelectScalar = {
 
 export type ScheduleChangeLogOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"id" | "scheduleId" | "shiftAssignmentId" | "changedById" | "changeType" | "message" | "reason" | "beforeData" | "afterData" | "createdAt", ExtArgs["result"]["scheduleChangeLog"]>
 export type ScheduleChangeLogInclude<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
-  schedule?: boolean | Prisma.ScheduleDefaultArgs<ExtArgs>
+  schedule?: boolean | Prisma.WorkScheduleDefaultArgs<ExtArgs>
   shiftAssignment?: boolean | Prisma.ScheduleChangeLog$shiftAssignmentArgs<ExtArgs>
   changedBy?: boolean | Prisma.UserDefaultArgs<ExtArgs>
 }
 export type ScheduleChangeLogIncludeCreateManyAndReturn<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
-  schedule?: boolean | Prisma.ScheduleDefaultArgs<ExtArgs>
+  schedule?: boolean | Prisma.WorkScheduleDefaultArgs<ExtArgs>
   shiftAssignment?: boolean | Prisma.ScheduleChangeLog$shiftAssignmentArgs<ExtArgs>
   changedBy?: boolean | Prisma.UserDefaultArgs<ExtArgs>
 }
 export type ScheduleChangeLogIncludeUpdateManyAndReturn<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
-  schedule?: boolean | Prisma.ScheduleDefaultArgs<ExtArgs>
+  schedule?: boolean | Prisma.WorkScheduleDefaultArgs<ExtArgs>
   shiftAssignment?: boolean | Prisma.ScheduleChangeLog$shiftAssignmentArgs<ExtArgs>
   changedBy?: boolean | Prisma.UserDefaultArgs<ExtArgs>
 }
@@ -942,7 +942,7 @@ export type ScheduleChangeLogIncludeUpdateManyAndReturn<ExtArgs extends runtime.
 export type $ScheduleChangeLogPayload<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
   name: "ScheduleChangeLog"
   objects: {
-    schedule: Prisma.$SchedulePayload<ExtArgs>
+    schedule: Prisma.$WorkSchedulePayload<ExtArgs>
     shiftAssignment: Prisma.$ShiftAssignmentPayload<ExtArgs> | null
     changedBy: Prisma.$UserPayload<ExtArgs>
   }
@@ -1351,7 +1351,7 @@ readonly fields: ScheduleChangeLogFieldRefs;
  */
 export interface Prisma__ScheduleChangeLogClient<T, Null = never, ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs, GlobalOmitOptions = {}> extends Prisma.PrismaPromise<T> {
   readonly [Symbol.toStringTag]: "PrismaPromise"
-  schedule<T extends Prisma.ScheduleDefaultArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.ScheduleDefaultArgs<ExtArgs>>): Prisma.Prisma__ScheduleClient<runtime.Types.Result.GetResult<Prisma.$SchedulePayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions> | Null, Null, ExtArgs, GlobalOmitOptions>
+  schedule<T extends Prisma.WorkScheduleDefaultArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.WorkScheduleDefaultArgs<ExtArgs>>): Prisma.Prisma__WorkScheduleClient<runtime.Types.Result.GetResult<Prisma.$WorkSchedulePayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions> | Null, Null, ExtArgs, GlobalOmitOptions>
   shiftAssignment<T extends Prisma.ScheduleChangeLog$shiftAssignmentArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.ScheduleChangeLog$shiftAssignmentArgs<ExtArgs>>): Prisma.Prisma__ShiftAssignmentClient<runtime.Types.Result.GetResult<Prisma.$ShiftAssignmentPayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions> | null, null, ExtArgs, GlobalOmitOptions>
   changedBy<T extends Prisma.UserDefaultArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.UserDefaultArgs<ExtArgs>>): Prisma.Prisma__UserClient<runtime.Types.Result.GetResult<Prisma.$UserPayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions> | Null, Null, ExtArgs, GlobalOmitOptions>
   /**

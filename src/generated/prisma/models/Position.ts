@@ -28,10 +28,12 @@ export type AggregatePosition = {
 
 export type PositionAvgAggregateOutputType = {
   code: number | null
+  displayOrder: number | null
 }
 
 export type PositionSumAggregateOutputType = {
   code: number | null
+  displayOrder: number | null
 }
 
 export type PositionMinAggregateOutputType = {
@@ -39,6 +41,7 @@ export type PositionMinAggregateOutputType = {
   courtId: string | null
   name: string | null
   code: number | null
+  displayOrder: number | null
   isActive: boolean | null
   color: string | null
   createdAt: Date | null
@@ -50,6 +53,7 @@ export type PositionMaxAggregateOutputType = {
   courtId: string | null
   name: string | null
   code: number | null
+  displayOrder: number | null
   isActive: boolean | null
   color: string | null
   createdAt: Date | null
@@ -61,6 +65,7 @@ export type PositionCountAggregateOutputType = {
   courtId: number
   name: number
   code: number
+  displayOrder: number
   isActive: number
   color: number
   createdAt: number
@@ -71,10 +76,12 @@ export type PositionCountAggregateOutputType = {
 
 export type PositionAvgAggregateInputType = {
   code?: true
+  displayOrder?: true
 }
 
 export type PositionSumAggregateInputType = {
   code?: true
+  displayOrder?: true
 }
 
 export type PositionMinAggregateInputType = {
@@ -82,6 +89,7 @@ export type PositionMinAggregateInputType = {
   courtId?: true
   name?: true
   code?: true
+  displayOrder?: true
   isActive?: true
   color?: true
   createdAt?: true
@@ -93,6 +101,7 @@ export type PositionMaxAggregateInputType = {
   courtId?: true
   name?: true
   code?: true
+  displayOrder?: true
   isActive?: true
   color?: true
   createdAt?: true
@@ -104,6 +113,7 @@ export type PositionCountAggregateInputType = {
   courtId?: true
   name?: true
   code?: true
+  displayOrder?: true
   isActive?: true
   color?: true
   createdAt?: true
@@ -202,6 +212,7 @@ export type PositionGroupByOutputType = {
   courtId: string
   name: string
   code: number
+  displayOrder: number
   isActive: boolean
   color: string | null
   createdAt: Date
@@ -236,13 +247,14 @@ export type PositionWhereInput = {
   courtId?: Prisma.StringFilter<"Position"> | string
   name?: Prisma.StringFilter<"Position"> | string
   code?: Prisma.IntFilter<"Position"> | number
+  displayOrder?: Prisma.IntFilter<"Position"> | number
   isActive?: Prisma.BoolFilter<"Position"> | boolean
   color?: Prisma.StringNullableFilter<"Position"> | string | null
   createdAt?: Prisma.DateTimeFilter<"Position"> | Date | string
   updatedAt?: Prisma.DateTimeFilter<"Position"> | Date | string
   court?: Prisma.XOR<Prisma.CourtScalarRelationFilter, Prisma.CourtWhereInput>
   employees?: Prisma.EmployeeListRelationFilter
-  staffingRequirements?: Prisma.StaffingRequirementListRelationFilter
+  shiftCapacities?: Prisma.ShiftCapacityListRelationFilter
   shiftAssignments?: Prisma.ShiftAssignmentListRelationFilter
   warnings?: Prisma.ScheduleWarningListRelationFilter
 }
@@ -252,13 +264,14 @@ export type PositionOrderByWithRelationInput = {
   courtId?: Prisma.SortOrder
   name?: Prisma.SortOrder
   code?: Prisma.SortOrder
+  displayOrder?: Prisma.SortOrder
   isActive?: Prisma.SortOrder
   color?: Prisma.SortOrderInput | Prisma.SortOrder
   createdAt?: Prisma.SortOrder
   updatedAt?: Prisma.SortOrder
   court?: Prisma.CourtOrderByWithRelationInput
   employees?: Prisma.EmployeeOrderByRelationAggregateInput
-  staffingRequirements?: Prisma.StaffingRequirementOrderByRelationAggregateInput
+  shiftCapacities?: Prisma.ShiftCapacityOrderByRelationAggregateInput
   shiftAssignments?: Prisma.ShiftAssignmentOrderByRelationAggregateInput
   warnings?: Prisma.ScheduleWarningOrderByRelationAggregateInput
 }
@@ -273,13 +286,14 @@ export type PositionWhereUniqueInput = Prisma.AtLeast<{
   courtId?: Prisma.StringFilter<"Position"> | string
   name?: Prisma.StringFilter<"Position"> | string
   code?: Prisma.IntFilter<"Position"> | number
+  displayOrder?: Prisma.IntFilter<"Position"> | number
   isActive?: Prisma.BoolFilter<"Position"> | boolean
   color?: Prisma.StringNullableFilter<"Position"> | string | null
   createdAt?: Prisma.DateTimeFilter<"Position"> | Date | string
   updatedAt?: Prisma.DateTimeFilter<"Position"> | Date | string
   court?: Prisma.XOR<Prisma.CourtScalarRelationFilter, Prisma.CourtWhereInput>
   employees?: Prisma.EmployeeListRelationFilter
-  staffingRequirements?: Prisma.StaffingRequirementListRelationFilter
+  shiftCapacities?: Prisma.ShiftCapacityListRelationFilter
   shiftAssignments?: Prisma.ShiftAssignmentListRelationFilter
   warnings?: Prisma.ScheduleWarningListRelationFilter
 }, "id" | "courtId_name" | "courtId_code">
@@ -289,6 +303,7 @@ export type PositionOrderByWithAggregationInput = {
   courtId?: Prisma.SortOrder
   name?: Prisma.SortOrder
   code?: Prisma.SortOrder
+  displayOrder?: Prisma.SortOrder
   isActive?: Prisma.SortOrder
   color?: Prisma.SortOrderInput | Prisma.SortOrder
   createdAt?: Prisma.SortOrder
@@ -308,6 +323,7 @@ export type PositionScalarWhereWithAggregatesInput = {
   courtId?: Prisma.StringWithAggregatesFilter<"Position"> | string
   name?: Prisma.StringWithAggregatesFilter<"Position"> | string
   code?: Prisma.IntWithAggregatesFilter<"Position"> | number
+  displayOrder?: Prisma.IntWithAggregatesFilter<"Position"> | number
   isActive?: Prisma.BoolWithAggregatesFilter<"Position"> | boolean
   color?: Prisma.StringNullableWithAggregatesFilter<"Position"> | string | null
   createdAt?: Prisma.DateTimeWithAggregatesFilter<"Position"> | Date | string
@@ -318,13 +334,14 @@ export type PositionCreateInput = {
   id?: string
   name: string
   code: number
+  displayOrder?: number
   isActive?: boolean
   color?: string | null
   createdAt?: Date | string
   updatedAt?: Date | string
   court: Prisma.CourtCreateNestedOneWithoutPositionsInput
   employees?: Prisma.EmployeeCreateNestedManyWithoutPositionInput
-  staffingRequirements?: Prisma.StaffingRequirementCreateNestedManyWithoutPositionInput
+  shiftCapacities?: Prisma.ShiftCapacityCreateNestedManyWithoutPositionInput
   shiftAssignments?: Prisma.ShiftAssignmentCreateNestedManyWithoutPositionInput
   warnings?: Prisma.ScheduleWarningCreateNestedManyWithoutPositionInput
 }
@@ -334,12 +351,13 @@ export type PositionUncheckedCreateInput = {
   courtId: string
   name: string
   code: number
+  displayOrder?: number
   isActive?: boolean
   color?: string | null
   createdAt?: Date | string
   updatedAt?: Date | string
   employees?: Prisma.EmployeeUncheckedCreateNestedManyWithoutPositionInput
-  staffingRequirements?: Prisma.StaffingRequirementUncheckedCreateNestedManyWithoutPositionInput
+  shiftCapacities?: Prisma.ShiftCapacityUncheckedCreateNestedManyWithoutPositionInput
   shiftAssignments?: Prisma.ShiftAssignmentUncheckedCreateNestedManyWithoutPositionInput
   warnings?: Prisma.ScheduleWarningUncheckedCreateNestedManyWithoutPositionInput
 }
@@ -348,13 +366,14 @@ export type PositionUpdateInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
   name?: Prisma.StringFieldUpdateOperationsInput | string
   code?: Prisma.IntFieldUpdateOperationsInput | number
+  displayOrder?: Prisma.IntFieldUpdateOperationsInput | number
   isActive?: Prisma.BoolFieldUpdateOperationsInput | boolean
   color?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   court?: Prisma.CourtUpdateOneRequiredWithoutPositionsNestedInput
   employees?: Prisma.EmployeeUpdateManyWithoutPositionNestedInput
-  staffingRequirements?: Prisma.StaffingRequirementUpdateManyWithoutPositionNestedInput
+  shiftCapacities?: Prisma.ShiftCapacityUpdateManyWithoutPositionNestedInput
   shiftAssignments?: Prisma.ShiftAssignmentUpdateManyWithoutPositionNestedInput
   warnings?: Prisma.ScheduleWarningUpdateManyWithoutPositionNestedInput
 }
@@ -364,12 +383,13 @@ export type PositionUncheckedUpdateInput = {
   courtId?: Prisma.StringFieldUpdateOperationsInput | string
   name?: Prisma.StringFieldUpdateOperationsInput | string
   code?: Prisma.IntFieldUpdateOperationsInput | number
+  displayOrder?: Prisma.IntFieldUpdateOperationsInput | number
   isActive?: Prisma.BoolFieldUpdateOperationsInput | boolean
   color?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   employees?: Prisma.EmployeeUncheckedUpdateManyWithoutPositionNestedInput
-  staffingRequirements?: Prisma.StaffingRequirementUncheckedUpdateManyWithoutPositionNestedInput
+  shiftCapacities?: Prisma.ShiftCapacityUncheckedUpdateManyWithoutPositionNestedInput
   shiftAssignments?: Prisma.ShiftAssignmentUncheckedUpdateManyWithoutPositionNestedInput
   warnings?: Prisma.ScheduleWarningUncheckedUpdateManyWithoutPositionNestedInput
 }
@@ -379,6 +399,7 @@ export type PositionCreateManyInput = {
   courtId: string
   name: string
   code: number
+  displayOrder?: number
   isActive?: boolean
   color?: string | null
   createdAt?: Date | string
@@ -389,6 +410,7 @@ export type PositionUpdateManyMutationInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
   name?: Prisma.StringFieldUpdateOperationsInput | string
   code?: Prisma.IntFieldUpdateOperationsInput | number
+  displayOrder?: Prisma.IntFieldUpdateOperationsInput | number
   isActive?: Prisma.BoolFieldUpdateOperationsInput | boolean
   color?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
@@ -400,6 +422,7 @@ export type PositionUncheckedUpdateManyInput = {
   courtId?: Prisma.StringFieldUpdateOperationsInput | string
   name?: Prisma.StringFieldUpdateOperationsInput | string
   code?: Prisma.IntFieldUpdateOperationsInput | number
+  displayOrder?: Prisma.IntFieldUpdateOperationsInput | number
   isActive?: Prisma.BoolFieldUpdateOperationsInput | boolean
   color?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
@@ -436,6 +459,7 @@ export type PositionCountOrderByAggregateInput = {
   courtId?: Prisma.SortOrder
   name?: Prisma.SortOrder
   code?: Prisma.SortOrder
+  displayOrder?: Prisma.SortOrder
   isActive?: Prisma.SortOrder
   color?: Prisma.SortOrder
   createdAt?: Prisma.SortOrder
@@ -444,6 +468,7 @@ export type PositionCountOrderByAggregateInput = {
 
 export type PositionAvgOrderByAggregateInput = {
   code?: Prisma.SortOrder
+  displayOrder?: Prisma.SortOrder
 }
 
 export type PositionMaxOrderByAggregateInput = {
@@ -451,6 +476,7 @@ export type PositionMaxOrderByAggregateInput = {
   courtId?: Prisma.SortOrder
   name?: Prisma.SortOrder
   code?: Prisma.SortOrder
+  displayOrder?: Prisma.SortOrder
   isActive?: Prisma.SortOrder
   color?: Prisma.SortOrder
   createdAt?: Prisma.SortOrder
@@ -462,6 +488,7 @@ export type PositionMinOrderByAggregateInput = {
   courtId?: Prisma.SortOrder
   name?: Prisma.SortOrder
   code?: Prisma.SortOrder
+  displayOrder?: Prisma.SortOrder
   isActive?: Prisma.SortOrder
   color?: Prisma.SortOrder
   createdAt?: Prisma.SortOrder
@@ -470,6 +497,7 @@ export type PositionMinOrderByAggregateInput = {
 
 export type PositionSumOrderByAggregateInput = {
   code?: Prisma.SortOrder
+  displayOrder?: Prisma.SortOrder
 }
 
 export type PositionNullableScalarRelationFilter = {
@@ -541,18 +569,18 @@ export type IntFieldUpdateOperationsInput = {
   divide?: number
 }
 
-export type PositionCreateNestedOneWithoutStaffingRequirementsInput = {
-  create?: Prisma.XOR<Prisma.PositionCreateWithoutStaffingRequirementsInput, Prisma.PositionUncheckedCreateWithoutStaffingRequirementsInput>
-  connectOrCreate?: Prisma.PositionCreateOrConnectWithoutStaffingRequirementsInput
+export type PositionCreateNestedOneWithoutShiftCapacitiesInput = {
+  create?: Prisma.XOR<Prisma.PositionCreateWithoutShiftCapacitiesInput, Prisma.PositionUncheckedCreateWithoutShiftCapacitiesInput>
+  connectOrCreate?: Prisma.PositionCreateOrConnectWithoutShiftCapacitiesInput
   connect?: Prisma.PositionWhereUniqueInput
 }
 
-export type PositionUpdateOneRequiredWithoutStaffingRequirementsNestedInput = {
-  create?: Prisma.XOR<Prisma.PositionCreateWithoutStaffingRequirementsInput, Prisma.PositionUncheckedCreateWithoutStaffingRequirementsInput>
-  connectOrCreate?: Prisma.PositionCreateOrConnectWithoutStaffingRequirementsInput
-  upsert?: Prisma.PositionUpsertWithoutStaffingRequirementsInput
+export type PositionUpdateOneRequiredWithoutShiftCapacitiesNestedInput = {
+  create?: Prisma.XOR<Prisma.PositionCreateWithoutShiftCapacitiesInput, Prisma.PositionUncheckedCreateWithoutShiftCapacitiesInput>
+  connectOrCreate?: Prisma.PositionCreateOrConnectWithoutShiftCapacitiesInput
+  upsert?: Prisma.PositionUpsertWithoutShiftCapacitiesInput
   connect?: Prisma.PositionWhereUniqueInput
-  update?: Prisma.XOR<Prisma.XOR<Prisma.PositionUpdateToOneWithWhereWithoutStaffingRequirementsInput, Prisma.PositionUpdateWithoutStaffingRequirementsInput>, Prisma.PositionUncheckedUpdateWithoutStaffingRequirementsInput>
+  update?: Prisma.XOR<Prisma.XOR<Prisma.PositionUpdateToOneWithWhereWithoutShiftCapacitiesInput, Prisma.PositionUpdateWithoutShiftCapacitiesInput>, Prisma.PositionUncheckedUpdateWithoutShiftCapacitiesInput>
 }
 
 export type PositionCreateNestedOneWithoutShiftAssignmentsInput = {
@@ -589,12 +617,13 @@ export type PositionCreateWithoutCourtInput = {
   id?: string
   name: string
   code: number
+  displayOrder?: number
   isActive?: boolean
   color?: string | null
   createdAt?: Date | string
   updatedAt?: Date | string
   employees?: Prisma.EmployeeCreateNestedManyWithoutPositionInput
-  staffingRequirements?: Prisma.StaffingRequirementCreateNestedManyWithoutPositionInput
+  shiftCapacities?: Prisma.ShiftCapacityCreateNestedManyWithoutPositionInput
   shiftAssignments?: Prisma.ShiftAssignmentCreateNestedManyWithoutPositionInput
   warnings?: Prisma.ScheduleWarningCreateNestedManyWithoutPositionInput
 }
@@ -603,12 +632,13 @@ export type PositionUncheckedCreateWithoutCourtInput = {
   id?: string
   name: string
   code: number
+  displayOrder?: number
   isActive?: boolean
   color?: string | null
   createdAt?: Date | string
   updatedAt?: Date | string
   employees?: Prisma.EmployeeUncheckedCreateNestedManyWithoutPositionInput
-  staffingRequirements?: Prisma.StaffingRequirementUncheckedCreateNestedManyWithoutPositionInput
+  shiftCapacities?: Prisma.ShiftCapacityUncheckedCreateNestedManyWithoutPositionInput
   shiftAssignments?: Prisma.ShiftAssignmentUncheckedCreateNestedManyWithoutPositionInput
   warnings?: Prisma.ScheduleWarningUncheckedCreateNestedManyWithoutPositionInput
 }
@@ -647,6 +677,7 @@ export type PositionScalarWhereInput = {
   courtId?: Prisma.StringFilter<"Position"> | string
   name?: Prisma.StringFilter<"Position"> | string
   code?: Prisma.IntFilter<"Position"> | number
+  displayOrder?: Prisma.IntFilter<"Position"> | number
   isActive?: Prisma.BoolFilter<"Position"> | boolean
   color?: Prisma.StringNullableFilter<"Position"> | string | null
   createdAt?: Prisma.DateTimeFilter<"Position"> | Date | string
@@ -657,12 +688,13 @@ export type PositionCreateWithoutEmployeesInput = {
   id?: string
   name: string
   code: number
+  displayOrder?: number
   isActive?: boolean
   color?: string | null
   createdAt?: Date | string
   updatedAt?: Date | string
   court: Prisma.CourtCreateNestedOneWithoutPositionsInput
-  staffingRequirements?: Prisma.StaffingRequirementCreateNestedManyWithoutPositionInput
+  shiftCapacities?: Prisma.ShiftCapacityCreateNestedManyWithoutPositionInput
   shiftAssignments?: Prisma.ShiftAssignmentCreateNestedManyWithoutPositionInput
   warnings?: Prisma.ScheduleWarningCreateNestedManyWithoutPositionInput
 }
@@ -672,11 +704,12 @@ export type PositionUncheckedCreateWithoutEmployeesInput = {
   courtId: string
   name: string
   code: number
+  displayOrder?: number
   isActive?: boolean
   color?: string | null
   createdAt?: Date | string
   updatedAt?: Date | string
-  staffingRequirements?: Prisma.StaffingRequirementUncheckedCreateNestedManyWithoutPositionInput
+  shiftCapacities?: Prisma.ShiftCapacityUncheckedCreateNestedManyWithoutPositionInput
   shiftAssignments?: Prisma.ShiftAssignmentUncheckedCreateNestedManyWithoutPositionInput
   warnings?: Prisma.ScheduleWarningUncheckedCreateNestedManyWithoutPositionInput
 }
@@ -701,12 +734,13 @@ export type PositionUpdateWithoutEmployeesInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
   name?: Prisma.StringFieldUpdateOperationsInput | string
   code?: Prisma.IntFieldUpdateOperationsInput | number
+  displayOrder?: Prisma.IntFieldUpdateOperationsInput | number
   isActive?: Prisma.BoolFieldUpdateOperationsInput | boolean
   color?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   court?: Prisma.CourtUpdateOneRequiredWithoutPositionsNestedInput
-  staffingRequirements?: Prisma.StaffingRequirementUpdateManyWithoutPositionNestedInput
+  shiftCapacities?: Prisma.ShiftCapacityUpdateManyWithoutPositionNestedInput
   shiftAssignments?: Prisma.ShiftAssignmentUpdateManyWithoutPositionNestedInput
   warnings?: Prisma.ScheduleWarningUpdateManyWithoutPositionNestedInput
 }
@@ -716,19 +750,21 @@ export type PositionUncheckedUpdateWithoutEmployeesInput = {
   courtId?: Prisma.StringFieldUpdateOperationsInput | string
   name?: Prisma.StringFieldUpdateOperationsInput | string
   code?: Prisma.IntFieldUpdateOperationsInput | number
+  displayOrder?: Prisma.IntFieldUpdateOperationsInput | number
   isActive?: Prisma.BoolFieldUpdateOperationsInput | boolean
   color?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
-  staffingRequirements?: Prisma.StaffingRequirementUncheckedUpdateManyWithoutPositionNestedInput
+  shiftCapacities?: Prisma.ShiftCapacityUncheckedUpdateManyWithoutPositionNestedInput
   shiftAssignments?: Prisma.ShiftAssignmentUncheckedUpdateManyWithoutPositionNestedInput
   warnings?: Prisma.ScheduleWarningUncheckedUpdateManyWithoutPositionNestedInput
 }
 
-export type PositionCreateWithoutStaffingRequirementsInput = {
+export type PositionCreateWithoutShiftCapacitiesInput = {
   id?: string
   name: string
   code: number
+  displayOrder?: number
   isActive?: boolean
   color?: string | null
   createdAt?: Date | string
@@ -739,11 +775,12 @@ export type PositionCreateWithoutStaffingRequirementsInput = {
   warnings?: Prisma.ScheduleWarningCreateNestedManyWithoutPositionInput
 }
 
-export type PositionUncheckedCreateWithoutStaffingRequirementsInput = {
+export type PositionUncheckedCreateWithoutShiftCapacitiesInput = {
   id?: string
   courtId: string
   name: string
   code: number
+  displayOrder?: number
   isActive?: boolean
   color?: string | null
   createdAt?: Date | string
@@ -753,26 +790,27 @@ export type PositionUncheckedCreateWithoutStaffingRequirementsInput = {
   warnings?: Prisma.ScheduleWarningUncheckedCreateNestedManyWithoutPositionInput
 }
 
-export type PositionCreateOrConnectWithoutStaffingRequirementsInput = {
+export type PositionCreateOrConnectWithoutShiftCapacitiesInput = {
   where: Prisma.PositionWhereUniqueInput
-  create: Prisma.XOR<Prisma.PositionCreateWithoutStaffingRequirementsInput, Prisma.PositionUncheckedCreateWithoutStaffingRequirementsInput>
+  create: Prisma.XOR<Prisma.PositionCreateWithoutShiftCapacitiesInput, Prisma.PositionUncheckedCreateWithoutShiftCapacitiesInput>
 }
 
-export type PositionUpsertWithoutStaffingRequirementsInput = {
-  update: Prisma.XOR<Prisma.PositionUpdateWithoutStaffingRequirementsInput, Prisma.PositionUncheckedUpdateWithoutStaffingRequirementsInput>
-  create: Prisma.XOR<Prisma.PositionCreateWithoutStaffingRequirementsInput, Prisma.PositionUncheckedCreateWithoutStaffingRequirementsInput>
+export type PositionUpsertWithoutShiftCapacitiesInput = {
+  update: Prisma.XOR<Prisma.PositionUpdateWithoutShiftCapacitiesInput, Prisma.PositionUncheckedUpdateWithoutShiftCapacitiesInput>
+  create: Prisma.XOR<Prisma.PositionCreateWithoutShiftCapacitiesInput, Prisma.PositionUncheckedCreateWithoutShiftCapacitiesInput>
   where?: Prisma.PositionWhereInput
 }
 
-export type PositionUpdateToOneWithWhereWithoutStaffingRequirementsInput = {
+export type PositionUpdateToOneWithWhereWithoutShiftCapacitiesInput = {
   where?: Prisma.PositionWhereInput
-  data: Prisma.XOR<Prisma.PositionUpdateWithoutStaffingRequirementsInput, Prisma.PositionUncheckedUpdateWithoutStaffingRequirementsInput>
+  data: Prisma.XOR<Prisma.PositionUpdateWithoutShiftCapacitiesInput, Prisma.PositionUncheckedUpdateWithoutShiftCapacitiesInput>
 }
 
-export type PositionUpdateWithoutStaffingRequirementsInput = {
+export type PositionUpdateWithoutShiftCapacitiesInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
   name?: Prisma.StringFieldUpdateOperationsInput | string
   code?: Prisma.IntFieldUpdateOperationsInput | number
+  displayOrder?: Prisma.IntFieldUpdateOperationsInput | number
   isActive?: Prisma.BoolFieldUpdateOperationsInput | boolean
   color?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
@@ -783,11 +821,12 @@ export type PositionUpdateWithoutStaffingRequirementsInput = {
   warnings?: Prisma.ScheduleWarningUpdateManyWithoutPositionNestedInput
 }
 
-export type PositionUncheckedUpdateWithoutStaffingRequirementsInput = {
+export type PositionUncheckedUpdateWithoutShiftCapacitiesInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
   courtId?: Prisma.StringFieldUpdateOperationsInput | string
   name?: Prisma.StringFieldUpdateOperationsInput | string
   code?: Prisma.IntFieldUpdateOperationsInput | number
+  displayOrder?: Prisma.IntFieldUpdateOperationsInput | number
   isActive?: Prisma.BoolFieldUpdateOperationsInput | boolean
   color?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
@@ -801,13 +840,14 @@ export type PositionCreateWithoutShiftAssignmentsInput = {
   id?: string
   name: string
   code: number
+  displayOrder?: number
   isActive?: boolean
   color?: string | null
   createdAt?: Date | string
   updatedAt?: Date | string
   court: Prisma.CourtCreateNestedOneWithoutPositionsInput
   employees?: Prisma.EmployeeCreateNestedManyWithoutPositionInput
-  staffingRequirements?: Prisma.StaffingRequirementCreateNestedManyWithoutPositionInput
+  shiftCapacities?: Prisma.ShiftCapacityCreateNestedManyWithoutPositionInput
   warnings?: Prisma.ScheduleWarningCreateNestedManyWithoutPositionInput
 }
 
@@ -816,12 +856,13 @@ export type PositionUncheckedCreateWithoutShiftAssignmentsInput = {
   courtId: string
   name: string
   code: number
+  displayOrder?: number
   isActive?: boolean
   color?: string | null
   createdAt?: Date | string
   updatedAt?: Date | string
   employees?: Prisma.EmployeeUncheckedCreateNestedManyWithoutPositionInput
-  staffingRequirements?: Prisma.StaffingRequirementUncheckedCreateNestedManyWithoutPositionInput
+  shiftCapacities?: Prisma.ShiftCapacityUncheckedCreateNestedManyWithoutPositionInput
   warnings?: Prisma.ScheduleWarningUncheckedCreateNestedManyWithoutPositionInput
 }
 
@@ -845,13 +886,14 @@ export type PositionUpdateWithoutShiftAssignmentsInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
   name?: Prisma.StringFieldUpdateOperationsInput | string
   code?: Prisma.IntFieldUpdateOperationsInput | number
+  displayOrder?: Prisma.IntFieldUpdateOperationsInput | number
   isActive?: Prisma.BoolFieldUpdateOperationsInput | boolean
   color?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   court?: Prisma.CourtUpdateOneRequiredWithoutPositionsNestedInput
   employees?: Prisma.EmployeeUpdateManyWithoutPositionNestedInput
-  staffingRequirements?: Prisma.StaffingRequirementUpdateManyWithoutPositionNestedInput
+  shiftCapacities?: Prisma.ShiftCapacityUpdateManyWithoutPositionNestedInput
   warnings?: Prisma.ScheduleWarningUpdateManyWithoutPositionNestedInput
 }
 
@@ -860,12 +902,13 @@ export type PositionUncheckedUpdateWithoutShiftAssignmentsInput = {
   courtId?: Prisma.StringFieldUpdateOperationsInput | string
   name?: Prisma.StringFieldUpdateOperationsInput | string
   code?: Prisma.IntFieldUpdateOperationsInput | number
+  displayOrder?: Prisma.IntFieldUpdateOperationsInput | number
   isActive?: Prisma.BoolFieldUpdateOperationsInput | boolean
   color?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   employees?: Prisma.EmployeeUncheckedUpdateManyWithoutPositionNestedInput
-  staffingRequirements?: Prisma.StaffingRequirementUncheckedUpdateManyWithoutPositionNestedInput
+  shiftCapacities?: Prisma.ShiftCapacityUncheckedUpdateManyWithoutPositionNestedInput
   warnings?: Prisma.ScheduleWarningUncheckedUpdateManyWithoutPositionNestedInput
 }
 
@@ -873,13 +916,14 @@ export type PositionCreateWithoutWarningsInput = {
   id?: string
   name: string
   code: number
+  displayOrder?: number
   isActive?: boolean
   color?: string | null
   createdAt?: Date | string
   updatedAt?: Date | string
   court: Prisma.CourtCreateNestedOneWithoutPositionsInput
   employees?: Prisma.EmployeeCreateNestedManyWithoutPositionInput
-  staffingRequirements?: Prisma.StaffingRequirementCreateNestedManyWithoutPositionInput
+  shiftCapacities?: Prisma.ShiftCapacityCreateNestedManyWithoutPositionInput
   shiftAssignments?: Prisma.ShiftAssignmentCreateNestedManyWithoutPositionInput
 }
 
@@ -888,12 +932,13 @@ export type PositionUncheckedCreateWithoutWarningsInput = {
   courtId: string
   name: string
   code: number
+  displayOrder?: number
   isActive?: boolean
   color?: string | null
   createdAt?: Date | string
   updatedAt?: Date | string
   employees?: Prisma.EmployeeUncheckedCreateNestedManyWithoutPositionInput
-  staffingRequirements?: Prisma.StaffingRequirementUncheckedCreateNestedManyWithoutPositionInput
+  shiftCapacities?: Prisma.ShiftCapacityUncheckedCreateNestedManyWithoutPositionInput
   shiftAssignments?: Prisma.ShiftAssignmentUncheckedCreateNestedManyWithoutPositionInput
 }
 
@@ -917,13 +962,14 @@ export type PositionUpdateWithoutWarningsInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
   name?: Prisma.StringFieldUpdateOperationsInput | string
   code?: Prisma.IntFieldUpdateOperationsInput | number
+  displayOrder?: Prisma.IntFieldUpdateOperationsInput | number
   isActive?: Prisma.BoolFieldUpdateOperationsInput | boolean
   color?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   court?: Prisma.CourtUpdateOneRequiredWithoutPositionsNestedInput
   employees?: Prisma.EmployeeUpdateManyWithoutPositionNestedInput
-  staffingRequirements?: Prisma.StaffingRequirementUpdateManyWithoutPositionNestedInput
+  shiftCapacities?: Prisma.ShiftCapacityUpdateManyWithoutPositionNestedInput
   shiftAssignments?: Prisma.ShiftAssignmentUpdateManyWithoutPositionNestedInput
 }
 
@@ -932,12 +978,13 @@ export type PositionUncheckedUpdateWithoutWarningsInput = {
   courtId?: Prisma.StringFieldUpdateOperationsInput | string
   name?: Prisma.StringFieldUpdateOperationsInput | string
   code?: Prisma.IntFieldUpdateOperationsInput | number
+  displayOrder?: Prisma.IntFieldUpdateOperationsInput | number
   isActive?: Prisma.BoolFieldUpdateOperationsInput | boolean
   color?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   employees?: Prisma.EmployeeUncheckedUpdateManyWithoutPositionNestedInput
-  staffingRequirements?: Prisma.StaffingRequirementUncheckedUpdateManyWithoutPositionNestedInput
+  shiftCapacities?: Prisma.ShiftCapacityUncheckedUpdateManyWithoutPositionNestedInput
   shiftAssignments?: Prisma.ShiftAssignmentUncheckedUpdateManyWithoutPositionNestedInput
 }
 
@@ -945,6 +992,7 @@ export type PositionCreateManyCourtInput = {
   id?: string
   name: string
   code: number
+  displayOrder?: number
   isActive?: boolean
   color?: string | null
   createdAt?: Date | string
@@ -955,12 +1003,13 @@ export type PositionUpdateWithoutCourtInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
   name?: Prisma.StringFieldUpdateOperationsInput | string
   code?: Prisma.IntFieldUpdateOperationsInput | number
+  displayOrder?: Prisma.IntFieldUpdateOperationsInput | number
   isActive?: Prisma.BoolFieldUpdateOperationsInput | boolean
   color?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   employees?: Prisma.EmployeeUpdateManyWithoutPositionNestedInput
-  staffingRequirements?: Prisma.StaffingRequirementUpdateManyWithoutPositionNestedInput
+  shiftCapacities?: Prisma.ShiftCapacityUpdateManyWithoutPositionNestedInput
   shiftAssignments?: Prisma.ShiftAssignmentUpdateManyWithoutPositionNestedInput
   warnings?: Prisma.ScheduleWarningUpdateManyWithoutPositionNestedInput
 }
@@ -969,12 +1018,13 @@ export type PositionUncheckedUpdateWithoutCourtInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
   name?: Prisma.StringFieldUpdateOperationsInput | string
   code?: Prisma.IntFieldUpdateOperationsInput | number
+  displayOrder?: Prisma.IntFieldUpdateOperationsInput | number
   isActive?: Prisma.BoolFieldUpdateOperationsInput | boolean
   color?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   employees?: Prisma.EmployeeUncheckedUpdateManyWithoutPositionNestedInput
-  staffingRequirements?: Prisma.StaffingRequirementUncheckedUpdateManyWithoutPositionNestedInput
+  shiftCapacities?: Prisma.ShiftCapacityUncheckedUpdateManyWithoutPositionNestedInput
   shiftAssignments?: Prisma.ShiftAssignmentUncheckedUpdateManyWithoutPositionNestedInput
   warnings?: Prisma.ScheduleWarningUncheckedUpdateManyWithoutPositionNestedInput
 }
@@ -983,6 +1033,7 @@ export type PositionUncheckedUpdateManyWithoutCourtInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
   name?: Prisma.StringFieldUpdateOperationsInput | string
   code?: Prisma.IntFieldUpdateOperationsInput | number
+  displayOrder?: Prisma.IntFieldUpdateOperationsInput | number
   isActive?: Prisma.BoolFieldUpdateOperationsInput | boolean
   color?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
@@ -996,14 +1047,14 @@ export type PositionUncheckedUpdateManyWithoutCourtInput = {
 
 export type PositionCountOutputType = {
   employees: number
-  staffingRequirements: number
+  shiftCapacities: number
   shiftAssignments: number
   warnings: number
 }
 
 export type PositionCountOutputTypeSelect<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
   employees?: boolean | PositionCountOutputTypeCountEmployeesArgs
-  staffingRequirements?: boolean | PositionCountOutputTypeCountStaffingRequirementsArgs
+  shiftCapacities?: boolean | PositionCountOutputTypeCountShiftCapacitiesArgs
   shiftAssignments?: boolean | PositionCountOutputTypeCountShiftAssignmentsArgs
   warnings?: boolean | PositionCountOutputTypeCountWarningsArgs
 }
@@ -1028,8 +1079,8 @@ export type PositionCountOutputTypeCountEmployeesArgs<ExtArgs extends runtime.Ty
 /**
  * PositionCountOutputType without action
  */
-export type PositionCountOutputTypeCountStaffingRequirementsArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
-  where?: Prisma.StaffingRequirementWhereInput
+export type PositionCountOutputTypeCountShiftCapacitiesArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+  where?: Prisma.ShiftCapacityWhereInput
 }
 
 /**
@@ -1052,13 +1103,14 @@ export type PositionSelect<ExtArgs extends runtime.Types.Extensions.InternalArgs
   courtId?: boolean
   name?: boolean
   code?: boolean
+  displayOrder?: boolean
   isActive?: boolean
   color?: boolean
   createdAt?: boolean
   updatedAt?: boolean
   court?: boolean | Prisma.CourtDefaultArgs<ExtArgs>
   employees?: boolean | Prisma.Position$employeesArgs<ExtArgs>
-  staffingRequirements?: boolean | Prisma.Position$staffingRequirementsArgs<ExtArgs>
+  shiftCapacities?: boolean | Prisma.Position$shiftCapacitiesArgs<ExtArgs>
   shiftAssignments?: boolean | Prisma.Position$shiftAssignmentsArgs<ExtArgs>
   warnings?: boolean | Prisma.Position$warningsArgs<ExtArgs>
   _count?: boolean | Prisma.PositionCountOutputTypeDefaultArgs<ExtArgs>
@@ -1069,6 +1121,7 @@ export type PositionSelectCreateManyAndReturn<ExtArgs extends runtime.Types.Exte
   courtId?: boolean
   name?: boolean
   code?: boolean
+  displayOrder?: boolean
   isActive?: boolean
   color?: boolean
   createdAt?: boolean
@@ -1081,6 +1134,7 @@ export type PositionSelectUpdateManyAndReturn<ExtArgs extends runtime.Types.Exte
   courtId?: boolean
   name?: boolean
   code?: boolean
+  displayOrder?: boolean
   isActive?: boolean
   color?: boolean
   createdAt?: boolean
@@ -1093,17 +1147,18 @@ export type PositionSelectScalar = {
   courtId?: boolean
   name?: boolean
   code?: boolean
+  displayOrder?: boolean
   isActive?: boolean
   color?: boolean
   createdAt?: boolean
   updatedAt?: boolean
 }
 
-export type PositionOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"id" | "courtId" | "name" | "code" | "isActive" | "color" | "createdAt" | "updatedAt", ExtArgs["result"]["position"]>
+export type PositionOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"id" | "courtId" | "name" | "code" | "displayOrder" | "isActive" | "color" | "createdAt" | "updatedAt", ExtArgs["result"]["position"]>
 export type PositionInclude<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
   court?: boolean | Prisma.CourtDefaultArgs<ExtArgs>
   employees?: boolean | Prisma.Position$employeesArgs<ExtArgs>
-  staffingRequirements?: boolean | Prisma.Position$staffingRequirementsArgs<ExtArgs>
+  shiftCapacities?: boolean | Prisma.Position$shiftCapacitiesArgs<ExtArgs>
   shiftAssignments?: boolean | Prisma.Position$shiftAssignmentsArgs<ExtArgs>
   warnings?: boolean | Prisma.Position$warningsArgs<ExtArgs>
   _count?: boolean | Prisma.PositionCountOutputTypeDefaultArgs<ExtArgs>
@@ -1120,7 +1175,7 @@ export type $PositionPayload<ExtArgs extends runtime.Types.Extensions.InternalAr
   objects: {
     court: Prisma.$CourtPayload<ExtArgs>
     employees: Prisma.$EmployeePayload<ExtArgs>[]
-    staffingRequirements: Prisma.$StaffingRequirementPayload<ExtArgs>[]
+    shiftCapacities: Prisma.$ShiftCapacityPayload<ExtArgs>[]
     shiftAssignments: Prisma.$ShiftAssignmentPayload<ExtArgs>[]
     warnings: Prisma.$ScheduleWarningPayload<ExtArgs>[]
   }
@@ -1129,6 +1184,7 @@ export type $PositionPayload<ExtArgs extends runtime.Types.Extensions.InternalAr
     courtId: string
     name: string
     code: number
+    displayOrder: number
     isActive: boolean
     color: string | null
     createdAt: Date
@@ -1529,7 +1585,7 @@ export interface Prisma__PositionClient<T, Null = never, ExtArgs extends runtime
   readonly [Symbol.toStringTag]: "PrismaPromise"
   court<T extends Prisma.CourtDefaultArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.CourtDefaultArgs<ExtArgs>>): Prisma.Prisma__CourtClient<runtime.Types.Result.GetResult<Prisma.$CourtPayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions> | Null, Null, ExtArgs, GlobalOmitOptions>
   employees<T extends Prisma.Position$employeesArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.Position$employeesArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$EmployeePayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
-  staffingRequirements<T extends Prisma.Position$staffingRequirementsArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.Position$staffingRequirementsArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$StaffingRequirementPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
+  shiftCapacities<T extends Prisma.Position$shiftCapacitiesArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.Position$shiftCapacitiesArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$ShiftCapacityPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
   shiftAssignments<T extends Prisma.Position$shiftAssignmentsArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.Position$shiftAssignmentsArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$ShiftAssignmentPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
   warnings<T extends Prisma.Position$warningsArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.Position$warningsArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$ScheduleWarningPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
   /**
@@ -1565,6 +1621,7 @@ export interface PositionFieldRefs {
   readonly courtId: Prisma.FieldRef<"Position", 'String'>
   readonly name: Prisma.FieldRef<"Position", 'String'>
   readonly code: Prisma.FieldRef<"Position", 'Int'>
+  readonly displayOrder: Prisma.FieldRef<"Position", 'Int'>
   readonly isActive: Prisma.FieldRef<"Position", 'Boolean'>
   readonly color: Prisma.FieldRef<"Position", 'String'>
   readonly createdAt: Prisma.FieldRef<"Position", 'DateTime'>
@@ -1994,27 +2051,27 @@ export type Position$employeesArgs<ExtArgs extends runtime.Types.Extensions.Inte
 }
 
 /**
- * Position.staffingRequirements
+ * Position.shiftCapacities
  */
-export type Position$staffingRequirementsArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+export type Position$shiftCapacitiesArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
   /**
-   * Select specific fields to fetch from the StaffingRequirement
+   * Select specific fields to fetch from the ShiftCapacity
    */
-  select?: Prisma.StaffingRequirementSelect<ExtArgs> | null
+  select?: Prisma.ShiftCapacitySelect<ExtArgs> | null
   /**
-   * Omit specific fields from the StaffingRequirement
+   * Omit specific fields from the ShiftCapacity
    */
-  omit?: Prisma.StaffingRequirementOmit<ExtArgs> | null
+  omit?: Prisma.ShiftCapacityOmit<ExtArgs> | null
   /**
    * Choose, which related nodes to fetch as well
    */
-  include?: Prisma.StaffingRequirementInclude<ExtArgs> | null
-  where?: Prisma.StaffingRequirementWhereInput
-  orderBy?: Prisma.StaffingRequirementOrderByWithRelationInput | Prisma.StaffingRequirementOrderByWithRelationInput[]
-  cursor?: Prisma.StaffingRequirementWhereUniqueInput
+  include?: Prisma.ShiftCapacityInclude<ExtArgs> | null
+  where?: Prisma.ShiftCapacityWhereInput
+  orderBy?: Prisma.ShiftCapacityOrderByWithRelationInput | Prisma.ShiftCapacityOrderByWithRelationInput[]
+  cursor?: Prisma.ShiftCapacityWhereUniqueInput
   take?: number
   skip?: number
-  distinct?: Prisma.StaffingRequirementScalarFieldEnum | Prisma.StaffingRequirementScalarFieldEnum[]
+  distinct?: Prisma.ShiftCapacityScalarFieldEnum | Prisma.ShiftCapacityScalarFieldEnum[]
 }
 
 /**

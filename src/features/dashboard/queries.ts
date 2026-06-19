@@ -48,7 +48,7 @@ function toScheduleSnapshot(
 
 async function getSubmissionData(scheduleId: string, courtId: string) {
   const [submittedSubmissions, totalEmployees, employees] = await Promise.all([
-    prisma.availabilitySubmission.findMany({
+    prisma.availabilityForm.findMany({
       where: {
         scheduleId,
         isSubmitted: true,
@@ -116,7 +116,7 @@ export async function getSchedulesForYear(courtId: string, year: number): Promis
   const { start, end } = yearDateRange(year);
 
   const [schedules, totalEmployees] = await Promise.all([
-    prisma.schedule.findMany({
+    prisma.workSchedule.findMany({
       where: {
         courtId,
         startDate: { lte: end },
@@ -126,7 +126,7 @@ export async function getSchedulesForYear(courtId: string, year: number): Promis
       include: {
         _count: {
           select: {
-            availabilitySubmissions: { where: { isSubmitted: true } },
+            availabilityForms: { where: { isSubmitted: true } },
           },
         },
       },
@@ -143,7 +143,7 @@ export async function getSchedulesForYear(courtId: string, year: number): Promis
     endDate: schedule.endDate.toISOString().slice(0, 10),
     submissionDeadline: schedule.submissionDeadline.toISOString(),
     status: schedule.status,
-    submittedCount: schedule._count.availabilitySubmissions,
+    submittedCount: schedule._count.availabilityForms,
     totalEmployees,
   }));
 }
@@ -169,14 +169,14 @@ export async function getManagerDashboardData(year: number): Promise<ManagerDash
     getStaffCountsByPosition(courtId),
     prisma.employee.count({ where: { courtId, isActive: true } }),
     getSchedulesForYear(courtId, year),
-    prisma.schedule.findFirst({
-      where: { courtId, status: ScheduleStatus.ACTIVE, endDate: { gte: today } },
+    prisma.workSchedule.findFirst({
+      where: { courtId, status: ScheduleStatus.PUBLISHED, endDate: { gte: today } },
       orderBy: { startDate: 'desc' },
     }),
-    prisma.schedule.findFirst({
+    prisma.workSchedule.findFirst({
       where: {
         courtId,
-        status: { in: [ScheduleStatus.DRAFT, ScheduleStatus.OPEN_FOR_SUBMISSION] },
+        status: { in: [ScheduleStatus.DRAFT, ScheduleStatus.OPEN] },
       },
       orderBy: { startDate: 'desc' },
     }),

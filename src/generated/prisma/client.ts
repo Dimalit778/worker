@@ -87,25 +87,25 @@ export type Employee = Prisma.EmployeeModel
  */
 export type Position = Prisma.PositionModel
 /**
- * Model StaffingRequirement
+ * Model ShiftCapacity
  * 
  */
-export type StaffingRequirement = Prisma.StaffingRequirementModel
+export type ShiftCapacity = Prisma.ShiftCapacityModel
 /**
- * Model AvailabilitySubmission
+ * Model AvailabilityForm
  * 
  */
-export type AvailabilitySubmission = Prisma.AvailabilitySubmissionModel
+export type AvailabilityForm = Prisma.AvailabilityFormModel
 /**
- * Model AvailabilitySlot
+ * Model AvailabilityShift
  * 
  */
-export type AvailabilitySlot = Prisma.AvailabilitySlotModel
+export type AvailabilityShift = Prisma.AvailabilityShiftModel
 /**
- * Model Schedule
+ * Model WorkSchedule
  * 
  */
-export type Schedule = Prisma.ScheduleModel
+export type WorkSchedule = Prisma.WorkScheduleModel
 /**
  * Model ShiftAssignment
  * 

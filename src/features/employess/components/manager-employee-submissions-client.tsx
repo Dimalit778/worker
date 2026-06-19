@@ -21,7 +21,7 @@ export function ManagerEmployeeSubmissionsClient({ employeeId }: { employeeId: s
 
   const submittedCount = data.periods.filter((period) => period.isSubmitted).length;
   const selectedSlotCount = data.periods.reduce((sum, period) => sum + period.selectedSlotCount, 0);
-  const openPeriods = data.periods.filter((period) => period.status === 'OPEN_FOR_SUBMISSION').length;
+  const openPeriods = data.periods.filter((period) => period.status === 'OPEN').length;
   const fullName = `${data.employee.firstName} ${data.employee.lastName}`.trim();
 
   return (

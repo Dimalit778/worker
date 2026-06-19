@@ -5,11 +5,10 @@ import { requireSession } from '@/lib/db/auth-helpers';
 import { PeriodSummary } from './types';
 import { parseISODateToUtcMidnight } from './utils';
 
-// = מוצא רשימת שיבוצים למנהל
 export async function getSchedulesList(): Promise<PeriodSummary[]> {
   const session = await requireSession(SystemRole.MANAGER);
 
-  const periods = await prisma.schedule.findMany({
+  const periods = await prisma.workSchedule.findMany({
     where: {
       courtId: session.user.courtId,
     },
@@ -17,7 +16,7 @@ export async function getSchedulesList(): Promise<PeriodSummary[]> {
     include: {
       _count: {
         select: {
-          availabilitySubmissions: { where: { isSubmitted: true } },
+          availabilityForms: { where: { isSubmitted: true } },
         },
       },
     },
@@ -34,12 +33,11 @@ export async function getSchedulesList(): Promise<PeriodSummary[]> {
     endDate: p.endDate.toISOString().slice(0, 10),
     submissionDeadline: p.submissionDeadline.toISOString(),
     status: p.status,
-    submittedCount: p._count.availabilitySubmissions ?? 0,
+    submittedCount: p._count.availabilityForms ?? 0,
     totalEmployees: totalEmployees ?? 0,
   }));
 }
 
-// = ליצור תקופה חדשה
 export async function createSchedule(data: {
   name: string;
   startDate: string;
@@ -61,13 +59,13 @@ export async function createSchedule(data: {
   if (isNaN(deadline.getTime())) return { error: 'מועד אחרון להגשה לא תקין' };
 
   try {
-    const schedule = await prisma.schedule.create({
+    const schedule = await prisma.workSchedule.create({
       data: {
         name: data.name.trim(),
         startDate: start,
         endDate: end,
         submissionDeadline: deadline,
-        status: ScheduleStatus.OPEN_FOR_SUBMISSION,
+        status: ScheduleStatus.OPEN,
         courtId: session.user.courtId,
         createdById: session.user.id,
       },
@@ -83,19 +81,18 @@ export async function createSchedule(data: {
     return { error: 'שגיאה ביצירת השיבוץ' };
   }
 }
-// = למחוק תקופה
+
 export async function deleteSchedule(scheduleId: string): Promise<{ ok: true } | { error: string }> {
   const session = await requireSession(SystemRole.MANAGER);
 
   try {
-    await prisma.schedule.delete({ where: { id: scheduleId, courtId: session.user.courtId } });
+    await prisma.workSchedule.delete({ where: { id: scheduleId, courtId: session.user.courtId } });
     return { ok: true };
   } catch {
     return { error: 'שגיאה במחיקת השיבוץ' };
   }
 }
 
-// = לעדכן סטטוס תקופה
 export async function updateScheduleStatus(
   scheduleId: string,
   status: ScheduleStatus,
@@ -103,7 +100,7 @@ export async function updateScheduleStatus(
   const session = await requireSession(SystemRole.MANAGER);
 
   try {
-    await prisma.schedule.update({
+    await prisma.workSchedule.update({
       where: { id: scheduleId, courtId: session.user.courtId },
       data: { status },
     });

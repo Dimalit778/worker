@@ -50,9 +50,9 @@ export type DayCategory = (typeof DayCategory)[keyof typeof DayCategory]
 
 export const ScheduleStatus = {
   DRAFT: 'DRAFT',
-  OPEN_FOR_SUBMISSION: 'OPEN_FOR_SUBMISSION',
+  OPEN: 'OPEN',
   LOCKED: 'LOCKED',
-  ACTIVE: 'ACTIVE',
+  PUBLISHED: 'PUBLISHED',
   ARCHIVED: 'ARCHIVED'
 } as const
 

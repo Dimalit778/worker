@@ -60,16 +60,16 @@ export const SHIFT_STYLES: Record<ShiftType, { header: string; label: string; em
 
 export const STATUS_LABELS: Record<ScheduleStatus, string> = {
   DRAFT: 'טיוטה',
-  OPEN_FOR_SUBMISSION: 'פתוח להגשות',
+  OPEN: 'פתוח להגשות',
   LOCKED: 'נעול',
-  ACTIVE: 'פורסם',
+  PUBLISHED: 'פורסם',
   ARCHIVED: 'בארכיון',
 };
 
 export const STATUS_COLORS: Record<ScheduleStatus, string> = {
   DRAFT: 'bg-yellow-100 text-yellow-800 border-yellow-200',
-  OPEN_FOR_SUBMISSION: 'bg-green-100 text-green-800 border-green-200',
+  OPEN: 'bg-green-100 text-green-800 border-green-200',
   LOCKED: 'bg-amber-100 text-amber-800 border-amber-200',
-  ACTIVE: 'bg-blue-100 text-blue-800 border-blue-200',
+  PUBLISHED: 'bg-blue-100 text-blue-800 border-blue-200',
   ARCHIVED: 'bg-neutral-100 text-neutral-700 border-neutral-200',
 };

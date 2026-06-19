@@ -22,7 +22,7 @@ export function shiftStaffingPositionsWhere(courtId: string): Prisma.PositionWhe
 export async function getRulesCapacity(courtId: string) {
   if (!courtId) return [];
 
-  const result = await prisma.staffingRequirement.findMany({
+  const result = await prisma.shiftCapacity.findMany({
     where: {
       courtId,
       isActive: true,
@@ -74,7 +74,7 @@ export async function getShiftStaffingPositions(courtId: string) {
 export async function getShiftCapacities(courtId: string) {
   if (!courtId) return [];
 
-  return prisma.staffingRequirement.findMany({
+  return prisma.shiftCapacity.findMany({
     where: {
       courtId,
       isActive: true,

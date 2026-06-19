@@ -49,7 +49,10 @@ export function buildAssignmentMap(
     });
   }
   for (const list of Object.values(map)) {
-    list.sort((a, b) => a.slotIndex - b.slotIndex);
+    list.sort((a, b) => a.positionId.localeCompare(b.positionId));
+    list.forEach((item, index) => {
+      item.slotIndex = index;
+    });
   }
   return map;
 }
