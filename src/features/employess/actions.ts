@@ -1,7 +1,6 @@
 'use server';
 
 import bcrypt from 'bcryptjs';
-import { revalidatePath } from 'next/cache';
 import { SystemRole } from '@/generated/prisma/client';
 import { prisma } from '@/lib/db/client';
 import { requireSession } from '@/lib/db/auth-helpers';
@@ -74,7 +73,6 @@ export async function createEmployee(params: CreateEmployeeParams): Promise<{ ok
       });
     });
 
-    revalidatePath('/manager/guards');
     return { ok: true };
   } catch (error) {
     if (error instanceof Error && error.message === 'USER_EMAIL_EXISTS') {
@@ -101,7 +99,6 @@ export async function updateEmployee(params: UpdateEmployeeParams): Promise<{ ok
     data: { firstName, lastName, phone, displayName, isReligious, positionId, isActive },
   });
 
-  revalidatePath('/manager/guards');
   return { ok: true };
 }
 
@@ -119,7 +116,6 @@ export async function deleteEmployee(employeeId: string): Promise<{ ok: true } |
     await tx.employee.delete({ where: { id: employeeId } });
   });
 
-  revalidatePath('/manager/employees');
   return { ok: true };
 }
 

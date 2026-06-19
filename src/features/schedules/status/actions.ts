@@ -2,7 +2,6 @@
 import { prisma } from '@/lib/db/client';
 import { ScheduleChangeType, ScheduleStatus, SystemRole, WarningSeverity } from '@/generated/prisma/client';
 import { requireSession } from '@/lib/db/auth-helpers';
-import { revalidatePath } from 'next/cache';
 
 async function getOpenErrorWarningsMessage(scheduleId: string): Promise<string | null> {
   const errorCount = await prisma.scheduleWarning.count({
@@ -24,7 +23,6 @@ export async function finalizeSchedule(scheduleId: string): Promise<{ ok: true }
     const errorMessage = await getOpenErrorWarningsMessage(scheduleId);
     if (errorMessage) return { error: errorMessage };
 
-    revalidatePath('/manager/draft');
     return { ok: true };
   } catch {
     return { error: 'שגיאה בסיום עריכת השיבוץ' };
@@ -65,8 +63,6 @@ export async function publishSchedule(scheduleId: string): Promise<{ ok: true } 
       }),
     ]);
 
-    revalidatePath('/manager/draft');
-    revalidatePath('/employee');
     return { ok: true };
   } catch {
     return { error: 'שגיאה בפרסום השיבוץ' };

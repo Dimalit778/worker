@@ -1,6 +1,5 @@
 'use server';
 
-import { revalidatePath } from 'next/cache';
 import { ScheduleStatus, ShiftType, SystemRole } from '@/generated/prisma/client';
 import { prisma } from '@/lib/db/client';
 import { requireSession } from '@/lib/db/auth-helpers';
@@ -81,7 +80,6 @@ export async function submitAvailability(entries: Record<string, boolean>): Prom
     ...(rows.length > 0 ? [prisma.availabilitySlot.createMany({ data: rows })] : []),
   ]);
 
-  revalidatePath('/employee');
   return { ok: true };
 }
 export async function getEmployeeAvailability(employeeId: string): Promise<EmployeeAvailabilityForPeriod[]> {

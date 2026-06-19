@@ -1,6 +1,5 @@
 'use server';
 
-import { revalidatePath } from 'next/cache';
 import { prisma } from '@/lib/db/client';
 import { requireSession } from '@/lib/db/auth-helpers';
 import { SystemRole, type DayCategory, type ShiftType } from '@/generated/prisma/client';
@@ -86,7 +85,6 @@ export async function addPositionWithCapacities(params: {
       }
     });
 
-    revalidatePath('/manager/settings');
 
     return { ok: true };
   } catch (error) {
@@ -123,7 +121,6 @@ export async function createPosition(name: string): Promise<{ ok: true } | { err
       },
     });
 
-    revalidatePath('/manager/settings');
     return { ok: true };
   } catch (error) {
     console.error(error);
@@ -191,8 +188,6 @@ export async function upsertPositionForDisplayOrder(params: {
       });
     }
 
-    revalidatePath('/manager/draft');
-    revalidatePath('/manager/settings');
     return { ok: true };
   } catch (error) {
     console.error(error);
@@ -279,9 +274,6 @@ export async function updatePositionColor(
       where: { id: positionId, courtId },
       data: { color },
     });
-    revalidatePath('/manager/settings');
-    revalidatePath('/manager/schedule');
-    revalidatePath('/manager/future-schedule');
     return { ok: true };
   } catch {
     return { error: 'עדכון הצבע נכשל' };
@@ -297,7 +289,6 @@ export async function movePositionUp(positionId: string): Promise<{ ok: true } |
 
   const res = await swapPositionOrderWithNeighbor(courtId, positionId, 'up');
   if ('ok' in res && res.ok) {
-    revalidatePath('/manager/settings');
   }
   return res;
 }
@@ -311,7 +302,6 @@ export async function movePositionDown(positionId: string): Promise<{ ok: true }
 
   const res = await swapPositionOrderWithNeighbor(courtId, positionId, 'down');
   if ('ok' in res && res.ok) {
-    revalidatePath('/manager/settings');
   }
   return res;
 }
@@ -364,7 +354,6 @@ export async function addShiftCapacity(params: {
       },
     });
 
-    revalidatePath('/manager/settings');
 
     return {
       ok: true,
@@ -387,7 +376,6 @@ export async function updateShiftCapacity(id: string, amount: number) {
       },
     });
 
-    revalidatePath('/manager/settings');
 
     return {
       ok: true,

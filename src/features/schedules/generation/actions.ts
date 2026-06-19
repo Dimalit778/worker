@@ -1,6 +1,5 @@
 'use server';
 
-import { revalidatePath } from 'next/cache';
 
 import { generateSchedule } from '@/features/scheduling-engine/generate-schedule';
 import type { EngineInput, EngineStats } from '@/features/scheduling-engine/types';
@@ -137,10 +136,6 @@ export async function generateAutoSchedule(scheduleId: string): Promise<Generate
     { timeout: 20_000 },
   );
 
-  revalidatePath('/manager/future-schedule');
-  revalidatePath('/manager/schedule');
-  revalidatePath('/manager/periods');
-  revalidatePath('/manager');
 
   return {
     ok: true,

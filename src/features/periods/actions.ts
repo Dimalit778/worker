@@ -4,7 +4,6 @@ import { ScheduleStatus, Prisma, SystemRole } from '@/generated/prisma/client';
 import { requireSession } from '@/lib/db/auth-helpers';
 import { PeriodSummary } from './types';
 import { parseISODateToUtcMidnight } from './utils';
-import { revalidatePath } from 'next/cache';
 
 // = מוצא רשימת שיבוצים למנהל
 export async function getSchedulesList(): Promise<PeriodSummary[]> {
@@ -74,8 +73,6 @@ export async function createSchedule(data: {
       },
     });
 
-    revalidatePath('/manager/periods');
-    revalidatePath('/manager');
     return { ok: true, id: schedule.id };
   } catch (e) {
     if (e instanceof Prisma.PrismaClientKnownRequestError && e.code === 'P2002') {
@@ -92,8 +89,6 @@ export async function deleteSchedule(scheduleId: string): Promise<{ ok: true } |
 
   try {
     await prisma.schedule.delete({ where: { id: scheduleId, courtId: session.user.courtId } });
-    revalidatePath('/manager/periods');
-    revalidatePath('/manager');
     return { ok: true };
   } catch {
     return { error: 'שגיאה במחיקת השיבוץ' };
@@ -113,9 +108,6 @@ export async function updateScheduleStatus(
       data: { status },
     });
 
-    revalidatePath('/manager/periods');
-    revalidatePath('/manager');
-    revalidatePath('/employee');
     return { ok: true };
   } catch {
     return { error: 'שגיאה בעדכון הסטטוס' };
