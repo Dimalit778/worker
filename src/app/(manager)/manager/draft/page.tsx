@@ -5,7 +5,7 @@ import { getDraftScheduleData } from '@/features/schedules/assignments/queries';
 import { CreatePeriodForm } from '@/features/periods/components/create-period-form';
 import { TopBar } from '@/features/schedules/draft-schedule/topbar';
 import { ScheduleStats } from '@/features/schedules/draft-schedule/schedule-stats';
-import { ScheduleView } from '@/features/schedules/active-schedule/schedule-view';
+import { CurrentScheduleView } from '@/features/schedules/current-schudle';
 
 export default async function ManagerDraftSchedulePage() {
   const session = await requireSession(SystemRole.MANAGER);
@@ -60,19 +60,17 @@ export default async function ManagerDraftSchedulePage() {
         </div>
       )}
 
-      <ScheduleView
+      <CurrentScheduleView
         scheduleId={data.scheduleId}
         scheduleName={data.scheduleName}
         startDate={data.startDate}
         endDate={data.endDate}
-        scheduleStatus={data.scheduleStatus}
         assignments={data.assignments}
         employees={data.employees}
         capacity={data.capacity}
         courtId={data.courtId}
         overflowCandidates={data.overflowCandidates}
         readonly={isReadonly}
-        viewMode="table"
       />
     </div>
   );

@@ -16,7 +16,11 @@ async function getScheduleCapacity(courtId: string): Promise<ScheduleCapacityRul
   if (!courtId) return [];
 
   const rows = await prisma.staffingRequirement.findMany({
-    where: { courtId, isActive: true },
+    where: {
+      courtId,
+      isActive: true,
+      position: { name: { not: 'קצין מתקן' } },
+    },
     include: {
       position: { select: { id: true, name: true, code: true, color: true } },
     },
@@ -90,10 +94,23 @@ async function getAssignmentMap(scheduleId: string | null | undefined): Promise<
 }
 // Queries
 export async function getActiveSchedule(courtId: string): Promise<CurrentScheduleData | null> {
-  const scheduleRow = await prisma.schedule.findFirst({
+  const today = todayUtcDateForTimeZone(SCHEDULE_TIME_ZONE);
+
+  await prisma.schedule.updateMany({
     where: {
       status: ScheduleStatus.ACTIVE,
       courtId,
+      endDate: { lt: today },
+    },
+    data: { status: ScheduleStatus.ARCHIVED },
+  });
+
+  const scheduleRows = await prisma.schedule.findMany({
+    where: {
+      status: ScheduleStatus.ACTIVE,
+      courtId,
+      startDate: { lte: today },
+      endDate: { gte: today },
     },
     select: {
       id: true,
@@ -101,19 +118,14 @@ export async function getActiveSchedule(courtId: string): Promise<CurrentSchedul
       startDate: true,
       endDate: true,
       status: true,
+      _count: { select: { assignments: true } },
     },
     orderBy: { startDate: 'desc' },
   });
 
+  const scheduleRow = scheduleRows.find((row) => row._count.assignments > 0) ?? scheduleRows[0];
+
   if (!scheduleRow) return null;
-  const today = todayUtcDateForTimeZone(SCHEDULE_TIME_ZONE);
-  if (scheduleRow.endDate < today) {
-    await prisma.schedule.update({
-      where: { id: scheduleRow.id },
-      data: { status: ScheduleStatus.ARCHIVED },
-    });
-    return null;
-  }
 
   const [assignments, capacity, employees] = await Promise.all([
     getAssignmentMap(scheduleRow.id),

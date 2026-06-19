@@ -74,7 +74,10 @@ export function getOrderedPositionsForShift(
   rules: ScheduleCapacityRule[],
   shiftType: ShiftType,
 ): Array<{ positionId: string; positionName: string; positionCode: number; positionColor: string | null }> {
-  const map = new Map<string, { positionId: string; positionName: string; positionCode: number; positionColor: string | null }>();
+  const map = new Map<
+    string,
+    { positionId: string; positionName: string; positionCode: number; positionColor: string | null }
+  >();
   for (const r of rules) {
     if (r.shiftType !== shiftType) continue;
     if (!map.has(r.positionId)) {

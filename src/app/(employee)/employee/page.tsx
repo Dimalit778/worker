@@ -1,7 +1,7 @@
 import { requireSession } from '@/lib/db/auth-helpers';
 import { SystemRole } from '@/generated/prisma/client';
 import { getActiveSchedule } from '@/features/schedules/assignments/queries';
-import { ScheduleView } from '@/features/schedules/active-schedule/schedule-view';
+import { CurrentScheduleView } from '@/features/schedules/current-schudle';
 
 export default async function EmployeeActiveSchedulePage() {
   const session = await requireSession(SystemRole.EMPLOYEE);
@@ -20,12 +20,11 @@ export default async function EmployeeActiveSchedulePage() {
     );
   }
   return (
-    <ScheduleView
+    <CurrentScheduleView
       scheduleId={data.scheduleId}
       scheduleName={data.scheduleName}
       startDate={data.startDate}
       endDate={data.endDate}
-      scheduleStatus={data.scheduleStatus}
       assignments={data.assignments}
       employees={data.employees}
       capacity={data.capacity}

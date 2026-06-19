@@ -101,7 +101,7 @@ function defaultRequiredCountForPosition(positionCode: number) {
 const STAFFING_REQUIREMENTS: StaffingRequirementSeed[] = COURTS.flatMap((court) =>
   ALL_SHIFT_TYPES.flatMap((shiftType) =>
     ALL_DAY_CATEGORIES.flatMap((dayCategory) =>
-      POSITIONS.map((position) => ({
+      POSITIONS.filter((position) => position.name !== 'קצין מתקן').map((position) => ({
         courtCode: court.code,
         positionCode: position.code,
         shiftType,

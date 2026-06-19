@@ -92,23 +92,6 @@ export type CurrentScheduleData = {
   availabilitySubmissionSummary?: AvailabilitySubmissionSummary;
 };
 
-/** Props for the week / shift schedule UI */
-export type ScheduleViewProps = {
-  scheduleId: string;
-  scheduleName: string;
-  startDate: string;
-  endDate: string;
-  scheduleStatus?: ScheduleStatus | null;
-  assignments: AssignmentMap;
-  employees: ScheduleEmployeeOption[];
-  capacity: ScheduleCapacityRule[];
-  courtId: string;
-  overflowCandidates?: OverflowCandidateMap;
-  readonly?: boolean;
-  currentEmployeeId?: string | null;
-  viewMode?: 'cards' | 'table';
-};
-
 export type WeekDay = {
   iso: string;
   dayOfWeek: number;

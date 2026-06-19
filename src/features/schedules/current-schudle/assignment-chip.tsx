@@ -1,0 +1,143 @@
+'use client';
+
+import { useRef, useState, useTransition } from 'react';
+import { useRouter } from 'next/navigation';
+import { UserCheck } from 'lucide-react';
+import { cn } from '@/lib/utils';
+import { createAssignment, removeAssignment, updateAssignment } from '@/features/schedules/assignments/actions';
+import type { ScheduleEmployeeOption } from '@/features/schedules/types';
+import type { ShiftType } from '@/generated/prisma/client';
+import { GuardPicker } from '@/features/schedules/active-schedule/guard-picker';
+import type { ShiftSlot } from './types';
+
+function resolveEmployeeDisplayName(slot: ShiftSlot, employees: ScheduleEmployeeOption[]): string | null {
+  if (!slot.assignment) return null;
+
+  const fromAssignment = slot.assignment.employeeDisplayName.trim();
+  if (fromAssignment) return fromAssignment;
+
+  return employees.find((employee) => employee.id === slot.assignment?.employeeId)?.displayName ?? null;
+}
+
+export function AssignmentChip({
+  slot,
+  shiftType,
+  date,
+  scheduleId,
+  courtId,
+  employees,
+  assignedEmployeeIds,
+  currentEmployeeId,
+  readonly,
+}: {
+  slot: ShiftSlot;
+  shiftType: ShiftType;
+  date: string;
+  scheduleId: string;
+  courtId: string;
+  employees: ScheduleEmployeeOption[];
+  assignedEmployeeIds: Set<string>;
+  currentEmployeeId?: string | null;
+  readonly?: boolean;
+}) {
+  const router = useRouter();
+  const anchorRef = useRef<HTMLButtonElement>(null);
+  const [open, setOpen] = useState(false);
+  const [anchorRect, setAnchorRect] = useState<DOMRect | null>(null);
+  const [pending, startTransition] = useTransition();
+  const [error, setError] = useState<string | null>(null);
+  const isCurrentEmployee = currentEmployeeId === slot.assignment?.employeeId;
+  const employeeName = resolveEmployeeDisplayName(slot, employees);
+  const emptyLabel = readonly ? 'לא משובץ' : '+ שיבוץ';
+
+  function openPicker() {
+    if (readonly || pending) return;
+    if (anchorRef.current) setAnchorRect(anchorRef.current.getBoundingClientRect());
+    setOpen((value) => !value);
+  }
+
+  function handleSelect(employeeId: string) {
+    setOpen(false);
+    setError(null);
+
+    startTransition(async () => {
+      try {
+        if (slot.assignment) {
+          await updateAssignment(slot.assignment.id, employeeId);
+        } else {
+          await createAssignment({
+            scheduleId,
+            employeeId,
+            courtId,
+            positionId: slot.positionId,
+            shiftType,
+            date,
+            slotIndex: slot.slotIndex,
+          });
+        }
+        router.refresh();
+      } catch (e) {
+        setError(e instanceof Error ? e.message : 'שגיאה בשיבוץ');
+      }
+    });
+  }
+
+  function handleRemove() {
+    if (!slot.assignment) return;
+    const assignmentId = slot.assignment.id;
+
+    setOpen(false);
+    setError(null);
+    startTransition(async () => {
+      try {
+        await removeAssignment(assignmentId);
+        router.refresh();
+      } catch (e) {
+        setError(e instanceof Error ? e.message : 'שגיאה בהסרת שיבוץ');
+      }
+    });
+  }
+
+  return (
+    <div className="min-w-0">
+      <button
+        ref={anchorRef}
+        type="button"
+        className={cn(
+          'flex min-h-8 min-w-24 items-center justify-between gap-2 rounded-md border px-2 py-1 text-right text-xs transition-colors focus-visible:outline-none focus-visible:ring-3 focus-visible:ring-ring/30',
+          isCurrentEmployee
+            ? 'border-primary/50 bg-primary/10 font-semibold text-primary ring-1 ring-primary/20'
+            : slot.assignment
+              ? 'border-border bg-card text-foreground hover:bg-muted'
+              : 'border-dashed border-border bg-background/60 text-muted-foreground hover:bg-muted',
+          readonly && 'cursor-default hover:bg-card',
+          pending && 'pointer-events-none opacity-60',
+        )}
+        onClick={readonly ? undefined : openPicker}
+        aria-disabled={readonly || undefined}
+        aria-label={employeeName ? `עריכת שיבוץ ${employeeName}` : 'שיבוץ עובד'}
+      >
+        <span className="truncate">{employeeName ?? emptyLabel}</span>
+        {isCurrentEmployee ? <UserCheck className="size-3.5 shrink-0" aria-hidden /> : null}
+      </button>
+
+      {error ? (
+        <p className="mt-1 rounded-md bg-destructive/10 px-2 py-1 text-[11px] text-destructive" role="alert">
+          {error}
+        </p>
+      ) : null}
+
+      {open && anchorRect ? (
+        <GuardPicker
+          employees={employees}
+          currentUserId={slot.assignment?.employeeId ?? null}
+          disabledEmployeeIds={assignedEmployeeIds}
+          anchorRect={anchorRect}
+          onSelect={handleSelect}
+          onRemove={handleRemove}
+          onClose={() => setOpen(false)}
+        />
+      ) : null}
+    </div>
+  );
+}

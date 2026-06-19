@@ -1,25 +1,44 @@
 'use client';
 
-import { useMemo, useState } from 'react';
+import { useMemo, useRef, useState, useTransition } from 'react';
+import { useRouter } from 'next/navigation';
 import { cn } from '@/lib/utils';
 import { calendarDateISO } from '@/features/periods/utils';
-import type { AssignmentMap, AssignmentSummary, ScheduleCapacityRule } from '../types';
-import { SHIFT_LABELS, SHIFT_ORDER, SHIFT_STYLES, WEEKDAY_HEADER_LETTERS } from '../constants';
+import { createAssignment, removeAssignment, updateAssignment } from '@/features/schedules/assignments/actions';
+import type {
+  AssignmentMap,
+  AssignmentSummary,
+  OverflowCandidateMap,
+  OverflowCandidateSummary,
+  ScheduleCapacityRule,
+  ScheduleEmployeeOption,
+} from '../types';
+import { SHIFT_LABELS, SHIFT_ORDER, SHIFT_STYLES } from '../constants';
 import {
   buildScheduleDates,
+  buildWeekDays,
   createAssignmentCellKey,
+  getCapacityForCell,
+  getDayCategoryForDate,
   getOrderedPositionsForShift,
   isGuardPositionLabel,
 } from '../utils';
 import type { ShiftType } from '@/generated/prisma/client';
+import { GuardPicker } from './guard-picker';
+import { OverflowCandidates } from './overflow-candidates';
 
 type ScheduleCardsViewProps = {
+  scheduleId: string;
   startDate: string;
   endDate: string;
   scheduleName: string;
   assignments: AssignmentMap;
+  overflowCandidates?: OverflowCandidateMap;
+  employees: ScheduleEmployeeOption[];
   capacity: ScheduleCapacityRule[];
+  courtId: string;
   currentEmployeeId?: string | null;
+  readonly?: boolean;
 };
 
 type DayOption = {
@@ -29,9 +48,15 @@ type DayOption = {
   isToday: boolean;
 };
 
-type DisplayAssignment = AssignmentSummary & {
+type ShiftSlot = {
+  key: string;
+  positionId: string;
+  positionName: string;
   positionCode: number;
   positionColor: string | null;
+  slotIndex: number;
+  assignment: AssignmentSummary | null;
+  overflowCandidates: OverflowCandidateSummary[];
 };
 
 const DAY_NAMES = ['יום א', 'יום ב', 'יום ג', 'יום ד', 'יום ה', 'יום ו', 'שבת'] as const;
@@ -62,123 +87,393 @@ function buildDayOptions(startDate: string, endDate: string): DayOption[] {
   });
 }
 
-function assignmentsForShift(params: {
+function buildPeriodWeekGrids(startDate: string, endDate: string, dayByIso: Map<string, DayOption>) {
+  const grids: { weekIndex: number; days: (DayOption | null)[] }[] = [];
+  let weekIndex = 0;
+
+  while (weekIndex < 2) {
+    const weekDays = buildWeekDays(startDate, weekIndex);
+    const days: (DayOption | null)[] = Array.from({ length: 7 }, () => null);
+    let hasDayInRange = false;
+
+    for (const weekDay of weekDays) {
+      if (weekDay.iso < startDate || weekDay.iso > endDate) continue;
+
+      const day = dayByIso.get(weekDay.iso);
+      if (!day) continue;
+
+      days[weekDay.dayOfWeek] = day;
+      hasDayInRange = true;
+    }
+
+    if (!hasDayInRange) break;
+
+    grids.push({ weekIndex, days });
+    weekIndex += 1;
+  }
+
+  return grids;
+}
+
+function DayPickerButton({
+  day,
+  selected,
+  onSelect,
+}: {
+  day: DayOption;
+  selected: boolean;
+  onSelect: (iso: string) => void;
+}) {
+  return (
+    <button
+      type="button"
+      className={cn(
+        'flex h-19 w-17 shrink-0 flex-col items-center justify-center gap-0.5 overflow-hidden rounded-md border px-1.5 py-1.5 text-center transition-colors focus-visible:outline-none focus-visible:ring-3 focus-visible:ring-ring/30',
+        selected
+          ? 'border-primary bg-primary text-primary-foreground shadow-sm'
+          : day.isToday
+            ? 'border-primary bg-primary/15 text-card-foreground shadow-md ring-2 ring-primary/40'
+            : 'border-border bg-card text-card-foreground hover:bg-muted',
+      )}
+      onClick={() => onSelect(day.iso)}
+      aria-pressed={selected}
+      aria-current={day.isToday ? 'date' : undefined}
+    >
+      <span className="w-full truncate text-[10px] leading-tight font-medium opacity-80">
+        {day.isToday ? 'היום' : day.dayName}
+      </span>
+
+      <span className="text-xs leading-none font-semibold">{day.dateLabel}</span>
+    </button>
+  );
+}
+
+function WeekDayStrip({
+  days,
+  selectedDate,
+  onSelectDate,
+}: {
+  days: (DayOption | null)[];
+  selectedDate: string;
+  onSelectDate: (iso: string) => void;
+}) {
+  return (
+    <div className="flex flex-col gap-2">
+      <div className="flex gap-2">
+        {days.map((day, index) =>
+          day ? (
+            <DayPickerButton key={day.iso} day={day} selected={day.iso === selectedDate} onSelect={onSelectDate} />
+          ) : (
+            <div
+              key={`empty-${index}`}
+              className="h-19 w-17 shrink-0 rounded-md border border-dashed border-border/60 bg-muted/20"
+              aria-hidden
+            />
+          ),
+        )}
+      </div>
+    </div>
+  );
+}
+
+function assignedEmployeeIdsForShift(assignments: AssignmentMap, date: string, shiftType: ShiftType): Set<string> {
+  return new Set(
+    Object.entries(assignments)
+      .filter(([key]) => key.startsWith(`${date}-${shiftType}-`))
+      .flatMap(([, list]) => list.map((assignment) => assignment.employeeId)),
+  );
+}
+
+function buildShiftSlots(params: {
   date: string;
   shiftType: ShiftType;
   assignments: AssignmentMap;
+  overflowCandidates?: OverflowCandidateMap;
   capacity: ScheduleCapacityRule[];
-}): DisplayAssignment[] {
-  const { date, shiftType, assignments, capacity } = params;
-  const positionMeta = new Map(
-    getOrderedPositionsForShift(capacity, shiftType).map((position) => [position.positionId, position]),
-  );
+}): ShiftSlot[] {
+  const { date, shiftType, assignments, overflowCandidates, capacity } = params;
+  const dayCategory = getDayCategoryForDate(date);
+  const slots: ShiftSlot[] = [];
+  const knownPositionIds = new Set<string>();
 
-  const ordered = [...positionMeta.values()].flatMap((position) => {
+  for (const position of getOrderedPositionsForShift(capacity, shiftType)) {
+    knownPositionIds.add(position.positionId);
+
     const cellKey = createAssignmentCellKey({ date, shiftType, positionId: position.positionId });
+    const assigned = [...(assignments[cellKey] ?? [])].sort((a, b) => a.slotIndex - b.slotIndex);
+    const assignedBySlot = new Map(assigned.map((assignment) => [assignment.slotIndex, assignment]));
+    const required = getCapacityForCell(capacity, dayCategory, shiftType, position.positionId);
+    const maxSlotCount = Math.max(required, assigned.length ? Math.max(...assigned.map((a) => a.slotIndex)) + 1 : 0);
 
-    return (assignments[cellKey] ?? []).map((assignment) => ({
-      ...assignment,
-      positionCode: position.positionCode,
-      positionColor: position.positionColor,
-    }));
-  });
+    for (let slotIndex = 0; slotIndex < maxSlotCount; slotIndex += 1) {
+      const assignment = assignedBySlot.get(slotIndex) ?? null;
+      const overflowKey = `${cellKey}-${slotIndex}` as keyof OverflowCandidateMap;
 
-  const knownIds = new Set(positionMeta.keys());
-  const extra = Object.entries(assignments)
+      slots.push({
+        key: `${cellKey}-${slotIndex}`,
+        positionId: position.positionId,
+        positionName: position.positionName,
+        positionCode: position.positionCode,
+        positionColor: position.positionColor,
+        slotIndex,
+        assignment,
+        overflowCandidates: overflowCandidates?.[overflowKey] ?? [],
+      });
+    }
+  }
+
+  Object.entries(assignments)
     .filter(([key]) => key.startsWith(`${date}-${shiftType}-`))
-    .flatMap(([, list]) =>
+    .flatMap(([cellKey, list]) =>
       list
-        .filter((assignment) => !knownIds.has(assignment.positionId))
-        .map((assignment) => ({
-          ...assignment,
-          positionCode: Number.MAX_SAFE_INTEGER,
-          positionColor: null,
-        })),
-    );
+        .filter((assignment) => !knownPositionIds.has(assignment.positionId))
+        .map((assignment) => {
+          const overflowKey = `${cellKey}-${assignment.slotIndex}` as keyof OverflowCandidateMap;
 
-  return [...ordered, ...extra].sort(
+          return {
+            key: `${cellKey}-${assignment.slotIndex}`,
+            positionId: assignment.positionId,
+            positionName: assignment.positionName,
+            positionCode: Number.MAX_SAFE_INTEGER,
+            positionColor: null,
+            slotIndex: assignment.slotIndex,
+            assignment,
+            overflowCandidates: overflowCandidates?.[overflowKey] ?? [],
+          };
+        }),
+    )
+    .forEach((slot) => slots.push(slot));
+
+  return slots.sort(
     (a, b) =>
       a.positionCode - b.positionCode ||
       a.slotIndex - b.slotIndex ||
-      a.employeeDisplayName.localeCompare(b.employeeDisplayName, 'he'),
+      a.positionName.localeCompare(b.positionName, 'he'),
+  );
+}
+
+function resolveEmployeeDisplayName(
+  assignment: AssignmentSummary | null,
+  employees: ScheduleEmployeeOption[],
+): string | null {
+  if (!assignment) return null;
+
+  const fromAssignment = assignment.employeeDisplayName.trim();
+  if (fromAssignment) return fromAssignment;
+
+  return employees.find((employee) => employee.id === assignment.employeeId)?.displayName ?? null;
+}
+
+function AssignmentSlotCard({
+  slot,
+  shiftType,
+  date,
+  scheduleId,
+  courtId,
+  employees,
+  assignedEmployeeIds,
+  currentEmployeeId,
+  readonly,
+}: {
+  slot: ShiftSlot;
+  shiftType: ShiftType;
+  date: string;
+  scheduleId: string;
+  courtId: string;
+  employees: ScheduleEmployeeOption[];
+  assignedEmployeeIds: Set<string>;
+  currentEmployeeId?: string | null;
+  readonly?: boolean;
+}) {
+  const router = useRouter();
+  const anchorRef = useRef<HTMLButtonElement>(null);
+  const [open, setOpen] = useState(false);
+  const [anchorRect, setAnchorRect] = useState<DOMRect | null>(null);
+  const [pending, startTransition] = useTransition();
+  const [error, setError] = useState<string | null>(null);
+  const isCurrentEmployee = currentEmployeeId === slot.assignment?.employeeId;
+  const showPosition = !isGuardPositionLabel(slot.positionName);
+  const employeeName = resolveEmployeeDisplayName(slot.assignment, employees);
+  const emptyLabel = readonly ? 'לא משובץ' : 'בחר עובד';
+
+  function openPicker() {
+    if (readonly || pending) return;
+    if (anchorRef.current) setAnchorRect(anchorRef.current.getBoundingClientRect());
+    setOpen((value) => !value);
+  }
+
+  function handleSelect(employeeId: string) {
+    setOpen(false);
+    setError(null);
+
+    startTransition(async () => {
+      try {
+        if (slot.assignment) {
+          await updateAssignment(slot.assignment.id, employeeId);
+        } else {
+          await createAssignment({
+            scheduleId,
+            employeeId,
+            courtId,
+            positionId: slot.positionId,
+            shiftType,
+            date,
+            slotIndex: slot.slotIndex,
+          });
+        }
+        router.refresh();
+      } catch (e) {
+        setError(e instanceof Error ? e.message : 'שגיאה בשיבוץ');
+      }
+    });
+  }
+
+  function handleRemove() {
+    if (!slot.assignment) return;
+    const assignmentId = slot.assignment.id;
+
+    setOpen(false);
+    setError(null);
+    startTransition(async () => {
+      try {
+        await removeAssignment(assignmentId);
+        router.refresh();
+      } catch (e) {
+        setError(e instanceof Error ? e.message : 'שגיאה בהסרת שיבוץ');
+      }
+    });
+  }
+
+  return (
+    <div className="relative">
+      <button
+        ref={anchorRef}
+        type="button"
+        className={cn(
+          'flex min-h-12 w-full items-center gap-2 rounded-md border px-2.5 py-1.5 text-right transition-colors focus-visible:outline-none focus-visible:ring-3 focus-visible:ring-ring/30',
+          isCurrentEmployee
+            ? 'border-primary/50 bg-primary/10 text-foreground shadow-sm ring-1 ring-primary/20'
+            : slot.assignment
+              ? 'border-border bg-background text-foreground'
+              : 'border-dashed border-border bg-muted/25 text-muted-foreground',
+          !readonly && 'hover:bg-accent/50',
+          readonly && 'cursor-default',
+          pending && 'pointer-events-none opacity-60',
+        )}
+        onClick={readonly ? undefined : openPicker}
+        aria-disabled={readonly || undefined}
+        aria-label={employeeName ? `עריכת שיבוץ ${employeeName}` : 'שיבוץ עובד'}
+      >
+        <span
+          className="h-8 w-1 shrink-0 rounded-full bg-muted-foreground/30"
+          style={slot.positionColor ? { backgroundColor: slot.positionColor } : undefined}
+          aria-hidden
+        />
+        <div className="min-w-0 flex-1 overflow-hidden">
+          <p className="truncate text-xs font-semibold text-foreground" title={employeeName ?? undefined}>
+            {employeeName ?? emptyLabel}
+          </p>
+          {showPosition ? (
+            <p className="truncate text-[11px] leading-tight text-muted-foreground" title={slot.positionName}>
+              {slot.positionName}
+            </p>
+          ) : null}
+        </div>
+        <span className="shrink-0 rounded-sm bg-muted px-1.5 py-0.5 text-[11px] font-medium text-muted-foreground">
+          {slot.slotIndex + 1}
+        </span>
+      </button>
+
+      {error ? (
+        <p className="mt-1 rounded-md bg-destructive/10 px-2 py-1 text-[11px] text-destructive" role="alert">
+          {error}
+        </p>
+      ) : null}
+      <OverflowCandidates candidates={slot.overflowCandidates} />
+
+      {open && anchorRect ? (
+        <GuardPicker
+          employees={employees}
+          currentUserId={slot.assignment?.employeeId ?? null}
+          disabledEmployeeIds={assignedEmployeeIds}
+          anchorRect={anchorRect}
+          onSelect={handleSelect}
+          onRemove={handleRemove}
+          onClose={() => setOpen(false)}
+        />
+      ) : null}
+    </div>
   );
 }
 
 function ShiftCard({
   shiftType,
   date,
+  scheduleId,
+  courtId,
   assignments,
+  overflowCandidates,
+  employees,
   capacity,
   currentEmployeeId,
+  readonly,
 }: {
   shiftType: ShiftType;
   date: string;
+  scheduleId: string;
+  courtId: string;
   assignments: AssignmentMap;
+  overflowCandidates?: OverflowCandidateMap;
+  employees: ScheduleEmployeeOption[];
   capacity: ScheduleCapacityRule[];
   currentEmployeeId?: string | null;
+  readonly?: boolean;
 }) {
   const style = SHIFT_STYLES[shiftType];
-  const shiftAssignments = assignmentsForShift({ date, shiftType, assignments, capacity });
+  const shiftSlots = buildShiftSlots({ date, shiftType, assignments, overflowCandidates, capacity });
+  const assignedEmployeeIds = assignedEmployeeIdsForShift(assignments, date, shiftType);
+  const assignedCount = shiftSlots.filter((slot) => slot.assignment).length;
   const currentAssignmentsCount = currentEmployeeId
-    ? shiftAssignments.filter((assignment) => assignment.employeeId === currentEmployeeId).length
+    ? shiftSlots.filter((slot) => slot.assignment?.employeeId === currentEmployeeId).length
     : 0;
 
   return (
-    <section className="flex min-h-80 flex-col overflow-hidden rounded-md border border-border bg-card shadow-sm">
-      <div className={cn('h-2 shrink-0', style.header)} aria-hidden />
-      <div className="flex items-start justify-between gap-3 border-b border-border px-4 py-3">
+    <section className="flex min-h-60 flex-col overflow-hidden rounded-md border border-border bg-card shadow-sm">
+      <div className={cn('h-1.5 shrink-0', style.header)} aria-hidden />
+      <div className="flex items-start justify-between gap-2 border-b border-border px-3 py-2">
         <div>
-          <h2 className="text-lg font-semibold text-card-foreground">{SHIFT_LABELS[shiftType]}</h2>
-          <p className="mt-1 text-xs text-muted-foreground">{shiftAssignments.length} עובדים משובצים</p>
+          <h2 className="text-base font-semibold text-card-foreground">{SHIFT_LABELS[shiftType]}</h2>
+          <p className="text-[11px] text-muted-foreground">
+            {assignedCount}/{shiftSlots.length} עובדים משובצים
+          </p>
         </div>
         {currentAssignmentsCount > 0 ? (
-          <span className="rounded-md border border-primary/20 bg-primary/10 px-2 py-1 text-xs font-semibold text-primary">
+          <span className="rounded-md border border-primary/20 bg-primary/10 px-1.5 py-0.5 text-[11px] font-semibold text-primary">
             השיבוץ שלך
           </span>
         ) : null}
       </div>
 
-      <div className="flex-1 space-y-2 overflow-y-auto p-3">
-        {shiftAssignments.length === 0 ? (
-          <div className="flex min-h-40 items-center justify-center rounded-md border border-dashed border-border bg-muted/30 px-4 text-center text-sm text-muted-foreground">
-            אין עובדים משובצים במשמרת זו
+      <div className="flex-1 space-y-1.5 overflow-y-auto p-2">
+        {shiftSlots.length === 0 ? (
+          <div className="flex min-h-28 items-center justify-center rounded-md border border-dashed border-border bg-muted/30 px-3 text-center text-xs text-muted-foreground">
+            אין תקנים למשמרת זו
           </div>
         ) : (
-          shiftAssignments.map((assignment) => {
-            const isCurrentEmployee = currentEmployeeId === assignment.employeeId;
-            const showPosition = !isGuardPositionLabel(assignment.positionName);
-
-            return (
-              <div
-                key={assignment.id}
-                className={cn(
-                  'flex min-h-14 items-center gap-3 rounded-md border px-3 py-2 transition-colors',
-                  isCurrentEmployee
-                    ? 'border-primary/50 bg-primary/10 text-primary shadow-sm ring-1 ring-primary/20'
-                    : 'border-border bg-background text-foreground',
-                )}
-              >
-                <span
-                  className="h-9 w-1.5 shrink-0 rounded-full bg-muted-foreground/30"
-                  style={assignment.positionColor ? { backgroundColor: assignment.positionColor } : undefined}
-                  aria-hidden
-                />
-                <div className="min-w-0 flex-1">
-                  <p className="truncate text-sm font-semibold" title={assignment.employeeDisplayName}>
-                    {assignment.employeeDisplayName}
-                  </p>
-                  {showPosition ? (
-                    <p className="mt-0.5 truncate text-xs text-muted-foreground" title={assignment.positionName}>
-                      {assignment.positionName}
-                    </p>
-                  ) : null}
-                </div>
-                <span className="shrink-0 rounded-md bg-muted px-2 py-1 text-xs font-medium text-muted-foreground">
-                  {assignment.slotIndex + 1}
-                </span>
-              </div>
-            );
-          })
+          shiftSlots.map((slot) => (
+            <AssignmentSlotCard
+              key={slot.key}
+              slot={slot}
+              shiftType={shiftType}
+              date={date}
+              scheduleId={scheduleId}
+              courtId={courtId}
+              employees={employees}
+              assignedEmployeeIds={assignedEmployeeIds}
+              currentEmployeeId={currentEmployeeId}
+              readonly={readonly}
+            />
+          ))
         )}
       </div>
     </section>
@@ -186,14 +481,24 @@ function ShiftCard({
 }
 
 export function ScheduleCardsView({
+  scheduleId,
   startDate,
   endDate,
   scheduleName,
   assignments,
+  overflowCandidates,
+  employees,
   capacity,
+  courtId,
   currentEmployeeId,
+  readonly,
 }: ScheduleCardsViewProps) {
   const days = useMemo(() => buildDayOptions(startDate, endDate), [startDate, endDate]);
+  const dayByIso = useMemo(() => new Map(days.map((day) => [day.iso, day])), [days]);
+  const periodWeekGrids = useMemo(
+    () => buildPeriodWeekGrids(startDate, endDate, dayByIso),
+    [startDate, endDate, dayByIso],
+  );
   const initialSelectedDate = days.find((day) => day.isToday)?.iso ?? days[0]?.iso ?? startDate;
   const [selectedDate, setSelectedDate] = useState(initialSelectedDate);
   const selectedDay = days.find((day) => day.iso === selectedDate) ?? days[0];
@@ -209,32 +514,21 @@ export function ScheduleCardsView({
         ) : null}
       </div>
 
-      <div className="overflow-x-auto pb-1">
-        <div className="flex min-w-max gap-2">
-          {days.map((day) => {
-            const selected = day.iso === selectedDate;
-            const dayLetter = WEEKDAY_HEADER_LETTERS[new Date(`${day.iso}T00:00:00.000Z`).getUTCDay()];
-
-            return (
-              <button
-                key={day.iso}
-                type="button"
-                className={cn(
-                  'flex h-20 w-24 shrink-0 flex-col items-center justify-center rounded-md border px-2 text-center transition-colors focus-visible:outline-none focus-visible:ring-3 focus-visible:ring-ring/30',
-                  selected
-                    ? 'border-primary bg-primary text-primary-foreground shadow-sm'
-                    : 'border-border bg-card text-card-foreground hover:bg-muted',
-                )}
-                onClick={() => setSelectedDate(day.iso)}
-                aria-pressed={selected}
-              >
-                <span className="text-xs font-medium opacity-80">{day.dayName}</span>
-                <span className="mt-1 text-xl font-bold leading-none">{dayLetter}</span>
-                <span className="mt-1 text-sm font-semibold">{day.dateLabel}</span>
-                {day.isToday ? <span className="mt-1 text-[11px] font-medium opacity-80">היום</span> : null}
-              </button>
-            );
-          })}
+      <div className="w-full overflow-x-auto pb-1">
+        <div
+          className={cn(
+            'flex w-full min-w-max gap-10',
+            periodWeekGrids.length > 1 ? 'justify-between' : 'justify-start',
+          )}
+        >
+          {periodWeekGrids.map((week) => (
+            <WeekDayStrip
+              key={week.weekIndex}
+              days={week.days}
+              selectedDate={selectedDate}
+              onSelectDate={setSelectedDate}
+            />
+          ))}
         </div>
       </div>
 
@@ -244,9 +538,14 @@ export function ScheduleCardsView({
             key={shiftType}
             shiftType={shiftType}
             date={selectedDate}
+            scheduleId={scheduleId}
+            courtId={courtId}
             assignments={assignments}
+            overflowCandidates={overflowCandidates}
+            employees={employees}
             capacity={capacity}
             currentEmployeeId={currentEmployeeId}
+            readonly={readonly}
           />
         ))}
       </div>
