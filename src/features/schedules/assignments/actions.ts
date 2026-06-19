@@ -6,6 +6,7 @@ import { prisma } from '@/lib/db/client';
 import { parseISODateToUtcMidnight } from '@/features/periods/utils';
 import { revalidatePath } from 'next/cache';
 import type { AssignEmployeeToSlotParams } from '../types';
+import { getActiveSchedule, getDraftScheduleData } from './queries';
 
 export async function createAssignment(params: AssignEmployeeToSlotParams): Promise<{ scheduleId: string }> {
   await requireSession(SystemRole.MANAGER);
@@ -71,4 +72,17 @@ export async function removeAssignment(assignmentId: string): Promise<void> {
   revalidatePath('/manager/shifts');
   revalidatePath('/manager/draft');
   revalidatePath('/manager/schedule');
+}
+
+
+export async function fetchActiveSchedule() {
+  const session = await requireSession(SystemRole.MANAGER);
+  if (!session.user.courtId) return null;
+  return getActiveSchedule(session.user.courtId);
+}
+
+export async function fetchDraftSchedule() {
+  const session = await requireSession(SystemRole.MANAGER);
+  const courtId = session.user.courtId ?? '';
+  return getDraftScheduleData(courtId);
 }

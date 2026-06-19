@@ -1,8 +1,10 @@
+import { dehydrate, HydrationBoundary } from '@tanstack/react-query';
 import { requireSession } from '@/lib/db/auth-helpers';
 import { SystemRole } from '@/generated/prisma/client';
-
-import { getActiveSchedule } from '@/features/schedules/assignments/queries';
-import { CurrentScheduleView } from '@/features/schedules/current-schudle';
+import { ManagerActiveScheduleClient } from '@/features/schedules/components/manager-active-schedule-client';
+import { fetchActiveSchedule } from '@/features/schedules/assignments/actions';
+import { dehydrateOptions, getQueryClient } from '@/lib/react-query/get-query-client';
+import { queryKeys } from '@/lib/react-query/query-keys';
 
 export default async function ManagerActiveSchedulePage() {
   const session = await requireSession(SystemRole.MANAGER);
@@ -11,29 +13,16 @@ export default async function ManagerActiveSchedulePage() {
     return <div dir="rtl">המשתמש לא משויך לבית משפט.</div>;
   }
 
-  const data = await getActiveSchedule(session.user.courtId);
+  const queryClient = getQueryClient();
 
-  if (!data) {
-    return (
-      <div className="flex flex-col items-center justify-center h-full" dir="rtl">
-        <h1 className="text-2xl font-bold">אין שיבוץ פעיל</h1>
-      </div>
-    );
-  }
+  await queryClient.prefetchQuery({
+    queryKey: queryKeys.schedules.active(),
+    queryFn: fetchActiveSchedule,
+  });
 
   return (
-    <CurrentScheduleView
-      scheduleId={data.scheduleId}
-      scheduleName={data.scheduleName}
-      startDate={data.startDate}
-      endDate={data.endDate}
-      assignments={data.assignments}
-      employees={data.employees}
-      capacity={data.capacity}
-      courtId={data.courtId}
-      overflowCandidates={data.overflowCandidates}
-      currentEmployeeId={session.user.employeeId ?? null}
-      readonly={false}
-    />
+    <HydrationBoundary state={dehydrate(queryClient, dehydrateOptions())}>
+      <ManagerActiveScheduleClient currentEmployeeId={session.user.employeeId ?? null} />
+    </HydrationBoundary>
   );
 }
