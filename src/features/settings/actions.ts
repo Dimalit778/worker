@@ -4,7 +4,12 @@ import { revalidatePath } from 'next/cache';
 import { prisma } from '@/lib/db/client';
 import { requireSession } from '@/lib/db/auth-helpers';
 import { SystemRole, type DayCategory, type ShiftType } from '@/generated/prisma/client';
-import { managerCourtPositionsWhere } from '@/features/settings/queries';
+import {
+  getPositions,
+  getShiftCapacities,
+  getShiftStaffingPositions,
+  managerCourtPositionsWhere,
+} from '@/features/settings/queries';
 
 const ALL_SHIFTS: ShiftType[] = ['MORNING', 'EVENING', 'NIGHT'];
 
@@ -392,4 +397,23 @@ export async function updateShiftCapacity(id: string, amount: number) {
     console.error(error);
     return { error: 'עדכון התקן נכשל' };
   }
+}
+
+
+export async function fetchManagerPositions() {
+  const session = await requireSession(SystemRole.MANAGER);
+  const courtId = session.user.courtId ?? '';
+  return getPositions(courtId);
+}
+
+export async function fetchManagerShiftCapacities() {
+  const session = await requireSession(SystemRole.MANAGER);
+  const courtId = session.user.courtId ?? '';
+  return getShiftCapacities(courtId);
+}
+
+export async function fetchManagerShiftStaffingPositions() {
+  const session = await requireSession(SystemRole.MANAGER);
+  const courtId = session.user.courtId ?? '';
+  return getShiftStaffingPositions(courtId);
 }
