@@ -1,10 +1,13 @@
 'use client';
 
-import { useLayoutEffect, useMemo, useState, useTransition } from 'react';
+import { useLayoutEffect, useMemo, useState } from 'react';
+import { useMutation, useQueryClient } from '@tanstack/react-query';
 import type { DayCategory, ShiftType } from '@/generated/prisma/client';
 import { Button } from '@/components/ui/button';
 import { DAY_CATEGORIES, DAY_META, SHIFT_ORDER, SHIFT_LABELS } from '@/features/settings/constans';
 import { addShiftCapacity, updateShiftCapacity } from '@/features/settings/actions';
+import { invalidateSettingsQueries } from '@/features/settings/hooks';
+import { queryKeys } from '@/lib/react-query/query-keys';
 import { cn } from '@/lib/utils';
 import { ChevronDown } from 'lucide-react';
 import { Input } from '@/components/ui/input';
@@ -109,10 +112,12 @@ function Cell({
 }
 
 export function CourtCapacityRules({
+  courtId,
   positions,
   initialCapacities,
   className,
 }: {
+  courtId: string;
   positions: PositionOption[];
   initialCapacities: StaffingRow[];
   className?: string;
@@ -130,7 +135,59 @@ export function CourtCapacityRules({
   const [saved, setSaved] = useState<GridState>(initial);
   const [errorMsg, setErrorMsg] = useState('');
   const [open, setOpen] = useState<Partial<Record<DayCategory, boolean>>>({ WEEKDAY: true });
-  const [isPending, startTransition] = useTransition();
+  const queryClient = useQueryClient();
+
+  const saveMutation = useMutation({
+    mutationFn: async (dirtyKeys: CellKey[]) => {
+      const next = { ...saved };
+
+      for (const key of dirtyKeys) {
+        const draftCell = draft[key];
+        if (!draftCell) continue;
+
+        const amount = parseInt(draftCell.value, 10);
+        if (Number.isNaN(amount) || amount < 0) {
+          throw new Error('כמות חייבת להיות מספר 0 ומעלה');
+        }
+
+        const cell = saved[key] ?? EMPTY_CELL;
+        const [dayCategory, shiftType, positionId] = key.split('-') as [DayCategory, ShiftType, string];
+
+        const res = cell.id
+          ? await updateShiftCapacity(cell.id, amount)
+          : await addShiftCapacity({
+              dayCategory,
+              shiftType,
+              positionId,
+              amount,
+            });
+
+        if ('error' in res) {
+          throw new Error(res.error ?? 'שמירת התקן נכשלה');
+        }
+
+        next[key] = {
+          id: res.id ?? cell.id,
+          value: String(amount),
+        };
+      }
+
+      return next;
+    },
+    onSuccess: (next) => {
+      setErrorMsg('');
+      setSaved(next);
+      setDraft(next);
+      invalidateSettingsQueries(queryClient, courtId);
+      queryClient.invalidateQueries({ queryKey: queryKeys.settings.capacities(courtId) });
+    },
+    onError: (error: Error) => {
+      setErrorMsg(error.message);
+      setDraft({ ...saved });
+    },
+  });
+
+  const isPending = saveMutation.isPending;
 
   useLayoutEffect(() => {
     // The grid is editable local state, but server revalidation can replace the source rows.
@@ -168,55 +225,13 @@ export function CourtCapacityRules({
   }
 
   function handleSaveAll() {
-    startTransition(async () => {
-      const dirtyKeys = (Object.keys(draft) as CellKey[]).filter((key) => {
-        const d = draft[key];
-        const s = saved[key];
-        return d && s && d.value !== s.value;
-      });
-
-      const next = { ...saved };
-
-      for (const key of dirtyKeys) {
-        const draftCell = draft[key];
-        if (!draftCell) continue;
-
-        const amount = parseInt(draftCell.value, 10);
-
-        if (Number.isNaN(amount) || amount < 0) {
-          setErrorMsg('כמות חייבת להיות מספר 0 ומעלה');
-          return;
-        }
-
-        const cell = saved[key] ?? EMPTY_CELL;
-
-        const [dayCategory, shiftType, positionId] = key.split('-') as [DayCategory, ShiftType, string];
-
-        const res = cell.id
-          ? await updateShiftCapacity(cell.id, amount)
-          : await addShiftCapacity({
-              dayCategory,
-              shiftType,
-              positionId,
-              amount,
-            });
-
-        if ('error' in res) {
-          setErrorMsg(res.error ?? '');
-          setDraft({ ...next });
-          return;
-        }
-
-        next[key] = {
-          id: res.id ?? cell.id,
-          value: String(amount),
-        };
-      }
-
-      setErrorMsg('');
-      setSaved(next);
-      setDraft(next);
+    const dirtyKeys = (Object.keys(draft) as CellKey[]).filter((key) => {
+      const d = draft[key];
+      const s = saved[key];
+      return d && s && d.value !== s.value;
     });
+
+    saveMutation.mutate(dirtyKeys);
   }
 
   return (

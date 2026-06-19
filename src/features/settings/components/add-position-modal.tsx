@@ -1,151 +1,302 @@
-import { DayCategory, ShiftType } from '@/generated/prisma/client';
-import { useRouter } from 'next/navigation';
-import { useState, useTransition } from 'react';
-import { addPositionWithCapacities } from '../actions';
-import { DAY_ORDER, DAY_META, SHIFT_LABELS, SHIFT_ORDER } from '../constans';
-import { Label } from '@/components/ui/label';
-import { Input } from '@/components/ui/input';
+'use client';
+
+import { useLayoutEffect, useMemo, useState } from 'react';
+import { useMutation, useQueryClient } from '@tanstack/react-query';
+import type { DayCategory, ShiftType } from '@/generated/prisma/client';
 import { Button } from '@/components/ui/button';
-import { X } from 'lucide-react';
+import { DAY_CATEGORIES, DAY_META, SHIFT_ORDER, SHIFT_LABELS } from '@/features/settings/constans';
+import { addShiftCapacity, updateShiftCapacity } from '@/features/settings/actions';
+import { invalidateSettingsQueries } from '@/features/settings/hooks';
+import { queryKeys } from '@/lib/react-query/query-keys';
+import { cn } from '@/lib/utils';
+import { ChevronDown } from 'lucide-react';
+import { Input } from '@/components/ui/input';
 
-const SHIFT_SCOPE_OPTIONS: { value: ShiftType | 'ALL'; label: string }[] = SHIFT_ORDER.map((shift) => ({
-  value: shift,
-  label: SHIFT_LABELS[shift],
-}));
-const DAY_CATEGORY_OPTIONS: { value: DayCategory | 'ALL'; label: string }[] = DAY_ORDER.map((day) => ({
-  value: day,
-  label: day === 'ALL' ? 'כל הימים' : DAY_META[day].label,
-}));
+type PositionOption = {
+  id: string;
+  name: string;
+  code: number;
+};
 
-export const AddPositionModal = ({ open, onClose }: { open: boolean; onClose: () => void }) => {
-  const router = useRouter();
-  const [errorMsg, setErrorMsg] = useState('');
-  const [isPending, startTransition] = useTransition();
+type StaffingRow = {
+  id: string;
+  positionId: string;
+  shiftType: ShiftType;
+  dayCategory: DayCategory;
+  requiredCount: number;
+};
 
-  if (!open) {
-    return null;
+type CellKey = `${DayCategory}-${ShiftType}-${string}`;
+
+type CellState = {
+  id: string | null;
+  value: string;
+};
+
+type GridState = Record<CellKey, CellState>;
+
+const EMPTY_CELL: CellState = { id: null, value: '0' };
+
+function cellKey(day: DayCategory, shift: ShiftType, positionId: string): CellKey {
+  return `${day}-${shift}-${positionId}`;
+}
+
+function buildGrid(params: { positions: PositionOption[]; capacities: StaffingRow[] }): GridState {
+  const grid: GridState = {};
+
+  for (const day of DAY_CATEGORIES) {
+    for (const shift of SHIFT_ORDER) {
+      for (const position of params.positions) {
+        const capacity = params.capacities.find(
+          (item) => item.dayCategory === day && item.shiftType === shift && item.positionId === position.id,
+        );
+
+        grid[cellKey(day, shift, position.id)] = {
+          id: capacity?.id ?? null,
+          value: String(capacity?.requiredCount ?? 0),
+        };
+      }
+    }
   }
 
-  function handleSubmitWithCapacities(e: React.FormEvent<HTMLFormElement>) {
-    e.preventDefault();
-    const fd = new FormData(e.currentTarget);
-    const name = (fd.get('name') as string) ?? '';
-    const dayCategory = fd.get('dayCategory') as DayCategory;
-    const shiftScope = fd.get('shiftScope') as ShiftType | 'ALL';
-    const amountRaw = fd.get('amount') as string;
+  return grid;
+}
 
-    setErrorMsg('');
-    startTransition(async () => {
-      const amount = parseInt(amountRaw, 10);
-      const res = await addPositionWithCapacities({
-        name,
-        dayCategory,
-        shiftScope,
-        amount,
-      });
+function Cell({
+  day,
+  shift,
+  position,
+  cell,
+  onChange,
+}: {
+  day: DayCategory;
+  shift: ShiftType;
+  position: PositionOption;
+  cell: CellState;
+  onChange: (day: DayCategory, shift: ShiftType, positionId: string, raw: string) => void;
+}) {
+  return (
+    <div className="flex w-full min-w-0 flex-col items-center gap-1 py-0.5">
+      <span className="line-clamp-2 min-h-9 w-full px-0.5 text-center text-[11px] font-medium leading-snug text-muted-foreground sm:text-xs">
+        {position.name}
+      </span>
 
-      if ('error' in res) {
-        setErrorMsg(res.error ?? '');
-        return;
+      <Input
+        type="number"
+        min={0}
+        max={50}
+        inputMode="numeric"
+        value={cell.value}
+        onChange={(e) => onChange(day, shift, position.id, e.target.value)}
+        onBlur={(e) => {
+          onChange(day, shift, position.id, e.target.value);
+        }}
+        onKeyDown={(e) => {
+          if (e.key === 'Enter') {
+            (e.target as HTMLInputElement).blur();
+          }
+
+          if (e.key === 'Escape') {
+            (e.target as HTMLInputElement).blur();
+          }
+        }}
+        aria-label={`${SHIFT_LABELS[shift]} ${position.name}`}
+        className={cn(
+          'mx-auto h-8 max-w-18 md:h-9 md:max-w-20',
+          'px-2 text-center text-sm font-semibold tabular-nums md:text-sm',
+          '[appearance:textfield] [&::-webkit-inner-spin-button]:appearance-none [&::-webkit-outer-spin-button]:appearance-none',
+        )}
+      />
+    </div>
+  );
+}
+
+export function CourtCapacityRules({
+  courtId,
+  positions,
+  initialCapacities,
+  className,
+}: {
+  courtId: string;
+  positions: PositionOption[];
+  initialCapacities: StaffingRow[];
+  className?: string;
+}) {
+  const initial = useMemo(
+    () =>
+      buildGrid({
+        positions,
+        capacities: initialCapacities,
+      }),
+    [positions, initialCapacities],
+  );
+
+  const [draft, setDraft] = useState<GridState>(initial);
+  const [saved, setSaved] = useState<GridState>(initial);
+  const [errorMsg, setErrorMsg] = useState('');
+  const [open, setOpen] = useState<Partial<Record<DayCategory, boolean>>>({ WEEKDAY: true });
+  const queryClient = useQueryClient();
+
+  const saveMutation = useMutation({
+    mutationFn: async (dirtyKeys: CellKey[]) => {
+      const next = { ...saved };
+
+      for (const key of dirtyKeys) {
+        const draftCell = draft[key];
+        if (!draftCell) continue;
+
+        const amount = parseInt(draftCell.value, 10);
+        if (Number.isNaN(amount) || amount < 0) {
+          throw new Error('כמות חייבת להיות מספר 0 ומעלה');
+        }
+
+        const cell = saved[key] ?? EMPTY_CELL;
+        const [dayCategory, shiftType, positionId] = key.split('-') as [DayCategory, ShiftType, string];
+
+        const res = cell.id
+          ? await updateShiftCapacity(cell.id, amount)
+          : await addShiftCapacity({
+              dayCategory,
+              shiftType,
+              positionId,
+              amount,
+            });
+
+        if ('error' in res) {
+          throw new Error(res.error ?? 'שמירת התקן נכשלה');
+        }
+
+        next[key] = {
+          id: res.id ?? cell.id,
+          value: String(amount),
+        };
       }
 
-      onClose();
-      router.refresh();
+      return next;
+    },
+    onSuccess: (next) => {
+      setErrorMsg('');
+      setSaved(next);
+      setDraft(next);
+      invalidateSettingsQueries(queryClient, courtId);
+      queryClient.invalidateQueries({ queryKey: queryKeys.settings.capacities(courtId) });
+    },
+    onError: (error: Error) => {
+      setErrorMsg(error.message);
+      setDraft({ ...saved });
+    },
+  });
+
+  const isPending = saveMutation.isPending;
+
+  useLayoutEffect(() => {
+    // The grid is editable local state, but server revalidation can replace the source rows.
+    // eslint-disable-next-line react-hooks/set-state-in-effect
+    setDraft(initial);
+    setSaved(initial);
+  }, [initial]);
+
+  const isDirty = (Object.keys(draft) as CellKey[]).some((key) => {
+    const a = draft[key];
+    const b = saved[key];
+    return a && b && a.value !== b.value;
+  });
+
+  function toggleDay(day: DayCategory) {
+    setOpen((prev) => ({
+      ...prev,
+      [day]: !prev[day],
+    }));
+  }
+
+  function handleChange(day: DayCategory, shift: ShiftType, positionId: string, raw: string) {
+    const key = cellKey(day, shift, positionId);
+
+    setDraft((grid) => {
+      const prev = grid[key] ?? EMPTY_CELL;
+      return {
+        ...grid,
+        [key]: {
+          ...prev,
+          value: raw,
+        },
+      };
     });
   }
 
+  function handleSaveAll() {
+    const dirtyKeys = (Object.keys(draft) as CellKey[]).filter((key) => {
+      const d = draft[key];
+      const s = saved[key];
+      return d && s && d.value !== s.value;
+    });
+
+    saveMutation.mutate(dirtyKeys);
+  }
+
   return (
-    <div
-      className="fixed inset-0 z-50 flex items-end justify-center bg-background/80 p-0 shadow-lg backdrop-blur-sm sm:items-center sm:p-4"
-      dir="rtl"
-      role="presentation"
-      onClick={(ev) => {
-        if (ev.target === ev.currentTarget) {
-          onClose();
-        }
-      }}
-    >
-      <div
-        className="max-h-[92vh] w-full max-w-md overflow-y-auto rounded-t-2xl border border-border/80 bg-card p-5 shadow-2xl sm:rounded-2xl sm:p-6"
-        role="dialog"
-        aria-modal="true"
-        aria-labelledby="add-position-title"
-        onClick={(e) => e.stopPropagation()}
-      >
-        <div className="mb-5 flex items-start justify-between gap-3">
-          <h2 id="add-position-title" className="text-pretty pr-2 text-lg font-semibold leading-snug sm:text-xl">
-            הוספת תפקיד עם קיבולת
-          </h2>
-          <button
-            type="button"
-            onClick={onClose}
-            className="shrink-0 rounded-lg p-2 text-muted-foreground transition-colors hover:bg-muted hover:text-foreground"
-            aria-label="סגור"
-          >
-            <X className="h-5 w-5" />
-          </button>
-        </div>
-        <p className="mb-5 text-sm leading-relaxed text-muted-foreground">
-          נוצרים תפקיד חדש ושורת קיבולת התואמת (יום, משמרת, כמות) בבת אחת.
-        </p>
-
-        <form onSubmit={handleSubmitWithCapacities} className="space-y-4">
-          <div className="space-y-2">
-            <Label htmlFor="position-name">שם התפקיד</Label>
-            <Input id="position-name" name="name" required autoComplete="off" placeholder="לדוגמה: קצין מתקן" />
-          </div>
-
-          <div className="space-y-2">
-            <Label htmlFor="day-category">סוג יום</Label>
-            <select
-              id="day-category"
-              name="dayCategory"
-              required
-              className="flex h-10 w-full rounded-md border border-input bg-background px-3 text-sm shadow-sm focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
-              defaultValue="WEEKDAY"
+    <div className={cn('space-y-5 ', className)} dir="rtl">
+      <div className="space-y-3">
+        {DAY_CATEGORIES.map((day) => {
+          const isOpen = !!open[day];
+          return (
+            <div
+              key={day}
+              className="overflow-hidden rounded-xl border border-border/80 bg-card/40 shadow-sm transition-shadow hover:shadow-md"
             >
-              {DAY_CATEGORY_OPTIONS.map((opt) => (
-                <option key={opt.value} value={opt.value}>
-                  {opt.label}
-                </option>
-              ))}
-            </select>
-          </div>
+              <button
+                type="button"
+                onClick={() => toggleDay(day)}
+                className="flex w-full items-center justify-between gap-3 px-4 py-3.5 text-right text-sm font-semibold text-foreground transition-colors hover:bg-muted/50"
+              >
+                <span className="min-w-0 flex-1">{DAY_META[day].label}</span>
+                <ChevronDown
+                  className={cn('h-4 w-4 shrink-0 text-muted-foreground transition-transform', isOpen && 'rotate-180')}
+                />
+              </button>
 
-          <div className="space-y-2">
-            <Label htmlFor="shift-scope">משמרת</Label>
-            <select
-              id="shift-scope"
-              name="shiftScope"
-              required
-              className="flex h-10 w-full rounded-md border border-input bg-background px-3 text-sm shadow-sm focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
-              defaultValue="MORNING"
-            >
-              {SHIFT_SCOPE_OPTIONS.map((opt) => (
-                <option key={opt.value} value={opt.value}>
-                  {opt.label}
-                </option>
-              ))}
-            </select>
-          </div>
-
-          <div className="space-y-2">
-            <Label htmlFor="capacity-amount">כמות (קיבולת)</Label>
-            <Input id="capacity-amount" name="amount" type="number" min={0} max={50} required defaultValue={1} />
-          </div>
-
-          {errorMsg ? <p className="text-sm text-destructive">{errorMsg}</p> : null}
-
-          <div className="flex flex-col-reverse gap-2 border-t border-border/60 pt-4 sm:flex-row sm:justify-end">
-            <Button type="button" variant="outline" className="w-full sm:w-auto" onClick={onClose} disabled={isPending}>
-              ביטול
-            </Button>
-            <Button type="submit" className="w-full sm:w-auto" disabled={isPending}>
-              {isPending ? 'שומר...' : 'הוסף'}
-            </Button>
-          </div>
-        </form>
+              {isOpen && (
+                <div className="border-t border-border/60 bg-muted/10 px-2 pb-4 pt-1 sm:px-4 ">
+                  <div className="overflow-x-auto overscroll-x-contain [-webkit-overflow-scrolling:touch]">
+                    <div className="inline-flex min-w-full gap-4 sm:gap-6 md:justify-center md:gap-8">
+                      {SHIFT_ORDER.map((shift) => (
+                        <div key={shift} className="flex w-full max-w-32 flex-col">
+                          <span className="select-none text-center text-xs font-semibold uppercase tracking-wide text-muted-foreground">
+                            {SHIFT_LABELS[shift]}
+                          </span>
+                          <div className="flex flex-col gap-6 rounded-lg border border-border/50  p-2 shadow-inner">
+                            {positions.map((position) => (
+                              <Cell
+                                key={position.id}
+                                day={day}
+                                shift={shift}
+                                position={position}
+                                cell={draft[cellKey(day, shift, position.id)] ?? EMPTY_CELL}
+                                onChange={handleChange}
+                              />
+                            ))}
+                          </div>
+                        </div>
+                      ))}
+                    </div>
+                  </div>
+                </div>
+              )}
+            </div>
+          );
+        })}
       </div>
+
+      {errorMsg ? <p className="text-sm text-destructive">{errorMsg}</p> : null}
+
+      {isDirty && (
+        <div className="sticky bottom-0 z-10 -mx-1 mt-2 flex flex-col gap-2 rounded-xl border border-border/80 bg-background/90 p-3 shadow-lg backdrop-blur sm:bottom-2 sm:mx-0 sm:flex-row sm:items-center sm:justify-between supports-backdrop-filter:bg-background/75">
+          <p className="text-sm text-muted-foreground">יש שינויים שטרם נשמרו</p>
+          <Button type="button" onClick={handleSaveAll} disabled={isPending} className="w-full sm:w-auto">
+            {isPending ? 'שומר...' : 'שמור שינויים'}
+          </Button>
+        </div>
+      )}
     </div>
   );
-};
+}

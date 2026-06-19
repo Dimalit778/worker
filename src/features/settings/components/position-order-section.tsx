@@ -1,8 +1,9 @@
 'use client';
 
-import { useRouter } from 'next/navigation';
-import { useEffect, useRef, useState, useTransition } from 'react';
+import { useEffect, useRef, useState } from 'react';
+import { useMutation, useQueryClient } from '@tanstack/react-query';
 import { createPosition, movePositionDown, movePositionUp, updatePositionColor } from '../actions';
+import { invalidateSettingsQueries } from '../hooks';
 import { Input } from '@/components/ui/input';
 import { Button } from '@/components/ui/button';
 import { cn } from '@/lib/utils';
@@ -90,14 +91,43 @@ type PositionRow = {
 };
 
 type Props = {
+  courtId: string;
   positions: PositionRow[];
   className?: string;
 };
 
-export function PositionOrderSection({ positions, className }: Props) {
-  const router = useRouter();
+export function PositionOrderSection({ courtId, positions, className }: Props) {
+  const queryClient = useQueryClient();
   const [errorMsg, setErrorMsg] = useState('');
-  const [isPending, startTransition] = useTransition();
+
+  const invalidate = () => invalidateSettingsQueries(queryClient, courtId);
+
+  const createMutation = useMutation({
+    mutationFn: createPosition,
+  });
+
+  const colorMutation = useMutation({
+    mutationFn: ({ positionId, color }: { positionId: string; color: string | null }) =>
+      updatePositionColor(positionId, color),
+    onSuccess: invalidate,
+  });
+
+  const moveMutation = useMutation({
+    mutationFn: ({ positionId, direction }: { positionId: string; direction: 'up' | 'down' }) =>
+      direction === 'up' ? movePositionUp(positionId) : movePositionDown(positionId),
+    onError: (error: Error) => setErrorMsg(error.message),
+    onSuccess: (res) => {
+      if ('error' in res) {
+        setErrorMsg(res.error ?? '');
+        return;
+      }
+      setErrorMsg('');
+      invalidate();
+    },
+  });
+
+  const isPending =
+    createMutation.isPending || colorMutation.isPending || moveMutation.isPending;
 
   function handleCreate(e: React.FormEvent<HTMLFormElement>) {
     e.preventDefault();
@@ -105,34 +135,26 @@ export function PositionOrderSection({ positions, className }: Props) {
     const name = (fd.get('newPositionName') as string) ?? '';
 
     setErrorMsg('');
-    startTransition(async () => {
-      const res = await createPosition(name);
-      if ('error' in res) {
-        setErrorMsg(res.error ?? '');
-        return;
-      }
-      (e.currentTarget as HTMLFormElement).reset();
-      router.refresh();
+    createMutation.mutate(name, {
+      onSuccess: (res) => {
+        if ('error' in res) {
+          setErrorMsg(res.error ?? '');
+          return;
+        }
+        (e.currentTarget as HTMLFormElement).reset();
+        invalidate();
+      },
+      onError: () => setErrorMsg('הוספת התפקיד נכשלה'),
     });
   }
 
   function handleColorChange(positionId: string, color: string) {
-    startTransition(async () => {
-      await updatePositionColor(positionId, color || null);
-      router.refresh();
-    });
+    colorMutation.mutate({ positionId, color: color || null });
   }
 
   function handleMove(positionId: string, direction: 'up' | 'down') {
     setErrorMsg('');
-    startTransition(async () => {
-      const res = direction === 'up' ? await movePositionUp(positionId) : await movePositionDown(positionId);
-      if ('error' in res) {
-        setErrorMsg(res.error ?? '');
-        return;
-      }
-      router.refresh();
-    });
+    moveMutation.mutate({ positionId, direction });
   }
 
   return (
