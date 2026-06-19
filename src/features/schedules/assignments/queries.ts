@@ -137,7 +137,7 @@ export async function getActiveSchedule(courtId: string): Promise<CurrentSchedul
 }
 
 export async function getDraftScheduleData(courtId: string): Promise<CurrentScheduleData | null> {
-  const scheduleRow = await prisma.schedule.findFirst({
+  const schedule = await prisma.schedule.findFirst({
     where: {
       courtId,
       status: { not: ScheduleStatus.ARCHIVED },
@@ -151,17 +151,17 @@ export async function getDraftScheduleData(courtId: string): Promise<CurrentSche
     },
     orderBy: { startDate: 'desc' },
   });
-  if (!scheduleRow) return null;
+  if (!schedule) return null;
 
   const [assignments, employees, capacity, warnings, overflowCandidates, submittedSubmissions] = await Promise.all([
-    getAssignmentMap(scheduleRow.id),
+    getAssignmentMap(schedule.id),
     getScheduleEmployees(courtId),
     getScheduleCapacity(courtId),
-    getScheduleWarnings(scheduleRow.id),
+    getScheduleWarnings(schedule.id),
     Promise.resolve({} as OverflowCandidateMap),
     prisma.availabilitySubmission.findMany({
       where: {
-        scheduleId: scheduleRow.id,
+        scheduleId: schedule.id,
         isSubmitted: true,
         employee: { courtId, isActive: true },
       },
@@ -177,7 +177,7 @@ export async function getDraftScheduleData(courtId: string): Promise<CurrentSche
       positionName: employee.position?.name ?? null,
     }));
 
-  const base = toScheduleData(scheduleRow, courtId, employees, capacity, assignments, warnings, overflowCandidates);
+  const base = toScheduleData(schedule, courtId, employees, capacity, assignments, warnings, overflowCandidates);
   if (!base) {
     return null;
   }
