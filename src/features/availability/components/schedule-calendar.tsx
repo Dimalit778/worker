@@ -1,8 +1,10 @@
 'use client';
 
-import { useState, useTransition } from 'react';
+import { useState } from 'react';
+import { useMutation, useQueryClient } from '@tanstack/react-query';
 import { cn } from '@/lib/utils';
 import { submitAvailability } from '../actions';
+import { invalidateAvailabilityCurrent, invalidateMySubmissions } from '../hooks';
 import type { ShiftType } from '@/generated/prisma/client';
 import { PeriodInfo } from '../types';
 import { datesInRange, SHIFTS, DAY_HE } from '../utils';
@@ -18,7 +20,20 @@ type Props = {
 export function ScheduleCalendar({ period, initialEntries, initialSubmitted, viewOnly = false }: Props) {
   const [entries, setEntries] = useState<Record<string, boolean>>(initialEntries);
   const [submitted, setSubmitted] = useState(initialSubmitted);
-  const [pending, startTransition] = useTransition();
+  const queryClient = useQueryClient();
+
+  const submitMutation = useMutation({
+    mutationFn: submitAvailability,
+    onSuccess: (res) => {
+      if (res.ok) {
+        setSubmitted(true);
+        invalidateAvailabilityCurrent(queryClient);
+        invalidateMySubmissions(queryClient);
+      }
+    },
+  });
+
+  const pending = submitMutation.isPending;
 
   const dates = datesInRange(period.startDate, period.endDate);
   const readonly = viewOnly || submitted || period.status === 'LOCKED' || period.status === 'ARCHIVED';
@@ -34,10 +49,7 @@ export function ScheduleCalendar({ period, initialEntries, initialSubmitted, vie
   }
 
   function handleSubmit() {
-    startTransition(async () => {
-      const res = await submitAvailability(entries);
-      if (res.ok) setSubmitted(true);
-    });
+    submitMutation.mutate(entries);
   }
 
   const selected = Object.values(entries).filter(Boolean).length;
