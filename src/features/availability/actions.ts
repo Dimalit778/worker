@@ -107,3 +107,10 @@ export async function getEmployeeAvailability(employeeId: string): Promise<Emplo
     })),
   }));
 }
+
+
+export async function fetchMyEmployeeAvailability() {
+  const session = await requireSession(SystemRole.EMPLOYEE);
+  if (!session.user.employeeId) return [];
+  return getEmployeeAvailability(session.user.employeeId);
+}

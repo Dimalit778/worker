@@ -1,26 +1,23 @@
+import { dehydrate, HydrationBoundary } from '@tanstack/react-query';
 import { requireSession } from '@/lib/db/auth-helpers';
 import { SystemRole } from '@/generated/prisma/client';
-import { Card, CardContent } from '@/components/ui/card';
+import { EmployeeAvailabilityClient } from '@/features/availability/components/employee-availability-client';
 import { getScheduleData } from '@/features/availability/actions';
-import { ScheduleCalendar } from '@/features/availability/components/schedule-calendar';
+import { dehydrateOptions, getQueryClient } from '@/lib/react-query/get-query-client';
+import { queryKeys } from '@/lib/react-query/query-keys';
 
 export default async function UserAvailabilityPage() {
   await requireSession(SystemRole.EMPLOYEE);
+  const queryClient = getQueryClient();
 
-  const { period, entries, isSubmitted } = await getScheduleData();
+  await queryClient.prefetchQuery({
+    queryKey: queryKeys.availability.current(),
+    queryFn: getScheduleData,
+  });
 
-  if (!period) {
-    return (
-      <div className="space-y-4">
-        <h1 className="text-lg font-bold">Availability</h1>
-        <Card>
-          <CardContent className="pt-6">
-            <p className="text-muted-foreground text-sm text-center">אין תקופת שיבוץ פתוחה להגשות כרגע.</p>
-          </CardContent>
-        </Card>
-      </div>
-    );
-  }
-
-  return <ScheduleCalendar period={period} initialEntries={entries} initialSubmitted={isSubmitted} />;
+  return (
+    <HydrationBoundary state={dehydrate(queryClient, dehydrateOptions())}>
+      <EmployeeAvailabilityClient />
+    </HydrationBoundary>
+  );
 }

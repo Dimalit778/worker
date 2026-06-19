@@ -2,7 +2,7 @@
 
 import { useQuery, useQueryClient } from '@tanstack/react-query';
 import { queryKeys } from '@/lib/react-query/query-keys';
-import { fetchActiveSchedule, fetchDraftSchedule } from '@/features/schedules/assignments/actions';
+import { fetchActiveSchedule, fetchDraftSchedule, fetchEmployeeActiveSchedule } from '@/features/schedules/assignments/actions';
 
 export function invalidateScheduleQueries(
   queryClient: ReturnType<typeof useQueryClient>,
@@ -10,6 +10,7 @@ export function invalidateScheduleQueries(
 ) {
   const tasks = [
     queryClient.invalidateQueries({ queryKey: queryKeys.schedules.active() }),
+    queryClient.invalidateQueries({ queryKey: queryKeys.schedules.employeeActive() }),
     queryClient.invalidateQueries({ queryKey: queryKeys.schedules.draft() }),
     queryClient.invalidateQueries({ queryKey: queryKeys.dashboard.all() }),
   ];
@@ -34,5 +35,13 @@ export function useDraftSchedule() {
   return useQuery({
     queryKey: queryKeys.schedules.draft(),
     queryFn: fetchDraftSchedule,
+  });
+}
+
+
+export function useEmployeeActiveSchedule() {
+  return useQuery({
+    queryKey: queryKeys.schedules.employeeActive(),
+    queryFn: fetchEmployeeActiveSchedule,
   });
 }

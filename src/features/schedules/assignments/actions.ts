@@ -86,3 +86,10 @@ export async function fetchDraftSchedule() {
   const courtId = session.user.courtId ?? '';
   return getDraftScheduleData(courtId);
 }
+
+
+export async function fetchEmployeeActiveSchedule() {
+  const session = await requireSession(SystemRole.EMPLOYEE);
+  if (!session.user.courtId) return null;
+  return getActiveSchedule(session.user.courtId);
+}

@@ -24,6 +24,7 @@ export const queryKeys = {
   schedules: {
     all: () => [...queryKeys.all, 'schedules'] as const,
     active: () => [...queryKeys.schedules.all(), 'active'] as const,
+    employeeActive: () => [...queryKeys.schedules.all(), 'employeeActive'] as const,
     draft: () => [...queryKeys.schedules.all(), 'draft'] as const,
     assignments: (scheduleId: string) => [...queryKeys.schedules.all(), 'assignments', scheduleId] as const,
   },

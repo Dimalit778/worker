@@ -1,46 +1,34 @@
-import Link from 'next/link';
+import { dehydrate, HydrationBoundary } from '@tanstack/react-query';
 import { notFound } from 'next/navigation';
-import { ArrowRight } from 'lucide-react';
 import { SystemRole } from '@/generated/prisma/client';
-import { Button } from '@/components/ui/button';
-import { getEmployeeAvailability } from '@/features/availability/actions';
-import { ScheduleCalendar } from '@/features/availability/components/schedule-calendar';
-import { availabilityEntriesToRecord } from '@/features/availability/utils';
+import { EmployeeSubmissionPeriodClient } from '@/features/availability/components/employee-submission-period-client';
+import { fetchMyEmployeeAvailability } from '@/features/availability/actions';
 import { requireSession } from '@/lib/db/auth-helpers';
+import { dehydrateOptions, getQueryClient } from '@/lib/react-query/get-query-client';
+import { queryKeys } from '@/lib/react-query/query-keys';
 
 type UserSubmissionPeriodPageProps = {
   params: Promise<{ periodId: string }>;
 };
 
 export default async function UserSubmissionPeriodPage({ params }: UserSubmissionPeriodPageProps) {
-  const session = await requireSession(SystemRole.EMPLOYEE);
+  await requireSession(SystemRole.EMPLOYEE);
   const { periodId } = await params;
-  const periods = await getEmployeeAvailability(session.user.employeeId);
-  const period = periods.find((item) => item.id === periodId);
+  const queryClient = getQueryClient();
 
-  if (!period) notFound();
+  await queryClient.prefetchQuery({
+    queryKey: queryKeys.availability.history(),
+    queryFn: fetchMyEmployeeAvailability,
+  });
+
+  const prefetched = queryClient.getQueryData(queryKeys.availability.history());
+  if (Array.isArray(prefetched) && !prefetched.some((item) => item.id === periodId)) {
+    notFound();
+  }
 
   return (
-    <div className="space-y-6" dir="rtl">
-      <Button asChild variant="ghost" size="sm" className="px-0 text-muted-foreground hover:bg-transparent">
-        <Link href="/employee/submissions">
-          <ArrowRight className="size-4" aria-hidden />
-          חזרה להגשות
-        </Link>
-      </Button>
-
-      <ScheduleCalendar
-        period={{
-          id: period.id,
-          name: period.name,
-          startDate: period.startDate,
-          endDate: period.endDate,
-          status: period.status,
-        }}
-        initialEntries={availabilityEntriesToRecord(period.entries)}
-        initialSubmitted={period.isSubmitted}
-        viewOnly
-      />
-    </div>
+    <HydrationBoundary state={dehydrate(queryClient, dehydrateOptions())}>
+      <EmployeeSubmissionPeriodClient periodId={periodId} />
+    </HydrationBoundary>
   );
 }
