@@ -1,11 +1,12 @@
 'use client';
 
-import { useMemo, useState, useTransition } from 'react';
-import { useRouter } from 'next/navigation';
+import { useMemo, useState } from 'react';
+import { useMutation, useQueryClient } from '@tanstack/react-query';
 import { Plus } from 'lucide-react';
 
 import { EmployeeListItem, PositionOption } from '@/features/employess/types';
 import { deleteEmployee } from '@/features/employess/actions';
+import { invalidateEmployeesList } from '@/features/employess/hooks';
 import { Button } from '@/components/ui/button';
 import {
   AlertDialog,
@@ -29,7 +30,19 @@ export function EmployeesTable({
   employees: EmployeeListItem[];
   positions: PositionOption[];
 }) {
-  const router = useRouter();
+  const queryClient = useQueryClient();
+
+  const deleteMutation = useMutation({
+    mutationFn: deleteEmployee,
+    onSuccess: (result) => {
+      if ('error' in result) {
+        setError(result.error);
+        return;
+      }
+      setDeleteTarget(null);
+      invalidateEmployeesList(queryClient);
+    },
+  });
 
   const [modalOpen, setModalOpen] = useState(false);
   const [editingEmployee, setEditingEmployee] = useState<EmployeeListItem | null>(null);
@@ -37,7 +50,7 @@ export function EmployeesTable({
     id: string;
     name: string;
   } | null>(null);
-  const [deletePending, startDeleteTransition] = useTransition();
+  const deletePending = deleteMutation.isPending;
   const [error, setError] = useState<string | null>(null);
 
   function openAdd() {
@@ -67,18 +80,8 @@ export function EmployeesTable({
 
   function handleConfirmDelete() {
     if (!deleteTarget) return;
-
-    startDeleteTransition(async () => {
-      const result = await deleteEmployee(deleteTarget.id);
-
-      if ('error' in result) {
-        setError(result.error);
-        return;
-      }
-
-      setDeleteTarget(null);
-      router.refresh();
-    });
+    setError(null);
+    deleteMutation.mutate(deleteTarget.id);
   }
 
   const columns = useMemo(

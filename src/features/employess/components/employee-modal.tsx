@@ -1,10 +1,11 @@
 'use client';
 
-import { useState, useTransition } from 'react';
-import { useRouter } from 'next/navigation';
+import { useState } from 'react';
+import { useMutation, useQueryClient } from '@tanstack/react-query';
 import { X } from 'lucide-react';
 import { EmployeeListItem, PositionOption } from '@/features/employess/types';
 import { createEmployee, updateEmployee } from '@/features/employess/actions';
+import { invalidateEmployeeDetail, invalidateEmployeesList } from '@/features/employess/hooks';
 import { Button } from '@/components/ui/button';
 import { getInitialPasswordFromEmail } from '../utils';
 
@@ -17,8 +18,58 @@ type Props = {
 };
 
 export function EmployeeModal({ employee, positions, onClose }: Props) {
-  const router = useRouter();
-  const [pending, startTransition] = useTransition();
+  const queryClient = useQueryClient();
+  const saveMutation = useMutation({
+    mutationFn: async (input: {
+      isEdit: boolean;
+      employeeId?: string;
+      firstName: string;
+      lastName: string;
+      phone: string | null;
+      email: string;
+      displayName: string;
+      positionId: string;
+      isActive: boolean;
+      isReligious: boolean;
+    }) => {
+      if (input.isEdit && input.employeeId) {
+        return updateEmployee({
+          employeeId: input.employeeId,
+          firstName: input.firstName,
+          lastName: input.lastName,
+          phone: input.phone,
+          displayName: input.displayName,
+          isReligious: input.isReligious,
+          positionId: input.positionId,
+          isActive: input.isActive,
+        });
+      }
+      return createEmployee({
+        firstName: input.firstName,
+        lastName: input.lastName,
+        phone: input.phone,
+        email: input.email,
+        positionId: input.positionId,
+        displayName: input.displayName,
+        isReligious: input.isReligious,
+      });
+    },
+    onSuccess: (result, variables) => {
+      if ('error' in result) {
+        setError(result.error);
+        return;
+      }
+      if (variables.isEdit && variables.employeeId) {
+        invalidateEmployeeDetail(queryClient, variables.employeeId);
+        onClose();
+        return;
+      }
+      invalidateEmployeesList(queryClient);
+      setCreatedEmail(variables.email);
+      setCreated(true);
+    },
+  });
+  const pending = saveMutation.isPending;
   const [error, setError] = useState<string | null>(null);
   const [created, setCreated] = useState(false);
   const [createdEmail, setCreatedEmail] = useState('');
@@ -40,43 +91,17 @@ export function EmployeeModal({ employee, positions, onClose }: Props) {
     const isActive = fd.has('isActive');
     const isReligious = fd.has('isReligious');
 
-    setError(null);
-
-    startTransition(async () => {
-      const result = isEdit
-        ? await updateEmployee({
-            employeeId: employee!.id,
-            firstName,
-            lastName,
-            phone,
-            displayName,
-            isReligious,
-            positionId,
-            isActive,
-          })
-        : await createEmployee({
-            firstName,
-            lastName,
-            phone,
-            email,
-            positionId,
-            displayName,
-            isReligious,
-          });
-
-      if ('error' in result) {
-        setError(result.error);
-        return;
-      }
-
-      if (isEdit) {
-        onClose();
-      } else {
-        setCreatedEmail(email);
-        setCreated(true);
-      }
-
-      router.refresh();
+    saveMutation.mutate({
+      isEdit,
+      employeeId: employee?.id,
+      firstName,
+      lastName,
+      phone,
+      email,
+      displayName,
+      positionId,
+      isActive,
+      isReligious,
     });
   }
 
