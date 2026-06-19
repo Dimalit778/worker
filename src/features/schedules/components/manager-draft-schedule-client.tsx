@@ -1,6 +1,5 @@
 'use client';
 
-import { ScheduleStatus } from '@/generated/prisma/client';
 import { Card, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { CreatePeriodForm } from '@/features/periods/components/create-period-form';
 import { CurrentScheduleView } from '@/features/schedules/current-schudle';
@@ -37,7 +36,7 @@ export function ManagerDraftScheduleClient() {
     );
   }
 
-  const isReadonly = data.scheduleStatus === ScheduleStatus.ACTIVE;
+  const isReadonly = data.scheduleStatus === 'ACTIVE';
   const canCreateNewSchedule = isReadonly;
   const submission = data.availabilitySubmissionSummary;
   const eligible = submission?.eligibleEmployeeCount ?? 0;
