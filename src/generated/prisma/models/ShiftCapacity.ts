@@ -659,7 +659,6 @@ export type ShiftCapacityCreateWithoutPositionInput = {
 
 export type ShiftCapacityUncheckedCreateWithoutPositionInput = {
   id?: string
-  courtId: string
   shiftType: $Enums.ShiftType
   dayCategory: $Enums.DayCategory
   requiredCount?: number
@@ -745,7 +744,6 @@ export type ShiftCapacityUncheckedUpdateManyWithoutCourtInput = {
 
 export type ShiftCapacityCreateManyPositionInput = {
   id?: string
-  courtId: string
   shiftType: $Enums.ShiftType
   dayCategory: $Enums.DayCategory
   requiredCount?: number
@@ -769,7 +767,6 @@ export type ShiftCapacityUpdateWithoutPositionInput = {
 
 export type ShiftCapacityUncheckedUpdateWithoutPositionInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
-  courtId?: Prisma.StringFieldUpdateOperationsInput | string
   shiftType?: Prisma.EnumShiftTypeFieldUpdateOperationsInput | $Enums.ShiftType
   dayCategory?: Prisma.EnumDayCategoryFieldUpdateOperationsInput | $Enums.DayCategory
   requiredCount?: Prisma.IntFieldUpdateOperationsInput | number
@@ -781,7 +778,6 @@ export type ShiftCapacityUncheckedUpdateWithoutPositionInput = {
 
 export type ShiftCapacityUncheckedUpdateManyWithoutPositionInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
-  courtId?: Prisma.StringFieldUpdateOperationsInput | string
   shiftType?: Prisma.EnumShiftTypeFieldUpdateOperationsInput | $Enums.ShiftType
   dayCategory?: Prisma.EnumDayCategoryFieldUpdateOperationsInput | $Enums.DayCategory
   requiredCount?: Prisma.IntFieldUpdateOperationsInput | number

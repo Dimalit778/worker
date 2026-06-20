@@ -280,6 +280,7 @@ export type PositionWhereUniqueInput = Prisma.AtLeast<{
   id?: string
   courtId_name?: Prisma.PositionCourtIdNameCompoundUniqueInput
   courtId_code?: Prisma.PositionCourtIdCodeCompoundUniqueInput
+  id_courtId?: Prisma.PositionIdCourtIdCompoundUniqueInput
   AND?: Prisma.PositionWhereInput | Prisma.PositionWhereInput[]
   OR?: Prisma.PositionWhereInput[]
   NOT?: Prisma.PositionWhereInput | Prisma.PositionWhereInput[]
@@ -296,7 +297,7 @@ export type PositionWhereUniqueInput = Prisma.AtLeast<{
   shiftCapacities?: Prisma.ShiftCapacityListRelationFilter
   shiftAssignments?: Prisma.ShiftAssignmentListRelationFilter
   warnings?: Prisma.ScheduleWarningListRelationFilter
-}, "id" | "courtId_name" | "courtId_code">
+}, "id" | "courtId_name" | "courtId_code" | "id_courtId">
 
 export type PositionOrderByWithAggregationInput = {
   id?: Prisma.SortOrder
@@ -452,6 +453,11 @@ export type PositionCourtIdNameCompoundUniqueInput = {
 export type PositionCourtIdCodeCompoundUniqueInput = {
   courtId: string
   code: number
+}
+
+export type PositionIdCourtIdCompoundUniqueInput = {
+  id: string
+  courtId: string
 }
 
 export type PositionCountOrderByAggregateInput = {

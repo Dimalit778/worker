@@ -38,14 +38,31 @@ export const ShiftType = {
 export type ShiftType = (typeof ShiftType)[keyof typeof ShiftType]
 
 
+export const ScheduleVersionStatus = {
+  DRAFT: 'DRAFT',
+  PUBLISHED: 'PUBLISHED',
+  ARCHIVED: 'ARCHIVED'
+} as const
+
+export type ScheduleVersionStatus = (typeof ScheduleVersionStatus)[keyof typeof ScheduleVersionStatus]
+
+
 export const DayCategory = {
   WEEKDAY: 'WEEKDAY',
   FRIDAY: 'FRIDAY',
-  SATURDAY: 'SATURDAY',
-  HOLIDAY: 'HOLIDAY'
+  SATURDAY: 'SATURDAY'
 } as const
 
 export type DayCategory = (typeof DayCategory)[keyof typeof DayCategory]
+
+
+export const HolidayKind = {
+  EVE: 'EVE',
+  HOLIDAY: 'HOLIDAY',
+  SPECIAL_DAY: 'SPECIAL_DAY'
+} as const
+
+export type HolidayKind = (typeof HolidayKind)[keyof typeof HolidayKind]
 
 
 export const ScheduleStatus = {

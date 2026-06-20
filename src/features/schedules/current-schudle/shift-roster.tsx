@@ -8,9 +8,13 @@ import type {
   ScheduleEmployeeOption,
 } from '@/features/schedules/types';
 import type { ShiftType } from '@/generated/prisma/client';
-import { assignedEmployeeIdsForShift, buildShiftSlots } from './schedule-data';
+import { assignedEmployeeIdsForShift, buildShiftSlots, getShiftRequiredCount } from './schedule-data';
 import type { ShiftDisplay, ShiftSlot } from './types';
-import { AssignmentChip } from './assignment-chip';
+import { AssignmentChip, RoleAddButton } from './assignment-chip';
+
+function getNextEmptySlot(slots: ShiftSlot[]): ShiftSlot | null {
+  return slots.find((slot) => !slot.assignment) ?? null;
+}
 
 const SHIFT_DISPLAYS: Record<ShiftType, ShiftDisplay> = {
   MORNING: {
@@ -85,6 +89,9 @@ function RoleGroup({
 }) {
   const assignedCount = slots.filter((slot) => slot.assignment).length;
   const requiredCount = Math.max(...slots.map((slot) => slot.requiredCount), 0) || slots.length;
+  const assignedSlots = slots.filter((slot) => slot.assignment);
+  const nextEmptySlot = getNextEmptySlot(slots);
+  const canAdd = !readonly && assignedCount < requiredCount && nextEmptySlot;
 
   return (
     <section className="space-y-2">
@@ -95,8 +102,8 @@ function RoleGroup({
         </span>
       </div>
 
-      <div className="grid grid-cols-2 gap-1.5 border-b border-border pb-2 sm:grid-cols-3 xl:grid-cols-6">
-        {slots.map((slot) => (
+      <div className="flex flex-wrap items-center gap-1.5 border-b border-border pb-2">
+        {assignedSlots.map((slot) => (
           <AssignmentChip
             key={slot.key}
             slot={slot}
@@ -110,6 +117,18 @@ function RoleGroup({
             readonly={readonly}
           />
         ))}
+        {canAdd ? (
+          <RoleAddButton
+            slot={nextEmptySlot}
+            role={role}
+            shiftType={shiftType}
+            date={date}
+            scheduleId={scheduleId}
+            courtId={courtId}
+            employees={employees}
+            assignedEmployeeIds={assignedEmployeeIds}
+          />
+        ) : null}
       </div>
     </section>
   );
@@ -132,6 +151,7 @@ export function ShiftRoster({
   const slots = buildShiftSlots({ date, shiftType, assignments, overflowCandidates, capacity });
   const assignedEmployeeIds = assignedEmployeeIdsForShift(assignments, date, shiftType);
   const assignedCount = slots.filter((slot) => slot.assignment).length;
+  const requiredCount = getShiftRequiredCount(date, shiftType, capacity);
   const currentAssignmentsCount = currentEmployeeId
     ? slots.filter((slot) => slot.assignment?.employeeId === currentEmployeeId).length
     : 0;
@@ -148,7 +168,7 @@ export function ShiftRoster({
         </div>
         <div className="flex shrink-0 flex-col items-end gap-1">
           <span className="rounded-md bg-white/70 px-2 py-1 text-xs font-semibold">
-            {assignedCount}/{slots.length}
+            {assignedCount}/{requiredCount}
           </span>
           {currentAssignmentsCount > 0 ? (
             <span className="rounded-md border border-primary/20 bg-white/70 px-2 py-0.5 text-[11px] font-semibold text-primary">
@@ -159,7 +179,7 @@ export function ShiftRoster({
       </CardHeader>
 
       <CardContent>
-        {slots.length === 0 ? (
+        {requiredCount === 0 ? (
           <div className="flex min-h-24 items-center justify-center rounded-md border border-dashed border-border/70 bg-white/50 px-4 text-center text-sm text-muted-foreground">
             אין תקנים למשמרת זו
           </div>

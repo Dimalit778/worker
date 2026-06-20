@@ -29,11 +29,22 @@ enum ShiftType {
   NIGHT
 }
 
+enum ScheduleVersionStatus {
+  DRAFT
+  PUBLISHED
+  ARCHIVED
+}
+
 enum DayCategory {
   WEEKDAY
   FRIDAY
   SATURDAY
+}
+
+enum HolidayKind {
+  EVE
   HOLIDAY
+  SPECIAL_DAY
 }
 
 enum ScheduleStatus {
@@ -111,11 +122,11 @@ model User {
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
 
-  schedulesCreated WorkSchedule[]      @relation("ScheduleCreatedBy")
-  scheduleChanges   ScheduleChangeLog[] @relation("ScheduleChangedBy")
-
-  receivedPermissions UserPermission[] @relation("ReceivedPermissions")
-  grantedPermissions  UserPermission[] @relation("GrantedPermissions")
+  schedulesCreated    WorkSchedule[]        @relation("ScheduleCreatedBy")
+  scheduleChanges     ScheduleChangeLog[]   @relation("ScheduleChangedBy")
+  scheduleVersions    WorkScheduleVersion[] @relation("ScheduleVersionCreatedBy")
+  receivedPermissions UserPermission[]      @relation("ReceivedPermissions")
+  grantedPermissions  UserPermission[]      @relation("GrantedPermissions")
 
   accounts Account[]
   sessions Session[]
@@ -161,12 +172,13 @@ model Court {
 
   region Region @relation(fields: [regionId], references: [id])
 
-  employees            Employee[]
-  positions            Position[]
-  shiftCapacities      ShiftCapacity[]
-  schedules            WorkSchedule[]
-  shiftAssignments     ShiftAssignment[]
-  warnings             ScheduleWarning[]
+  employees        Employee[]
+  positions        Position[]
+  shiftCapacities  ShiftCapacity[]
+  schedules        WorkSchedule[]
+  scheduleVersions WorkScheduleVersion[]
+  shiftAssignments ShiftAssignment[]
+  warnings         ScheduleWarning[]
 
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
@@ -185,20 +197,23 @@ model Employee {
   isActive    Boolean @default(true)
   isReligious Boolean @default(false)
 
-  court    Court    @relation(fields: [courtId], references: [id])
-  position Position @relation(fields: [positionId], references: [id])
+  court Court @relation(fields: [courtId], references: [id])
 
-  user            User?
+  position Position @relation(fields: [positionId, courtId], references: [id, courtId])
+
+  user              User?
   availabilityForms AvailabilityForm[]
-  assignments     ShiftAssignment[]
-  fairnessRecords FairnessRecord[]
-  warnings        ScheduleWarning[]
+  assignments       ShiftAssignment[]
+  fairnessRecords   FairnessRecord[]
+  warnings          ScheduleWarning[]
 
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
 
+  @@unique([id, courtId])
   @@index([courtId])
   @@index([positionId])
+  @@index([positionId, courtId])
 }
 
 model Position {
@@ -212,16 +227,17 @@ model Position {
 
   court Court @relation(fields: [courtId], references: [id], onDelete: Cascade)
 
-  employees            Employee[]
-  shiftCapacities      ShiftCapacity[]
-  shiftAssignments     ShiftAssignment[]
-  warnings             ScheduleWarning[]
+  employees        Employee[]
+  shiftCapacities  ShiftCapacity[]
+  shiftAssignments ShiftAssignment[]
+  warnings         ScheduleWarning[]
 
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
 
   @@unique([courtId, name])
   @@unique([courtId, code])
+  @@unique([id, courtId])
   @@index([courtId])
   @@index([courtId, displayOrder])
 }
@@ -236,8 +252,9 @@ model ShiftCapacity {
   isActive      Boolean     @default(true)
   displayOrder  Int         @default(0)
 
-  court    Court    @relation(fields: [courtId], references: [id], onDelete: Cascade)
-  position Position @relation(fields: [positionId], references: [id], onDelete: Cascade)
+  court Court @relation(fields: [courtId], references: [id], onDelete: Cascade)
+
+  position Position @relation(fields: [positionId, courtId], references: [id, courtId], onDelete: Cascade)
 
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
@@ -245,15 +262,33 @@ model ShiftCapacity {
   @@unique([courtId, positionId, shiftType, dayCategory])
   @@index([courtId, shiftType, dayCategory])
   @@index([positionId])
+  @@index([positionId, courtId])
   @@index([courtId, displayOrder])
+}
+
+// ─── Holidays / Special Days ─────────────────────────────────────────────────
+
+model Holiday {
+  id        String      @id @default(cuid())
+  date      DateTime    @db.Date
+  name      String
+  kind      HolidayKind
+  behavesAs DayCategory
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@unique([date])
+  @@index([date])
+  @@index([behavesAs])
 }
 
 // ─── Availability / Employee Requests ────────────────────────────────────────
 
 model AvailabilityForm {
   id          String    @id @default(cuid())
-  scheduleId String
-  employeeId String
+  scheduleId  String
+  employeeId  String
   isSubmitted Boolean   @default(false)
   submittedAt DateTime?
 
@@ -273,9 +308,9 @@ model AvailabilityForm {
 }
 
 model AvailabilityShift {
-  id        String   @id @default(cuid())
+  id        String    @id @default(cuid())
   formId    String
-  date      DateTime @db.Date
+  date      DateTime  @db.Date
   shiftType ShiftType
 
   form AvailabilityForm @relation(fields: [formId], references: [id], onDelete: Cascade)
@@ -291,19 +326,20 @@ model AvailabilityShift {
 
 model WorkSchedule {
   id                 String         @id @default(cuid())
-  courtId             String
-  name                String
-  status              ScheduleStatus @default(DRAFT)
-  generatedAt         DateTime       @default(now())
-  publishedAt         DateTime?
-  createdById         String
-  submissionDeadline  DateTime
-  startDate           DateTime       @db.Date
-  endDate             DateTime       @db.Date
+  courtId            String
+  name               String
+  status             ScheduleStatus @default(DRAFT)
+  generatedAt        DateTime       @default(now())
+  publishedAt        DateTime?
+  createdById        String
+  submissionDeadline DateTime
+  startDate          DateTime       @db.Date
+  endDate            DateTime       @db.Date
 
   court     Court @relation(fields: [courtId], references: [id], onDelete: Cascade)
   createdBy User  @relation("ScheduleCreatedBy", fields: [createdById], references: [id])
 
+  versions          WorkScheduleVersion[]
   assignments       ShiftAssignment[]
   availabilityForms AvailabilityForm[]
   warnings          ScheduleWarning[]
@@ -313,35 +349,78 @@ model WorkSchedule {
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
 
+  @@unique([id, courtId])
   @@index([courtId])
   @@index([status])
   @@index([startDate, endDate])
   @@index([createdById])
 }
 
-model ShiftAssignment {
-  id               String    @id @default(cuid())
-  scheduleId       String
-  employeeId       String
-  courtId          String
-  positionId       String
-  date             DateTime  @db.Date
-  shiftType        ShiftType
+model WorkScheduleVersion {
+  id          String                @id @default(cuid())
+  scheduleId  String
+  courtId     String
+  version     Int
+  status      ScheduleVersionStatus @default(DRAFT)
+  isActive    Boolean               @default(false)
+  publishedAt DateTime?
+  createdById String
+  note        String?
 
-  schedule WorkSchedule @relation(fields: [scheduleId], references: [id], onDelete: Cascade)
-  employee Employee     @relation(fields: [employeeId], references: [id], onDelete: Cascade)
+  schedule WorkSchedule @relation(fields: [scheduleId, courtId], references: [id, courtId], onDelete: Cascade)
   court    Court        @relation(fields: [courtId], references: [id], onDelete: Cascade)
-  position Position     @relation(fields: [positionId], references: [id], onDelete: Cascade)
+
+  createdBy User @relation("ScheduleVersionCreatedBy", fields: [createdById], references: [id])
+
+  assignments ShiftAssignment[]
+  changeLogs  ScheduleChangeLog[]
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@unique([scheduleId, version])
+  @@index([scheduleId])
+  @@index([courtId])
+  @@index([status])
+  @@index([isActive])
+}
+
+// ─── Shift Slots / Actual Required Positions ─────────────────────────────────
+
+model ShiftAssignment {
+  id         String    @id @default(cuid())
+  scheduleId String
+  versionId  String
+  employeeId String
+  courtId    String
+  positionId String
+  date       DateTime  @db.Date
+  shiftType  ShiftType
+
+  schedule WorkSchedule @relation(fields: [scheduleId, courtId], references: [id, courtId], onDelete: Cascade)
+
+  version WorkScheduleVersion @relation(fields: [versionId], references: [id], onDelete: Cascade)
+
+  employee Employee @relation(fields: [employeeId, courtId], references: [id, courtId], onDelete: Cascade)
+
+  court Court @relation(fields: [courtId], references: [id], onDelete: Cascade)
+
+  position Position @relation(fields: [positionId, courtId], references: [id, courtId], onDelete: Cascade)
 
   changeLogs ScheduleChangeLog[]
 
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
 
-  @@unique([scheduleId, employeeId, date, shiftType])
-
+  @@unique([versionId, employeeId, date, shiftType])
+  @@index([scheduleId])
+  @@index([versionId])
+  @@index([versionId, date])
+  @@index([versionId, date, shiftType, positionId])
   @@index([scheduleId, date])
-  @@index([scheduleId, date, shiftType, positionId])
+  @@index([scheduleId, courtId])
+  @@index([employeeId, courtId])
+  @@index([positionId, courtId])
   @@index([employeeId, date])
   @@index([courtId, date])
   @@index([positionId])
@@ -399,6 +478,7 @@ model FairnessRecord {
 model ScheduleChangeLog {
   id                String             @id @default(cuid())
   scheduleId        String
+  versionId         String?
   shiftAssignmentId String?
   changedById       String
   changeType        ScheduleChangeType
@@ -408,11 +488,16 @@ model ScheduleChangeLog {
   afterData         Json?
   createdAt         DateTime           @default(now())
 
-  schedule        WorkSchedule     @relation(fields: [scheduleId], references: [id], onDelete: Cascade)
+  schedule WorkSchedule @relation(fields: [scheduleId], references: [id], onDelete: Cascade)
+
+  version WorkScheduleVersion? @relation(fields: [versionId], references: [id], onDelete: SetNull)
+
   shiftAssignment ShiftAssignment? @relation(fields: [shiftAssignmentId], references: [id], onDelete: SetNull)
-  changedBy       User             @relation("ScheduleChangedBy", fields: [changedById], references: [id])
+
+  changedBy User @relation("ScheduleChangedBy", fields: [changedById], references: [id])
 
   @@index([scheduleId, createdAt])
+  @@index([versionId, createdAt])
   @@index([shiftAssignmentId])
   @@index([changedById, createdAt])
 }

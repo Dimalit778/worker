@@ -80,6 +80,14 @@ export function assignedEmployeeIdsForShift(assignments: AssignmentMap, date: st
   );
 }
 
+export function getShiftRequiredCount(date: string, shiftType: ShiftType, capacity: ScheduleCapacityRule[]): number {
+  const dayCategory = getDayCategoryForDate(date);
+  return getOrderedPositionsForShift(capacity, shiftType).reduce(
+    (sum, position) => sum + getCapacityForCell(capacity, dayCategory, shiftType, position.positionId),
+    0,
+  );
+}
+
 export function buildShiftSlots(params: {
   date: string;
   shiftType: ShiftType;

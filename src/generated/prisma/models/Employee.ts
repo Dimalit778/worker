@@ -262,6 +262,7 @@ export type EmployeeOrderByWithRelationInput = {
 
 export type EmployeeWhereUniqueInput = Prisma.AtLeast<{
   id?: string
+  id_courtId?: Prisma.EmployeeIdCourtIdCompoundUniqueInput
   AND?: Prisma.EmployeeWhereInput | Prisma.EmployeeWhereInput[]
   OR?: Prisma.EmployeeWhereInput[]
   NOT?: Prisma.EmployeeWhereInput | Prisma.EmployeeWhereInput[]
@@ -282,7 +283,7 @@ export type EmployeeWhereUniqueInput = Prisma.AtLeast<{
   assignments?: Prisma.ShiftAssignmentListRelationFilter
   fairnessRecords?: Prisma.FairnessRecordListRelationFilter
   warnings?: Prisma.ScheduleWarningListRelationFilter
-}, "id">
+}, "id" | "id_courtId">
 
 export type EmployeeOrderByWithAggregationInput = {
   id?: Prisma.SortOrder
@@ -447,6 +448,11 @@ export type EmployeeListRelationFilter = {
 
 export type EmployeeOrderByRelationAggregateInput = {
   _count?: Prisma.SortOrder
+}
+
+export type EmployeeIdCourtIdCompoundUniqueInput = {
+  id: string
+  courtId: string
 }
 
 export type EmployeeCountOrderByAggregateInput = {
@@ -845,7 +851,6 @@ export type EmployeeUncheckedCreateWithoutPositionInput = {
   lastName: string
   displayName: string
   phone?: string | null
-  courtId: string
   isActive?: boolean
   isReligious?: boolean
   createdAt?: Date | string
@@ -1303,7 +1308,6 @@ export type EmployeeCreateManyPositionInput = {
   lastName: string
   displayName: string
   phone?: string | null
-  courtId: string
   isActive?: boolean
   isReligious?: boolean
   createdAt?: Date | string
@@ -1334,7 +1338,6 @@ export type EmployeeUncheckedUpdateWithoutPositionInput = {
   lastName?: Prisma.StringFieldUpdateOperationsInput | string
   displayName?: Prisma.StringFieldUpdateOperationsInput | string
   phone?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  courtId?: Prisma.StringFieldUpdateOperationsInput | string
   isActive?: Prisma.BoolFieldUpdateOperationsInput | boolean
   isReligious?: Prisma.BoolFieldUpdateOperationsInput | boolean
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
@@ -1352,7 +1355,6 @@ export type EmployeeUncheckedUpdateManyWithoutPositionInput = {
   lastName?: Prisma.StringFieldUpdateOperationsInput | string
   displayName?: Prisma.StringFieldUpdateOperationsInput | string
   phone?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  courtId?: Prisma.StringFieldUpdateOperationsInput | string
   isActive?: Prisma.BoolFieldUpdateOperationsInput | boolean
   isReligious?: Prisma.BoolFieldUpdateOperationsInput | boolean
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string

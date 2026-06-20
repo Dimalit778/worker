@@ -19,6 +19,8 @@
     "db:force-reset": "prisma db push --force-reset",
     "db:migrate": "prisma migrate dev",
     "db:seed": "tsx --env-file=.env.local prisma/seed.ts",
+    "db:seed:employees": "tsx --env-file=.env.local prisma/seed-employees.ts",
+    "db:seed:region-courts": "tsx --env-file=.env.local prisma/seed-region-courts.ts",
     "db:studio": "prisma studio"
   },
   "dependencies": {

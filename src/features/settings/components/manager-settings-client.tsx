@@ -69,11 +69,7 @@ export function ManagerSettingsClient({ courtId }: ManagerSettingsClientProps) {
             </div>
           </CardHeader>
           <CardContent className="pt-5 sm:pt-6">
-            <CourtCapacityRules
-              courtId={courtId}
-              positions={shiftStaffingPositions}
-              initialCapacities={capacities}
-            />
+            <CourtCapacityRules courtId={courtId} positions={shiftStaffingPositions} initialCapacities={capacities} />
           </CardContent>
         </Card>
       </div>

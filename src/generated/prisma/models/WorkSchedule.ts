@@ -240,6 +240,7 @@ export type WorkScheduleWhereInput = {
   updatedAt?: Prisma.DateTimeFilter<"WorkSchedule"> | Date | string
   court?: Prisma.XOR<Prisma.CourtScalarRelationFilter, Prisma.CourtWhereInput>
   createdBy?: Prisma.XOR<Prisma.UserScalarRelationFilter, Prisma.UserWhereInput>
+  versions?: Prisma.WorkScheduleVersionListRelationFilter
   assignments?: Prisma.ShiftAssignmentListRelationFilter
   availabilityForms?: Prisma.AvailabilityFormListRelationFilter
   warnings?: Prisma.ScheduleWarningListRelationFilter
@@ -262,6 +263,7 @@ export type WorkScheduleOrderByWithRelationInput = {
   updatedAt?: Prisma.SortOrder
   court?: Prisma.CourtOrderByWithRelationInput
   createdBy?: Prisma.UserOrderByWithRelationInput
+  versions?: Prisma.WorkScheduleVersionOrderByRelationAggregateInput
   assignments?: Prisma.ShiftAssignmentOrderByRelationAggregateInput
   availabilityForms?: Prisma.AvailabilityFormOrderByRelationAggregateInput
   warnings?: Prisma.ScheduleWarningOrderByRelationAggregateInput
@@ -271,6 +273,7 @@ export type WorkScheduleOrderByWithRelationInput = {
 
 export type WorkScheduleWhereUniqueInput = Prisma.AtLeast<{
   id?: string
+  id_courtId?: Prisma.WorkScheduleIdCourtIdCompoundUniqueInput
   AND?: Prisma.WorkScheduleWhereInput | Prisma.WorkScheduleWhereInput[]
   OR?: Prisma.WorkScheduleWhereInput[]
   NOT?: Prisma.WorkScheduleWhereInput | Prisma.WorkScheduleWhereInput[]
@@ -287,12 +290,13 @@ export type WorkScheduleWhereUniqueInput = Prisma.AtLeast<{
   updatedAt?: Prisma.DateTimeFilter<"WorkSchedule"> | Date | string
   court?: Prisma.XOR<Prisma.CourtScalarRelationFilter, Prisma.CourtWhereInput>
   createdBy?: Prisma.XOR<Prisma.UserScalarRelationFilter, Prisma.UserWhereInput>
+  versions?: Prisma.WorkScheduleVersionListRelationFilter
   assignments?: Prisma.ShiftAssignmentListRelationFilter
   availabilityForms?: Prisma.AvailabilityFormListRelationFilter
   warnings?: Prisma.ScheduleWarningListRelationFilter
   changeLogs?: Prisma.ScheduleChangeLogListRelationFilter
   fairnessRecords?: Prisma.FairnessRecordListRelationFilter
-}, "id">
+}, "id" | "id_courtId">
 
 export type WorkScheduleOrderByWithAggregationInput = {
   id?: Prisma.SortOrder
@@ -343,6 +347,7 @@ export type WorkScheduleCreateInput = {
   updatedAt?: Date | string
   court: Prisma.CourtCreateNestedOneWithoutSchedulesInput
   createdBy: Prisma.UserCreateNestedOneWithoutSchedulesCreatedInput
+  versions?: Prisma.WorkScheduleVersionCreateNestedManyWithoutScheduleInput
   assignments?: Prisma.ShiftAssignmentCreateNestedManyWithoutScheduleInput
   availabilityForms?: Prisma.AvailabilityFormCreateNestedManyWithoutScheduleInput
   warnings?: Prisma.ScheduleWarningCreateNestedManyWithoutScheduleInput
@@ -363,6 +368,7 @@ export type WorkScheduleUncheckedCreateInput = {
   endDate: Date | string
   createdAt?: Date | string
   updatedAt?: Date | string
+  versions?: Prisma.WorkScheduleVersionUncheckedCreateNestedManyWithoutScheduleInput
   assignments?: Prisma.ShiftAssignmentUncheckedCreateNestedManyWithoutScheduleInput
   availabilityForms?: Prisma.AvailabilityFormUncheckedCreateNestedManyWithoutScheduleInput
   warnings?: Prisma.ScheduleWarningUncheckedCreateNestedManyWithoutScheduleInput
@@ -383,6 +389,7 @@ export type WorkScheduleUpdateInput = {
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   court?: Prisma.CourtUpdateOneRequiredWithoutSchedulesNestedInput
   createdBy?: Prisma.UserUpdateOneRequiredWithoutSchedulesCreatedNestedInput
+  versions?: Prisma.WorkScheduleVersionUpdateManyWithoutScheduleNestedInput
   assignments?: Prisma.ShiftAssignmentUpdateManyWithoutScheduleNestedInput
   availabilityForms?: Prisma.AvailabilityFormUpdateManyWithoutScheduleNestedInput
   warnings?: Prisma.ScheduleWarningUpdateManyWithoutScheduleNestedInput
@@ -403,6 +410,7 @@ export type WorkScheduleUncheckedUpdateInput = {
   endDate?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  versions?: Prisma.WorkScheduleVersionUncheckedUpdateManyWithoutScheduleNestedInput
   assignments?: Prisma.ShiftAssignmentUncheckedUpdateManyWithoutScheduleNestedInput
   availabilityForms?: Prisma.AvailabilityFormUncheckedUpdateManyWithoutScheduleNestedInput
   warnings?: Prisma.ScheduleWarningUncheckedUpdateManyWithoutScheduleNestedInput
@@ -466,6 +474,11 @@ export type WorkScheduleOrderByRelationAggregateInput = {
 export type WorkScheduleScalarRelationFilter = {
   is?: Prisma.WorkScheduleWhereInput
   isNot?: Prisma.WorkScheduleWhereInput
+}
+
+export type WorkScheduleIdCourtIdCompoundUniqueInput = {
+  id: string
+  courtId: string
 }
 
 export type WorkScheduleCountOrderByAggregateInput = {
@@ -615,6 +628,20 @@ export type EnumScheduleStatusFieldUpdateOperationsInput = {
   set?: $Enums.ScheduleStatus
 }
 
+export type WorkScheduleCreateNestedOneWithoutVersionsInput = {
+  create?: Prisma.XOR<Prisma.WorkScheduleCreateWithoutVersionsInput, Prisma.WorkScheduleUncheckedCreateWithoutVersionsInput>
+  connectOrCreate?: Prisma.WorkScheduleCreateOrConnectWithoutVersionsInput
+  connect?: Prisma.WorkScheduleWhereUniqueInput
+}
+
+export type WorkScheduleUpdateOneRequiredWithoutVersionsNestedInput = {
+  create?: Prisma.XOR<Prisma.WorkScheduleCreateWithoutVersionsInput, Prisma.WorkScheduleUncheckedCreateWithoutVersionsInput>
+  connectOrCreate?: Prisma.WorkScheduleCreateOrConnectWithoutVersionsInput
+  upsert?: Prisma.WorkScheduleUpsertWithoutVersionsInput
+  connect?: Prisma.WorkScheduleWhereUniqueInput
+  update?: Prisma.XOR<Prisma.XOR<Prisma.WorkScheduleUpdateToOneWithWhereWithoutVersionsInput, Prisma.WorkScheduleUpdateWithoutVersionsInput>, Prisma.WorkScheduleUncheckedUpdateWithoutVersionsInput>
+}
+
 export type WorkScheduleCreateNestedOneWithoutAssignmentsInput = {
   create?: Prisma.XOR<Prisma.WorkScheduleCreateWithoutAssignmentsInput, Prisma.WorkScheduleUncheckedCreateWithoutAssignmentsInput>
   connectOrCreate?: Prisma.WorkScheduleCreateOrConnectWithoutAssignmentsInput
@@ -683,6 +710,7 @@ export type WorkScheduleCreateWithoutCreatedByInput = {
   createdAt?: Date | string
   updatedAt?: Date | string
   court: Prisma.CourtCreateNestedOneWithoutSchedulesInput
+  versions?: Prisma.WorkScheduleVersionCreateNestedManyWithoutScheduleInput
   assignments?: Prisma.ShiftAssignmentCreateNestedManyWithoutScheduleInput
   availabilityForms?: Prisma.AvailabilityFormCreateNestedManyWithoutScheduleInput
   warnings?: Prisma.ScheduleWarningCreateNestedManyWithoutScheduleInput
@@ -702,6 +730,7 @@ export type WorkScheduleUncheckedCreateWithoutCreatedByInput = {
   endDate: Date | string
   createdAt?: Date | string
   updatedAt?: Date | string
+  versions?: Prisma.WorkScheduleVersionUncheckedCreateNestedManyWithoutScheduleInput
   assignments?: Prisma.ShiftAssignmentUncheckedCreateNestedManyWithoutScheduleInput
   availabilityForms?: Prisma.AvailabilityFormUncheckedCreateNestedManyWithoutScheduleInput
   warnings?: Prisma.ScheduleWarningUncheckedCreateNestedManyWithoutScheduleInput
@@ -765,6 +794,7 @@ export type WorkScheduleCreateWithoutCourtInput = {
   createdAt?: Date | string
   updatedAt?: Date | string
   createdBy: Prisma.UserCreateNestedOneWithoutSchedulesCreatedInput
+  versions?: Prisma.WorkScheduleVersionCreateNestedManyWithoutScheduleInput
   assignments?: Prisma.ShiftAssignmentCreateNestedManyWithoutScheduleInput
   availabilityForms?: Prisma.AvailabilityFormCreateNestedManyWithoutScheduleInput
   warnings?: Prisma.ScheduleWarningCreateNestedManyWithoutScheduleInput
@@ -784,6 +814,7 @@ export type WorkScheduleUncheckedCreateWithoutCourtInput = {
   endDate: Date | string
   createdAt?: Date | string
   updatedAt?: Date | string
+  versions?: Prisma.WorkScheduleVersionUncheckedCreateNestedManyWithoutScheduleInput
   assignments?: Prisma.ShiftAssignmentUncheckedCreateNestedManyWithoutScheduleInput
   availabilityForms?: Prisma.AvailabilityFormUncheckedCreateNestedManyWithoutScheduleInput
   warnings?: Prisma.ScheduleWarningUncheckedCreateNestedManyWithoutScheduleInput
@@ -830,6 +861,7 @@ export type WorkScheduleCreateWithoutAvailabilityFormsInput = {
   updatedAt?: Date | string
   court: Prisma.CourtCreateNestedOneWithoutSchedulesInput
   createdBy: Prisma.UserCreateNestedOneWithoutSchedulesCreatedInput
+  versions?: Prisma.WorkScheduleVersionCreateNestedManyWithoutScheduleInput
   assignments?: Prisma.ShiftAssignmentCreateNestedManyWithoutScheduleInput
   warnings?: Prisma.ScheduleWarningCreateNestedManyWithoutScheduleInput
   changeLogs?: Prisma.ScheduleChangeLogCreateNestedManyWithoutScheduleInput
@@ -849,6 +881,7 @@ export type WorkScheduleUncheckedCreateWithoutAvailabilityFormsInput = {
   endDate: Date | string
   createdAt?: Date | string
   updatedAt?: Date | string
+  versions?: Prisma.WorkScheduleVersionUncheckedCreateNestedManyWithoutScheduleInput
   assignments?: Prisma.ShiftAssignmentUncheckedCreateNestedManyWithoutScheduleInput
   warnings?: Prisma.ScheduleWarningUncheckedCreateNestedManyWithoutScheduleInput
   changeLogs?: Prisma.ScheduleChangeLogUncheckedCreateNestedManyWithoutScheduleInput
@@ -884,6 +917,7 @@ export type WorkScheduleUpdateWithoutAvailabilityFormsInput = {
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   court?: Prisma.CourtUpdateOneRequiredWithoutSchedulesNestedInput
   createdBy?: Prisma.UserUpdateOneRequiredWithoutSchedulesCreatedNestedInput
+  versions?: Prisma.WorkScheduleVersionUpdateManyWithoutScheduleNestedInput
   assignments?: Prisma.ShiftAssignmentUpdateManyWithoutScheduleNestedInput
   warnings?: Prisma.ScheduleWarningUpdateManyWithoutScheduleNestedInput
   changeLogs?: Prisma.ScheduleChangeLogUpdateManyWithoutScheduleNestedInput
@@ -903,7 +937,104 @@ export type WorkScheduleUncheckedUpdateWithoutAvailabilityFormsInput = {
   endDate?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  versions?: Prisma.WorkScheduleVersionUncheckedUpdateManyWithoutScheduleNestedInput
   assignments?: Prisma.ShiftAssignmentUncheckedUpdateManyWithoutScheduleNestedInput
+  warnings?: Prisma.ScheduleWarningUncheckedUpdateManyWithoutScheduleNestedInput
+  changeLogs?: Prisma.ScheduleChangeLogUncheckedUpdateManyWithoutScheduleNestedInput
+  fairnessRecords?: Prisma.FairnessRecordUncheckedUpdateManyWithoutScheduleNestedInput
+}
+
+export type WorkScheduleCreateWithoutVersionsInput = {
+  id?: string
+  name: string
+  status?: $Enums.ScheduleStatus
+  generatedAt?: Date | string
+  publishedAt?: Date | string | null
+  submissionDeadline: Date | string
+  startDate: Date | string
+  endDate: Date | string
+  createdAt?: Date | string
+  updatedAt?: Date | string
+  court: Prisma.CourtCreateNestedOneWithoutSchedulesInput
+  createdBy: Prisma.UserCreateNestedOneWithoutSchedulesCreatedInput
+  assignments?: Prisma.ShiftAssignmentCreateNestedManyWithoutScheduleInput
+  availabilityForms?: Prisma.AvailabilityFormCreateNestedManyWithoutScheduleInput
+  warnings?: Prisma.ScheduleWarningCreateNestedManyWithoutScheduleInput
+  changeLogs?: Prisma.ScheduleChangeLogCreateNestedManyWithoutScheduleInput
+  fairnessRecords?: Prisma.FairnessRecordCreateNestedManyWithoutScheduleInput
+}
+
+export type WorkScheduleUncheckedCreateWithoutVersionsInput = {
+  id?: string
+  courtId: string
+  name: string
+  status?: $Enums.ScheduleStatus
+  generatedAt?: Date | string
+  publishedAt?: Date | string | null
+  createdById: string
+  submissionDeadline: Date | string
+  startDate: Date | string
+  endDate: Date | string
+  createdAt?: Date | string
+  updatedAt?: Date | string
+  assignments?: Prisma.ShiftAssignmentUncheckedCreateNestedManyWithoutScheduleInput
+  availabilityForms?: Prisma.AvailabilityFormUncheckedCreateNestedManyWithoutScheduleInput
+  warnings?: Prisma.ScheduleWarningUncheckedCreateNestedManyWithoutScheduleInput
+  changeLogs?: Prisma.ScheduleChangeLogUncheckedCreateNestedManyWithoutScheduleInput
+  fairnessRecords?: Prisma.FairnessRecordUncheckedCreateNestedManyWithoutScheduleInput
+}
+
+export type WorkScheduleCreateOrConnectWithoutVersionsInput = {
+  where: Prisma.WorkScheduleWhereUniqueInput
+  create: Prisma.XOR<Prisma.WorkScheduleCreateWithoutVersionsInput, Prisma.WorkScheduleUncheckedCreateWithoutVersionsInput>
+}
+
+export type WorkScheduleUpsertWithoutVersionsInput = {
+  update: Prisma.XOR<Prisma.WorkScheduleUpdateWithoutVersionsInput, Prisma.WorkScheduleUncheckedUpdateWithoutVersionsInput>
+  create: Prisma.XOR<Prisma.WorkScheduleCreateWithoutVersionsInput, Prisma.WorkScheduleUncheckedCreateWithoutVersionsInput>
+  where?: Prisma.WorkScheduleWhereInput
+}
+
+export type WorkScheduleUpdateToOneWithWhereWithoutVersionsInput = {
+  where?: Prisma.WorkScheduleWhereInput
+  data: Prisma.XOR<Prisma.WorkScheduleUpdateWithoutVersionsInput, Prisma.WorkScheduleUncheckedUpdateWithoutVersionsInput>
+}
+
+export type WorkScheduleUpdateWithoutVersionsInput = {
+  id?: Prisma.StringFieldUpdateOperationsInput | string
+  name?: Prisma.StringFieldUpdateOperationsInput | string
+  status?: Prisma.EnumScheduleStatusFieldUpdateOperationsInput | $Enums.ScheduleStatus
+  generatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  publishedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  submissionDeadline?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  startDate?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  endDate?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  court?: Prisma.CourtUpdateOneRequiredWithoutSchedulesNestedInput
+  createdBy?: Prisma.UserUpdateOneRequiredWithoutSchedulesCreatedNestedInput
+  assignments?: Prisma.ShiftAssignmentUpdateManyWithoutScheduleNestedInput
+  availabilityForms?: Prisma.AvailabilityFormUpdateManyWithoutScheduleNestedInput
+  warnings?: Prisma.ScheduleWarningUpdateManyWithoutScheduleNestedInput
+  changeLogs?: Prisma.ScheduleChangeLogUpdateManyWithoutScheduleNestedInput
+  fairnessRecords?: Prisma.FairnessRecordUpdateManyWithoutScheduleNestedInput
+}
+
+export type WorkScheduleUncheckedUpdateWithoutVersionsInput = {
+  id?: Prisma.StringFieldUpdateOperationsInput | string
+  courtId?: Prisma.StringFieldUpdateOperationsInput | string
+  name?: Prisma.StringFieldUpdateOperationsInput | string
+  status?: Prisma.EnumScheduleStatusFieldUpdateOperationsInput | $Enums.ScheduleStatus
+  generatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  publishedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  createdById?: Prisma.StringFieldUpdateOperationsInput | string
+  submissionDeadline?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  startDate?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  endDate?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  assignments?: Prisma.ShiftAssignmentUncheckedUpdateManyWithoutScheduleNestedInput
+  availabilityForms?: Prisma.AvailabilityFormUncheckedUpdateManyWithoutScheduleNestedInput
   warnings?: Prisma.ScheduleWarningUncheckedUpdateManyWithoutScheduleNestedInput
   changeLogs?: Prisma.ScheduleChangeLogUncheckedUpdateManyWithoutScheduleNestedInput
   fairnessRecords?: Prisma.FairnessRecordUncheckedUpdateManyWithoutScheduleNestedInput
@@ -922,6 +1053,7 @@ export type WorkScheduleCreateWithoutAssignmentsInput = {
   updatedAt?: Date | string
   court: Prisma.CourtCreateNestedOneWithoutSchedulesInput
   createdBy: Prisma.UserCreateNestedOneWithoutSchedulesCreatedInput
+  versions?: Prisma.WorkScheduleVersionCreateNestedManyWithoutScheduleInput
   availabilityForms?: Prisma.AvailabilityFormCreateNestedManyWithoutScheduleInput
   warnings?: Prisma.ScheduleWarningCreateNestedManyWithoutScheduleInput
   changeLogs?: Prisma.ScheduleChangeLogCreateNestedManyWithoutScheduleInput
@@ -941,6 +1073,7 @@ export type WorkScheduleUncheckedCreateWithoutAssignmentsInput = {
   endDate: Date | string
   createdAt?: Date | string
   updatedAt?: Date | string
+  versions?: Prisma.WorkScheduleVersionUncheckedCreateNestedManyWithoutScheduleInput
   availabilityForms?: Prisma.AvailabilityFormUncheckedCreateNestedManyWithoutScheduleInput
   warnings?: Prisma.ScheduleWarningUncheckedCreateNestedManyWithoutScheduleInput
   changeLogs?: Prisma.ScheduleChangeLogUncheckedCreateNestedManyWithoutScheduleInput
@@ -976,6 +1109,7 @@ export type WorkScheduleUpdateWithoutAssignmentsInput = {
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   court?: Prisma.CourtUpdateOneRequiredWithoutSchedulesNestedInput
   createdBy?: Prisma.UserUpdateOneRequiredWithoutSchedulesCreatedNestedInput
+  versions?: Prisma.WorkScheduleVersionUpdateManyWithoutScheduleNestedInput
   availabilityForms?: Prisma.AvailabilityFormUpdateManyWithoutScheduleNestedInput
   warnings?: Prisma.ScheduleWarningUpdateManyWithoutScheduleNestedInput
   changeLogs?: Prisma.ScheduleChangeLogUpdateManyWithoutScheduleNestedInput
@@ -995,6 +1129,7 @@ export type WorkScheduleUncheckedUpdateWithoutAssignmentsInput = {
   endDate?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  versions?: Prisma.WorkScheduleVersionUncheckedUpdateManyWithoutScheduleNestedInput
   availabilityForms?: Prisma.AvailabilityFormUncheckedUpdateManyWithoutScheduleNestedInput
   warnings?: Prisma.ScheduleWarningUncheckedUpdateManyWithoutScheduleNestedInput
   changeLogs?: Prisma.ScheduleChangeLogUncheckedUpdateManyWithoutScheduleNestedInput
@@ -1014,6 +1149,7 @@ export type WorkScheduleCreateWithoutWarningsInput = {
   updatedAt?: Date | string
   court: Prisma.CourtCreateNestedOneWithoutSchedulesInput
   createdBy: Prisma.UserCreateNestedOneWithoutSchedulesCreatedInput
+  versions?: Prisma.WorkScheduleVersionCreateNestedManyWithoutScheduleInput
   assignments?: Prisma.ShiftAssignmentCreateNestedManyWithoutScheduleInput
   availabilityForms?: Prisma.AvailabilityFormCreateNestedManyWithoutScheduleInput
   changeLogs?: Prisma.ScheduleChangeLogCreateNestedManyWithoutScheduleInput
@@ -1033,6 +1169,7 @@ export type WorkScheduleUncheckedCreateWithoutWarningsInput = {
   endDate: Date | string
   createdAt?: Date | string
   updatedAt?: Date | string
+  versions?: Prisma.WorkScheduleVersionUncheckedCreateNestedManyWithoutScheduleInput
   assignments?: Prisma.ShiftAssignmentUncheckedCreateNestedManyWithoutScheduleInput
   availabilityForms?: Prisma.AvailabilityFormUncheckedCreateNestedManyWithoutScheduleInput
   changeLogs?: Prisma.ScheduleChangeLogUncheckedCreateNestedManyWithoutScheduleInput
@@ -1068,6 +1205,7 @@ export type WorkScheduleUpdateWithoutWarningsInput = {
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   court?: Prisma.CourtUpdateOneRequiredWithoutSchedulesNestedInput
   createdBy?: Prisma.UserUpdateOneRequiredWithoutSchedulesCreatedNestedInput
+  versions?: Prisma.WorkScheduleVersionUpdateManyWithoutScheduleNestedInput
   assignments?: Prisma.ShiftAssignmentUpdateManyWithoutScheduleNestedInput
   availabilityForms?: Prisma.AvailabilityFormUpdateManyWithoutScheduleNestedInput
   changeLogs?: Prisma.ScheduleChangeLogUpdateManyWithoutScheduleNestedInput
@@ -1087,6 +1225,7 @@ export type WorkScheduleUncheckedUpdateWithoutWarningsInput = {
   endDate?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  versions?: Prisma.WorkScheduleVersionUncheckedUpdateManyWithoutScheduleNestedInput
   assignments?: Prisma.ShiftAssignmentUncheckedUpdateManyWithoutScheduleNestedInput
   availabilityForms?: Prisma.AvailabilityFormUncheckedUpdateManyWithoutScheduleNestedInput
   changeLogs?: Prisma.ScheduleChangeLogUncheckedUpdateManyWithoutScheduleNestedInput
@@ -1106,6 +1245,7 @@ export type WorkScheduleCreateWithoutFairnessRecordsInput = {
   updatedAt?: Date | string
   court: Prisma.CourtCreateNestedOneWithoutSchedulesInput
   createdBy: Prisma.UserCreateNestedOneWithoutSchedulesCreatedInput
+  versions?: Prisma.WorkScheduleVersionCreateNestedManyWithoutScheduleInput
   assignments?: Prisma.ShiftAssignmentCreateNestedManyWithoutScheduleInput
   availabilityForms?: Prisma.AvailabilityFormCreateNestedManyWithoutScheduleInput
   warnings?: Prisma.ScheduleWarningCreateNestedManyWithoutScheduleInput
@@ -1125,6 +1265,7 @@ export type WorkScheduleUncheckedCreateWithoutFairnessRecordsInput = {
   endDate: Date | string
   createdAt?: Date | string
   updatedAt?: Date | string
+  versions?: Prisma.WorkScheduleVersionUncheckedCreateNestedManyWithoutScheduleInput
   assignments?: Prisma.ShiftAssignmentUncheckedCreateNestedManyWithoutScheduleInput
   availabilityForms?: Prisma.AvailabilityFormUncheckedCreateNestedManyWithoutScheduleInput
   warnings?: Prisma.ScheduleWarningUncheckedCreateNestedManyWithoutScheduleInput
@@ -1160,6 +1301,7 @@ export type WorkScheduleUpdateWithoutFairnessRecordsInput = {
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   court?: Prisma.CourtUpdateOneRequiredWithoutSchedulesNestedInput
   createdBy?: Prisma.UserUpdateOneRequiredWithoutSchedulesCreatedNestedInput
+  versions?: Prisma.WorkScheduleVersionUpdateManyWithoutScheduleNestedInput
   assignments?: Prisma.ShiftAssignmentUpdateManyWithoutScheduleNestedInput
   availabilityForms?: Prisma.AvailabilityFormUpdateManyWithoutScheduleNestedInput
   warnings?: Prisma.ScheduleWarningUpdateManyWithoutScheduleNestedInput
@@ -1179,6 +1321,7 @@ export type WorkScheduleUncheckedUpdateWithoutFairnessRecordsInput = {
   endDate?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  versions?: Prisma.WorkScheduleVersionUncheckedUpdateManyWithoutScheduleNestedInput
   assignments?: Prisma.ShiftAssignmentUncheckedUpdateManyWithoutScheduleNestedInput
   availabilityForms?: Prisma.AvailabilityFormUncheckedUpdateManyWithoutScheduleNestedInput
   warnings?: Prisma.ScheduleWarningUncheckedUpdateManyWithoutScheduleNestedInput
@@ -1198,6 +1341,7 @@ export type WorkScheduleCreateWithoutChangeLogsInput = {
   updatedAt?: Date | string
   court: Prisma.CourtCreateNestedOneWithoutSchedulesInput
   createdBy: Prisma.UserCreateNestedOneWithoutSchedulesCreatedInput
+  versions?: Prisma.WorkScheduleVersionCreateNestedManyWithoutScheduleInput
   assignments?: Prisma.ShiftAssignmentCreateNestedManyWithoutScheduleInput
   availabilityForms?: Prisma.AvailabilityFormCreateNestedManyWithoutScheduleInput
   warnings?: Prisma.ScheduleWarningCreateNestedManyWithoutScheduleInput
@@ -1217,6 +1361,7 @@ export type WorkScheduleUncheckedCreateWithoutChangeLogsInput = {
   endDate: Date | string
   createdAt?: Date | string
   updatedAt?: Date | string
+  versions?: Prisma.WorkScheduleVersionUncheckedCreateNestedManyWithoutScheduleInput
   assignments?: Prisma.ShiftAssignmentUncheckedCreateNestedManyWithoutScheduleInput
   availabilityForms?: Prisma.AvailabilityFormUncheckedCreateNestedManyWithoutScheduleInput
   warnings?: Prisma.ScheduleWarningUncheckedCreateNestedManyWithoutScheduleInput
@@ -1252,6 +1397,7 @@ export type WorkScheduleUpdateWithoutChangeLogsInput = {
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   court?: Prisma.CourtUpdateOneRequiredWithoutSchedulesNestedInput
   createdBy?: Prisma.UserUpdateOneRequiredWithoutSchedulesCreatedNestedInput
+  versions?: Prisma.WorkScheduleVersionUpdateManyWithoutScheduleNestedInput
   assignments?: Prisma.ShiftAssignmentUpdateManyWithoutScheduleNestedInput
   availabilityForms?: Prisma.AvailabilityFormUpdateManyWithoutScheduleNestedInput
   warnings?: Prisma.ScheduleWarningUpdateManyWithoutScheduleNestedInput
@@ -1271,6 +1417,7 @@ export type WorkScheduleUncheckedUpdateWithoutChangeLogsInput = {
   endDate?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  versions?: Prisma.WorkScheduleVersionUncheckedUpdateManyWithoutScheduleNestedInput
   assignments?: Prisma.ShiftAssignmentUncheckedUpdateManyWithoutScheduleNestedInput
   availabilityForms?: Prisma.AvailabilityFormUncheckedUpdateManyWithoutScheduleNestedInput
   warnings?: Prisma.ScheduleWarningUncheckedUpdateManyWithoutScheduleNestedInput
@@ -1303,6 +1450,7 @@ export type WorkScheduleUpdateWithoutCreatedByInput = {
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   court?: Prisma.CourtUpdateOneRequiredWithoutSchedulesNestedInput
+  versions?: Prisma.WorkScheduleVersionUpdateManyWithoutScheduleNestedInput
   assignments?: Prisma.ShiftAssignmentUpdateManyWithoutScheduleNestedInput
   availabilityForms?: Prisma.AvailabilityFormUpdateManyWithoutScheduleNestedInput
   warnings?: Prisma.ScheduleWarningUpdateManyWithoutScheduleNestedInput
@@ -1322,6 +1470,7 @@ export type WorkScheduleUncheckedUpdateWithoutCreatedByInput = {
   endDate?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  versions?: Prisma.WorkScheduleVersionUncheckedUpdateManyWithoutScheduleNestedInput
   assignments?: Prisma.ShiftAssignmentUncheckedUpdateManyWithoutScheduleNestedInput
   availabilityForms?: Prisma.AvailabilityFormUncheckedUpdateManyWithoutScheduleNestedInput
   warnings?: Prisma.ScheduleWarningUncheckedUpdateManyWithoutScheduleNestedInput
@@ -1369,6 +1518,7 @@ export type WorkScheduleUpdateWithoutCourtInput = {
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   createdBy?: Prisma.UserUpdateOneRequiredWithoutSchedulesCreatedNestedInput
+  versions?: Prisma.WorkScheduleVersionUpdateManyWithoutScheduleNestedInput
   assignments?: Prisma.ShiftAssignmentUpdateManyWithoutScheduleNestedInput
   availabilityForms?: Prisma.AvailabilityFormUpdateManyWithoutScheduleNestedInput
   warnings?: Prisma.ScheduleWarningUpdateManyWithoutScheduleNestedInput
@@ -1388,6 +1538,7 @@ export type WorkScheduleUncheckedUpdateWithoutCourtInput = {
   endDate?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  versions?: Prisma.WorkScheduleVersionUncheckedUpdateManyWithoutScheduleNestedInput
   assignments?: Prisma.ShiftAssignmentUncheckedUpdateManyWithoutScheduleNestedInput
   availabilityForms?: Prisma.AvailabilityFormUncheckedUpdateManyWithoutScheduleNestedInput
   warnings?: Prisma.ScheduleWarningUncheckedUpdateManyWithoutScheduleNestedInput
@@ -1415,6 +1566,7 @@ export type WorkScheduleUncheckedUpdateManyWithoutCourtInput = {
  */
 
 export type WorkScheduleCountOutputType = {
+  versions: number
   assignments: number
   availabilityForms: number
   warnings: number
@@ -1423,6 +1575,7 @@ export type WorkScheduleCountOutputType = {
 }
 
 export type WorkScheduleCountOutputTypeSelect<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+  versions?: boolean | WorkScheduleCountOutputTypeCountVersionsArgs
   assignments?: boolean | WorkScheduleCountOutputTypeCountAssignmentsArgs
   availabilityForms?: boolean | WorkScheduleCountOutputTypeCountAvailabilityFormsArgs
   warnings?: boolean | WorkScheduleCountOutputTypeCountWarningsArgs
@@ -1438,6 +1591,13 @@ export type WorkScheduleCountOutputTypeDefaultArgs<ExtArgs extends runtime.Types
    * Select specific fields to fetch from the WorkScheduleCountOutputType
    */
   select?: Prisma.WorkScheduleCountOutputTypeSelect<ExtArgs> | null
+}
+
+/**
+ * WorkScheduleCountOutputType without action
+ */
+export type WorkScheduleCountOutputTypeCountVersionsArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+  where?: Prisma.WorkScheduleVersionWhereInput
 }
 
 /**
@@ -1491,6 +1651,7 @@ export type WorkScheduleSelect<ExtArgs extends runtime.Types.Extensions.Internal
   updatedAt?: boolean
   court?: boolean | Prisma.CourtDefaultArgs<ExtArgs>
   createdBy?: boolean | Prisma.UserDefaultArgs<ExtArgs>
+  versions?: boolean | Prisma.WorkSchedule$versionsArgs<ExtArgs>
   assignments?: boolean | Prisma.WorkSchedule$assignmentsArgs<ExtArgs>
   availabilityForms?: boolean | Prisma.WorkSchedule$availabilityFormsArgs<ExtArgs>
   warnings?: boolean | Prisma.WorkSchedule$warningsArgs<ExtArgs>
@@ -1552,6 +1713,7 @@ export type WorkScheduleOmit<ExtArgs extends runtime.Types.Extensions.InternalAr
 export type WorkScheduleInclude<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
   court?: boolean | Prisma.CourtDefaultArgs<ExtArgs>
   createdBy?: boolean | Prisma.UserDefaultArgs<ExtArgs>
+  versions?: boolean | Prisma.WorkSchedule$versionsArgs<ExtArgs>
   assignments?: boolean | Prisma.WorkSchedule$assignmentsArgs<ExtArgs>
   availabilityForms?: boolean | Prisma.WorkSchedule$availabilityFormsArgs<ExtArgs>
   warnings?: boolean | Prisma.WorkSchedule$warningsArgs<ExtArgs>
@@ -1573,6 +1735,7 @@ export type $WorkSchedulePayload<ExtArgs extends runtime.Types.Extensions.Intern
   objects: {
     court: Prisma.$CourtPayload<ExtArgs>
     createdBy: Prisma.$UserPayload<ExtArgs>
+    versions: Prisma.$WorkScheduleVersionPayload<ExtArgs>[]
     assignments: Prisma.$ShiftAssignmentPayload<ExtArgs>[]
     availabilityForms: Prisma.$AvailabilityFormPayload<ExtArgs>[]
     warnings: Prisma.$ScheduleWarningPayload<ExtArgs>[]
@@ -1988,6 +2151,7 @@ export interface Prisma__WorkScheduleClient<T, Null = never, ExtArgs extends run
   readonly [Symbol.toStringTag]: "PrismaPromise"
   court<T extends Prisma.CourtDefaultArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.CourtDefaultArgs<ExtArgs>>): Prisma.Prisma__CourtClient<runtime.Types.Result.GetResult<Prisma.$CourtPayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions> | Null, Null, ExtArgs, GlobalOmitOptions>
   createdBy<T extends Prisma.UserDefaultArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.UserDefaultArgs<ExtArgs>>): Prisma.Prisma__UserClient<runtime.Types.Result.GetResult<Prisma.$UserPayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions> | Null, Null, ExtArgs, GlobalOmitOptions>
+  versions<T extends Prisma.WorkSchedule$versionsArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.WorkSchedule$versionsArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$WorkScheduleVersionPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
   assignments<T extends Prisma.WorkSchedule$assignmentsArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.WorkSchedule$assignmentsArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$ShiftAssignmentPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
   availabilityForms<T extends Prisma.WorkSchedule$availabilityFormsArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.WorkSchedule$availabilityFormsArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$AvailabilityFormPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
   warnings<T extends Prisma.WorkSchedule$warningsArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.WorkSchedule$warningsArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$ScheduleWarningPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
@@ -2432,6 +2596,30 @@ export type WorkScheduleDeleteManyArgs<ExtArgs extends runtime.Types.Extensions.
    * Limit how many WorkSchedules to delete.
    */
   limit?: number
+}
+
+/**
+ * WorkSchedule.versions
+ */
+export type WorkSchedule$versionsArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+  /**
+   * Select specific fields to fetch from the WorkScheduleVersion
+   */
+  select?: Prisma.WorkScheduleVersionSelect<ExtArgs> | null
+  /**
+   * Omit specific fields from the WorkScheduleVersion
+   */
+  omit?: Prisma.WorkScheduleVersionOmit<ExtArgs> | null
+  /**
+   * Choose, which related nodes to fetch as well
+   */
+  include?: Prisma.WorkScheduleVersionInclude<ExtArgs> | null
+  where?: Prisma.WorkScheduleVersionWhereInput
+  orderBy?: Prisma.WorkScheduleVersionOrderByWithRelationInput | Prisma.WorkScheduleVersionOrderByWithRelationInput[]
+  cursor?: Prisma.WorkScheduleVersionWhereUniqueInput
+  take?: number
+  skip?: number
+  distinct?: Prisma.WorkScheduleVersionScalarFieldEnum | Prisma.WorkScheduleVersionScalarFieldEnum[]
 }
 
 /**

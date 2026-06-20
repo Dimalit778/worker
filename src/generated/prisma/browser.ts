@@ -68,6 +68,11 @@ export type Position = Prisma.PositionModel
  */
 export type ShiftCapacity = Prisma.ShiftCapacityModel
 /**
+ * Model Holiday
+ * 
+ */
+export type Holiday = Prisma.HolidayModel
+/**
  * Model AvailabilityForm
  * 
  */
@@ -82,6 +87,11 @@ export type AvailabilityShift = Prisma.AvailabilityShiftModel
  * 
  */
 export type WorkSchedule = Prisma.WorkScheduleModel
+/**
+ * Model WorkScheduleVersion
+ * 
+ */
+export type WorkScheduleVersion = Prisma.WorkScheduleVersionModel
 /**
  * Model ShiftAssignment
  * 

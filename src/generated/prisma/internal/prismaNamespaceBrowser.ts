@@ -61,9 +61,11 @@ export const ModelName = {
   Employee: 'Employee',
   Position: 'Position',
   ShiftCapacity: 'ShiftCapacity',
+  Holiday: 'Holiday',
   AvailabilityForm: 'AvailabilityForm',
   AvailabilityShift: 'AvailabilityShift',
   WorkSchedule: 'WorkSchedule',
+  WorkScheduleVersion: 'WorkScheduleVersion',
   ShiftAssignment: 'ShiftAssignment',
   ScheduleWarning: 'ScheduleWarning',
   FairnessRecord: 'FairnessRecord',
@@ -224,6 +226,19 @@ export const ShiftCapacityScalarFieldEnum = {
 export type ShiftCapacityScalarFieldEnum = (typeof ShiftCapacityScalarFieldEnum)[keyof typeof ShiftCapacityScalarFieldEnum]
 
 
+export const HolidayScalarFieldEnum = {
+  id: 'id',
+  date: 'date',
+  name: 'name',
+  kind: 'kind',
+  behavesAs: 'behavesAs',
+  createdAt: 'createdAt',
+  updatedAt: 'updatedAt'
+} as const
+
+export type HolidayScalarFieldEnum = (typeof HolidayScalarFieldEnum)[keyof typeof HolidayScalarFieldEnum]
+
+
 export const AvailabilityFormScalarFieldEnum = {
   id: 'id',
   scheduleId: 'scheduleId',
@@ -268,9 +283,27 @@ export const WorkScheduleScalarFieldEnum = {
 export type WorkScheduleScalarFieldEnum = (typeof WorkScheduleScalarFieldEnum)[keyof typeof WorkScheduleScalarFieldEnum]
 
 
+export const WorkScheduleVersionScalarFieldEnum = {
+  id: 'id',
+  scheduleId: 'scheduleId',
+  courtId: 'courtId',
+  version: 'version',
+  status: 'status',
+  isActive: 'isActive',
+  publishedAt: 'publishedAt',
+  createdById: 'createdById',
+  note: 'note',
+  createdAt: 'createdAt',
+  updatedAt: 'updatedAt'
+} as const
+
+export type WorkScheduleVersionScalarFieldEnum = (typeof WorkScheduleVersionScalarFieldEnum)[keyof typeof WorkScheduleVersionScalarFieldEnum]
+
+
 export const ShiftAssignmentScalarFieldEnum = {
   id: 'id',
   scheduleId: 'scheduleId',
+  versionId: 'versionId',
   employeeId: 'employeeId',
   courtId: 'courtId',
   positionId: 'positionId',
@@ -321,6 +354,7 @@ export type FairnessRecordScalarFieldEnum = (typeof FairnessRecordScalarFieldEnu
 export const ScheduleChangeLogScalarFieldEnum = {
   id: 'id',
   scheduleId: 'scheduleId',
+  versionId: 'versionId',
   shiftAssignmentId: 'shiftAssignmentId',
   changedById: 'changedById',
   changeType: 'changeType',

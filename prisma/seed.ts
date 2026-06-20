@@ -44,7 +44,7 @@ type EmployeeSeed = {
   mustChangePassword?: boolean;
 };
 
-type StaffingRequirementSeed = {
+type ShiftCapacitySeed = {
   courtCode: string;
   positionCode: number;
   shiftType: ShiftType;
@@ -88,17 +88,17 @@ const ALL_DAY_CATEGORIES = [
 function defaultRequiredCountForPosition(positionCode: number) {
   switch (positionCode) {
     case 2:
-      return 1; // אחמ״ש
+      return 2; // אחמ״ש
     case 3:
-      return 1; // בקר
+      return 3; // בקר
     case 4:
-      return 2; // מאבטחים
+      return 3; // מאבטחים
     default:
       return 1;
   }
 }
 
-const STAFFING_REQUIREMENTS: StaffingRequirementSeed[] = COURTS.flatMap((court) =>
+const SHIFT_CAPACITIES: ShiftCapacitySeed[] = COURTS.flatMap((court) =>
   ALL_SHIFT_TYPES.flatMap((shiftType) =>
     ALL_DAY_CATEGORIES.flatMap((dayCategory) =>
       POSITIONS.filter((position) => position.name !== 'קצין מתקן').map((position) => ({
@@ -112,19 +112,18 @@ const STAFFING_REQUIREMENTS: StaffingRequirementSeed[] = COURTS.flatMap((court) 
     ),
   ),
 );
-
 async function clearDatabase() {
   await prisma.scheduleChangeLog.deleteMany();
   await prisma.scheduleWarning.deleteMany();
   await prisma.shiftAssignment.deleteMany();
-  await prisma.schedule.deleteMany();
 
-  await prisma.availabilitySlot.deleteMany();
-  await prisma.availabilitySubmission.deleteMany();
+  await prisma.availabilityShift.deleteMany();
+  await prisma.availabilityForm.deleteMany();
 
   await prisma.fairnessRecord.deleteMany();
 
-  await prisma.staffingRequirement.deleteMany();
+  await prisma.workSchedule.deleteMany();
+  await prisma.shiftCapacity.deleteMany();
 
   await prisma.session.deleteMany();
   await prisma.account.deleteMany();
@@ -239,40 +238,40 @@ async function seedEmployeesAndUsers() {
   }
 }
 
-async function seedStaffingRequirements() {
-  for (const requirement of STAFFING_REQUIREMENTS) {
+async function seedShiftCapacities() {
+  for (const capacity of SHIFT_CAPACITIES) {
     const court = await prisma.court.findUnique({
       where: {
-        code: requirement.courtCode,
+        code: capacity.courtCode,
       },
     });
 
     if (!court) {
-      throw new Error(`Court not found for staffing requirement: ${requirement.courtCode}`);
+      throw new Error(`Court not found for shift capacity: ${capacity.courtCode}`);
     }
 
     const position = await prisma.position.findFirst({
       where: {
         courtId: court.id,
-        code: requirement.positionCode,
+        code: capacity.positionCode,
       },
     });
 
     if (!position) {
       throw new Error(
-        `Position not found for staffing requirement. courtCode=${requirement.courtCode}, positionCode=${requirement.positionCode}`,
+        `Position not found for shift capacity. courtCode=${capacity.courtCode}, positionCode=${capacity.positionCode}`,
       );
     }
 
-    await prisma.staffingRequirement.create({
+    await prisma.shiftCapacity.create({
       data: {
         courtId: court.id,
         positionId: position.id,
-        shiftType: requirement.shiftType,
-        dayCategory: requirement.dayCategory,
-        requiredCount: requirement.requiredCount,
+        shiftType: capacity.shiftType,
+        dayCategory: capacity.dayCategory,
+        requiredCount: capacity.requiredCount,
         isActive: true,
-        displayOrder: requirement.displayOrder,
+        displayOrder: capacity.displayOrder,
       },
     });
   }
@@ -295,8 +294,8 @@ async function main() {
   await seedEmployeesAndUsers();
   console.log('✅ Employees and users seeded');
 
-  console.log('📐 Seeding staffing requirements...');
-  await seedStaffingRequirements();
+  console.log('📐 Seeding shift capacities...');
+  await seedShiftCapacities();
   console.log('✅ Staffing requirements seeded');
 
   console.log('🎉 Seed completed successfully');
