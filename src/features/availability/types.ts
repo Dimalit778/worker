@@ -22,5 +22,6 @@ export type EmployeeAvailabilityForPeriod = {
   endDate: string;
   status: ScheduleStatus;
   isSubmitted: boolean;
+  note: string;
   entries: AvailabilitySlotInfo[];
 };

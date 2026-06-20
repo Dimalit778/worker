@@ -89,7 +89,22 @@ export type CurrentScheduleData = {
   assignments: AssignmentMap;
   warnings: ScheduleWarningSummary[];
   overflowCandidates: OverflowCandidateMap;
+  hasUnpublishedDraft?: boolean;
+  editingVersionNumber?: number | null;
   availabilitySubmissionSummary?: AvailabilitySubmissionSummary;
+};
+
+export type WeekScheduleViewProps = {
+  scheduleId: string;
+  scheduleName: string;
+  startDate: string;
+  endDate: string;
+  assignments: AssignmentMap;
+  employees: ScheduleEmployeeOption[];
+  capacity: ScheduleCapacityRule[];
+  courtId: string;
+  overflowCandidates?: OverflowCandidateMap;
+  readonly?: boolean;
 };
 
 export type WeekDay = {

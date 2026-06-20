@@ -8,8 +8,8 @@ import type {
   ScheduleEmployeeOption,
 } from '@/features/schedules/types';
 import type { ShiftType } from '@/generated/prisma/client';
-import { assignedEmployeeIdsForShift, buildShiftSlots, getShiftRequiredCount } from './schedule-data';
-import type { ShiftDisplay, ShiftSlot } from './types';
+import { assignedEmployeeIdsForShift, buildShiftSlots, getShiftRequiredCount } from '../schedule-data';
+import type { ShiftDisplay, ShiftSlot } from '../types';
 import { AssignmentChip, RoleAddButton } from './assignment-chip';
 
 function getNextEmptySlot(slots: ShiftSlot[]): ShiftSlot | null {

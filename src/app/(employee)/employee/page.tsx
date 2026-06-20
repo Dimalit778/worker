@@ -1,10 +1,10 @@
 import { dehydrate, HydrationBoundary } from '@tanstack/react-query';
 import { requireSession } from '@/lib/db/auth-helpers';
 import { SystemRole } from '@/generated/prisma/client';
-import { EmployeeActiveScheduleClient } from '@/features/schedules/components/employee-active-schedule-client';
 import { fetchEmployeeActiveSchedule } from '@/features/schedules/assignments/actions';
 import { dehydrateOptions, getQueryClient } from '@/lib/react-query/get-query-client';
 import { queryKeys } from '@/lib/react-query/query-keys';
+import { EmployeeActiveScheduleScreen } from '@/features/schedules/screens/employee-active-schedule-screen';
 
 export default async function EmployeeActiveSchedulePage() {
   const session = await requireSession(SystemRole.EMPLOYEE);
@@ -22,7 +22,7 @@ export default async function EmployeeActiveSchedulePage() {
 
   return (
     <HydrationBoundary state={dehydrate(queryClient, dehydrateOptions())}>
-      <EmployeeActiveScheduleClient employeeId={session.user.employeeId} />
+      <EmployeeActiveScheduleScreen employeeId={session.user.employeeId} />
     </HydrationBoundary>
   );
 }

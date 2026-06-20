@@ -6,6 +6,7 @@ import { requireSession } from '@/lib/db/auth-helpers';
 import { prisma } from '@/lib/db/client';
 import { ScheduleStatus, SystemRole, WarningSeverity, WarningType } from '@/generated/prisma/client';
 
+import { resolveDraftVersionForGeneration } from '@/features/schedules/versions/queries';
 import { getAutoScheduleInputData } from './queries';
 
 export type GenerateAutoScheduleResult =
@@ -24,9 +25,6 @@ export async function generateAutoSchedule(scheduleId: string): Promise<Generate
 
   const data = await getAutoScheduleInputData(scheduleId);
   if (!data.found) return { error: data.message };
-  if (data.schedule?.status === ScheduleStatus.PUBLISHED) {
-    return { error: 'Cannot regenerate a published schedule' };
-  }
 
   const currentSchedule = await prisma.workSchedule.findUnique({
     where: { id: scheduleId },
@@ -34,8 +32,8 @@ export async function generateAutoSchedule(scheduleId: string): Promise<Generate
   });
 
   if (!currentSchedule) return { error: 'Schedule not found' };
-  if (currentSchedule.status === ScheduleStatus.PUBLISHED) {
-    return { error: 'Cannot regenerate a published schedule' };
+  if (currentSchedule.status === ScheduleStatus.ARCHIVED) {
+    return { error: 'Cannot regenerate an archived schedule' };
   }
 
   const input: EngineInput = {
@@ -48,30 +46,40 @@ export async function generateAutoSchedule(scheduleId: string): Promise<Generate
     async (tx) => {
       const freshSchedule = await tx.workSchedule.findUnique({
         where: { id: scheduleId },
-        select: { status: true },
+        select: { status: true, courtId: true },
       });
 
       if (!freshSchedule) throw new Error('Schedule not found');
-      if (freshSchedule.status === ScheduleStatus.PUBLISHED) {
-        throw new Error('Cannot regenerate a published schedule');
+      if (freshSchedule.status === ScheduleStatus.ARCHIVED) {
+        throw new Error('Cannot regenerate an archived schedule');
       }
       if (freshSchedule.status === ScheduleStatus.OPEN) {
         await tx.workSchedule.update({
           where: { id: scheduleId },
           data: { status: ScheduleStatus.LOCKED },
         });
-      } else if (freshSchedule.status !== ScheduleStatus.LOCKED) {
-        throw new Error('Period must be open or locked before auto scheduling');
+      } else if (
+        freshSchedule.status !== ScheduleStatus.LOCKED &&
+        freshSchedule.status !== ScheduleStatus.PUBLISHED
+      ) {
+        throw new Error('Period must be open, locked, or published before auto scheduling');
       }
 
+      const draftVersion = await resolveDraftVersionForGeneration(tx, {
+        scheduleId,
+        courtId: freshSchedule.courtId,
+        createdById: session.user.id,
+      });
+
       await tx.shiftAssignment.deleteMany({
-        where: { scheduleId },
+        where: { versionId: draftVersion.id },
       });
 
       if (output.assignments.length > 0) {
         await tx.shiftAssignment.createMany({
           data: output.assignments.map((assignment) => ({
             scheduleId,
+            versionId: draftVersion.id,
             employeeId: assignment.employeeId,
             courtId: assignment.courtId,
             positionId: assignment.positionId,

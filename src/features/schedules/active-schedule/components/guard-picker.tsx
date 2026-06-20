@@ -4,7 +4,7 @@ import { useState, useRef, useEffect } from 'react';
 import { createPortal } from 'react-dom';
 import { X } from 'lucide-react';
 import { cn } from '@/lib/utils';
-import type { ScheduleEmployeeOption } from '../types';
+import type { ScheduleEmployeeOption } from '@/features/schedules/types';
 import { Input } from '@/components/ui/input';
 import { Button } from '@/components/ui/button';
 

@@ -3,6 +3,7 @@
 import { useState } from 'react';
 import { useMutation, useQueryClient } from '@tanstack/react-query';
 import { cn } from '@/lib/utils';
+import { Label } from '@/components/ui/label';
 import { submitAvailability } from '../actions';
 import { invalidateAvailabilityCurrent, invalidateMySubmissions } from '../hooks';
 import type { ShiftType } from '@/generated/prisma/client';
@@ -13,12 +14,20 @@ type Props = {
   period: PeriodInfo;
   initialEntries: Record<string, boolean>;
   initialSubmitted: boolean;
+  initialNote?: string;
 
   viewOnly?: boolean;
 };
 
-export function ScheduleCalendar({ period, initialEntries, initialSubmitted, viewOnly = false }: Props) {
+export function ScheduleCalendar({
+  period,
+  initialEntries,
+  initialSubmitted,
+  initialNote = '',
+  viewOnly = false,
+}: Props) {
   const [entries, setEntries] = useState<Record<string, boolean>>(initialEntries);
+  const [note, setNote] = useState(initialNote);
   const [submitted, setSubmitted] = useState(initialSubmitted);
   const queryClient = useQueryClient();
 
@@ -49,7 +58,7 @@ export function ScheduleCalendar({ period, initialEntries, initialSubmitted, vie
   }
 
   function handleSubmit() {
-    submitMutation.mutate(entries);
+    submitMutation.mutate({ entries, note });
   }
 
   const selected = Object.values(entries).filter(Boolean).length;
@@ -170,6 +179,28 @@ export function ScheduleCalendar({ period, initialEntries, initialSubmitted, vie
           </div>
         </div>
       ))}
+
+      <div className="space-y-2">
+        <Label htmlFor="availability-note">בקשות</Label>
+        {readonly ? (
+          note.trim() ? (
+            <p className="text-sm whitespace-pre-wrap rounded-md border border-border bg-muted/30 px-3 py-2">{note}</p>
+          ) : (
+            <p className="text-sm text-muted-foreground">אין הערות</p>
+          )
+        ) : (
+          <textarea
+            id="availability-note"
+            value={note}
+            onChange={(e) => setNote(e.target.value)}
+            rows={3}
+            placeholder="הוסף הערות למנהל, למשל מגבלות או בקשות מיוחדות"
+            className={cn(
+              'w-full min-w-0 rounded-md border border-transparent bg-input/50 px-3 py-2 text-base transition-[color,box-shadow,background-color] outline-none placeholder:text-muted-foreground focus-visible:border-ring focus-visible:ring-3 focus-visible:ring-ring/30 disabled:pointer-events-none disabled:cursor-not-allowed disabled:opacity-50 md:text-sm resize-y',
+            )}
+          />
+        )}
+      </div>
 
       {/* Submit */}
       {!viewOnly && !submitted && period.status === 'OPEN' && (

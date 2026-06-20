@@ -72,7 +72,11 @@ export function buildPeriodWeekGrids(startDate: string, endDate: string, dayByIs
   return grids;
 }
 
-export function assignedEmployeeIdsForShift(assignments: AssignmentMap, date: string, shiftType: ShiftType): Set<string> {
+export function assignedEmployeeIdsForShift(
+  assignments: AssignmentMap,
+  date: string,
+  shiftType: ShiftType,
+): Set<string> {
   return new Set(
     Object.entries(assignments)
       .filter(([key]) => key.startsWith(`${date}-${shiftType}-`))

@@ -2,20 +2,28 @@
 
 import { Card, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { CreatePeriodForm } from '@/features/periods/components/create-period-form';
-import { CurrentScheduleView } from '@/features/schedules/current-schudle';
+import { WeekScheduleView } from '@/features/schedules/draft-schedule/schedule-view';
 import { TopBar } from '@/features/schedules/draft-schedule/topbar';
 import { ScheduleStats } from '@/features/schedules/draft-schedule/schedule-stats';
 import { useDraftSchedule } from '@/features/schedules/hooks';
 
-export function ManagerDraftScheduleClient() {
+export function ManagerDraftScreen() {
   const { data, isLoading, isError } = useDraftSchedule();
 
   if (isLoading) {
-    return <p className="text-sm text-muted-foreground" dir="rtl">טוען שיבוץ בהכנה...</p>;
+    return (
+      <p className="text-sm text-muted-foreground" dir="rtl">
+        טוען שיבוץ בהכנה...
+      </p>
+    );
   }
 
   if (isError) {
-    return <p className="text-sm text-destructive" dir="rtl">לא ניתן לטעון שיבוץ בהכנה.</p>;
+    return (
+      <p className="text-sm text-destructive" dir="rtl">
+        לא ניתן לטעון שיבוץ בהכנה.
+      </p>
+    );
   }
 
   if (!data) {
@@ -36,7 +44,7 @@ export function ManagerDraftScheduleClient() {
     );
   }
 
-  const isReadonly = data.scheduleStatus === 'PUBLISHED';
+  const isReadonly = data.scheduleStatus === 'PUBLISHED' && !data.hasUnpublishedDraft;
   const canCreateNewSchedule = isReadonly;
   const submission = data.availabilitySubmissionSummary;
   const eligible = submission?.eligibleEmployeeCount ?? 0;
@@ -65,7 +73,7 @@ export function ManagerDraftScheduleClient() {
         </div>
       )}
 
-      <CurrentScheduleView
+      <WeekScheduleView
         scheduleId={data.scheduleId}
         scheduleName={data.scheduleName}
         startDate={data.startDate}

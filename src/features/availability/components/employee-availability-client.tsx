@@ -29,6 +29,11 @@ export function EmployeeAvailabilityClient() {
   }
 
   return (
-    <ScheduleCalendar period={data.period} initialEntries={data.entries} initialSubmitted={data.isSubmitted} />
+    <ScheduleCalendar
+      period={data.period}
+      initialEntries={data.entries}
+      initialSubmitted={data.isSubmitted}
+      initialNote={data.note}
+    />
   );
 }

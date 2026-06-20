@@ -7,6 +7,11 @@ import {
   ScheduleWarningSummary,
   CurrentScheduleData,
 } from '../types';
+import {
+  getDraftEditingVersionId,
+  getDraftVersionMeta,
+  getPublishedActiveVersionId,
+} from '@/features/schedules/versions/queries';
 import { buildAssignmentMap, getAssignmentCellKey, toScheduleData } from './utils';
 import { ScheduleStatus } from '@/generated/prisma/client';
 import { todayUtcDateForTimeZone } from '@/features/periods/utils';
@@ -69,11 +74,14 @@ async function getScheduleEmployees(courtId: string): Promise<ScheduleEmployeeOp
   }));
 }
 
-async function getAssignmentMap(scheduleId: string | null | undefined): Promise<AssignmentMap> {
-  if (!scheduleId) return {};
+async function getAssignmentMap(
+  scheduleId: string | null | undefined,
+  versionId: string | null,
+): Promise<AssignmentMap> {
+  if (!scheduleId || !versionId) return {};
 
   const rows = await prisma.shiftAssignment.findMany({
-    where: { scheduleId },
+    where: { scheduleId, versionId },
     include: {
       employee: { select: { displayName: true } },
       position: { select: { id: true, name: true, code: true } },
@@ -139,8 +147,10 @@ export async function getActiveSchedule(courtId: string): Promise<CurrentSchedul
 
   if (!scheduleRow) return null;
 
+  const publishedVersionId = await getPublishedActiveVersionId(scheduleRow.id);
+
   const [assignments, capacity, employees] = await Promise.all([
-    getAssignmentMap(scheduleRow.id),
+    getAssignmentMap(scheduleRow.id, publishedVersionId),
     getScheduleCapacity(courtId),
     getScheduleEmployees(courtId),
   ]);
@@ -165,21 +175,25 @@ export async function getDraftScheduleData(courtId: string): Promise<CurrentSche
   });
   if (!schedule) return null;
 
-  const [assignments, employees, capacity, warnings, overflowCandidates, submittedSubmissions] = await Promise.all([
-    getAssignmentMap(schedule.id),
-    getScheduleEmployees(courtId),
-    getScheduleCapacity(courtId),
-    getScheduleWarnings(schedule.id),
-    Promise.resolve({} as OverflowCandidateMap),
-    prisma.availabilityForm.findMany({
-      where: {
-        scheduleId: schedule.id,
-        isSubmitted: true,
-        employee: { courtId, isActive: true },
-      },
-      select: { employeeId: true },
-    }),
-  ]);
+  const [editingVersionId, versionMeta, employees, capacity, warnings, overflowCandidates, submittedSubmissions] =
+    await Promise.all([
+      getDraftEditingVersionId(schedule.id),
+      getDraftVersionMeta(schedule.id),
+      getScheduleEmployees(courtId),
+      getScheduleCapacity(courtId),
+      getScheduleWarnings(schedule.id),
+      Promise.resolve({} as OverflowCandidateMap),
+      prisma.availabilityForm.findMany({
+        where: {
+          scheduleId: schedule.id,
+          isSubmitted: true,
+          employee: { courtId, isActive: true },
+        },
+        select: { employeeId: true },
+      }),
+    ]);
+
+  const assignments = await getAssignmentMap(schedule.id, editingVersionId);
   const submittedEmployeeIds = new Set(submittedSubmissions.map((submission) => submission.employeeId));
   const missingEmployees = employees
     .filter((employee) => !submittedEmployeeIds.has(employee.id))
@@ -196,6 +210,8 @@ export async function getDraftScheduleData(courtId: string): Promise<CurrentSche
 
   return {
     ...base,
+    hasUnpublishedDraft: versionMeta.hasUnpublishedDraft,
+    editingVersionNumber: versionMeta.editingVersionNumber,
     availabilitySubmissionSummary: {
       submittedCount: submittedEmployeeIds.size,
       eligibleEmployeeCount: employees.length,

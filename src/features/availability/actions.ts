@@ -9,13 +9,13 @@ export async function getScheduleData() {
   const session = await requireSession(SystemRole.EMPLOYEE);
   const { courtId, employeeId } = session.user;
 
-  if (!courtId || !employeeId) return { period: null, entries: {}, isSubmitted: false };
+  if (!courtId || !employeeId) return { period: null, entries: {}, isSubmitted: false, note: '' };
 
   const period = await prisma.workSchedule.findFirst({
     where: { courtId, status: ScheduleStatus.OPEN },
   });
 
-  if (!period) return { period: null, entries: {}, isSubmitted: false };
+  if (!period) return { period: null, entries: {}, isSubmitted: false, note: '' };
 
   const submission = await prisma.availabilityForm.findUnique({
     where: { scheduleId_employeeId: { scheduleId: period.id, employeeId } },
@@ -38,10 +38,15 @@ export async function getScheduleData() {
     },
     entries,
     isSubmitted: submission?.isSubmitted ?? false,
+    note: submission?.note ?? '',
   };
 }
 
-export async function submitAvailability(entries: Record<string, boolean>): Promise<{ ok: boolean }> {
+export async function submitAvailability(input: {
+  entries: Record<string, boolean>;
+  note?: string | null;
+}): Promise<{ ok: boolean }> {
+  const { entries, note } = input;
   const session = await requireSession(SystemRole.EMPLOYEE);
   const { courtId, employeeId } = session.user;
   if (!courtId || !employeeId) return { ok: false };
@@ -51,14 +56,17 @@ export async function submitAvailability(entries: Record<string, boolean>): Prom
   });
   if (!period) return { ok: false };
 
+  const trimmedNote = note?.trim() || null;
+
   const submission = await prisma.availabilityForm.upsert({
     where: { scheduleId_employeeId: { scheduleId: period.id, employeeId } },
-    update: { isSubmitted: true, submittedAt: new Date() },
+    update: { isSubmitted: true, submittedAt: new Date(), note: trimmedNote },
     create: {
       scheduleId: period.id,
       employeeId,
       isSubmitted: true,
       submittedAt: new Date(),
+      note: trimmedNote,
     },
   });
 
@@ -97,6 +105,7 @@ export async function getEmployeeAvailability(employeeId: string): Promise<Emplo
     endDate: row.schedule.endDate.toISOString().slice(0, 10),
     status: row.schedule.status,
     isSubmitted: row.isSubmitted,
+    note: row.note ?? '',
     entries: row.shifts.map((s) => ({
       date: s.date,
       shiftType: s.shiftType,

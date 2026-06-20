@@ -5,7 +5,7 @@ import { useMutation, useQueryClient } from '@tanstack/react-query';
 import { CheckCheck, Send, Sparkles } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { generateAutoSchedule } from '@/features/schedules/generation/actions';
-import { finalizeSchedule, publishSchedule } from '@/features/schedules/status/actions';
+import { finalizeSchedule, publishSchedule } from '@/features/schedules/draft-schedule/actions';
 import type { ScheduleStatus } from '@/generated/prisma/client';
 import { STATUS_COLORS, STATUS_LABELS } from '../../constants';
 import { invalidateScheduleQueries } from '@/features/schedules/hooks';
@@ -13,9 +13,10 @@ import { invalidateScheduleQueries } from '@/features/schedules/hooks';
 type Props = {
   scheduleId: string;
   scheduleStatus: ScheduleStatus | null;
+  hasUnpublishedDraft?: boolean;
 };
 
-export function DraftActions({ scheduleId, scheduleStatus }: Props) {
+export function DraftActions({ scheduleId, scheduleStatus, hasUnpublishedDraft = false }: Props) {
   const queryClient = useQueryClient();
   const [pendingAction, setPendingAction] = useState<'generate' | 'finalize' | 'publish' | null>(null);
   const [error, setError] = useState<string | null>(null);
@@ -88,8 +89,14 @@ export function DraftActions({ scheduleId, scheduleStatus }: Props) {
   }
 
   // Compare string literals — do not import Prisma enum values here (client bundle cannot load @/generated/prisma runtime).
-  const isPublished = scheduleStatus === 'PUBLISHED';
-  const isDraft = scheduleStatus === 'DRAFT' || scheduleStatus === 'OPEN' || scheduleStatus === null;
+  const isPublished = scheduleStatus === 'PUBLISHED' && !hasUnpublishedDraft;
+  const canGenerate =
+    scheduleStatus === 'DRAFT' ||
+    scheduleStatus === 'OPEN' ||
+    scheduleStatus === 'LOCKED' ||
+    scheduleStatus === 'PUBLISHED' ||
+    scheduleStatus === null;
+  const canPublishDraft = !isPublished || hasUnpublishedDraft;
 
   return (
     <div className="flex items-center gap-3 flex-wrap" dir="rtl">
@@ -104,14 +111,14 @@ export function DraftActions({ scheduleId, scheduleStatus }: Props) {
       {error && <p className="text-sm text-destructive">{error}</p>}
       {message && <p className="text-sm text-green-700">{message}</p>}
 
-      {isDraft && (
+      {canGenerate && (
         <Button size="sm" variant="default" onClick={handleGenerate} disabled={pending} className="gap-1.5">
           <Sparkles className="w-4 h-4" />
           {pendingAction === 'generate' ? 'יוצר שיבוץ...' : 'צור שיבוץ אוטומטי'}
         </Button>
       )}
 
-      {isDraft && (
+      {canGenerate && (
         <Button
           size="sm"
           variant="outline"
@@ -128,7 +135,7 @@ export function DraftActions({ scheduleId, scheduleStatus }: Props) {
         size="sm"
         variant={isPublished ? 'outline' : 'default'}
         onClick={handlePublish}
-        disabled={!scheduleId || pending || isPublished}
+        disabled={!scheduleId || pending || !canPublishDraft}
         className="gap-1.5"
       >
         <Send className="w-4 h-4" />

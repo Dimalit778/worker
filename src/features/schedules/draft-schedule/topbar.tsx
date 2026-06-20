@@ -1,6 +1,6 @@
 import { CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { CreatePeriodForm } from '@/features/periods/components/create-period-form';
-import { DraftActions } from '../status/components/draft-actions';
+import { DraftActions } from './components/draft-actions';
 import { Card } from '@/components/ui/card';
 import type { CurrentScheduleData } from '../types';
 import { STATUS_COLORS, STATUS_LABELS } from '../constants';
@@ -41,7 +41,11 @@ export function TopBar({ data, showCreateButton = false }: { data: CurrentSchedu
           </div>
           <div className="flex w-full shrink-0 flex-col gap-2 sm:w-auto sm:flex-row sm:flex-wrap sm:justify-end">
             {showCreateButton && <CreatePeriodForm triggerLabel="צור שיבוץ חדש" />}
-            <DraftActions scheduleId={data.scheduleId} scheduleStatus={data.scheduleStatus} />
+            <DraftActions
+              scheduleId={data.scheduleId}
+              scheduleStatus={data.scheduleStatus}
+              hasUnpublishedDraft={data.hasUnpublishedDraft}
+            />
           </div>
         </div>
       </CardHeader>

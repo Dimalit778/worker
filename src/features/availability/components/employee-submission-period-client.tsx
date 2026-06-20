@@ -38,6 +38,7 @@ export function EmployeeSubmissionPeriodClient({ periodId }: { periodId: string 
         }}
         initialEntries={availabilityEntriesToRecord(period.entries)}
         initialSubmitted={period.isSubmitted}
+        initialNote={period.note}
         viewOnly
       />
     </div>

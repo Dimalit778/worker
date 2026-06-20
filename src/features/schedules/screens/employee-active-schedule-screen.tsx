@@ -1,17 +1,25 @@
 'use client';
 
-import { CurrentScheduleView } from '@/features/schedules/current-schudle';
+import { CurrentScheduleView } from '@/features/schedules/active-schedule';
 import { useEmployeeActiveSchedule } from '@/features/schedules/hooks';
 
-export function EmployeeActiveScheduleClient({ employeeId }: { employeeId: string }) {
+export function EmployeeActiveScheduleScreen({ employeeId }: { employeeId: string }) {
   const { data, isLoading, isError } = useEmployeeActiveSchedule();
 
   if (isLoading) {
-    return <p className="text-sm text-muted-foreground" dir="rtl">טוען שיבוץ...</p>;
+    return (
+      <p className="text-sm text-muted-foreground" dir="rtl">
+        טוען שיבוץ...
+      </p>
+    );
   }
 
   if (isError) {
-    return <p className="text-sm text-destructive" dir="rtl">לא ניתן לטעון השיבוץ.</p>;
+    return (
+      <p className="text-sm text-destructive" dir="rtl">
+        לא ניתן לטעון השיבוץ.
+      </p>
+    );
   }
 
   if (!data) {

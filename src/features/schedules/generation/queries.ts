@@ -7,6 +7,7 @@ import type {
   EngineInput,
   ShiftType,
 } from '@/features/scheduling-engine/types';
+import { getLatestDraftVersionId, getPublishedActiveVersionId } from '@/features/schedules/versions/queries';
 import { toDateOnly } from '../utils';
 
 type AutoScheduleEngineInputData = Omit<EngineInput, 'scheduleId'> & {
@@ -58,9 +59,17 @@ export async function getAutoScheduleInputData(scheduleId: string): Promise<Auto
   });
 
   if (!scheduleRow) return { found: false, message: 'Schedule not found' };
-  if (scheduleRow.status !== ScheduleStatus.LOCKED && scheduleRow.status !== ScheduleStatus.OPEN) {
-    return { found: false, message: 'Period must be open or locked before auto scheduling' };
+  if (
+    scheduleRow.status !== ScheduleStatus.LOCKED &&
+    scheduleRow.status !== ScheduleStatus.OPEN &&
+    scheduleRow.status !== ScheduleStatus.PUBLISHED
+  ) {
+    return { found: false, message: 'Period must be open, locked, or published before auto scheduling' };
   }
+
+  const draftVersionId = await getLatestDraftVersionId(scheduleRow.id);
+  const publishedVersionId = await getPublishedActiveVersionId(scheduleRow.id);
+  const sourceVersionId = draftVersionId ?? publishedVersionId;
 
   const employeeWhere = { courtId: scheduleRow.courtId, isActive: true };
   const periodDates = getPeriodDates(scheduleRow.startDate, scheduleRow.endDate);
@@ -106,20 +115,23 @@ export async function getAutoScheduleInputData(scheduleId: string): Promise<Auto
       },
       orderBy: [{ shiftType: 'asc' }, { positionId: 'asc' }, { dayCategory: 'asc' }, { position: { code: 'asc' } }],
     }),
-    prisma.shiftAssignment.findMany({
-      where: {
-        scheduleId: scheduleRow.id,
-      },
-      select: {
-        employeeId: true,
-        courtId: true,
-        positionId: true,
-        position: { select: { name: true, code: true } },
-        date: true,
-        shiftType: true,
-      },
-      orderBy: [{ date: 'asc' }, { shiftType: 'asc' }, { position: { code: 'asc' } }, { id: 'asc' }],
-    }),
+    sourceVersionId
+      ? prisma.shiftAssignment.findMany({
+          where: {
+            scheduleId: scheduleRow.id,
+            versionId: sourceVersionId,
+          },
+          select: {
+            employeeId: true,
+            courtId: true,
+            positionId: true,
+            position: { select: { name: true, code: true } },
+            date: true,
+            shiftType: true,
+          },
+          orderBy: [{ date: 'asc' }, { shiftType: 'asc' }, { position: { code: 'asc' } }, { id: 'asc' }],
+        })
+      : Promise.resolve([]),
   ]);
 
   const availability = new Map<string, Set<string>>();

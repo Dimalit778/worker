@@ -2,9 +2,9 @@
 
 import { useMemo, useState } from 'react';
 import { Shield } from 'lucide-react';
-import { DateStrip } from './date-strip';
+import { DateStrip } from './components/date-strip';
 import { buildDayOptions, buildPeriodWeekGrids } from './schedule-data';
-import { ShiftRoster } from './shift-roster';
+import { ShiftRoster } from './components/shift-roster';
 import type { CurrentScheduleViewProps } from './types';
 
 export function CurrentScheduleView({

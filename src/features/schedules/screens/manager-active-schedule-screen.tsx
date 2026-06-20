@@ -1,21 +1,29 @@
 'use client';
 
-import { CurrentScheduleView } from '@/features/schedules/current-schudle';
+import { CurrentScheduleView } from '@/features/schedules/active-schedule';
 import { useActiveSchedule } from '@/features/schedules/hooks';
 
-type ManagerActiveScheduleClientProps = {
+type ManagerActiveScheduleScreenProps = {
   currentEmployeeId?: string | null;
 };
 
-export function ManagerActiveScheduleClient({ currentEmployeeId = null }: ManagerActiveScheduleClientProps) {
+export function ManagerActiveScheduleScreen({ currentEmployeeId = null }: ManagerActiveScheduleScreenProps) {
   const { data, isLoading, isError } = useActiveSchedule();
 
   if (isLoading) {
-    return <p className="text-sm text-muted-foreground" dir="rtl">טוען שיבוץ פעיל...</p>;
+    return (
+      <p className="text-sm text-muted-foreground" dir="rtl">
+        טוען שיבוץ פעיל...
+      </p>
+    );
   }
 
   if (isError) {
-    return <p className="text-sm text-destructive" dir="rtl">לא ניתן לטעון השיבוץ הפעיל.</p>;
+    return (
+      <p className="text-sm text-destructive" dir="rtl">
+        לא ניתן לטעון השיבוץ הפעיל.
+      </p>
+    );
   }
 
   if (!data) {

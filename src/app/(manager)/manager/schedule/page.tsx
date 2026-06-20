@@ -1,7 +1,7 @@
 import { dehydrate, HydrationBoundary } from '@tanstack/react-query';
 import { requireSession } from '@/lib/db/auth-helpers';
 import { SystemRole } from '@/generated/prisma/client';
-import { ManagerActiveScheduleClient } from '@/features/schedules/components/manager-active-schedule-client';
+import { ManagerActiveScheduleScreen } from '@/features/schedules/screens/manager-active-schedule-screen';
 import { fetchActiveSchedule } from '@/features/schedules/assignments/actions';
 import { dehydrateOptions, getQueryClient } from '@/lib/react-query/get-query-client';
 import { queryKeys } from '@/lib/react-query/query-keys';
@@ -22,7 +22,7 @@ export default async function ManagerActiveSchedulePage() {
 
   return (
     <HydrationBoundary state={dehydrate(queryClient, dehydrateOptions())}>
-      <ManagerActiveScheduleClient currentEmployeeId={session.user.employeeId ?? null} />
+      <ManagerActiveScheduleScreen />
     </HydrationBoundary>
   );
 }

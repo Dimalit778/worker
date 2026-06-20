@@ -3,7 +3,7 @@ import { ArrowLeft, CalendarPlus, ClipboardList } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { CreatePeriodForm } from '@/features/periods/components/create-period-form';
-import { DraftActions } from '@/features/schedules/status/components/draft-actions';
+import { DraftActions } from '@/features/schedules/draft-schedule/components/draft-actions';
 import type { ScheduleSnapshot } from '../types';
 
 type QuickActionsProps = {
@@ -12,8 +12,7 @@ type QuickActionsProps = {
 };
 
 export function QuickActions({ workingSchedule, hasOpenSchedule }: QuickActionsProps) {
-  const canPublish =
-    workingSchedule?.status === 'DRAFT' || workingSchedule?.status === 'LOCKED';
+  const canPublish = workingSchedule?.status === 'DRAFT' || workingSchedule?.status === 'LOCKED';
 
   return (
     <Card size="sm">

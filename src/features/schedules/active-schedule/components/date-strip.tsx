@@ -1,8 +1,8 @@
 'use client';
 
 import { cn } from '@/lib/utils';
-import { dayLetter } from './schedule-data';
-import type { DayOption } from './types';
+import { dayLetter } from '../schedule-data';
+import type { DayOption } from '../types';
 
 function WeekDayStrip({
   days,
