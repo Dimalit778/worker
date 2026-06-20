@@ -8,7 +8,7 @@ import { createAssignment, removeAssignment, updateAssignment } from '@/features
 import { invalidateScheduleQueries } from '@/features/schedules/hooks';
 import type { ScheduleEmployeeOption } from '@/features/schedules/types';
 import type { ShiftType } from '@/generated/prisma/client';
-import { GuardPicker } from '@/features/schedules/active-schedule/components/guard-picker';
+import { GuardPicker } from '@/features/schedules/shared/guard-picker';
 import type { ShiftSlot } from '../types';
 
 function resolveEmployeeDisplayName(slot: ShiftSlot, employees: ScheduleEmployeeOption[]): string | null {

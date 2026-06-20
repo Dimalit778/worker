@@ -1,6 +1,6 @@
 'use client';
 
-import { useMemo, useState } from 'react';
+import { useCallback, useMemo, useState } from 'react';
 import { useMutation, useQueryClient } from '@tanstack/react-query';
 import { Plus } from 'lucide-react';
 
@@ -59,24 +59,24 @@ export function EmployeesTable({
     setModalOpen(true);
   }
 
-  function openEdit(employee: EmployeeListItem) {
+  const openEdit = useCallback((employee: EmployeeListItem) => {
     setEditingEmployee(employee);
     setError(null);
     setModalOpen(true);
-  }
+  }, [setEditingEmployee, setError, setModalOpen]);
 
   function closeModal() {
     setModalOpen(false);
     setEditingEmployee(null);
   }
 
-  function handleDeleteClick(employee: EmployeeListItem) {
+  const handleDeleteClick = useCallback((employee: EmployeeListItem) => {
     setError(null);
     setDeleteTarget({
       id: employee.id,
       name: `${employee.firstName} ${employee.lastName}`.trim(),
     });
-  }
+  }, [setDeleteTarget, setError]);
 
   function handleConfirmDelete() {
     if (!deleteTarget) return;
@@ -91,7 +91,7 @@ export function EmployeesTable({
         onDelete: handleDeleteClick,
         deletePending,
       }),
-    [deletePending],
+    [deletePending, handleDeleteClick, openEdit],
   );
 
   return (

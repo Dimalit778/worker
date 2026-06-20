@@ -1,5 +1,7 @@
 import type { DayCategory, ScheduleStatus, ShiftType, WarningSeverity, WarningType } from '@/generated/prisma/client';
 
+export type StaffingDayCategory = DayCategory | 'HOLIDAY';
+
 export type ScheduleSummary = {
   id: string;
   name: string;
@@ -94,7 +96,7 @@ export type CurrentScheduleData = {
   availabilitySubmissionSummary?: AvailabilitySubmissionSummary;
 };
 
-export type WeekScheduleViewProps = {
+export type WeeklyDraftScheduleViewProps = {
   scheduleId: string;
   scheduleName: string;
   startDate: string;

@@ -1,4 +1,5 @@
-import type { DayCategory, ShiftType, ScheduleStatus } from '@/generated/prisma/client';
+import type { ShiftType, ScheduleStatus } from '@/generated/prisma/client';
+import type { StaffingDayCategory } from './types';
 
 /** Visual / tab order for shift columns or sections */
 export const SHIFT_ORDER = ['MORNING', 'EVENING', 'NIGHT'] as const satisfies readonly ShiftType[];
@@ -9,9 +10,9 @@ export const SHIFT_LABELS: Record<ShiftType, string> = {
   NIGHT: 'לילה',
 };
 
-export const DAY_ORDER = ['WEEKDAY', 'FRIDAY', 'SATURDAY', 'HOLIDAY'] as const satisfies readonly DayCategory[];
+export const DAY_ORDER = ['WEEKDAY', 'FRIDAY', 'SATURDAY', 'HOLIDAY'] as const satisfies readonly StaffingDayCategory[];
 
-export const DAY_LABELS: Record<DayCategory, string> = {
+export const DAY_LABELS: Record<StaffingDayCategory, string> = {
   WEEKDAY: 'יום חול',
   FRIDAY: 'שישי',
   SATURDAY: 'שבת',

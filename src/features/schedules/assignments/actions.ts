@@ -6,7 +6,7 @@ import { prisma } from '@/lib/db/client';
 import { parseISODateToUtcMidnight } from '@/features/periods/utils';
 import type { AssignEmployeeToSlotParams } from '../types';
 import { getLatestDraftVersionId } from '@/features/schedules/versions/queries';
-import { getActiveSchedule, getDraftScheduleData } from './queries';
+import { getCurrentSchedule, getDraftScheduleData } from './queries';
 
 export async function createAssignment(params: AssignEmployeeToSlotParams): Promise<{ scheduleId: string }> {
   await requireSession(SystemRole.MANAGER);
@@ -59,21 +59,18 @@ export async function updateAssignment(assignmentId: string, newEmployeeId: stri
     where: { id: assignmentId },
     data: { employeeId: newEmployeeId },
   });
-
 }
 
 export async function removeAssignment(assignmentId: string): Promise<void> {
   await requireSession(SystemRole.MANAGER);
 
   await prisma.shiftAssignment.delete({ where: { id: assignmentId } });
-
 }
 
-
-export async function fetchActiveSchedule() {
+export async function fetchCurrentSchedule() {
   const session = await requireSession(SystemRole.MANAGER);
   if (!session.user.courtId) return null;
-  return getActiveSchedule(session.user.courtId);
+  return getCurrentSchedule(session.user.courtId);
 }
 
 export async function fetchDraftSchedule() {
@@ -82,9 +79,8 @@ export async function fetchDraftSchedule() {
   return getDraftScheduleData(courtId);
 }
 
-
-export async function fetchEmployeeActiveSchedule() {
+export async function fetchEmployeeCurrentSchedule() {
   const session = await requireSession(SystemRole.EMPLOYEE);
   if (!session.user.courtId) return null;
-  return getActiveSchedule(session.user.courtId);
+  return getCurrentSchedule(session.user.courtId);
 }

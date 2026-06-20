@@ -2,7 +2,7 @@
 
 import { Card, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { CreatePeriodForm } from '@/features/periods/components/create-period-form';
-import { WeekScheduleView } from '@/features/schedules/draft-schedule/schedule-view';
+import { WeeklyDraftScheduleView } from '@/features/schedules/draft-schedule/weekly-draft-schedule-view';
 import { TopBar } from '@/features/schedules/draft-schedule/topbar';
 import { ScheduleStats } from '@/features/schedules/draft-schedule/schedule-stats';
 import { useDraftSchedule } from '@/features/schedules/hooks';
@@ -73,7 +73,7 @@ export function ManagerDraftScreen() {
         </div>
       )}
 
-      <WeekScheduleView
+      <WeeklyDraftScheduleView
         scheduleId={data.scheduleId}
         scheduleName={data.scheduleName}
         startDate={data.startDate}

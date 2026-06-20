@@ -1,5 +1,5 @@
-import type { DayCategory, ShiftType } from '@/generated/prisma/client';
-import type { AssignmentCellKey, ScheduleCapacityRule, WeekDay } from './types';
+import type { ShiftType } from '@/generated/prisma/client';
+import type { AssignmentCellKey, ScheduleCapacityRule, StaffingDayCategory, WeekDay } from './types';
 import { EVENING_SLOT_LABELS, MORNING_SLOT_LABELS, NIGHT_SLOT_LABELS, WEEKDAY_HEADER_LETTERS } from './constants';
 
 export function toDateOnly(date: Date): string {
@@ -48,7 +48,7 @@ export function buildScheduleDates(startDateISO: string, endDateISO: string): st
  * Maps a calendar date to staffing day category.
  * Holidays are not detected here; use HOLIDAY only when the caller supplies holiday dates.
  */
-export function getDayCategoryForDate(isoDate: string, holidayIsoSet?: ReadonlySet<string>): DayCategory {
+export function getDayCategoryForDate(isoDate: string, holidayIsoSet?: ReadonlySet<string>): StaffingDayCategory {
   if (holidayIsoSet?.has(isoDate)) return 'HOLIDAY';
   const [y, m, d] = isoDate.split('-').map(Number);
   const day = new Date(Date.UTC(y, m - 1, d)).getUTCDay();
@@ -59,7 +59,7 @@ export function getDayCategoryForDate(isoDate: string, holidayIsoSet?: ReadonlyS
 
 export function getCapacityForCell(
   rules: ScheduleCapacityRule[],
-  dayCategory: DayCategory,
+  dayCategory: StaffingDayCategory,
   shiftType: ShiftType,
   positionId: string,
 ): number {

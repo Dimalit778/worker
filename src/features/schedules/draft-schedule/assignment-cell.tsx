@@ -3,10 +3,10 @@
 import { useRef, useState } from 'react';
 import { useMutation, useQueryClient } from '@tanstack/react-query';
 import { cn } from '@/lib/utils';
-import { GuardPicker } from '@/features/schedules/active-schedule/components/guard-picker';
+import { GuardPicker } from '@/features/schedules/shared/guard-picker';
 import { createAssignment, removeAssignment, updateAssignment } from '@/features/schedules/assignments/actions';
 import { invalidateScheduleQueries } from '@/features/schedules/hooks';
-import { OverflowCandidates } from '../active-schedule/components/overflow-candidates';
+import { OverflowCandidates } from '../shared/overflow-candidates';
 import type { AssignmentSummary, OverflowCandidateSummary, ScheduleEmployeeOption } from '@/features/schedules/types';
 import type { ShiftType } from '@/generated/prisma/client';
 

@@ -2,15 +2,19 @@
 
 import { useQuery, useQueryClient } from '@tanstack/react-query';
 import { queryKeys } from '@/lib/react-query/query-keys';
-import { fetchActiveSchedule, fetchDraftSchedule, fetchEmployeeActiveSchedule } from '@/features/schedules/assignments/actions';
+import {
+  fetchCurrentSchedule,
+  fetchDraftSchedule,
+  fetchEmployeeCurrentSchedule,
+} from '@/features/schedules/assignments/actions';
 
 export function invalidateScheduleQueries(
   queryClient: ReturnType<typeof useQueryClient>,
   scheduleId?: string,
 ) {
   const tasks = [
-    queryClient.invalidateQueries({ queryKey: queryKeys.schedules.active() }),
-    queryClient.invalidateQueries({ queryKey: queryKeys.schedules.employeeActive() }),
+    queryClient.invalidateQueries({ queryKey: queryKeys.schedules.current() }),
+    queryClient.invalidateQueries({ queryKey: queryKeys.schedules.employeeCurrent() }),
     queryClient.invalidateQueries({ queryKey: queryKeys.schedules.draft() }),
     queryClient.invalidateQueries({ queryKey: queryKeys.dashboard.all() }),
   ];
@@ -24,10 +28,10 @@ export function invalidateScheduleQueries(
   return Promise.all(tasks);
 }
 
-export function useActiveSchedule() {
+export function useCurrentSchedule() {
   return useQuery({
-    queryKey: queryKeys.schedules.active(),
-    queryFn: fetchActiveSchedule,
+    queryKey: queryKeys.schedules.current(),
+    queryFn: fetchCurrentSchedule,
   });
 }
 
@@ -38,10 +42,9 @@ export function useDraftSchedule() {
   });
 }
 
-
-export function useEmployeeActiveSchedule() {
+export function useEmployeeCurrentSchedule() {
   return useQuery({
-    queryKey: queryKeys.schedules.employeeActive(),
-    queryFn: fetchEmployeeActiveSchedule,
+    queryKey: queryKeys.schedules.employeeCurrent(),
+    queryFn: fetchEmployeeCurrentSchedule,
   });
 }

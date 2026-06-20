@@ -1,19 +1,19 @@
 'use client';
 
-import { CurrentScheduleView } from '@/features/schedules/active-schedule';
-import { useActiveSchedule } from '@/features/schedules/hooks';
+import { CurrentScheduleView } from '@/features/schedules/current-schedule';
+import { useCurrentSchedule } from '@/features/schedules/hooks';
 
-type ManagerActiveScheduleScreenProps = {
+type ManagerCurrentScheduleScreenProps = {
   currentEmployeeId?: string | null;
 };
 
-export function ManagerActiveScheduleScreen({ currentEmployeeId = null }: ManagerActiveScheduleScreenProps) {
-  const { data, isLoading, isError } = useActiveSchedule();
+export function ManagerCurrentScheduleScreen({ currentEmployeeId = null }: ManagerCurrentScheduleScreenProps) {
+  const { data, isLoading, isError } = useCurrentSchedule();
 
   if (isLoading) {
     return (
       <p className="text-sm text-muted-foreground" dir="rtl">
-        טוען שיבוץ פעיל...
+        טוען שיבוץ נוכחי...
       </p>
     );
   }
@@ -21,7 +21,7 @@ export function ManagerActiveScheduleScreen({ currentEmployeeId = null }: Manage
   if (isError) {
     return (
       <p className="text-sm text-destructive" dir="rtl">
-        לא ניתן לטעון השיבוץ הפעיל.
+        לא ניתן לטעון השיבוץ הנוכחי.
       </p>
     );
   }
@@ -29,7 +29,7 @@ export function ManagerActiveScheduleScreen({ currentEmployeeId = null }: Manage
   if (!data) {
     return (
       <div className="flex flex-col items-center justify-center h-full" dir="rtl">
-        <h1 className="text-2xl font-bold">אין שיבוץ פעיל</h1>
+        <h1 className="text-2xl font-bold">אין שיבוץ נוכחי</h1>
       </div>
     );
   }
@@ -46,7 +46,7 @@ export function ManagerActiveScheduleScreen({ currentEmployeeId = null }: Manage
       courtId={data.courtId}
       overflowCandidates={data.overflowCandidates}
       currentEmployeeId={currentEmployeeId}
-      readonly={false}
+      readonly={true}
     />
   );
 }

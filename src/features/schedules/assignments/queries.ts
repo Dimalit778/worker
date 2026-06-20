@@ -113,7 +113,7 @@ async function getAssignmentMap(
   );
 }
 
-export async function getActiveSchedule(courtId: string): Promise<CurrentScheduleData | null> {
+export async function getCurrentSchedule(courtId: string): Promise<CurrentScheduleData | null> {
   const today = todayUtcDateForTimeZone(SCHEDULE_TIME_ZONE);
 
   await prisma.workSchedule.updateMany({

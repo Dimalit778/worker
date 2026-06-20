@@ -13,8 +13,8 @@ import type {
   OverflowCandidateSummary,
   ScheduleCapacityRule,
   ScheduleEmployeeOption,
-} from '../../types';
-import { SHIFT_LABELS, SHIFT_ORDER, SHIFT_STYLES } from '../../constants';
+} from '../types';
+import { SHIFT_LABELS, SHIFT_ORDER, SHIFT_STYLES } from '../constants';
 import {
   buildScheduleDates,
   buildWeekDays,
@@ -23,10 +23,10 @@ import {
   getDayCategoryForDate,
   getOrderedPositionsForShift,
   isGuardPositionLabel,
-} from '../../utils';
+} from '../utils';
 import type { ShiftType } from '@/generated/prisma/client';
-import { GuardPicker } from './guard-picker';
-import { OverflowCandidates } from './overflow-candidates';
+import { GuardPicker } from '../shared/guard-picker';
+import { OverflowCandidates } from '../shared/overflow-candidates';
 
 type ScheduleCardsViewProps = {
   scheduleId: string;

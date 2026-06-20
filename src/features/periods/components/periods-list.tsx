@@ -24,7 +24,6 @@ const ScheduleRow = ({ schedule }: { schedule: ScheduleSummary }) => {
 
   const pending = statusMutation.isPending || deleteMutation.isPending;
   const statusPending = statusMutation.isPending;
-  const deletePending = deleteMutation.isPending;
 
   function handleStatusChange() {
     if (!next) return;

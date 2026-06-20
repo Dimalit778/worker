@@ -5,9 +5,9 @@ import { WeekNavigator } from './week-navigator';
 import { ShiftSection } from './shift-section';
 import { buildWeekDays } from '../utils';
 import { SHIFT_ORDER } from '../constants';
-import type { WeekScheduleViewProps } from '../types';
+import type { WeeklyDraftScheduleViewProps } from '../types';
 
-export function WeekScheduleView({
+export function WeeklyDraftScheduleView({
   startDate,
   scheduleId,
   assignments,
@@ -16,7 +16,7 @@ export function WeekScheduleView({
   courtId,
   overflowCandidates,
   readonly,
-}: WeekScheduleViewProps) {
+}: WeeklyDraftScheduleViewProps) {
   const [weekIndex, setWeekIndex] = useState(0);
   const weekDays = buildWeekDays(startDate, weekIndex);
 

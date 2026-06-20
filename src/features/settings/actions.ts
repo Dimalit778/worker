@@ -12,7 +12,7 @@ import {
 
 const ALL_SHIFTS: ShiftType[] = ['MORNING', 'EVENING', 'NIGHT'];
 
-const DAY_VALUES = new Set<DayCategory>(['WEEKDAY', 'FRIDAY', 'SATURDAY', 'HOLIDAY']);
+const DAY_VALUES = new Set<DayCategory>(['WEEKDAY', 'FRIDAY', 'SATURDAY']);
 const SHIFT_SCOPE_VALUES = new Set<ShiftType | 'ALL'>(['MORNING', 'EVENING', 'NIGHT', 'ALL']);
 
 function nextManagerPositionCode(maxCode: number | null) {

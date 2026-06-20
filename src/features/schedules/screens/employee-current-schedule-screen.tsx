@@ -1,10 +1,10 @@
 'use client';
 
-import { CurrentScheduleView } from '@/features/schedules/active-schedule';
-import { useEmployeeActiveSchedule } from '@/features/schedules/hooks';
+import { CurrentScheduleView } from '@/features/schedules/current-schedule';
+import { useEmployeeCurrentSchedule } from '@/features/schedules/hooks';
 
-export function EmployeeActiveScheduleScreen({ employeeId }: { employeeId: string }) {
-  const { data, isLoading, isError } = useEmployeeActiveSchedule();
+export function EmployeeCurrentScheduleScreen({ employeeId }: { employeeId: string }) {
+  const { data, isLoading, isError } = useEmployeeCurrentSchedule();
 
   if (isLoading) {
     return (
@@ -25,7 +25,7 @@ export function EmployeeActiveScheduleScreen({ employeeId }: { employeeId: strin
   if (!data) {
     return (
       <div className="flex flex-col items-center justify-center h-full" dir="rtl">
-        <h1 className="text-2xl font-bold">אין שיבוץ פעיל</h1>
+        <h1 className="text-2xl font-bold">אין שיבוץ נוכחי</h1>
       </div>
     );
   }
