@@ -212,6 +212,7 @@ model Employee {
 
   @@unique([id, courtId])
   @@index([courtId])
+  @@index([courtId, isActive])
   @@index([positionId])
   @@index([positionId, courtId])
 }
@@ -260,6 +261,7 @@ model ShiftCapacity {
   updatedAt DateTime @updatedAt
 
   @@unique([courtId, positionId, shiftType, dayCategory])
+  @@index([courtId, isActive])
   @@index([courtId, shiftType, dayCategory])
   @@index([positionId])
   @@index([positionId, courtId])
@@ -352,6 +354,8 @@ model WorkSchedule {
   @@unique([id, courtId])
   @@index([courtId])
   @@index([status])
+  @@index([courtId, status, endDate])
+  @@index([courtId, status, startDate, endDate])
   @@index([startDate, endDate])
   @@index([createdById])
 }
@@ -383,6 +387,7 @@ model WorkScheduleVersion {
   @@index([courtId])
   @@index([status])
   @@index([isActive])
+  @@index([scheduleId, status, isActive, version])
 }
 
 // ─── Shift Slots / Actual Required Positions ─────────────────────────────────

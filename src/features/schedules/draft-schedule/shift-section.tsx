@@ -48,11 +48,22 @@ type ShiftSectionProps = {
 
   courtId: string;
   readonly?: boolean;
+  highlightedEmployeeId?: string | null;
 };
 
 export function ShiftSection(props: ShiftSectionProps) {
-  const { shiftType, weekDays, assignments, overflowCandidates, employees, capacity, scheduleId, courtId, readonly } =
-    props;
+  const {
+    shiftType,
+    weekDays,
+    assignments,
+    overflowCandidates,
+    employees,
+    capacity,
+    scheduleId,
+    courtId,
+    readonly,
+    highlightedEmployeeId,
+  } = props;
   const queryClient = useQueryClient();
   const [positionModal, setPositionModal] = useState<PositionRowModalState | null>(null);
   const [positionName, setPositionName] = useState('');
@@ -75,15 +86,21 @@ export function ShiftSection(props: ShiftSectionProps) {
   const bodyRows: VisualRow[] = [];
 
   for (const pos of positionsOrdered) {
-    const maxSlotsInWeek = maxSlotsForPositionInWeek(capacity, shiftType, pos.positionId, weekIsos);
-    if (maxSlotsInWeek <= 0) continue;
-
     const assignmentsByDay = new Map<string, AssignmentSummary[]>();
+    let maxAssignedInWeek = 0;
+
     for (const day of sortedDays) {
       const cellKey = createAssignmentCellKey({ date: day.iso, shiftType, positionId: pos.positionId });
       const sorted = [...(assignments[cellKey] ?? [])].sort((a, b) => a.slotIndex - b.slotIndex);
       assignmentsByDay.set(day.iso, sorted);
+      maxAssignedInWeek = Math.max(maxAssignedInWeek, sorted.length);
     }
+
+    const maxSlotsInWeek = Math.max(
+      maxSlotsForPositionInWeek(capacity, shiftType, pos.positionId, weekIsos),
+      maxAssignedInWeek,
+    );
+    if (maxSlotsInWeek <= 0) continue;
 
     Array.from({ length: maxSlotsInWeek }, (_, vr) => vr).forEach((vr, i) => {
       bodyRows.push({ pos, visualRow: vr, rowSpan: maxSlotsInWeek, isFirstRow: i === 0, assignmentsByDay });
@@ -245,9 +262,9 @@ export function ShiftSection(props: ShiftSectionProps) {
                   {sortedDays.map((day) => {
                     const cat = getDayCategoryForDate(day.iso);
                     const required = getCapacityForCell(capacity, cat, shiftType, pos.positionId);
-                    const closed = visualRow >= required;
                     const sortedAssignments = assignmentsByDay.get(day.iso)!;
                     const assignment = sortedAssignments[visualRow] ?? null;
+                    const closed = visualRow >= required && !assignment;
                     const usedSlots = new Set(sortedAssignments.map((a) => a.slotIndex));
                     const targetSlotIndex =
                       assignment?.slotIndex ??
@@ -277,6 +294,7 @@ export function ShiftSection(props: ShiftSectionProps) {
                         slotIndex={targetSlotIndex}
                         overflowCandidates={overflowCandidates?.[overflowKey] ?? []}
                         readonly={readonly}
+                        highlightedEmployeeId={highlightedEmployeeId}
                       />
                     );
                   })}

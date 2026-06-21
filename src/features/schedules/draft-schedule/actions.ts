@@ -9,6 +9,11 @@ import {
 } from '@/generated/prisma/client';
 import { requireSession } from '@/lib/db/auth-helpers';
 
+type PublishScheduleResult =
+  | { ok: true }
+  | { requiresConfirmation: true; issueCount: number; message: string }
+  | { error: string };
+
 async function getOpenErrorWarningsMessage(scheduleId: string): Promise<string | null> {
   const errorCount = await prisma.scheduleWarning.count({
     where: {
@@ -18,7 +23,15 @@ async function getOpenErrorWarningsMessage(scheduleId: string): Promise<string |
   });
 
   if (errorCount === 0) return null;
-  return `לא ניתן לאשר או לפרסם שיבוץ עם ${errorCount} שגיאות פתוחות`;
+  return `לא ניתן לסיים עריכת שיבוץ עם ${errorCount} שגיאות פתוחות`;
+}
+
+async function getOpenScheduleIssuesCount(scheduleId: string): Promise<number> {
+  return prisma.scheduleWarning.count({
+    where: {
+      scheduleId,
+    },
+  });
 }
 
 // = לסיים עריכת שיבוץ (בדיקת שגיאות בלבד — אין עוד סטטוס ביניים אחרי DRAFT)
@@ -35,19 +48,28 @@ export async function finalizeSchedule(scheduleId: string): Promise<{ ok: true }
   }
 }
 // = לפרסם שיבוץ
-export async function publishSchedule(scheduleId: string): Promise<{ ok: true } | { error: string }> {
+export async function publishSchedule(
+  scheduleId: string,
+  options: { confirmIssues?: boolean } = {},
+): Promise<PublishScheduleResult> {
   const session = await requireSession(SystemRole.MANAGER);
 
   try {
-    const errorMessage = await getOpenErrorWarningsMessage(scheduleId);
-    if (errorMessage) return { error: errorMessage };
-
     const draftVersion = await prisma.workScheduleVersion.findFirst({
       where: { scheduleId, status: ScheduleVersionStatus.DRAFT },
       orderBy: { version: 'desc' },
       select: { id: true },
     });
     if (!draftVersion) return { error: 'לא נמצאה גרסת טיוטה לפרסום' };
+
+    const issueCount = await getOpenScheduleIssuesCount(scheduleId);
+    if (issueCount > 0 && !options.confirmIssues) {
+      return {
+        requiresConfirmation: true,
+        issueCount,
+        message: `בשיבוץ קיימות ${issueCount} בעיות או אזהרות פתוחות. האם לפרסם בכל זאת?`,
+      };
+    }
 
     const assignments = await prisma.shiftAssignment.findMany({
       where: { versionId: draftVersion.id },

@@ -116,15 +116,6 @@ async function getAssignmentMap(
 export async function getCurrentSchedule(courtId: string): Promise<CurrentScheduleData | null> {
   const today = todayUtcDateForTimeZone(SCHEDULE_TIME_ZONE);
 
-  await prisma.workSchedule.updateMany({
-    where: {
-      status: ScheduleStatus.PUBLISHED,
-      courtId,
-      endDate: { lt: today },
-    },
-    data: { status: ScheduleStatus.ARCHIVED },
-  });
-
   const scheduleRows = await prisma.workSchedule.findMany({
     where: {
       status: ScheduleStatus.PUBLISHED,
@@ -162,7 +153,7 @@ export async function getDraftScheduleData(courtId: string): Promise<CurrentSche
   const schedule = await prisma.workSchedule.findFirst({
     where: {
       courtId,
-      status: { not: ScheduleStatus.ARCHIVED },
+      status: { in: [ScheduleStatus.DRAFT, ScheduleStatus.OPEN, ScheduleStatus.LOCKED] },
     },
     select: {
       id: true,

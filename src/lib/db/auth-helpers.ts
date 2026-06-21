@@ -25,11 +25,6 @@ export function isManagerOrAdmin(session: Session | null): boolean {
   return isManager(session) || isAdmin(session);
 }
 
-/**
- * Use in server components / route handlers.
- * Redirects to /login if unauthenticated.
- * Redirects to /login if authenticated but wrong role.
- */
 export async function requireSession(requiredRole?: SystemRole): Promise<Session> {
   const session = await getServerSession(authOptions);
 
@@ -37,4 +32,33 @@ export async function requireSession(requiredRole?: SystemRole): Promise<Session
   if (requiredRole && session.user.systemRole !== requiredRole) redirect('/login');
 
   return session;
+}
+
+export async function requireManager() {
+  const session = await requireSession(SystemRole.MANAGER);
+
+  if (!session.user.courtId) {
+    throw new Error('MANAGER_COURT_REQUIRED');
+  }
+
+  return {
+    session,
+    userId: session.user.id,
+    courtId: session.user.courtId,
+  };
+}
+
+export async function requireEmployee() {
+  const session = await requireSession(SystemRole.EMPLOYEE);
+
+  if (!session.user.courtId || !session.user.employeeId) {
+    throw new Error('EMPLOYEE_CONTEXT_REQUIRED');
+  }
+
+  return {
+    session,
+    userId: session.user.id,
+    courtId: session.user.courtId,
+    employeeId: session.user.employeeId,
+  };
 }

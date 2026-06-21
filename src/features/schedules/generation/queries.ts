@@ -9,6 +9,7 @@ import type {
 } from '@/features/scheduling-engine/types';
 import { getLatestDraftVersionId, getPublishedActiveVersionId } from '@/features/schedules/versions/queries';
 import { toDateOnly } from '../utils';
+import { requireManager } from '@/lib/db/auth-helpers';
 
 type AutoScheduleEngineInputData = Omit<EngineInput, 'scheduleId'> & {
   scheduleId: string | null;
@@ -45,10 +46,11 @@ function createAvailabilityKey(date: Date, shiftType: ShiftType): string {
 }
 
 export async function getAutoScheduleInputData(scheduleId: string): Promise<AutoScheduleInputData> {
+  const { courtId } = await requireManager();
   if (!scheduleId) return { found: false, message: 'Missing schedule id' };
 
   const scheduleRow = await prisma.workSchedule.findUnique({
-    where: { id: scheduleId },
+    where: { id: scheduleId, courtId },
     select: {
       id: true,
       courtId: true,

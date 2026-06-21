@@ -4,6 +4,16 @@ import { useState } from 'react';
 import { useMutation, useQueryClient } from '@tanstack/react-query';
 import { CheckCheck, Send, Sparkles } from 'lucide-react';
 import { Button } from '@/components/ui/button';
+import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+} from '@/components/ui/alert-dialog';
 import { generateAutoSchedule } from '@/features/schedules/generation/actions';
 import { finalizeSchedule, publishSchedule } from '@/features/schedules/draft-schedule/actions';
 import type { ScheduleStatus } from '@/generated/prisma/client';
@@ -21,6 +31,8 @@ export function DraftActions({ scheduleId, scheduleStatus, hasUnpublishedDraft =
   const [pendingAction, setPendingAction] = useState<'generate' | 'finalize' | 'publish' | null>(null);
   const [error, setError] = useState<string | null>(null);
   const [message, setMessage] = useState<string | null>(null);
+  const [confirmPublishOpen, setConfirmPublishOpen] = useState(false);
+  const [confirmPublishMessage, setConfirmPublishMessage] = useState<string | null>(null);
 
   const invalidate = () => invalidateScheduleQueries(queryClient, scheduleId);
 
@@ -52,12 +64,18 @@ export function DraftActions({ scheduleId, scheduleStatus, hasUnpublishedDraft =
   });
 
   const publishMutation = useMutation({
-    mutationFn: () => publishSchedule(scheduleId),
+    mutationFn: (confirmIssues: boolean) => publishSchedule(scheduleId, { confirmIssues }),
     onSuccess: (res) => {
+      if ('requiresConfirmation' in res) {
+        setConfirmPublishMessage(res.message);
+        setConfirmPublishOpen(true);
+        return;
+      }
       if ('error' in res) {
         setError(res.error);
         return;
       }
+      setMessage('השיבוץ פורסם לעובדים');
       invalidate();
     },
     onSettled: () => setPendingAction(null),
@@ -85,7 +103,15 @@ export function DraftActions({ scheduleId, scheduleStatus, hasUnpublishedDraft =
     setError(null);
     setMessage(null);
     setPendingAction('publish');
-    publishMutation.mutate();
+    publishMutation.mutate(false);
+  }
+
+  function handleConfirmPublish() {
+    if (!scheduleId) return;
+    setError(null);
+    setMessage(null);
+    setPendingAction('publish');
+    publishMutation.mutate(true);
   }
 
   // Compare string literals — do not import Prisma enum values here (client bundle cannot load @/generated/prisma runtime).
@@ -99,48 +125,67 @@ export function DraftActions({ scheduleId, scheduleStatus, hasUnpublishedDraft =
   const canPublishDraft = !isPublished || hasUnpublishedDraft;
 
   return (
-    <div className="flex items-center gap-3 flex-wrap" dir="rtl">
-      {scheduleStatus && (
-        <span
-          className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium border ${STATUS_COLORS[scheduleStatus]}`}
-        >
-          {STATUS_LABELS[scheduleStatus]}
-        </span>
-      )}
+    <>
+      <div className="flex items-center gap-3 flex-wrap" dir="rtl">
+        {scheduleStatus && (
+          <span
+            className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium border ${STATUS_COLORS[scheduleStatus]}`}
+          >
+            {STATUS_LABELS[scheduleStatus]}
+          </span>
+        )}
 
-      {error && <p className="text-sm text-destructive">{error}</p>}
-      {message && <p className="text-sm text-green-700">{message}</p>}
+        {error && <p className="text-sm text-destructive">{error}</p>}
+        {message && <p className="text-sm text-green-700">{message}</p>}
 
-      {canGenerate && (
-        <Button size="sm" variant="default" onClick={handleGenerate} disabled={pending} className="gap-1.5">
-          <Sparkles className="w-4 h-4" />
-          {pendingAction === 'generate' ? 'יוצר שיבוץ...' : 'צור שיבוץ אוטומטי'}
-        </Button>
-      )}
+        {canGenerate && (
+          <Button size="sm" variant="default" onClick={handleGenerate} disabled={pending} className="gap-1.5">
+            <Sparkles className="w-4 h-4" />
+            {pendingAction === 'generate' ? 'יוצר שיבוץ...' : 'צור שיבוץ אוטומטי'}
+          </Button>
+        )}
 
-      {canGenerate && (
+        {canGenerate && (
+          <Button
+            size="sm"
+            variant="outline"
+            onClick={handleFinalize}
+            disabled={!scheduleId || pending}
+            className="gap-1.5"
+          >
+            <CheckCheck className="w-4 h-4" />
+            סיים עריכה
+          </Button>
+        )}
+
         <Button
           size="sm"
-          variant="outline"
-          onClick={handleFinalize}
-          disabled={!scheduleId || pending}
+          variant={isPublished ? 'outline' : 'default'}
+          onClick={handlePublish}
+          disabled={!scheduleId || pending || !canPublishDraft}
           className="gap-1.5"
         >
-          <CheckCheck className="w-4 h-4" />
-          סיים עריכה
+          <Send className="w-4 h-4" />
+          {isPublished ? 'פורסם לעובדים' : 'פרסם שיבוץ'}
         </Button>
-      )}
+      </div>
 
-      <Button
-        size="sm"
-        variant={isPublished ? 'outline' : 'default'}
-        onClick={handlePublish}
-        disabled={!scheduleId || pending || !canPublishDraft}
-        className="gap-1.5"
-      >
-        <Send className="w-4 h-4" />
-        {isPublished ? 'פורסם לעובדים' : 'פרסם שיבוץ'}
-      </Button>
-    </div>
+      <AlertDialog open={confirmPublishOpen} onOpenChange={setConfirmPublishOpen}>
+        <AlertDialogContent dir="rtl">
+          <AlertDialogHeader>
+            <AlertDialogTitle>לפרסם למרות הבעיות?</AlertDialogTitle>
+            <AlertDialogDescription>
+              {confirmPublishMessage ?? 'בשיבוץ קיימות בעיות או אזהרות פתוחות. האם לפרסם בכל זאת?'}
+            </AlertDialogDescription>
+          </AlertDialogHeader>
+          <AlertDialogFooter>
+            <AlertDialogCancel disabled={pending}>לא, חזור לשיבוץ</AlertDialogCancel>
+            <AlertDialogAction onClick={handleConfirmPublish} disabled={pending}>
+              כן, פרסם שיבוץ
+            </AlertDialogAction>
+          </AlertDialogFooter>
+        </AlertDialogContent>
+      </AlertDialog>
+    </>
   );
 }

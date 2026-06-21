@@ -24,6 +24,7 @@ type Props = {
   overflowCandidates?: OverflowCandidateSummary[];
   readonly?: boolean;
   anonymousRow?: boolean;
+  highlightedEmployeeId?: string | null;
 };
 
 export function AssignmentCell({
@@ -40,6 +41,7 @@ export function AssignmentCell({
   overflowCandidates = [],
   readonly = false,
   anonymousRow = false,
+  highlightedEmployeeId = null,
 }: Props) {
   const queryClient = useQueryClient();
   const [open, setOpen] = useState(false);
@@ -72,6 +74,9 @@ export function AssignmentCell({
   });
 
   const pending = assignmentMutation.isPending;
+  const isHighlighted = Boolean(highlightedEmployeeId && assignment?.employeeId === highlightedEmployeeId);
+  const highlightClass =
+    'bg-amber-200/90 text-amber-950 ring-2 ring-amber-500 ring-inset shadow-[inset_0_0_0_1px_rgba(245,158,11,0.45)]';
 
   if (closed) {
     if (anonymousRow) {
@@ -87,6 +92,7 @@ export function AssignmentCell({
         className={cn(
           'relative border border-border text-center text-xs min-w-[62px] min-h-[26px] px-1 py-0.5',
           anonymousRow && 'bg-white',
+          isHighlighted && !anonymousRow && highlightClass,
         )}
         aria-label={anonymousRow && assignment ? assignment.employeeDisplayName : undefined}
       >
@@ -116,6 +122,7 @@ export function AssignmentCell({
         'relative border border-border text-center text-xs cursor-pointer select-none transition-colors',
         'min-w-[62px] min-h-[26px] px-1 py-0.5',
         anonymousRow ? 'bg-white' : assignment ? 'hover:bg-accent/60' : 'bg-muted/40 hover:bg-accent/30',
+        isHighlighted && !anonymousRow && highlightClass,
         pending && 'opacity-50 pointer-events-none',
         open && 'ring-2 ring-primary ring-inset',
       )}

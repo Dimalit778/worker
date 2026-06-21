@@ -107,6 +107,7 @@ export type WeeklyDraftScheduleViewProps = {
   courtId: string;
   overflowCandidates?: OverflowCandidateMap;
   readonly?: boolean;
+  highlightedEmployeeId?: string | null;
 };
 
 export type WeekDay = {
@@ -119,7 +120,6 @@ export type WeekDay = {
 export type AssignEmployeeToSlotParams = {
   scheduleId: string;
   employeeId: string;
-  courtId: string;
   positionId: string;
   shiftType: ShiftType;
   date: string;

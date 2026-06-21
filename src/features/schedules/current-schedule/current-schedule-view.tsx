@@ -43,7 +43,7 @@ export function CurrentScheduleView({
 
       <DateStrip weeks={periodWeekGrids} selectedDate={selectedDate} onSelectDate={setSelectedDate} />
 
-      <div className="grid gap-4 xl:grid-cols-[minmax(0,1.7fr)_minmax(320px,0.9fr)]">
+      <div className="grid gap-4 lg:grid-cols-[minmax(0,4fr)_minmax(0,3fr)_minmax(0,3fr)]">
         <ShiftRoster
           shiftType="MORNING"
           date={selectedDate}
@@ -56,34 +56,30 @@ export function CurrentScheduleView({
           currentEmployeeId={currentEmployeeId}
           readonly={readonly}
         />
-        <div className="grid gap-4 md:grid-cols-2 xl:grid-cols-1">
-          <ShiftRoster
-            shiftType="EVENING"
-            date={selectedDate}
-            scheduleId={scheduleId}
-            courtId={courtId}
-            assignments={assignments}
-            overflowCandidates={overflowCandidates}
-            employees={employees}
-            capacity={capacity}
-            currentEmployeeId={currentEmployeeId}
-            readonly={readonly}
-            compact
-          />
-          <ShiftRoster
-            shiftType="NIGHT"
-            date={selectedDate}
-            scheduleId={scheduleId}
-            courtId={courtId}
-            assignments={assignments}
-            overflowCandidates={overflowCandidates}
-            employees={employees}
-            capacity={capacity}
-            currentEmployeeId={currentEmployeeId}
-            readonly={readonly}
-            compact
-          />
-        </div>
+        <ShiftRoster
+          shiftType="EVENING"
+          date={selectedDate}
+          scheduleId={scheduleId}
+          courtId={courtId}
+          assignments={assignments}
+          overflowCandidates={overflowCandidates}
+          employees={employees}
+          capacity={capacity}
+          currentEmployeeId={currentEmployeeId}
+          readonly={readonly}
+        />
+        <ShiftRoster
+          shiftType="NIGHT"
+          date={selectedDate}
+          scheduleId={scheduleId}
+          courtId={courtId}
+          assignments={assignments}
+          overflowCandidates={overflowCandidates}
+          employees={employees}
+          capacity={capacity}
+          currentEmployeeId={currentEmployeeId}
+          readonly={readonly}
+        />
       </div>
 
       <div className="rounded-md border border-border bg-card p-3 text-sm text-muted-foreground">
@@ -91,7 +87,7 @@ export function CurrentScheduleView({
           <Shield className="size-4" aria-hidden />
           <span className="font-semibold">תצוגת שיבוץ מרוכזת</span>
         </div>
-        <p className="mt-1">משמרת עמוסה מקבלת יותר רוחב ומוצגת כ־chips לפי תפקיד, כדי לצמצם גלילה.</p>
+        <p className="mt-1">המשמרות מוצגות לפי בוקר, ערב ולילה. במסכים קטנים הן מוצגות אחת מתחת לשנייה.</p>
       </div>
     </div>
   );

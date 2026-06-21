@@ -2,7 +2,7 @@
 
 import { ScheduleStatus, ShiftType, SystemRole } from '@/generated/prisma/client';
 import { prisma } from '@/lib/db/client';
-import { requireSession } from '@/lib/db/auth-helpers';
+import { requireEmployee, requireSession } from '@/lib/db/auth-helpers';
 import { EmployeeAvailabilityForPeriod } from './types';
 
 export async function getScheduleData() {
@@ -89,9 +89,11 @@ export async function submitAvailability(input: {
   return { ok: true };
 }
 
-export async function getEmployeeAvailability(employeeId: string): Promise<EmployeeAvailabilityForPeriod[]> {
+export async function getEmployeeAvailability(): Promise<EmployeeAvailabilityForPeriod[]> {
+  const { courtId, employeeId } = await requireEmployee();
+  if (!courtId || !employeeId) return [];
   const rows = await prisma.availabilityForm.findMany({
-    where: { employeeId },
+    where: { employeeId, schedule: { courtId } },
     include: {
       schedule: true,
       shifts: true,
@@ -112,10 +114,4 @@ export async function getEmployeeAvailability(employeeId: string): Promise<Emplo
       isAvailable: true,
     })),
   }));
-}
-
-export async function fetchMyEmployeeAvailability() {
-  const session = await requireSession(SystemRole.EMPLOYEE);
-  if (!session.user.employeeId) return [];
-  return getEmployeeAvailability(session.user.employeeId);
 }

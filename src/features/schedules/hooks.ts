@@ -8,10 +8,7 @@ import {
   fetchEmployeeCurrentSchedule,
 } from '@/features/schedules/assignments/actions';
 
-export function invalidateScheduleQueries(
-  queryClient: ReturnType<typeof useQueryClient>,
-  scheduleId?: string,
-) {
+export function invalidateScheduleQueries(queryClient: ReturnType<typeof useQueryClient>, scheduleId?: string) {
   const tasks = [
     queryClient.invalidateQueries({ queryKey: queryKeys.schedules.current() }),
     queryClient.invalidateQueries({ queryKey: queryKeys.schedules.employeeCurrent() }),
@@ -20,9 +17,7 @@ export function invalidateScheduleQueries(
   ];
 
   if (scheduleId) {
-    tasks.push(
-      queryClient.invalidateQueries({ queryKey: queryKeys.schedules.assignments(scheduleId) }),
-    );
+    tasks.push(queryClient.invalidateQueries({ queryKey: queryKeys.schedules.assignments(scheduleId) }));
   }
 
   return Promise.all(tasks);
