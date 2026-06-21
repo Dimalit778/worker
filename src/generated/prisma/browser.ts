@@ -83,6 +83,11 @@ export type AvailabilityForm = Prisma.AvailabilityFormModel
  */
 export type AvailabilityShift = Prisma.AvailabilityShiftModel
 /**
+ * Model SchedulePeriod
+ * 
+ */
+export type SchedulePeriod = Prisma.SchedulePeriodModel
+/**
  * Model WorkSchedule
  * 
  */

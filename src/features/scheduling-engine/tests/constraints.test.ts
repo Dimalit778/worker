@@ -75,8 +75,23 @@ describe("isDoubleBooked", () => {
     expect(isDoubleBooked("emp1", d("2024-01-01"), "MORNING", a)).toBe(true);
   });
 
-  it("returns false when shiftType differs", () => {
+  it("returns true for same-day MORNING + EVENING", () => {
     const a = [assignment({ employeeId: "emp1", date: d("2024-01-01"), shiftType: "EVENING" })];
+    expect(isDoubleBooked("emp1", d("2024-01-01"), "MORNING", a)).toBe(true);
+  });
+
+  it("returns true for same-day EVENING + NIGHT", () => {
+    const a = [assignment({ employeeId: "emp1", date: d("2024-01-01"), shiftType: "NIGHT" })];
+    expect(isDoubleBooked("emp1", d("2024-01-01"), "EVENING", a)).toBe(true);
+  });
+
+  it("returns true for NIGHT + next-day MORNING", () => {
+    const a = [assignment({ employeeId: "emp1", date: d("2024-01-01"), shiftType: "NIGHT" })];
+    expect(isDoubleBooked("emp1", d("2024-01-02"), "MORNING", a)).toBe(true);
+  });
+
+  it("returns false for same-day MORNING + NIGHT", () => {
+    const a = [assignment({ employeeId: "emp1", date: d("2024-01-01"), shiftType: "NIGHT" })];
     expect(isDoubleBooked("emp1", d("2024-01-01"), "MORNING", a)).toBe(false);
   });
 

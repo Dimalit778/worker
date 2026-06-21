@@ -64,6 +64,7 @@ export const ModelName = {
   Holiday: 'Holiday',
   AvailabilityForm: 'AvailabilityForm',
   AvailabilityShift: 'AvailabilityShift',
+  SchedulePeriod: 'SchedulePeriod',
   WorkSchedule: 'WorkSchedule',
   WorkScheduleVersion: 'WorkScheduleVersion',
   ShiftAssignment: 'ShiftAssignment',
@@ -241,7 +242,7 @@ export type HolidayScalarFieldEnum = (typeof HolidayScalarFieldEnum)[keyof typeo
 
 export const AvailabilityFormScalarFieldEnum = {
   id: 'id',
-  scheduleId: 'scheduleId',
+  periodId: 'periodId',
   employeeId: 'employeeId',
   isSubmitted: 'isSubmitted',
   submittedAt: 'submittedAt',
@@ -265,17 +266,28 @@ export const AvailabilityShiftScalarFieldEnum = {
 export type AvailabilityShiftScalarFieldEnum = (typeof AvailabilityShiftScalarFieldEnum)[keyof typeof AvailabilityShiftScalarFieldEnum]
 
 
-export const WorkScheduleScalarFieldEnum = {
+export const SchedulePeriodScalarFieldEnum = {
   id: 'id',
   courtId: 'courtId',
   name: 'name',
+  submissionDeadline: 'submissionDeadline',
+  startDate: 'startDate',
+  endDate: 'endDate',
+  createdAt: 'createdAt',
+  updatedAt: 'updatedAt'
+} as const
+
+export type SchedulePeriodScalarFieldEnum = (typeof SchedulePeriodScalarFieldEnum)[keyof typeof SchedulePeriodScalarFieldEnum]
+
+
+export const WorkScheduleScalarFieldEnum = {
+  id: 'id',
+  courtId: 'courtId',
+  periodId: 'periodId',
   status: 'status',
   generatedAt: 'generatedAt',
   publishedAt: 'publishedAt',
   createdById: 'createdById',
-  submissionDeadline: 'submissionDeadline',
-  startDate: 'startDate',
-  endDate: 'endDate',
   createdAt: 'createdAt',
   updatedAt: 'updatedAt'
 } as const

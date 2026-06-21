@@ -397,6 +397,7 @@ export const ModelName = {
   Holiday: 'Holiday',
   AvailabilityForm: 'AvailabilityForm',
   AvailabilityShift: 'AvailabilityShift',
+  SchedulePeriod: 'SchedulePeriod',
   WorkSchedule: 'WorkSchedule',
   WorkScheduleVersion: 'WorkScheduleVersion',
   ShiftAssignment: 'ShiftAssignment',
@@ -419,7 +420,7 @@ export type TypeMap<ExtArgs extends runtime.Types.Extensions.InternalArgs = runt
     omit: GlobalOmitOptions
   }
   meta: {
-    modelProps: "account" | "session" | "verificationToken" | "user" | "userPermission" | "region" | "court" | "employee" | "position" | "shiftCapacity" | "holiday" | "availabilityForm" | "availabilityShift" | "workSchedule" | "workScheduleVersion" | "shiftAssignment" | "scheduleWarning" | "fairnessRecord" | "scheduleChangeLog" | "systemConfig"
+    modelProps: "account" | "session" | "verificationToken" | "user" | "userPermission" | "region" | "court" | "employee" | "position" | "shiftCapacity" | "holiday" | "availabilityForm" | "availabilityShift" | "schedulePeriod" | "workSchedule" | "workScheduleVersion" | "shiftAssignment" | "scheduleWarning" | "fairnessRecord" | "scheduleChangeLog" | "systemConfig"
     txIsolationLevel: TransactionIsolationLevel
   }
   model: {
@@ -1385,6 +1386,80 @@ export type TypeMap<ExtArgs extends runtime.Types.Extensions.InternalArgs = runt
         }
       }
     }
+    SchedulePeriod: {
+      payload: Prisma.$SchedulePeriodPayload<ExtArgs>
+      fields: Prisma.SchedulePeriodFieldRefs
+      operations: {
+        findUnique: {
+          args: Prisma.SchedulePeriodFindUniqueArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$SchedulePeriodPayload> | null
+        }
+        findUniqueOrThrow: {
+          args: Prisma.SchedulePeriodFindUniqueOrThrowArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$SchedulePeriodPayload>
+        }
+        findFirst: {
+          args: Prisma.SchedulePeriodFindFirstArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$SchedulePeriodPayload> | null
+        }
+        findFirstOrThrow: {
+          args: Prisma.SchedulePeriodFindFirstOrThrowArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$SchedulePeriodPayload>
+        }
+        findMany: {
+          args: Prisma.SchedulePeriodFindManyArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$SchedulePeriodPayload>[]
+        }
+        create: {
+          args: Prisma.SchedulePeriodCreateArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$SchedulePeriodPayload>
+        }
+        createMany: {
+          args: Prisma.SchedulePeriodCreateManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        createManyAndReturn: {
+          args: Prisma.SchedulePeriodCreateManyAndReturnArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$SchedulePeriodPayload>[]
+        }
+        delete: {
+          args: Prisma.SchedulePeriodDeleteArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$SchedulePeriodPayload>
+        }
+        update: {
+          args: Prisma.SchedulePeriodUpdateArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$SchedulePeriodPayload>
+        }
+        deleteMany: {
+          args: Prisma.SchedulePeriodDeleteManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        updateMany: {
+          args: Prisma.SchedulePeriodUpdateManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        updateManyAndReturn: {
+          args: Prisma.SchedulePeriodUpdateManyAndReturnArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$SchedulePeriodPayload>[]
+        }
+        upsert: {
+          args: Prisma.SchedulePeriodUpsertArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$SchedulePeriodPayload>
+        }
+        aggregate: {
+          args: Prisma.SchedulePeriodAggregateArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.AggregateSchedulePeriod>
+        }
+        groupBy: {
+          args: Prisma.SchedulePeriodGroupByArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.SchedulePeriodGroupByOutputType>[]
+        }
+        count: {
+          args: Prisma.SchedulePeriodCountArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.SchedulePeriodCountAggregateOutputType> | number
+        }
+      }
+    }
     WorkSchedule: {
       payload: Prisma.$WorkSchedulePayload<ExtArgs>
       fields: Prisma.WorkScheduleFieldRefs
@@ -2094,7 +2169,7 @@ export type HolidayScalarFieldEnum = (typeof HolidayScalarFieldEnum)[keyof typeo
 
 export const AvailabilityFormScalarFieldEnum = {
   id: 'id',
-  scheduleId: 'scheduleId',
+  periodId: 'periodId',
   employeeId: 'employeeId',
   isSubmitted: 'isSubmitted',
   submittedAt: 'submittedAt',
@@ -2118,17 +2193,28 @@ export const AvailabilityShiftScalarFieldEnum = {
 export type AvailabilityShiftScalarFieldEnum = (typeof AvailabilityShiftScalarFieldEnum)[keyof typeof AvailabilityShiftScalarFieldEnum]
 
 
-export const WorkScheduleScalarFieldEnum = {
+export const SchedulePeriodScalarFieldEnum = {
   id: 'id',
   courtId: 'courtId',
   name: 'name',
+  submissionDeadline: 'submissionDeadline',
+  startDate: 'startDate',
+  endDate: 'endDate',
+  createdAt: 'createdAt',
+  updatedAt: 'updatedAt'
+} as const
+
+export type SchedulePeriodScalarFieldEnum = (typeof SchedulePeriodScalarFieldEnum)[keyof typeof SchedulePeriodScalarFieldEnum]
+
+
+export const WorkScheduleScalarFieldEnum = {
+  id: 'id',
+  courtId: 'courtId',
+  periodId: 'periodId',
   status: 'status',
   generatedAt: 'generatedAt',
   publishedAt: 'publishedAt',
   createdById: 'createdById',
-  submissionDeadline: 'submissionDeadline',
-  startDate: 'startDate',
-  endDate: 'endDate',
   createdAt: 'createdAt',
   updatedAt: 'updatedAt'
 } as const
@@ -2610,6 +2696,7 @@ export type GlobalOmitConfig = {
   holiday?: Prisma.HolidayOmit
   availabilityForm?: Prisma.AvailabilityFormOmit
   availabilityShift?: Prisma.AvailabilityShiftOmit
+  schedulePeriod?: Prisma.SchedulePeriodOmit
   workSchedule?: Prisma.WorkScheduleOmit
   workScheduleVersion?: Prisma.WorkScheduleVersionOmit
   shiftAssignment?: Prisma.ShiftAssignmentOmit

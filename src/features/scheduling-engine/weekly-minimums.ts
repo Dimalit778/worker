@@ -134,7 +134,7 @@ function findAvailableSlot(
   for (const slot of slots) {
     if (slot.shiftType !== shiftType) continue;
     if (!dateTimes.has(slot.date.getTime())) continue;
-    if (canAssignEmployeeToSlot(employee, slot, assignments, availability)) {
+    if (canAssignEmployeeToSlot(employee, slot, assignments, availability, slots)) {
       return slot;
     }
   }

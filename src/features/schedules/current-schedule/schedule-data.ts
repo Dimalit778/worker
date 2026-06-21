@@ -5,6 +5,7 @@ import { WEEKDAY_HEADER_LETTERS } from '@/features/schedules/constants';
 import {
   buildScheduleDates,
   buildWeekDays,
+  blockedEmployeeIdsForShift,
   createAssignmentCellKey,
   getCapacityForCell,
   getDayCategoryForDate,
@@ -77,11 +78,7 @@ export function assignedEmployeeIdsForShift(
   date: string,
   shiftType: ShiftType,
 ): Set<string> {
-  return new Set(
-    Object.entries(assignments)
-      .filter(([key]) => key.startsWith(`${date}-${shiftType}-`))
-      .flatMap(([, list]) => list.map((assignment) => assignment.employeeId)),
-  );
+  return blockedEmployeeIdsForShift(assignments, date, shiftType);
 }
 
 export function getShiftRequiredCount(date: string, shiftType: ShiftType, capacity: ScheduleCapacityRule[]): number {

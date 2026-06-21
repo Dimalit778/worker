@@ -23,11 +23,13 @@ function yearDateRange(year: number) {
 function toScheduleSnapshot(
   schedule: {
     id: string;
-    name: string;
-    startDate: Date;
-    endDate: Date;
     status: ScheduleStatus;
-    submissionDeadline?: Date;
+    period: {
+      name: string;
+      startDate: Date;
+      endDate: Date;
+      submissionDeadline?: Date;
+    };
   },
   extras?: {
     submittedCount?: number;
@@ -37,28 +39,28 @@ function toScheduleSnapshot(
 ): ScheduleSnapshot {
   return {
     id: schedule.id,
-    name: schedule.name,
-    startDate: schedule.startDate.toISOString().slice(0, 10),
-    endDate: schedule.endDate.toISOString().slice(0, 10),
+    name: schedule.period.name,
+    startDate: schedule.period.startDate.toISOString().slice(0, 10),
+    endDate: schedule.period.endDate.toISOString().slice(0, 10),
     status: schedule.status,
-    submissionDeadline: schedule.submissionDeadline?.toISOString(),
+    submissionDeadline: schedule.period.submissionDeadline?.toISOString(),
     ...extras,
   };
 }
 
-async function getSubmissionData(scheduleId: string, courtId: string) {
+async function getSubmissionData(periodId: string, courtId: string) {
   const [submittedSubmissions, totalEmployees, employees] = await Promise.all([
     prisma.availabilityForm.findMany({
       where: {
-        scheduleId,
+        periodId,
         isSubmitted: true,
-        employee: { courtId, isActive: true },
+        employee: { courtId, isActive: true, position: { code: { not: 1 } } },
       },
       select: { employeeId: true },
     }),
-    prisma.employee.count({ where: { courtId, isActive: true } }),
+    prisma.employee.count({ where: { courtId, isActive: true, position: { code: { not: 1 } } } }),
     prisma.employee.findMany({
-      where: { courtId, isActive: true },
+      where: { courtId, isActive: true, position: { code: { not: 1 } } },
       select: {
         id: true,
         displayName: true,
@@ -119,31 +121,37 @@ export async function getSchedulesForYear(courtId: string, year: number): Promis
     prisma.workSchedule.findMany({
       where: {
         courtId,
-        startDate: { lte: end },
-        endDate: { gte: start },
+        period: {
+          startDate: { lte: end },
+          endDate: { gte: start },
+        },
       },
-      orderBy: { startDate: 'asc' },
+      orderBy: { period: { startDate: 'asc' } },
       include: {
-        _count: {
-          select: {
-            availabilityForms: { where: { isSubmitted: true } },
+        period: {
+          include: {
+            _count: {
+              select: {
+                availabilityForms: { where: { isSubmitted: true, employee: { position: { code: { not: 1 } } } } },
+              },
+            },
           },
         },
       },
     }),
     prisma.employee.count({
-      where: { courtId, isActive: true },
+      where: { courtId, isActive: true, position: { code: { not: 1 } } },
     }),
   ]);
 
   return schedules.map((schedule) => ({
     id: schedule.id,
-    name: schedule.name,
-    startDate: schedule.startDate.toISOString().slice(0, 10),
-    endDate: schedule.endDate.toISOString().slice(0, 10),
-    submissionDeadline: schedule.submissionDeadline.toISOString(),
+    name: schedule.period.name,
+    startDate: schedule.period.startDate.toISOString().slice(0, 10),
+    endDate: schedule.period.endDate.toISOString().slice(0, 10),
+    submissionDeadline: schedule.period.submissionDeadline.toISOString(),
     status: schedule.status,
-    submittedCount: schedule._count.availabilityForms,
+    submittedCount: schedule.period._count.availabilityForms,
     totalEmployees,
   }));
 }
@@ -170,15 +178,17 @@ export async function getManagerDashboardData(year: number): Promise<ManagerDash
     prisma.employee.count({ where: { courtId, isActive: true } }),
     getSchedulesForYear(courtId, year),
     prisma.workSchedule.findFirst({
-      where: { courtId, status: ScheduleStatus.PUBLISHED, endDate: { gte: today } },
-      orderBy: { startDate: 'desc' },
+      where: { courtId, status: ScheduleStatus.PUBLISHED, period: { endDate: { gte: today } } },
+      include: { period: true },
+      orderBy: { period: { startDate: 'desc' } },
     }),
     prisma.workSchedule.findFirst({
       where: {
         courtId,
         status: { in: [ScheduleStatus.DRAFT, ScheduleStatus.OPEN] },
       },
-      orderBy: { startDate: 'desc' },
+      include: { period: true },
+      orderBy: { period: { startDate: 'desc' } },
     }),
   ]);
 
@@ -188,7 +198,7 @@ export async function getManagerDashboardData(year: number): Promise<ManagerDash
   let submissionSummary: ManagerDashboardData['submissionSummary'] = null;
 
   if (draftRow) {
-    const submission = await getSubmissionData(draftRow.id, courtId);
+    const submission = await getSubmissionData(draftRow.periodId, courtId);
     draftSchedule = toScheduleSnapshot(draftRow, submission);
     submissionSummary = {
       submittedCount: submission.submittedCount,

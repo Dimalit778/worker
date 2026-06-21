@@ -274,14 +274,18 @@ export async function getManagerEmployeeDetail(employeeId: string): Promise<Empl
         },
         schedule: {
           select: {
-            name: true,
+            period: {
+              select: {
+                name: true,
+              },
+            },
           },
         },
       },
     }),
     prisma.fairnessRecord.findMany({
       where: { employeeId },
-      orderBy: { schedule: { startDate: 'desc' } },
+      orderBy: { schedule: { period: { startDate: 'desc' } } },
       take: 6,
       select: {
         id: true,
@@ -292,7 +296,11 @@ export async function getManagerEmployeeDetail(employeeId: string): Promise<Empl
         weekendShifts: true,
         schedule: {
           select: {
-            name: true,
+            period: {
+              select: {
+                name: true,
+              },
+            },
           },
         },
       },
@@ -343,11 +351,11 @@ export async function getManagerEmployeeDetail(employeeId: string): Promise<Empl
       shiftType: assignment.shiftType,
       isManualOverride: false,
       positionName: assignment.position.name,
-      periodName: assignment.schedule.name,
+      periodName: assignment.schedule.period.name,
     })),
     fairnessRecords: fairnessRecords.map((record) => ({
       id: record.id,
-      periodName: record.schedule.name,
+      periodName: record.schedule.period.name,
       totalShifts: record.totalShifts,
       morningShifts: record.morningShifts,
       eveningShifts: record.eveningShifts,
@@ -382,22 +390,26 @@ export async function getManagerEmployeeSubmissions(employeeId: string): Promise
 
   const periods = await prisma.workSchedule.findMany({
     where: { courtId },
-    orderBy: { startDate: 'desc' },
+    orderBy: { period: { startDate: 'desc' } },
     select: {
       id: true,
-      name: true,
-      startDate: true,
-      endDate: true,
-      submissionDeadline: true,
       status: true,
-      availabilityForms: {
-        where: { employeeId },
-        take: 1,
+      period: {
         select: {
-          id: true,
-          isSubmitted: true,
-          submittedAt: true,
-          shifts: true,
+          name: true,
+          startDate: true,
+          endDate: true,
+          submissionDeadline: true,
+          availabilityForms: {
+            where: { employeeId },
+            take: 1,
+            select: {
+              id: true,
+              isSubmitted: true,
+              submittedAt: true,
+              shifts: true,
+            },
+          },
         },
       },
     },
@@ -413,7 +425,7 @@ export async function getManagerEmployeeSubmissions(employeeId: string): Promise
       isActive: employee.isActive,
     },
     periods: periods.map((period) => {
-      const availability = period.availabilityForms[0] ?? null;
+      const availability = period.period.availabilityForms[0] ?? null;
       const shifts = availability?.shifts ?? [];
       const entries = availabilityEntriesToRecord(
         shifts.map((shift) => ({
@@ -425,10 +437,10 @@ export async function getManagerEmployeeSubmissions(employeeId: string): Promise
 
       return {
         id: period.id,
-        name: period.name,
-        startDate: period.startDate.toISOString().slice(0, 10),
-        endDate: period.endDate.toISOString().slice(0, 10),
-        submissionDeadline: period.submissionDeadline.toISOString(),
+        name: period.period.name,
+        startDate: period.period.startDate.toISOString().slice(0, 10),
+        endDate: period.period.endDate.toISOString().slice(0, 10),
+        submissionDeadline: period.period.submissionDeadline.toISOString(),
         status: period.status,
         availabilityId: availability?.id ?? null,
         isSubmitted: availability?.isSubmitted ?? false,

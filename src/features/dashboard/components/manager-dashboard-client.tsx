@@ -13,13 +13,22 @@ type ManagerDashboardClientProps = {
 
 export function ManagerDashboardClient({ year, initialSelection }: ManagerDashboardClientProps) {
   const { data, isLoading, isError } = useManagerDashboard(year);
+  console.log(JSON.stringify(data, null, 2));
 
   if (isLoading) {
-    return <p className="text-sm text-muted-foreground" dir="rtl">טוען לוח מנהל...</p>;
+    return (
+      <p className="text-sm text-muted-foreground" dir="rtl">
+        טוען לוח מנהל...
+      </p>
+    );
   }
 
   if (isError || !data) {
-    return <p className="text-sm text-destructive" dir="rtl">לא ניתן לטעון נתוני הלוח.</p>;
+    return (
+      <p className="text-sm text-destructive" dir="rtl">
+        לא ניתן לטעון נתוני הלוח.
+      </p>
+    );
   }
 
   return (

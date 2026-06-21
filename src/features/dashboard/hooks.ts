@@ -2,12 +2,9 @@
 
 import { useQuery, useQueryClient } from '@tanstack/react-query';
 import { queryKeys } from '@/lib/react-query/query-keys';
-import { fetchManagerDashboardData } from '@/features/dashboard/actions';
+import { fetchManagerDashboardData } from './actions';
 
-export function invalidateManagerDashboard(
-  queryClient: ReturnType<typeof useQueryClient>,
-  year: number,
-) {
+export function invalidateManagerDashboard(queryClient: ReturnType<typeof useQueryClient>, year: number) {
   return queryClient.invalidateQueries({ queryKey: queryKeys.dashboard.manager(year) });
 }
 

@@ -54,9 +54,14 @@ export async function getAutoScheduleInputData(scheduleId: string): Promise<Auto
     select: {
       id: true,
       courtId: true,
-      startDate: true,
-      endDate: true,
+      periodId: true,
       status: true,
+      period: {
+        select: {
+          startDate: true,
+          endDate: true,
+        },
+      },
     },
   });
 
@@ -73,8 +78,8 @@ export async function getAutoScheduleInputData(scheduleId: string): Promise<Auto
   const publishedVersionId = await getPublishedActiveVersionId(scheduleRow.id);
   const sourceVersionId = draftVersionId ?? publishedVersionId;
 
-  const employeeWhere = { courtId: scheduleRow.courtId, isActive: true };
-  const periodDates = getPeriodDates(scheduleRow.startDate, scheduleRow.endDate);
+  const employeeWhere = { courtId: scheduleRow.courtId, isActive: true, position: { code: { not: 1 } } };
+  const periodDates = getPeriodDates(scheduleRow.period.startDate, scheduleRow.period.endDate);
 
   const [employees, availabilities, capacities, existingAssignments] = await Promise.all([
     prisma.employee.findMany({
@@ -90,14 +95,14 @@ export async function getAutoScheduleInputData(scheduleId: string): Promise<Auto
     }),
     prisma.availabilityForm.findMany({
       where: {
-        scheduleId: scheduleRow.id,
+        periodId: scheduleRow.periodId,
         employee: employeeWhere,
       },
       select: {
         employeeId: true,
         shifts: {
           where: {
-            date: { gte: scheduleRow.startDate, lte: scheduleRow.endDate },
+            date: { gte: scheduleRow.period.startDate, lte: scheduleRow.period.endDate },
           },
           select: {
             date: true,
@@ -107,7 +112,7 @@ export async function getAutoScheduleInputData(scheduleId: string): Promise<Auto
       },
     }),
     prisma.shiftCapacity.findMany({
-      where: { courtId: scheduleRow.courtId, isActive: true },
+      where: { courtId: scheduleRow.courtId, isActive: true, position: { code: { not: 1 } } },
       select: {
         positionId: true,
         position: { select: { name: true, code: true } },
@@ -122,6 +127,8 @@ export async function getAutoScheduleInputData(scheduleId: string): Promise<Auto
           where: {
             scheduleId: scheduleRow.id,
             versionId: sourceVersionId,
+            employee: employeeWhere,
+            position: { code: { not: 1 } },
           },
           select: {
             employeeId: true,
@@ -169,8 +176,8 @@ export async function getAutoScheduleInputData(scheduleId: string): Promise<Auto
       period: {
         id: scheduleRow.id,
         courtId: scheduleRow.courtId,
-        startDate: utcDateOnly(scheduleRow.startDate),
-        endDate: utcDateOnly(scheduleRow.endDate),
+        startDate: utcDateOnly(scheduleRow.period.startDate),
+        endDate: utcDateOnly(scheduleRow.period.endDate),
       },
       week1Dates: periodDates.slice(0, 7),
       week2Dates: periodDates.slice(7),

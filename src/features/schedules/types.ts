@@ -119,6 +119,7 @@ export type WeekDay = {
 
 export type AssignEmployeeToSlotParams = {
   scheduleId: string;
+  courtId?: string;
   employeeId: string;
   positionId: string;
   shiftType: ShiftType;

@@ -12,28 +12,32 @@ export async function getSchedulesList(): Promise<PeriodSummary[]> {
     where: {
       courtId: session.user.courtId,
     },
-    orderBy: { startDate: 'desc' },
+    orderBy: { period: { startDate: 'desc' } },
     include: {
-      _count: {
-        select: {
-          availabilityForms: { where: { isSubmitted: true } },
+      period: {
+        include: {
+          _count: {
+            select: {
+              availabilityForms: { where: { isSubmitted: true, employee: { position: { code: { not: 1 } } } } },
+            },
+          },
         },
       },
     },
   });
 
   const totalEmployees = await prisma.employee.count({
-    where: { isActive: true },
+    where: { courtId: session.user.courtId, isActive: true, position: { code: { not: 1 } } },
   });
 
   return periods.map((p) => ({
     id: p.id,
-    name: p.name,
-    startDate: p.startDate.toISOString().slice(0, 10),
-    endDate: p.endDate.toISOString().slice(0, 10),
-    submissionDeadline: p.submissionDeadline.toISOString(),
+    name: p.period.name,
+    startDate: p.period.startDate.toISOString().slice(0, 10),
+    endDate: p.period.endDate.toISOString().slice(0, 10),
+    submissionDeadline: p.period.submissionDeadline.toISOString(),
     status: p.status,
-    submittedCount: p._count.availabilityForms ?? 0,
+    submittedCount: p.period._count.availabilityForms ?? 0,
     totalEmployees: totalEmployees ?? 0,
   }));
 }
@@ -59,16 +63,26 @@ export async function createSchedule(data: {
   if (isNaN(deadline.getTime())) return { error: 'מועד אחרון להגשה לא תקין' };
 
   try {
-    const schedule = await prisma.workSchedule.create({
-      data: {
-        name: data.name.trim(),
-        startDate: start,
-        endDate: end,
-        submissionDeadline: deadline,
-        status: ScheduleStatus.OPEN,
-        courtId: session.user.courtId,
-        createdById: session.user.id,
-      },
+    const schedule = await prisma.$transaction(async (tx) => {
+      const period = await tx.schedulePeriod.create({
+        data: {
+          name: data.name.trim(),
+          startDate: start,
+          endDate: end,
+          submissionDeadline: deadline,
+          courtId: session.user.courtId,
+        },
+      });
+
+      return tx.workSchedule.create({
+        data: {
+          id: period.id,
+          periodId: period.id,
+          status: ScheduleStatus.OPEN,
+          courtId: session.user.courtId,
+          createdById: session.user.id,
+        },
+      });
     });
 
     return { ok: true, id: schedule.id };
@@ -86,7 +100,14 @@ export async function deleteSchedule(scheduleId: string): Promise<{ ok: true } |
   const session = await requireSession(SystemRole.MANAGER);
 
   try {
-    await prisma.workSchedule.delete({ where: { id: scheduleId, courtId: session.user.courtId } });
+    const schedule = await prisma.workSchedule.findUnique({
+      where: { id: scheduleId, courtId: session.user.courtId },
+      select: { periodId: true },
+    });
+
+    if (!schedule) return { error: 'שגיאה במחיקת השיבוץ' };
+
+    await prisma.schedulePeriod.delete({ where: { id: schedule.periodId, courtId: session.user.courtId } });
     return { ok: true };
   } catch {
     return { error: 'שגיאה במחיקת השיבוץ' };

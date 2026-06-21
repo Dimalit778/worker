@@ -34,7 +34,44 @@ export function isAvailable(
   return availability.get(employeeId)?.has(key) ?? false;
 }
 
-// H2 — Employee already has an assignment on the same date + shiftType.
+// H2 — Employee already has an assignment on the same or adjacent shift.
+export function areAdjacentShifts(
+  firstDate: Date,
+  firstShiftType: ShiftType,
+  secondDate: Date,
+  secondShiftType: ShiftType
+): boolean {
+  if (isSameDate(firstDate, secondDate)) {
+    return (
+      (firstShiftType === "MORNING" && secondShiftType === "EVENING") ||
+      (firstShiftType === "EVENING" && secondShiftType === "MORNING") ||
+      (firstShiftType === "EVENING" && secondShiftType === "NIGHT") ||
+      (firstShiftType === "NIGHT" && secondShiftType === "EVENING")
+    );
+  }
+
+  return (
+    (firstShiftType === "NIGHT" &&
+      secondShiftType === "MORNING" &&
+      isSameDate(addDays(firstDate, 1), secondDate)) ||
+    (firstShiftType === "MORNING" &&
+      secondShiftType === "NIGHT" &&
+      isSameDate(addDays(secondDate, 1), firstDate))
+  );
+}
+
+export function hasShiftConflict(
+  firstDate: Date,
+  firstShiftType: ShiftType,
+  secondDate: Date,
+  secondShiftType: ShiftType
+): boolean {
+  return (
+    (firstShiftType === secondShiftType && isSameDate(firstDate, secondDate)) ||
+    areAdjacentShifts(firstDate, firstShiftType, secondDate, secondShiftType)
+  );
+}
+
 export function isDoubleBooked(
   employeeId: string,
   date: Date,
@@ -44,8 +81,7 @@ export function isDoubleBooked(
   return assignments.some(
     (a) =>
       a.employeeId === employeeId &&
-      a.shiftType === shiftType &&
-      isSameDate(a.date, date)
+      hasShiftConflict(a.date, a.shiftType, date, shiftType)
   );
 }
 
@@ -111,12 +147,52 @@ export function getSlotFillCount(
   ).length;
 }
 
+// Counts all people already assigned to a court/date/shift, across positions.
+// Used when an employee offered two adjacent shifts and should go to the one
+// with fewer people.
+export function getShiftFillCount(
+  slot: EngineSlot,
+  assignments: EngineAssignment[]
+): number {
+  return assignments.filter(
+    (a) =>
+      a.courtId === slot.courtId &&
+      a.shiftType === slot.shiftType &&
+      isSameDate(a.date, slot.date)
+  ).length;
+}
+
 // H6 — Slot has room for at least one more assignment.
 export function slotHasCapacity(
   slot: EngineSlot,
   assignments: EngineAssignment[]
 ): boolean {
   return getSlotFillCount(slot, assignments) < slot.requiredAmount;
+}
+
+export function hasAdjacentAvailableSlotWithLowerFill(
+  employee: EngineEmployee,
+  slot: EngineSlot,
+  allSlots: EngineSlot[],
+  assignments: EngineAssignment[],
+  availability: Map<string, Set<string>>
+): boolean {
+  const currentShiftFill = getShiftFillCount(slot, assignments);
+
+  return allSlots.some((candidate) => {
+    if (candidate.courtId !== slot.courtId) return false;
+    if (!areAdjacentShifts(slot.date, slot.shiftType, candidate.date, candidate.shiftType)) {
+      return false;
+    }
+    if (!isEligibleForSlot(employee, candidate)) return false;
+    if (!isAvailable(employee.id, candidate.date, candidate.shiftType, availability)) return false;
+    if (isDoubleBooked(employee.id, candidate.date, candidate.shiftType, assignments)) {
+      return false;
+    }
+    if (!slotHasCapacity(candidate, assignments)) return false;
+
+    return getShiftFillCount(candidate, assignments) < currentShiftFill;
+  });
 }
 
 // ─── Combined gate ────────────────────────────────────────────────────────────
@@ -127,13 +203,22 @@ export function canAssignEmployeeToSlot(
   employee: EngineEmployee,
   slot: EngineSlot,
   assignments: EngineAssignment[],
-  availability: Map<string, Set<string>>
+  availability: Map<string, Set<string>>,
+  allSlots?: EngineSlot[]
 ): boolean {
   return (
     isEligibleForSlot(employee, slot) &&
     isAvailable(employee.id, slot.date, slot.shiftType, availability) &&
     !isDoubleBooked(employee.id, slot.date, slot.shiftType, assignments) &&
     !violatesRestRule(employee.id, slot.date, slot.shiftType, assignments) &&
-    slotHasCapacity(slot, assignments)
+    slotHasCapacity(slot, assignments) &&
+    (!allSlots ||
+      !hasAdjacentAvailableSlotWithLowerFill(
+        employee,
+        slot,
+        allSlots,
+        assignments,
+        availability
+      ))
   );
 }

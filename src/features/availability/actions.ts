@@ -11,14 +11,21 @@ export async function getScheduleData() {
 
   if (!courtId || !employeeId) return { period: null, entries: {}, isSubmitted: false, note: '' };
 
+  const employee = await prisma.employee.findFirst({
+    where: { id: employeeId, courtId, isActive: true, position: { code: { not: 1 } } },
+    select: { id: true },
+  });
+  if (!employee) return { period: null, entries: {}, isSubmitted: false, note: '' };
+
   const period = await prisma.workSchedule.findFirst({
     where: { courtId, status: ScheduleStatus.OPEN },
+    include: { period: true },
   });
 
   if (!period) return { period: null, entries: {}, isSubmitted: false, note: '' };
 
   const submission = await prisma.availabilityForm.findUnique({
-    where: { scheduleId_employeeId: { scheduleId: period.id, employeeId } },
+    where: { periodId_employeeId: { periodId: period.periodId, employeeId } },
     include: { shifts: true },
   });
 
@@ -31,9 +38,9 @@ export async function getScheduleData() {
   return {
     period: {
       id: period.id,
-      name: period.name,
-      startDate: period.startDate.toISOString().slice(0, 10),
-      endDate: period.endDate.toISOString().slice(0, 10),
+      name: period.period.name,
+      startDate: period.period.startDate.toISOString().slice(0, 10),
+      endDate: period.period.endDate.toISOString().slice(0, 10),
       status: period.status,
     },
     entries,
@@ -51,6 +58,12 @@ export async function submitAvailability(input: {
   const { courtId, employeeId } = session.user;
   if (!courtId || !employeeId) return { ok: false };
 
+  const employee = await prisma.employee.findFirst({
+    where: { id: employeeId, courtId, isActive: true, position: { code: { not: 1 } } },
+    select: { id: true },
+  });
+  if (!employee) return { ok: false };
+
   const period = await prisma.workSchedule.findFirst({
     where: { courtId, status: ScheduleStatus.OPEN },
   });
@@ -59,10 +72,10 @@ export async function submitAvailability(input: {
   const trimmedNote = note?.trim() || null;
 
   const submission = await prisma.availabilityForm.upsert({
-    where: { scheduleId_employeeId: { scheduleId: period.id, employeeId } },
+    where: { periodId_employeeId: { periodId: period.periodId, employeeId } },
     update: { isSubmitted: true, submittedAt: new Date(), note: trimmedNote },
     create: {
-      scheduleId: period.id,
+      periodId: period.periodId,
       employeeId,
       isSubmitted: true,
       submittedAt: new Date(),
@@ -93,19 +106,19 @@ export async function getEmployeeAvailability(): Promise<EmployeeAvailabilityFor
   const { courtId, employeeId } = await requireEmployee();
   if (!courtId || !employeeId) return [];
   const rows = await prisma.availabilityForm.findMany({
-    where: { employeeId, schedule: { courtId } },
+    where: { employeeId, period: { courtId }, employee: { position: { code: { not: 1 } } } },
     include: {
-      schedule: true,
+      period: { include: { schedule: { select: { status: true } } } },
       shifts: true,
     },
-    orderBy: { schedule: { startDate: 'desc' } },
+    orderBy: { period: { startDate: 'desc' } },
   });
   return rows.map((row) => ({
-    id: row.schedule.id,
-    name: row.schedule.name,
-    startDate: row.schedule.startDate.toISOString().slice(0, 10),
-    endDate: row.schedule.endDate.toISOString().slice(0, 10),
-    status: row.schedule.status,
+    id: row.period.id,
+    name: row.period.name,
+    startDate: row.period.startDate.toISOString().slice(0, 10),
+    endDate: row.period.endDate.toISOString().slice(0, 10),
+    status: row.period.schedule?.status ?? ScheduleStatus.ARCHIVED,
     isSubmitted: row.isSubmitted,
     note: row.note ?? '',
     entries: row.shifts.map((s) => ({
@@ -115,3 +128,5 @@ export async function getEmployeeAvailability(): Promise<EmployeeAvailabilityFor
     })),
   }));
 }
+
+export const fetchMyEmployeeAvailability = getEmployeeAvailability;

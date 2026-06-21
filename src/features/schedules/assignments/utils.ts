@@ -59,10 +59,12 @@ export function buildAssignmentMap(
 export function toScheduleData(
   scheduleRow: {
     id: string;
-    name: string;
-    startDate: Date;
-    endDate: Date;
     status: ScheduleStatus;
+    period: {
+      name: string;
+      startDate: Date;
+      endDate: Date;
+    };
   },
   courtId: string,
   employees: ScheduleEmployeeOption[],
@@ -73,9 +75,9 @@ export function toScheduleData(
 ): CurrentScheduleData {
   return {
     scheduleId: scheduleRow.id,
-    scheduleName: scheduleRow.name,
-    startDate: scheduleRow.startDate.toISOString().slice(0, 10),
-    endDate: scheduleRow.endDate.toISOString().slice(0, 10),
+    scheduleName: scheduleRow.period.name,
+    startDate: scheduleRow.period.startDate.toISOString().slice(0, 10),
+    endDate: scheduleRow.period.endDate.toISOString().slice(0, 10),
     scheduleStatus: scheduleRow.status,
     courtId,
     employees,

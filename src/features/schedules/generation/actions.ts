@@ -2,9 +2,9 @@
 
 import { generateSchedule } from '@/features/scheduling-engine/generate-schedule';
 import type { EngineInput, EngineStats } from '@/features/scheduling-engine/types';
-import { requireSession } from '@/lib/db/auth-helpers';
+import { requireManager } from '@/lib/db/auth-helpers';
 import { prisma } from '@/lib/db/client';
-import { ScheduleStatus, SystemRole, WarningSeverity, WarningType } from '@/generated/prisma/client';
+import { ScheduleStatus, WarningSeverity, WarningType } from '@/generated/prisma/client';
 
 import { resolveDraftVersionForGeneration } from '@/features/schedules/versions/queries';
 import { getAutoScheduleInputData } from './queries';
@@ -21,13 +21,13 @@ export type GenerateAutoScheduleResult =
   | { error: string };
 
 export async function generateAutoSchedule(scheduleId: string): Promise<GenerateAutoScheduleResult> {
-  const session = await requireSession(SystemRole.MANAGER);
+  const { userId, courtId } = await requireManager();
 
   const data = await getAutoScheduleInputData(scheduleId);
   if (!data.found) return { error: data.message };
 
   const currentSchedule = await prisma.workSchedule.findUnique({
-    where: { id: scheduleId },
+    where: { id: scheduleId, courtId },
     select: { id: true, status: true },
   });
 
@@ -45,7 +45,7 @@ export async function generateAutoSchedule(scheduleId: string): Promise<Generate
   await prisma.$transaction(
     async (tx) => {
       const freshSchedule = await tx.workSchedule.findUnique({
-        where: { id: scheduleId },
+        where: { id: scheduleId, courtId },
         select: { status: true, courtId: true },
       });
 
@@ -55,7 +55,7 @@ export async function generateAutoSchedule(scheduleId: string): Promise<Generate
       }
       if (freshSchedule.status === ScheduleStatus.OPEN) {
         await tx.workSchedule.update({
-          where: { id: scheduleId },
+          where: { id: scheduleId, courtId },
           data: { status: ScheduleStatus.LOCKED },
         });
       } else if (
@@ -68,7 +68,7 @@ export async function generateAutoSchedule(scheduleId: string): Promise<Generate
       const draftVersion = await resolveDraftVersionForGeneration(tx, {
         scheduleId,
         courtId: freshSchedule.courtId,
-        createdById: session.user.id,
+        createdById: userId,
       });
 
       await tx.shiftAssignment.deleteMany({
@@ -128,7 +128,7 @@ export async function generateAutoSchedule(scheduleId: string): Promise<Generate
       }
 
       await tx.workSchedule.update({
-        where: { id: scheduleId },
+        where: { id: scheduleId, courtId },
         data: {
           generatedAt: new Date(),
         },

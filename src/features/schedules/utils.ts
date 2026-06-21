@@ -1,5 +1,5 @@
 import type { ShiftType } from '@/generated/prisma/client';
-import type { AssignmentCellKey, ScheduleCapacityRule, StaffingDayCategory, WeekDay } from './types';
+import type { AssignmentCellKey, AssignmentMap, ScheduleCapacityRule, StaffingDayCategory, WeekDay } from './types';
 import { EVENING_SLOT_LABELS, MORNING_SLOT_LABELS, NIGHT_SLOT_LABELS, WEEKDAY_HEADER_LETTERS } from './constants';
 
 export function toDateOnly(date: Date): string {
@@ -42,6 +42,12 @@ export function buildScheduleDates(startDateISO: string, endDateISO: string): st
     cursor.setUTCDate(cursor.getUTCDate() + 1);
   }
   return dates;
+}
+
+function addIsoDays(isoDate: string, days: number): string {
+  const [y, m, d] = isoDate.split('-').map(Number);
+  const date = new Date(Date.UTC(y, m - 1, d + days));
+  return toDateOnly(date);
 }
 
 /**
@@ -91,6 +97,33 @@ export function getOrderedPositionsForShift(
   }
   return [...map.values()].sort(
     (a, b) => a.positionCode - b.positionCode || a.positionName.localeCompare(b.positionName, 'he'),
+  );
+}
+
+export function blockedEmployeeIdsForShift(
+  assignments: AssignmentMap,
+  date: string,
+  shiftType: ShiftType,
+): Set<string> {
+  const conflictingShiftRefs: Array<{ date: string; shiftType: ShiftType }> = [{ date, shiftType }];
+
+  if (shiftType === 'MORNING') {
+    conflictingShiftRefs.push({ date, shiftType: 'EVENING' });
+    conflictingShiftRefs.push({ date: addIsoDays(date, -1), shiftType: 'NIGHT' });
+  } else if (shiftType === 'EVENING') {
+    conflictingShiftRefs.push({ date, shiftType: 'MORNING' });
+    conflictingShiftRefs.push({ date, shiftType: 'NIGHT' });
+  } else {
+    conflictingShiftRefs.push({ date, shiftType: 'EVENING' });
+    conflictingShiftRefs.push({ date: addIsoDays(date, 1), shiftType: 'MORNING' });
+  }
+
+  const prefixes = conflictingShiftRefs.map((ref) => `${ref.date}-${ref.shiftType}-`);
+
+  return new Set(
+    Object.entries(assignments)
+      .filter(([key]) => prefixes.some((prefix) => key.startsWith(prefix)))
+      .flatMap(([, list]) => list.map((assignment) => assignment.employeeId)),
   );
 }
 

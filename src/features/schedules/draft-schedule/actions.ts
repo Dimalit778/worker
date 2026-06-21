@@ -14,10 +14,11 @@ type PublishScheduleResult =
   | { requiresConfirmation: true; issueCount: number; message: string }
   | { error: string };
 
-async function getOpenErrorWarningsMessage(scheduleId: string): Promise<string | null> {
+async function getOpenErrorWarningsMessage(scheduleId: string, courtId: string): Promise<string | null> {
   const errorCount = await prisma.scheduleWarning.count({
     where: {
       scheduleId,
+      schedule: { courtId },
       severity: WarningSeverity.ERROR,
     },
   });
@@ -26,20 +27,29 @@ async function getOpenErrorWarningsMessage(scheduleId: string): Promise<string |
   return `לא ניתן לסיים עריכת שיבוץ עם ${errorCount} שגיאות פתוחות`;
 }
 
-async function getOpenScheduleIssuesCount(scheduleId: string): Promise<number> {
+async function getOpenScheduleIssuesCount(scheduleId: string, courtId: string): Promise<number> {
   return prisma.scheduleWarning.count({
     where: {
       scheduleId,
+      schedule: { courtId },
     },
   });
 }
 
 // = לסיים עריכת שיבוץ (בדיקת שגיאות בלבד — אין עוד סטטוס ביניים אחרי DRAFT)
 export async function finalizeSchedule(scheduleId: string): Promise<{ ok: true } | { error: string }> {
-  await requireSession(SystemRole.MANAGER);
+  const session = await requireSession(SystemRole.MANAGER);
+  const courtId = session.user.courtId;
+  if (!courtId) return { error: 'למנהל אין בית משפט משויך' };
 
   try {
-    const errorMessage = await getOpenErrorWarningsMessage(scheduleId);
+    const schedule = await prisma.workSchedule.findFirst({
+      where: { id: scheduleId, courtId },
+      select: { id: true },
+    });
+    if (!schedule) return { error: 'השיבוץ לא נמצא' };
+
+    const errorMessage = await getOpenErrorWarningsMessage(scheduleId, courtId);
     if (errorMessage) return { error: errorMessage };
 
     return { ok: true };
@@ -53,16 +63,18 @@ export async function publishSchedule(
   options: { confirmIssues?: boolean } = {},
 ): Promise<PublishScheduleResult> {
   const session = await requireSession(SystemRole.MANAGER);
+  const courtId = session.user.courtId;
+  if (!courtId) return { error: 'למנהל אין בית משפט משויך' };
 
   try {
     const draftVersion = await prisma.workScheduleVersion.findFirst({
-      where: { scheduleId, status: ScheduleVersionStatus.DRAFT },
+      where: { scheduleId, courtId, status: ScheduleVersionStatus.DRAFT },
       orderBy: { version: 'desc' },
       select: { id: true },
     });
     if (!draftVersion) return { error: 'לא נמצאה גרסת טיוטה לפרסום' };
 
-    const issueCount = await getOpenScheduleIssuesCount(scheduleId);
+    const issueCount = await getOpenScheduleIssuesCount(scheduleId, courtId);
     if (issueCount > 0 && !options.confirmIssues) {
       return {
         requiresConfirmation: true,
@@ -72,7 +84,7 @@ export async function publishSchedule(
     }
 
     const assignments = await prisma.shiftAssignment.findMany({
-      where: { versionId: draftVersion.id },
+      where: { versionId: draftVersion.id, courtId },
       select: {
         employeeId: true,
         positionId: true,
@@ -86,6 +98,7 @@ export async function publishSchedule(
       prisma.workScheduleVersion.updateMany({
         where: {
           scheduleId,
+          courtId,
           status: ScheduleVersionStatus.PUBLISHED,
           id: { not: draftVersion.id },
         },
@@ -99,7 +112,7 @@ export async function publishSchedule(
         data: { status: ScheduleVersionStatus.PUBLISHED, isActive: true, publishedAt: new Date() },
       }),
       prisma.workSchedule.update({
-        where: { id: scheduleId },
+        where: { id: scheduleId, courtId },
         data: { status: ScheduleStatus.PUBLISHED, publishedAt: new Date() },
       }),
       prisma.scheduleChangeLog.create({

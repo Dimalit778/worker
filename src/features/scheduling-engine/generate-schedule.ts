@@ -10,6 +10,7 @@ import {
 import { buildSlots, createSlotKey, getDayCategory, sortSlotsByPriority } from "./slots";
 import {
   canAssignEmployeeToSlot,
+  hasAdjacentAvailableSlotWithLowerFill,
   getSlotFillCount,
   isAvailable,
   isDoubleBooked,
@@ -110,7 +111,7 @@ export function generateSchedule(input: EngineInput): EngineOutput {
     // Fill one employee at a time until capacity is reached or candidates run out.
     while (slotHasCapacity(slot, workingAssignments)) {
       const eligible = input.employees.filter((e) =>
-        canAssignEmployeeToSlot(e, slot, workingAssignments, input.availability)
+        canAssignEmployeeToSlot(e, slot, workingAssignments, input.availability, allSlots)
       );
 
       if (eligible.length === 0) break;
@@ -169,7 +170,14 @@ export function generateSchedule(input: EngineInput): EngineOutput {
         isEligibleForSlot(employee, slot) &&
         isAvailable(employee.id, slot.date, slot.shiftType, input.availability) &&
         !isDoubleBooked(employee.id, slot.date, slot.shiftType, workingAssignments) &&
-        !violatesRestRule(employee.id, slot.date, slot.shiftType, workingAssignments)
+        !violatesRestRule(employee.id, slot.date, slot.shiftType, workingAssignments) &&
+        !hasAdjacentAvailableSlotWithLowerFill(
+          employee,
+          slot,
+          allSlots,
+          workingAssignments,
+          input.availability
+        )
       ) {
         overflowCandidates.push({
           employeeId: employee.id,

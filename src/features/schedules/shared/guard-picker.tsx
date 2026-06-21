@@ -31,7 +31,13 @@ export function GuardPicker({
   const inputRef = useRef<HTMLInputElement>(null);
   const panelRef = useRef<HTMLDivElement>(null);
 
-  const filtered = query.trim() ? employees.filter((e) => e.displayName.includes(query.trim())) : employees;
+  const selectableEmployees = employees.filter((employee) => {
+    if (employee.id === currentUserId) return true;
+    return !disabledEmployeeIds?.has(employee.id);
+  });
+  const filtered = query.trim()
+    ? selectableEmployees.filter((e) => e.displayName.includes(query.trim()))
+    : selectableEmployees;
 
   useEffect(() => {
     inputRef.current?.focus();
@@ -68,30 +74,20 @@ export function GuardPicker({
 
       <ul className="max-h-44 overflow-y-auto">
         {filtered.length === 0 && <li className="px-3 py-2 text-xs text-muted-foreground">לא נמצא</li>}
-        {filtered.map((e) => {
-          const disabled = Boolean(e.id !== currentUserId && disabledEmployeeIds?.has(e.id));
-
-          return (
-            <li key={e.id}>
-              <button
-                type="button"
-                disabled={disabled}
-                title={disabled ? 'העובד כבר משובץ במשמרת זו' : undefined}
-                onClick={() => onSelect(e.id)}
-                className={cn(
-                  'w-full px-3 py-1.5 text-start text-xs',
-                  disabled
-                    ? 'cursor-not-allowed text-muted-foreground opacity-60'
-                    : 'cursor-pointer hover:bg-accent',
-                  e.id === currentUserId && 'font-semibold bg-accent/50',
-                )}
-              >
-                <span>{e.displayName}</span>
-                {disabled && <span className="mt-0.5 block text-[10px] leading-tight">כבר משובץ במשמרת זו</span>}
-              </button>
-            </li>
-          );
-        })}
+        {filtered.map((e) => (
+          <li key={e.id}>
+            <button
+              type="button"
+              onClick={() => onSelect(e.id)}
+              className={cn(
+                'w-full cursor-pointer px-3 py-1.5 text-start text-xs hover:bg-accent',
+                e.id === currentUserId && 'font-semibold bg-accent/50',
+              )}
+            >
+              <span>{e.displayName}</span>
+            </button>
+          </li>
+        ))}
       </ul>
 
       {currentUserId && (

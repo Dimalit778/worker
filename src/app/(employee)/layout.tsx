@@ -12,18 +12,22 @@ export default async function UserLayout({ children }: { children: React.ReactNo
     (async () => {
       const user = await prisma.user.findUnique({
         where: { id: session.user.id },
-        select: { employeeId: true },
+        select: {
+          employeeId: true,
+          employee: { select: { position: { select: { code: true } } } },
+        },
       });
       if (!user?.employeeId) return false;
+      if (user.employee?.position.code === 1) return false;
 
       const openPeriod = await prisma.workSchedule.findFirst({
-        where: { status: ScheduleStatus.OPEN },
-        select: { id: true },
+        where: { status: ScheduleStatus.OPEN, courtId: session.user.courtId },
+        select: { periodId: true },
       });
       if (!openPeriod) return false;
 
       const submitted = await prisma.availabilityForm.findUnique({
-        where: { scheduleId_employeeId: { scheduleId: openPeriod.id, employeeId: user.employeeId } },
+        where: { periodId_employeeId: { periodId: openPeriod.periodId, employeeId: user.employeeId } },
         select: { isSubmitted: true },
       });
       return !submitted?.isSubmitted;

@@ -24,7 +24,7 @@ async function getScheduleCapacity(courtId: string): Promise<ScheduleCapacityRul
     where: {
       courtId,
       isActive: true,
-      position: { name: { not: 'קצין מתקן' } },
+      position: { code: { not: 1 } },
     },
     include: {
       position: { select: { id: true, name: true, code: true, color: true } },
@@ -54,7 +54,7 @@ async function getScheduleEmployees(courtId: string): Promise<ScheduleEmployeeOp
   if (!courtId) return [];
 
   const employees = await prisma.employee.findMany({
-    where: { courtId, isActive: true },
+    where: { courtId, isActive: true, position: { code: { not: 1 } } },
     select: {
       id: true,
       displayName: true,
@@ -120,18 +120,25 @@ export async function getCurrentSchedule(courtId: string): Promise<CurrentSchedu
     where: {
       status: ScheduleStatus.PUBLISHED,
       courtId,
-      startDate: { lte: today },
-      endDate: { gte: today },
+      // period: {
+      //   startDate: { lte: today },
+      //   endDate: { gte: today },
+      // },
     },
     select: {
       id: true,
-      name: true,
-      startDate: true,
-      endDate: true,
+      periodId: true,
       status: true,
+      period: {
+        select: {
+          name: true,
+          startDate: true,
+          endDate: true,
+        },
+      },
       _count: { select: { assignments: true } },
     },
-    orderBy: { startDate: 'desc' },
+    orderBy: { period: { startDate: 'desc' } },
   });
 
   const scheduleRow = scheduleRows.find((row) => row._count.assignments > 0) ?? scheduleRows[0];
@@ -157,12 +164,17 @@ export async function getDraftScheduleData(courtId: string): Promise<CurrentSche
     },
     select: {
       id: true,
-      name: true,
-      startDate: true,
-      endDate: true,
+      periodId: true,
       status: true,
+      period: {
+        select: {
+          name: true,
+          startDate: true,
+          endDate: true,
+        },
+      },
     },
-    orderBy: { startDate: 'desc' },
+    orderBy: { period: { startDate: 'desc' } },
   });
   if (!schedule) return null;
 
@@ -176,9 +188,9 @@ export async function getDraftScheduleData(courtId: string): Promise<CurrentSche
       Promise.resolve({} as OverflowCandidateMap),
       prisma.availabilityForm.findMany({
         where: {
-          scheduleId: schedule.id,
+          periodId: schedule.periodId,
           isSubmitted: true,
-          employee: { courtId, isActive: true },
+          employee: { courtId, isActive: true, position: { code: { not: 1 } } },
         },
         select: { employeeId: true },
       }),
@@ -215,7 +227,10 @@ export async function getScheduleWarnings(scheduleId: string | null | undefined)
   if (!scheduleId) return [];
 
   const rows = await prisma.scheduleWarning.findMany({
-    where: { scheduleId },
+    where: {
+      scheduleId,
+      OR: [{ employeeId: null }, { employee: { position: { code: { not: 1 } } } }],
+    },
     select: {
       id: true,
       type: true,

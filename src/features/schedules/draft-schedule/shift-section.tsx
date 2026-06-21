@@ -20,6 +20,7 @@ import { AssignmentCell } from './assignment-cell';
 import { upsertPositionForDisplayOrder } from '@/features/settings/actions';
 import { invalidateScheduleQueries } from '@/features/schedules/hooks';
 import {
+  blockedEmployeeIdsForShift,
   createAssignmentCellKey,
   getCapacityForCell,
   getDayCategoryForDate,
@@ -273,11 +274,7 @@ export function ShiftSection(props: ShiftSectionProps) {
                     const cellKey = createAssignmentCellKey({ date: day.iso, shiftType, positionId: pos.positionId });
                     const overflowKey = `${cellKey}-${targetSlotIndex}` as keyof OverflowCandidateMap;
 
-                    const assignedOnShift = new Set(
-                      Object.entries(assignments)
-                        .filter(([key]) => key.startsWith(`${day.iso}-${shiftType}-`))
-                        .flatMap(([, list]) => list.map((a) => a.employeeId)),
-                    );
+                    const blockedOnShift = blockedEmployeeIdsForShift(assignments, day.iso, shiftType);
 
                     return (
                       <AssignmentCell
@@ -285,7 +282,7 @@ export function ShiftSection(props: ShiftSectionProps) {
                         closed={closed}
                         assignment={assignment}
                         employees={employees}
-                        assignedEmployeeIds={assignedOnShift}
+                        assignedEmployeeIds={blockedOnShift}
                         scheduleId={scheduleId}
                         courtId={courtId}
                         date={day.iso}

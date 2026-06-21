@@ -123,6 +123,7 @@ async function clearDatabase() {
   await prisma.fairnessRecord.deleteMany();
 
   await prisma.workSchedule.deleteMany();
+  await prisma.schedulePeriod.deleteMany();
   await prisma.shiftCapacity.deleteMany();
 
   await prisma.session.deleteMany();

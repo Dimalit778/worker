@@ -16,6 +16,7 @@ import type {
 } from '../types';
 import { SHIFT_LABELS, SHIFT_ORDER, SHIFT_STYLES } from '../constants';
 import {
+  blockedEmployeeIdsForShift,
   buildScheduleDates,
   buildWeekDays,
   createAssignmentCellKey,
@@ -178,11 +179,7 @@ function WeekDayStrip({
 }
 
 function assignedEmployeeIdsForShift(assignments: AssignmentMap, date: string, shiftType: ShiftType): Set<string> {
-  return new Set(
-    Object.entries(assignments)
-      .filter(([key]) => key.startsWith(`${date}-${shiftType}-`))
-      .flatMap(([, list]) => list.map((assignment) => assignment.employeeId)),
-  );
+  return blockedEmployeeIdsForShift(assignments, date, shiftType);
 }
 
 function buildShiftSlots(params: {
