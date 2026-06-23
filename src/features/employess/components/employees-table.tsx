@@ -6,6 +6,7 @@ import { Plus } from 'lucide-react';
 
 import { EmployeeListItem, PositionOption } from '@/features/employess/types';
 import { deleteEmployee } from '@/features/employess/actions';
+import { deleteAdminEmployee } from '@/features/admin/actions';
 import { invalidateEmployeesList } from '@/features/employess/hooks';
 import { Button } from '@/components/ui/button';
 import {
@@ -26,21 +27,26 @@ import { createEmployeesColumns } from './employee-columns';
 export function EmployeesTable({
   employees,
   positions,
+  courtId,
+  showHeader = true,
 }: {
   employees: EmployeeListItem[];
   positions: PositionOption[];
+  courtId?: string;
+  showHeader?: boolean;
 }) {
   const queryClient = useQueryClient();
 
   const deleteMutation = useMutation({
-    mutationFn: deleteEmployee,
+    mutationFn: (employeeId: string) =>
+      courtId ? deleteAdminEmployee(employeeId) : deleteEmployee(employeeId),
     onSuccess: (result) => {
       if ('error' in result) {
         setError(result.error);
         return;
       }
       setDeleteTarget(null);
-      invalidateEmployeesList(queryClient);
+      invalidateEmployeesList(queryClient, courtId);
     },
   });
 
@@ -90,27 +96,46 @@ export function EmployeesTable({
         onEdit: openEdit,
         onDelete: handleDeleteClick,
         deletePending,
+        hideDetailLinks: Boolean(courtId),
       }),
-    [deletePending, handleDeleteClick, openEdit],
+    [courtId, deletePending, handleDeleteClick, openEdit],
   );
 
   return (
     <div className="space-y-4" dir="rtl">
-      <div className="flex items-center justify-between">
-        <div>
-          <h1 className="text-2xl font-bold">עובדים</h1>
-          <p className="text-sm text-muted-foreground">ניהול עובדים, תפקידים וסטטוס פעילות.</p>
-        </div>
+      {showHeader && (
+        <div className="flex items-center justify-between">
+          <div>
+            <h1 className="text-2xl font-bold">עובדים</h1>
+            <p className="text-sm text-muted-foreground">ניהול עובדים, תפקידים וסטטוס פעילות.</p>
+          </div>
 
-        <Button type="button" onClick={openAdd}>
-          <Plus className="ml-2 h-4 w-4" />
-          הוסף עובד
-        </Button>
-      </div>
+          <Button type="button" onClick={openAdd}>
+            <Plus className="ml-2 h-4 w-4" />
+            הוסף עובד
+          </Button>
+        </div>
+      )}
+
+      {!showHeader && (
+        <div className="flex justify-end">
+          <Button type="button" onClick={openAdd}>
+            <Plus className="ml-2 h-4 w-4" />
+            הוסף עובד
+          </Button>
+        </div>
+      )}
 
       <EmployeesDataTable columns={columns} data={employees} />
 
-      {modalOpen && <EmployeeModal employee={editingEmployee} positions={positions} onClose={closeModal} />}
+      {modalOpen && (
+        <EmployeeModal
+          employee={editingEmployee}
+          positions={positions}
+          courtId={courtId}
+          onClose={closeModal}
+        />
+      )}
 
       <AlertDialog
         open={Boolean(deleteTarget)}

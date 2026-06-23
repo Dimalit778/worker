@@ -2,11 +2,7 @@
 
 import { useQuery, useQueryClient } from '@tanstack/react-query';
 import { queryKeys } from '@/lib/react-query/query-keys';
-import {
-  fetchCurrentSchedule,
-  fetchDraftSchedule,
-  fetchEmployeeCurrentSchedule,
-} from '@/features/schedules/assignments/actions';
+import { fetchCurrentSchedule, fetchDraftSchedule } from '@/features/schedules/assignments/actions';
 
 export function invalidateScheduleQueries(queryClient: ReturnType<typeof useQueryClient>, scheduleId?: string) {
   const tasks = [
@@ -40,6 +36,6 @@ export function useDraftSchedule() {
 export function useEmployeeCurrentSchedule() {
   return useQuery({
     queryKey: queryKeys.schedules.employeeCurrent(),
-    queryFn: fetchEmployeeCurrentSchedule,
+    queryFn: fetchCurrentSchedule,
   });
 }

@@ -5,6 +5,7 @@ import { useMutation, useQueryClient } from '@tanstack/react-query';
 import { X } from 'lucide-react';
 import { EmployeeListItem, PositionOption } from '@/features/employess/types';
 import { createEmployee, updateEmployee } from '@/features/employess/actions';
+import { createAdminEmployee, updateAdminEmployee } from '@/features/admin/actions';
 import { invalidateEmployeeDetail, invalidateEmployeesList } from '@/features/employess/hooks';
 import { Button } from '@/components/ui/button';
 import { getInitialPasswordFromEmail } from '../utils';
@@ -14,10 +15,11 @@ import { Select, SelectTrigger, SelectValue, SelectContent, SelectItem, Label, I
 type Props = {
   employee: EmployeeListItem | null;
   positions: PositionOption[];
+  courtId?: string;
   onClose: () => void;
 };
 
-export function EmployeeModal({ employee, positions, onClose }: Props) {
+export function EmployeeModal({ employee, positions, courtId, onClose }: Props) {
   const queryClient = useQueryClient();
   const saveMutation = useMutation({
     mutationFn: async (input: {
@@ -33,6 +35,20 @@ export function EmployeeModal({ employee, positions, onClose }: Props) {
       isReligious: boolean;
     }) => {
       if (input.isEdit && input.employeeId) {
+        if (courtId) {
+          return updateAdminEmployee({
+            employeeId: input.employeeId,
+            firstName: input.firstName,
+            lastName: input.lastName,
+            phone: input.phone,
+            displayName: input.displayName,
+            email: input.email,
+            positionId: input.positionId,
+            isActive: input.isActive,
+            isReligious: input.isReligious,
+          });
+        }
+
         return updateEmployee({
           employeeId: input.employeeId,
           firstName: input.firstName,
@@ -44,6 +60,21 @@ export function EmployeeModal({ employee, positions, onClose }: Props) {
           isActive: input.isActive,
         });
       }
+
+      if (courtId) {
+        return createAdminEmployee({
+          courtId,
+          firstName: input.firstName,
+          lastName: input.lastName,
+          phone: input.phone,
+          displayName: input.displayName,
+          email: input.email,
+          positionId: input.positionId,
+          isActive: input.isActive,
+          isReligious: input.isReligious,
+        });
+      }
+
       return createEmployee({
         firstName: input.firstName,
         lastName: input.lastName,
@@ -64,7 +95,7 @@ export function EmployeeModal({ employee, positions, onClose }: Props) {
         onClose();
         return;
       }
-      invalidateEmployeesList(queryClient);
+      invalidateEmployeesList(queryClient, courtId);
       setCreatedEmail(variables.email);
       setCreated(true);
     },
@@ -88,7 +119,7 @@ export function EmployeeModal({ employee, positions, onClose }: Props) {
     const email = String(fd.get('email') ?? '').trim();
     const displayName = String(fd.get('displayName') ?? '').trim();
     const positionId = String(fd.get('positionId') ?? '');
-    const isActive = fd.has('isActive');
+    const isActive = isEdit ? fd.has('isActive') : true;
     const isReligious = fd.has('isReligious');
 
     saveMutation.mutate({

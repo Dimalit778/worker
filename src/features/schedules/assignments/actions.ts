@@ -222,7 +222,7 @@ export async function removeAssignment(assignmentId: string): Promise<void> {
 }
 
 export async function fetchCurrentSchedule() {
-  const session = await requireSession(SystemRole.MANAGER);
+  const session = await requireSession();
   if (!session.user.courtId) return null;
   return getCurrentSchedule(session.user.courtId);
 }
@@ -231,10 +231,4 @@ export async function fetchDraftSchedule() {
   const session = await requireSession(SystemRole.MANAGER);
   const courtId = session.user.courtId ?? '';
   return getDraftScheduleData(courtId);
-}
-
-export async function fetchEmployeeCurrentSchedule() {
-  const session = await requireSession(SystemRole.EMPLOYEE);
-  if (!session.user.courtId) return null;
-  return getCurrentSchedule(session.user.courtId);
 }

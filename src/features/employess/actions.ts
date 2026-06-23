@@ -119,15 +119,33 @@ export async function deleteEmployee(employeeId: string): Promise<{ ok: true } |
   return { ok: true };
 }
 
-export async function getEmployeesPageData(): Promise<EmployeesPageData> {
-  const session = await requireSession(SystemRole.MANAGER);
+export async function getEmployeesPageData(courtId?: string): Promise<EmployeesPageData> {
+  const session = await requireSession();
 
-  const courtId = session.user.courtId;
-  if (!courtId) return { error: 'למנהל אין בית משפט משויך' };
+  let targetCourtId: string;
+
+  if (session.user.systemRole === SystemRole.ADMIN) {
+    if (!courtId) return { error: 'יש לבחור בית משפט' };
+
+    const court = await prisma.court.findUnique({
+      where: { id: courtId },
+      select: { id: true },
+    });
+    if (!court) return { error: 'בית משפט לא נמצא' };
+
+    targetCourtId = courtId;
+  } else if (session.user.systemRole === SystemRole.MANAGER) {
+    if (!session.user.courtId) return { error: 'למנהל אין בית משפט משויך' };
+    if (courtId && courtId !== session.user.courtId) return { error: 'אין הרשאה' };
+
+    targetCourtId = session.user.courtId;
+  } else {
+    return { error: 'אין הרשאה' };
+  }
 
   const [employees, positions] = await Promise.all([
     prisma.employee.findMany({
-      where: { courtId },
+      where: { courtId: targetCourtId },
       select: {
         id: true,
         firstName: true,
@@ -154,7 +172,7 @@ export async function getEmployeesPageData(): Promise<EmployeesPageData> {
 
     prisma.position.findMany({
       where: {
-        courtId,
+        courtId: targetCourtId,
         isActive: true,
       },
       select: {

@@ -8,8 +8,8 @@ import {
   getManagerEmployeeSubmissions,
 } from '@/features/employess/actions';
 
-export function invalidateEmployeesList(queryClient: ReturnType<typeof useQueryClient>) {
-  return queryClient.invalidateQueries({ queryKey: queryKeys.employees.list() });
+export function invalidateEmployeesList(queryClient: ReturnType<typeof useQueryClient>, courtId?: string) {
+  return queryClient.invalidateQueries({ queryKey: queryKeys.employees.list(courtId) });
 }
 
 export function invalidateEmployeeDetail(
@@ -23,10 +23,11 @@ export function invalidateEmployeeDetail(
   ]);
 }
 
-export function useEmployeesList() {
+export function useEmployeesList(courtId?: string) {
   return useQuery({
-    queryKey: queryKeys.employees.list(),
-    queryFn: getEmployeesPageData,
+    queryKey: queryKeys.employees.list(courtId),
+    queryFn: () => getEmployeesPageData(courtId),
+    enabled: courtId !== undefined ? Boolean(courtId) : true,
   });
 }
 

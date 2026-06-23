@@ -23,12 +23,14 @@ type EmployeesColumnsProps = {
   onEdit: (employee: EmployeeListItem) => void;
   onDelete: (employee: EmployeeListItem) => void;
   deletePending?: boolean;
+  hideDetailLinks?: boolean;
 };
 
 export function createEmployeesColumns({
   onEdit,
   onDelete,
   deletePending,
+  hideDetailLinks = false,
 }: EmployeesColumnsProps): ColumnDef<EmployeeListItem>[] {
   return [
     {
@@ -53,13 +55,18 @@ export function createEmployeesColumns({
       ),
       cell: ({ row }) => {
         const employee = row.original;
+        const name = `${employee.firstName} ${employee.lastName}`.trim();
+
+        if (hideDetailLinks) {
+          return <span className="font-medium">{name}</span>;
+        }
 
         return (
           <Link
             href={`/manager/employees/${employee.id}`}
             className="font-medium hover:text-primary hover:underline underline-offset-4"
           >
-            {employee.firstName} {employee.lastName}
+            {name}
           </Link>
         );
       },
@@ -134,12 +141,14 @@ export function createEmployeesColumns({
               <DropdownMenuContent align="end" className="w-40">
                 <DropdownMenuLabel>פעולות</DropdownMenuLabel>
 
-                <DropdownMenuItem asChild>
-                  <Link href={`/manager/employees/${employee.id}`}>
-                    <Eye className="ml-2 h-4 w-4" />
-                    צפייה
-                  </Link>
-                </DropdownMenuItem>
+                {!hideDetailLinks && (
+                  <DropdownMenuItem asChild>
+                    <Link href={`/manager/employees/${employee.id}`}>
+                      <Eye className="ml-2 h-4 w-4" />
+                      צפייה
+                    </Link>
+                  </DropdownMenuItem>
+                )}
 
                 <DropdownMenuItem onClick={() => onEdit(employee)}>
                   <Pencil className="ml-2 h-4 w-4" />

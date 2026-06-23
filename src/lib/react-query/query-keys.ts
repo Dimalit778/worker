@@ -16,7 +16,7 @@ export const queryKeys = {
 
   employees: {
     all: () => [...queryKeys.all, 'employees'] as const,
-    list: () => [...queryKeys.employees.all(), 'list'] as const,
+    list: (courtId?: string) => [...queryKeys.employees.all(), 'list', courtId ?? 'manager'] as const,
     detail: (employeeId: string) => [...queryKeys.employees.all(), 'detail', employeeId] as const,
     submissions: (employeeId: string) => [...queryKeys.employees.all(), 'submissions', employeeId] as const,
   },

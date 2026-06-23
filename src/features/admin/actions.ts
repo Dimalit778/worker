@@ -346,6 +346,7 @@ export async function createAdminEmployee(params: CreateAdminEmployeeParams): Pr
     });
 
     revalidatePath('/admin/courts');
+    revalidatePath('/admin/employees');
     return { ok: true };
   } catch (error) {
     if (error instanceof Error && error.message === 'USER_EMAIL_EXISTS') {
@@ -437,6 +438,7 @@ export async function updateAdminEmployee(params: UpdateAdminEmployeeParams): Pr
     });
 
     revalidatePath('/admin/courts');
+    revalidatePath('/admin/employees');
     return { ok: true };
   } catch (error) {
     if (error instanceof Error && error.message === 'EMPLOYEE_NOT_FOUND') {
@@ -492,6 +494,7 @@ export async function deleteAdminEmployee(employeeId: string): Promise<AdminActi
     });
 
     revalidatePath('/admin/courts');
+    revalidatePath('/admin/employees');
     return { ok: true };
   } catch (error) {
     if (error instanceof Error && error.message === 'EMPLOYEE_NOT_FOUND') {

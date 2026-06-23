@@ -6,8 +6,7 @@ import { LogoutButton } from '@/components/ui/logout-button';
 const navItems = [
   { href: '/admin', label: 'לוח בקרה' },
   { href: '/admin/courts', label: 'בתי משפט' },
-  { href: '/admin/managers', label: 'מנהלים' },
-  { href: '/admin/guards', label: 'מאבטחים' },
+  { href: '/admin/employees', label: 'עובדים' },
   { href: '/admin/config', label: 'הגדרות מערכת' },
 ];
 

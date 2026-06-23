@@ -41,18 +41,18 @@ export const authOptions: NextAuthOptions = {
         if (!isValid) return null;
 
         const employee = user.employee;
-        if (!employee) return null;
 
-        const courtId = employee.courtId;
-        const employeeId = employee.id;
+        // ADMIN users may not have an associated employee record
+        if (!employee && user.systemRole !== 'ADMIN') return null;
+
         return {
           id: user.id,
           email: user.email,
-          fullName: employee.displayName,
-          phone: employee.phone,
+          fullName: employee?.displayName ?? user.email,
+          phone: employee?.phone ?? null,
           systemRole: user.systemRole,
-          courtId,
-          employeeId,
+          courtId: employee?.courtId ?? null,
+          employeeId: employee?.id ?? null,
           mustChangePassword: user.mustChangePassword,
         };
       },
