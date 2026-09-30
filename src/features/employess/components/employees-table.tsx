@@ -27,26 +27,26 @@ import { createEmployeesColumns } from './employee-columns';
 export function EmployeesTable({
   employees,
   positions,
-  courtId,
+  facilityId,
   showHeader = true,
 }: {
   employees: EmployeeListItem[];
   positions: PositionOption[];
-  courtId?: string;
+  facilityId?: string;
   showHeader?: boolean;
 }) {
   const queryClient = useQueryClient();
 
   const deleteMutation = useMutation({
     mutationFn: (employeeId: string) =>
-      courtId ? deleteAdminEmployee(employeeId) : deleteEmployee(employeeId),
+      facilityId ? deleteAdminEmployee(employeeId) : deleteEmployee(employeeId),
     onSuccess: (result) => {
       if ('error' in result) {
         setError(result.error);
         return;
       }
       setDeleteTarget(null);
-      invalidateEmployeesList(queryClient, courtId);
+      invalidateEmployeesList(queryClient, facilityId);
     },
   });
 
@@ -96,9 +96,9 @@ export function EmployeesTable({
         onEdit: openEdit,
         onDelete: handleDeleteClick,
         deletePending,
-        hideDetailLinks: Boolean(courtId),
+        hideDetailLinks: Boolean(facilityId),
       }),
-    [courtId, deletePending, handleDeleteClick, openEdit],
+    [facilityId, deletePending, handleDeleteClick, openEdit],
   );
 
   return (
@@ -132,7 +132,7 @@ export function EmployeesTable({
         <EmployeeModal
           employee={editingEmployee}
           positions={positions}
-          courtId={courtId}
+          facilityId={facilityId}
           onClose={closeModal}
         />
       )}

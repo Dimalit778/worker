@@ -1,3 +1,4 @@
+import { seedCapability } from './seed-capability';
 import { resolve } from 'node:path';
 import { config } from 'dotenv';
 import { PrismaNeon } from '@prisma/adapter-neon';
@@ -41,10 +42,11 @@ type EmployeeSeed = {
   password: string;
   isReligious?: boolean;
   systemRole?: SystemRole;
+  isManager?: boolean;
   mustChangePassword?: boolean;
 };
 
-type ShiftCapacitySeed = {
+type StaffingRequirementSeed = {
   courtCode: string;
   positionCode: number;
   shiftType: ShiftType;
@@ -82,7 +84,6 @@ const ALL_DAY_CATEGORIES = [
   DayCategory.WEEKDAY,
   DayCategory.FRIDAY,
   DayCategory.SATURDAY,
-  DayCategory.HOLIDAY,
 ] as const;
 
 function defaultRequiredCountForPosition(positionCode: number) {
@@ -98,7 +99,7 @@ function defaultRequiredCountForPosition(positionCode: number) {
   }
 }
 
-const SHIFT_CAPACITIES: ShiftCapacitySeed[] = COURTS.flatMap((court) =>
+const SHIFT_CAPACITIES: StaffingRequirementSeed[] = COURTS.flatMap((court) =>
   ALL_SHIFT_TYPES.flatMap((shiftType) =>
     ALL_DAY_CATEGORIES.flatMap((dayCategory) =>
       POSITIONS.filter((position) => position.name !== 'קצין מתקן').map((position) => ({
@@ -113,73 +114,51 @@ const SHIFT_CAPACITIES: ShiftCapacitySeed[] = COURTS.flatMap((court) =>
   ),
 );
 async function clearDatabase() {
-  await prisma.scheduleChangeLog.deleteMany();
-  await prisma.scheduleWarning.deleteMany();
-  await prisma.shiftAssignment.deleteMany();
-
-  await prisma.availabilityShift.deleteMany();
-  await prisma.availabilityForm.deleteMany();
-
-  await prisma.fairnessRecord.deleteMany();
-
-  await prisma.workSchedule.deleteMany();
-  await prisma.schedulePeriod.deleteMany();
-  await prisma.shiftCapacity.deleteMany();
-
-  await prisma.session.deleteMany();
-  await prisma.account.deleteMany();
-  await prisma.userPermission.deleteMany();
-  await prisma.user.deleteMany();
-
-  await prisma.employee.deleteMany();
-  await prisma.position.deleteMany();
-
-  await prisma.court.deleteMany();
-  await prisma.region.deleteMany();
-
-  await prisma.verificationToken.deleteMany();
-  await prisma.systemConfig.deleteMany();
+  if (await prisma.user.count() || await prisma.facility.count()) {
+    throw new Error('Seed requires an empty development database. Published history cannot be cleared by seed.');
+  }
 }
 
 async function seedRegionsAndCourts() {
-  const regionIdByCode = new Map<string, string>();
+  const districtIdByCode = new Map<string, string>();
 
   for (const region of REGIONS) {
-    const createdRegion = await prisma.region.create({
+    const createdRegion = await prisma.district.create({
       data: {
         name: region.name,
         code: region.code,
       },
     });
 
-    regionIdByCode.set(region.code, createdRegion.id);
+    districtIdByCode.set(region.code, createdRegion.id);
   }
 
   for (const court of COURTS) {
-    const regionId = regionIdByCode.get(court.regionCode);
+    const districtId = districtIdByCode.get(court.regionCode);
 
-    if (!regionId) {
+    if (!districtId) {
       throw new Error(`Region not found: ${court.regionCode}`);
     }
 
-    await prisma.court.create({
+    await prisma.facility.create({
       data: {
         name: court.name,
         code: court.code,
-        regionId,
+        districtId,
       },
     });
   }
 }
 
 async function seedPositions() {
-  const courts = await prisma.court.findMany();
+  const courts = await prisma.facility.findMany();
 
   for (const court of courts) {
-    await prisma.position.createMany({
+    await prisma.shiftRole.createMany({
       data: POSITIONS.map((position) => ({
-        courtId: court.id,
+        facilityId: court.id,
         code: position.code,
+        requiredCapability: seedCapability(position.code),
         name: position.name,
         isActive: true,
       })),
@@ -189,7 +168,7 @@ async function seedPositions() {
 
 async function seedEmployeesAndUsers() {
   for (const emp of EMPLOYEES) {
-    const court = await prisma.court.findUnique({
+    const court = await prisma.facility.findUnique({
       where: {
         code: emp.courtCode,
       },
@@ -199,9 +178,9 @@ async function seedEmployeesAndUsers() {
       throw new Error(`Court not found for employee: ${emp.email}`);
     }
 
-    const position = await prisma.position.findFirst({
+    const position = await prisma.shiftRole.findFirst({
       where: {
-        courtId: court.id,
+        facilityId: court.id,
         code: emp.positionCode,
       },
     });
@@ -218,8 +197,9 @@ async function seedEmployeesAndUsers() {
         lastName: emp.lastName,
         displayName: emp.displayName,
         phone: emp.phone ?? null,
-        positionId: position.id,
-        courtId: court.id,
+        primaryShiftRoleId: position.id,
+        capability: seedCapability(emp.positionCode),
+        facilityId: court.id,
         isActive: true,
         isReligious: emp.isReligious ?? false,
       },
@@ -231,7 +211,8 @@ async function seedEmployeesAndUsers() {
       data: {
         email: emp.email,
         passwordHash,
-        systemRole: emp.systemRole ?? SystemRole.EMPLOYEE,
+        systemRole: emp.systemRole ?? SystemRole.USER,
+        facilityRoles: emp.isManager ? { create: { facilityId: court.id, role: 'MANAGER' } } : undefined,
         mustChangePassword: emp.mustChangePassword ?? false,
         employeeId: employee.id,
       },
@@ -241,7 +222,7 @@ async function seedEmployeesAndUsers() {
 
 async function seedShiftCapacities() {
   for (const capacity of SHIFT_CAPACITIES) {
-    const court = await prisma.court.findUnique({
+    const court = await prisma.facility.findUnique({
       where: {
         code: capacity.courtCode,
       },
@@ -251,9 +232,9 @@ async function seedShiftCapacities() {
       throw new Error(`Court not found for shift capacity: ${capacity.courtCode}`);
     }
 
-    const position = await prisma.position.findFirst({
+    const position = await prisma.shiftRole.findFirst({
       where: {
-        courtId: court.id,
+        facilityId: court.id,
         code: capacity.positionCode,
       },
     });
@@ -264,10 +245,10 @@ async function seedShiftCapacities() {
       );
     }
 
-    await prisma.shiftCapacity.create({
+    await prisma.staffingRequirement.create({
       data: {
-        courtId: court.id,
-        positionId: position.id,
+        facilityId: court.id,
+        shiftRoleId: position.id,
         shiftType: capacity.shiftType,
         dayCategory: capacity.dayCategory,
         requiredCount: capacity.requiredCount,

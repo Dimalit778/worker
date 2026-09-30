@@ -1,5 +1,6 @@
 'use client';
 
+import type { Capability } from '@/generated/prisma/client';
 import { useState } from 'react';
 import { useMutation, useQueryClient } from '@tanstack/react-query';
 import { X } from 'lucide-react';
@@ -15,14 +16,15 @@ import { Select, SelectTrigger, SelectValue, SelectContent, SelectItem, Label, I
 type Props = {
   employee: EmployeeListItem | null;
   positions: PositionOption[];
-  courtId?: string;
+  facilityId?: string;
   onClose: () => void;
 };
 
-export function EmployeeModal({ employee, positions, courtId, onClose }: Props) {
+export function EmployeeModal({ employee, positions, facilityId, onClose }: Props) {
   const queryClient = useQueryClient();
   const saveMutation = useMutation({
     mutationFn: async (input: {
+      capability: Capability;
       isEdit: boolean;
       employeeId?: string;
       firstName: string;
@@ -35,10 +37,11 @@ export function EmployeeModal({ employee, positions, courtId, onClose }: Props) 
       isReligious: boolean;
     }) => {
       if (input.isEdit && input.employeeId) {
-        if (courtId) {
+        if (facilityId) {
           return updateAdminEmployee({
             employeeId: input.employeeId,
-            firstName: input.firstName,
+            capability: input.capability,
+        firstName: input.firstName,
             lastName: input.lastName,
             phone: input.phone,
             displayName: input.displayName,
@@ -51,7 +54,8 @@ export function EmployeeModal({ employee, positions, courtId, onClose }: Props) 
 
         return updateEmployee({
           employeeId: input.employeeId,
-          firstName: input.firstName,
+          capability: input.capability,
+        firstName: input.firstName,
           lastName: input.lastName,
           phone: input.phone,
           displayName: input.displayName,
@@ -61,10 +65,11 @@ export function EmployeeModal({ employee, positions, courtId, onClose }: Props) 
         });
       }
 
-      if (courtId) {
+      if (facilityId) {
         return createAdminEmployee({
-          courtId,
-          firstName: input.firstName,
+          facilityId,
+          capability: input.capability,
+        firstName: input.firstName,
           lastName: input.lastName,
           phone: input.phone,
           displayName: input.displayName,
@@ -76,6 +81,7 @@ export function EmployeeModal({ employee, positions, courtId, onClose }: Props) 
       }
 
       return createEmployee({
+        capability: input.capability,
         firstName: input.firstName,
         lastName: input.lastName,
         phone: input.phone,
@@ -95,7 +101,7 @@ export function EmployeeModal({ employee, positions, courtId, onClose }: Props) 
         onClose();
         return;
       }
-      invalidateEmployeesList(queryClient, courtId);
+      invalidateEmployeesList(queryClient, facilityId);
       setCreatedEmail(variables.email);
       setCreated(true);
     },
@@ -123,6 +129,7 @@ export function EmployeeModal({ employee, positions, courtId, onClose }: Props) 
     const isReligious = fd.has('isReligious');
 
     saveMutation.mutate({
+      capability: String(fd.get('capability')) as Capability,
       isEdit,
       employeeId: employee?.id,
       firstName,
@@ -165,6 +172,11 @@ export function EmployeeModal({ employee, positions, courtId, onClose }: Props) 
         </div>
 
         <form onSubmit={handleSubmit} className="space-y-4">
+          <label className="block text-sm">כשירות מקצועית
+            <select name="capability" defaultValue={employee?.capability ?? 'GUARD'} className="block w-full border rounded p-2">
+              <option value="GUARD">מאבטח</option><option value="CONTROLLER">בקר</option><option value="SHIFT_MANAGER">אחמ״ש</option>
+            </select>
+          </label>
           <div>
             <Label className="block text-sm font-medium mb-1">שם פרטי *</Label>
             <Input name="firstName" defaultValue={employee?.firstName ?? ''} required />

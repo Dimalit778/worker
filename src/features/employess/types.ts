@@ -1,6 +1,8 @@
-import type { ScheduleStatus } from '@/generated/prisma/client';
+import { PeriodScheduleStatus } from '@/features/schedules/period-status';
+import type { Capability } from '@/generated/prisma/client';
 
 export type CreateEmployeeParams = {
+  capability?: Capability;
   firstName: string;
   lastName: string;
   phone: string | null;
@@ -11,6 +13,7 @@ export type CreateEmployeeParams = {
 };
 
 export type UpdateEmployeeParams = {
+  capability?: Capability;
   employeeId: string;
   firstName: string;
   lastName: string;
@@ -27,6 +30,7 @@ export type PositionOption = {
 };
 
 export type EmployeeListItem = {
+  capability?: Capability;
   id: string;
   firstName: string;
   lastName: string;
@@ -54,6 +58,7 @@ export type EmployeesPageData =
 export type EmployeeDetailData =
   | {
       employee: {
+        capability?: Capability;
         id: string;
         firstName: string;
         lastName: string;
@@ -121,17 +126,18 @@ export type EmployeeSubmissionPeriod = {
   startDate: string;
   endDate: string;
   submissionDeadline: string;
-  status: ScheduleStatus;
+  status: PeriodScheduleStatus;
   availabilityId: string | null;
   isSubmitted: boolean;
   submittedAt: string | null;
-  entries: Record<string, boolean>;
+  entries: Record<string, boolean | 'AVAILABLE' | 'PREFERRED' | 'UNAVAILABLE'>;
   selectedSlotCount: number;
 };
 
 export type EmployeeSubmissionsData =
   | {
       employee: {
+        capability?: Capability;
         id: string;
         displayName: string;
         firstName: string;

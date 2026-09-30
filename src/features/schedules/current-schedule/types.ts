@@ -18,7 +18,7 @@ export type CurrentScheduleViewProps = {
   overflowCandidates?: OverflowCandidateMap;
   employees: ScheduleEmployeeOption[];
   capacity: ScheduleCapacityRule[];
-  courtId: string;
+  facilityId: string;
   currentEmployeeId?: string | null;
   readonly?: boolean;
 };

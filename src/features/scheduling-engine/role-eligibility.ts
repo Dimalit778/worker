@@ -1,33 +1,16 @@
-function normalizePositionName(name: string | undefined): string {
-  return (name ?? "")
-    .replace(/[״"]/g, "")
-    .replace(/[׳']/g, "")
-    .trim();
+export type Capability = 'GUARD' | 'CONTROLLER' | 'SHIFT_MANAGER';
+const ranks: Record<Capability, number> = { GUARD: 1, CONTROLLER: 2, SHIFT_MANAGER: 3 };
+
+export function getPositionRoleRank(capability: string | undefined): number | null {
+  return capability && Object.hasOwn(ranks, capability) ? ranks[capability as Capability] : null;
 }
 
-export function getPositionRoleRank(positionName: string | undefined): number | null {
-  const normalized = normalizePositionName(positionName);
-  if (normalized === "אחמש") return 3;
-  if (normalized === "בקר") return 2;
-  if (normalized === "מאבטח") return 1;
-  return null;
+export function canEmployeeFillPosition(capability: string | undefined, required: string | undefined): boolean {
+  const rank = getPositionRoleRank(capability);
+  const minimum = getPositionRoleRank(required);
+  return rank !== null && minimum !== null && rank >= minimum;
 }
 
-export function canEmployeeFillPosition(
-  employeePositionName: string | undefined,
-  slotPositionName: string | undefined
-): boolean {
-  const employeeRank = getPositionRoleRank(employeePositionName);
-  const slotRank = getPositionRoleRank(slotPositionName);
-  if (employeeRank === null || slotRank === null) return false;
-  return employeeRank >= slotRank;
-}
-
-export function isExactPositionMatch(
-  employeePositionName: string | undefined,
-  slotPositionName: string | undefined
-): boolean {
-  const employeeRank = getPositionRoleRank(employeePositionName);
-  const slotRank = getPositionRoleRank(slotPositionName);
-  return employeeRank !== null && employeeRank === slotRank;
+export function isExactPositionMatch(capability: string | undefined, required: string | undefined): boolean {
+  return getPositionRoleRank(capability) !== null && capability === required;
 }

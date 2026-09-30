@@ -27,7 +27,7 @@ function assignment(
     Partial<EngineAssignment>
 ): EngineAssignment {
   return {
-    courtId: "court1",
+    facilityId: "court1",
     positionId: "pos1",
     slotIndex: 0,
     isManualOverride: false,
@@ -36,11 +36,11 @@ function assignment(
 }
 
 const SLOT: EngineSlot = {
-  courtId: "court1",
+  facilityId: "court1",
   positionId: "pos1",
   date: d("2024-01-01"),
   shiftType: "MORNING",
-  dayCategory: "WEEKDAY",
+  requiredCapability: "GUARD", dayCategory: "WEEKDAY",
   requiredAmount: 1,
 };
 
@@ -138,9 +138,9 @@ describe("violatesRestRule", () => {
 // ─── isEligibleForSlot ────────────────────────────────────────────────────────
 
 describe("isEligibleForSlot", () => {
-  const active: EngineEmployee = { id: "emp1", courtId: "court1", positionId: "pos1", isActive: true };
+  const active: EngineEmployee = { id: "emp1", facilityId: "court1", positionId: "pos1", capability: "GUARD", isActive: true };
 
-  it("returns true for active employee with matching courtId and positionId", () => {
+  it("returns true for active employee with matching facilityId and positionId", () => {
     expect(isEligibleForSlot(active, SLOT)).toBe(true);
   });
 
@@ -148,11 +148,11 @@ describe("isEligibleForSlot", () => {
     expect(isEligibleForSlot({ ...active, isActive: false }, SLOT)).toBe(false);
   });
 
-  it("returns false when courtId does not match", () => {
-    expect(isEligibleForSlot({ ...active, courtId: "court2" }, SLOT)).toBe(false);
+  it("returns false when facilityId does not match", () => {
+    expect(isEligibleForSlot({ ...active, facilityId: "court2" }, SLOT)).toBe(false);
   });
 
-  it("returns false when positionId does not match", () => {
-    expect(isEligibleForSlot({ ...active, positionId: "pos2" }, SLOT)).toBe(false);
+  it("returns false when required capability exceeds employee capability", () => {
+    expect(isEligibleForSlot(active, { ...SLOT, requiredCapability: "CONTROLLER" })).toBe(false);
   });
 });

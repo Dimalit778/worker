@@ -5,7 +5,7 @@ import { useMutation, useQueryClient } from '@tanstack/react-query';
 import type { DayCategory, ShiftType } from '@/generated/prisma/client';
 import { Button } from '@/components/ui/button';
 import { DAY_CATEGORIES, DAY_META, SHIFT_ORDER, SHIFT_LABELS } from '@/features/settings/constans';
-import { addShiftCapacity, updateShiftCapacity } from '@/features/settings/actions';
+import { addStaffingRequirement, updateStaffingRequirement } from '@/features/settings/actions';
 import { invalidateSettingsQueries } from '@/features/settings/hooks';
 import { queryKeys } from '@/lib/react-query/query-keys';
 import { cn } from '@/lib/utils';
@@ -112,12 +112,12 @@ function Cell({
 }
 
 export function CourtCapacityRules({
-  courtId,
+  facilityId,
   positions,
   initialCapacities,
   className,
 }: {
-  courtId: string;
+  facilityId: string;
   positions: PositionOption[];
   initialCapacities: StaffingRow[];
   className?: string;
@@ -154,8 +154,8 @@ export function CourtCapacityRules({
         const [dayCategory, shiftType, positionId] = key.split('-') as [DayCategory, ShiftType, string];
 
         const res = cell.id
-          ? await updateShiftCapacity(cell.id, amount)
-          : await addShiftCapacity({
+          ? await updateStaffingRequirement(cell.id, amount)
+          : await addStaffingRequirement({
               dayCategory,
               shiftType,
               positionId,
@@ -178,8 +178,8 @@ export function CourtCapacityRules({
       setErrorMsg('');
       setSaved(next);
       setDraft(next);
-      invalidateSettingsQueries(queryClient, courtId);
-      queryClient.invalidateQueries({ queryKey: queryKeys.settings.capacities(courtId) });
+      invalidateSettingsQueries(queryClient, facilityId);
+      queryClient.invalidateQueries({ queryKey: queryKeys.settings.capacities(facilityId) });
     },
     onError: (error: Error) => {
       setErrorMsg(error.message);

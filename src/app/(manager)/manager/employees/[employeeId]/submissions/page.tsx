@@ -1,6 +1,6 @@
+import { PortalRole } from '@/lib/auth/portal';
 import { dehydrate, HydrationBoundary } from '@tanstack/react-query';
 import { notFound } from 'next/navigation';
-import { SystemRole } from '@/generated/prisma/client';
 import { ManagerEmployeeSubmissionsClient } from '@/features/employess/components/manager-employee-submissions-client';
 import { getManagerEmployeeSubmissions } from '@/features/employess/actions';
 import { requireSession } from '@/lib/db/auth-helpers';
@@ -12,7 +12,7 @@ type ManagerEmployeeSubmissionsPageProps = {
 };
 
 export default async function ManagerEmployeeSubmissionsPage({ params }: ManagerEmployeeSubmissionsPageProps) {
-  await requireSession(SystemRole.MANAGER);
+  await requireSession(PortalRole.MANAGER);
   const { employeeId } = await params;
   const queryClient = getQueryClient();
 

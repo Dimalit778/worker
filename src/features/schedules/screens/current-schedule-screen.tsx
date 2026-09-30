@@ -1,5 +1,6 @@
 'use client';
 
+import { CorrectionButton } from '../shared/correction-button';
 import { useState } from 'react';
 import { CalendarDays, CalendarRange } from 'lucide-react';
 import { Button } from '@/components/ui/button';
@@ -18,6 +19,7 @@ type CurrentScheduleScreenProps = {
   currentEmployeeId?: string | null;
   isReadOnly?: boolean;
   defaultView?: ScheduleViewMode;
+  emptyStateTitle?: string;
 };
 
 export function CurrentScheduleScreen({
@@ -29,6 +31,7 @@ export function CurrentScheduleScreen({
   currentEmployeeId = null,
   isReadOnly = true,
   defaultView = 'daily',
+  emptyStateTitle = 'אין שיבוץ נוכחי',
 }: CurrentScheduleScreenProps) {
   const [viewMode, setViewMode] = useState<ScheduleViewMode>(defaultView);
 
@@ -51,7 +54,7 @@ export function CurrentScheduleScreen({
   if (!data) {
     return (
       <div className="flex h-full flex-col items-center justify-center" dir="rtl">
-        <h1 className="text-2xl font-bold">אין שיבוץ נוכחי</h1>
+        <h1 className="text-2xl font-bold">{emptyStateTitle}</h1>
       </div>
     );
   }
@@ -59,6 +62,7 @@ export function CurrentScheduleScreen({
   return (
     <div className="space-y-4" dir="rtl">
       <div className="flex flex-wrap items-center gap-2">
+        {!isReadOnly && <CorrectionButton data={data} />}
         <Button
           type="button"
           variant={viewMode === 'weekly' ? 'default' : 'outline'}
@@ -88,10 +92,10 @@ export function CurrentScheduleScreen({
           assignments={data.assignments}
           employees={data.employees}
           capacity={data.capacity}
-          courtId={data.courtId}
+          facilityId={data.facilityId}
           overflowCandidates={data.overflowCandidates}
           highlightedEmployeeId={currentEmployeeId}
-          readonly={isReadOnly}
+          readonly={true}
         />
       ) : (
         <CurrentScheduleView
@@ -102,10 +106,10 @@ export function CurrentScheduleScreen({
           assignments={data.assignments}
           employees={data.employees}
           capacity={data.capacity}
-          courtId={data.courtId}
+          facilityId={data.facilityId}
           overflowCandidates={data.overflowCandidates}
           currentEmployeeId={currentEmployeeId}
-          readonly={isReadOnly}
+          readonly={true}
         />
       )}
     </div>

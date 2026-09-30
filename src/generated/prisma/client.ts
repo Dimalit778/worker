@@ -58,91 +58,96 @@ export type Session = Prisma.SessionModel
 export type VerificationToken = Prisma.VerificationTokenModel
 /**
  * Model User
- * 
+ * חשבון כניסה. שיוך לעובד והרשאות ניהול במתקן הם קשרים נפרדים.
  */
 export type User = Prisma.UserModel
 /**
+ * Model UserFacilityRole
+ * תפקיד הרשאה של משתמש במתקן; אינו כשירות לעבודה במשמרת.
+ */
+export type UserFacilityRole = Prisma.UserFacilityRoleModel
+/**
  * Model UserPermission
- * 
+ * חריג הרשאה אישי. נשמר לתמיכה במנגנון ההרשאות הקיים.
  */
 export type UserPermission = Prisma.UserPermissionModel
 /**
- * Model Region
- * 
+ * Model District
+ * מחוז שמאגד מתקנים.
  */
-export type Region = Prisma.RegionModel
+export type District = Prisma.DistrictModel
 /**
- * Model Court
- * 
+ * Model Facility
+ * מתקן שבו עובדים, מגישים זמינות ומפרסמים סידורי עבודה.
  */
-export type Court = Prisma.CourtModel
+export type Facility = Prisma.FacilityModel
 /**
  * Model Employee
- * 
+ * עובד במתקן יחיד. capability מגדיר לאילו תפקידים במשמרת הוא כשיר.
  */
 export type Employee = Prisma.EmployeeModel
 /**
- * Model Position
- * 
+ * Model ShiftRole
+ * תפקיד במשמרת עם כשירות נדרשת; עשוי לשמש גם כתפקיד ראשי ברשומת עובד.
  */
-export type Position = Prisma.PositionModel
+export type ShiftRole = Prisma.ShiftRoleModel
 /**
- * Model ShiftCapacity
- * 
+ * Model StaffingRequirement
+ * מספר עובדים נדרש לפי מתקן, תפקיד, סוג משמרת וסוג יום.
  */
-export type ShiftCapacity = Prisma.ShiftCapacityModel
+export type StaffingRequirement = Prisma.StaffingRequirementModel
 /**
- * Model Holiday
- * 
+ * Model AvailabilitySubmission
+ * הגשת זמינות אחת לעובד ולתקופה; isSubmitted מבדיל טיוטה מהגשה שנשלחה.
  */
-export type Holiday = Prisma.HolidayModel
+export type AvailabilitySubmission = Prisma.AvailabilitySubmissionModel
 /**
- * Model AvailabilityForm
- * 
+ * Model ShiftAvailability
+ * בחירת זמינות אחת בתוך הגשה: תאריך, סוג משמרת וזמין/מועדף/לא זמין.
  */
-export type AvailabilityForm = Prisma.AvailabilityFormModel
-/**
- * Model AvailabilityShift
- * 
- */
-export type AvailabilityShift = Prisma.AvailabilityShiftModel
+export type ShiftAvailability = Prisma.ShiftAvailabilityModel
 /**
  * Model SchedulePeriod
- * 
+ * תאריכי העבודה וחלון ההגשות במתקן. משותף להגשות העובדים ולסידור העבודה.
  */
 export type SchedulePeriod = Prisma.SchedulePeriodModel
 /**
- * Model WorkSchedule
- * 
+ * Model Roster
+ * סידור העבודה של תקופה אחת. מרכז גרסאות; הפרסום נשמר בגרסה בלבד.
  */
-export type WorkSchedule = Prisma.WorkScheduleModel
+export type Roster = Prisma.RosterModel
 /**
- * Model WorkScheduleVersion
- * 
+ * Model RosterVersion
+ * גרסת טיוטה או פרסום. version הוא מספר הגרסה; revision מונע דריסת עריכות.
  */
-export type WorkScheduleVersion = Prisma.WorkScheduleVersionModel
+export type RosterVersion = Prisma.RosterVersionModel
 /**
  * Model ShiftAssignment
- * 
+ * איוש: עובד בתאריך, במשמרת ובתפקיד בתוך גרסת סידור מסוימת.
  */
 export type ShiftAssignment = Prisma.ShiftAssignmentModel
 /**
  * Model ScheduleWarning
- * 
+ * אזהרה מחושבת ששייכת לגרסת סידור מסוימת.
  */
 export type ScheduleWarning = Prisma.ScheduleWarningModel
 /**
- * Model FairnessRecord
- * 
+ * Model EmployeeScheduleStats
+ * מדדי עומס מחושבים לעובד בגרסה אחת; אינם רישום נוכחות בפועל.
  */
-export type FairnessRecord = Prisma.FairnessRecordModel
+export type EmployeeScheduleStats = Prisma.EmployeeScheduleStatsModel
 /**
  * Model ScheduleChangeLog
- * 
+ * אירוע בהיסטוריית הסידור: מי שינה, הסיבה והנתונים לפני ואחרי.
  */
 export type ScheduleChangeLog = Prisma.ScheduleChangeLogModel
 /**
- * Model SystemConfig
- * 
+ * Model Holiday
+ * חג או יום מיוחד המשפיע על סיווג היום לצורך השיבוץ.
  */
-export type SystemConfig = Prisma.SystemConfigModel
+export type Holiday = Prisma.HolidayModel
+/**
+ * Model SystemSetting
+ * הגדרת מערכת אחת לפי מפתח.
+ */
+export type SystemSetting = Prisma.SystemSettingModel

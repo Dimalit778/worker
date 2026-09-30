@@ -2,16 +2,14 @@ import type { NextAuthOptions } from 'next-auth';
 import CredentialsProvider from 'next-auth/providers/credentials';
 import { PrismaAdapter } from '@next-auth/prisma-adapter';
 import bcrypt from 'bcryptjs';
-import { SystemRole } from '@/generated/prisma/client';
+import { FacilityRole, SystemRole } from '@/generated/prisma/client';
 import { prisma } from '@/lib/db/client';
+import { PortalRole, type PortalRole as PortalRoleValue } from '@/lib/auth/portal';
 
-/** Legacy JWT used `role` (GUARD | MANAGER | ADMIN); middleware only reads `systemRole`. */
-function systemRoleFromLegacyJwt(token: { systemRole?: SystemRole; role?: unknown }): SystemRole | undefined {
-  if (token.systemRole) return token.systemRole;
-  const r = typeof token.role === 'string' ? token.role : null;
-  if (r === 'GUARD' || r === 'EMPLOYEE') return SystemRole.EMPLOYEE;
-  if (r === 'MANAGER') return SystemRole.MANAGER;
-  if (r === 'ADMIN') return SystemRole.ADMIN;
+function portalFromLegacy(role: unknown): PortalRoleValue | undefined {
+  if (role === 'ADMIN') return PortalRole.ADMIN;
+  if (role === 'MANAGER') return PortalRole.MANAGER;
+  if (role === 'GUARD' || role === 'EMPLOYEE' || role === 'USER') return PortalRole.EMPLOYEE;
   return undefined;
 }
 
@@ -32,7 +30,10 @@ export const authOptions: NextAuthOptions = {
 
         const user = await prisma.user.findFirst({
           where: { email: credentials.identifier },
-          include: { employee: true },
+          include: {
+            employee: true,
+            facilityRoles: { where: { role: FacilityRole.MANAGER }, orderBy: { facilityId: 'asc' } },
+          },
         });
 
         if (!user) return null;
@@ -40,19 +41,28 @@ export const authOptions: NextAuthOptions = {
         const isValid = await bcrypt.compare(credentials.password, user.passwordHash);
         if (!isValid) return null;
 
-        const employee = user.employee;
-
-        // ADMIN users may not have an associated employee record
-        if (!employee && user.systemRole !== 'ADMIN') return null;
+        const managerRole = user.facilityRoles[0];
+        const portal =
+          user.systemRole === SystemRole.ADMIN
+            ? PortalRole.ADMIN
+            : managerRole
+              ? PortalRole.MANAGER
+              : user.employee
+                ? PortalRole.EMPLOYEE
+                : null;
+        if (!portal) return null;
+        if (portal === PortalRole.EMPLOYEE && !user.employee?.isActive) return null;
+        if (portal === PortalRole.MANAGER && !managerRole) return null;
 
         return {
           id: user.id,
           email: user.email,
-          fullName: employee?.displayName ?? user.email,
-          phone: employee?.phone ?? null,
+          fullName: user.employee?.displayName ?? user.email,
+          phone: user.employee?.phone ?? null,
           systemRole: user.systemRole,
-          courtId: employee?.courtId ?? null,
-          employeeId: employee?.id ?? null,
+          portal,
+          facilityId: managerRole?.facilityId ?? user.employee?.facilityId ?? null,
+          employeeId: user.employee?.id ?? null,
           mustChangePassword: user.mustChangePassword,
         };
       },
@@ -62,14 +72,16 @@ export const authOptions: NextAuthOptions = {
     async jwt({ token, user }) {
       if (user) {
         token.systemRole = user.systemRole;
-        token.courtId = user.courtId;
+        token.portal = user.portal;
+        token.facilityId = user.facilityId;
         token.employeeId = user.employeeId;
         token.mustChangePassword = user.mustChangePassword;
         token.fullName = user.fullName;
-      } else {
-        const migrated = systemRoleFromLegacyJwt(token as { systemRole?: SystemRole; role?: unknown });
-        if (migrated && !token.systemRole) {
-          token.systemRole = migrated;
+      } else if (!token.portal) {
+        const legacy = portalFromLegacy(token.systemRole) ?? portalFromLegacy((token as { role?: unknown }).role);
+        if (legacy) {
+          token.portal = legacy;
+          if (legacy !== PortalRole.ADMIN) token.systemRole = SystemRole.USER;
         }
         if (token.mustChangePassword === undefined) token.mustChangePassword = false;
       }
@@ -79,7 +91,8 @@ export const authOptions: NextAuthOptions = {
       if (session.user && token.sub) {
         session.user.id = token.sub;
         session.user.systemRole = token.systemRole;
-        session.user.courtId = token.courtId;
+        session.user.portal = token.portal ?? PortalRole.EMPLOYEE;
+        session.user.facilityId = token.facilityId;
         session.user.employeeId = token.employeeId;
         session.user.mustChangePassword = token.mustChangePassword ?? false;
         session.user.fullName = token.fullName || session.user.name || session.user.email || '';

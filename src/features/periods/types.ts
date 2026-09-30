@@ -1,4 +1,4 @@
-import type { ScheduleStatus } from '@/generated/prisma/client';
+import { PeriodScheduleStatus } from '@/features/schedules/period-status';
 
 export type PeriodSummary = {
   id: string;
@@ -6,7 +6,7 @@ export type PeriodSummary = {
   startDate: string;
   endDate: string;
   submissionDeadline: string;
-  status: ScheduleStatus;
+  status: PeriodScheduleStatus;
   submittedCount: number;
   totalEmployees: number;
 };

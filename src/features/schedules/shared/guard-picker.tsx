@@ -8,6 +8,12 @@ import type { ScheduleEmployeeOption } from '@/features/schedules/types';
 import { Input } from '@/components/ui/input';
 import { Button } from '@/components/ui/button';
 
+export type SwapCandidate = {
+  assignmentId: string;
+  employeeId: string;
+  displayName: string;
+};
+
 type Props = {
   employees: ScheduleEmployeeOption[];
   currentUserId: string | null;
@@ -16,6 +22,8 @@ type Props = {
   onSelect: (employeeId: string) => void;
   onRemove: () => void;
   onClose: () => void;
+  swapCandidates?: SwapCandidate[];
+  onSwap?: (assignmentId: string) => void;
 };
 
 export function GuardPicker({
@@ -26,6 +34,8 @@ export function GuardPicker({
   onSelect,
   onRemove,
   onClose,
+  swapCandidates,
+  onSwap,
 }: Props) {
   const [query, setQuery] = useState('');
   const inputRef = useRef<HTMLInputElement>(null);
@@ -89,6 +99,25 @@ export function GuardPicker({
           </li>
         ))}
       </ul>
+
+      {currentUserId && swapCandidates && swapCandidates.length > 0 && onSwap && (
+        <div className="border-t border-border mt-1 px-2 py-1">
+          <p className="px-1 pb-1 text-[10px] font-semibold text-muted-foreground">החלף עם...</p>
+          <ul className="max-h-32 overflow-y-auto">
+            {swapCandidates.map((candidate) => (
+              <li key={candidate.assignmentId}>
+                <button
+                  type="button"
+                  onClick={() => onSwap(candidate.assignmentId)}
+                  className="w-full cursor-pointer rounded-sm px-2 py-1 text-start text-xs hover:bg-accent"
+                >
+                  {candidate.displayName}
+                </button>
+              </li>
+            ))}
+          </ul>
+        </div>
+      )}
 
       {currentUserId && (
         <div className="border-t border-border mt-1">

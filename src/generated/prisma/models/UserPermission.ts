@@ -14,7 +14,7 @@ import type * as Prisma from "../internal/prismaNamespace"
 
 /**
  * Model UserPermission
- * 
+ * חריג הרשאה אישי. נשמר לתמיכה במנגנון ההרשאות הקיים.
  */
 export type UserPermissionModel = runtime.Types.Result.DefaultSelection<Prisma.$UserPermissionPayload>
 

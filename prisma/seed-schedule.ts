@@ -1,7 +1,7 @@
 import { resolve } from 'node:path';
 import { config } from 'dotenv';
 import { PrismaNeon } from '@prisma/adapter-neon';
-import { PrismaClient, SystemRole, ShiftType, ScheduleStatus } from '../src/generated/prisma/client';
+import { PrismaClient, ShiftType, ScheduleVersionStatus } from '../src/generated/prisma/client';
 
 config({ path: resolve(process.cwd(), '.env.local') });
 config({ path: resolve(process.cwd(), '.env') });
@@ -38,20 +38,20 @@ function addDays(date: Date, days: number): Date {
   return copy;
 }
 
-async function deleteExistingSchedule(courtId: string, startDate: Date, endDate: Date) {
-  const existing = await prisma.schedule.findFirst({
-    where: { courtId, startDate, endDate },
+async function deleteExistingSchedule(facilityId: string, startDate: Date, endDate: Date) {
+  const existing = await prisma.schedulePeriod.findFirst({
+    where: { facilityId, startDate, endDate },
     select: { id: true },
   });
 
   if (existing) {
-    await prisma.schedule.delete({ where: { id: existing.id } });
+    await prisma.schedulePeriod.delete({ where: { id: existing.id } });
     console.log('🧹 Existing Bat Yam schedule deleted');
   }
 }
 
 async function seedBatYamExistingSchedule() {
-  const court = await prisma.court.findUnique({
+  const court = await prisma.facility.findUnique({
     where: { code: COURT_CODE },
     select: { id: true, name: true, code: true },
   });
@@ -62,8 +62,7 @@ async function seedBatYamExistingSchedule() {
 
   const manager = await prisma.user.findFirst({
     where: {
-      systemRole: SystemRole.MANAGER,
-      employee: { courtId: court.id },
+      facilityRoles: { some: { facilityId: court.id, role: 'MANAGER' } },
     },
     select: {
       id: true,
@@ -82,8 +81,8 @@ async function seedBatYamExistingSchedule() {
   await deleteExistingSchedule(court.id, startDate, endDate);
 
   const employees = await prisma.employee.findMany({
-    where: { courtId: court.id, isActive: true },
-    select: { id: true, firstName: true, lastName: true, position: true },
+    where: { facilityId: court.id, isActive: true },
+    select: { id: true, firstName: true, lastName: true },
     orderBy: [{ firstName: 'asc' }, { lastName: 'asc' }],
   });
 
@@ -91,9 +90,9 @@ async function seedBatYamExistingSchedule() {
     throw new Error(`No active employees found for ${court.name}`);
   }
 
-  const positions = await prisma.position.findMany({
+  const positions = await prisma.shiftRole.findMany({
     where: {
-      courtId: court.id,
+      facilityId: court.id,
       isActive: true,
       code: { in: [...ASSIGNMENT_POSITION_CODES] },
     },
@@ -108,16 +107,34 @@ async function seedBatYamExistingSchedule() {
     );
   }
 
-  const schedule = await prisma.schedule.create({
+  const period = await prisma.schedulePeriod.create({
     data: {
-      courtId: court.id,
+      facilityId: court.id,
       name: SCHEDULE_NAME,
       startDate,
       endDate,
       submissionDeadline: new Date(SUBMISSION_DEADLINE),
-      status: ScheduleStatus.ACTIVE,
+      submissionState: 'CLOSED',
+    },
+  });
+
+  const schedule = await prisma.roster.create({
+    data: {
+      facilityId: court.id,
+      periodId: period.id,
       createdById: manager.id,
+    },
+  });
+
+  const version = await prisma.rosterVersion.create({
+    data: {
+      scheduleId: schedule.id,
+      facilityId: court.id,
+      version: 1,
+      status: ScheduleVersionStatus.PUBLISHED,
+      isActive: true,
       publishedAt: new Date(),
+      createdById: manager.id,
     },
   });
 
@@ -146,13 +163,12 @@ async function seedBatYamExistingSchedule() {
 
         assignments.push({
           scheduleId: schedule.id,
+          versionId: version.id,
           employeeId: employee.id,
-          positionId: position.id,
+          shiftRoleId: position.id,
           date,
           shiftType,
-          slotIndex: 0,
-          isManualOverride: false,
-          courtId: court.id,
+          facilityId: court.id,
         });
       }
     }

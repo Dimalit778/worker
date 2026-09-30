@@ -1,4 +1,5 @@
 'use client';
+import { useVersionExpectation } from '../shared/version-context';
 
 import { useMemo, useRef, useState } from 'react';
 import { useMutation, useQueryClient } from '@tanstack/react-query';
@@ -38,7 +39,7 @@ type ScheduleCardsViewProps = {
   overflowCandidates?: OverflowCandidateMap;
   employees: ScheduleEmployeeOption[];
   capacity: ScheduleCapacityRule[];
-  courtId: string;
+  facilityId: string;
   currentEmployeeId?: string | null;
   readonly?: boolean;
 };
@@ -267,7 +268,7 @@ function AssignmentSlotCard({
   shiftType,
   date,
   scheduleId,
-  courtId,
+  facilityId,
   employees,
   assignedEmployeeIds,
   currentEmployeeId,
@@ -277,13 +278,14 @@ function AssignmentSlotCard({
   shiftType: ShiftType;
   date: string;
   scheduleId: string;
-  courtId: string;
+  facilityId: string;
   employees: ScheduleEmployeeOption[];
   assignedEmployeeIds: Set<string>;
   currentEmployeeId?: string | null;
   readonly?: boolean;
 }) {
   const queryClient = useQueryClient();
+  const expected = useVersionExpectation();
   const anchorRef = useRef<HTMLButtonElement>(null);
   const [open, setOpen] = useState(false);
   const [anchorRect, setAnchorRect] = useState<DOMRect | null>(null);
@@ -292,22 +294,22 @@ function AssignmentSlotCard({
   const assignmentMutation = useMutation({
     mutationFn: async (input: { type: 'select'; employeeId: string } | { type: 'remove'; assignmentId: string }) => {
       if (input.type === 'remove') {
-        await removeAssignment(input.assignmentId);
+        await removeAssignment(input.assignmentId, expected);
         return;
       }
       if (slot.assignment) {
-        await updateAssignment(slot.assignment.id, input.employeeId);
+        await updateAssignment(slot.assignment.id, input.employeeId, expected);
         return;
       }
       await createAssignment({
         scheduleId,
         employeeId: input.employeeId,
-        courtId,
+        facilityId,
         positionId: slot.positionId,
         shiftType,
         date,
         slotIndex: slot.slotIndex,
-      });
+      }, expected);
     },
     onSuccess: () => invalidateScheduleQueries(queryClient, scheduleId),
     onError: (e: Error) => setError(e.message || 'שגיאה בשיבוץ'),
@@ -406,7 +408,7 @@ function ShiftCard({
   shiftType,
   date,
   scheduleId,
-  courtId,
+  facilityId,
   assignments,
   overflowCandidates,
   employees,
@@ -417,7 +419,7 @@ function ShiftCard({
   shiftType: ShiftType;
   date: string;
   scheduleId: string;
-  courtId: string;
+  facilityId: string;
   assignments: AssignmentMap;
   overflowCandidates?: OverflowCandidateMap;
   employees: ScheduleEmployeeOption[];
@@ -463,7 +465,7 @@ function ShiftCard({
               shiftType={shiftType}
               date={date}
               scheduleId={scheduleId}
-              courtId={courtId}
+              facilityId={facilityId}
               employees={employees}
               assignedEmployeeIds={assignedEmployeeIds}
               currentEmployeeId={currentEmployeeId}
@@ -485,7 +487,7 @@ export function ScheduleCardsView({
   overflowCandidates,
   employees,
   capacity,
-  courtId,
+  facilityId,
   currentEmployeeId,
   readonly,
 }: ScheduleCardsViewProps) {
@@ -535,7 +537,7 @@ export function ScheduleCardsView({
             shiftType={shiftType}
             date={selectedDate}
             scheduleId={scheduleId}
-            courtId={courtId}
+            facilityId={facilityId}
             assignments={assignments}
             overflowCandidates={overflowCandidates}
             employees={employees}

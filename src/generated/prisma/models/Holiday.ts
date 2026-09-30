@@ -14,7 +14,7 @@ import type * as Prisma from "../internal/prismaNamespace"
 
 /**
  * Model Holiday
- * 
+ * חג או יום מיוחד המשפיע על סיווג היום לצורך השיבוץ.
  */
 export type HolidayModel = runtime.Types.Result.DefaultSelection<Prisma.$HolidayPayload>
 

@@ -11,6 +11,7 @@ import type { ShiftType } from '@/generated/prisma/client';
 import { assignedEmployeeIdsForShift, buildShiftSlots, getShiftRequiredCount } from '../schedule-data';
 import type { ShiftDisplay, ShiftSlot } from '../types';
 import { AssignmentChip, RoleAddButton } from './assignment-chip';
+import type { SwapCandidate } from '@/features/schedules/shared/guard-picker';
 
 function getNextEmptySlot(slots: ShiftSlot[]): ShiftSlot | null {
   return slots.find((slot) => !slot.assignment) ?? null;
@@ -43,7 +44,7 @@ type ShiftRoster = {
   shiftType: ShiftType;
   date: string;
   scheduleId: string;
-  courtId: string;
+  facilityId: string;
   assignments: AssignmentMap;
   overflowCandidates?: OverflowCandidateMap;
   employees: ScheduleEmployeeOption[];
@@ -70,22 +71,24 @@ function RoleGroup({
   shiftType,
   date,
   scheduleId,
-  courtId,
+  facilityId,
   employees,
   assignedEmployeeIds,
   currentEmployeeId,
   readonly,
+  swapCandidatesByAssignmentId,
 }: {
   role: string;
   slots: ShiftSlot[];
   shiftType: ShiftType;
   date: string;
   scheduleId: string;
-  courtId: string;
+  facilityId: string;
   employees: ScheduleEmployeeOption[];
   assignedEmployeeIds: Set<string>;
   currentEmployeeId?: string | null;
   readonly?: boolean;
+  swapCandidatesByAssignmentId: Map<string, SwapCandidate[]>;
 }) {
   const assignedCount = slots.filter((slot) => slot.assignment).length;
   const requiredCount = Math.max(...slots.map((slot) => slot.requiredCount), 0) || slots.length;
@@ -110,11 +113,12 @@ function RoleGroup({
             shiftType={shiftType}
             date={date}
             scheduleId={scheduleId}
-            courtId={courtId}
+            facilityId={facilityId}
             employees={employees}
             assignedEmployeeIds={assignedEmployeeIds}
             currentEmployeeId={currentEmployeeId}
             readonly={readonly}
+            swapCandidates={slot.assignment ? swapCandidatesByAssignmentId.get(slot.assignment.id) : undefined}
           />
         ))}
         {canAdd ? (
@@ -124,7 +128,7 @@ function RoleGroup({
             shiftType={shiftType}
             date={date}
             scheduleId={scheduleId}
-            courtId={courtId}
+            facilityId={facilityId}
             employees={employees}
             assignedEmployeeIds={assignedEmployeeIds}
           />
@@ -138,7 +142,7 @@ export function ShiftRoster({
   shiftType,
   date,
   scheduleId,
-  courtId,
+  facilityId,
   assignments,
   overflowCandidates,
   employees,
@@ -151,6 +155,23 @@ export function ShiftRoster({
   const slots = buildShiftSlots({ date, shiftType, assignments, overflowCandidates, capacity });
   const assignedEmployeeIds = assignedEmployeeIdsForShift(assignments, date, shiftType);
   const assignedCount = slots.filter((slot) => slot.assignment).length;
+
+  const allAssignedEntries = Object.values(assignments).flat();
+  const swapCandidatesByAssignmentId = new Map<string, SwapCandidate[]>();
+  for (const slot of slots) {
+    if (!slot.assignment) continue;
+    const candidates = Array.from(
+      new Map(
+        allAssignedEntries
+          .filter((a) => a.id !== slot.assignment!.id && a.employeeId !== slot.assignment!.employeeId)
+          .map((a) => [
+            a.employeeId,
+            { assignmentId: a.id, employeeId: a.employeeId, displayName: a.employeeDisplayName } as SwapCandidate,
+          ]),
+      ).values(),
+    );
+    swapCandidatesByAssignmentId.set(slot.assignment.id, candidates);
+  }
   const requiredCount = getShiftRequiredCount(date, shiftType, capacity);
   const currentAssignmentsCount = currentEmployeeId
     ? slots.filter((slot) => slot.assignment?.employeeId === currentEmployeeId).length
@@ -193,11 +214,12 @@ export function ShiftRoster({
                 shiftType={shiftType}
                 date={date}
                 scheduleId={scheduleId}
-                courtId={courtId}
+                facilityId={facilityId}
                 employees={employees}
                 assignedEmployeeIds={assignedEmployeeIds}
                 currentEmployeeId={currentEmployeeId}
                 readonly={readonly}
+                swapCandidatesByAssignmentId={swapCandidatesByAssignmentId}
               />
             ))}
           </div>

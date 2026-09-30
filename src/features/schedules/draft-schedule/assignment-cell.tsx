@@ -1,10 +1,11 @@
 'use client';
 
+import { useVersionExpectation } from '@/features/schedules/shared/version-context';
 import { useRef, useState } from 'react';
 import { useMutation, useQueryClient } from '@tanstack/react-query';
 import { cn } from '@/lib/utils';
-import { GuardPicker } from '@/features/schedules/shared/guard-picker';
-import { createAssignment, removeAssignment, updateAssignment } from '@/features/schedules/assignments/actions';
+import { GuardPicker, type SwapCandidate } from '@/features/schedules/shared/guard-picker';
+import { createAssignment, setAssignmentLocked, removeAssignment, swapAssignments, updateAssignment } from '@/features/schedules/assignments/actions';
 import { invalidateScheduleQueries } from '@/features/schedules/hooks';
 import { OverflowCandidates } from '../shared/overflow-candidates';
 import type { AssignmentSummary, OverflowCandidateSummary, ScheduleEmployeeOption } from '@/features/schedules/types';
@@ -16,7 +17,7 @@ type Props = {
   employees: ScheduleEmployeeOption[];
   assignedEmployeeIds?: Set<string>;
   scheduleId: string;
-  courtId: string;
+  facilityId: string;
   date: string;
   shiftType: ShiftType;
   positionId: string;
@@ -25,6 +26,7 @@ type Props = {
   readonly?: boolean;
   anonymousRow?: boolean;
   highlightedEmployeeId?: string | null;
+  swapCandidates?: SwapCandidate[];
 };
 
 export function AssignmentCell({
@@ -33,7 +35,7 @@ export function AssignmentCell({
   employees,
   assignedEmployeeIds,
   scheduleId,
-  courtId,
+  facilityId,
   date,
   shiftType,
   positionId,
@@ -42,32 +44,49 @@ export function AssignmentCell({
   readonly = false,
   anonymousRow = false,
   highlightedEmployeeId = null,
+  swapCandidates = [],
 }: Props) {
   const queryClient = useQueryClient();
+  const expected = useVersionExpectation();
   const [open, setOpen] = useState(false);
   const [anchorRect, setAnchorRect] = useState<DOMRect | null>(null);
   const [error, setError] = useState<string | null>(null);
   const tdRef = useRef<HTMLTableCellElement>(null);
 
   const assignmentMutation = useMutation({
-    mutationFn: async (input: { type: 'select'; employeeId: string } | { type: 'remove'; assignmentId: string }) => {
+    mutationFn: async (
+      input:
+        | { type: 'lock' }
+        | { type: 'select'; employeeId: string }
+        | { type: 'remove'; assignmentId: string }
+        | { type: 'swap'; assignmentId: string },
+    ) => {
+      if (input.type === 'lock') {
+        if (assignment) await setAssignmentLocked(assignment.id, !assignment.isLocked, expected);
+        return;
+      }
       if (input.type === 'remove') {
-        await removeAssignment(input.assignmentId);
+        await removeAssignment(input.assignmentId, expected);
+        return;
+      }
+      if (input.type === 'swap') {
+        if (!assignment) return;
+        await swapAssignments(assignment.id, input.assignmentId, expected);
         return;
       }
       if (assignment) {
-        await updateAssignment(assignment.id, input.employeeId);
+        await updateAssignment(assignment.id, input.employeeId, expected);
         return;
       }
       await createAssignment({
         scheduleId,
         employeeId: input.employeeId,
-        courtId,
+        facilityId,
         positionId,
         shiftType,
         date,
         slotIndex,
-      });
+      }, expected);
     },
     onSuccess: () => invalidateScheduleQueries(queryClient, scheduleId),
     onError: (e: Error) => setError(e.message || 'שגיאה בשיבוץ'),
@@ -115,6 +134,12 @@ export function AssignmentCell({
     assignmentMutation.mutate({ type: 'remove', assignmentId: assignment.id });
   }
 
+  function handleSwap(candidateAssignmentId: string) {
+    setOpen(false);
+    setError(null);
+    assignmentMutation.mutate({ type: 'swap', assignmentId: candidateAssignmentId });
+  }
+
   return (
     <td
       ref={tdRef}
@@ -134,6 +159,7 @@ export function AssignmentCell({
       }}
     >
       <span className="truncate block max-w-[58px] mx-auto">{assignment?.employeeDisplayName ?? ''}</span>
+      {assignment && <button type="button" aria-label={assignment.isLocked ? 'בטל נעילה ליצירה מחדש' : 'נעל ליצירה מחדש'} onClick={e => { e.stopPropagation(); assignmentMutation.mutate({ type: 'lock' }); }} className="text-[10px]">{assignment.isLocked ? '🔒' : 'נעל'}</button>}
       {error && (
         <span className="absolute inset-0 flex items-center justify-center bg-red-50 text-red-600 text-[10px] leading-tight px-0.5 z-10">
           {error}
@@ -150,6 +176,8 @@ export function AssignmentCell({
           onSelect={handleSelect}
           onRemove={handleRemove}
           onClose={() => setOpen(false)}
+          swapCandidates={assignment ? swapCandidates : undefined}
+          onSwap={assignment ? handleSwap : undefined}
         />
       )}
     </td>

@@ -1,4 +1,5 @@
 'use client';
+import { PeriodScheduleStatus } from '@/features/schedules/period-status';
 
 import { ScheduleStatusCards } from '@/features/dashboard/components/schedule-status-cards';
 import { StaffSummary } from '@/features/dashboard/components/staff-summary';
@@ -6,12 +7,12 @@ import { YearSchedulesSection } from '@/features/dashboard/components/year-sched
 import { useManagerDashboard } from '@/features/dashboard/hooks';
 import type { MonthSelection } from '@/features/dashboard/utils';
 
-type ManagerDashboardClientProps = {
+type ManagerDashboardProps = {
   year: number;
   initialSelection: MonthSelection;
 };
 
-export function ManagerDashboardClient({ year, initialSelection }: ManagerDashboardClientProps) {
+export function ManagerDashboard({ year, initialSelection }: ManagerDashboardProps) {
   const { data, isLoading, isError } = useManagerDashboard(year);
   console.log(JSON.stringify(data, null, 2));
 

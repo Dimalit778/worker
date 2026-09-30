@@ -1,4 +1,5 @@
-import type { ShiftType, ScheduleStatus } from '@/generated/prisma/client';
+import { PeriodScheduleStatus } from '@/features/schedules/period-status';
+import type { ShiftType } from '@/generated/prisma/client';
 import type { StaffingDayCategory } from './types';
 
 /** Visual / tab order for shift columns or sections */
@@ -59,7 +60,7 @@ export const SHIFT_STYLES: Record<ShiftType, { header: string; label: string; em
   },
 };
 
-export const STATUS_LABELS: Record<ScheduleStatus, string> = {
+export const STATUS_LABELS: Record<PeriodScheduleStatus, string> = {
   DRAFT: 'טיוטה',
   OPEN: 'פתוח להגשות',
   LOCKED: 'נעול',
@@ -67,7 +68,7 @@ export const STATUS_LABELS: Record<ScheduleStatus, string> = {
   ARCHIVED: 'בארכיון',
 };
 
-export const STATUS_COLORS: Record<ScheduleStatus, string> = {
+export const STATUS_COLORS: Record<PeriodScheduleStatus, string> = {
   DRAFT: 'bg-yellow-100 text-yellow-800 border-yellow-200',
   OPEN: 'bg-green-100 text-green-800 border-green-200',
   LOCKED: 'bg-amber-100 text-amber-800 border-amber-200',

@@ -14,7 +14,7 @@ import type * as Prisma from "../internal/prismaNamespace"
 
 /**
  * Model Employee
- * 
+ * עובד במתקן יחיד. capability מגדיר לאילו תפקידים במשמרת הוא כשיר.
  */
 export type EmployeeModel = runtime.Types.Result.DefaultSelection<Prisma.$EmployeePayload>
 
@@ -30,10 +30,11 @@ export type EmployeeMinAggregateOutputType = {
   lastName: string | null
   displayName: string | null
   phone: string | null
-  positionId: string | null
-  courtId: string | null
+  primaryShiftRoleId: string | null
+  facilityId: string | null
   isActive: boolean | null
   isReligious: boolean | null
+  capability: $Enums.Capability | null
   createdAt: Date | null
   updatedAt: Date | null
 }
@@ -44,10 +45,11 @@ export type EmployeeMaxAggregateOutputType = {
   lastName: string | null
   displayName: string | null
   phone: string | null
-  positionId: string | null
-  courtId: string | null
+  primaryShiftRoleId: string | null
+  facilityId: string | null
   isActive: boolean | null
   isReligious: boolean | null
+  capability: $Enums.Capability | null
   createdAt: Date | null
   updatedAt: Date | null
 }
@@ -58,10 +60,11 @@ export type EmployeeCountAggregateOutputType = {
   lastName: number
   displayName: number
   phone: number
-  positionId: number
-  courtId: number
+  primaryShiftRoleId: number
+  facilityId: number
   isActive: number
   isReligious: number
+  capability: number
   createdAt: number
   updatedAt: number
   _all: number
@@ -74,10 +77,11 @@ export type EmployeeMinAggregateInputType = {
   lastName?: true
   displayName?: true
   phone?: true
-  positionId?: true
-  courtId?: true
+  primaryShiftRoleId?: true
+  facilityId?: true
   isActive?: true
   isReligious?: true
+  capability?: true
   createdAt?: true
   updatedAt?: true
 }
@@ -88,10 +92,11 @@ export type EmployeeMaxAggregateInputType = {
   lastName?: true
   displayName?: true
   phone?: true
-  positionId?: true
-  courtId?: true
+  primaryShiftRoleId?: true
+  facilityId?: true
   isActive?: true
   isReligious?: true
+  capability?: true
   createdAt?: true
   updatedAt?: true
 }
@@ -102,10 +107,11 @@ export type EmployeeCountAggregateInputType = {
   lastName?: true
   displayName?: true
   phone?: true
-  positionId?: true
-  courtId?: true
+  primaryShiftRoleId?: true
+  facilityId?: true
   isActive?: true
   isReligious?: true
+  capability?: true
   createdAt?: true
   updatedAt?: true
   _all?: true
@@ -189,10 +195,11 @@ export type EmployeeGroupByOutputType = {
   lastName: string
   displayName: string
   phone: string | null
-  positionId: string
-  courtId: string
+  primaryShiftRoleId: string
+  facilityId: string
   isActive: boolean
   isReligious: boolean
+  capability: $Enums.Capability
   createdAt: Date
   updatedAt: Date
   _count: EmployeeCountAggregateOutputType | null
@@ -224,18 +231,19 @@ export type EmployeeWhereInput = {
   lastName?: Prisma.StringFilter<"Employee"> | string
   displayName?: Prisma.StringFilter<"Employee"> | string
   phone?: Prisma.StringNullableFilter<"Employee"> | string | null
-  positionId?: Prisma.StringFilter<"Employee"> | string
-  courtId?: Prisma.StringFilter<"Employee"> | string
+  primaryShiftRoleId?: Prisma.StringFilter<"Employee"> | string
+  facilityId?: Prisma.StringFilter<"Employee"> | string
   isActive?: Prisma.BoolFilter<"Employee"> | boolean
   isReligious?: Prisma.BoolFilter<"Employee"> | boolean
+  capability?: Prisma.EnumCapabilityFilter<"Employee"> | $Enums.Capability
   createdAt?: Prisma.DateTimeFilter<"Employee"> | Date | string
   updatedAt?: Prisma.DateTimeFilter<"Employee"> | Date | string
-  court?: Prisma.XOR<Prisma.CourtScalarRelationFilter, Prisma.CourtWhereInput>
-  position?: Prisma.XOR<Prisma.PositionScalarRelationFilter, Prisma.PositionWhereInput>
+  facility?: Prisma.XOR<Prisma.FacilityScalarRelationFilter, Prisma.FacilityWhereInput>
+  primaryShiftRole?: Prisma.XOR<Prisma.ShiftRoleScalarRelationFilter, Prisma.ShiftRoleWhereInput>
   user?: Prisma.XOR<Prisma.UserNullableScalarRelationFilter, Prisma.UserWhereInput> | null
-  availabilityForms?: Prisma.AvailabilityFormListRelationFilter
+  availabilitySubmissions?: Prisma.AvailabilitySubmissionListRelationFilter
   assignments?: Prisma.ShiftAssignmentListRelationFilter
-  fairnessRecords?: Prisma.FairnessRecordListRelationFilter
+  employeeStats?: Prisma.EmployeeScheduleStatsListRelationFilter
   warnings?: Prisma.ScheduleWarningListRelationFilter
 }
 
@@ -245,24 +253,25 @@ export type EmployeeOrderByWithRelationInput = {
   lastName?: Prisma.SortOrder
   displayName?: Prisma.SortOrder
   phone?: Prisma.SortOrderInput | Prisma.SortOrder
-  positionId?: Prisma.SortOrder
-  courtId?: Prisma.SortOrder
+  primaryShiftRoleId?: Prisma.SortOrder
+  facilityId?: Prisma.SortOrder
   isActive?: Prisma.SortOrder
   isReligious?: Prisma.SortOrder
+  capability?: Prisma.SortOrder
   createdAt?: Prisma.SortOrder
   updatedAt?: Prisma.SortOrder
-  court?: Prisma.CourtOrderByWithRelationInput
-  position?: Prisma.PositionOrderByWithRelationInput
+  facility?: Prisma.FacilityOrderByWithRelationInput
+  primaryShiftRole?: Prisma.ShiftRoleOrderByWithRelationInput
   user?: Prisma.UserOrderByWithRelationInput
-  availabilityForms?: Prisma.AvailabilityFormOrderByRelationAggregateInput
+  availabilitySubmissions?: Prisma.AvailabilitySubmissionOrderByRelationAggregateInput
   assignments?: Prisma.ShiftAssignmentOrderByRelationAggregateInput
-  fairnessRecords?: Prisma.FairnessRecordOrderByRelationAggregateInput
+  employeeStats?: Prisma.EmployeeScheduleStatsOrderByRelationAggregateInput
   warnings?: Prisma.ScheduleWarningOrderByRelationAggregateInput
 }
 
 export type EmployeeWhereUniqueInput = Prisma.AtLeast<{
   id?: string
-  id_courtId?: Prisma.EmployeeIdCourtIdCompoundUniqueInput
+  id_facilityId?: Prisma.EmployeeIdFacilityIdCompoundUniqueInput
   AND?: Prisma.EmployeeWhereInput | Prisma.EmployeeWhereInput[]
   OR?: Prisma.EmployeeWhereInput[]
   NOT?: Prisma.EmployeeWhereInput | Prisma.EmployeeWhereInput[]
@@ -270,20 +279,21 @@ export type EmployeeWhereUniqueInput = Prisma.AtLeast<{
   lastName?: Prisma.StringFilter<"Employee"> | string
   displayName?: Prisma.StringFilter<"Employee"> | string
   phone?: Prisma.StringNullableFilter<"Employee"> | string | null
-  positionId?: Prisma.StringFilter<"Employee"> | string
-  courtId?: Prisma.StringFilter<"Employee"> | string
+  primaryShiftRoleId?: Prisma.StringFilter<"Employee"> | string
+  facilityId?: Prisma.StringFilter<"Employee"> | string
   isActive?: Prisma.BoolFilter<"Employee"> | boolean
   isReligious?: Prisma.BoolFilter<"Employee"> | boolean
+  capability?: Prisma.EnumCapabilityFilter<"Employee"> | $Enums.Capability
   createdAt?: Prisma.DateTimeFilter<"Employee"> | Date | string
   updatedAt?: Prisma.DateTimeFilter<"Employee"> | Date | string
-  court?: Prisma.XOR<Prisma.CourtScalarRelationFilter, Prisma.CourtWhereInput>
-  position?: Prisma.XOR<Prisma.PositionScalarRelationFilter, Prisma.PositionWhereInput>
+  facility?: Prisma.XOR<Prisma.FacilityScalarRelationFilter, Prisma.FacilityWhereInput>
+  primaryShiftRole?: Prisma.XOR<Prisma.ShiftRoleScalarRelationFilter, Prisma.ShiftRoleWhereInput>
   user?: Prisma.XOR<Prisma.UserNullableScalarRelationFilter, Prisma.UserWhereInput> | null
-  availabilityForms?: Prisma.AvailabilityFormListRelationFilter
+  availabilitySubmissions?: Prisma.AvailabilitySubmissionListRelationFilter
   assignments?: Prisma.ShiftAssignmentListRelationFilter
-  fairnessRecords?: Prisma.FairnessRecordListRelationFilter
+  employeeStats?: Prisma.EmployeeScheduleStatsListRelationFilter
   warnings?: Prisma.ScheduleWarningListRelationFilter
-}, "id" | "id_courtId">
+}, "id" | "id_facilityId">
 
 export type EmployeeOrderByWithAggregationInput = {
   id?: Prisma.SortOrder
@@ -291,10 +301,11 @@ export type EmployeeOrderByWithAggregationInput = {
   lastName?: Prisma.SortOrder
   displayName?: Prisma.SortOrder
   phone?: Prisma.SortOrderInput | Prisma.SortOrder
-  positionId?: Prisma.SortOrder
-  courtId?: Prisma.SortOrder
+  primaryShiftRoleId?: Prisma.SortOrder
+  facilityId?: Prisma.SortOrder
   isActive?: Prisma.SortOrder
   isReligious?: Prisma.SortOrder
+  capability?: Prisma.SortOrder
   createdAt?: Prisma.SortOrder
   updatedAt?: Prisma.SortOrder
   _count?: Prisma.EmployeeCountOrderByAggregateInput
@@ -311,10 +322,11 @@ export type EmployeeScalarWhereWithAggregatesInput = {
   lastName?: Prisma.StringWithAggregatesFilter<"Employee"> | string
   displayName?: Prisma.StringWithAggregatesFilter<"Employee"> | string
   phone?: Prisma.StringNullableWithAggregatesFilter<"Employee"> | string | null
-  positionId?: Prisma.StringWithAggregatesFilter<"Employee"> | string
-  courtId?: Prisma.StringWithAggregatesFilter<"Employee"> | string
+  primaryShiftRoleId?: Prisma.StringWithAggregatesFilter<"Employee"> | string
+  facilityId?: Prisma.StringWithAggregatesFilter<"Employee"> | string
   isActive?: Prisma.BoolWithAggregatesFilter<"Employee"> | boolean
   isReligious?: Prisma.BoolWithAggregatesFilter<"Employee"> | boolean
+  capability?: Prisma.EnumCapabilityWithAggregatesFilter<"Employee"> | $Enums.Capability
   createdAt?: Prisma.DateTimeWithAggregatesFilter<"Employee"> | Date | string
   updatedAt?: Prisma.DateTimeWithAggregatesFilter<"Employee"> | Date | string
 }
@@ -327,14 +339,15 @@ export type EmployeeCreateInput = {
   phone?: string | null
   isActive?: boolean
   isReligious?: boolean
+  capability?: $Enums.Capability
   createdAt?: Date | string
   updatedAt?: Date | string
-  court: Prisma.CourtCreateNestedOneWithoutEmployeesInput
-  position: Prisma.PositionCreateNestedOneWithoutEmployeesInput
+  facility: Prisma.FacilityCreateNestedOneWithoutEmployeesInput
+  primaryShiftRole: Prisma.ShiftRoleCreateNestedOneWithoutPrimaryEmployeesInput
   user?: Prisma.UserCreateNestedOneWithoutEmployeeInput
-  availabilityForms?: Prisma.AvailabilityFormCreateNestedManyWithoutEmployeeInput
+  availabilitySubmissions?: Prisma.AvailabilitySubmissionCreateNestedManyWithoutEmployeeInput
   assignments?: Prisma.ShiftAssignmentCreateNestedManyWithoutEmployeeInput
-  fairnessRecords?: Prisma.FairnessRecordCreateNestedManyWithoutEmployeeInput
+  employeeStats?: Prisma.EmployeeScheduleStatsCreateNestedManyWithoutEmployeeInput
   warnings?: Prisma.ScheduleWarningCreateNestedManyWithoutEmployeeInput
 }
 
@@ -344,16 +357,17 @@ export type EmployeeUncheckedCreateInput = {
   lastName: string
   displayName: string
   phone?: string | null
-  positionId: string
-  courtId: string
+  primaryShiftRoleId: string
+  facilityId: string
   isActive?: boolean
   isReligious?: boolean
+  capability?: $Enums.Capability
   createdAt?: Date | string
   updatedAt?: Date | string
   user?: Prisma.UserUncheckedCreateNestedOneWithoutEmployeeInput
-  availabilityForms?: Prisma.AvailabilityFormUncheckedCreateNestedManyWithoutEmployeeInput
+  availabilitySubmissions?: Prisma.AvailabilitySubmissionUncheckedCreateNestedManyWithoutEmployeeInput
   assignments?: Prisma.ShiftAssignmentUncheckedCreateNestedManyWithoutEmployeeInput
-  fairnessRecords?: Prisma.FairnessRecordUncheckedCreateNestedManyWithoutEmployeeInput
+  employeeStats?: Prisma.EmployeeScheduleStatsUncheckedCreateNestedManyWithoutEmployeeInput
   warnings?: Prisma.ScheduleWarningUncheckedCreateNestedManyWithoutEmployeeInput
 }
 
@@ -365,14 +379,15 @@ export type EmployeeUpdateInput = {
   phone?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   isActive?: Prisma.BoolFieldUpdateOperationsInput | boolean
   isReligious?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  capability?: Prisma.EnumCapabilityFieldUpdateOperationsInput | $Enums.Capability
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
-  court?: Prisma.CourtUpdateOneRequiredWithoutEmployeesNestedInput
-  position?: Prisma.PositionUpdateOneRequiredWithoutEmployeesNestedInput
+  facility?: Prisma.FacilityUpdateOneRequiredWithoutEmployeesNestedInput
+  primaryShiftRole?: Prisma.ShiftRoleUpdateOneRequiredWithoutPrimaryEmployeesNestedInput
   user?: Prisma.UserUpdateOneWithoutEmployeeNestedInput
-  availabilityForms?: Prisma.AvailabilityFormUpdateManyWithoutEmployeeNestedInput
+  availabilitySubmissions?: Prisma.AvailabilitySubmissionUpdateManyWithoutEmployeeNestedInput
   assignments?: Prisma.ShiftAssignmentUpdateManyWithoutEmployeeNestedInput
-  fairnessRecords?: Prisma.FairnessRecordUpdateManyWithoutEmployeeNestedInput
+  employeeStats?: Prisma.EmployeeScheduleStatsUpdateManyWithoutEmployeeNestedInput
   warnings?: Prisma.ScheduleWarningUpdateManyWithoutEmployeeNestedInput
 }
 
@@ -382,16 +397,17 @@ export type EmployeeUncheckedUpdateInput = {
   lastName?: Prisma.StringFieldUpdateOperationsInput | string
   displayName?: Prisma.StringFieldUpdateOperationsInput | string
   phone?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  positionId?: Prisma.StringFieldUpdateOperationsInput | string
-  courtId?: Prisma.StringFieldUpdateOperationsInput | string
+  primaryShiftRoleId?: Prisma.StringFieldUpdateOperationsInput | string
+  facilityId?: Prisma.StringFieldUpdateOperationsInput | string
   isActive?: Prisma.BoolFieldUpdateOperationsInput | boolean
   isReligious?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  capability?: Prisma.EnumCapabilityFieldUpdateOperationsInput | $Enums.Capability
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   user?: Prisma.UserUncheckedUpdateOneWithoutEmployeeNestedInput
-  availabilityForms?: Prisma.AvailabilityFormUncheckedUpdateManyWithoutEmployeeNestedInput
+  availabilitySubmissions?: Prisma.AvailabilitySubmissionUncheckedUpdateManyWithoutEmployeeNestedInput
   assignments?: Prisma.ShiftAssignmentUncheckedUpdateManyWithoutEmployeeNestedInput
-  fairnessRecords?: Prisma.FairnessRecordUncheckedUpdateManyWithoutEmployeeNestedInput
+  employeeStats?: Prisma.EmployeeScheduleStatsUncheckedUpdateManyWithoutEmployeeNestedInput
   warnings?: Prisma.ScheduleWarningUncheckedUpdateManyWithoutEmployeeNestedInput
 }
 
@@ -401,10 +417,11 @@ export type EmployeeCreateManyInput = {
   lastName: string
   displayName: string
   phone?: string | null
-  positionId: string
-  courtId: string
+  primaryShiftRoleId: string
+  facilityId: string
   isActive?: boolean
   isReligious?: boolean
+  capability?: $Enums.Capability
   createdAt?: Date | string
   updatedAt?: Date | string
 }
@@ -417,6 +434,7 @@ export type EmployeeUpdateManyMutationInput = {
   phone?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   isActive?: Prisma.BoolFieldUpdateOperationsInput | boolean
   isReligious?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  capability?: Prisma.EnumCapabilityFieldUpdateOperationsInput | $Enums.Capability
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
 }
@@ -427,10 +445,11 @@ export type EmployeeUncheckedUpdateManyInput = {
   lastName?: Prisma.StringFieldUpdateOperationsInput | string
   displayName?: Prisma.StringFieldUpdateOperationsInput | string
   phone?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  positionId?: Prisma.StringFieldUpdateOperationsInput | string
-  courtId?: Prisma.StringFieldUpdateOperationsInput | string
+  primaryShiftRoleId?: Prisma.StringFieldUpdateOperationsInput | string
+  facilityId?: Prisma.StringFieldUpdateOperationsInput | string
   isActive?: Prisma.BoolFieldUpdateOperationsInput | boolean
   isReligious?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  capability?: Prisma.EnumCapabilityFieldUpdateOperationsInput | $Enums.Capability
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
 }
@@ -450,9 +469,9 @@ export type EmployeeOrderByRelationAggregateInput = {
   _count?: Prisma.SortOrder
 }
 
-export type EmployeeIdCourtIdCompoundUniqueInput = {
+export type EmployeeIdFacilityIdCompoundUniqueInput = {
   id: string
-  courtId: string
+  facilityId: string
 }
 
 export type EmployeeCountOrderByAggregateInput = {
@@ -461,10 +480,11 @@ export type EmployeeCountOrderByAggregateInput = {
   lastName?: Prisma.SortOrder
   displayName?: Prisma.SortOrder
   phone?: Prisma.SortOrder
-  positionId?: Prisma.SortOrder
-  courtId?: Prisma.SortOrder
+  primaryShiftRoleId?: Prisma.SortOrder
+  facilityId?: Prisma.SortOrder
   isActive?: Prisma.SortOrder
   isReligious?: Prisma.SortOrder
+  capability?: Prisma.SortOrder
   createdAt?: Prisma.SortOrder
   updatedAt?: Prisma.SortOrder
 }
@@ -475,10 +495,11 @@ export type EmployeeMaxOrderByAggregateInput = {
   lastName?: Prisma.SortOrder
   displayName?: Prisma.SortOrder
   phone?: Prisma.SortOrder
-  positionId?: Prisma.SortOrder
-  courtId?: Prisma.SortOrder
+  primaryShiftRoleId?: Prisma.SortOrder
+  facilityId?: Prisma.SortOrder
   isActive?: Prisma.SortOrder
   isReligious?: Prisma.SortOrder
+  capability?: Prisma.SortOrder
   createdAt?: Prisma.SortOrder
   updatedAt?: Prisma.SortOrder
 }
@@ -489,10 +510,11 @@ export type EmployeeMinOrderByAggregateInput = {
   lastName?: Prisma.SortOrder
   displayName?: Prisma.SortOrder
   phone?: Prisma.SortOrder
-  positionId?: Prisma.SortOrder
-  courtId?: Prisma.SortOrder
+  primaryShiftRoleId?: Prisma.SortOrder
+  facilityId?: Prisma.SortOrder
   isActive?: Prisma.SortOrder
   isReligious?: Prisma.SortOrder
+  capability?: Prisma.SortOrder
   createdAt?: Prisma.SortOrder
   updatedAt?: Prisma.SortOrder
 }
@@ -518,102 +540,106 @@ export type EmployeeUpdateOneWithoutUserNestedInput = {
   update?: Prisma.XOR<Prisma.XOR<Prisma.EmployeeUpdateToOneWithWhereWithoutUserInput, Prisma.EmployeeUpdateWithoutUserInput>, Prisma.EmployeeUncheckedUpdateWithoutUserInput>
 }
 
-export type EmployeeCreateNestedManyWithoutCourtInput = {
-  create?: Prisma.XOR<Prisma.EmployeeCreateWithoutCourtInput, Prisma.EmployeeUncheckedCreateWithoutCourtInput> | Prisma.EmployeeCreateWithoutCourtInput[] | Prisma.EmployeeUncheckedCreateWithoutCourtInput[]
-  connectOrCreate?: Prisma.EmployeeCreateOrConnectWithoutCourtInput | Prisma.EmployeeCreateOrConnectWithoutCourtInput[]
-  createMany?: Prisma.EmployeeCreateManyCourtInputEnvelope
+export type EmployeeCreateNestedManyWithoutFacilityInput = {
+  create?: Prisma.XOR<Prisma.EmployeeCreateWithoutFacilityInput, Prisma.EmployeeUncheckedCreateWithoutFacilityInput> | Prisma.EmployeeCreateWithoutFacilityInput[] | Prisma.EmployeeUncheckedCreateWithoutFacilityInput[]
+  connectOrCreate?: Prisma.EmployeeCreateOrConnectWithoutFacilityInput | Prisma.EmployeeCreateOrConnectWithoutFacilityInput[]
+  createMany?: Prisma.EmployeeCreateManyFacilityInputEnvelope
   connect?: Prisma.EmployeeWhereUniqueInput | Prisma.EmployeeWhereUniqueInput[]
 }
 
-export type EmployeeUncheckedCreateNestedManyWithoutCourtInput = {
-  create?: Prisma.XOR<Prisma.EmployeeCreateWithoutCourtInput, Prisma.EmployeeUncheckedCreateWithoutCourtInput> | Prisma.EmployeeCreateWithoutCourtInput[] | Prisma.EmployeeUncheckedCreateWithoutCourtInput[]
-  connectOrCreate?: Prisma.EmployeeCreateOrConnectWithoutCourtInput | Prisma.EmployeeCreateOrConnectWithoutCourtInput[]
-  createMany?: Prisma.EmployeeCreateManyCourtInputEnvelope
+export type EmployeeUncheckedCreateNestedManyWithoutFacilityInput = {
+  create?: Prisma.XOR<Prisma.EmployeeCreateWithoutFacilityInput, Prisma.EmployeeUncheckedCreateWithoutFacilityInput> | Prisma.EmployeeCreateWithoutFacilityInput[] | Prisma.EmployeeUncheckedCreateWithoutFacilityInput[]
+  connectOrCreate?: Prisma.EmployeeCreateOrConnectWithoutFacilityInput | Prisma.EmployeeCreateOrConnectWithoutFacilityInput[]
+  createMany?: Prisma.EmployeeCreateManyFacilityInputEnvelope
   connect?: Prisma.EmployeeWhereUniqueInput | Prisma.EmployeeWhereUniqueInput[]
 }
 
-export type EmployeeUpdateManyWithoutCourtNestedInput = {
-  create?: Prisma.XOR<Prisma.EmployeeCreateWithoutCourtInput, Prisma.EmployeeUncheckedCreateWithoutCourtInput> | Prisma.EmployeeCreateWithoutCourtInput[] | Prisma.EmployeeUncheckedCreateWithoutCourtInput[]
-  connectOrCreate?: Prisma.EmployeeCreateOrConnectWithoutCourtInput | Prisma.EmployeeCreateOrConnectWithoutCourtInput[]
-  upsert?: Prisma.EmployeeUpsertWithWhereUniqueWithoutCourtInput | Prisma.EmployeeUpsertWithWhereUniqueWithoutCourtInput[]
-  createMany?: Prisma.EmployeeCreateManyCourtInputEnvelope
+export type EmployeeUpdateManyWithoutFacilityNestedInput = {
+  create?: Prisma.XOR<Prisma.EmployeeCreateWithoutFacilityInput, Prisma.EmployeeUncheckedCreateWithoutFacilityInput> | Prisma.EmployeeCreateWithoutFacilityInput[] | Prisma.EmployeeUncheckedCreateWithoutFacilityInput[]
+  connectOrCreate?: Prisma.EmployeeCreateOrConnectWithoutFacilityInput | Prisma.EmployeeCreateOrConnectWithoutFacilityInput[]
+  upsert?: Prisma.EmployeeUpsertWithWhereUniqueWithoutFacilityInput | Prisma.EmployeeUpsertWithWhereUniqueWithoutFacilityInput[]
+  createMany?: Prisma.EmployeeCreateManyFacilityInputEnvelope
   set?: Prisma.EmployeeWhereUniqueInput | Prisma.EmployeeWhereUniqueInput[]
   disconnect?: Prisma.EmployeeWhereUniqueInput | Prisma.EmployeeWhereUniqueInput[]
   delete?: Prisma.EmployeeWhereUniqueInput | Prisma.EmployeeWhereUniqueInput[]
   connect?: Prisma.EmployeeWhereUniqueInput | Prisma.EmployeeWhereUniqueInput[]
-  update?: Prisma.EmployeeUpdateWithWhereUniqueWithoutCourtInput | Prisma.EmployeeUpdateWithWhereUniqueWithoutCourtInput[]
-  updateMany?: Prisma.EmployeeUpdateManyWithWhereWithoutCourtInput | Prisma.EmployeeUpdateManyWithWhereWithoutCourtInput[]
+  update?: Prisma.EmployeeUpdateWithWhereUniqueWithoutFacilityInput | Prisma.EmployeeUpdateWithWhereUniqueWithoutFacilityInput[]
+  updateMany?: Prisma.EmployeeUpdateManyWithWhereWithoutFacilityInput | Prisma.EmployeeUpdateManyWithWhereWithoutFacilityInput[]
   deleteMany?: Prisma.EmployeeScalarWhereInput | Prisma.EmployeeScalarWhereInput[]
 }
 
-export type EmployeeUncheckedUpdateManyWithoutCourtNestedInput = {
-  create?: Prisma.XOR<Prisma.EmployeeCreateWithoutCourtInput, Prisma.EmployeeUncheckedCreateWithoutCourtInput> | Prisma.EmployeeCreateWithoutCourtInput[] | Prisma.EmployeeUncheckedCreateWithoutCourtInput[]
-  connectOrCreate?: Prisma.EmployeeCreateOrConnectWithoutCourtInput | Prisma.EmployeeCreateOrConnectWithoutCourtInput[]
-  upsert?: Prisma.EmployeeUpsertWithWhereUniqueWithoutCourtInput | Prisma.EmployeeUpsertWithWhereUniqueWithoutCourtInput[]
-  createMany?: Prisma.EmployeeCreateManyCourtInputEnvelope
+export type EmployeeUncheckedUpdateManyWithoutFacilityNestedInput = {
+  create?: Prisma.XOR<Prisma.EmployeeCreateWithoutFacilityInput, Prisma.EmployeeUncheckedCreateWithoutFacilityInput> | Prisma.EmployeeCreateWithoutFacilityInput[] | Prisma.EmployeeUncheckedCreateWithoutFacilityInput[]
+  connectOrCreate?: Prisma.EmployeeCreateOrConnectWithoutFacilityInput | Prisma.EmployeeCreateOrConnectWithoutFacilityInput[]
+  upsert?: Prisma.EmployeeUpsertWithWhereUniqueWithoutFacilityInput | Prisma.EmployeeUpsertWithWhereUniqueWithoutFacilityInput[]
+  createMany?: Prisma.EmployeeCreateManyFacilityInputEnvelope
   set?: Prisma.EmployeeWhereUniqueInput | Prisma.EmployeeWhereUniqueInput[]
   disconnect?: Prisma.EmployeeWhereUniqueInput | Prisma.EmployeeWhereUniqueInput[]
   delete?: Prisma.EmployeeWhereUniqueInput | Prisma.EmployeeWhereUniqueInput[]
   connect?: Prisma.EmployeeWhereUniqueInput | Prisma.EmployeeWhereUniqueInput[]
-  update?: Prisma.EmployeeUpdateWithWhereUniqueWithoutCourtInput | Prisma.EmployeeUpdateWithWhereUniqueWithoutCourtInput[]
-  updateMany?: Prisma.EmployeeUpdateManyWithWhereWithoutCourtInput | Prisma.EmployeeUpdateManyWithWhereWithoutCourtInput[]
+  update?: Prisma.EmployeeUpdateWithWhereUniqueWithoutFacilityInput | Prisma.EmployeeUpdateWithWhereUniqueWithoutFacilityInput[]
+  updateMany?: Prisma.EmployeeUpdateManyWithWhereWithoutFacilityInput | Prisma.EmployeeUpdateManyWithWhereWithoutFacilityInput[]
   deleteMany?: Prisma.EmployeeScalarWhereInput | Prisma.EmployeeScalarWhereInput[]
 }
 
-export type EmployeeCreateNestedManyWithoutPositionInput = {
-  create?: Prisma.XOR<Prisma.EmployeeCreateWithoutPositionInput, Prisma.EmployeeUncheckedCreateWithoutPositionInput> | Prisma.EmployeeCreateWithoutPositionInput[] | Prisma.EmployeeUncheckedCreateWithoutPositionInput[]
-  connectOrCreate?: Prisma.EmployeeCreateOrConnectWithoutPositionInput | Prisma.EmployeeCreateOrConnectWithoutPositionInput[]
-  createMany?: Prisma.EmployeeCreateManyPositionInputEnvelope
+export type EnumCapabilityFieldUpdateOperationsInput = {
+  set?: $Enums.Capability
+}
+
+export type EmployeeCreateNestedManyWithoutPrimaryShiftRoleInput = {
+  create?: Prisma.XOR<Prisma.EmployeeCreateWithoutPrimaryShiftRoleInput, Prisma.EmployeeUncheckedCreateWithoutPrimaryShiftRoleInput> | Prisma.EmployeeCreateWithoutPrimaryShiftRoleInput[] | Prisma.EmployeeUncheckedCreateWithoutPrimaryShiftRoleInput[]
+  connectOrCreate?: Prisma.EmployeeCreateOrConnectWithoutPrimaryShiftRoleInput | Prisma.EmployeeCreateOrConnectWithoutPrimaryShiftRoleInput[]
+  createMany?: Prisma.EmployeeCreateManyPrimaryShiftRoleInputEnvelope
   connect?: Prisma.EmployeeWhereUniqueInput | Prisma.EmployeeWhereUniqueInput[]
 }
 
-export type EmployeeUncheckedCreateNestedManyWithoutPositionInput = {
-  create?: Prisma.XOR<Prisma.EmployeeCreateWithoutPositionInput, Prisma.EmployeeUncheckedCreateWithoutPositionInput> | Prisma.EmployeeCreateWithoutPositionInput[] | Prisma.EmployeeUncheckedCreateWithoutPositionInput[]
-  connectOrCreate?: Prisma.EmployeeCreateOrConnectWithoutPositionInput | Prisma.EmployeeCreateOrConnectWithoutPositionInput[]
-  createMany?: Prisma.EmployeeCreateManyPositionInputEnvelope
+export type EmployeeUncheckedCreateNestedManyWithoutPrimaryShiftRoleInput = {
+  create?: Prisma.XOR<Prisma.EmployeeCreateWithoutPrimaryShiftRoleInput, Prisma.EmployeeUncheckedCreateWithoutPrimaryShiftRoleInput> | Prisma.EmployeeCreateWithoutPrimaryShiftRoleInput[] | Prisma.EmployeeUncheckedCreateWithoutPrimaryShiftRoleInput[]
+  connectOrCreate?: Prisma.EmployeeCreateOrConnectWithoutPrimaryShiftRoleInput | Prisma.EmployeeCreateOrConnectWithoutPrimaryShiftRoleInput[]
+  createMany?: Prisma.EmployeeCreateManyPrimaryShiftRoleInputEnvelope
   connect?: Prisma.EmployeeWhereUniqueInput | Prisma.EmployeeWhereUniqueInput[]
 }
 
-export type EmployeeUpdateManyWithoutPositionNestedInput = {
-  create?: Prisma.XOR<Prisma.EmployeeCreateWithoutPositionInput, Prisma.EmployeeUncheckedCreateWithoutPositionInput> | Prisma.EmployeeCreateWithoutPositionInput[] | Prisma.EmployeeUncheckedCreateWithoutPositionInput[]
-  connectOrCreate?: Prisma.EmployeeCreateOrConnectWithoutPositionInput | Prisma.EmployeeCreateOrConnectWithoutPositionInput[]
-  upsert?: Prisma.EmployeeUpsertWithWhereUniqueWithoutPositionInput | Prisma.EmployeeUpsertWithWhereUniqueWithoutPositionInput[]
-  createMany?: Prisma.EmployeeCreateManyPositionInputEnvelope
+export type EmployeeUpdateManyWithoutPrimaryShiftRoleNestedInput = {
+  create?: Prisma.XOR<Prisma.EmployeeCreateWithoutPrimaryShiftRoleInput, Prisma.EmployeeUncheckedCreateWithoutPrimaryShiftRoleInput> | Prisma.EmployeeCreateWithoutPrimaryShiftRoleInput[] | Prisma.EmployeeUncheckedCreateWithoutPrimaryShiftRoleInput[]
+  connectOrCreate?: Prisma.EmployeeCreateOrConnectWithoutPrimaryShiftRoleInput | Prisma.EmployeeCreateOrConnectWithoutPrimaryShiftRoleInput[]
+  upsert?: Prisma.EmployeeUpsertWithWhereUniqueWithoutPrimaryShiftRoleInput | Prisma.EmployeeUpsertWithWhereUniqueWithoutPrimaryShiftRoleInput[]
+  createMany?: Prisma.EmployeeCreateManyPrimaryShiftRoleInputEnvelope
   set?: Prisma.EmployeeWhereUniqueInput | Prisma.EmployeeWhereUniqueInput[]
   disconnect?: Prisma.EmployeeWhereUniqueInput | Prisma.EmployeeWhereUniqueInput[]
   delete?: Prisma.EmployeeWhereUniqueInput | Prisma.EmployeeWhereUniqueInput[]
   connect?: Prisma.EmployeeWhereUniqueInput | Prisma.EmployeeWhereUniqueInput[]
-  update?: Prisma.EmployeeUpdateWithWhereUniqueWithoutPositionInput | Prisma.EmployeeUpdateWithWhereUniqueWithoutPositionInput[]
-  updateMany?: Prisma.EmployeeUpdateManyWithWhereWithoutPositionInput | Prisma.EmployeeUpdateManyWithWhereWithoutPositionInput[]
+  update?: Prisma.EmployeeUpdateWithWhereUniqueWithoutPrimaryShiftRoleInput | Prisma.EmployeeUpdateWithWhereUniqueWithoutPrimaryShiftRoleInput[]
+  updateMany?: Prisma.EmployeeUpdateManyWithWhereWithoutPrimaryShiftRoleInput | Prisma.EmployeeUpdateManyWithWhereWithoutPrimaryShiftRoleInput[]
   deleteMany?: Prisma.EmployeeScalarWhereInput | Prisma.EmployeeScalarWhereInput[]
 }
 
-export type EmployeeUncheckedUpdateManyWithoutPositionNestedInput = {
-  create?: Prisma.XOR<Prisma.EmployeeCreateWithoutPositionInput, Prisma.EmployeeUncheckedCreateWithoutPositionInput> | Prisma.EmployeeCreateWithoutPositionInput[] | Prisma.EmployeeUncheckedCreateWithoutPositionInput[]
-  connectOrCreate?: Prisma.EmployeeCreateOrConnectWithoutPositionInput | Prisma.EmployeeCreateOrConnectWithoutPositionInput[]
-  upsert?: Prisma.EmployeeUpsertWithWhereUniqueWithoutPositionInput | Prisma.EmployeeUpsertWithWhereUniqueWithoutPositionInput[]
-  createMany?: Prisma.EmployeeCreateManyPositionInputEnvelope
+export type EmployeeUncheckedUpdateManyWithoutPrimaryShiftRoleNestedInput = {
+  create?: Prisma.XOR<Prisma.EmployeeCreateWithoutPrimaryShiftRoleInput, Prisma.EmployeeUncheckedCreateWithoutPrimaryShiftRoleInput> | Prisma.EmployeeCreateWithoutPrimaryShiftRoleInput[] | Prisma.EmployeeUncheckedCreateWithoutPrimaryShiftRoleInput[]
+  connectOrCreate?: Prisma.EmployeeCreateOrConnectWithoutPrimaryShiftRoleInput | Prisma.EmployeeCreateOrConnectWithoutPrimaryShiftRoleInput[]
+  upsert?: Prisma.EmployeeUpsertWithWhereUniqueWithoutPrimaryShiftRoleInput | Prisma.EmployeeUpsertWithWhereUniqueWithoutPrimaryShiftRoleInput[]
+  createMany?: Prisma.EmployeeCreateManyPrimaryShiftRoleInputEnvelope
   set?: Prisma.EmployeeWhereUniqueInput | Prisma.EmployeeWhereUniqueInput[]
   disconnect?: Prisma.EmployeeWhereUniqueInput | Prisma.EmployeeWhereUniqueInput[]
   delete?: Prisma.EmployeeWhereUniqueInput | Prisma.EmployeeWhereUniqueInput[]
   connect?: Prisma.EmployeeWhereUniqueInput | Prisma.EmployeeWhereUniqueInput[]
-  update?: Prisma.EmployeeUpdateWithWhereUniqueWithoutPositionInput | Prisma.EmployeeUpdateWithWhereUniqueWithoutPositionInput[]
-  updateMany?: Prisma.EmployeeUpdateManyWithWhereWithoutPositionInput | Prisma.EmployeeUpdateManyWithWhereWithoutPositionInput[]
+  update?: Prisma.EmployeeUpdateWithWhereUniqueWithoutPrimaryShiftRoleInput | Prisma.EmployeeUpdateWithWhereUniqueWithoutPrimaryShiftRoleInput[]
+  updateMany?: Prisma.EmployeeUpdateManyWithWhereWithoutPrimaryShiftRoleInput | Prisma.EmployeeUpdateManyWithWhereWithoutPrimaryShiftRoleInput[]
   deleteMany?: Prisma.EmployeeScalarWhereInput | Prisma.EmployeeScalarWhereInput[]
 }
 
-export type EmployeeCreateNestedOneWithoutAvailabilityFormsInput = {
-  create?: Prisma.XOR<Prisma.EmployeeCreateWithoutAvailabilityFormsInput, Prisma.EmployeeUncheckedCreateWithoutAvailabilityFormsInput>
-  connectOrCreate?: Prisma.EmployeeCreateOrConnectWithoutAvailabilityFormsInput
+export type EmployeeCreateNestedOneWithoutAvailabilitySubmissionsInput = {
+  create?: Prisma.XOR<Prisma.EmployeeCreateWithoutAvailabilitySubmissionsInput, Prisma.EmployeeUncheckedCreateWithoutAvailabilitySubmissionsInput>
+  connectOrCreate?: Prisma.EmployeeCreateOrConnectWithoutAvailabilitySubmissionsInput
   connect?: Prisma.EmployeeWhereUniqueInput
 }
 
-export type EmployeeUpdateOneRequiredWithoutAvailabilityFormsNestedInput = {
-  create?: Prisma.XOR<Prisma.EmployeeCreateWithoutAvailabilityFormsInput, Prisma.EmployeeUncheckedCreateWithoutAvailabilityFormsInput>
-  connectOrCreate?: Prisma.EmployeeCreateOrConnectWithoutAvailabilityFormsInput
-  upsert?: Prisma.EmployeeUpsertWithoutAvailabilityFormsInput
+export type EmployeeUpdateOneRequiredWithoutAvailabilitySubmissionsNestedInput = {
+  create?: Prisma.XOR<Prisma.EmployeeCreateWithoutAvailabilitySubmissionsInput, Prisma.EmployeeUncheckedCreateWithoutAvailabilitySubmissionsInput>
+  connectOrCreate?: Prisma.EmployeeCreateOrConnectWithoutAvailabilitySubmissionsInput
+  upsert?: Prisma.EmployeeUpsertWithoutAvailabilitySubmissionsInput
   connect?: Prisma.EmployeeWhereUniqueInput
-  update?: Prisma.XOR<Prisma.XOR<Prisma.EmployeeUpdateToOneWithWhereWithoutAvailabilityFormsInput, Prisma.EmployeeUpdateWithoutAvailabilityFormsInput>, Prisma.EmployeeUncheckedUpdateWithoutAvailabilityFormsInput>
+  update?: Prisma.XOR<Prisma.XOR<Prisma.EmployeeUpdateToOneWithWhereWithoutAvailabilitySubmissionsInput, Prisma.EmployeeUpdateWithoutAvailabilitySubmissionsInput>, Prisma.EmployeeUncheckedUpdateWithoutAvailabilitySubmissionsInput>
 }
 
 export type EmployeeCreateNestedOneWithoutAssignmentsInput = {
@@ -646,18 +672,18 @@ export type EmployeeUpdateOneWithoutWarningsNestedInput = {
   update?: Prisma.XOR<Prisma.XOR<Prisma.EmployeeUpdateToOneWithWhereWithoutWarningsInput, Prisma.EmployeeUpdateWithoutWarningsInput>, Prisma.EmployeeUncheckedUpdateWithoutWarningsInput>
 }
 
-export type EmployeeCreateNestedOneWithoutFairnessRecordsInput = {
-  create?: Prisma.XOR<Prisma.EmployeeCreateWithoutFairnessRecordsInput, Prisma.EmployeeUncheckedCreateWithoutFairnessRecordsInput>
-  connectOrCreate?: Prisma.EmployeeCreateOrConnectWithoutFairnessRecordsInput
+export type EmployeeCreateNestedOneWithoutEmployeeStatsInput = {
+  create?: Prisma.XOR<Prisma.EmployeeCreateWithoutEmployeeStatsInput, Prisma.EmployeeUncheckedCreateWithoutEmployeeStatsInput>
+  connectOrCreate?: Prisma.EmployeeCreateOrConnectWithoutEmployeeStatsInput
   connect?: Prisma.EmployeeWhereUniqueInput
 }
 
-export type EmployeeUpdateOneRequiredWithoutFairnessRecordsNestedInput = {
-  create?: Prisma.XOR<Prisma.EmployeeCreateWithoutFairnessRecordsInput, Prisma.EmployeeUncheckedCreateWithoutFairnessRecordsInput>
-  connectOrCreate?: Prisma.EmployeeCreateOrConnectWithoutFairnessRecordsInput
-  upsert?: Prisma.EmployeeUpsertWithoutFairnessRecordsInput
+export type EmployeeUpdateOneRequiredWithoutEmployeeStatsNestedInput = {
+  create?: Prisma.XOR<Prisma.EmployeeCreateWithoutEmployeeStatsInput, Prisma.EmployeeUncheckedCreateWithoutEmployeeStatsInput>
+  connectOrCreate?: Prisma.EmployeeCreateOrConnectWithoutEmployeeStatsInput
+  upsert?: Prisma.EmployeeUpsertWithoutEmployeeStatsInput
   connect?: Prisma.EmployeeWhereUniqueInput
-  update?: Prisma.XOR<Prisma.XOR<Prisma.EmployeeUpdateToOneWithWhereWithoutFairnessRecordsInput, Prisma.EmployeeUpdateWithoutFairnessRecordsInput>, Prisma.EmployeeUncheckedUpdateWithoutFairnessRecordsInput>
+  update?: Prisma.XOR<Prisma.XOR<Prisma.EmployeeUpdateToOneWithWhereWithoutEmployeeStatsInput, Prisma.EmployeeUpdateWithoutEmployeeStatsInput>, Prisma.EmployeeUncheckedUpdateWithoutEmployeeStatsInput>
 }
 
 export type EmployeeCreateWithoutUserInput = {
@@ -668,13 +694,14 @@ export type EmployeeCreateWithoutUserInput = {
   phone?: string | null
   isActive?: boolean
   isReligious?: boolean
+  capability?: $Enums.Capability
   createdAt?: Date | string
   updatedAt?: Date | string
-  court: Prisma.CourtCreateNestedOneWithoutEmployeesInput
-  position: Prisma.PositionCreateNestedOneWithoutEmployeesInput
-  availabilityForms?: Prisma.AvailabilityFormCreateNestedManyWithoutEmployeeInput
+  facility: Prisma.FacilityCreateNestedOneWithoutEmployeesInput
+  primaryShiftRole: Prisma.ShiftRoleCreateNestedOneWithoutPrimaryEmployeesInput
+  availabilitySubmissions?: Prisma.AvailabilitySubmissionCreateNestedManyWithoutEmployeeInput
   assignments?: Prisma.ShiftAssignmentCreateNestedManyWithoutEmployeeInput
-  fairnessRecords?: Prisma.FairnessRecordCreateNestedManyWithoutEmployeeInput
+  employeeStats?: Prisma.EmployeeScheduleStatsCreateNestedManyWithoutEmployeeInput
   warnings?: Prisma.ScheduleWarningCreateNestedManyWithoutEmployeeInput
 }
 
@@ -684,15 +711,16 @@ export type EmployeeUncheckedCreateWithoutUserInput = {
   lastName: string
   displayName: string
   phone?: string | null
-  positionId: string
-  courtId: string
+  primaryShiftRoleId: string
+  facilityId: string
   isActive?: boolean
   isReligious?: boolean
+  capability?: $Enums.Capability
   createdAt?: Date | string
   updatedAt?: Date | string
-  availabilityForms?: Prisma.AvailabilityFormUncheckedCreateNestedManyWithoutEmployeeInput
+  availabilitySubmissions?: Prisma.AvailabilitySubmissionUncheckedCreateNestedManyWithoutEmployeeInput
   assignments?: Prisma.ShiftAssignmentUncheckedCreateNestedManyWithoutEmployeeInput
-  fairnessRecords?: Prisma.FairnessRecordUncheckedCreateNestedManyWithoutEmployeeInput
+  employeeStats?: Prisma.EmployeeScheduleStatsUncheckedCreateNestedManyWithoutEmployeeInput
   warnings?: Prisma.ScheduleWarningUncheckedCreateNestedManyWithoutEmployeeInput
 }
 
@@ -720,13 +748,14 @@ export type EmployeeUpdateWithoutUserInput = {
   phone?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   isActive?: Prisma.BoolFieldUpdateOperationsInput | boolean
   isReligious?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  capability?: Prisma.EnumCapabilityFieldUpdateOperationsInput | $Enums.Capability
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
-  court?: Prisma.CourtUpdateOneRequiredWithoutEmployeesNestedInput
-  position?: Prisma.PositionUpdateOneRequiredWithoutEmployeesNestedInput
-  availabilityForms?: Prisma.AvailabilityFormUpdateManyWithoutEmployeeNestedInput
+  facility?: Prisma.FacilityUpdateOneRequiredWithoutEmployeesNestedInput
+  primaryShiftRole?: Prisma.ShiftRoleUpdateOneRequiredWithoutPrimaryEmployeesNestedInput
+  availabilitySubmissions?: Prisma.AvailabilitySubmissionUpdateManyWithoutEmployeeNestedInput
   assignments?: Prisma.ShiftAssignmentUpdateManyWithoutEmployeeNestedInput
-  fairnessRecords?: Prisma.FairnessRecordUpdateManyWithoutEmployeeNestedInput
+  employeeStats?: Prisma.EmployeeScheduleStatsUpdateManyWithoutEmployeeNestedInput
   warnings?: Prisma.ScheduleWarningUpdateManyWithoutEmployeeNestedInput
 }
 
@@ -736,19 +765,20 @@ export type EmployeeUncheckedUpdateWithoutUserInput = {
   lastName?: Prisma.StringFieldUpdateOperationsInput | string
   displayName?: Prisma.StringFieldUpdateOperationsInput | string
   phone?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  positionId?: Prisma.StringFieldUpdateOperationsInput | string
-  courtId?: Prisma.StringFieldUpdateOperationsInput | string
+  primaryShiftRoleId?: Prisma.StringFieldUpdateOperationsInput | string
+  facilityId?: Prisma.StringFieldUpdateOperationsInput | string
   isActive?: Prisma.BoolFieldUpdateOperationsInput | boolean
   isReligious?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  capability?: Prisma.EnumCapabilityFieldUpdateOperationsInput | $Enums.Capability
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
-  availabilityForms?: Prisma.AvailabilityFormUncheckedUpdateManyWithoutEmployeeNestedInput
+  availabilitySubmissions?: Prisma.AvailabilitySubmissionUncheckedUpdateManyWithoutEmployeeNestedInput
   assignments?: Prisma.ShiftAssignmentUncheckedUpdateManyWithoutEmployeeNestedInput
-  fairnessRecords?: Prisma.FairnessRecordUncheckedUpdateManyWithoutEmployeeNestedInput
+  employeeStats?: Prisma.EmployeeScheduleStatsUncheckedUpdateManyWithoutEmployeeNestedInput
   warnings?: Prisma.ScheduleWarningUncheckedUpdateManyWithoutEmployeeNestedInput
 }
 
-export type EmployeeCreateWithoutCourtInput = {
+export type EmployeeCreateWithoutFacilityInput = {
   id?: string
   firstName: string
   lastName: string
@@ -756,58 +786,60 @@ export type EmployeeCreateWithoutCourtInput = {
   phone?: string | null
   isActive?: boolean
   isReligious?: boolean
+  capability?: $Enums.Capability
   createdAt?: Date | string
   updatedAt?: Date | string
-  position: Prisma.PositionCreateNestedOneWithoutEmployeesInput
+  primaryShiftRole: Prisma.ShiftRoleCreateNestedOneWithoutPrimaryEmployeesInput
   user?: Prisma.UserCreateNestedOneWithoutEmployeeInput
-  availabilityForms?: Prisma.AvailabilityFormCreateNestedManyWithoutEmployeeInput
+  availabilitySubmissions?: Prisma.AvailabilitySubmissionCreateNestedManyWithoutEmployeeInput
   assignments?: Prisma.ShiftAssignmentCreateNestedManyWithoutEmployeeInput
-  fairnessRecords?: Prisma.FairnessRecordCreateNestedManyWithoutEmployeeInput
+  employeeStats?: Prisma.EmployeeScheduleStatsCreateNestedManyWithoutEmployeeInput
   warnings?: Prisma.ScheduleWarningCreateNestedManyWithoutEmployeeInput
 }
 
-export type EmployeeUncheckedCreateWithoutCourtInput = {
+export type EmployeeUncheckedCreateWithoutFacilityInput = {
   id?: string
   firstName: string
   lastName: string
   displayName: string
   phone?: string | null
-  positionId: string
+  primaryShiftRoleId: string
   isActive?: boolean
   isReligious?: boolean
+  capability?: $Enums.Capability
   createdAt?: Date | string
   updatedAt?: Date | string
   user?: Prisma.UserUncheckedCreateNestedOneWithoutEmployeeInput
-  availabilityForms?: Prisma.AvailabilityFormUncheckedCreateNestedManyWithoutEmployeeInput
+  availabilitySubmissions?: Prisma.AvailabilitySubmissionUncheckedCreateNestedManyWithoutEmployeeInput
   assignments?: Prisma.ShiftAssignmentUncheckedCreateNestedManyWithoutEmployeeInput
-  fairnessRecords?: Prisma.FairnessRecordUncheckedCreateNestedManyWithoutEmployeeInput
+  employeeStats?: Prisma.EmployeeScheduleStatsUncheckedCreateNestedManyWithoutEmployeeInput
   warnings?: Prisma.ScheduleWarningUncheckedCreateNestedManyWithoutEmployeeInput
 }
 
-export type EmployeeCreateOrConnectWithoutCourtInput = {
+export type EmployeeCreateOrConnectWithoutFacilityInput = {
   where: Prisma.EmployeeWhereUniqueInput
-  create: Prisma.XOR<Prisma.EmployeeCreateWithoutCourtInput, Prisma.EmployeeUncheckedCreateWithoutCourtInput>
+  create: Prisma.XOR<Prisma.EmployeeCreateWithoutFacilityInput, Prisma.EmployeeUncheckedCreateWithoutFacilityInput>
 }
 
-export type EmployeeCreateManyCourtInputEnvelope = {
-  data: Prisma.EmployeeCreateManyCourtInput | Prisma.EmployeeCreateManyCourtInput[]
+export type EmployeeCreateManyFacilityInputEnvelope = {
+  data: Prisma.EmployeeCreateManyFacilityInput | Prisma.EmployeeCreateManyFacilityInput[]
   skipDuplicates?: boolean
 }
 
-export type EmployeeUpsertWithWhereUniqueWithoutCourtInput = {
+export type EmployeeUpsertWithWhereUniqueWithoutFacilityInput = {
   where: Prisma.EmployeeWhereUniqueInput
-  update: Prisma.XOR<Prisma.EmployeeUpdateWithoutCourtInput, Prisma.EmployeeUncheckedUpdateWithoutCourtInput>
-  create: Prisma.XOR<Prisma.EmployeeCreateWithoutCourtInput, Prisma.EmployeeUncheckedCreateWithoutCourtInput>
+  update: Prisma.XOR<Prisma.EmployeeUpdateWithoutFacilityInput, Prisma.EmployeeUncheckedUpdateWithoutFacilityInput>
+  create: Prisma.XOR<Prisma.EmployeeCreateWithoutFacilityInput, Prisma.EmployeeUncheckedCreateWithoutFacilityInput>
 }
 
-export type EmployeeUpdateWithWhereUniqueWithoutCourtInput = {
+export type EmployeeUpdateWithWhereUniqueWithoutFacilityInput = {
   where: Prisma.EmployeeWhereUniqueInput
-  data: Prisma.XOR<Prisma.EmployeeUpdateWithoutCourtInput, Prisma.EmployeeUncheckedUpdateWithoutCourtInput>
+  data: Prisma.XOR<Prisma.EmployeeUpdateWithoutFacilityInput, Prisma.EmployeeUncheckedUpdateWithoutFacilityInput>
 }
 
-export type EmployeeUpdateManyWithWhereWithoutCourtInput = {
+export type EmployeeUpdateManyWithWhereWithoutFacilityInput = {
   where: Prisma.EmployeeScalarWhereInput
-  data: Prisma.XOR<Prisma.EmployeeUpdateManyMutationInput, Prisma.EmployeeUncheckedUpdateManyWithoutCourtInput>
+  data: Prisma.XOR<Prisma.EmployeeUpdateManyMutationInput, Prisma.EmployeeUncheckedUpdateManyWithoutFacilityInput>
 }
 
 export type EmployeeScalarWhereInput = {
@@ -819,15 +851,16 @@ export type EmployeeScalarWhereInput = {
   lastName?: Prisma.StringFilter<"Employee"> | string
   displayName?: Prisma.StringFilter<"Employee"> | string
   phone?: Prisma.StringNullableFilter<"Employee"> | string | null
-  positionId?: Prisma.StringFilter<"Employee"> | string
-  courtId?: Prisma.StringFilter<"Employee"> | string
+  primaryShiftRoleId?: Prisma.StringFilter<"Employee"> | string
+  facilityId?: Prisma.StringFilter<"Employee"> | string
   isActive?: Prisma.BoolFilter<"Employee"> | boolean
   isReligious?: Prisma.BoolFilter<"Employee"> | boolean
+  capability?: Prisma.EnumCapabilityFilter<"Employee"> | $Enums.Capability
   createdAt?: Prisma.DateTimeFilter<"Employee"> | Date | string
   updatedAt?: Prisma.DateTimeFilter<"Employee"> | Date | string
 }
 
-export type EmployeeCreateWithoutPositionInput = {
+export type EmployeeCreateWithoutPrimaryShiftRoleInput = {
   id?: string
   firstName: string
   lastName: string
@@ -835,17 +868,18 @@ export type EmployeeCreateWithoutPositionInput = {
   phone?: string | null
   isActive?: boolean
   isReligious?: boolean
+  capability?: $Enums.Capability
   createdAt?: Date | string
   updatedAt?: Date | string
-  court: Prisma.CourtCreateNestedOneWithoutEmployeesInput
+  facility: Prisma.FacilityCreateNestedOneWithoutEmployeesInput
   user?: Prisma.UserCreateNestedOneWithoutEmployeeInput
-  availabilityForms?: Prisma.AvailabilityFormCreateNestedManyWithoutEmployeeInput
+  availabilitySubmissions?: Prisma.AvailabilitySubmissionCreateNestedManyWithoutEmployeeInput
   assignments?: Prisma.ShiftAssignmentCreateNestedManyWithoutEmployeeInput
-  fairnessRecords?: Prisma.FairnessRecordCreateNestedManyWithoutEmployeeInput
+  employeeStats?: Prisma.EmployeeScheduleStatsCreateNestedManyWithoutEmployeeInput
   warnings?: Prisma.ScheduleWarningCreateNestedManyWithoutEmployeeInput
 }
 
-export type EmployeeUncheckedCreateWithoutPositionInput = {
+export type EmployeeUncheckedCreateWithoutPrimaryShiftRoleInput = {
   id?: string
   firstName: string
   lastName: string
@@ -853,42 +887,43 @@ export type EmployeeUncheckedCreateWithoutPositionInput = {
   phone?: string | null
   isActive?: boolean
   isReligious?: boolean
+  capability?: $Enums.Capability
   createdAt?: Date | string
   updatedAt?: Date | string
   user?: Prisma.UserUncheckedCreateNestedOneWithoutEmployeeInput
-  availabilityForms?: Prisma.AvailabilityFormUncheckedCreateNestedManyWithoutEmployeeInput
+  availabilitySubmissions?: Prisma.AvailabilitySubmissionUncheckedCreateNestedManyWithoutEmployeeInput
   assignments?: Prisma.ShiftAssignmentUncheckedCreateNestedManyWithoutEmployeeInput
-  fairnessRecords?: Prisma.FairnessRecordUncheckedCreateNestedManyWithoutEmployeeInput
+  employeeStats?: Prisma.EmployeeScheduleStatsUncheckedCreateNestedManyWithoutEmployeeInput
   warnings?: Prisma.ScheduleWarningUncheckedCreateNestedManyWithoutEmployeeInput
 }
 
-export type EmployeeCreateOrConnectWithoutPositionInput = {
+export type EmployeeCreateOrConnectWithoutPrimaryShiftRoleInput = {
   where: Prisma.EmployeeWhereUniqueInput
-  create: Prisma.XOR<Prisma.EmployeeCreateWithoutPositionInput, Prisma.EmployeeUncheckedCreateWithoutPositionInput>
+  create: Prisma.XOR<Prisma.EmployeeCreateWithoutPrimaryShiftRoleInput, Prisma.EmployeeUncheckedCreateWithoutPrimaryShiftRoleInput>
 }
 
-export type EmployeeCreateManyPositionInputEnvelope = {
-  data: Prisma.EmployeeCreateManyPositionInput | Prisma.EmployeeCreateManyPositionInput[]
+export type EmployeeCreateManyPrimaryShiftRoleInputEnvelope = {
+  data: Prisma.EmployeeCreateManyPrimaryShiftRoleInput | Prisma.EmployeeCreateManyPrimaryShiftRoleInput[]
   skipDuplicates?: boolean
 }
 
-export type EmployeeUpsertWithWhereUniqueWithoutPositionInput = {
+export type EmployeeUpsertWithWhereUniqueWithoutPrimaryShiftRoleInput = {
   where: Prisma.EmployeeWhereUniqueInput
-  update: Prisma.XOR<Prisma.EmployeeUpdateWithoutPositionInput, Prisma.EmployeeUncheckedUpdateWithoutPositionInput>
-  create: Prisma.XOR<Prisma.EmployeeCreateWithoutPositionInput, Prisma.EmployeeUncheckedCreateWithoutPositionInput>
+  update: Prisma.XOR<Prisma.EmployeeUpdateWithoutPrimaryShiftRoleInput, Prisma.EmployeeUncheckedUpdateWithoutPrimaryShiftRoleInput>
+  create: Prisma.XOR<Prisma.EmployeeCreateWithoutPrimaryShiftRoleInput, Prisma.EmployeeUncheckedCreateWithoutPrimaryShiftRoleInput>
 }
 
-export type EmployeeUpdateWithWhereUniqueWithoutPositionInput = {
+export type EmployeeUpdateWithWhereUniqueWithoutPrimaryShiftRoleInput = {
   where: Prisma.EmployeeWhereUniqueInput
-  data: Prisma.XOR<Prisma.EmployeeUpdateWithoutPositionInput, Prisma.EmployeeUncheckedUpdateWithoutPositionInput>
+  data: Prisma.XOR<Prisma.EmployeeUpdateWithoutPrimaryShiftRoleInput, Prisma.EmployeeUncheckedUpdateWithoutPrimaryShiftRoleInput>
 }
 
-export type EmployeeUpdateManyWithWhereWithoutPositionInput = {
+export type EmployeeUpdateManyWithWhereWithoutPrimaryShiftRoleInput = {
   where: Prisma.EmployeeScalarWhereInput
-  data: Prisma.XOR<Prisma.EmployeeUpdateManyMutationInput, Prisma.EmployeeUncheckedUpdateManyWithoutPositionInput>
+  data: Prisma.XOR<Prisma.EmployeeUpdateManyMutationInput, Prisma.EmployeeUncheckedUpdateManyWithoutPrimaryShiftRoleInput>
 }
 
-export type EmployeeCreateWithoutAvailabilityFormsInput = {
+export type EmployeeCreateWithoutAvailabilitySubmissionsInput = {
   id?: string
   firstName: string
   lastName: string
@@ -896,51 +931,53 @@ export type EmployeeCreateWithoutAvailabilityFormsInput = {
   phone?: string | null
   isActive?: boolean
   isReligious?: boolean
+  capability?: $Enums.Capability
   createdAt?: Date | string
   updatedAt?: Date | string
-  court: Prisma.CourtCreateNestedOneWithoutEmployeesInput
-  position: Prisma.PositionCreateNestedOneWithoutEmployeesInput
+  facility: Prisma.FacilityCreateNestedOneWithoutEmployeesInput
+  primaryShiftRole: Prisma.ShiftRoleCreateNestedOneWithoutPrimaryEmployeesInput
   user?: Prisma.UserCreateNestedOneWithoutEmployeeInput
   assignments?: Prisma.ShiftAssignmentCreateNestedManyWithoutEmployeeInput
-  fairnessRecords?: Prisma.FairnessRecordCreateNestedManyWithoutEmployeeInput
+  employeeStats?: Prisma.EmployeeScheduleStatsCreateNestedManyWithoutEmployeeInput
   warnings?: Prisma.ScheduleWarningCreateNestedManyWithoutEmployeeInput
 }
 
-export type EmployeeUncheckedCreateWithoutAvailabilityFormsInput = {
+export type EmployeeUncheckedCreateWithoutAvailabilitySubmissionsInput = {
   id?: string
   firstName: string
   lastName: string
   displayName: string
   phone?: string | null
-  positionId: string
-  courtId: string
+  primaryShiftRoleId: string
+  facilityId: string
   isActive?: boolean
   isReligious?: boolean
+  capability?: $Enums.Capability
   createdAt?: Date | string
   updatedAt?: Date | string
   user?: Prisma.UserUncheckedCreateNestedOneWithoutEmployeeInput
   assignments?: Prisma.ShiftAssignmentUncheckedCreateNestedManyWithoutEmployeeInput
-  fairnessRecords?: Prisma.FairnessRecordUncheckedCreateNestedManyWithoutEmployeeInput
+  employeeStats?: Prisma.EmployeeScheduleStatsUncheckedCreateNestedManyWithoutEmployeeInput
   warnings?: Prisma.ScheduleWarningUncheckedCreateNestedManyWithoutEmployeeInput
 }
 
-export type EmployeeCreateOrConnectWithoutAvailabilityFormsInput = {
+export type EmployeeCreateOrConnectWithoutAvailabilitySubmissionsInput = {
   where: Prisma.EmployeeWhereUniqueInput
-  create: Prisma.XOR<Prisma.EmployeeCreateWithoutAvailabilityFormsInput, Prisma.EmployeeUncheckedCreateWithoutAvailabilityFormsInput>
+  create: Prisma.XOR<Prisma.EmployeeCreateWithoutAvailabilitySubmissionsInput, Prisma.EmployeeUncheckedCreateWithoutAvailabilitySubmissionsInput>
 }
 
-export type EmployeeUpsertWithoutAvailabilityFormsInput = {
-  update: Prisma.XOR<Prisma.EmployeeUpdateWithoutAvailabilityFormsInput, Prisma.EmployeeUncheckedUpdateWithoutAvailabilityFormsInput>
-  create: Prisma.XOR<Prisma.EmployeeCreateWithoutAvailabilityFormsInput, Prisma.EmployeeUncheckedCreateWithoutAvailabilityFormsInput>
+export type EmployeeUpsertWithoutAvailabilitySubmissionsInput = {
+  update: Prisma.XOR<Prisma.EmployeeUpdateWithoutAvailabilitySubmissionsInput, Prisma.EmployeeUncheckedUpdateWithoutAvailabilitySubmissionsInput>
+  create: Prisma.XOR<Prisma.EmployeeCreateWithoutAvailabilitySubmissionsInput, Prisma.EmployeeUncheckedCreateWithoutAvailabilitySubmissionsInput>
   where?: Prisma.EmployeeWhereInput
 }
 
-export type EmployeeUpdateToOneWithWhereWithoutAvailabilityFormsInput = {
+export type EmployeeUpdateToOneWithWhereWithoutAvailabilitySubmissionsInput = {
   where?: Prisma.EmployeeWhereInput
-  data: Prisma.XOR<Prisma.EmployeeUpdateWithoutAvailabilityFormsInput, Prisma.EmployeeUncheckedUpdateWithoutAvailabilityFormsInput>
+  data: Prisma.XOR<Prisma.EmployeeUpdateWithoutAvailabilitySubmissionsInput, Prisma.EmployeeUncheckedUpdateWithoutAvailabilitySubmissionsInput>
 }
 
-export type EmployeeUpdateWithoutAvailabilityFormsInput = {
+export type EmployeeUpdateWithoutAvailabilitySubmissionsInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
   firstName?: Prisma.StringFieldUpdateOperationsInput | string
   lastName?: Prisma.StringFieldUpdateOperationsInput | string
@@ -948,31 +985,33 @@ export type EmployeeUpdateWithoutAvailabilityFormsInput = {
   phone?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   isActive?: Prisma.BoolFieldUpdateOperationsInput | boolean
   isReligious?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  capability?: Prisma.EnumCapabilityFieldUpdateOperationsInput | $Enums.Capability
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
-  court?: Prisma.CourtUpdateOneRequiredWithoutEmployeesNestedInput
-  position?: Prisma.PositionUpdateOneRequiredWithoutEmployeesNestedInput
+  facility?: Prisma.FacilityUpdateOneRequiredWithoutEmployeesNestedInput
+  primaryShiftRole?: Prisma.ShiftRoleUpdateOneRequiredWithoutPrimaryEmployeesNestedInput
   user?: Prisma.UserUpdateOneWithoutEmployeeNestedInput
   assignments?: Prisma.ShiftAssignmentUpdateManyWithoutEmployeeNestedInput
-  fairnessRecords?: Prisma.FairnessRecordUpdateManyWithoutEmployeeNestedInput
+  employeeStats?: Prisma.EmployeeScheduleStatsUpdateManyWithoutEmployeeNestedInput
   warnings?: Prisma.ScheduleWarningUpdateManyWithoutEmployeeNestedInput
 }
 
-export type EmployeeUncheckedUpdateWithoutAvailabilityFormsInput = {
+export type EmployeeUncheckedUpdateWithoutAvailabilitySubmissionsInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
   firstName?: Prisma.StringFieldUpdateOperationsInput | string
   lastName?: Prisma.StringFieldUpdateOperationsInput | string
   displayName?: Prisma.StringFieldUpdateOperationsInput | string
   phone?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  positionId?: Prisma.StringFieldUpdateOperationsInput | string
-  courtId?: Prisma.StringFieldUpdateOperationsInput | string
+  primaryShiftRoleId?: Prisma.StringFieldUpdateOperationsInput | string
+  facilityId?: Prisma.StringFieldUpdateOperationsInput | string
   isActive?: Prisma.BoolFieldUpdateOperationsInput | boolean
   isReligious?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  capability?: Prisma.EnumCapabilityFieldUpdateOperationsInput | $Enums.Capability
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   user?: Prisma.UserUncheckedUpdateOneWithoutEmployeeNestedInput
   assignments?: Prisma.ShiftAssignmentUncheckedUpdateManyWithoutEmployeeNestedInput
-  fairnessRecords?: Prisma.FairnessRecordUncheckedUpdateManyWithoutEmployeeNestedInput
+  employeeStats?: Prisma.EmployeeScheduleStatsUncheckedUpdateManyWithoutEmployeeNestedInput
   warnings?: Prisma.ScheduleWarningUncheckedUpdateManyWithoutEmployeeNestedInput
 }
 
@@ -984,13 +1023,14 @@ export type EmployeeCreateWithoutAssignmentsInput = {
   phone?: string | null
   isActive?: boolean
   isReligious?: boolean
+  capability?: $Enums.Capability
   createdAt?: Date | string
   updatedAt?: Date | string
-  court: Prisma.CourtCreateNestedOneWithoutEmployeesInput
-  position: Prisma.PositionCreateNestedOneWithoutEmployeesInput
+  facility: Prisma.FacilityCreateNestedOneWithoutEmployeesInput
+  primaryShiftRole: Prisma.ShiftRoleCreateNestedOneWithoutPrimaryEmployeesInput
   user?: Prisma.UserCreateNestedOneWithoutEmployeeInput
-  availabilityForms?: Prisma.AvailabilityFormCreateNestedManyWithoutEmployeeInput
-  fairnessRecords?: Prisma.FairnessRecordCreateNestedManyWithoutEmployeeInput
+  availabilitySubmissions?: Prisma.AvailabilitySubmissionCreateNestedManyWithoutEmployeeInput
+  employeeStats?: Prisma.EmployeeScheduleStatsCreateNestedManyWithoutEmployeeInput
   warnings?: Prisma.ScheduleWarningCreateNestedManyWithoutEmployeeInput
 }
 
@@ -1000,15 +1040,16 @@ export type EmployeeUncheckedCreateWithoutAssignmentsInput = {
   lastName: string
   displayName: string
   phone?: string | null
-  positionId: string
-  courtId: string
+  primaryShiftRoleId: string
+  facilityId: string
   isActive?: boolean
   isReligious?: boolean
+  capability?: $Enums.Capability
   createdAt?: Date | string
   updatedAt?: Date | string
   user?: Prisma.UserUncheckedCreateNestedOneWithoutEmployeeInput
-  availabilityForms?: Prisma.AvailabilityFormUncheckedCreateNestedManyWithoutEmployeeInput
-  fairnessRecords?: Prisma.FairnessRecordUncheckedCreateNestedManyWithoutEmployeeInput
+  availabilitySubmissions?: Prisma.AvailabilitySubmissionUncheckedCreateNestedManyWithoutEmployeeInput
+  employeeStats?: Prisma.EmployeeScheduleStatsUncheckedCreateNestedManyWithoutEmployeeInput
   warnings?: Prisma.ScheduleWarningUncheckedCreateNestedManyWithoutEmployeeInput
 }
 
@@ -1036,13 +1077,14 @@ export type EmployeeUpdateWithoutAssignmentsInput = {
   phone?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   isActive?: Prisma.BoolFieldUpdateOperationsInput | boolean
   isReligious?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  capability?: Prisma.EnumCapabilityFieldUpdateOperationsInput | $Enums.Capability
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
-  court?: Prisma.CourtUpdateOneRequiredWithoutEmployeesNestedInput
-  position?: Prisma.PositionUpdateOneRequiredWithoutEmployeesNestedInput
+  facility?: Prisma.FacilityUpdateOneRequiredWithoutEmployeesNestedInput
+  primaryShiftRole?: Prisma.ShiftRoleUpdateOneRequiredWithoutPrimaryEmployeesNestedInput
   user?: Prisma.UserUpdateOneWithoutEmployeeNestedInput
-  availabilityForms?: Prisma.AvailabilityFormUpdateManyWithoutEmployeeNestedInput
-  fairnessRecords?: Prisma.FairnessRecordUpdateManyWithoutEmployeeNestedInput
+  availabilitySubmissions?: Prisma.AvailabilitySubmissionUpdateManyWithoutEmployeeNestedInput
+  employeeStats?: Prisma.EmployeeScheduleStatsUpdateManyWithoutEmployeeNestedInput
   warnings?: Prisma.ScheduleWarningUpdateManyWithoutEmployeeNestedInput
 }
 
@@ -1052,15 +1094,16 @@ export type EmployeeUncheckedUpdateWithoutAssignmentsInput = {
   lastName?: Prisma.StringFieldUpdateOperationsInput | string
   displayName?: Prisma.StringFieldUpdateOperationsInput | string
   phone?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  positionId?: Prisma.StringFieldUpdateOperationsInput | string
-  courtId?: Prisma.StringFieldUpdateOperationsInput | string
+  primaryShiftRoleId?: Prisma.StringFieldUpdateOperationsInput | string
+  facilityId?: Prisma.StringFieldUpdateOperationsInput | string
   isActive?: Prisma.BoolFieldUpdateOperationsInput | boolean
   isReligious?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  capability?: Prisma.EnumCapabilityFieldUpdateOperationsInput | $Enums.Capability
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   user?: Prisma.UserUncheckedUpdateOneWithoutEmployeeNestedInput
-  availabilityForms?: Prisma.AvailabilityFormUncheckedUpdateManyWithoutEmployeeNestedInput
-  fairnessRecords?: Prisma.FairnessRecordUncheckedUpdateManyWithoutEmployeeNestedInput
+  availabilitySubmissions?: Prisma.AvailabilitySubmissionUncheckedUpdateManyWithoutEmployeeNestedInput
+  employeeStats?: Prisma.EmployeeScheduleStatsUncheckedUpdateManyWithoutEmployeeNestedInput
   warnings?: Prisma.ScheduleWarningUncheckedUpdateManyWithoutEmployeeNestedInput
 }
 
@@ -1072,14 +1115,15 @@ export type EmployeeCreateWithoutWarningsInput = {
   phone?: string | null
   isActive?: boolean
   isReligious?: boolean
+  capability?: $Enums.Capability
   createdAt?: Date | string
   updatedAt?: Date | string
-  court: Prisma.CourtCreateNestedOneWithoutEmployeesInput
-  position: Prisma.PositionCreateNestedOneWithoutEmployeesInput
+  facility: Prisma.FacilityCreateNestedOneWithoutEmployeesInput
+  primaryShiftRole: Prisma.ShiftRoleCreateNestedOneWithoutPrimaryEmployeesInput
   user?: Prisma.UserCreateNestedOneWithoutEmployeeInput
-  availabilityForms?: Prisma.AvailabilityFormCreateNestedManyWithoutEmployeeInput
+  availabilitySubmissions?: Prisma.AvailabilitySubmissionCreateNestedManyWithoutEmployeeInput
   assignments?: Prisma.ShiftAssignmentCreateNestedManyWithoutEmployeeInput
-  fairnessRecords?: Prisma.FairnessRecordCreateNestedManyWithoutEmployeeInput
+  employeeStats?: Prisma.EmployeeScheduleStatsCreateNestedManyWithoutEmployeeInput
 }
 
 export type EmployeeUncheckedCreateWithoutWarningsInput = {
@@ -1088,16 +1132,17 @@ export type EmployeeUncheckedCreateWithoutWarningsInput = {
   lastName: string
   displayName: string
   phone?: string | null
-  positionId: string
-  courtId: string
+  primaryShiftRoleId: string
+  facilityId: string
   isActive?: boolean
   isReligious?: boolean
+  capability?: $Enums.Capability
   createdAt?: Date | string
   updatedAt?: Date | string
   user?: Prisma.UserUncheckedCreateNestedOneWithoutEmployeeInput
-  availabilityForms?: Prisma.AvailabilityFormUncheckedCreateNestedManyWithoutEmployeeInput
+  availabilitySubmissions?: Prisma.AvailabilitySubmissionUncheckedCreateNestedManyWithoutEmployeeInput
   assignments?: Prisma.ShiftAssignmentUncheckedCreateNestedManyWithoutEmployeeInput
-  fairnessRecords?: Prisma.FairnessRecordUncheckedCreateNestedManyWithoutEmployeeInput
+  employeeStats?: Prisma.EmployeeScheduleStatsUncheckedCreateNestedManyWithoutEmployeeInput
 }
 
 export type EmployeeCreateOrConnectWithoutWarningsInput = {
@@ -1124,14 +1169,15 @@ export type EmployeeUpdateWithoutWarningsInput = {
   phone?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   isActive?: Prisma.BoolFieldUpdateOperationsInput | boolean
   isReligious?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  capability?: Prisma.EnumCapabilityFieldUpdateOperationsInput | $Enums.Capability
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
-  court?: Prisma.CourtUpdateOneRequiredWithoutEmployeesNestedInput
-  position?: Prisma.PositionUpdateOneRequiredWithoutEmployeesNestedInput
+  facility?: Prisma.FacilityUpdateOneRequiredWithoutEmployeesNestedInput
+  primaryShiftRole?: Prisma.ShiftRoleUpdateOneRequiredWithoutPrimaryEmployeesNestedInput
   user?: Prisma.UserUpdateOneWithoutEmployeeNestedInput
-  availabilityForms?: Prisma.AvailabilityFormUpdateManyWithoutEmployeeNestedInput
+  availabilitySubmissions?: Prisma.AvailabilitySubmissionUpdateManyWithoutEmployeeNestedInput
   assignments?: Prisma.ShiftAssignmentUpdateManyWithoutEmployeeNestedInput
-  fairnessRecords?: Prisma.FairnessRecordUpdateManyWithoutEmployeeNestedInput
+  employeeStats?: Prisma.EmployeeScheduleStatsUpdateManyWithoutEmployeeNestedInput
 }
 
 export type EmployeeUncheckedUpdateWithoutWarningsInput = {
@@ -1140,19 +1186,20 @@ export type EmployeeUncheckedUpdateWithoutWarningsInput = {
   lastName?: Prisma.StringFieldUpdateOperationsInput | string
   displayName?: Prisma.StringFieldUpdateOperationsInput | string
   phone?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  positionId?: Prisma.StringFieldUpdateOperationsInput | string
-  courtId?: Prisma.StringFieldUpdateOperationsInput | string
+  primaryShiftRoleId?: Prisma.StringFieldUpdateOperationsInput | string
+  facilityId?: Prisma.StringFieldUpdateOperationsInput | string
   isActive?: Prisma.BoolFieldUpdateOperationsInput | boolean
   isReligious?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  capability?: Prisma.EnumCapabilityFieldUpdateOperationsInput | $Enums.Capability
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   user?: Prisma.UserUncheckedUpdateOneWithoutEmployeeNestedInput
-  availabilityForms?: Prisma.AvailabilityFormUncheckedUpdateManyWithoutEmployeeNestedInput
+  availabilitySubmissions?: Prisma.AvailabilitySubmissionUncheckedUpdateManyWithoutEmployeeNestedInput
   assignments?: Prisma.ShiftAssignmentUncheckedUpdateManyWithoutEmployeeNestedInput
-  fairnessRecords?: Prisma.FairnessRecordUncheckedUpdateManyWithoutEmployeeNestedInput
+  employeeStats?: Prisma.EmployeeScheduleStatsUncheckedUpdateManyWithoutEmployeeNestedInput
 }
 
-export type EmployeeCreateWithoutFairnessRecordsInput = {
+export type EmployeeCreateWithoutEmployeeStatsInput = {
   id?: string
   firstName: string
   lastName: string
@@ -1160,51 +1207,53 @@ export type EmployeeCreateWithoutFairnessRecordsInput = {
   phone?: string | null
   isActive?: boolean
   isReligious?: boolean
+  capability?: $Enums.Capability
   createdAt?: Date | string
   updatedAt?: Date | string
-  court: Prisma.CourtCreateNestedOneWithoutEmployeesInput
-  position: Prisma.PositionCreateNestedOneWithoutEmployeesInput
+  facility: Prisma.FacilityCreateNestedOneWithoutEmployeesInput
+  primaryShiftRole: Prisma.ShiftRoleCreateNestedOneWithoutPrimaryEmployeesInput
   user?: Prisma.UserCreateNestedOneWithoutEmployeeInput
-  availabilityForms?: Prisma.AvailabilityFormCreateNestedManyWithoutEmployeeInput
+  availabilitySubmissions?: Prisma.AvailabilitySubmissionCreateNestedManyWithoutEmployeeInput
   assignments?: Prisma.ShiftAssignmentCreateNestedManyWithoutEmployeeInput
   warnings?: Prisma.ScheduleWarningCreateNestedManyWithoutEmployeeInput
 }
 
-export type EmployeeUncheckedCreateWithoutFairnessRecordsInput = {
+export type EmployeeUncheckedCreateWithoutEmployeeStatsInput = {
   id?: string
   firstName: string
   lastName: string
   displayName: string
   phone?: string | null
-  positionId: string
-  courtId: string
+  primaryShiftRoleId: string
+  facilityId: string
   isActive?: boolean
   isReligious?: boolean
+  capability?: $Enums.Capability
   createdAt?: Date | string
   updatedAt?: Date | string
   user?: Prisma.UserUncheckedCreateNestedOneWithoutEmployeeInput
-  availabilityForms?: Prisma.AvailabilityFormUncheckedCreateNestedManyWithoutEmployeeInput
+  availabilitySubmissions?: Prisma.AvailabilitySubmissionUncheckedCreateNestedManyWithoutEmployeeInput
   assignments?: Prisma.ShiftAssignmentUncheckedCreateNestedManyWithoutEmployeeInput
   warnings?: Prisma.ScheduleWarningUncheckedCreateNestedManyWithoutEmployeeInput
 }
 
-export type EmployeeCreateOrConnectWithoutFairnessRecordsInput = {
+export type EmployeeCreateOrConnectWithoutEmployeeStatsInput = {
   where: Prisma.EmployeeWhereUniqueInput
-  create: Prisma.XOR<Prisma.EmployeeCreateWithoutFairnessRecordsInput, Prisma.EmployeeUncheckedCreateWithoutFairnessRecordsInput>
+  create: Prisma.XOR<Prisma.EmployeeCreateWithoutEmployeeStatsInput, Prisma.EmployeeUncheckedCreateWithoutEmployeeStatsInput>
 }
 
-export type EmployeeUpsertWithoutFairnessRecordsInput = {
-  update: Prisma.XOR<Prisma.EmployeeUpdateWithoutFairnessRecordsInput, Prisma.EmployeeUncheckedUpdateWithoutFairnessRecordsInput>
-  create: Prisma.XOR<Prisma.EmployeeCreateWithoutFairnessRecordsInput, Prisma.EmployeeUncheckedCreateWithoutFairnessRecordsInput>
+export type EmployeeUpsertWithoutEmployeeStatsInput = {
+  update: Prisma.XOR<Prisma.EmployeeUpdateWithoutEmployeeStatsInput, Prisma.EmployeeUncheckedUpdateWithoutEmployeeStatsInput>
+  create: Prisma.XOR<Prisma.EmployeeCreateWithoutEmployeeStatsInput, Prisma.EmployeeUncheckedCreateWithoutEmployeeStatsInput>
   where?: Prisma.EmployeeWhereInput
 }
 
-export type EmployeeUpdateToOneWithWhereWithoutFairnessRecordsInput = {
+export type EmployeeUpdateToOneWithWhereWithoutEmployeeStatsInput = {
   where?: Prisma.EmployeeWhereInput
-  data: Prisma.XOR<Prisma.EmployeeUpdateWithoutFairnessRecordsInput, Prisma.EmployeeUncheckedUpdateWithoutFairnessRecordsInput>
+  data: Prisma.XOR<Prisma.EmployeeUpdateWithoutEmployeeStatsInput, Prisma.EmployeeUncheckedUpdateWithoutEmployeeStatsInput>
 }
 
-export type EmployeeUpdateWithoutFairnessRecordsInput = {
+export type EmployeeUpdateWithoutEmployeeStatsInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
   firstName?: Prisma.StringFieldUpdateOperationsInput | string
   lastName?: Prisma.StringFieldUpdateOperationsInput | string
@@ -1212,48 +1261,51 @@ export type EmployeeUpdateWithoutFairnessRecordsInput = {
   phone?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   isActive?: Prisma.BoolFieldUpdateOperationsInput | boolean
   isReligious?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  capability?: Prisma.EnumCapabilityFieldUpdateOperationsInput | $Enums.Capability
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
-  court?: Prisma.CourtUpdateOneRequiredWithoutEmployeesNestedInput
-  position?: Prisma.PositionUpdateOneRequiredWithoutEmployeesNestedInput
+  facility?: Prisma.FacilityUpdateOneRequiredWithoutEmployeesNestedInput
+  primaryShiftRole?: Prisma.ShiftRoleUpdateOneRequiredWithoutPrimaryEmployeesNestedInput
   user?: Prisma.UserUpdateOneWithoutEmployeeNestedInput
-  availabilityForms?: Prisma.AvailabilityFormUpdateManyWithoutEmployeeNestedInput
+  availabilitySubmissions?: Prisma.AvailabilitySubmissionUpdateManyWithoutEmployeeNestedInput
   assignments?: Prisma.ShiftAssignmentUpdateManyWithoutEmployeeNestedInput
   warnings?: Prisma.ScheduleWarningUpdateManyWithoutEmployeeNestedInput
 }
 
-export type EmployeeUncheckedUpdateWithoutFairnessRecordsInput = {
+export type EmployeeUncheckedUpdateWithoutEmployeeStatsInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
   firstName?: Prisma.StringFieldUpdateOperationsInput | string
   lastName?: Prisma.StringFieldUpdateOperationsInput | string
   displayName?: Prisma.StringFieldUpdateOperationsInput | string
   phone?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  positionId?: Prisma.StringFieldUpdateOperationsInput | string
-  courtId?: Prisma.StringFieldUpdateOperationsInput | string
+  primaryShiftRoleId?: Prisma.StringFieldUpdateOperationsInput | string
+  facilityId?: Prisma.StringFieldUpdateOperationsInput | string
   isActive?: Prisma.BoolFieldUpdateOperationsInput | boolean
   isReligious?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  capability?: Prisma.EnumCapabilityFieldUpdateOperationsInput | $Enums.Capability
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   user?: Prisma.UserUncheckedUpdateOneWithoutEmployeeNestedInput
-  availabilityForms?: Prisma.AvailabilityFormUncheckedUpdateManyWithoutEmployeeNestedInput
+  availabilitySubmissions?: Prisma.AvailabilitySubmissionUncheckedUpdateManyWithoutEmployeeNestedInput
   assignments?: Prisma.ShiftAssignmentUncheckedUpdateManyWithoutEmployeeNestedInput
   warnings?: Prisma.ScheduleWarningUncheckedUpdateManyWithoutEmployeeNestedInput
 }
 
-export type EmployeeCreateManyCourtInput = {
+export type EmployeeCreateManyFacilityInput = {
   id?: string
   firstName: string
   lastName: string
   displayName: string
   phone?: string | null
-  positionId: string
+  primaryShiftRoleId: string
   isActive?: boolean
   isReligious?: boolean
+  capability?: $Enums.Capability
   createdAt?: Date | string
   updatedAt?: Date | string
 }
 
-export type EmployeeUpdateWithoutCourtInput = {
+export type EmployeeUpdateWithoutFacilityInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
   firstName?: Prisma.StringFieldUpdateOperationsInput | string
   lastName?: Prisma.StringFieldUpdateOperationsInput | string
@@ -1261,48 +1313,51 @@ export type EmployeeUpdateWithoutCourtInput = {
   phone?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   isActive?: Prisma.BoolFieldUpdateOperationsInput | boolean
   isReligious?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  capability?: Prisma.EnumCapabilityFieldUpdateOperationsInput | $Enums.Capability
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
-  position?: Prisma.PositionUpdateOneRequiredWithoutEmployeesNestedInput
+  primaryShiftRole?: Prisma.ShiftRoleUpdateOneRequiredWithoutPrimaryEmployeesNestedInput
   user?: Prisma.UserUpdateOneWithoutEmployeeNestedInput
-  availabilityForms?: Prisma.AvailabilityFormUpdateManyWithoutEmployeeNestedInput
+  availabilitySubmissions?: Prisma.AvailabilitySubmissionUpdateManyWithoutEmployeeNestedInput
   assignments?: Prisma.ShiftAssignmentUpdateManyWithoutEmployeeNestedInput
-  fairnessRecords?: Prisma.FairnessRecordUpdateManyWithoutEmployeeNestedInput
+  employeeStats?: Prisma.EmployeeScheduleStatsUpdateManyWithoutEmployeeNestedInput
   warnings?: Prisma.ScheduleWarningUpdateManyWithoutEmployeeNestedInput
 }
 
-export type EmployeeUncheckedUpdateWithoutCourtInput = {
+export type EmployeeUncheckedUpdateWithoutFacilityInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
   firstName?: Prisma.StringFieldUpdateOperationsInput | string
   lastName?: Prisma.StringFieldUpdateOperationsInput | string
   displayName?: Prisma.StringFieldUpdateOperationsInput | string
   phone?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  positionId?: Prisma.StringFieldUpdateOperationsInput | string
+  primaryShiftRoleId?: Prisma.StringFieldUpdateOperationsInput | string
   isActive?: Prisma.BoolFieldUpdateOperationsInput | boolean
   isReligious?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  capability?: Prisma.EnumCapabilityFieldUpdateOperationsInput | $Enums.Capability
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   user?: Prisma.UserUncheckedUpdateOneWithoutEmployeeNestedInput
-  availabilityForms?: Prisma.AvailabilityFormUncheckedUpdateManyWithoutEmployeeNestedInput
+  availabilitySubmissions?: Prisma.AvailabilitySubmissionUncheckedUpdateManyWithoutEmployeeNestedInput
   assignments?: Prisma.ShiftAssignmentUncheckedUpdateManyWithoutEmployeeNestedInput
-  fairnessRecords?: Prisma.FairnessRecordUncheckedUpdateManyWithoutEmployeeNestedInput
+  employeeStats?: Prisma.EmployeeScheduleStatsUncheckedUpdateManyWithoutEmployeeNestedInput
   warnings?: Prisma.ScheduleWarningUncheckedUpdateManyWithoutEmployeeNestedInput
 }
 
-export type EmployeeUncheckedUpdateManyWithoutCourtInput = {
+export type EmployeeUncheckedUpdateManyWithoutFacilityInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
   firstName?: Prisma.StringFieldUpdateOperationsInput | string
   lastName?: Prisma.StringFieldUpdateOperationsInput | string
   displayName?: Prisma.StringFieldUpdateOperationsInput | string
   phone?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  positionId?: Prisma.StringFieldUpdateOperationsInput | string
+  primaryShiftRoleId?: Prisma.StringFieldUpdateOperationsInput | string
   isActive?: Prisma.BoolFieldUpdateOperationsInput | boolean
   isReligious?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  capability?: Prisma.EnumCapabilityFieldUpdateOperationsInput | $Enums.Capability
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
 }
 
-export type EmployeeCreateManyPositionInput = {
+export type EmployeeCreateManyPrimaryShiftRoleInput = {
   id?: string
   firstName: string
   lastName: string
@@ -1310,11 +1365,12 @@ export type EmployeeCreateManyPositionInput = {
   phone?: string | null
   isActive?: boolean
   isReligious?: boolean
+  capability?: $Enums.Capability
   createdAt?: Date | string
   updatedAt?: Date | string
 }
 
-export type EmployeeUpdateWithoutPositionInput = {
+export type EmployeeUpdateWithoutPrimaryShiftRoleInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
   firstName?: Prisma.StringFieldUpdateOperationsInput | string
   lastName?: Prisma.StringFieldUpdateOperationsInput | string
@@ -1322,17 +1378,18 @@ export type EmployeeUpdateWithoutPositionInput = {
   phone?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   isActive?: Prisma.BoolFieldUpdateOperationsInput | boolean
   isReligious?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  capability?: Prisma.EnumCapabilityFieldUpdateOperationsInput | $Enums.Capability
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
-  court?: Prisma.CourtUpdateOneRequiredWithoutEmployeesNestedInput
+  facility?: Prisma.FacilityUpdateOneRequiredWithoutEmployeesNestedInput
   user?: Prisma.UserUpdateOneWithoutEmployeeNestedInput
-  availabilityForms?: Prisma.AvailabilityFormUpdateManyWithoutEmployeeNestedInput
+  availabilitySubmissions?: Prisma.AvailabilitySubmissionUpdateManyWithoutEmployeeNestedInput
   assignments?: Prisma.ShiftAssignmentUpdateManyWithoutEmployeeNestedInput
-  fairnessRecords?: Prisma.FairnessRecordUpdateManyWithoutEmployeeNestedInput
+  employeeStats?: Prisma.EmployeeScheduleStatsUpdateManyWithoutEmployeeNestedInput
   warnings?: Prisma.ScheduleWarningUpdateManyWithoutEmployeeNestedInput
 }
 
-export type EmployeeUncheckedUpdateWithoutPositionInput = {
+export type EmployeeUncheckedUpdateWithoutPrimaryShiftRoleInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
   firstName?: Prisma.StringFieldUpdateOperationsInput | string
   lastName?: Prisma.StringFieldUpdateOperationsInput | string
@@ -1340,16 +1397,17 @@ export type EmployeeUncheckedUpdateWithoutPositionInput = {
   phone?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   isActive?: Prisma.BoolFieldUpdateOperationsInput | boolean
   isReligious?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  capability?: Prisma.EnumCapabilityFieldUpdateOperationsInput | $Enums.Capability
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   user?: Prisma.UserUncheckedUpdateOneWithoutEmployeeNestedInput
-  availabilityForms?: Prisma.AvailabilityFormUncheckedUpdateManyWithoutEmployeeNestedInput
+  availabilitySubmissions?: Prisma.AvailabilitySubmissionUncheckedUpdateManyWithoutEmployeeNestedInput
   assignments?: Prisma.ShiftAssignmentUncheckedUpdateManyWithoutEmployeeNestedInput
-  fairnessRecords?: Prisma.FairnessRecordUncheckedUpdateManyWithoutEmployeeNestedInput
+  employeeStats?: Prisma.EmployeeScheduleStatsUncheckedUpdateManyWithoutEmployeeNestedInput
   warnings?: Prisma.ScheduleWarningUncheckedUpdateManyWithoutEmployeeNestedInput
 }
 
-export type EmployeeUncheckedUpdateManyWithoutPositionInput = {
+export type EmployeeUncheckedUpdateManyWithoutPrimaryShiftRoleInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
   firstName?: Prisma.StringFieldUpdateOperationsInput | string
   lastName?: Prisma.StringFieldUpdateOperationsInput | string
@@ -1357,6 +1415,7 @@ export type EmployeeUncheckedUpdateManyWithoutPositionInput = {
   phone?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   isActive?: Prisma.BoolFieldUpdateOperationsInput | boolean
   isReligious?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  capability?: Prisma.EnumCapabilityFieldUpdateOperationsInput | $Enums.Capability
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
 }
@@ -1367,16 +1426,16 @@ export type EmployeeUncheckedUpdateManyWithoutPositionInput = {
  */
 
 export type EmployeeCountOutputType = {
-  availabilityForms: number
+  availabilitySubmissions: number
   assignments: number
-  fairnessRecords: number
+  employeeStats: number
   warnings: number
 }
 
 export type EmployeeCountOutputTypeSelect<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
-  availabilityForms?: boolean | EmployeeCountOutputTypeCountAvailabilityFormsArgs
+  availabilitySubmissions?: boolean | EmployeeCountOutputTypeCountAvailabilitySubmissionsArgs
   assignments?: boolean | EmployeeCountOutputTypeCountAssignmentsArgs
-  fairnessRecords?: boolean | EmployeeCountOutputTypeCountFairnessRecordsArgs
+  employeeStats?: boolean | EmployeeCountOutputTypeCountEmployeeStatsArgs
   warnings?: boolean | EmployeeCountOutputTypeCountWarningsArgs
 }
 
@@ -1393,8 +1452,8 @@ export type EmployeeCountOutputTypeDefaultArgs<ExtArgs extends runtime.Types.Ext
 /**
  * EmployeeCountOutputType without action
  */
-export type EmployeeCountOutputTypeCountAvailabilityFormsArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
-  where?: Prisma.AvailabilityFormWhereInput
+export type EmployeeCountOutputTypeCountAvailabilitySubmissionsArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+  where?: Prisma.AvailabilitySubmissionWhereInput
 }
 
 /**
@@ -1407,8 +1466,8 @@ export type EmployeeCountOutputTypeCountAssignmentsArgs<ExtArgs extends runtime.
 /**
  * EmployeeCountOutputType without action
  */
-export type EmployeeCountOutputTypeCountFairnessRecordsArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
-  where?: Prisma.FairnessRecordWhereInput
+export type EmployeeCountOutputTypeCountEmployeeStatsArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+  where?: Prisma.EmployeeScheduleStatsWhereInput
 }
 
 /**
@@ -1425,18 +1484,19 @@ export type EmployeeSelect<ExtArgs extends runtime.Types.Extensions.InternalArgs
   lastName?: boolean
   displayName?: boolean
   phone?: boolean
-  positionId?: boolean
-  courtId?: boolean
+  primaryShiftRoleId?: boolean
+  facilityId?: boolean
   isActive?: boolean
   isReligious?: boolean
+  capability?: boolean
   createdAt?: boolean
   updatedAt?: boolean
-  court?: boolean | Prisma.CourtDefaultArgs<ExtArgs>
-  position?: boolean | Prisma.PositionDefaultArgs<ExtArgs>
+  facility?: boolean | Prisma.FacilityDefaultArgs<ExtArgs>
+  primaryShiftRole?: boolean | Prisma.ShiftRoleDefaultArgs<ExtArgs>
   user?: boolean | Prisma.Employee$userArgs<ExtArgs>
-  availabilityForms?: boolean | Prisma.Employee$availabilityFormsArgs<ExtArgs>
+  availabilitySubmissions?: boolean | Prisma.Employee$availabilitySubmissionsArgs<ExtArgs>
   assignments?: boolean | Prisma.Employee$assignmentsArgs<ExtArgs>
-  fairnessRecords?: boolean | Prisma.Employee$fairnessRecordsArgs<ExtArgs>
+  employeeStats?: boolean | Prisma.Employee$employeeStatsArgs<ExtArgs>
   warnings?: boolean | Prisma.Employee$warningsArgs<ExtArgs>
   _count?: boolean | Prisma.EmployeeCountOutputTypeDefaultArgs<ExtArgs>
 }, ExtArgs["result"]["employee"]>
@@ -1447,14 +1507,15 @@ export type EmployeeSelectCreateManyAndReturn<ExtArgs extends runtime.Types.Exte
   lastName?: boolean
   displayName?: boolean
   phone?: boolean
-  positionId?: boolean
-  courtId?: boolean
+  primaryShiftRoleId?: boolean
+  facilityId?: boolean
   isActive?: boolean
   isReligious?: boolean
+  capability?: boolean
   createdAt?: boolean
   updatedAt?: boolean
-  court?: boolean | Prisma.CourtDefaultArgs<ExtArgs>
-  position?: boolean | Prisma.PositionDefaultArgs<ExtArgs>
+  facility?: boolean | Prisma.FacilityDefaultArgs<ExtArgs>
+  primaryShiftRole?: boolean | Prisma.ShiftRoleDefaultArgs<ExtArgs>
 }, ExtArgs["result"]["employee"]>
 
 export type EmployeeSelectUpdateManyAndReturn<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetSelect<{
@@ -1463,14 +1524,15 @@ export type EmployeeSelectUpdateManyAndReturn<ExtArgs extends runtime.Types.Exte
   lastName?: boolean
   displayName?: boolean
   phone?: boolean
-  positionId?: boolean
-  courtId?: boolean
+  primaryShiftRoleId?: boolean
+  facilityId?: boolean
   isActive?: boolean
   isReligious?: boolean
+  capability?: boolean
   createdAt?: boolean
   updatedAt?: boolean
-  court?: boolean | Prisma.CourtDefaultArgs<ExtArgs>
-  position?: boolean | Prisma.PositionDefaultArgs<ExtArgs>
+  facility?: boolean | Prisma.FacilityDefaultArgs<ExtArgs>
+  primaryShiftRole?: boolean | Prisma.ShiftRoleDefaultArgs<ExtArgs>
 }, ExtArgs["result"]["employee"]>
 
 export type EmployeeSelectScalar = {
@@ -1479,43 +1541,44 @@ export type EmployeeSelectScalar = {
   lastName?: boolean
   displayName?: boolean
   phone?: boolean
-  positionId?: boolean
-  courtId?: boolean
+  primaryShiftRoleId?: boolean
+  facilityId?: boolean
   isActive?: boolean
   isReligious?: boolean
+  capability?: boolean
   createdAt?: boolean
   updatedAt?: boolean
 }
 
-export type EmployeeOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"id" | "firstName" | "lastName" | "displayName" | "phone" | "positionId" | "courtId" | "isActive" | "isReligious" | "createdAt" | "updatedAt", ExtArgs["result"]["employee"]>
+export type EmployeeOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"id" | "firstName" | "lastName" | "displayName" | "phone" | "primaryShiftRoleId" | "facilityId" | "isActive" | "isReligious" | "capability" | "createdAt" | "updatedAt", ExtArgs["result"]["employee"]>
 export type EmployeeInclude<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
-  court?: boolean | Prisma.CourtDefaultArgs<ExtArgs>
-  position?: boolean | Prisma.PositionDefaultArgs<ExtArgs>
+  facility?: boolean | Prisma.FacilityDefaultArgs<ExtArgs>
+  primaryShiftRole?: boolean | Prisma.ShiftRoleDefaultArgs<ExtArgs>
   user?: boolean | Prisma.Employee$userArgs<ExtArgs>
-  availabilityForms?: boolean | Prisma.Employee$availabilityFormsArgs<ExtArgs>
+  availabilitySubmissions?: boolean | Prisma.Employee$availabilitySubmissionsArgs<ExtArgs>
   assignments?: boolean | Prisma.Employee$assignmentsArgs<ExtArgs>
-  fairnessRecords?: boolean | Prisma.Employee$fairnessRecordsArgs<ExtArgs>
+  employeeStats?: boolean | Prisma.Employee$employeeStatsArgs<ExtArgs>
   warnings?: boolean | Prisma.Employee$warningsArgs<ExtArgs>
   _count?: boolean | Prisma.EmployeeCountOutputTypeDefaultArgs<ExtArgs>
 }
 export type EmployeeIncludeCreateManyAndReturn<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
-  court?: boolean | Prisma.CourtDefaultArgs<ExtArgs>
-  position?: boolean | Prisma.PositionDefaultArgs<ExtArgs>
+  facility?: boolean | Prisma.FacilityDefaultArgs<ExtArgs>
+  primaryShiftRole?: boolean | Prisma.ShiftRoleDefaultArgs<ExtArgs>
 }
 export type EmployeeIncludeUpdateManyAndReturn<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
-  court?: boolean | Prisma.CourtDefaultArgs<ExtArgs>
-  position?: boolean | Prisma.PositionDefaultArgs<ExtArgs>
+  facility?: boolean | Prisma.FacilityDefaultArgs<ExtArgs>
+  primaryShiftRole?: boolean | Prisma.ShiftRoleDefaultArgs<ExtArgs>
 }
 
 export type $EmployeePayload<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
   name: "Employee"
   objects: {
-    court: Prisma.$CourtPayload<ExtArgs>
-    position: Prisma.$PositionPayload<ExtArgs>
+    facility: Prisma.$FacilityPayload<ExtArgs>
+    primaryShiftRole: Prisma.$ShiftRolePayload<ExtArgs>
     user: Prisma.$UserPayload<ExtArgs> | null
-    availabilityForms: Prisma.$AvailabilityFormPayload<ExtArgs>[]
+    availabilitySubmissions: Prisma.$AvailabilitySubmissionPayload<ExtArgs>[]
     assignments: Prisma.$ShiftAssignmentPayload<ExtArgs>[]
-    fairnessRecords: Prisma.$FairnessRecordPayload<ExtArgs>[]
+    employeeStats: Prisma.$EmployeeScheduleStatsPayload<ExtArgs>[]
     warnings: Prisma.$ScheduleWarningPayload<ExtArgs>[]
   }
   scalars: runtime.Types.Extensions.GetPayloadResult<{
@@ -1524,10 +1587,11 @@ export type $EmployeePayload<ExtArgs extends runtime.Types.Extensions.InternalAr
     lastName: string
     displayName: string
     phone: string | null
-    positionId: string
-    courtId: string
+    primaryShiftRoleId: string
+    facilityId: string
     isActive: boolean
     isReligious: boolean
+    capability: $Enums.Capability
     createdAt: Date
     updatedAt: Date
   }, ExtArgs["result"]["employee"]>
@@ -1924,12 +1988,12 @@ readonly fields: EmployeeFieldRefs;
  */
 export interface Prisma__EmployeeClient<T, Null = never, ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs, GlobalOmitOptions = {}> extends Prisma.PrismaPromise<T> {
   readonly [Symbol.toStringTag]: "PrismaPromise"
-  court<T extends Prisma.CourtDefaultArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.CourtDefaultArgs<ExtArgs>>): Prisma.Prisma__CourtClient<runtime.Types.Result.GetResult<Prisma.$CourtPayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions> | Null, Null, ExtArgs, GlobalOmitOptions>
-  position<T extends Prisma.PositionDefaultArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.PositionDefaultArgs<ExtArgs>>): Prisma.Prisma__PositionClient<runtime.Types.Result.GetResult<Prisma.$PositionPayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions> | Null, Null, ExtArgs, GlobalOmitOptions>
+  facility<T extends Prisma.FacilityDefaultArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.FacilityDefaultArgs<ExtArgs>>): Prisma.Prisma__FacilityClient<runtime.Types.Result.GetResult<Prisma.$FacilityPayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions> | Null, Null, ExtArgs, GlobalOmitOptions>
+  primaryShiftRole<T extends Prisma.ShiftRoleDefaultArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.ShiftRoleDefaultArgs<ExtArgs>>): Prisma.Prisma__ShiftRoleClient<runtime.Types.Result.GetResult<Prisma.$ShiftRolePayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions> | Null, Null, ExtArgs, GlobalOmitOptions>
   user<T extends Prisma.Employee$userArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.Employee$userArgs<ExtArgs>>): Prisma.Prisma__UserClient<runtime.Types.Result.GetResult<Prisma.$UserPayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions> | null, null, ExtArgs, GlobalOmitOptions>
-  availabilityForms<T extends Prisma.Employee$availabilityFormsArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.Employee$availabilityFormsArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$AvailabilityFormPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
+  availabilitySubmissions<T extends Prisma.Employee$availabilitySubmissionsArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.Employee$availabilitySubmissionsArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$AvailabilitySubmissionPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
   assignments<T extends Prisma.Employee$assignmentsArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.Employee$assignmentsArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$ShiftAssignmentPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
-  fairnessRecords<T extends Prisma.Employee$fairnessRecordsArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.Employee$fairnessRecordsArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$FairnessRecordPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
+  employeeStats<T extends Prisma.Employee$employeeStatsArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.Employee$employeeStatsArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$EmployeeScheduleStatsPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
   warnings<T extends Prisma.Employee$warningsArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.Employee$warningsArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$ScheduleWarningPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
   /**
    * Attaches callbacks for the resolution and/or rejection of the Promise.
@@ -1965,10 +2029,11 @@ export interface EmployeeFieldRefs {
   readonly lastName: Prisma.FieldRef<"Employee", 'String'>
   readonly displayName: Prisma.FieldRef<"Employee", 'String'>
   readonly phone: Prisma.FieldRef<"Employee", 'String'>
-  readonly positionId: Prisma.FieldRef<"Employee", 'String'>
-  readonly courtId: Prisma.FieldRef<"Employee", 'String'>
+  readonly primaryShiftRoleId: Prisma.FieldRef<"Employee", 'String'>
+  readonly facilityId: Prisma.FieldRef<"Employee", 'String'>
   readonly isActive: Prisma.FieldRef<"Employee", 'Boolean'>
   readonly isReligious: Prisma.FieldRef<"Employee", 'Boolean'>
+  readonly capability: Prisma.FieldRef<"Employee", 'Capability'>
   readonly createdAt: Prisma.FieldRef<"Employee", 'DateTime'>
   readonly updatedAt: Prisma.FieldRef<"Employee", 'DateTime'>
 }
@@ -2391,27 +2456,27 @@ export type Employee$userArgs<ExtArgs extends runtime.Types.Extensions.InternalA
 }
 
 /**
- * Employee.availabilityForms
+ * Employee.availabilitySubmissions
  */
-export type Employee$availabilityFormsArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+export type Employee$availabilitySubmissionsArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
   /**
-   * Select specific fields to fetch from the AvailabilityForm
+   * Select specific fields to fetch from the AvailabilitySubmission
    */
-  select?: Prisma.AvailabilityFormSelect<ExtArgs> | null
+  select?: Prisma.AvailabilitySubmissionSelect<ExtArgs> | null
   /**
-   * Omit specific fields from the AvailabilityForm
+   * Omit specific fields from the AvailabilitySubmission
    */
-  omit?: Prisma.AvailabilityFormOmit<ExtArgs> | null
+  omit?: Prisma.AvailabilitySubmissionOmit<ExtArgs> | null
   /**
    * Choose, which related nodes to fetch as well
    */
-  include?: Prisma.AvailabilityFormInclude<ExtArgs> | null
-  where?: Prisma.AvailabilityFormWhereInput
-  orderBy?: Prisma.AvailabilityFormOrderByWithRelationInput | Prisma.AvailabilityFormOrderByWithRelationInput[]
-  cursor?: Prisma.AvailabilityFormWhereUniqueInput
+  include?: Prisma.AvailabilitySubmissionInclude<ExtArgs> | null
+  where?: Prisma.AvailabilitySubmissionWhereInput
+  orderBy?: Prisma.AvailabilitySubmissionOrderByWithRelationInput | Prisma.AvailabilitySubmissionOrderByWithRelationInput[]
+  cursor?: Prisma.AvailabilitySubmissionWhereUniqueInput
   take?: number
   skip?: number
-  distinct?: Prisma.AvailabilityFormScalarFieldEnum | Prisma.AvailabilityFormScalarFieldEnum[]
+  distinct?: Prisma.AvailabilitySubmissionScalarFieldEnum | Prisma.AvailabilitySubmissionScalarFieldEnum[]
 }
 
 /**
@@ -2439,27 +2504,27 @@ export type Employee$assignmentsArgs<ExtArgs extends runtime.Types.Extensions.In
 }
 
 /**
- * Employee.fairnessRecords
+ * Employee.employeeStats
  */
-export type Employee$fairnessRecordsArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+export type Employee$employeeStatsArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
   /**
-   * Select specific fields to fetch from the FairnessRecord
+   * Select specific fields to fetch from the EmployeeScheduleStats
    */
-  select?: Prisma.FairnessRecordSelect<ExtArgs> | null
+  select?: Prisma.EmployeeScheduleStatsSelect<ExtArgs> | null
   /**
-   * Omit specific fields from the FairnessRecord
+   * Omit specific fields from the EmployeeScheduleStats
    */
-  omit?: Prisma.FairnessRecordOmit<ExtArgs> | null
+  omit?: Prisma.EmployeeScheduleStatsOmit<ExtArgs> | null
   /**
    * Choose, which related nodes to fetch as well
    */
-  include?: Prisma.FairnessRecordInclude<ExtArgs> | null
-  where?: Prisma.FairnessRecordWhereInput
-  orderBy?: Prisma.FairnessRecordOrderByWithRelationInput | Prisma.FairnessRecordOrderByWithRelationInput[]
-  cursor?: Prisma.FairnessRecordWhereUniqueInput
+  include?: Prisma.EmployeeScheduleStatsInclude<ExtArgs> | null
+  where?: Prisma.EmployeeScheduleStatsWhereInput
+  orderBy?: Prisma.EmployeeScheduleStatsOrderByWithRelationInput | Prisma.EmployeeScheduleStatsOrderByWithRelationInput[]
+  cursor?: Prisma.EmployeeScheduleStatsWhereUniqueInput
   take?: number
   skip?: number
-  distinct?: Prisma.FairnessRecordScalarFieldEnum | Prisma.FairnessRecordScalarFieldEnum[]
+  distinct?: Prisma.EmployeeScheduleStatsScalarFieldEnum | Prisma.EmployeeScheduleStatsScalarFieldEnum[]
 }
 
 /**

@@ -9,13 +9,54 @@
 * 🟢 You can import this file directly.
 */
 
+export const Capability = {
+  GUARD: 'GUARD',
+  CONTROLLER: 'CONTROLLER',
+  SHIFT_MANAGER: 'SHIFT_MANAGER'
+} as const
+
+export type Capability = (typeof Capability)[keyof typeof Capability]
+
+
+export const AvailabilityPreference = {
+  AVAILABLE: 'AVAILABLE',
+  PREFERRED: 'PREFERRED',
+  UNAVAILABLE: 'UNAVAILABLE'
+} as const
+
+export type AvailabilityPreference = (typeof AvailabilityPreference)[keyof typeof AvailabilityPreference]
+
+
+export const SubmissionState = {
+  SCHEDULED: 'SCHEDULED',
+  OPEN: 'OPEN',
+  CLOSED: 'CLOSED'
+} as const
+
+export type SubmissionState = (typeof SubmissionState)[keyof typeof SubmissionState]
+
+
+export const AssignmentSource = {
+  MANUAL: 'MANUAL',
+  AUTOMATIC: 'AUTOMATIC'
+} as const
+
+export type AssignmentSource = (typeof AssignmentSource)[keyof typeof AssignmentSource]
+
+
 export const SystemRole = {
-  EMPLOYEE: 'EMPLOYEE',
-  MANAGER: 'MANAGER',
+  USER: 'USER',
   ADMIN: 'ADMIN'
 } as const
 
 export type SystemRole = (typeof SystemRole)[keyof typeof SystemRole]
+
+
+export const FacilityRole = {
+  MANAGER: 'MANAGER'
+} as const
+
+export type FacilityRole = (typeof FacilityRole)[keyof typeof FacilityRole]
 
 
 export const ScheduleChangeType = {
@@ -63,17 +104,6 @@ export const HolidayKind = {
 } as const
 
 export type HolidayKind = (typeof HolidayKind)[keyof typeof HolidayKind]
-
-
-export const ScheduleStatus = {
-  DRAFT: 'DRAFT',
-  OPEN: 'OPEN',
-  LOCKED: 'LOCKED',
-  PUBLISHED: 'PUBLISHED',
-  ARCHIVED: 'ARCHIVED'
-} as const
-
-export type ScheduleStatus = (typeof ScheduleStatus)[keyof typeof ScheduleStatus]
 
 
 export const WarningType = {

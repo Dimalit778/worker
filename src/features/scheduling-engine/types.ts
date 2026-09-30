@@ -1,3 +1,4 @@
+import type { Capability } from './role-eligibility';
 // Pure TypeScript types for the scheduling engine.
 // No Prisma imports. No runtime logic.
 
@@ -21,14 +22,16 @@ export type OverflowCandidateReason = "CAPACITY_FULL" | "LOWER_SCORE";
 // ─── Input types ─────────────────────────────────────────────────────────────
 
 export interface EngineEmployee {
+  capability: Capability;
   id: string;
   positionId: string;
   positionName?: string;
-  courtId: string;
+  facilityId: string;
   isActive: boolean;
 }
 
 export interface EngineCapacity {
+  requiredCapability: Capability;
   positionId: string;
   positionName?: string;
   shiftType: ShiftType;
@@ -38,7 +41,7 @@ export interface EngineCapacity {
 
 export interface EngineAssignment {
   employeeId: string;
-  courtId: string;
+  facilityId: string;
   positionId: string;
   positionName?: string;
   date: Date;
@@ -48,9 +51,13 @@ export interface EngineAssignment {
 }
 
 export interface EngineInput {
+  historicalAssignments?: EngineAssignment[];
+  boundaryAssignments?: EngineAssignment[];
+  preferences?: Map<string, Set<string>>;
+  holidayCategories?: Map<string, DayCategory>;
   period: {
     id: string;
-    courtId: string;
+    facilityId: string;
     startDate: Date;
     endDate: Date;
   };
@@ -61,7 +68,7 @@ export interface EngineInput {
   // employeeId → Set of "YYYY-MM-DD|MORNING" | "YYYY-MM-DD|EVENING" | "YYYY-MM-DD|NIGHT"
   availability: Map<string, Set<string>>;
   capacities: EngineCapacity[];
-  // Existing isManualOverride=true assignments; engine works around these.
+  // Explicitly locked assignments; provenance is stored separately by the application.
   manualAssignments: EngineAssignment[];
   scheduleId: string;
 }
@@ -69,7 +76,8 @@ export interface EngineInput {
 // ─── Engine working types ─────────────────────────────────────────────────────
 
 export interface EngineSlot {
-  courtId: string;
+  requiredCapability: Capability;
+  facilityId: string;
   positionId: string;
   positionName?: string;
   date: Date;
@@ -102,7 +110,7 @@ export interface UnmetMinimum {
 
 export interface OverflowCandidate {
   employeeId: string;
-  courtId: string;
+  facilityId: string;
   positionId: string;
   date: Date;
   shiftType: ShiftType;

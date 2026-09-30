@@ -16,7 +16,7 @@ export function CurrentScheduleView({
   overflowCandidates,
   employees,
   capacity,
-  courtId,
+  facilityId,
   currentEmployeeId,
   readonly,
 }: CurrentScheduleViewProps) {
@@ -48,7 +48,7 @@ export function CurrentScheduleView({
           shiftType="MORNING"
           date={selectedDate}
           scheduleId={scheduleId}
-          courtId={courtId}
+          facilityId={facilityId}
           assignments={assignments}
           overflowCandidates={overflowCandidates}
           employees={employees}
@@ -60,7 +60,7 @@ export function CurrentScheduleView({
           shiftType="EVENING"
           date={selectedDate}
           scheduleId={scheduleId}
-          courtId={courtId}
+          facilityId={facilityId}
           assignments={assignments}
           overflowCandidates={overflowCandidates}
           employees={employees}
@@ -72,7 +72,7 @@ export function CurrentScheduleView({
           shiftType="NIGHT"
           date={selectedDate}
           scheduleId={scheduleId}
-          courtId={courtId}
+          facilityId={facilityId}
           assignments={assignments}
           overflowCandidates={overflowCandidates}
           employees={employees}

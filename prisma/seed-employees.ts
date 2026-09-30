@@ -1,3 +1,4 @@
+import { seedCapability } from './seed-capability';
 import { resolve } from 'node:path';
 import { config } from 'dotenv';
 import { PrismaNeon } from '@prisma/adapter-neon';
@@ -18,7 +19,7 @@ type EmployeeSeed = {
   email: string;
   password: string;
   isReligious?: boolean;
-  systemRole?: SystemRole;
+  isManager?: boolean;
   mustChangePassword?: boolean;
 };
 
@@ -87,7 +88,7 @@ async function seedPositionsForEmployees(employees: EmployeeSeed[]) {
   }
 
   for (const item of uniqueCourtPositionPairs.values()) {
-    const court = await prisma.court.findUnique({
+    const court = await prisma.facility.findUnique({
       where: {
         code: item.courtCode,
       },
@@ -105,23 +106,25 @@ async function seedPositionsForEmployees(employees: EmployeeSeed[]) {
       );
     }
 
-    await prisma.position.upsert({
+    await prisma.shiftRole.upsert({
       where: {
-        courtId_code: {
-          courtId: court.id,
+        facilityId_code: {
+          facilityId: court.id,
           code: positionData.code,
         },
       },
       update: {
         name: positionData.name,
+        requiredCapability: seedCapability(positionData.code),
         displayOrder: positionData.displayOrder,
         color: positionData.color ?? null,
         isActive: true,
       },
       create: {
-        courtId: court.id,
+        facilityId: court.id,
         code: positionData.code,
         name: positionData.name,
+        requiredCapability: seedCapability(positionData.code),
         displayOrder: positionData.displayOrder,
         color: positionData.color ?? null,
         isActive: true,
@@ -138,7 +141,7 @@ async function main() {
   await seedPositionsForEmployees(EMPLOYEES);
 
   for (const emp of EMPLOYEES) {
-    const court = await prisma.court.findUnique({
+    const court = await prisma.facility.findUnique({
       where: {
         code: emp.courtCode,
       },
@@ -148,9 +151,9 @@ async function main() {
       throw new Error(`Court not found for employee: ${emp.email}`);
     }
 
-    const position = await prisma.position.findFirst({
+    const position = await prisma.shiftRole.findFirst({
       where: {
-        courtId: court.id,
+        facilityId: court.id,
         code: emp.positionCode,
       },
     });
@@ -178,8 +181,9 @@ async function main() {
         lastName: emp.lastName,
         displayName: emp.displayName,
         phone: emp.phone ?? null,
-        positionId: position.id,
-        courtId: court.id,
+        primaryShiftRoleId: position.id,
+        capability: seedCapability(emp.positionCode),
+        facilityId: court.id,
         isActive: true,
         isReligious: emp.isReligious ?? false,
       },
@@ -191,7 +195,8 @@ async function main() {
       data: {
         email: emp.email,
         passwordHash,
-        systemRole: emp.systemRole ?? SystemRole.EMPLOYEE,
+        systemRole: SystemRole.USER,
+        facilityRoles: emp.isManager ? { create: { facilityId: court.id, role: 'MANAGER' } } : undefined,
         mustChangePassword: emp.mustChangePassword ?? false,
         employeeId: employee.id,
       },

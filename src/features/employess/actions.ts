@@ -1,7 +1,9 @@
 'use server';
+import { periodScheduleStatus } from '@/features/schedules/period-status';
+import { PortalRole } from '@/lib/auth/portal';
 
 import bcrypt from 'bcryptjs';
-import { SystemRole } from '@/generated/prisma/client';
+import { SystemRole, Capability } from '@/generated/prisma/client';
 import { prisma } from '@/lib/db/client';
 import { requireSession } from '@/lib/db/auth-helpers';
 import type {
@@ -11,14 +13,14 @@ import type {
   EmployeesPageData,
   UpdateEmployeeParams,
 } from '@/features/employess/types';
-import { availabilityEntriesToRecord } from '@/features/availability/utils';
+import { availabilityPreferencesToRecord, countAvailableEntries } from '@/features/availability/utils';
 import { getInitialPasswordFromEmail } from './utils';
 
 export async function createEmployee(params: CreateEmployeeParams): Promise<{ ok: true } | { error: string }> {
-  const session = await requireSession(SystemRole.MANAGER);
+  const session = await requireSession(PortalRole.MANAGER);
 
-  const courtId = session.user.courtId;
-  if (!courtId) return { error: 'למנהל אין בית משפט משויך' };
+  const facilityId = session.user.facilityId;
+  if (!facilityId) return { error: 'למנהל אין בית משפט משויך' };
 
   const firstName = params.firstName.trim();
   const lastName = params.lastName.trim();
@@ -35,6 +37,9 @@ export async function createEmployee(params: CreateEmployeeParams): Promise<{ ok
     return { error: 'מייל לא תקין' };
   }
 
+  if (!params.capability || !Object.values(Capability).includes(params.capability)) return { error: 'יש לבחור כשירות' };
+  const position = await prisma.shiftRole.findFirst({ where: { id: positionId, facilityId, isActive: true } });
+  if (!position) return { error: 'התפקיד אינו שייך למתקן' };
   const initialPassword = getInitialPasswordFromEmail(email);
   const passwordHash = await bcrypt.hash(initialPassword, 12);
 
@@ -55,8 +60,9 @@ export async function createEmployee(params: CreateEmployeeParams): Promise<{ ok
           lastName,
           displayName,
           phone,
-          positionId,
-          courtId,
+          primaryShiftRoleId: positionId,
+          capability: params.capability,
+          facilityId,
           isActive: true,
           isReligious,
         },
@@ -66,7 +72,7 @@ export async function createEmployee(params: CreateEmployeeParams): Promise<{ ok
         data: {
           email,
           passwordHash,
-          systemRole: SystemRole.EMPLOYEE,
+          systemRole: SystemRole.USER,
           mustChangePassword: true,
           employeeId: employee.id,
         },
@@ -84,77 +90,78 @@ export async function createEmployee(params: CreateEmployeeParams): Promise<{ ok
   }
 }
 export async function updateEmployee(params: UpdateEmployeeParams): Promise<{ ok: true } | { error: string }> {
-  const session = await requireSession(SystemRole.MANAGER);
-  const courtId = session.user.courtId;
+  const session = await requireSession(PortalRole.MANAGER);
+  const facilityId = session.user.facilityId;
 
   const { employeeId, firstName, lastName, phone, displayName, isReligious, positionId, isActive } = params;
 
   const employee = await prisma.employee.findFirst({
-    where: { id: employeeId, courtId: courtId ?? '' },
+    where: { id: employeeId, facilityId: facilityId ?? '' },
   });
   if (!employee) return { error: 'מאבטח לא נמצא' };
 
+  if (!params.capability || !Object.values(Capability).includes(params.capability)) return { error: 'יש לבחור כשירות' };
   await prisma.employee.update({
     where: { id: employeeId },
-    data: { firstName, lastName, phone, displayName, isReligious, positionId, isActive },
+    data: { firstName, lastName, phone, displayName, isReligious, primaryShiftRoleId: positionId, isActive, capability: params.capability },
   });
 
   return { ok: true };
 }
 
 export async function deleteEmployee(employeeId: string): Promise<{ ok: true } | { error: string }> {
-  const session = await requireSession(SystemRole.MANAGER);
-  const courtId = session.user.courtId;
+  const session = await requireSession(PortalRole.MANAGER);
+  const facilityId = session.user.facilityId;
 
   const employee = await prisma.employee.findFirst({
-    where: { id: employeeId, courtId: courtId ?? '' },
+    where: { id: employeeId, facilityId: facilityId ?? '' },
   });
   if (!employee) return { error: 'עובד לא נמצא' };
 
   await prisma.$transaction(async (tx) => {
-    await tx.user.deleteMany({ where: { employeeId } });
-    await tx.employee.delete({ where: { id: employeeId } });
+    await tx.employee.update({ where: { id: employeeId }, data: { isActive: false } });
   });
 
   return { ok: true };
 }
 
-export async function getEmployeesPageData(courtId?: string): Promise<EmployeesPageData> {
+export async function getEmployeesPageData(facilityId?: string): Promise<EmployeesPageData> {
   const session = await requireSession();
 
   let targetCourtId: string;
 
   if (session.user.systemRole === SystemRole.ADMIN) {
-    if (!courtId) return { error: 'יש לבחור בית משפט' };
+    if (!facilityId) return { error: 'יש לבחור בית משפט' };
 
-    const court = await prisma.court.findUnique({
-      where: { id: courtId },
+    const court = await prisma.facility.findUnique({
+      where: { id: facilityId },
       select: { id: true },
     });
     if (!court) return { error: 'בית משפט לא נמצא' };
 
-    targetCourtId = courtId;
-  } else if (session.user.systemRole === SystemRole.MANAGER) {
-    if (!session.user.courtId) return { error: 'למנהל אין בית משפט משויך' };
-    if (courtId && courtId !== session.user.courtId) return { error: 'אין הרשאה' };
+    targetCourtId = facilityId;
+  } else if (session.user.portal === PortalRole.MANAGER) {
+    if (!session.user.facilityId) return { error: 'למנהל אין בית משפט משויך' };
+    if (facilityId && facilityId !== session.user.facilityId) return { error: 'אין הרשאה' };
 
-    targetCourtId = session.user.courtId;
+    targetCourtId = session.user.facilityId;
   } else {
     return { error: 'אין הרשאה' };
   }
 
   const [employees, positions] = await Promise.all([
     prisma.employee.findMany({
-      where: { courtId: targetCourtId },
+      where: { facilityId: targetCourtId },
       select: {
         id: true,
-        firstName: true,
+        capability: true,
+      firstName: true,
         lastName: true,
         phone: true,
         displayName: true,
         isReligious: true,
         isActive: true,
-        position: {
+        primaryShiftRole: {
           select: {
             id: true,
             name: true,
@@ -167,12 +174,12 @@ export async function getEmployeesPageData(courtId?: string): Promise<EmployeesP
           },
         },
       },
-      orderBy: [{ position: { code: 'asc' } }, { displayName: 'asc' }],
+      orderBy: [{ primaryShiftRole: { code: 'asc' } }, { displayName: 'asc' }],
     }),
 
-    prisma.position.findMany({
+    prisma.shiftRole.findMany({
       where: {
-        courtId: targetCourtId,
+        facilityId: targetCourtId,
         isActive: true,
       },
       select: {
@@ -187,6 +194,7 @@ export async function getEmployeesPageData(courtId?: string): Promise<EmployeesP
   return {
     employees: employees.map((employee) => ({
       id: employee.id,
+      capability: employee.capability,
       firstName: employee.firstName,
       lastName: employee.lastName,
       phone: employee.phone,
@@ -195,9 +203,9 @@ export async function getEmployeesPageData(courtId?: string): Promise<EmployeesP
       isReligious: employee.isReligious,
       isActive: employee.isActive,
       position: {
-        id: employee.position.id,
-        name: employee.position.name,
-        code: employee.position.code,
+        id: employee.primaryShiftRole.id,
+        name: employee.primaryShiftRole.name,
+        code: employee.primaryShiftRole.code,
       },
     })),
     positions,
@@ -205,14 +213,15 @@ export async function getEmployeesPageData(courtId?: string): Promise<EmployeesP
 }
 
 export async function getManagerEmployeeDetail(employeeId: string): Promise<EmployeeDetailData> {
-  const session = await requireSession(SystemRole.MANAGER);
-  const courtId = session.user.courtId;
-  if (!courtId) return { error: 'למנהל אין בית משפט משויך' };
+  const session = await requireSession(PortalRole.MANAGER);
+  const facilityId = session.user.facilityId;
+  if (!facilityId) return { error: 'למנהל אין בית משפט משויך' };
 
   const employee = await prisma.employee.findFirst({
-    where: { id: employeeId, courtId },
+    where: { id: employeeId, facilityId },
     select: {
       id: true,
+      capability: true,
       firstName: true,
       lastName: true,
       displayName: true,
@@ -221,7 +230,7 @@ export async function getManagerEmployeeDetail(employeeId: string): Promise<Empl
       isReligious: true,
       createdAt: true,
       updatedAt: true,
-      position: {
+      primaryShiftRole: {
         select: {
           id: true,
           name: true,
@@ -229,12 +238,12 @@ export async function getManagerEmployeeDetail(employeeId: string): Promise<Empl
           isActive: true,
         },
       },
-      court: {
+      facility: {
         select: {
           id: true,
           name: true,
           code: true,
-          region: {
+          district: {
             select: {
               name: true,
             },
@@ -266,26 +275,26 @@ export async function getManagerEmployeeDetail(employeeId: string): Promise<Empl
     recentAssignments,
     fairnessRecords,
   ] = await Promise.all([
-    prisma.availabilityForm.count({ where: { employeeId, isSubmitted: true } }),
-    prisma.availabilityForm.count({ where: { employeeId } }),
-    prisma.availabilityShift.count({
+    prisma.availabilitySubmission.count({ where: { employeeId, isSubmitted: true } }),
+    prisma.availabilitySubmission.count({ where: { employeeId } }),
+    prisma.shiftAvailability.count({
       where: {
-        form: { employeeId },
+        submission: { employeeId },
       },
     }),
-    prisma.shiftAssignment.count({ where: { employeeId, courtId } }),
+    prisma.shiftAssignment.count({ where: { employeeId, facilityId, version: { status: 'PUBLISHED', isActive: true } } }),
     Promise.resolve(0),
-    prisma.scheduleWarning.count({ where: { employeeId, courtId } }),
-    prisma.fairnessRecord.count({ where: { employeeId } }),
+    prisma.scheduleWarning.count({ where: { employeeId, facilityId, version: { status: 'PUBLISHED', isActive: true } } }),
+    prisma.employeeScheduleStats.count({ where: { employeeId, version: { status: 'PUBLISHED', isActive: true } } }),
     prisma.shiftAssignment.findMany({
-      where: { employeeId, courtId },
+      where: { employeeId, facilityId, version: { status: 'PUBLISHED', isActive: true } },
       orderBy: { date: 'desc' },
       take: 8,
       select: {
         id: true,
         date: true,
         shiftType: true,
-        position: {
+        shiftRole: {
           select: {
             name: true,
           },
@@ -301,8 +310,8 @@ export async function getManagerEmployeeDetail(employeeId: string): Promise<Empl
         },
       },
     }),
-    prisma.fairnessRecord.findMany({
-      where: { employeeId },
+    prisma.employeeScheduleStats.findMany({
+      where: { employeeId, version: { status: 'PUBLISHED', isActive: true } },
       orderBy: { schedule: { period: { startDate: 'desc' } } },
       take: 6,
       select: {
@@ -328,6 +337,7 @@ export async function getManagerEmployeeDetail(employeeId: string): Promise<Empl
   return {
     employee: {
       id: employee.id,
+      capability: employee.capability,
       firstName: employee.firstName,
       lastName: employee.lastName,
       displayName: employee.displayName,
@@ -337,12 +347,12 @@ export async function getManagerEmployeeDetail(employeeId: string): Promise<Empl
       isReligious: employee.isReligious,
       createdAt: employee.createdAt.toISOString(),
       updatedAt: employee.updatedAt.toISOString(),
-      position: employee.position,
+      position: employee.primaryShiftRole,
       court: {
-        id: employee.court.id,
-        name: employee.court.name,
-        code: employee.court.code,
-        regionName: employee.court.region.name,
+        id: employee.facility.id,
+        name: employee.facility.name,
+        code: employee.facility.code,
+        regionName: employee.facility.district.name,
       },
       user: employee.user
         ? {
@@ -368,7 +378,7 @@ export async function getManagerEmployeeDetail(employeeId: string): Promise<Empl
       date: assignment.date.toISOString().slice(0, 10),
       shiftType: assignment.shiftType,
       isManualOverride: false,
-      positionName: assignment.position.name,
+      positionName: assignment.shiftRole.name,
       periodName: assignment.schedule.period.name,
     })),
     fairnessRecords: fairnessRecords.map((record) => ({
@@ -384,19 +394,20 @@ export async function getManagerEmployeeDetail(employeeId: string): Promise<Empl
 }
 
 export async function getManagerEmployeeSubmissions(employeeId: string): Promise<EmployeeSubmissionsData> {
-  const session = await requireSession(SystemRole.MANAGER);
-  const courtId = session.user.courtId;
-  if (!courtId) return { error: 'למנהל אין בית משפט משויך' };
+  const session = await requireSession(PortalRole.MANAGER);
+  const facilityId = session.user.facilityId;
+  if (!facilityId) return { error: 'למנהל אין בית משפט משויך' };
 
   const employee = await prisma.employee.findFirst({
-    where: { id: employeeId, courtId },
+    where: { id: employeeId, facilityId },
     select: {
       id: true,
+      capability: true,
       firstName: true,
       lastName: true,
       displayName: true,
       isActive: true,
-      position: {
+      primaryShiftRole: {
         select: {
           name: true,
         },
@@ -406,26 +417,28 @@ export async function getManagerEmployeeSubmissions(employeeId: string): Promise
 
   if (!employee) return { error: 'עובד לא נמצא' };
 
-  const periods = await prisma.workSchedule.findMany({
-    where: { courtId },
+  const periods = await prisma.roster.findMany({
+    where: { facilityId },
     orderBy: { period: { startDate: 'desc' } },
     select: {
       id: true,
-      status: true,
+      archivedAt: true,
+      versions: { select: { status: true, isActive: true } },
       period: {
         select: {
           name: true,
+          submissionState: true,
           startDate: true,
           endDate: true,
           submissionDeadline: true,
-          availabilityForms: {
+          availabilitySubmissions: {
             where: { employeeId },
             take: 1,
             select: {
               id: true,
               isSubmitted: true,
               submittedAt: true,
-              shifts: true,
+              shiftAvailabilities: true,
             },
           },
         },
@@ -437,19 +450,21 @@ export async function getManagerEmployeeSubmissions(employeeId: string): Promise
     employee: {
       id: employee.id,
       displayName: employee.displayName,
+      capability: employee.capability,
       firstName: employee.firstName,
       lastName: employee.lastName,
-      positionName: employee.position.name,
+      positionName: employee.primaryShiftRole.name,
       isActive: employee.isActive,
     },
     periods: periods.map((period) => {
-      const availability = period.period.availabilityForms[0] ?? null;
-      const shifts = availability?.shifts ?? [];
-      const entries = availabilityEntriesToRecord(
+      const availability = period.period.availabilitySubmissions[0] ?? null;
+      const shifts = availability?.shiftAvailabilities ?? [];
+      const entries = availabilityPreferencesToRecord(
         shifts.map((shift) => ({
           date: shift.date,
           shiftType: shift.shiftType,
-          isAvailable: true,
+          isAvailable: shift.preference !== 'UNAVAILABLE',
+          preference: shift.preference,
         })),
       );
 
@@ -459,12 +474,16 @@ export async function getManagerEmployeeSubmissions(employeeId: string): Promise
         startDate: period.period.startDate.toISOString().slice(0, 10),
         endDate: period.period.endDate.toISOString().slice(0, 10),
         submissionDeadline: period.period.submissionDeadline.toISOString(),
-        status: period.status,
+        status: periodScheduleStatus({
+          archivedAt: period.archivedAt,
+          submissionState: period.period.submissionState,
+          versions: period.versions,
+        }),
         availabilityId: availability?.id ?? null,
         isSubmitted: availability?.isSubmitted ?? false,
         submittedAt: availability?.submittedAt?.toISOString() ?? null,
         entries,
-        selectedSlotCount: Object.values(entries).filter(Boolean).length,
+        selectedSlotCount: countAvailableEntries(entries),
       };
     }),
   };

@@ -1,11 +1,12 @@
 import {
   EngineAssignment,
-  EngineEmployee,
   EngineInput,
   EngineSlot,
   ShiftType,
   UnmetMinimum,
 } from "./types";
+import { computeFairnessSummary } from './fairness';
+import { sortCandidatesByScore } from './scoring';
 import { canAssignEmployeeToSlot, getSlotFillCount, isSameDate } from "./constraints";
 
 // ─── Constants ────────────────────────────────────────────────────────────────
@@ -113,34 +114,6 @@ function countShiftsInDates(
   ).length;
 }
 
-// Total shift count across all dates; used to sort employees by workload within a round.
-function totalShiftCount(
-  employeeId: string,
-  assignments: EngineAssignment[]
-): number {
-  return assignments.filter((a) => a.employeeId === employeeId).length;
-}
-
-// Finds the first slot of the given shiftType within the given date set where
-// all hard constraints pass for this employee. Does not mutate assignments.
-function findAvailableSlot(
-  employee: EngineEmployee,
-  shiftType: ShiftType,
-  dateTimes: Set<number>,
-  slots: EngineSlot[],
-  assignments: EngineAssignment[],
-  availability: Map<string, Set<string>>
-): EngineSlot | null {
-  for (const slot of slots) {
-    if (slot.shiftType !== shiftType) continue;
-    if (!dateTimes.has(slot.date.getTime())) continue;
-    if (canAssignEmployeeToSlot(employee, slot, assignments, availability, slots)) {
-      return slot;
-    }
-  }
-  return null;
-}
-
 // ─── Phase 1 — Main assignment function ──────────────────────────────────────
 
 // Attempts to satisfy the weekly minimums for every active employee using a
@@ -181,47 +154,24 @@ export function assignWeeklyMinimums(
     ];
 
     for (const { shiftType, targetCount } of rounds) {
-      // Re-sort each round so the employee with the least work is served first.
-      const sortedEmployees = [...activeEmployees].sort(
-        (a, b) =>
-          totalShiftCount(a.id, workingAssignments) -
-          totalShiftCount(b.id, workingAssignments)
-      );
-
-      for (const employee of sortedEmployees) {
-        const currentCount = countShiftsInDates(
-          employee.id,
-          shiftType,
-          dateTimes,
-          workingAssignments
-        );
-
-        if (currentCount >= targetCount) continue;
-
-        const slot = findAvailableSlot(
-          employee,
-          shiftType,
-          dateTimes,
-          slots,
-          workingAssignments,
-          input.availability
-        );
-
-        if (!slot) continue; // will become UnmetMinimum after all rounds
-
-        const assignment: EngineAssignment = {
-          employeeId: employee.id,
-          courtId: slot.courtId,
-          positionId: slot.positionId,
-          positionName: slot.positionName,
-          date: slot.date,
-          shiftType: slot.shiftType,
-          slotIndex: getSlotFillCount(slot, workingAssignments),
-          isManualOverride: false,
-        };
-
-        workingAssignments.push(assignment);
-        newAssignments.push(assignment);
+      for (const slot of slots) {
+        if (slot.shiftType !== shiftType || !dateTimes.has(slot.date.getTime())) continue;
+        while (getSlotFillCount(slot, workingAssignments) < slot.requiredAmount) {
+          const candidates = activeEmployees.filter(e =>
+            countShiftsInDates(e.id, shiftType, dateTimes, workingAssignments) < targetCount &&
+            canAssignEmployeeToSlot(e, slot, workingAssignments, input.availability, slots));
+          if (!candidates.length) break;
+          const local = workingAssignments.filter(a => a.date >= input.period.startDate && a.date <= input.period.endDate);
+          const fairness = computeFairnessSummary([...(input.historicalAssignments ?? []), ...local]);
+          const [employee] = sortCandidatesByScore(candidates, slot, fairness, input.preferences);
+          const assignment: EngineAssignment = {
+            employeeId: employee.id, facilityId: slot.facilityId, positionId: slot.positionId,
+            positionName: slot.positionName, date: slot.date, shiftType: slot.shiftType,
+            slotIndex: getSlotFillCount(slot, workingAssignments), isManualOverride: false,
+          };
+          workingAssignments.push(assignment);
+          newAssignments.push(assignment);
+        }
       }
     }
   }

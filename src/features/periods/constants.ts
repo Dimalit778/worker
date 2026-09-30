@@ -1,17 +1,17 @@
-import { ScheduleStatus } from '@/generated/prisma/client';
+import { PeriodScheduleStatus, type PeriodScheduleStatus as PeriodScheduleStatusValue } from '@/features/schedules/period-status';
 import { PeriodType } from './types';
 
 const DEFAULT_TZ = 'Asia/Jerusalem';
 const TZ = DEFAULT_TZ;
 
-const PERIOD_STATUS_HE: Record<ScheduleStatus, string> = {
+const PERIOD_STATUS_HE: Record<PeriodScheduleStatusValue, string> = {
   DRAFT: 'טיוטה',
   OPEN: 'פתוח להגשות',
   LOCKED: 'נעול',
   PUBLISHED: 'פעיל',
   ARCHIVED: 'בארכיון',
 };
-const STATUS_BADGE: Record<ScheduleStatus, string> = {
+const STATUS_BADGE: Record<PeriodScheduleStatusValue, string> = {
   DRAFT: 'bg-zinc-100 text-zinc-600',
   OPEN: 'bg-green-100 text-green-700',
   LOCKED: 'bg-amber-100 text-amber-700',
@@ -19,7 +19,7 @@ const STATUS_BADGE: Record<ScheduleStatus, string> = {
   ARCHIVED: 'bg-zinc-100 text-zinc-400',
 };
 
-const NEXT_STATUS: Partial<Record<ScheduleStatus, { status: ScheduleStatus; label: string }>> = {
+const NEXT_STATUS: Partial<Record<PeriodScheduleStatusValue, { status: PeriodScheduleStatusValue; label: string }>> = {
   DRAFT: { status: 'OPEN', label: 'פתח להגשות' },
   OPEN: { status: 'LOCKED', label: 'נעל' },
   LOCKED: { status: 'PUBLISHED', label: 'פרסם' },

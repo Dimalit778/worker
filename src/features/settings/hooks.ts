@@ -6,36 +6,45 @@ import {
   fetchManagerPositions,
   fetchManagerShiftCapacities,
   fetchManagerShiftStaffingPositions,
+  fetchSubmissionWindowRule,
 } from '@/features/settings/actions';
 
 export function invalidateSettingsQueries(
   queryClient: ReturnType<typeof useQueryClient>,
-  courtId: string,
+  facilityId: string,
 ) {
   return Promise.all([
-    queryClient.invalidateQueries({ queryKey: queryKeys.settings.positions(courtId) }),
-    queryClient.invalidateQueries({ queryKey: queryKeys.settings.capacities(courtId) }),
-    queryClient.invalidateQueries({ queryKey: queryKeys.settings.shiftStaffingPositions(courtId) }),
+    queryClient.invalidateQueries({ queryKey: queryKeys.settings.positions(facilityId) }),
+    queryClient.invalidateQueries({ queryKey: queryKeys.settings.capacities(facilityId) }),
+    queryClient.invalidateQueries({ queryKey: queryKeys.settings.shiftStaffingPositions(facilityId) }),
+    queryClient.invalidateQueries({ queryKey: queryKeys.settings.submissionWindow() }),
   ]);
 }
 
-export function useManagerPositions(courtId: string) {
+export function useManagerPositions(facilityId: string) {
   return useQuery({
-    queryKey: queryKeys.settings.positions(courtId),
+    queryKey: queryKeys.settings.positions(facilityId),
     queryFn: fetchManagerPositions,
   });
 }
 
-export function useManagerShiftCapacities(courtId: string) {
+export function useManagerShiftCapacities(facilityId: string) {
   return useQuery({
-    queryKey: queryKeys.settings.capacities(courtId),
+    queryKey: queryKeys.settings.capacities(facilityId),
     queryFn: fetchManagerShiftCapacities,
   });
 }
 
-export function useManagerShiftStaffingPositions(courtId: string) {
+export function useManagerShiftStaffingPositions(facilityId: string) {
   return useQuery({
-    queryKey: queryKeys.settings.shiftStaffingPositions(courtId),
+    queryKey: queryKeys.settings.shiftStaffingPositions(facilityId),
     queryFn: fetchManagerShiftStaffingPositions,
+  });
+}
+
+export function useSubmissionWindowRule() {
+  return useQuery({
+    queryKey: queryKeys.settings.submissionWindow(),
+    queryFn: fetchSubmissionWindowRule,
   });
 }

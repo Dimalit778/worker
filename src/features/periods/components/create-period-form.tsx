@@ -17,8 +17,16 @@ import {
   DialogContent,
   DialogTitle,
   Input,
+  Checkbox,
 } from '@/components/ui';
-import { upcomingSundayISO, suggestName, deriveFields } from '../utils';
+import { fetchSubmissionWindowRule } from '@/features/settings/actions';
+import { upcomingSundayISO, suggestName, addDays } from '../utils';
+import {
+  formatJerusalemLocal,
+  instantForRule,
+  parseJerusalemLocal,
+  type SubmissionWindowRule,
+} from '../submission-window';
 
 export function CreatePeriodForm({
   onCreated,
@@ -31,23 +39,55 @@ export function CreatePeriodForm({
   const [open, setOpen] = useState(false);
   const [periodType, setPeriodType] = useState<PeriodType>('biweekly');
   const [name, setName] = useState(() => suggestName(upcomingSundayISO(), 14));
+  const [opensAt, setOpensAt] = useState('');
+  const [closesAt, setClosesAt] = useState('');
+  const [saveRule, setSaveRule] = useState(false);
+  const [hasRule, setHasRule] = useState(false);
+  const [openIsPast, setOpenIsPast] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
+  function markOpenPast(value: string) {
+    const instant = value ? parseJerusalemLocal(value) : null;
+    setOpenIsPast(instant != null && instant.getTime() < Date.now() - 60_000);
+  }
 
-  function handleOpenChange(next: boolean) {
+  function applyRule(rule: SubmissionWindowRule | null, start: string) {
+    setHasRule(rule != null);
+    if (!rule) {
+      setOpensAt('');
+      setClosesAt('');
+      setOpenIsPast(false);
+      return;
+    }
+    const nextOpensAt = formatJerusalemLocal(instantForRule(start, rule.openWeekday, rule.openTime));
+    setOpensAt(nextOpensAt);
+    setClosesAt(formatJerusalemLocal(instantForRule(start, rule.closeWeekday, rule.closeTime)));
+    markOpenPast(nextOpensAt);
+  }
+
+  async function handleOpenChange(next: boolean) {
     setOpen(next);
-    if (next) {
-      const sun = upcomingSundayISO();
-      const d = PERIOD_OPTIONS.find((o) => o.value === periodType)!.days;
-      setName(suggestName(sun, d));
-    } else {
+    if (!next) {
       setError(null);
+      return;
+    }
+    const sun = upcomingSundayISO();
+    const d = PERIOD_OPTIONS.find((o) => o.value === periodType)!.days;
+    setName(suggestName(sun, d));
+    setSaveRule(false);
+    setError(null);
+    try {
+      const rule = await fetchSubmissionWindowRule();
+      applyRule(rule, sun);
+    } catch {
+      applyRule(null, sun);
+      setError('לא ניתן לטעון את הכלל הקבוע');
     }
   }
 
   const days = PERIOD_OPTIONS.find((o) => o.value === periodType)!.days;
   const startSunday = upcomingSundayISO();
-  const { end: endDate, deadline: submissionDeadline } = deriveFields(startSunday, days);
+  const endDate = addDays(startSunday, days - 1);
 
   function handleTypeChange(t: PeriodType) {
     setPeriodType(t);
@@ -62,17 +102,27 @@ export function CreatePeriodForm({
     mutationFn: () => {
       const sun = upcomingSundayISO();
       const d = PERIOD_OPTIONS.find((o) => o.value === periodType)!.days;
-      const { end, deadline } = deriveFields(sun, d);
-      return createSchedule({ name, startDate: sun, endDate: end, submissionDeadline: deadline });
+      return createSchedule({
+        name,
+        startDate: sun,
+        endDate: addDays(sun, d - 1),
+        submissionOpensAt: opensAt,
+        submissionDeadline: closesAt,
+        saveAsStandingRule: saveRule,
+      });
     },
     onSuccess: (res) => {
       if ('error' in res) {
         setError(res.error);
         return;
       }
-      setOpen(false);
-      onCreated?.();
       invalidateScheduleQueries(queryClient);
+      onCreated?.();
+      if (res.emailWarning) {
+        setError(res.emailWarning);
+        return;
+      }
+      setOpen(false);
     },
   });
 
@@ -172,20 +222,60 @@ export function CreatePeriodForm({
             </p>
           </div>
 
-          <div className="grid grid-cols-2 gap-3 bg-muted/40 rounded-lg px-3 py-2.5 text-xs">
-            <div>
-              <p className="text-muted-foreground">תאריך סיום</p>
-              <p className="font-medium mt-0.5" dir="ltr">
-                {endDate}
-              </p>
+          <div className="rounded-lg bg-muted/40 px-3 py-2.5 text-xs">
+            <p className="text-muted-foreground">תאריך סיום</p>
+            <p className="mt-0.5 font-medium" dir="ltr">
+              {endDate}
+            </p>
+          </div>
+
+          <div className="grid gap-3 sm:grid-cols-2">
+            <div className="space-y-1.5">
+              <Label htmlFor="submission-opens" className="block text-xs font-medium text-muted-foreground">
+                שליחה לעובדים
+              </Label>
+              <Input
+                id="submission-opens"
+                type="datetime-local"
+                value={opensAt}
+                onChange={(event) => {
+                  setOpensAt(event.target.value);
+                  markOpenPast(event.target.value);
+                }}
+                required
+                className="w-full rounded-md border border-border bg-background px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-foreground/20"
+              />
             </div>
-            <div>
-              <p className="text-muted-foreground">מועד אחרון להגשה</p>
-              <p className="font-medium mt-0.5" dir="ltr">
-                {submissionDeadline.replace('T', ' ')}
-              </p>
+            <div className="space-y-1.5">
+              <Label htmlFor="submission-closes" className="block text-xs font-medium text-muted-foreground">
+                סגירת ההגשה
+              </Label>
+              <Input
+                id="submission-closes"
+                type="datetime-local"
+                value={closesAt}
+                onChange={(event) => setClosesAt(event.target.value)}
+                required
+                className="w-full rounded-md border border-border bg-background px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-foreground/20"
+              />
             </div>
           </div>
+
+          {hasRule && (
+            <p className="text-[11px] leading-snug text-muted-foreground">
+              המועדים מולאו מהכלל הקבוע. אפשר לשנות אותם רק לתקופה הזו.
+            </p>
+          )}
+          {openIsPast && (
+            <p className="text-[11px] leading-snug text-amber-700">
+              מועד השליחה המחושב כבר עבר. בחרו מועד עתידי לתקופה הזו.
+            </p>
+          )}
+
+          <Label className="flex items-center gap-2 text-sm font-normal">
+            <Checkbox checked={saveRule} onCheckedChange={(checked) => setSaveRule(checked === true)} />
+            שמור כימים ושעות קבועים להבא
+          </Label>
 
           <div className="space-y-1.5">
             <Label htmlFor="period-name" className="text-xs font-medium text-muted-foreground block">

@@ -1,14 +1,15 @@
 'use client';
 
+import { useVersionExpectation } from '@/features/schedules/shared/version-context';
 import { useRef, useState, type ReactNode } from 'react';
 import { useMutation, useQueryClient } from '@tanstack/react-query';
 import { Plus, UserCheck } from 'lucide-react';
 import { cn } from '@/lib/utils';
-import { createAssignment, removeAssignment, updateAssignment } from '@/features/schedules/assignments/actions';
+import { createAssignment, removeAssignment, swapAssignments, updateAssignment } from '@/features/schedules/assignments/actions';
 import { invalidateScheduleQueries } from '@/features/schedules/hooks';
 import type { ScheduleEmployeeOption } from '@/features/schedules/types';
 import type { ShiftType } from '@/generated/prisma/client';
-import { GuardPicker } from '@/features/schedules/shared/guard-picker';
+import { GuardPicker, type SwapCandidate } from '@/features/schedules/shared/guard-picker';
 import type { ShiftSlot } from '../types';
 
 function resolveEmployeeDisplayName(slot: ShiftSlot, employees: ScheduleEmployeeOption[]): string | null {
@@ -25,7 +26,7 @@ type AssignmentPickerProps = {
   shiftType: ShiftType;
   date: string;
   scheduleId: string;
-  courtId: string;
+  facilityId: string;
   employees: ScheduleEmployeeOption[];
   assignedEmployeeIds: Set<string>;
   readonly?: boolean;
@@ -33,6 +34,7 @@ type AssignmentPickerProps = {
   children: ReactNode;
   className?: string;
   ariaLabel: string;
+  swapCandidates?: SwapCandidate[];
 };
 
 function AssignmentPicker({
@@ -40,7 +42,7 @@ function AssignmentPicker({
   shiftType,
   date,
   scheduleId,
-  courtId,
+  facilityId,
   employees,
   assignedEmployeeIds,
   readonly,
@@ -48,32 +50,44 @@ function AssignmentPicker({
   children,
   className,
   ariaLabel,
+  swapCandidates = [],
 }: AssignmentPickerProps) {
   const queryClient = useQueryClient();
+  const expected = useVersionExpectation();
   const anchorRef = useRef<HTMLButtonElement>(null);
   const [open, setOpen] = useState(false);
   const [anchorRect, setAnchorRect] = useState<DOMRect | null>(null);
   const [error, setError] = useState<string | null>(null);
 
   const assignmentMutation = useMutation({
-    mutationFn: async (input: { type: 'select'; employeeId: string } | { type: 'remove'; assignmentId: string }) => {
+    mutationFn: async (
+      input:
+        | { type: 'select'; employeeId: string }
+        | { type: 'remove'; assignmentId: string }
+        | { type: 'swap'; assignmentId: string },
+    ) => {
       if (input.type === 'remove') {
-        await removeAssignment(input.assignmentId);
+        await removeAssignment(input.assignmentId, expected);
+        return;
+      }
+      if (input.type === 'swap') {
+        if (!slot.assignment) return;
+        await swapAssignments(slot.assignment.id, input.assignmentId, expected);
         return;
       }
       if (mode === 'edit' && slot.assignment) {
-        await updateAssignment(slot.assignment.id, input.employeeId);
+        await updateAssignment(slot.assignment.id, input.employeeId, expected);
         return;
       }
       await createAssignment({
         scheduleId,
         employeeId: input.employeeId,
-        courtId,
+        facilityId,
         positionId: slot.positionId,
         shiftType,
         date,
         slotIndex: slot.slotIndex,
-      });
+      }, expected);
     },
     onSuccess: () => invalidateScheduleQueries(queryClient, scheduleId),
     onError: (e: Error) => setError(e.message || 'שגיאה בשיבוץ'),
@@ -98,6 +112,12 @@ function AssignmentPicker({
     setOpen(false);
     setError(null);
     assignmentMutation.mutate({ type: 'remove', assignmentId: slot.assignment.id });
+  }
+
+  function handleSwap(candidateAssignmentId: string) {
+    setOpen(false);
+    setError(null);
+    assignmentMutation.mutate({ type: 'swap', assignmentId: candidateAssignmentId });
   }
 
   return (
@@ -128,6 +148,8 @@ function AssignmentPicker({
           onSelect={handleSelect}
           onRemove={mode === 'edit' ? handleRemove : () => {}}
           onClose={() => setOpen(false)}
+          swapCandidates={mode === 'edit' ? swapCandidates : undefined}
+          onSwap={mode === 'edit' ? handleSwap : undefined}
         />
       ) : null}
     </div>
@@ -140,7 +162,7 @@ export function RoleAddButton({
   shiftType,
   date,
   scheduleId,
-  courtId,
+  facilityId,
   employees,
   assignedEmployeeIds,
 }: {
@@ -149,7 +171,7 @@ export function RoleAddButton({
   shiftType: ShiftType;
   date: string;
   scheduleId: string;
-  courtId: string;
+  facilityId: string;
   employees: ScheduleEmployeeOption[];
   assignedEmployeeIds: Set<string>;
 }) {
@@ -159,7 +181,7 @@ export function RoleAddButton({
       shiftType={shiftType}
       date={date}
       scheduleId={scheduleId}
-      courtId={courtId}
+      facilityId={facilityId}
       employees={employees}
       assignedEmployeeIds={assignedEmployeeIds}
       mode="add"
@@ -176,21 +198,23 @@ export function AssignmentChip({
   shiftType,
   date,
   scheduleId,
-  courtId,
+  facilityId,
   employees,
   assignedEmployeeIds,
   currentEmployeeId,
   readonly,
+  swapCandidates,
 }: {
   slot: ShiftSlot;
   shiftType: ShiftType;
   date: string;
   scheduleId: string;
-  courtId: string;
+  facilityId: string;
   employees: ScheduleEmployeeOption[];
   assignedEmployeeIds: Set<string>;
   currentEmployeeId?: string | null;
   readonly?: boolean;
+  swapCandidates?: SwapCandidate[];
 }) {
   if (!slot.assignment) return null;
 
@@ -203,11 +227,12 @@ export function AssignmentChip({
       shiftType={shiftType}
       date={date}
       scheduleId={scheduleId}
-      courtId={courtId}
+      facilityId={facilityId}
       employees={employees}
       assignedEmployeeIds={assignedEmployeeIds}
       readonly={readonly}
       mode="edit"
+      swapCandidates={swapCandidates}
       ariaLabel={employeeName ? `עריכת שיבוץ ${employeeName}` : 'שיבוץ עובד'}
       className={cn(
         'flex min-h-8 min-w-24 items-center justify-between gap-2 rounded-md border px-2 py-1 text-right text-xs transition-colors focus-visible:outline-none focus-visible:ring-3 focus-visible:ring-ring/30',

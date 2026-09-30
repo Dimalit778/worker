@@ -47,7 +47,7 @@ type ShiftSectionProps = {
   capacity: ScheduleCapacityRule[];
   scheduleId: string;
 
-  courtId: string;
+  facilityId: string;
   readonly?: boolean;
   highlightedEmployeeId?: string | null;
 };
@@ -61,7 +61,7 @@ export function ShiftSection(props: ShiftSectionProps) {
     employees,
     capacity,
     scheduleId,
-    courtId,
+    facilityId,
     readonly,
     highlightedEmployeeId,
   } = props;
@@ -75,6 +75,8 @@ export function ShiftSection(props: ShiftSectionProps) {
   const weekIsos = sortedDays.map((d) => d.iso);
 
   const positionsOrdered = getOrderedPositionsForShift(capacity, shiftType);
+
+  const allAssignedEntries = Object.values(assignments).flat();
 
   type VisualRow = {
     pos: { positionId: string; positionName: string; positionCode: number; positionColor: string | null };
@@ -276,6 +278,19 @@ export function ShiftSection(props: ShiftSectionProps) {
 
                     const blockedOnShift = blockedEmployeeIdsForShift(assignments, day.iso, shiftType);
 
+                    const swapCandidates = assignment
+                      ? Array.from(
+                          new Map(
+                            allAssignedEntries
+                              .filter((a) => a.id !== assignment.id && a.employeeId !== assignment.employeeId)
+                              .map((a) => [
+                                a.employeeId,
+                                { assignmentId: a.id, employeeId: a.employeeId, displayName: a.employeeDisplayName },
+                              ]),
+                          ).values(),
+                        )
+                      : [];
+
                     return (
                       <AssignmentCell
                         key={day.iso}
@@ -284,7 +299,7 @@ export function ShiftSection(props: ShiftSectionProps) {
                         employees={employees}
                         assignedEmployeeIds={blockedOnShift}
                         scheduleId={scheduleId}
-                        courtId={courtId}
+                        facilityId={facilityId}
                         date={day.iso}
                         shiftType={shiftType}
                         positionId={pos.positionId}
@@ -292,6 +307,7 @@ export function ShiftSection(props: ShiftSectionProps) {
                         overflowCandidates={overflowCandidates?.[overflowKey] ?? []}
                         readonly={readonly}
                         highlightedEmployeeId={highlightedEmployeeId}
+                        swapCandidates={swapCandidates}
                       />
                     );
                   })}

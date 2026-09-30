@@ -22,6 +22,7 @@ export type AvailabilityRecordInput = {
   date: Date | string;
   shiftType: ShiftType;
   isAvailable: boolean;
+  preference?: 'AVAILABLE' | 'PREFERRED' | 'UNAVAILABLE';
 };
 
 function availabilityEntriesToRecord(entries: AvailabilityRecordInput[]): Record<string, boolean> {
@@ -35,3 +36,13 @@ function availabilityEntriesToRecord(entries: AvailabilityRecordInput[]): Record
 }
 
 export { SHIFTS, DAY_HE, datesInRange, availabilityEntriesToRecord };
+
+export function availabilityPreferencesToRecord(entries: AvailabilityRecordInput[]): Record<string, 'AVAILABLE' | 'PREFERRED' | 'UNAVAILABLE'> {
+  return Object.fromEntries(entries.map(e => {
+    const iso = e.date instanceof Date ? e.date.toISOString().slice(0,10) : String(e.date).slice(0,10);
+    return [`${iso}-${e.shiftType}`, e.preference ?? (e.isAvailable ? 'AVAILABLE' : 'UNAVAILABLE')];
+  }));
+}
+export function countAvailableEntries(entries: Record<string, boolean | 'AVAILABLE' | 'PREFERRED' | 'UNAVAILABLE'>): number {
+  return Object.values(entries).filter(v => v === true || v === 'AVAILABLE' || v === 'PREFERRED').length;
+}

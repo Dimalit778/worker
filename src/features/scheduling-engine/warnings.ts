@@ -29,7 +29,7 @@ export function createMinimumWarnings(unmetMinimums: UnmetMinimum[]): EngineWarn
 
 // ─── Capacity warnings ────────────────────────────────────────────────────────
 
-// UNFILLED/UNDERSTAFFED here means a desired ShiftCapacity target was missed.
+// UNFILLED/UNDERSTAFFED here means a desired StaffingRequirement target was missed.
 // Mandatory business requirements are evaluated separately as ERRORs.
 export function createCapacityWarnings(
   slots: EngineSlot[],
@@ -96,7 +96,7 @@ function getAssignmentPositionName(
 function countAnyAssignmentsForSlot(assignments: EngineAssignment[], slot: EngineSlot): number {
   return assignments.filter(
     (assignment) =>
-      assignment.courtId === slot.courtId &&
+      assignment.facilityId === slot.facilityId &&
       assignment.shiftType === slot.shiftType &&
       assignment.date.getTime() === slot.date.getTime()
   ).length;
@@ -110,7 +110,7 @@ function hasRoleCount(
   required: number
 ): boolean {
   const count = assignments.filter((assignment) => {
-    if (assignment.courtId !== slot.courtId) return false;
+    if (assignment.facilityId !== slot.facilityId) return false;
     if (assignment.shiftType !== slot.shiftType) return false;
     if (assignment.date.getTime() !== slot.date.getTime()) return false;
     return predicate(getAssignmentPositionName(assignment, positionNamesById));
@@ -141,7 +141,7 @@ export function createMandatoryStaffingWarnings(
   const positionNamesById = new Map<string, string | undefined>();
 
   for (const slot of slots) {
-    representativeSlots.set(`${slot.courtId}|${createDateKey(slot.date)}|${slot.shiftType}`, slot);
+    representativeSlots.set(`${slot.facilityId}|${createDateKey(slot.date)}|${slot.shiftType}`, slot);
     positionNamesById.set(slot.positionId, slot.positionName);
   }
 

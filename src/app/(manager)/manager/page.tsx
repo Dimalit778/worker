@@ -1,5 +1,5 @@
 import { dehydrate, HydrationBoundary } from '@tanstack/react-query';
-import { ManagerDashboardClient } from '@/features/dashboard/components/manager-dashboard-client';
+import { ManagerDashboard } from '@/features/dashboard/components/manager-dashboard';
 import { getManagerDashboardData } from '@/features/dashboard/queries';
 import { parseMonthParam } from '@/features/dashboard/utils';
 import { dehydrateOptions, getQueryClient } from '@/lib/react-query/get-query-client';
@@ -21,7 +21,7 @@ export default async function ManagerDashboardPage({ searchParams }: ManagerDash
 
   return (
     <HydrationBoundary state={dehydrate(queryClient, dehydrateOptions())}>
-      <ManagerDashboardClient year={selection.year} initialSelection={selection} />
+      <ManagerDashboard year={selection.year} initialSelection={selection} />
     </HydrationBoundary>
   );
 }

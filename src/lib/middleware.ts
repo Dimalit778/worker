@@ -1,13 +1,12 @@
-import { SystemRole } from '@/generated/prisma/client';
+import { PortalRole, type PortalRole as PortalRoleValue } from '@/lib/auth/portal';
 
-/** Returns the home path for a given role. */
-function homeFor(role: SystemRole): string {
+function homeFor(role: PortalRoleValue): string {
   switch (role) {
-    case SystemRole.EMPLOYEE:
+    case PortalRole.EMPLOYEE:
       return '/employee';
-    case SystemRole.MANAGER:
+    case PortalRole.MANAGER:
       return '/manager';
-    case SystemRole.ADMIN:
+    case PortalRole.ADMIN:
       return '/admin';
     default: {
       const _exhaustive: never = role;
@@ -20,7 +19,7 @@ function homeFor(role: SystemRole): string {
  * Pure function — no Next.js dependency.
  * Returns the URL to redirect to, or null if the request should proceed.
  */
-export function resolveRedirect(pathname: string, role: SystemRole | null, mustChangePassword = false): string | null {
+export function resolveRedirect(pathname: string, role: PortalRoleValue | null, mustChangePassword = false): string | null {
   if (
     role &&
     mustChangePassword &&
@@ -30,38 +29,32 @@ export function resolveRedirect(pathname: string, role: SystemRole | null, mustC
     return '/change-password';
   }
 
-  // Public routes
   if (pathname.startsWith('/login') || pathname.startsWith('/api/auth')) {
     return null;
   }
 
-  // Root redirect
   if (pathname === '/') {
     if (!role) return '/login';
     return homeFor(role);
   }
 
-  // Employee routes
   if (pathname.startsWith('/employee')) {
     if (!role) return '/login';
-    if (role !== SystemRole.EMPLOYEE) return homeFor(role);
+    if (role !== PortalRole.EMPLOYEE) return homeFor(role);
     return null;
   }
 
-  // Manager routes
   if (pathname.startsWith('/manager')) {
     if (!role) return '/login';
-    if (role !== SystemRole.MANAGER) return homeFor(role);
+    if (role !== PortalRole.MANAGER) return homeFor(role);
     return null;
   }
 
-  // Admin routes
   if (pathname.startsWith('/admin')) {
     if (!role) return '/login';
-    if (role !== SystemRole.ADMIN) return homeFor(role);
+    if (role !== PortalRole.ADMIN) return homeFor(role);
     return null;
   }
 
-  // All other paths: no redirect
   return null;
 }

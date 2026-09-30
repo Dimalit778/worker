@@ -31,17 +31,17 @@ const POSITION = "pos1";
 
 // Provides 1 MORNING and 1 EVENING slot per day (across day categories).
 const BASE_CAPACITIES: EngineCapacity[] = [
-  { positionId: POSITION, shiftType: "MORNING", dayCategory: "WEEKDAY", amount: 1 },
-  { positionId: POSITION, shiftType: "EVENING", dayCategory: "WEEKDAY", amount: 1 },
-  { positionId: POSITION, shiftType: "MORNING", dayCategory: "FRIDAY", amount: 1 },
-  { positionId: POSITION, shiftType: "EVENING", dayCategory: "FRIDAY", amount: 1 },
-  { positionId: POSITION, shiftType: "MORNING", dayCategory: "SATURDAY", amount: 1 },
+  { positionId: POSITION, shiftType: "MORNING", requiredCapability: "GUARD", dayCategory: "WEEKDAY", amount: 1 },
+  { positionId: POSITION, shiftType: "EVENING", requiredCapability: "GUARD", dayCategory: "WEEKDAY", amount: 1 },
+  { positionId: POSITION, shiftType: "MORNING", requiredCapability: "GUARD", dayCategory: "FRIDAY", amount: 1 },
+  { positionId: POSITION, shiftType: "EVENING", requiredCapability: "GUARD", dayCategory: "FRIDAY", amount: 1 },
+  { positionId: POSITION, shiftType: "MORNING", requiredCapability: "GUARD", dayCategory: "SATURDAY", amount: 1 },
 ];
 
 // ─── Fixture builders ─────────────────────────────────────────────────────────
 
 function emp(id: string): EngineEmployee {
-  return { id, courtId: COURT, positionId: POSITION, isActive: true };
+  return { id, facilityId: COURT, positionId: POSITION, capability: "GUARD", isActive: true };
 }
 
 function availAll(employeeId: string, dates: Date[]): Map<string, Set<string>> {
@@ -74,7 +74,7 @@ function makeInput(
   capacities: EngineCapacity[] = BASE_CAPACITIES
 ): EngineInput {
   return {
-    period: { id: "p1", courtId: COURT, startDate: WEEK1[0], endDate: WEEK2[6] },
+    period: { id: "p1", facilityId: COURT, startDate: WEEK1[0], endDate: WEEK2[6] },
     week1Dates: WEEK1,
     week2Dates: WEEK2,
     employees,
@@ -92,7 +92,7 @@ function manual(
 ): EngineAssignment {
   return {
     employeeId,
-    courtId: COURT,
+    facilityId: COURT,
     positionId: POSITION,
     date,
     shiftType,

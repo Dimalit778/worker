@@ -1,4 +1,5 @@
 'use client';
+import { PeriodScheduleStatus } from '@/features/schedules/period-status';
 
 import { useMutation, useQueryClient } from '@tanstack/react-query';
 import { updateScheduleStatus, deleteSchedule } from '../actions';
@@ -13,7 +14,7 @@ const ScheduleRow = ({ schedule }: { schedule: ScheduleSummary }) => {
   const next = NEXT_STATUS[schedule.status];
 
   const statusMutation = useMutation({
-    mutationFn: (status: string) => updateScheduleStatus(schedule.id, status as ScheduleSummary['status']),
+    mutationFn: (status: ScheduleSummary['status']) => updateScheduleStatus(schedule.id, status),
     onSuccess: () => invalidateScheduleQueries(queryClient, schedule.id),
   });
 

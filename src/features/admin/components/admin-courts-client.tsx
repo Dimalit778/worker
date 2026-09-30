@@ -91,7 +91,7 @@ export function AdminCourtsClient({ data }: Props) {
   }
 
   function handleCourtSaved(input: CreateAdminCourtParams | UpdateAdminCourtParams) {
-    const isEdit = 'courtId' in input;
+    const isEdit = 'facilityId' in input;
 
     return runAction(
       isEdit ? 'update-court' : 'create-court',
@@ -119,10 +119,10 @@ export function AdminCourtsClient({ data }: Props) {
     if (!deleteState) return;
 
     if (deleteState.type === 'court') {
-      const courtId = deleteState.court.id;
-      return runAction('delete-court', () => deleteAdminCourt(courtId), () => {
+      const facilityId = deleteState.court.id;
+      return runAction('delete-court', () => deleteAdminCourt(facilityId), () => {
         setDeleteState(null);
-        if (selectedCourtId === courtId) {
+        if (selectedCourtId === facilityId) {
           setSelectedCourtId('');
         }
       });
@@ -308,7 +308,7 @@ function RegionCourts({
 }: {
   region: AdminRegionItem;
   selectedCourtId: string;
-  onSelectCourt: (courtId: string) => void;
+  onSelectCourt: (facilityId: string) => void;
   onEditCourt: (court: AdminCourtItem) => void;
   onDeleteCourt: (court: AdminCourtItem) => void;
 }) {
@@ -447,7 +447,7 @@ function CourtDialog({
   onClose: () => void;
   onSubmit: (input: CreateAdminCourtParams | UpdateAdminCourtParams) => Promise<void>;
 }) {
-  const [regionId, setRegionId] = useState(court?.regionId ?? regions[0]?.id ?? '');
+  const [districtId, setRegionId] = useState(court?.districtId ?? regions[0]?.id ?? '');
   const isEdit = !!court;
 
   function handleSubmit(event: FormEvent<HTMLFormElement>) {
@@ -456,10 +456,10 @@ function CourtDialog({
     const base = {
       name: String(formData.get('name') ?? ''),
       code: String(formData.get('code') ?? ''),
-      regionId,
+      districtId,
     };
 
-    return onSubmit(isEdit ? { ...base, courtId: court.id } : base);
+    return onSubmit(isEdit ? { ...base, facilityId: court.id } : base);
   }
 
   return (
@@ -483,7 +483,7 @@ function CourtDialog({
 
           <div className="space-y-1.5">
             <Label htmlFor="court-region">מחוז</Label>
-            <Select value={regionId} onValueChange={setRegionId} disabled={regions.length === 0}>
+            <Select value={districtId} onValueChange={setRegionId} disabled={regions.length === 0}>
               <SelectTrigger id="court-region" className="w-full">
                 <SelectValue placeholder="בחר מחוז" />
               </SelectTrigger>
@@ -501,7 +501,7 @@ function CourtDialog({
             <Button type="button" variant="outline" onClick={onClose} disabled={pending}>
               ביטול
             </Button>
-            <Button type="submit" disabled={pending || !regionId}>
+            <Button type="submit" disabled={pending || !districtId}>
               {pending ? 'שומר...' : 'שמור'}
             </Button>
           </DialogFooter>
@@ -541,7 +541,7 @@ function EmployeeDialog({
       isReligious: formData.has('isReligious'),
     };
 
-    return onSubmit(isEdit ? { ...base, employeeId: employee.id } : { ...base, courtId: court.id });
+    return onSubmit(isEdit ? { ...base, employeeId: employee.id } : { ...base, facilityId: court.id });
   }
 
   return (

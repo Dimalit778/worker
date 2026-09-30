@@ -1,7 +1,6 @@
-import { SystemRole } from '@/generated/prisma/client'
+import { FacilityRole, SystemRole } from '@/generated/prisma/client'
 import { prisma } from '@/lib/db/client'
-
-// ─── הגדרת ההרשאות ───────────────────────────────────────────────────────────
+import { PortalRole, type PortalRole as PortalRoleValue } from '@/lib/auth/portal'
 
 export const PERMISSIONS = {
   OPEN_PERIOD:       'OPEN_PERIOD',
@@ -15,38 +14,37 @@ export const PERMISSIONS = {
 
 export type PermissionKey = typeof PERMISSIONS[keyof typeof PERMISSIONS]
 
-// ברירת מחדל: אילו הרשאות יש לכל role ללא הענקה ידנית
-const ROLE_DEFAULTS: Record<SystemRole, PermissionKey[]> = {
-  EMPLOYEE: [],
-  MANAGER: [
-    PERMISSIONS.OPEN_PERIOD,
-    PERMISSIONS.CLOSE_PERIOD,
-    PERMISSIONS.VIEW_SUBMISSIONS,
-    PERMISSIONS.APPROVE_SCHEDULE,
-    PERMISSIONS.EDIT_SCHEDULE,
-  ],
-  ADMIN: Object.values(PERMISSIONS),
+const MANAGER_DEFAULTS: PermissionKey[] = [
+  PERMISSIONS.OPEN_PERIOD,
+  PERMISSIONS.CLOSE_PERIOD,
+  PERMISSIONS.VIEW_SUBMISSIONS,
+  PERMISSIONS.APPROVE_SCHEDULE,
+  PERMISSIONS.EDIT_SCHEDULE,
+]
+
+const GRANT_ALLOWED: Record<PermissionKey, PortalRoleValue[]> = {
+  [PERMISSIONS.OPEN_PERIOD]:       [PortalRole.MANAGER, PortalRole.ADMIN],
+  [PERMISSIONS.CLOSE_PERIOD]:      [PortalRole.MANAGER, PortalRole.ADMIN],
+  [PERMISSIONS.VIEW_SUBMISSIONS]:  [PortalRole.MANAGER, PortalRole.ADMIN],
+  [PERMISSIONS.APPROVE_SCHEDULE]:  [PortalRole.MANAGER, PortalRole.ADMIN],
+  [PERMISSIONS.EDIT_SCHEDULE]:     [PortalRole.MANAGER, PortalRole.ADMIN],
+  [PERMISSIONS.MANAGE_USERS]:      [PortalRole.ADMIN],
+  [PERMISSIONS.GRANT_PERMISSIONS]: [PortalRole.ADMIN],
 }
 
-// מי יכול לתת איזה הרשאה
-const GRANT_ALLOWED: Record<PermissionKey, SystemRole[]> = {
-  [PERMISSIONS.OPEN_PERIOD]:       ['MANAGER', 'ADMIN'],
-  [PERMISSIONS.CLOSE_PERIOD]:      ['MANAGER', 'ADMIN'],
-  [PERMISSIONS.VIEW_SUBMISSIONS]:  ['MANAGER', 'ADMIN'],
-  [PERMISSIONS.APPROVE_SCHEDULE]:  ['MANAGER', 'ADMIN'],
-  [PERMISSIONS.EDIT_SCHEDULE]:     ['MANAGER', 'ADMIN'],
-  [PERMISSIONS.MANAGE_USERS]:      ['ADMIN'],
-  [PERMISSIONS.GRANT_PERMISSIONS]: ['ADMIN'],
+function portalsFor(user: { systemRole: SystemRole; facilityRoles: { role: FacilityRole }[] }): PortalRoleValue[] {
+  const portals: PortalRoleValue[] = []
+  if (user.systemRole === SystemRole.ADMIN) portals.push(PortalRole.ADMIN)
+  if (user.facilityRoles.some((membership) => membership.role === FacilityRole.MANAGER)) portals.push(PortalRole.MANAGER)
+  return portals
 }
 
-// ─── פונקציות ─────────────────────────────────────────────────────────────────
-
-// בדיקת הרשאה: מפורשת (UserPermission) עדיפה על ברירת מחדל (role)
 export async function hasPermission(userId: string, permission: PermissionKey): Promise<boolean> {
   const user = await prisma.user.findUnique({
     where: { id: userId },
     select: {
       systemRole: true,
+      facilityRoles: { select: { role: true } },
       receivedPermissions: {
         where: {
           permissionKey: permission,
@@ -63,10 +61,12 @@ export async function hasPermission(userId: string, permission: PermissionKey): 
     return user.receivedPermissions[0].granted
   }
 
-  return ROLE_DEFAULTS[user.systemRole].includes(permission)
+  const portals = portalsFor(user)
+  if (portals.includes(PortalRole.ADMIN)) return true
+  if (portals.includes(PortalRole.MANAGER)) return MANAGER_DEFAULTS.includes(permission)
+  return false
 }
 
-// הענקה/שלילת הרשאה עם ולידציה
 export async function grantPermission({
   granterId,
   targetUserId,
@@ -84,12 +84,13 @@ export async function grantPermission({
 }) {
   const granter = await prisma.user.findUnique({
     where: { id: granterId },
-    select: { systemRole: true },
+    select: { systemRole: true, facilityRoles: { select: { role: true } } },
   })
 
   if (!granter) throw new Error('Granter not found')
 
-  if (!GRANT_ALLOWED[permission].includes(granter.systemRole)) {
+  const portals = portalsFor(granter)
+  if (!GRANT_ALLOWED[permission].some((role) => portals.includes(role))) {
     throw new Error(`${granter.systemRole} cannot grant permission "${permission}"`)
   }
 
@@ -100,12 +101,10 @@ export async function grantPermission({
   })
 }
 
-// שלילת הרשאה
 export function revokePermission(granterId: string, targetUserId: string, permission: PermissionKey) {
   return grantPermission({ granterId, targetUserId, permission, grant: false })
 }
 
-// כל ההרשאות של משתמש (לדף ניהול)
 export function getUserPermissions(userId: string) {
   return prisma.userPermission.findMany({
     where:   { userId },

@@ -33,7 +33,7 @@ export type CourtStaffRuleRow = {
   id: string;
   shiftType: ShiftType;
   dayCategory: DayCategory;
-  position: import('@/generated/prisma/client').Position;
+  position: import('@/generated/prisma/client').ShiftRole;
   requiredCount: number;
   displayOrder: number;
 };

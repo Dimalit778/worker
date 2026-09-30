@@ -1,11 +1,11 @@
 import { describe, it, expect } from "vitest";
-import { scoreCandidate, sortCandidatesByScore } from "../scoring";
+import { sortCandidatesByScore } from "../scoring";
 import { EngineEmployee, EngineSlot, FairnessSummary } from "../types";
 
 // ─── Fixtures ─────────────────────────────────────────────────────────────────
 
 function emp(id: string): EngineEmployee {
-  return { id, courtId: "court1", positionId: "pos1", positionName: "מאבטח", isActive: true };
+  return { id, facilityId: "court1", positionId: "pos1", positionName: "מאבטח", capability: "GUARD", isActive: true };
 }
 
 function fairness(
@@ -24,68 +24,24 @@ function fairness(
 }
 
 const SLOT: EngineSlot = {
-  courtId: "court1",
+  facilityId: "court1",
   positionId: "pos1",
   positionName: "מאבטח",
   date: new Date("2024-01-01T00:00:00.000Z"),
   shiftType: "MORNING",
-  dayCategory: "WEEKDAY",
+  requiredCapability: "GUARD", dayCategory: "WEEKDAY",
   requiredAmount: 1,
 };
-
-// ─── scoreCandidate ───────────────────────────────────────────────────────────
-
-describe("scoreCandidate", () => {
-  it("employee with no shifts scores 0", () => {
-    expect(scoreCandidate(emp("e1"), SLOT, fairness("e1"))).toBe(0);
-  });
-
-  it("undefined fairness scores 0 (treated as all-zero)", () => {
-    expect(scoreCandidate(emp("e1"), SLOT, undefined)).toBe(0);
-  });
-
-  it("more EVENING shifts produces a lower score", () => {
-    const low = fairness("e1", { eveningShifts: 2 });
-    const high = fairness("e1", { eveningShifts: 0 });
-    expect(scoreCandidate(emp("e1"), SLOT, low)).toBeLessThan(
-      scoreCandidate(emp("e1"), SLOT, high)
-    );
-  });
-
-  it("more NIGHT shifts produces a lower score", () => {
-    const low = fairness("e1", { nightShifts: 3 });
-    const high = fairness("e1", { nightShifts: 0 });
-    expect(scoreCandidate(emp("e1"), SLOT, low)).toBeLessThan(
-      scoreCandidate(emp("e1"), SLOT, high)
-    );
-  });
-
-  it("more weekend shifts produces a lower score", () => {
-    const low = fairness("e1", { weekendShifts: 4 });
-    const high = fairness("e1", { weekendShifts: 1 });
-    expect(scoreCandidate(emp("e1"), SLOT, low)).toBeLessThan(
-      scoreCandidate(emp("e1"), SLOT, high)
-    );
-  });
-
-  it("more total shifts produces a lower score as tie-breaker", () => {
-    const low = fairness("e1", { totalShifts: 10 });
-    const high = fairness("e1", { totalShifts: 2 });
-    expect(scoreCandidate(emp("e1"), SLOT, low)).toBeLessThan(
-      scoreCandidate(emp("e1"), SLOT, high)
-    );
-  });
-});
 
 // ─── sortCandidatesByScore ────────────────────────────────────────────────────
 
 describe("sortCandidatesByScore", () => {
-  it("places employee with fewer EVENING shifts first", () => {
+  it("places employee with fewer total shifts first", () => {
     const empA = emp("emp-a");
     const empB = emp("emp-b");
     const fm = new Map([
-      ["emp-a", fairness("emp-a", { eveningShifts: 5 })],
-      ["emp-b", fairness("emp-b", { eveningShifts: 1 })],
+      ["emp-a", fairness("emp-a", { eveningShifts: 5, totalShifts: 5 })],
+      ["emp-b", fairness("emp-b", { eveningShifts: 1, totalShifts: 1 })],
     ]);
     const [first] = sortCandidatesByScore([empA, empB], SLOT, fm);
     expect(first.id).toBe("emp-b");
@@ -98,7 +54,7 @@ describe("sortCandidatesByScore", () => {
       ["emp-a", fairness("emp-a", { nightShifts: 0 })],
       ["emp-b", fairness("emp-b", { nightShifts: 4 })],
     ]);
-    const [first] = sortCandidatesByScore([empA, empB], SLOT, fm);
+    const [first] = sortCandidatesByScore([empA, empB], { ...SLOT, shiftType: "NIGHT" }, fm);
     expect(first.id).toBe("emp-a");
   });
 

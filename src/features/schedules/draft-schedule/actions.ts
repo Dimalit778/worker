@@ -1,133 +1,41 @@
 'use server';
-import { prisma } from '@/lib/db/client';
-import {
-  ScheduleChangeType,
-  ScheduleStatus,
-  ScheduleVersionStatus,
-  SystemRole,
-  WarningSeverity,
-} from '@/generated/prisma/client';
-import { requireSession } from '@/lib/db/auth-helpers';
+import { requireManager } from '@/lib/db/auth-helpers';
+import { scheduleTransaction, checkedVersion, type VersionExpectation } from '../services/transactions';
+import { loadSchedulingInput } from '../generation/queries';
+import { saveScheduleAnalysis } from '../generation/recalculate';
+import { validateAssignments } from '@/features/scheduling-engine/validate';
 
-type PublishScheduleResult =
-  | { ok: true }
-  | { requiresConfirmation: true; issueCount: number; message: string }
-  | { error: string };
-
-async function getOpenErrorWarningsMessage(scheduleId: string, courtId: string): Promise<string | null> {
-  const errorCount = await prisma.scheduleWarning.count({
-    where: {
-      scheduleId,
-      schedule: { courtId },
-      severity: WarningSeverity.ERROR,
-    },
-  });
-
-  if (errorCount === 0) return null;
-  return `לא ניתן לסיים עריכת שיבוץ עם ${errorCount} שגיאות פתוחות`;
-}
-
-async function getOpenScheduleIssuesCount(scheduleId: string, courtId: string): Promise<number> {
-  return prisma.scheduleWarning.count({
-    where: {
-      scheduleId,
-      schedule: { courtId },
-    },
-  });
-}
-
-// = לסיים עריכת שיבוץ (בדיקת שגיאות בלבד — אין עוד סטטוס ביניים אחרי DRAFT)
-export async function finalizeSchedule(scheduleId: string): Promise<{ ok: true } | { error: string }> {
-  const session = await requireSession(SystemRole.MANAGER);
-  const courtId = session.user.courtId;
-  if (!courtId) return { error: 'למנהל אין בית משפט משויך' };
-
+export async function finalizeSchedule(scheduleId: string, expected: VersionExpectation) {
+  const actor = await requireManager();
   try {
-    const schedule = await prisma.workSchedule.findFirst({
-      where: { id: scheduleId, courtId },
-      select: { id: true },
+    return await scheduleTransaction(actor, async tx => {
+      const { version } = await checkedVersion(tx, actor, scheduleId, expected);
+      if (!version || version.status !== 'DRAFT') throw new Error('לא נמצאה טיוטה');
+      const data = await loadSchedulingInput(tx, scheduleId, actor.facilityId, version.id);
+      const failures = validateAssignments(data.input, data.allAssignments);
+      if (failures.length) throw new Error(failures.join('; '));
+      return { ok: true as const };
     });
-    if (!schedule) return { error: 'השיבוץ לא נמצא' };
-
-    const errorMessage = await getOpenErrorWarningsMessage(scheduleId, courtId);
-    if (errorMessage) return { error: errorMessage };
-
-    return { ok: true };
-  } catch {
-    return { error: 'שגיאה בסיום עריכת השיבוץ' };
-  }
+  } catch (e) { return { error: e instanceof Error ? e.message : 'בדיקת השיבוץ נכשלה' }; }
 }
-// = לפרסם שיבוץ
-export async function publishSchedule(
-  scheduleId: string,
-  options: { confirmIssues?: boolean } = {},
-): Promise<PublishScheduleResult> {
-  const session = await requireSession(SystemRole.MANAGER);
-  const courtId = session.user.courtId;
-  if (!courtId) return { error: 'למנהל אין בית משפט משויך' };
 
+export async function publishSchedule(scheduleId: string, options: VersionExpectation & { confirmIssues?: boolean; reason: string }) {
+  const actor = await requireManager();
   try {
-    const draftVersion = await prisma.workScheduleVersion.findFirst({
-      where: { scheduleId, courtId, status: ScheduleVersionStatus.DRAFT },
-      orderBy: { version: 'desc' },
-      select: { id: true },
+    if (!options.reason?.trim()) throw new Error('יש להזין סיבת פרסום או שינוי');
+    return await scheduleTransaction(actor, async tx => {
+      const { version } = await checkedVersion(tx, actor, scheduleId, options);
+      if (!version || version.status !== 'DRAFT') throw new Error('לא נמצאה טיוטה לפרסום');
+      const data = await loadSchedulingInput(tx, scheduleId, actor.facilityId, version.id);
+      const failures = validateAssignments(data.input, data.allAssignments);
+      if (failures.length) throw new Error(failures.join('; '));
+      const analysis = await saveScheduleAnalysis(tx, version.id, data.input, data.allAssignments);
+      if (analysis.warnings.length && !options.confirmIssues) return { requiresConfirmation: true as const, issueCount: analysis.warnings.length, message: `קיימות ${analysis.warnings.length} אזהרות, לרבות חוסרים אפשריים. לפרסם בכל זאת?` };
+      await tx.rosterVersion.updateMany({ where: { scheduleId, isActive: true }, data: { isActive: false } });
+      await tx.rosterVersion.update({ where: { id: version.id }, data: { status: 'PUBLISHED', isActive: true, publishedAt: new Date(), revision: { increment: 1 }, note: options.reason.trim() } });
+      await tx.schedulePeriod.update({ where: { id: data.schedule.periodId }, data: { submissionState: 'CLOSED' } });
+      await tx.scheduleChangeLog.create({ data: { scheduleId, versionId: version.id, changedById: actor.userId, changeType: 'PUBLISH', reason: options.reason.trim(), message: options.confirmIssues ? 'פורסם עם אישור אזהרות' : 'פורסם', afterData: { revision: version.revision, confirmedWarnings: options.confirmIssues ? analysis.warnings.map(w => w.message) : [] } } });
+      return { ok: true as const };
     });
-    if (!draftVersion) return { error: 'לא נמצאה גרסת טיוטה לפרסום' };
-
-    const issueCount = await getOpenScheduleIssuesCount(scheduleId, courtId);
-    if (issueCount > 0 && !options.confirmIssues) {
-      return {
-        requiresConfirmation: true,
-        issueCount,
-        message: `בשיבוץ קיימות ${issueCount} בעיות או אזהרות פתוחות. האם לפרסם בכל זאת?`,
-      };
-    }
-
-    const assignments = await prisma.shiftAssignment.findMany({
-      where: { versionId: draftVersion.id, courtId },
-      select: {
-        employeeId: true,
-        positionId: true,
-        courtId: true,
-        date: true,
-        shiftType: true,
-      },
-    });
-
-    await prisma.$transaction([
-      prisma.workScheduleVersion.updateMany({
-        where: {
-          scheduleId,
-          courtId,
-          status: ScheduleVersionStatus.PUBLISHED,
-          id: { not: draftVersion.id },
-        },
-        data: {
-          status: ScheduleVersionStatus.ARCHIVED,
-          isActive: false,
-        },
-      }),
-      prisma.workScheduleVersion.update({
-        where: { id: draftVersion.id },
-        data: { status: ScheduleVersionStatus.PUBLISHED, isActive: true, publishedAt: new Date() },
-      }),
-      prisma.workSchedule.update({
-        where: { id: scheduleId, courtId },
-        data: { status: ScheduleStatus.PUBLISHED, publishedAt: new Date() },
-      }),
-      prisma.scheduleChangeLog.create({
-        data: {
-          scheduleId,
-          versionId: draftVersion.id,
-          changedById: session.user.id,
-          changeType: ScheduleChangeType.PUBLISH,
-          beforeData: assignments,
-        },
-      }),
-    ]);
-
-    return { ok: true };
-  } catch {
-    return { error: 'שגיאה בפרסום השיבוץ' };
-  }
+  } catch (e) { return { error: e instanceof Error ? e.message : 'פרסום נכשל' }; }
 }

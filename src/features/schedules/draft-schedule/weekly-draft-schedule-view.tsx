@@ -22,7 +22,7 @@ export function WeeklyDraftScheduleView({
   assignments,
   employees,
   capacity,
-  courtId,
+  facilityId,
   overflowCandidates,
   readonly,
   highlightedEmployeeId: initialHighlightedEmployeeId = null,
@@ -88,7 +88,7 @@ export function WeeklyDraftScheduleView({
           employees={employees}
           capacity={capacity}
           scheduleId={scheduleId}
-          courtId={courtId}
+          facilityId={facilityId}
           readonly={readonly}
           highlightedEmployeeId={highlightedEmployeeId}
         />

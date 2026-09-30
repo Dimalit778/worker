@@ -1,3 +1,4 @@
+import type { Capability } from '@/generated/prisma/client';
 export type AdminPositionOption = {
   id: string;
   name: string;
@@ -6,6 +7,7 @@ export type AdminPositionOption = {
 };
 
 export type AdminEmployeeItem = {
+  capability?: Capability;
   id: string;
   firstName: string;
   lastName: string;
@@ -26,7 +28,7 @@ export type AdminCourtItem = {
   id: string;
   name: string;
   code: string;
-  regionId: string;
+  districtId: string;
   employeeCount: number;
   positions: AdminPositionOption[];
   employees: AdminEmployeeItem[];
@@ -48,15 +50,16 @@ export type AdminActionResult = { ok: true } | { error: string };
 export type CreateAdminCourtParams = {
   name: string;
   code: string;
-  regionId: string;
+  districtId: string;
 };
 
 export type UpdateAdminCourtParams = CreateAdminCourtParams & {
-  courtId: string;
+  facilityId: string;
 };
 
 export type CreateAdminEmployeeParams = {
-  courtId: string;
+  capability?: Capability;
+  facilityId: string;
   firstName: string;
   lastName: string;
   displayName: string;
@@ -67,6 +70,6 @@ export type CreateAdminEmployeeParams = {
   isReligious: boolean;
 };
 
-export type UpdateAdminEmployeeParams = Omit<CreateAdminEmployeeParams, 'courtId'> & {
+export type UpdateAdminEmployeeParams = Omit<CreateAdminEmployeeParams, 'facilityId'> & {
   employeeId: string;
 };

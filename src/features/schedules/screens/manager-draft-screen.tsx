@@ -1,5 +1,8 @@
 'use client';
 
+import { useSearchParams } from 'next/navigation';
+import { CorrectionButton } from '../shared/correction-button';
+import { VersionProvider } from '../shared/version-context';
 import { Card, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { CreatePeriodForm } from '@/features/periods/components/create-period-form';
 import { WeeklyDraftScheduleView } from '@/features/schedules/draft-schedule/weekly-draft-schedule-view';
@@ -8,7 +11,8 @@ import { ScheduleStats } from '@/features/schedules/draft-schedule/schedule-stat
 import { useDraftSchedule } from '@/features/schedules/hooks';
 
 export function ManagerDraftScreen() {
-  const { data, isLoading, isError } = useDraftSchedule();
+  const search = useSearchParams();
+  const { data, isLoading, isError } = useDraftSchedule(search.get('scheduleId') ?? undefined);
 
   if (isLoading) {
     return (
@@ -52,6 +56,7 @@ export function ManagerDraftScreen() {
   const missingEmployees = submission?.missingEmployees ?? [];
 
   return (
+    <VersionProvider value={{ versionId: data.versionId ?? null, revision: data.revision ?? 0 }}>
     <div className="space-y-6" dir="rtl">
       <TopBar data={data} showCreateButton={canCreateNewSchedule} />
       <ScheduleStats
@@ -69,10 +74,18 @@ export function ManagerDraftScreen() {
           <span className="select-none text-base leading-none" aria-hidden>
             ✓
           </span>
-          <p className="leading-snug">השיבוץ פורסם ומוצג לכלל העובדים. לעריכה נוספת יש לפנות להגדרות.</p>
+          <p className="leading-snug">השיבוץ פורסם ומוצג לעובדים. תיקונים יופיעו רק לאחר פרסום הטיוטה.</p>
         </div>
       )}
 
+      {isReadonly && <CorrectionButton data={data} />}
+      {!!data.fairness?.length && <details className="rounded border p-3">
+        <summary className="cursor-pointer font-medium">הוגנות — 8 השבועות הקודמים והטיוטה</summary>
+        <div className="overflow-x-auto"><table className="w-full text-sm text-right mt-3">
+          <thead><tr><th>עובד</th><th>משמרות בטיוטה</th><th>סך משמרות</th><th>לילות</th><th>סופי שבוע</th></tr></thead>
+          <tbody>{data.fairness.map(row => <tr key={row.employeeId} className="border-t"><td>{row.employeeName}</td><td>{row.draftShifts}</td><td>{row.totalShifts}</td><td>{row.nightShifts}</td><td>{row.weekendShifts}</td></tr>)}</tbody>
+        </table></div>
+      </details>}
       <WeeklyDraftScheduleView
         scheduleId={data.scheduleId}
         scheduleName={data.scheduleName}
@@ -81,10 +94,11 @@ export function ManagerDraftScreen() {
         assignments={data.assignments}
         employees={data.employees}
         capacity={data.capacity}
-        courtId={data.courtId}
+        facilityId={data.facilityId}
         overflowCandidates={data.overflowCandidates}
-        readonly={isReadonly}
+        readonly={isReadonly || !data.versionId}
       />
     </div>
+    </VersionProvider>
   );
 }

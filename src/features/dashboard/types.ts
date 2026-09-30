@@ -1,4 +1,5 @@
-import type { ScheduleChangeType, ScheduleStatus } from '@/generated/prisma/client';
+import { PeriodScheduleStatus } from '@/features/schedules/period-status';
+import type { ScheduleChangeType } from '@/generated/prisma/client';
 import type { PeriodSummary } from '@/features/periods/types';
 import type { ScheduleWarningSummary } from '@/features/schedules/types';
 import type { StaffPositionCount } from './queries';
@@ -14,7 +15,7 @@ export type ScheduleSnapshot = {
   name: string;
   startDate: string;
   endDate: string;
-  status: ScheduleStatus;
+  status: PeriodScheduleStatus;
   submissionDeadline?: string;
   submittedCount?: number;
   totalEmployees?: number;

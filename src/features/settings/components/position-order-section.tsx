@@ -1,8 +1,9 @@
 'use client';
 
 import { useEffect, useRef, useState } from 'react';
+import { createPortal } from 'react-dom';
 import { useMutation, useQueryClient } from '@tanstack/react-query';
-import { createPosition, movePositionDown, movePositionUp, updatePositionColor } from '../actions';
+import { updatePositionCapability, createPosition, movePositionDown, movePositionUp, updatePositionColor } from '../actions';
 import { invalidateSettingsQueries } from '../hooks';
 import { Input } from '@/components/ui/input';
 import { Button } from '@/components/ui/button';
@@ -19,54 +20,90 @@ function ColorPicker({
   onChange: (color: string) => void;
 }) {
   const [open, setOpen] = useState(false);
-  const ref = useRef<HTMLDivElement>(null);
+  const [coords, setCoords] = useState<{ top: number; left: number } | null>(null);
+  const buttonRef = useRef<HTMLButtonElement>(null);
+  const panelRef = useRef<HTMLDivElement>(null);
 
-  // סגירה בלחיצה מחוץ
   useEffect(() => {
-    function handleClick(e: MouseEvent) {
-      if (ref.current && !ref.current.contains(e.target as Node)) setOpen(false);
+    if (!open) return;
+
+    function updatePosition() {
+      const button = buttonRef.current;
+      if (!button) return;
+      const rect = button.getBoundingClientRect();
+      const width = 148;
+      const left = Math.min(Math.max(8, rect.left + rect.width / 2 - width / 2), window.innerWidth - width - 8);
+      setCoords({ top: rect.bottom + 6, left });
     }
+
+    function handleClick(e: MouseEvent) {
+      const target = e.target as Node;
+      if (buttonRef.current?.contains(target) || panelRef.current?.contains(target)) return;
+      setOpen(false);
+    }
+
+    updatePosition();
     document.addEventListener('mousedown', handleClick);
-    return () => document.removeEventListener('mousedown', handleClick);
-  }, []);
+    window.addEventListener('resize', updatePosition);
+    window.addEventListener('scroll', updatePosition, true);
+    return () => {
+      document.removeEventListener('mousedown', handleClick);
+      window.removeEventListener('resize', updatePosition);
+      window.removeEventListener('scroll', updatePosition, true);
+    };
+  }, [open]);
 
   return (
-    <div ref={ref} className="relative inline-block">
+    <>
       <button
+        ref={buttonRef}
         type="button"
         disabled={disabled}
         onClick={() => setOpen((v) => !v)}
-        className="h-7 w-7 rounded border-2 border-border shadow-sm transition-transform hover:scale-110"
+        className="inline-block h-7 w-7 rounded border-2 border-border shadow-sm outline-none transition-transform hover:scale-110"
         style={{ backgroundColor: color ?? '#e5e7eb' }}
         title="בחר צבע"
       />
-      {open && (
-        <div className="absolute z-50 mt-1 flex flex-wrap gap-1.5 rounded-lg border border-border bg-white p-2 shadow-lg" style={{ width: 120 }}>
-          {POSITION_COLORS.map((c) => (
-            <button
-              key={c}
-              type="button"
-              onClick={() => { onChange(c); setOpen(false); }}
-              className={cn(
-                'h-6 w-6 rounded border-2 transition-transform hover:scale-110',
-                color === c ? 'border-gray-800' : 'border-transparent',
-              )}
-              style={{ backgroundColor: c }}
-            />
-          ))}
-          {color && (
-            <button
-              type="button"
-              onClick={() => { onChange(''); setOpen(false); }}
-              className="h-6 w-6 rounded border-2 border-dashed border-gray-300 text-[10px] text-gray-400 hover:border-gray-500"
-              title="הסר צבע"
+      {open && coords
+        ? createPortal(
+            <div
+              ref={panelRef}
+              className="fixed z-50 flex flex-wrap gap-1.5 overflow-visible rounded-lg border border-border bg-white p-2 shadow-lg"
+              style={{ top: coords.top, left: coords.left, width: 148 }}
             >
-              ✕
-            </button>
-          )}
-        </div>
-      )}
-    </div>
+              {POSITION_COLORS.map((c) => (
+                <button
+                  key={c}
+                  type="button"
+                  onClick={() => {
+                    onChange(c);
+                    setOpen(false);
+                  }}
+                  className={cn(
+                    'h-6 w-6 rounded border-2 transition-transform hover:scale-110',
+                    color === c ? 'border-gray-800' : 'border-transparent',
+                  )}
+                  style={{ backgroundColor: c }}
+                />
+              ))}
+              {color ? (
+                <button
+                  type="button"
+                  onClick={() => {
+                    onChange('');
+                    setOpen(false);
+                  }}
+                  className="h-6 w-6 rounded border-2 border-dashed border-gray-300 text-[10px] text-gray-400 hover:border-gray-500"
+                  title="הסר צבע"
+                >
+                  ✕
+                </button>
+              ) : null}
+            </div>,
+            document.body,
+          )
+        : null}
+    </>
   );
 }
 
@@ -88,19 +125,20 @@ type PositionRow = {
   name: string;
   code: number;
   color: string | null;
+  requiredCapability?: 'GUARD' | 'CONTROLLER' | 'SHIFT_MANAGER';
 };
 
 type Props = {
-  courtId: string;
+  facilityId: string;
   positions: PositionRow[];
   className?: string;
 };
 
-export function PositionOrderSection({ courtId, positions, className }: Props) {
+export function PositionOrderSection({ facilityId, positions, className }: Props) {
   const queryClient = useQueryClient();
   const [errorMsg, setErrorMsg] = useState('');
 
-  const invalidate = () => invalidateSettingsQueries(queryClient, courtId);
+  const invalidate = () => invalidateSettingsQueries(queryClient, facilityId);
 
   const createMutation = useMutation({
     mutationFn: createPosition,
@@ -112,6 +150,11 @@ export function PositionOrderSection({ courtId, positions, className }: Props) {
     onSuccess: invalidate,
   });
 
+  const capabilityMutation = useMutation({
+    mutationFn: ({ id, value }: { id: string; value: 'GUARD' | 'CONTROLLER' | 'SHIFT_MANAGER' }) => updatePositionCapability(id, value),
+    onSuccess: res => { if ('error' in res) setErrorMsg(res.error ?? 'שמירה נכשלה'); else invalidate(); },
+    onError: () => setErrorMsg('שמירת הכשירות נכשלה'),
+  });
   const moveMutation = useMutation({
     mutationFn: ({ positionId, direction }: { positionId: string; direction: 'up' | 'down' }) =>
       direction === 'up' ? movePositionUp(positionId) : movePositionDown(positionId),
@@ -126,8 +169,7 @@ export function PositionOrderSection({ courtId, positions, className }: Props) {
     },
   });
 
-  const isPending =
-    createMutation.isPending || colorMutation.isPending || moveMutation.isPending;
+  const isPending = capabilityMutation.isPending || createMutation.isPending || colorMutation.isPending || moveMutation.isPending;
 
   function handleCreate(e: React.FormEvent<HTMLFormElement>) {
     e.preventDefault();
@@ -164,7 +206,7 @@ export function PositionOrderSection({ courtId, positions, className }: Props) {
           <thead>
             <tr className="border-b border-border bg-muted/60 text-right text-xs uppercase tracking-wide text-muted-foreground">
               <th className="px-3 py-2.5 font-medium">שם התפקיד</th>
-              <th className="w-16 px-2 py-2.5 text-center font-medium">#</th>
+              <th className="px-2 py-2.5 font-medium">כשירות נדרשת</th><th className="w-16 px-2 py-2.5 text-center font-medium">#</th>
               <th className="w-16 px-2 py-2.5 text-center font-medium">צבע</th>
               <th className="w-22 px-2 py-2.5 text-center font-medium">סידור</th>
             </tr>
@@ -180,13 +222,12 @@ export function PositionOrderSection({ courtId, positions, className }: Props) {
               positions.map((p, i) => (
                 <tr key={p.id} className="border-b border-border/80 transition-colors last:border-0 hover:bg-muted/30">
                   <td className="px-3 py-2.5 font-medium">{p.name}</td>
+                  <td><select aria-label={`כשירות נדרשת עבור ${p.name}`} value={p.requiredCapability ?? 'GUARD'} disabled={isPending} onChange={e => capabilityMutation.mutate({ id: p.id, value: e.target.value as 'GUARD' | 'CONTROLLER' | 'SHIFT_MANAGER' })}>
+                    <option value="GUARD">מאבטח</option><option value="CONTROLLER">בקר</option><option value="SHIFT_MANAGER">אחמ״ש</option>
+                  </select></td>
                   <td className="px-2 py-2.5 text-center text-xs tabular-nums text-muted-foreground">{p.code}</td>
                   <td className="px-2 py-2.5 text-center">
-                    <ColorPicker
-                      color={p.color}
-                      disabled={isPending}
-                      onChange={(c) => handleColorChange(p.id, c)}
-                    />
+                    <ColorPicker color={p.color} disabled={isPending} onChange={(c) => handleColorChange(p.id, c)} />
                   </td>
                   <td className="px-2 py-2">
                     <div className="flex items-center justify-center gap-1.5">

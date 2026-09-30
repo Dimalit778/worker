@@ -1,3 +1,4 @@
+import { PeriodScheduleStatus } from '@/features/schedules/period-status';
 import { CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { CreatePeriodForm } from '@/features/periods/components/create-period-form';
 import { DraftActions } from './components/draft-actions';
@@ -5,9 +6,8 @@ import { Card } from '@/components/ui/card';
 import type { CurrentScheduleData } from '../types';
 import { STATUS_COLORS, STATUS_LABELS } from '../constants';
 import { cn } from '@/lib/utils';
-import { ScheduleStatus } from '@/generated/prisma/client';
 
-function ScheduleStatusBadge({ status }: { status: ScheduleStatus | null }) {
+function ScheduleStatusBadge({ status }: { status: PeriodScheduleStatus | null }) {
   if (!status) {
     return (
       <span className="inline-flex rounded-md border border-dashed border-border bg-muted/40 px-2 py-0.5 text-xs text-muted-foreground">

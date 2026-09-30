@@ -14,7 +14,7 @@ import type * as Prisma from "../internal/prismaNamespace"
 
 /**
  * Model SchedulePeriod
- * 
+ * תאריכי העבודה וחלון ההגשות במתקן. משותף להגשות העובדים ולסידור העבודה.
  */
 export type SchedulePeriodModel = runtime.Types.Result.DefaultSelection<Prisma.$SchedulePeriodPayload>
 
@@ -25,10 +25,14 @@ export type AggregateSchedulePeriod = {
 }
 
 export type SchedulePeriodMinAggregateOutputType = {
+  submissionState: $Enums.SubmissionState | null
   id: string | null
-  courtId: string | null
+  facilityId: string | null
   name: string | null
+  submissionOpensAt: Date | null
   submissionDeadline: Date | null
+  submissionNotifiedAt: Date | null
+  submissionWindowManaged: boolean | null
   startDate: Date | null
   endDate: Date | null
   createdAt: Date | null
@@ -36,10 +40,14 @@ export type SchedulePeriodMinAggregateOutputType = {
 }
 
 export type SchedulePeriodMaxAggregateOutputType = {
+  submissionState: $Enums.SubmissionState | null
   id: string | null
-  courtId: string | null
+  facilityId: string | null
   name: string | null
+  submissionOpensAt: Date | null
   submissionDeadline: Date | null
+  submissionNotifiedAt: Date | null
+  submissionWindowManaged: boolean | null
   startDate: Date | null
   endDate: Date | null
   createdAt: Date | null
@@ -47,10 +55,14 @@ export type SchedulePeriodMaxAggregateOutputType = {
 }
 
 export type SchedulePeriodCountAggregateOutputType = {
+  submissionState: number
   id: number
-  courtId: number
+  facilityId: number
   name: number
+  submissionOpensAt: number
   submissionDeadline: number
+  submissionNotifiedAt: number
+  submissionWindowManaged: number
   startDate: number
   endDate: number
   createdAt: number
@@ -60,10 +72,14 @@ export type SchedulePeriodCountAggregateOutputType = {
 
 
 export type SchedulePeriodMinAggregateInputType = {
+  submissionState?: true
   id?: true
-  courtId?: true
+  facilityId?: true
   name?: true
+  submissionOpensAt?: true
   submissionDeadline?: true
+  submissionNotifiedAt?: true
+  submissionWindowManaged?: true
   startDate?: true
   endDate?: true
   createdAt?: true
@@ -71,10 +87,14 @@ export type SchedulePeriodMinAggregateInputType = {
 }
 
 export type SchedulePeriodMaxAggregateInputType = {
+  submissionState?: true
   id?: true
-  courtId?: true
+  facilityId?: true
   name?: true
+  submissionOpensAt?: true
   submissionDeadline?: true
+  submissionNotifiedAt?: true
+  submissionWindowManaged?: true
   startDate?: true
   endDate?: true
   createdAt?: true
@@ -82,10 +102,14 @@ export type SchedulePeriodMaxAggregateInputType = {
 }
 
 export type SchedulePeriodCountAggregateInputType = {
+  submissionState?: true
   id?: true
-  courtId?: true
+  facilityId?: true
   name?: true
+  submissionOpensAt?: true
   submissionDeadline?: true
+  submissionNotifiedAt?: true
+  submissionWindowManaged?: true
   startDate?: true
   endDate?: true
   createdAt?: true
@@ -166,10 +190,14 @@ export type SchedulePeriodGroupByArgs<ExtArgs extends runtime.Types.Extensions.I
 }
 
 export type SchedulePeriodGroupByOutputType = {
+  submissionState: $Enums.SubmissionState
   id: string
-  courtId: string
+  facilityId: string
   name: string
+  submissionOpensAt: Date
   submissionDeadline: Date
+  submissionNotifiedAt: Date | null
+  submissionWindowManaged: boolean
   startDate: Date
   endDate: Date
   createdAt: Date
@@ -198,56 +226,72 @@ export type SchedulePeriodWhereInput = {
   AND?: Prisma.SchedulePeriodWhereInput | Prisma.SchedulePeriodWhereInput[]
   OR?: Prisma.SchedulePeriodWhereInput[]
   NOT?: Prisma.SchedulePeriodWhereInput | Prisma.SchedulePeriodWhereInput[]
+  submissionState?: Prisma.EnumSubmissionStateFilter<"SchedulePeriod"> | $Enums.SubmissionState
   id?: Prisma.StringFilter<"SchedulePeriod"> | string
-  courtId?: Prisma.StringFilter<"SchedulePeriod"> | string
+  facilityId?: Prisma.StringFilter<"SchedulePeriod"> | string
   name?: Prisma.StringFilter<"SchedulePeriod"> | string
+  submissionOpensAt?: Prisma.DateTimeFilter<"SchedulePeriod"> | Date | string
   submissionDeadline?: Prisma.DateTimeFilter<"SchedulePeriod"> | Date | string
+  submissionNotifiedAt?: Prisma.DateTimeNullableFilter<"SchedulePeriod"> | Date | string | null
+  submissionWindowManaged?: Prisma.BoolFilter<"SchedulePeriod"> | boolean
   startDate?: Prisma.DateTimeFilter<"SchedulePeriod"> | Date | string
   endDate?: Prisma.DateTimeFilter<"SchedulePeriod"> | Date | string
   createdAt?: Prisma.DateTimeFilter<"SchedulePeriod"> | Date | string
   updatedAt?: Prisma.DateTimeFilter<"SchedulePeriod"> | Date | string
-  court?: Prisma.XOR<Prisma.CourtScalarRelationFilter, Prisma.CourtWhereInput>
-  schedule?: Prisma.XOR<Prisma.WorkScheduleNullableScalarRelationFilter, Prisma.WorkScheduleWhereInput> | null
-  availabilityForms?: Prisma.AvailabilityFormListRelationFilter
+  facility?: Prisma.XOR<Prisma.FacilityScalarRelationFilter, Prisma.FacilityWhereInput>
+  schedule?: Prisma.XOR<Prisma.RosterNullableScalarRelationFilter, Prisma.RosterWhereInput> | null
+  availabilitySubmissions?: Prisma.AvailabilitySubmissionListRelationFilter
 }
 
 export type SchedulePeriodOrderByWithRelationInput = {
+  submissionState?: Prisma.SortOrder
   id?: Prisma.SortOrder
-  courtId?: Prisma.SortOrder
+  facilityId?: Prisma.SortOrder
   name?: Prisma.SortOrder
+  submissionOpensAt?: Prisma.SortOrder
   submissionDeadline?: Prisma.SortOrder
+  submissionNotifiedAt?: Prisma.SortOrderInput | Prisma.SortOrder
+  submissionWindowManaged?: Prisma.SortOrder
   startDate?: Prisma.SortOrder
   endDate?: Prisma.SortOrder
   createdAt?: Prisma.SortOrder
   updatedAt?: Prisma.SortOrder
-  court?: Prisma.CourtOrderByWithRelationInput
-  schedule?: Prisma.WorkScheduleOrderByWithRelationInput
-  availabilityForms?: Prisma.AvailabilityFormOrderByRelationAggregateInput
+  facility?: Prisma.FacilityOrderByWithRelationInput
+  schedule?: Prisma.RosterOrderByWithRelationInput
+  availabilitySubmissions?: Prisma.AvailabilitySubmissionOrderByRelationAggregateInput
 }
 
 export type SchedulePeriodWhereUniqueInput = Prisma.AtLeast<{
   id?: string
-  id_courtId?: Prisma.SchedulePeriodIdCourtIdCompoundUniqueInput
+  id_facilityId?: Prisma.SchedulePeriodIdFacilityIdCompoundUniqueInput
   AND?: Prisma.SchedulePeriodWhereInput | Prisma.SchedulePeriodWhereInput[]
   OR?: Prisma.SchedulePeriodWhereInput[]
   NOT?: Prisma.SchedulePeriodWhereInput | Prisma.SchedulePeriodWhereInput[]
-  courtId?: Prisma.StringFilter<"SchedulePeriod"> | string
+  submissionState?: Prisma.EnumSubmissionStateFilter<"SchedulePeriod"> | $Enums.SubmissionState
+  facilityId?: Prisma.StringFilter<"SchedulePeriod"> | string
   name?: Prisma.StringFilter<"SchedulePeriod"> | string
+  submissionOpensAt?: Prisma.DateTimeFilter<"SchedulePeriod"> | Date | string
   submissionDeadline?: Prisma.DateTimeFilter<"SchedulePeriod"> | Date | string
+  submissionNotifiedAt?: Prisma.DateTimeNullableFilter<"SchedulePeriod"> | Date | string | null
+  submissionWindowManaged?: Prisma.BoolFilter<"SchedulePeriod"> | boolean
   startDate?: Prisma.DateTimeFilter<"SchedulePeriod"> | Date | string
   endDate?: Prisma.DateTimeFilter<"SchedulePeriod"> | Date | string
   createdAt?: Prisma.DateTimeFilter<"SchedulePeriod"> | Date | string
   updatedAt?: Prisma.DateTimeFilter<"SchedulePeriod"> | Date | string
-  court?: Prisma.XOR<Prisma.CourtScalarRelationFilter, Prisma.CourtWhereInput>
-  schedule?: Prisma.XOR<Prisma.WorkScheduleNullableScalarRelationFilter, Prisma.WorkScheduleWhereInput> | null
-  availabilityForms?: Prisma.AvailabilityFormListRelationFilter
-}, "id" | "id_courtId">
+  facility?: Prisma.XOR<Prisma.FacilityScalarRelationFilter, Prisma.FacilityWhereInput>
+  schedule?: Prisma.XOR<Prisma.RosterNullableScalarRelationFilter, Prisma.RosterWhereInput> | null
+  availabilitySubmissions?: Prisma.AvailabilitySubmissionListRelationFilter
+}, "id" | "id_facilityId">
 
 export type SchedulePeriodOrderByWithAggregationInput = {
+  submissionState?: Prisma.SortOrder
   id?: Prisma.SortOrder
-  courtId?: Prisma.SortOrder
+  facilityId?: Prisma.SortOrder
   name?: Prisma.SortOrder
+  submissionOpensAt?: Prisma.SortOrder
   submissionDeadline?: Prisma.SortOrder
+  submissionNotifiedAt?: Prisma.SortOrderInput | Prisma.SortOrder
+  submissionWindowManaged?: Prisma.SortOrder
   startDate?: Prisma.SortOrder
   endDate?: Prisma.SortOrder
   createdAt?: Prisma.SortOrder
@@ -261,10 +305,14 @@ export type SchedulePeriodScalarWhereWithAggregatesInput = {
   AND?: Prisma.SchedulePeriodScalarWhereWithAggregatesInput | Prisma.SchedulePeriodScalarWhereWithAggregatesInput[]
   OR?: Prisma.SchedulePeriodScalarWhereWithAggregatesInput[]
   NOT?: Prisma.SchedulePeriodScalarWhereWithAggregatesInput | Prisma.SchedulePeriodScalarWhereWithAggregatesInput[]
+  submissionState?: Prisma.EnumSubmissionStateWithAggregatesFilter<"SchedulePeriod"> | $Enums.SubmissionState
   id?: Prisma.StringWithAggregatesFilter<"SchedulePeriod"> | string
-  courtId?: Prisma.StringWithAggregatesFilter<"SchedulePeriod"> | string
+  facilityId?: Prisma.StringWithAggregatesFilter<"SchedulePeriod"> | string
   name?: Prisma.StringWithAggregatesFilter<"SchedulePeriod"> | string
+  submissionOpensAt?: Prisma.DateTimeWithAggregatesFilter<"SchedulePeriod"> | Date | string
   submissionDeadline?: Prisma.DateTimeWithAggregatesFilter<"SchedulePeriod"> | Date | string
+  submissionNotifiedAt?: Prisma.DateTimeNullableWithAggregatesFilter<"SchedulePeriod"> | Date | string | null
+  submissionWindowManaged?: Prisma.BoolWithAggregatesFilter<"SchedulePeriod"> | boolean
   startDate?: Prisma.DateTimeWithAggregatesFilter<"SchedulePeriod"> | Date | string
   endDate?: Prisma.DateTimeWithAggregatesFilter<"SchedulePeriod"> | Date | string
   createdAt?: Prisma.DateTimeWithAggregatesFilter<"SchedulePeriod"> | Date | string
@@ -272,62 +320,82 @@ export type SchedulePeriodScalarWhereWithAggregatesInput = {
 }
 
 export type SchedulePeriodCreateInput = {
+  submissionState?: $Enums.SubmissionState
   id?: string
   name: string
+  submissionOpensAt?: Date | string
   submissionDeadline: Date | string
+  submissionNotifiedAt?: Date | string | null
+  submissionWindowManaged?: boolean
   startDate: Date | string
   endDate: Date | string
   createdAt?: Date | string
   updatedAt?: Date | string
-  court: Prisma.CourtCreateNestedOneWithoutSchedulePeriodsInput
-  schedule?: Prisma.WorkScheduleCreateNestedOneWithoutPeriodInput
-  availabilityForms?: Prisma.AvailabilityFormCreateNestedManyWithoutPeriodInput
+  facility: Prisma.FacilityCreateNestedOneWithoutSchedulePeriodsInput
+  schedule?: Prisma.RosterCreateNestedOneWithoutPeriodInput
+  availabilitySubmissions?: Prisma.AvailabilitySubmissionCreateNestedManyWithoutPeriodInput
 }
 
 export type SchedulePeriodUncheckedCreateInput = {
+  submissionState?: $Enums.SubmissionState
   id?: string
-  courtId: string
+  facilityId: string
   name: string
+  submissionOpensAt?: Date | string
   submissionDeadline: Date | string
+  submissionNotifiedAt?: Date | string | null
+  submissionWindowManaged?: boolean
   startDate: Date | string
   endDate: Date | string
   createdAt?: Date | string
   updatedAt?: Date | string
-  schedule?: Prisma.WorkScheduleUncheckedCreateNestedOneWithoutPeriodInput
-  availabilityForms?: Prisma.AvailabilityFormUncheckedCreateNestedManyWithoutPeriodInput
+  schedule?: Prisma.RosterUncheckedCreateNestedOneWithoutPeriodInput
+  availabilitySubmissions?: Prisma.AvailabilitySubmissionUncheckedCreateNestedManyWithoutPeriodInput
 }
 
 export type SchedulePeriodUpdateInput = {
+  submissionState?: Prisma.EnumSubmissionStateFieldUpdateOperationsInput | $Enums.SubmissionState
   id?: Prisma.StringFieldUpdateOperationsInput | string
   name?: Prisma.StringFieldUpdateOperationsInput | string
+  submissionOpensAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   submissionDeadline?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  submissionNotifiedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  submissionWindowManaged?: Prisma.BoolFieldUpdateOperationsInput | boolean
   startDate?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   endDate?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
-  court?: Prisma.CourtUpdateOneRequiredWithoutSchedulePeriodsNestedInput
-  schedule?: Prisma.WorkScheduleUpdateOneWithoutPeriodNestedInput
-  availabilityForms?: Prisma.AvailabilityFormUpdateManyWithoutPeriodNestedInput
+  facility?: Prisma.FacilityUpdateOneRequiredWithoutSchedulePeriodsNestedInput
+  schedule?: Prisma.RosterUpdateOneWithoutPeriodNestedInput
+  availabilitySubmissions?: Prisma.AvailabilitySubmissionUpdateManyWithoutPeriodNestedInput
 }
 
 export type SchedulePeriodUncheckedUpdateInput = {
+  submissionState?: Prisma.EnumSubmissionStateFieldUpdateOperationsInput | $Enums.SubmissionState
   id?: Prisma.StringFieldUpdateOperationsInput | string
-  courtId?: Prisma.StringFieldUpdateOperationsInput | string
+  facilityId?: Prisma.StringFieldUpdateOperationsInput | string
   name?: Prisma.StringFieldUpdateOperationsInput | string
+  submissionOpensAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   submissionDeadline?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  submissionNotifiedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  submissionWindowManaged?: Prisma.BoolFieldUpdateOperationsInput | boolean
   startDate?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   endDate?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
-  schedule?: Prisma.WorkScheduleUncheckedUpdateOneWithoutPeriodNestedInput
-  availabilityForms?: Prisma.AvailabilityFormUncheckedUpdateManyWithoutPeriodNestedInput
+  schedule?: Prisma.RosterUncheckedUpdateOneWithoutPeriodNestedInput
+  availabilitySubmissions?: Prisma.AvailabilitySubmissionUncheckedUpdateManyWithoutPeriodNestedInput
 }
 
 export type SchedulePeriodCreateManyInput = {
+  submissionState?: $Enums.SubmissionState
   id?: string
-  courtId: string
+  facilityId: string
   name: string
+  submissionOpensAt?: Date | string
   submissionDeadline: Date | string
+  submissionNotifiedAt?: Date | string | null
+  submissionWindowManaged?: boolean
   startDate: Date | string
   endDate: Date | string
   createdAt?: Date | string
@@ -335,9 +403,13 @@ export type SchedulePeriodCreateManyInput = {
 }
 
 export type SchedulePeriodUpdateManyMutationInput = {
+  submissionState?: Prisma.EnumSubmissionStateFieldUpdateOperationsInput | $Enums.SubmissionState
   id?: Prisma.StringFieldUpdateOperationsInput | string
   name?: Prisma.StringFieldUpdateOperationsInput | string
+  submissionOpensAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   submissionDeadline?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  submissionNotifiedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  submissionWindowManaged?: Prisma.BoolFieldUpdateOperationsInput | boolean
   startDate?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   endDate?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
@@ -345,10 +417,14 @@ export type SchedulePeriodUpdateManyMutationInput = {
 }
 
 export type SchedulePeriodUncheckedUpdateManyInput = {
+  submissionState?: Prisma.EnumSubmissionStateFieldUpdateOperationsInput | $Enums.SubmissionState
   id?: Prisma.StringFieldUpdateOperationsInput | string
-  courtId?: Prisma.StringFieldUpdateOperationsInput | string
+  facilityId?: Prisma.StringFieldUpdateOperationsInput | string
   name?: Prisma.StringFieldUpdateOperationsInput | string
+  submissionOpensAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   submissionDeadline?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  submissionNotifiedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  submissionWindowManaged?: Prisma.BoolFieldUpdateOperationsInput | boolean
   startDate?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   endDate?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
@@ -370,16 +446,20 @@ export type SchedulePeriodScalarRelationFilter = {
   isNot?: Prisma.SchedulePeriodWhereInput
 }
 
-export type SchedulePeriodIdCourtIdCompoundUniqueInput = {
+export type SchedulePeriodIdFacilityIdCompoundUniqueInput = {
   id: string
-  courtId: string
+  facilityId: string
 }
 
 export type SchedulePeriodCountOrderByAggregateInput = {
+  submissionState?: Prisma.SortOrder
   id?: Prisma.SortOrder
-  courtId?: Prisma.SortOrder
+  facilityId?: Prisma.SortOrder
   name?: Prisma.SortOrder
+  submissionOpensAt?: Prisma.SortOrder
   submissionDeadline?: Prisma.SortOrder
+  submissionNotifiedAt?: Prisma.SortOrder
+  submissionWindowManaged?: Prisma.SortOrder
   startDate?: Prisma.SortOrder
   endDate?: Prisma.SortOrder
   createdAt?: Prisma.SortOrder
@@ -387,10 +467,14 @@ export type SchedulePeriodCountOrderByAggregateInput = {
 }
 
 export type SchedulePeriodMaxOrderByAggregateInput = {
+  submissionState?: Prisma.SortOrder
   id?: Prisma.SortOrder
-  courtId?: Prisma.SortOrder
+  facilityId?: Prisma.SortOrder
   name?: Prisma.SortOrder
+  submissionOpensAt?: Prisma.SortOrder
   submissionDeadline?: Prisma.SortOrder
+  submissionNotifiedAt?: Prisma.SortOrder
+  submissionWindowManaged?: Prisma.SortOrder
   startDate?: Prisma.SortOrder
   endDate?: Prisma.SortOrder
   createdAt?: Prisma.SortOrder
@@ -398,70 +482,78 @@ export type SchedulePeriodMaxOrderByAggregateInput = {
 }
 
 export type SchedulePeriodMinOrderByAggregateInput = {
+  submissionState?: Prisma.SortOrder
   id?: Prisma.SortOrder
-  courtId?: Prisma.SortOrder
+  facilityId?: Prisma.SortOrder
   name?: Prisma.SortOrder
+  submissionOpensAt?: Prisma.SortOrder
   submissionDeadline?: Prisma.SortOrder
+  submissionNotifiedAt?: Prisma.SortOrder
+  submissionWindowManaged?: Prisma.SortOrder
   startDate?: Prisma.SortOrder
   endDate?: Prisma.SortOrder
   createdAt?: Prisma.SortOrder
   updatedAt?: Prisma.SortOrder
 }
 
-export type SchedulePeriodCreateNestedManyWithoutCourtInput = {
-  create?: Prisma.XOR<Prisma.SchedulePeriodCreateWithoutCourtInput, Prisma.SchedulePeriodUncheckedCreateWithoutCourtInput> | Prisma.SchedulePeriodCreateWithoutCourtInput[] | Prisma.SchedulePeriodUncheckedCreateWithoutCourtInput[]
-  connectOrCreate?: Prisma.SchedulePeriodCreateOrConnectWithoutCourtInput | Prisma.SchedulePeriodCreateOrConnectWithoutCourtInput[]
-  createMany?: Prisma.SchedulePeriodCreateManyCourtInputEnvelope
+export type SchedulePeriodCreateNestedManyWithoutFacilityInput = {
+  create?: Prisma.XOR<Prisma.SchedulePeriodCreateWithoutFacilityInput, Prisma.SchedulePeriodUncheckedCreateWithoutFacilityInput> | Prisma.SchedulePeriodCreateWithoutFacilityInput[] | Prisma.SchedulePeriodUncheckedCreateWithoutFacilityInput[]
+  connectOrCreate?: Prisma.SchedulePeriodCreateOrConnectWithoutFacilityInput | Prisma.SchedulePeriodCreateOrConnectWithoutFacilityInput[]
+  createMany?: Prisma.SchedulePeriodCreateManyFacilityInputEnvelope
   connect?: Prisma.SchedulePeriodWhereUniqueInput | Prisma.SchedulePeriodWhereUniqueInput[]
 }
 
-export type SchedulePeriodUncheckedCreateNestedManyWithoutCourtInput = {
-  create?: Prisma.XOR<Prisma.SchedulePeriodCreateWithoutCourtInput, Prisma.SchedulePeriodUncheckedCreateWithoutCourtInput> | Prisma.SchedulePeriodCreateWithoutCourtInput[] | Prisma.SchedulePeriodUncheckedCreateWithoutCourtInput[]
-  connectOrCreate?: Prisma.SchedulePeriodCreateOrConnectWithoutCourtInput | Prisma.SchedulePeriodCreateOrConnectWithoutCourtInput[]
-  createMany?: Prisma.SchedulePeriodCreateManyCourtInputEnvelope
+export type SchedulePeriodUncheckedCreateNestedManyWithoutFacilityInput = {
+  create?: Prisma.XOR<Prisma.SchedulePeriodCreateWithoutFacilityInput, Prisma.SchedulePeriodUncheckedCreateWithoutFacilityInput> | Prisma.SchedulePeriodCreateWithoutFacilityInput[] | Prisma.SchedulePeriodUncheckedCreateWithoutFacilityInput[]
+  connectOrCreate?: Prisma.SchedulePeriodCreateOrConnectWithoutFacilityInput | Prisma.SchedulePeriodCreateOrConnectWithoutFacilityInput[]
+  createMany?: Prisma.SchedulePeriodCreateManyFacilityInputEnvelope
   connect?: Prisma.SchedulePeriodWhereUniqueInput | Prisma.SchedulePeriodWhereUniqueInput[]
 }
 
-export type SchedulePeriodUpdateManyWithoutCourtNestedInput = {
-  create?: Prisma.XOR<Prisma.SchedulePeriodCreateWithoutCourtInput, Prisma.SchedulePeriodUncheckedCreateWithoutCourtInput> | Prisma.SchedulePeriodCreateWithoutCourtInput[] | Prisma.SchedulePeriodUncheckedCreateWithoutCourtInput[]
-  connectOrCreate?: Prisma.SchedulePeriodCreateOrConnectWithoutCourtInput | Prisma.SchedulePeriodCreateOrConnectWithoutCourtInput[]
-  upsert?: Prisma.SchedulePeriodUpsertWithWhereUniqueWithoutCourtInput | Prisma.SchedulePeriodUpsertWithWhereUniqueWithoutCourtInput[]
-  createMany?: Prisma.SchedulePeriodCreateManyCourtInputEnvelope
+export type SchedulePeriodUpdateManyWithoutFacilityNestedInput = {
+  create?: Prisma.XOR<Prisma.SchedulePeriodCreateWithoutFacilityInput, Prisma.SchedulePeriodUncheckedCreateWithoutFacilityInput> | Prisma.SchedulePeriodCreateWithoutFacilityInput[] | Prisma.SchedulePeriodUncheckedCreateWithoutFacilityInput[]
+  connectOrCreate?: Prisma.SchedulePeriodCreateOrConnectWithoutFacilityInput | Prisma.SchedulePeriodCreateOrConnectWithoutFacilityInput[]
+  upsert?: Prisma.SchedulePeriodUpsertWithWhereUniqueWithoutFacilityInput | Prisma.SchedulePeriodUpsertWithWhereUniqueWithoutFacilityInput[]
+  createMany?: Prisma.SchedulePeriodCreateManyFacilityInputEnvelope
   set?: Prisma.SchedulePeriodWhereUniqueInput | Prisma.SchedulePeriodWhereUniqueInput[]
   disconnect?: Prisma.SchedulePeriodWhereUniqueInput | Prisma.SchedulePeriodWhereUniqueInput[]
   delete?: Prisma.SchedulePeriodWhereUniqueInput | Prisma.SchedulePeriodWhereUniqueInput[]
   connect?: Prisma.SchedulePeriodWhereUniqueInput | Prisma.SchedulePeriodWhereUniqueInput[]
-  update?: Prisma.SchedulePeriodUpdateWithWhereUniqueWithoutCourtInput | Prisma.SchedulePeriodUpdateWithWhereUniqueWithoutCourtInput[]
-  updateMany?: Prisma.SchedulePeriodUpdateManyWithWhereWithoutCourtInput | Prisma.SchedulePeriodUpdateManyWithWhereWithoutCourtInput[]
+  update?: Prisma.SchedulePeriodUpdateWithWhereUniqueWithoutFacilityInput | Prisma.SchedulePeriodUpdateWithWhereUniqueWithoutFacilityInput[]
+  updateMany?: Prisma.SchedulePeriodUpdateManyWithWhereWithoutFacilityInput | Prisma.SchedulePeriodUpdateManyWithWhereWithoutFacilityInput[]
   deleteMany?: Prisma.SchedulePeriodScalarWhereInput | Prisma.SchedulePeriodScalarWhereInput[]
 }
 
-export type SchedulePeriodUncheckedUpdateManyWithoutCourtNestedInput = {
-  create?: Prisma.XOR<Prisma.SchedulePeriodCreateWithoutCourtInput, Prisma.SchedulePeriodUncheckedCreateWithoutCourtInput> | Prisma.SchedulePeriodCreateWithoutCourtInput[] | Prisma.SchedulePeriodUncheckedCreateWithoutCourtInput[]
-  connectOrCreate?: Prisma.SchedulePeriodCreateOrConnectWithoutCourtInput | Prisma.SchedulePeriodCreateOrConnectWithoutCourtInput[]
-  upsert?: Prisma.SchedulePeriodUpsertWithWhereUniqueWithoutCourtInput | Prisma.SchedulePeriodUpsertWithWhereUniqueWithoutCourtInput[]
-  createMany?: Prisma.SchedulePeriodCreateManyCourtInputEnvelope
+export type SchedulePeriodUncheckedUpdateManyWithoutFacilityNestedInput = {
+  create?: Prisma.XOR<Prisma.SchedulePeriodCreateWithoutFacilityInput, Prisma.SchedulePeriodUncheckedCreateWithoutFacilityInput> | Prisma.SchedulePeriodCreateWithoutFacilityInput[] | Prisma.SchedulePeriodUncheckedCreateWithoutFacilityInput[]
+  connectOrCreate?: Prisma.SchedulePeriodCreateOrConnectWithoutFacilityInput | Prisma.SchedulePeriodCreateOrConnectWithoutFacilityInput[]
+  upsert?: Prisma.SchedulePeriodUpsertWithWhereUniqueWithoutFacilityInput | Prisma.SchedulePeriodUpsertWithWhereUniqueWithoutFacilityInput[]
+  createMany?: Prisma.SchedulePeriodCreateManyFacilityInputEnvelope
   set?: Prisma.SchedulePeriodWhereUniqueInput | Prisma.SchedulePeriodWhereUniqueInput[]
   disconnect?: Prisma.SchedulePeriodWhereUniqueInput | Prisma.SchedulePeriodWhereUniqueInput[]
   delete?: Prisma.SchedulePeriodWhereUniqueInput | Prisma.SchedulePeriodWhereUniqueInput[]
   connect?: Prisma.SchedulePeriodWhereUniqueInput | Prisma.SchedulePeriodWhereUniqueInput[]
-  update?: Prisma.SchedulePeriodUpdateWithWhereUniqueWithoutCourtInput | Prisma.SchedulePeriodUpdateWithWhereUniqueWithoutCourtInput[]
-  updateMany?: Prisma.SchedulePeriodUpdateManyWithWhereWithoutCourtInput | Prisma.SchedulePeriodUpdateManyWithWhereWithoutCourtInput[]
+  update?: Prisma.SchedulePeriodUpdateWithWhereUniqueWithoutFacilityInput | Prisma.SchedulePeriodUpdateWithWhereUniqueWithoutFacilityInput[]
+  updateMany?: Prisma.SchedulePeriodUpdateManyWithWhereWithoutFacilityInput | Prisma.SchedulePeriodUpdateManyWithWhereWithoutFacilityInput[]
   deleteMany?: Prisma.SchedulePeriodScalarWhereInput | Prisma.SchedulePeriodScalarWhereInput[]
 }
 
-export type SchedulePeriodCreateNestedOneWithoutAvailabilityFormsInput = {
-  create?: Prisma.XOR<Prisma.SchedulePeriodCreateWithoutAvailabilityFormsInput, Prisma.SchedulePeriodUncheckedCreateWithoutAvailabilityFormsInput>
-  connectOrCreate?: Prisma.SchedulePeriodCreateOrConnectWithoutAvailabilityFormsInput
+export type SchedulePeriodCreateNestedOneWithoutAvailabilitySubmissionsInput = {
+  create?: Prisma.XOR<Prisma.SchedulePeriodCreateWithoutAvailabilitySubmissionsInput, Prisma.SchedulePeriodUncheckedCreateWithoutAvailabilitySubmissionsInput>
+  connectOrCreate?: Prisma.SchedulePeriodCreateOrConnectWithoutAvailabilitySubmissionsInput
   connect?: Prisma.SchedulePeriodWhereUniqueInput
 }
 
-export type SchedulePeriodUpdateOneRequiredWithoutAvailabilityFormsNestedInput = {
-  create?: Prisma.XOR<Prisma.SchedulePeriodCreateWithoutAvailabilityFormsInput, Prisma.SchedulePeriodUncheckedCreateWithoutAvailabilityFormsInput>
-  connectOrCreate?: Prisma.SchedulePeriodCreateOrConnectWithoutAvailabilityFormsInput
-  upsert?: Prisma.SchedulePeriodUpsertWithoutAvailabilityFormsInput
+export type SchedulePeriodUpdateOneRequiredWithoutAvailabilitySubmissionsNestedInput = {
+  create?: Prisma.XOR<Prisma.SchedulePeriodCreateWithoutAvailabilitySubmissionsInput, Prisma.SchedulePeriodUncheckedCreateWithoutAvailabilitySubmissionsInput>
+  connectOrCreate?: Prisma.SchedulePeriodCreateOrConnectWithoutAvailabilitySubmissionsInput
+  upsert?: Prisma.SchedulePeriodUpsertWithoutAvailabilitySubmissionsInput
   connect?: Prisma.SchedulePeriodWhereUniqueInput
-  update?: Prisma.XOR<Prisma.XOR<Prisma.SchedulePeriodUpdateToOneWithWhereWithoutAvailabilityFormsInput, Prisma.SchedulePeriodUpdateWithoutAvailabilityFormsInput>, Prisma.SchedulePeriodUncheckedUpdateWithoutAvailabilityFormsInput>
+  update?: Prisma.XOR<Prisma.XOR<Prisma.SchedulePeriodUpdateToOneWithWhereWithoutAvailabilitySubmissionsInput, Prisma.SchedulePeriodUpdateWithoutAvailabilitySubmissionsInput>, Prisma.SchedulePeriodUncheckedUpdateWithoutAvailabilitySubmissionsInput>
+}
+
+export type EnumSubmissionStateFieldUpdateOperationsInput = {
+  set?: $Enums.SubmissionState
 }
 
 export type SchedulePeriodCreateNestedOneWithoutScheduleInput = {
@@ -478,156 +570,192 @@ export type SchedulePeriodUpdateOneRequiredWithoutScheduleNestedInput = {
   update?: Prisma.XOR<Prisma.XOR<Prisma.SchedulePeriodUpdateToOneWithWhereWithoutScheduleInput, Prisma.SchedulePeriodUpdateWithoutScheduleInput>, Prisma.SchedulePeriodUncheckedUpdateWithoutScheduleInput>
 }
 
-export type SchedulePeriodCreateWithoutCourtInput = {
+export type SchedulePeriodCreateWithoutFacilityInput = {
+  submissionState?: $Enums.SubmissionState
   id?: string
   name: string
+  submissionOpensAt?: Date | string
   submissionDeadline: Date | string
+  submissionNotifiedAt?: Date | string | null
+  submissionWindowManaged?: boolean
   startDate: Date | string
   endDate: Date | string
   createdAt?: Date | string
   updatedAt?: Date | string
-  schedule?: Prisma.WorkScheduleCreateNestedOneWithoutPeriodInput
-  availabilityForms?: Prisma.AvailabilityFormCreateNestedManyWithoutPeriodInput
+  schedule?: Prisma.RosterCreateNestedOneWithoutPeriodInput
+  availabilitySubmissions?: Prisma.AvailabilitySubmissionCreateNestedManyWithoutPeriodInput
 }
 
-export type SchedulePeriodUncheckedCreateWithoutCourtInput = {
+export type SchedulePeriodUncheckedCreateWithoutFacilityInput = {
+  submissionState?: $Enums.SubmissionState
   id?: string
   name: string
+  submissionOpensAt?: Date | string
   submissionDeadline: Date | string
+  submissionNotifiedAt?: Date | string | null
+  submissionWindowManaged?: boolean
   startDate: Date | string
   endDate: Date | string
   createdAt?: Date | string
   updatedAt?: Date | string
-  schedule?: Prisma.WorkScheduleUncheckedCreateNestedOneWithoutPeriodInput
-  availabilityForms?: Prisma.AvailabilityFormUncheckedCreateNestedManyWithoutPeriodInput
+  schedule?: Prisma.RosterUncheckedCreateNestedOneWithoutPeriodInput
+  availabilitySubmissions?: Prisma.AvailabilitySubmissionUncheckedCreateNestedManyWithoutPeriodInput
 }
 
-export type SchedulePeriodCreateOrConnectWithoutCourtInput = {
+export type SchedulePeriodCreateOrConnectWithoutFacilityInput = {
   where: Prisma.SchedulePeriodWhereUniqueInput
-  create: Prisma.XOR<Prisma.SchedulePeriodCreateWithoutCourtInput, Prisma.SchedulePeriodUncheckedCreateWithoutCourtInput>
+  create: Prisma.XOR<Prisma.SchedulePeriodCreateWithoutFacilityInput, Prisma.SchedulePeriodUncheckedCreateWithoutFacilityInput>
 }
 
-export type SchedulePeriodCreateManyCourtInputEnvelope = {
-  data: Prisma.SchedulePeriodCreateManyCourtInput | Prisma.SchedulePeriodCreateManyCourtInput[]
+export type SchedulePeriodCreateManyFacilityInputEnvelope = {
+  data: Prisma.SchedulePeriodCreateManyFacilityInput | Prisma.SchedulePeriodCreateManyFacilityInput[]
   skipDuplicates?: boolean
 }
 
-export type SchedulePeriodUpsertWithWhereUniqueWithoutCourtInput = {
+export type SchedulePeriodUpsertWithWhereUniqueWithoutFacilityInput = {
   where: Prisma.SchedulePeriodWhereUniqueInput
-  update: Prisma.XOR<Prisma.SchedulePeriodUpdateWithoutCourtInput, Prisma.SchedulePeriodUncheckedUpdateWithoutCourtInput>
-  create: Prisma.XOR<Prisma.SchedulePeriodCreateWithoutCourtInput, Prisma.SchedulePeriodUncheckedCreateWithoutCourtInput>
+  update: Prisma.XOR<Prisma.SchedulePeriodUpdateWithoutFacilityInput, Prisma.SchedulePeriodUncheckedUpdateWithoutFacilityInput>
+  create: Prisma.XOR<Prisma.SchedulePeriodCreateWithoutFacilityInput, Prisma.SchedulePeriodUncheckedCreateWithoutFacilityInput>
 }
 
-export type SchedulePeriodUpdateWithWhereUniqueWithoutCourtInput = {
+export type SchedulePeriodUpdateWithWhereUniqueWithoutFacilityInput = {
   where: Prisma.SchedulePeriodWhereUniqueInput
-  data: Prisma.XOR<Prisma.SchedulePeriodUpdateWithoutCourtInput, Prisma.SchedulePeriodUncheckedUpdateWithoutCourtInput>
+  data: Prisma.XOR<Prisma.SchedulePeriodUpdateWithoutFacilityInput, Prisma.SchedulePeriodUncheckedUpdateWithoutFacilityInput>
 }
 
-export type SchedulePeriodUpdateManyWithWhereWithoutCourtInput = {
+export type SchedulePeriodUpdateManyWithWhereWithoutFacilityInput = {
   where: Prisma.SchedulePeriodScalarWhereInput
-  data: Prisma.XOR<Prisma.SchedulePeriodUpdateManyMutationInput, Prisma.SchedulePeriodUncheckedUpdateManyWithoutCourtInput>
+  data: Prisma.XOR<Prisma.SchedulePeriodUpdateManyMutationInput, Prisma.SchedulePeriodUncheckedUpdateManyWithoutFacilityInput>
 }
 
 export type SchedulePeriodScalarWhereInput = {
   AND?: Prisma.SchedulePeriodScalarWhereInput | Prisma.SchedulePeriodScalarWhereInput[]
   OR?: Prisma.SchedulePeriodScalarWhereInput[]
   NOT?: Prisma.SchedulePeriodScalarWhereInput | Prisma.SchedulePeriodScalarWhereInput[]
+  submissionState?: Prisma.EnumSubmissionStateFilter<"SchedulePeriod"> | $Enums.SubmissionState
   id?: Prisma.StringFilter<"SchedulePeriod"> | string
-  courtId?: Prisma.StringFilter<"SchedulePeriod"> | string
+  facilityId?: Prisma.StringFilter<"SchedulePeriod"> | string
   name?: Prisma.StringFilter<"SchedulePeriod"> | string
+  submissionOpensAt?: Prisma.DateTimeFilter<"SchedulePeriod"> | Date | string
   submissionDeadline?: Prisma.DateTimeFilter<"SchedulePeriod"> | Date | string
+  submissionNotifiedAt?: Prisma.DateTimeNullableFilter<"SchedulePeriod"> | Date | string | null
+  submissionWindowManaged?: Prisma.BoolFilter<"SchedulePeriod"> | boolean
   startDate?: Prisma.DateTimeFilter<"SchedulePeriod"> | Date | string
   endDate?: Prisma.DateTimeFilter<"SchedulePeriod"> | Date | string
   createdAt?: Prisma.DateTimeFilter<"SchedulePeriod"> | Date | string
   updatedAt?: Prisma.DateTimeFilter<"SchedulePeriod"> | Date | string
 }
 
-export type SchedulePeriodCreateWithoutAvailabilityFormsInput = {
+export type SchedulePeriodCreateWithoutAvailabilitySubmissionsInput = {
+  submissionState?: $Enums.SubmissionState
   id?: string
   name: string
+  submissionOpensAt?: Date | string
   submissionDeadline: Date | string
+  submissionNotifiedAt?: Date | string | null
+  submissionWindowManaged?: boolean
   startDate: Date | string
   endDate: Date | string
   createdAt?: Date | string
   updatedAt?: Date | string
-  court: Prisma.CourtCreateNestedOneWithoutSchedulePeriodsInput
-  schedule?: Prisma.WorkScheduleCreateNestedOneWithoutPeriodInput
+  facility: Prisma.FacilityCreateNestedOneWithoutSchedulePeriodsInput
+  schedule?: Prisma.RosterCreateNestedOneWithoutPeriodInput
 }
 
-export type SchedulePeriodUncheckedCreateWithoutAvailabilityFormsInput = {
+export type SchedulePeriodUncheckedCreateWithoutAvailabilitySubmissionsInput = {
+  submissionState?: $Enums.SubmissionState
   id?: string
-  courtId: string
+  facilityId: string
   name: string
+  submissionOpensAt?: Date | string
   submissionDeadline: Date | string
+  submissionNotifiedAt?: Date | string | null
+  submissionWindowManaged?: boolean
   startDate: Date | string
   endDate: Date | string
   createdAt?: Date | string
   updatedAt?: Date | string
-  schedule?: Prisma.WorkScheduleUncheckedCreateNestedOneWithoutPeriodInput
+  schedule?: Prisma.RosterUncheckedCreateNestedOneWithoutPeriodInput
 }
 
-export type SchedulePeriodCreateOrConnectWithoutAvailabilityFormsInput = {
+export type SchedulePeriodCreateOrConnectWithoutAvailabilitySubmissionsInput = {
   where: Prisma.SchedulePeriodWhereUniqueInput
-  create: Prisma.XOR<Prisma.SchedulePeriodCreateWithoutAvailabilityFormsInput, Prisma.SchedulePeriodUncheckedCreateWithoutAvailabilityFormsInput>
+  create: Prisma.XOR<Prisma.SchedulePeriodCreateWithoutAvailabilitySubmissionsInput, Prisma.SchedulePeriodUncheckedCreateWithoutAvailabilitySubmissionsInput>
 }
 
-export type SchedulePeriodUpsertWithoutAvailabilityFormsInput = {
-  update: Prisma.XOR<Prisma.SchedulePeriodUpdateWithoutAvailabilityFormsInput, Prisma.SchedulePeriodUncheckedUpdateWithoutAvailabilityFormsInput>
-  create: Prisma.XOR<Prisma.SchedulePeriodCreateWithoutAvailabilityFormsInput, Prisma.SchedulePeriodUncheckedCreateWithoutAvailabilityFormsInput>
+export type SchedulePeriodUpsertWithoutAvailabilitySubmissionsInput = {
+  update: Prisma.XOR<Prisma.SchedulePeriodUpdateWithoutAvailabilitySubmissionsInput, Prisma.SchedulePeriodUncheckedUpdateWithoutAvailabilitySubmissionsInput>
+  create: Prisma.XOR<Prisma.SchedulePeriodCreateWithoutAvailabilitySubmissionsInput, Prisma.SchedulePeriodUncheckedCreateWithoutAvailabilitySubmissionsInput>
   where?: Prisma.SchedulePeriodWhereInput
 }
 
-export type SchedulePeriodUpdateToOneWithWhereWithoutAvailabilityFormsInput = {
+export type SchedulePeriodUpdateToOneWithWhereWithoutAvailabilitySubmissionsInput = {
   where?: Prisma.SchedulePeriodWhereInput
-  data: Prisma.XOR<Prisma.SchedulePeriodUpdateWithoutAvailabilityFormsInput, Prisma.SchedulePeriodUncheckedUpdateWithoutAvailabilityFormsInput>
+  data: Prisma.XOR<Prisma.SchedulePeriodUpdateWithoutAvailabilitySubmissionsInput, Prisma.SchedulePeriodUncheckedUpdateWithoutAvailabilitySubmissionsInput>
 }
 
-export type SchedulePeriodUpdateWithoutAvailabilityFormsInput = {
+export type SchedulePeriodUpdateWithoutAvailabilitySubmissionsInput = {
+  submissionState?: Prisma.EnumSubmissionStateFieldUpdateOperationsInput | $Enums.SubmissionState
   id?: Prisma.StringFieldUpdateOperationsInput | string
   name?: Prisma.StringFieldUpdateOperationsInput | string
+  submissionOpensAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   submissionDeadline?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  submissionNotifiedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  submissionWindowManaged?: Prisma.BoolFieldUpdateOperationsInput | boolean
   startDate?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   endDate?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
-  court?: Prisma.CourtUpdateOneRequiredWithoutSchedulePeriodsNestedInput
-  schedule?: Prisma.WorkScheduleUpdateOneWithoutPeriodNestedInput
+  facility?: Prisma.FacilityUpdateOneRequiredWithoutSchedulePeriodsNestedInput
+  schedule?: Prisma.RosterUpdateOneWithoutPeriodNestedInput
 }
 
-export type SchedulePeriodUncheckedUpdateWithoutAvailabilityFormsInput = {
+export type SchedulePeriodUncheckedUpdateWithoutAvailabilitySubmissionsInput = {
+  submissionState?: Prisma.EnumSubmissionStateFieldUpdateOperationsInput | $Enums.SubmissionState
   id?: Prisma.StringFieldUpdateOperationsInput | string
-  courtId?: Prisma.StringFieldUpdateOperationsInput | string
+  facilityId?: Prisma.StringFieldUpdateOperationsInput | string
   name?: Prisma.StringFieldUpdateOperationsInput | string
+  submissionOpensAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   submissionDeadline?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  submissionNotifiedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  submissionWindowManaged?: Prisma.BoolFieldUpdateOperationsInput | boolean
   startDate?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   endDate?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
-  schedule?: Prisma.WorkScheduleUncheckedUpdateOneWithoutPeriodNestedInput
+  schedule?: Prisma.RosterUncheckedUpdateOneWithoutPeriodNestedInput
 }
 
 export type SchedulePeriodCreateWithoutScheduleInput = {
+  submissionState?: $Enums.SubmissionState
   id?: string
   name: string
+  submissionOpensAt?: Date | string
   submissionDeadline: Date | string
+  submissionNotifiedAt?: Date | string | null
+  submissionWindowManaged?: boolean
   startDate: Date | string
   endDate: Date | string
   createdAt?: Date | string
   updatedAt?: Date | string
-  court: Prisma.CourtCreateNestedOneWithoutSchedulePeriodsInput
-  availabilityForms?: Prisma.AvailabilityFormCreateNestedManyWithoutPeriodInput
+  facility: Prisma.FacilityCreateNestedOneWithoutSchedulePeriodsInput
+  availabilitySubmissions?: Prisma.AvailabilitySubmissionCreateNestedManyWithoutPeriodInput
 }
 
 export type SchedulePeriodUncheckedCreateWithoutScheduleInput = {
+  submissionState?: $Enums.SubmissionState
   id?: string
-  courtId: string
+  facilityId: string
   name: string
+  submissionOpensAt?: Date | string
   submissionDeadline: Date | string
+  submissionNotifiedAt?: Date | string | null
+  submissionWindowManaged?: boolean
   startDate: Date | string
   endDate: Date | string
   createdAt?: Date | string
   updatedAt?: Date | string
-  availabilityForms?: Prisma.AvailabilityFormUncheckedCreateNestedManyWithoutPeriodInput
+  availabilitySubmissions?: Prisma.AvailabilitySubmissionUncheckedCreateNestedManyWithoutPeriodInput
 }
 
 export type SchedulePeriodCreateOrConnectWithoutScheduleInput = {
@@ -647,67 +775,91 @@ export type SchedulePeriodUpdateToOneWithWhereWithoutScheduleInput = {
 }
 
 export type SchedulePeriodUpdateWithoutScheduleInput = {
+  submissionState?: Prisma.EnumSubmissionStateFieldUpdateOperationsInput | $Enums.SubmissionState
   id?: Prisma.StringFieldUpdateOperationsInput | string
   name?: Prisma.StringFieldUpdateOperationsInput | string
+  submissionOpensAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   submissionDeadline?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  submissionNotifiedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  submissionWindowManaged?: Prisma.BoolFieldUpdateOperationsInput | boolean
   startDate?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   endDate?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
-  court?: Prisma.CourtUpdateOneRequiredWithoutSchedulePeriodsNestedInput
-  availabilityForms?: Prisma.AvailabilityFormUpdateManyWithoutPeriodNestedInput
+  facility?: Prisma.FacilityUpdateOneRequiredWithoutSchedulePeriodsNestedInput
+  availabilitySubmissions?: Prisma.AvailabilitySubmissionUpdateManyWithoutPeriodNestedInput
 }
 
 export type SchedulePeriodUncheckedUpdateWithoutScheduleInput = {
+  submissionState?: Prisma.EnumSubmissionStateFieldUpdateOperationsInput | $Enums.SubmissionState
   id?: Prisma.StringFieldUpdateOperationsInput | string
-  courtId?: Prisma.StringFieldUpdateOperationsInput | string
+  facilityId?: Prisma.StringFieldUpdateOperationsInput | string
   name?: Prisma.StringFieldUpdateOperationsInput | string
+  submissionOpensAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   submissionDeadline?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  submissionNotifiedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  submissionWindowManaged?: Prisma.BoolFieldUpdateOperationsInput | boolean
   startDate?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   endDate?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
-  availabilityForms?: Prisma.AvailabilityFormUncheckedUpdateManyWithoutPeriodNestedInput
+  availabilitySubmissions?: Prisma.AvailabilitySubmissionUncheckedUpdateManyWithoutPeriodNestedInput
 }
 
-export type SchedulePeriodCreateManyCourtInput = {
+export type SchedulePeriodCreateManyFacilityInput = {
+  submissionState?: $Enums.SubmissionState
   id?: string
   name: string
+  submissionOpensAt?: Date | string
   submissionDeadline: Date | string
+  submissionNotifiedAt?: Date | string | null
+  submissionWindowManaged?: boolean
   startDate: Date | string
   endDate: Date | string
   createdAt?: Date | string
   updatedAt?: Date | string
 }
 
-export type SchedulePeriodUpdateWithoutCourtInput = {
+export type SchedulePeriodUpdateWithoutFacilityInput = {
+  submissionState?: Prisma.EnumSubmissionStateFieldUpdateOperationsInput | $Enums.SubmissionState
   id?: Prisma.StringFieldUpdateOperationsInput | string
   name?: Prisma.StringFieldUpdateOperationsInput | string
+  submissionOpensAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   submissionDeadline?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  submissionNotifiedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  submissionWindowManaged?: Prisma.BoolFieldUpdateOperationsInput | boolean
   startDate?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   endDate?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
-  schedule?: Prisma.WorkScheduleUpdateOneWithoutPeriodNestedInput
-  availabilityForms?: Prisma.AvailabilityFormUpdateManyWithoutPeriodNestedInput
+  schedule?: Prisma.RosterUpdateOneWithoutPeriodNestedInput
+  availabilitySubmissions?: Prisma.AvailabilitySubmissionUpdateManyWithoutPeriodNestedInput
 }
 
-export type SchedulePeriodUncheckedUpdateWithoutCourtInput = {
+export type SchedulePeriodUncheckedUpdateWithoutFacilityInput = {
+  submissionState?: Prisma.EnumSubmissionStateFieldUpdateOperationsInput | $Enums.SubmissionState
   id?: Prisma.StringFieldUpdateOperationsInput | string
   name?: Prisma.StringFieldUpdateOperationsInput | string
+  submissionOpensAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   submissionDeadline?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  submissionNotifiedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  submissionWindowManaged?: Prisma.BoolFieldUpdateOperationsInput | boolean
   startDate?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   endDate?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
-  schedule?: Prisma.WorkScheduleUncheckedUpdateOneWithoutPeriodNestedInput
-  availabilityForms?: Prisma.AvailabilityFormUncheckedUpdateManyWithoutPeriodNestedInput
+  schedule?: Prisma.RosterUncheckedUpdateOneWithoutPeriodNestedInput
+  availabilitySubmissions?: Prisma.AvailabilitySubmissionUncheckedUpdateManyWithoutPeriodNestedInput
 }
 
-export type SchedulePeriodUncheckedUpdateManyWithoutCourtInput = {
+export type SchedulePeriodUncheckedUpdateManyWithoutFacilityInput = {
+  submissionState?: Prisma.EnumSubmissionStateFieldUpdateOperationsInput | $Enums.SubmissionState
   id?: Prisma.StringFieldUpdateOperationsInput | string
   name?: Prisma.StringFieldUpdateOperationsInput | string
+  submissionOpensAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   submissionDeadline?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  submissionNotifiedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  submissionWindowManaged?: Prisma.BoolFieldUpdateOperationsInput | boolean
   startDate?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   endDate?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
@@ -720,11 +872,11 @@ export type SchedulePeriodUncheckedUpdateManyWithoutCourtInput = {
  */
 
 export type SchedulePeriodCountOutputType = {
-  availabilityForms: number
+  availabilitySubmissions: number
 }
 
 export type SchedulePeriodCountOutputTypeSelect<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
-  availabilityForms?: boolean | SchedulePeriodCountOutputTypeCountAvailabilityFormsArgs
+  availabilitySubmissions?: boolean | SchedulePeriodCountOutputTypeCountAvailabilitySubmissionsArgs
 }
 
 /**
@@ -740,87 +892,107 @@ export type SchedulePeriodCountOutputTypeDefaultArgs<ExtArgs extends runtime.Typ
 /**
  * SchedulePeriodCountOutputType without action
  */
-export type SchedulePeriodCountOutputTypeCountAvailabilityFormsArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
-  where?: Prisma.AvailabilityFormWhereInput
+export type SchedulePeriodCountOutputTypeCountAvailabilitySubmissionsArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+  where?: Prisma.AvailabilitySubmissionWhereInput
 }
 
 
 export type SchedulePeriodSelect<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetSelect<{
+  submissionState?: boolean
   id?: boolean
-  courtId?: boolean
+  facilityId?: boolean
   name?: boolean
+  submissionOpensAt?: boolean
   submissionDeadline?: boolean
+  submissionNotifiedAt?: boolean
+  submissionWindowManaged?: boolean
   startDate?: boolean
   endDate?: boolean
   createdAt?: boolean
   updatedAt?: boolean
-  court?: boolean | Prisma.CourtDefaultArgs<ExtArgs>
+  facility?: boolean | Prisma.FacilityDefaultArgs<ExtArgs>
   schedule?: boolean | Prisma.SchedulePeriod$scheduleArgs<ExtArgs>
-  availabilityForms?: boolean | Prisma.SchedulePeriod$availabilityFormsArgs<ExtArgs>
+  availabilitySubmissions?: boolean | Prisma.SchedulePeriod$availabilitySubmissionsArgs<ExtArgs>
   _count?: boolean | Prisma.SchedulePeriodCountOutputTypeDefaultArgs<ExtArgs>
 }, ExtArgs["result"]["schedulePeriod"]>
 
 export type SchedulePeriodSelectCreateManyAndReturn<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetSelect<{
+  submissionState?: boolean
   id?: boolean
-  courtId?: boolean
+  facilityId?: boolean
   name?: boolean
+  submissionOpensAt?: boolean
   submissionDeadline?: boolean
+  submissionNotifiedAt?: boolean
+  submissionWindowManaged?: boolean
   startDate?: boolean
   endDate?: boolean
   createdAt?: boolean
   updatedAt?: boolean
-  court?: boolean | Prisma.CourtDefaultArgs<ExtArgs>
+  facility?: boolean | Prisma.FacilityDefaultArgs<ExtArgs>
 }, ExtArgs["result"]["schedulePeriod"]>
 
 export type SchedulePeriodSelectUpdateManyAndReturn<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetSelect<{
+  submissionState?: boolean
   id?: boolean
-  courtId?: boolean
+  facilityId?: boolean
   name?: boolean
+  submissionOpensAt?: boolean
   submissionDeadline?: boolean
+  submissionNotifiedAt?: boolean
+  submissionWindowManaged?: boolean
   startDate?: boolean
   endDate?: boolean
   createdAt?: boolean
   updatedAt?: boolean
-  court?: boolean | Prisma.CourtDefaultArgs<ExtArgs>
+  facility?: boolean | Prisma.FacilityDefaultArgs<ExtArgs>
 }, ExtArgs["result"]["schedulePeriod"]>
 
 export type SchedulePeriodSelectScalar = {
+  submissionState?: boolean
   id?: boolean
-  courtId?: boolean
+  facilityId?: boolean
   name?: boolean
+  submissionOpensAt?: boolean
   submissionDeadline?: boolean
+  submissionNotifiedAt?: boolean
+  submissionWindowManaged?: boolean
   startDate?: boolean
   endDate?: boolean
   createdAt?: boolean
   updatedAt?: boolean
 }
 
-export type SchedulePeriodOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"id" | "courtId" | "name" | "submissionDeadline" | "startDate" | "endDate" | "createdAt" | "updatedAt", ExtArgs["result"]["schedulePeriod"]>
+export type SchedulePeriodOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"submissionState" | "id" | "facilityId" | "name" | "submissionOpensAt" | "submissionDeadline" | "submissionNotifiedAt" | "submissionWindowManaged" | "startDate" | "endDate" | "createdAt" | "updatedAt", ExtArgs["result"]["schedulePeriod"]>
 export type SchedulePeriodInclude<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
-  court?: boolean | Prisma.CourtDefaultArgs<ExtArgs>
+  facility?: boolean | Prisma.FacilityDefaultArgs<ExtArgs>
   schedule?: boolean | Prisma.SchedulePeriod$scheduleArgs<ExtArgs>
-  availabilityForms?: boolean | Prisma.SchedulePeriod$availabilityFormsArgs<ExtArgs>
+  availabilitySubmissions?: boolean | Prisma.SchedulePeriod$availabilitySubmissionsArgs<ExtArgs>
   _count?: boolean | Prisma.SchedulePeriodCountOutputTypeDefaultArgs<ExtArgs>
 }
 export type SchedulePeriodIncludeCreateManyAndReturn<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
-  court?: boolean | Prisma.CourtDefaultArgs<ExtArgs>
+  facility?: boolean | Prisma.FacilityDefaultArgs<ExtArgs>
 }
 export type SchedulePeriodIncludeUpdateManyAndReturn<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
-  court?: boolean | Prisma.CourtDefaultArgs<ExtArgs>
+  facility?: boolean | Prisma.FacilityDefaultArgs<ExtArgs>
 }
 
 export type $SchedulePeriodPayload<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
   name: "SchedulePeriod"
   objects: {
-    court: Prisma.$CourtPayload<ExtArgs>
-    schedule: Prisma.$WorkSchedulePayload<ExtArgs> | null
-    availabilityForms: Prisma.$AvailabilityFormPayload<ExtArgs>[]
+    facility: Prisma.$FacilityPayload<ExtArgs>
+    schedule: Prisma.$RosterPayload<ExtArgs> | null
+    availabilitySubmissions: Prisma.$AvailabilitySubmissionPayload<ExtArgs>[]
   }
   scalars: runtime.Types.Extensions.GetPayloadResult<{
+    submissionState: $Enums.SubmissionState
     id: string
-    courtId: string
+    facilityId: string
     name: string
+    submissionOpensAt: Date
     submissionDeadline: Date
+    submissionNotifiedAt: Date | null
+    submissionWindowManaged: boolean
     startDate: Date
     endDate: Date
     createdAt: Date
@@ -1219,9 +1391,9 @@ readonly fields: SchedulePeriodFieldRefs;
  */
 export interface Prisma__SchedulePeriodClient<T, Null = never, ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs, GlobalOmitOptions = {}> extends Prisma.PrismaPromise<T> {
   readonly [Symbol.toStringTag]: "PrismaPromise"
-  court<T extends Prisma.CourtDefaultArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.CourtDefaultArgs<ExtArgs>>): Prisma.Prisma__CourtClient<runtime.Types.Result.GetResult<Prisma.$CourtPayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions> | Null, Null, ExtArgs, GlobalOmitOptions>
-  schedule<T extends Prisma.SchedulePeriod$scheduleArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.SchedulePeriod$scheduleArgs<ExtArgs>>): Prisma.Prisma__WorkScheduleClient<runtime.Types.Result.GetResult<Prisma.$WorkSchedulePayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions> | null, null, ExtArgs, GlobalOmitOptions>
-  availabilityForms<T extends Prisma.SchedulePeriod$availabilityFormsArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.SchedulePeriod$availabilityFormsArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$AvailabilityFormPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
+  facility<T extends Prisma.FacilityDefaultArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.FacilityDefaultArgs<ExtArgs>>): Prisma.Prisma__FacilityClient<runtime.Types.Result.GetResult<Prisma.$FacilityPayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions> | Null, Null, ExtArgs, GlobalOmitOptions>
+  schedule<T extends Prisma.SchedulePeriod$scheduleArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.SchedulePeriod$scheduleArgs<ExtArgs>>): Prisma.Prisma__RosterClient<runtime.Types.Result.GetResult<Prisma.$RosterPayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions> | null, null, ExtArgs, GlobalOmitOptions>
+  availabilitySubmissions<T extends Prisma.SchedulePeriod$availabilitySubmissionsArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.SchedulePeriod$availabilitySubmissionsArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$AvailabilitySubmissionPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
   /**
    * Attaches callbacks for the resolution and/or rejection of the Promise.
    * @param onfulfilled The callback to execute when the Promise is resolved.
@@ -1251,10 +1423,14 @@ export interface Prisma__SchedulePeriodClient<T, Null = never, ExtArgs extends r
  * Fields of the SchedulePeriod model
  */
 export interface SchedulePeriodFieldRefs {
+  readonly submissionState: Prisma.FieldRef<"SchedulePeriod", 'SubmissionState'>
   readonly id: Prisma.FieldRef<"SchedulePeriod", 'String'>
-  readonly courtId: Prisma.FieldRef<"SchedulePeriod", 'String'>
+  readonly facilityId: Prisma.FieldRef<"SchedulePeriod", 'String'>
   readonly name: Prisma.FieldRef<"SchedulePeriod", 'String'>
+  readonly submissionOpensAt: Prisma.FieldRef<"SchedulePeriod", 'DateTime'>
   readonly submissionDeadline: Prisma.FieldRef<"SchedulePeriod", 'DateTime'>
+  readonly submissionNotifiedAt: Prisma.FieldRef<"SchedulePeriod", 'DateTime'>
+  readonly submissionWindowManaged: Prisma.FieldRef<"SchedulePeriod", 'Boolean'>
   readonly startDate: Prisma.FieldRef<"SchedulePeriod", 'DateTime'>
   readonly endDate: Prisma.FieldRef<"SchedulePeriod", 'DateTime'>
   readonly createdAt: Prisma.FieldRef<"SchedulePeriod", 'DateTime'>
@@ -1664,42 +1840,42 @@ export type SchedulePeriodDeleteManyArgs<ExtArgs extends runtime.Types.Extension
  */
 export type SchedulePeriod$scheduleArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
   /**
-   * Select specific fields to fetch from the WorkSchedule
+   * Select specific fields to fetch from the Roster
    */
-  select?: Prisma.WorkScheduleSelect<ExtArgs> | null
+  select?: Prisma.RosterSelect<ExtArgs> | null
   /**
-   * Omit specific fields from the WorkSchedule
+   * Omit specific fields from the Roster
    */
-  omit?: Prisma.WorkScheduleOmit<ExtArgs> | null
+  omit?: Prisma.RosterOmit<ExtArgs> | null
   /**
    * Choose, which related nodes to fetch as well
    */
-  include?: Prisma.WorkScheduleInclude<ExtArgs> | null
-  where?: Prisma.WorkScheduleWhereInput
+  include?: Prisma.RosterInclude<ExtArgs> | null
+  where?: Prisma.RosterWhereInput
 }
 
 /**
- * SchedulePeriod.availabilityForms
+ * SchedulePeriod.availabilitySubmissions
  */
-export type SchedulePeriod$availabilityFormsArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+export type SchedulePeriod$availabilitySubmissionsArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
   /**
-   * Select specific fields to fetch from the AvailabilityForm
+   * Select specific fields to fetch from the AvailabilitySubmission
    */
-  select?: Prisma.AvailabilityFormSelect<ExtArgs> | null
+  select?: Prisma.AvailabilitySubmissionSelect<ExtArgs> | null
   /**
-   * Omit specific fields from the AvailabilityForm
+   * Omit specific fields from the AvailabilitySubmission
    */
-  omit?: Prisma.AvailabilityFormOmit<ExtArgs> | null
+  omit?: Prisma.AvailabilitySubmissionOmit<ExtArgs> | null
   /**
    * Choose, which related nodes to fetch as well
    */
-  include?: Prisma.AvailabilityFormInclude<ExtArgs> | null
-  where?: Prisma.AvailabilityFormWhereInput
-  orderBy?: Prisma.AvailabilityFormOrderByWithRelationInput | Prisma.AvailabilityFormOrderByWithRelationInput[]
-  cursor?: Prisma.AvailabilityFormWhereUniqueInput
+  include?: Prisma.AvailabilitySubmissionInclude<ExtArgs> | null
+  where?: Prisma.AvailabilitySubmissionWhereInput
+  orderBy?: Prisma.AvailabilitySubmissionOrderByWithRelationInput | Prisma.AvailabilitySubmissionOrderByWithRelationInput[]
+  cursor?: Prisma.AvailabilitySubmissionWhereUniqueInput
   take?: number
   skip?: number
-  distinct?: Prisma.AvailabilityFormScalarFieldEnum | Prisma.AvailabilityFormScalarFieldEnum[]
+  distinct?: Prisma.AvailabilitySubmissionScalarFieldEnum | Prisma.AvailabilitySubmissionScalarFieldEnum[]
 }
 
 /**

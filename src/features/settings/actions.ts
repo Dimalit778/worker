@@ -1,14 +1,17 @@
 'use server';
+import { PortalRole } from '@/lib/auth/portal';
 
 import { prisma } from '@/lib/db/client';
 import { requireSession } from '@/lib/db/auth-helpers';
-import { SystemRole, type DayCategory, type ShiftType } from '@/generated/prisma/client';
+import { type DayCategory, type ShiftType } from '@/generated/prisma/client';
 import {
   getPositions,
   getShiftCapacities,
   getShiftStaffingPositions,
+  getSubmissionWindowRule,
   managerCourtPositionsWhere,
 } from '@/features/settings/queries';
+import { ruleOrderError, type SubmissionWindowRule } from '@/features/periods/submission-window';
 
 const ALL_SHIFTS: ShiftType[] = ['MORNING', 'EVENING', 'NIGHT'];
 
@@ -28,9 +31,9 @@ export async function addPositionWithCapacities(params: {
   shiftScope: ShiftType | 'ALL';
   amount: number;
 }): Promise<{ ok: true } | { error: string }> {
-  const session = await requireSession(SystemRole.MANAGER);
-  const courtId = session.user.courtId;
-  if (!courtId) {
+  const session = await requireSession(PortalRole.MANAGER);
+  const facilityId = session.user.facilityId;
+  if (!facilityId) {
     return { error: 'למנהל אין בית משפט משויך' };
   }
 
@@ -54,16 +57,16 @@ export async function addPositionWithCapacities(params: {
   const shifts: ShiftType[] = params.shiftScope === 'ALL' ? ALL_SHIFTS : [params.shiftScope];
 
   try {
-    const maxCode = await prisma.position.aggregate({
-      where: managerCourtPositionsWhere(courtId),
+    const maxCode = await prisma.shiftRole.aggregate({
+      where: managerCourtPositionsWhere(facilityId),
       _max: { code: true },
     });
     const code = nextManagerPositionCode(maxCode._max?.code ?? null);
 
     await prisma.$transaction(async (tx) => {
-      const position = await tx.position.create({
+      const position = await tx.shiftRole.create({
         data: {
-          courtId,
+          facilityId,
           name,
           code,
           isActive: true,
@@ -71,10 +74,10 @@ export async function addPositionWithCapacities(params: {
       });
 
       for (const shiftType of shifts) {
-        await tx.shiftCapacity.create({
+        await tx.staffingRequirement.create({
           data: {
-            courtId,
-            positionId: position.id,
+            facilityId,
+            shiftRoleId: position.id,
             shiftType,
             dayCategory: params.dayCategory,
             requiredCount: amount,
@@ -94,9 +97,9 @@ export async function addPositionWithCapacities(params: {
 }
 
 export async function createPosition(name: string): Promise<{ ok: true } | { error: string }> {
-  const session = await requireSession(SystemRole.MANAGER);
-  const courtId = session.user.courtId;
-  if (!courtId) {
+  const session = await requireSession(PortalRole.MANAGER);
+  const facilityId = session.user.facilityId;
+  if (!facilityId) {
     return { error: 'למנהל אין בית משפט משויך' };
   }
 
@@ -106,15 +109,15 @@ export async function createPosition(name: string): Promise<{ ok: true } | { err
   }
 
   try {
-    const maxCode = await prisma.position.aggregate({
-      where: managerCourtPositionsWhere(courtId),
+    const maxCode = await prisma.shiftRole.aggregate({
+      where: managerCourtPositionsWhere(facilityId),
       _max: { code: true },
     });
     const code = nextManagerPositionCode(maxCode._max?.code ?? null);
 
-    await prisma.position.create({
+    await prisma.shiftRole.create({
       data: {
-        courtId,
+        facilityId,
         name: trimmed,
         code,
         isActive: true,
@@ -132,9 +135,9 @@ export async function upsertPositionForDisplayOrder(params: {
   displayOrder: number;
   name: string;
 }): Promise<{ ok: true } | { error: string }> {
-  const session = await requireSession(SystemRole.MANAGER);
-  const courtId = session.user.courtId;
-  if (!courtId) {
+  const session = await requireSession(PortalRole.MANAGER);
+  const facilityId = session.user.facilityId;
+  if (!facilityId) {
     return { error: 'למנהל אין בית משפט משויך' };
   }
 
@@ -152,9 +155,9 @@ export async function upsertPositionForDisplayOrder(params: {
   }
 
   try {
-    const existingAtRow = await prisma.position.findFirst({
+    const existingAtRow = await prisma.shiftRole.findFirst({
       where: {
-        courtId,
+        facilityId,
         code: rowCode,
         name: { not: 'מנהל' },
       },
@@ -163,15 +166,15 @@ export async function upsertPositionForDisplayOrder(params: {
     });
 
     if (existingAtRow) {
-      await prisma.position.update({
+      await prisma.shiftRole.update({
         where: { id: existingAtRow.id },
         data: { name, code: rowCode, isActive: true },
       });
     } else {
-      await prisma.position.upsert({
+      await prisma.shiftRole.upsert({
         where: {
-          courtId_name: {
-            courtId,
+          facilityId_name: {
+            facilityId,
             name,
           },
         },
@@ -180,7 +183,7 @@ export async function upsertPositionForDisplayOrder(params: {
           isActive: true,
         },
         create: {
-          courtId,
+          facilityId,
           name,
           code: rowCode,
           isActive: true,
@@ -201,8 +204,8 @@ async function swapPositionOrderWithNeighbor(
   direction: 'up' | 'down',
 ): Promise<{ ok: true } | { error: string }> {
   return prisma.$transaction(async (tx) => {
-    const self = await tx.position.findFirst({
-      where: { id: positionId, courtId: sessionCourtId },
+    const self = await tx.shiftRole.findFirst({
+      where: { id: positionId, facilityId: sessionCourtId },
       select: { id: true, name: true },
     });
 
@@ -214,7 +217,7 @@ async function swapPositionOrderWithNeighbor(
       return { error: 'לא ניתן לשנות סדר לתפקיד זה' };
     }
 
-    const ordered = await tx.position.findMany({
+    const ordered = await tx.shiftRole.findMany({
       where: managerCourtPositionsWhere(sessionCourtId),
       select: { id: true, code: true },
       orderBy: [{ code: 'asc' }, { createdAt: 'asc' }],
@@ -235,8 +238,8 @@ async function swapPositionOrderWithNeighbor(
     const codeA = a.code;
     const codeB = b.code;
 
-    const maxRow = await tx.position.aggregate({
-      where: { courtId: sessionCourtId },
+    const maxRow = await tx.shiftRole.aggregate({
+      where: { facilityId: sessionCourtId },
       _max: { code: true },
     });
     let tempCode = (maxRow._max.code ?? 0) + 1;
@@ -244,16 +247,16 @@ async function swapPositionOrderWithNeighbor(
       tempCode += 1;
     }
 
-    await tx.position.update({ where: { id: a.id }, data: { code: tempCode } });
-    await tx.position.update({ where: { id: b.id }, data: { code: codeA } });
-    await tx.position.update({ where: { id: a.id }, data: { code: codeB } });
+    await tx.shiftRole.update({ where: { id: a.id }, data: { code: tempCode } });
+    await tx.shiftRole.update({ where: { id: b.id }, data: { code: codeA } });
+    await tx.shiftRole.update({ where: { id: a.id }, data: { code: codeB } });
 
-    await tx.shiftCapacity.updateMany({
-      where: { positionId: a.id },
+    await tx.staffingRequirement.updateMany({
+      where: { shiftRoleId: a.id },
       data: { displayOrder: codeB },
     });
-    await tx.shiftCapacity.updateMany({
-      where: { positionId: b.id },
+    await tx.staffingRequirement.updateMany({
+      where: { shiftRoleId: b.id },
       data: { displayOrder: codeA },
     });
 
@@ -265,13 +268,13 @@ export async function updatePositionColor(
   positionId: string,
   color: string | null,
 ): Promise<{ ok: true } | { error: string }> {
-  const session = await requireSession(SystemRole.MANAGER);
-  const courtId = session.user.courtId;
-  if (!courtId) return { error: 'למנהל אין בית משפט משויך' };
+  const session = await requireSession(PortalRole.MANAGER);
+  const facilityId = session.user.facilityId;
+  if (!facilityId) return { error: 'למנהל אין בית משפט משויך' };
 
   try {
-    await prisma.position.update({
-      where: { id: positionId, courtId },
+    await prisma.shiftRole.update({
+      where: { id: positionId, facilityId },
       data: { color },
     });
     return { ok: true };
@@ -281,44 +284,44 @@ export async function updatePositionColor(
 }
 
 export async function movePositionUp(positionId: string): Promise<{ ok: true } | { error: string }> {
-  const session = await requireSession(SystemRole.MANAGER);
-  const courtId = session.user.courtId;
-  if (!courtId) {
+  const session = await requireSession(PortalRole.MANAGER);
+  const facilityId = session.user.facilityId;
+  if (!facilityId) {
     return { error: 'למנהל אין בית משפט משויך' };
   }
 
-  const res = await swapPositionOrderWithNeighbor(courtId, positionId, 'up');
+  const res = await swapPositionOrderWithNeighbor(facilityId, positionId, 'up');
   if ('ok' in res && res.ok) {
   }
   return res;
 }
 
 export async function movePositionDown(positionId: string): Promise<{ ok: true } | { error: string }> {
-  const session = await requireSession(SystemRole.MANAGER);
-  const courtId = session.user.courtId;
-  if (!courtId) {
+  const session = await requireSession(PortalRole.MANAGER);
+  const facilityId = session.user.facilityId;
+  if (!facilityId) {
     return { error: 'למנהל אין בית משפט משויך' };
   }
 
-  const res = await swapPositionOrderWithNeighbor(courtId, positionId, 'down');
+  const res = await swapPositionOrderWithNeighbor(facilityId, positionId, 'down');
   if ('ok' in res && res.ok) {
   }
   return res;
 }
 
-export async function addShiftCapacity(params: {
+export async function addStaffingRequirement(params: {
   positionId: string;
   shiftType: ShiftType;
   dayCategory: DayCategory;
   amount: number;
 }) {
   try {
-    const position = await prisma.position.findUnique({
+    const position = await prisma.shiftRole.findUnique({
       where: {
         id: params.positionId,
       },
       select: {
-        courtId: true,
+        facilityId: true,
         code: true,
       },
     });
@@ -327,11 +330,11 @@ export async function addShiftCapacity(params: {
       return { error: 'התפקיד לא נמצא' };
     }
 
-    const capacity = await prisma.shiftCapacity.upsert({
+    const capacity = await prisma.staffingRequirement.upsert({
       where: {
-        courtId_positionId_shiftType_dayCategory: {
-          courtId: position.courtId,
-          positionId: params.positionId,
+        facilityId_shiftRoleId_shiftType_dayCategory: {
+          facilityId: position.facilityId,
+          shiftRoleId: params.positionId,
           shiftType: params.shiftType,
           dayCategory: params.dayCategory,
         },
@@ -341,8 +344,8 @@ export async function addShiftCapacity(params: {
         isActive: true,
       },
       create: {
-        courtId: position.courtId,
-        positionId: params.positionId,
+        facilityId: position.facilityId,
+        shiftRoleId: params.positionId,
         shiftType: params.shiftType,
         dayCategory: params.dayCategory,
         requiredCount: params.amount,
@@ -365,9 +368,9 @@ export async function addShiftCapacity(params: {
   }
 }
 
-export async function updateShiftCapacity(id: string, amount: number) {
+export async function updateStaffingRequirement(id: string, amount: number) {
   try {
-    await prisma.shiftCapacity.update({
+    await prisma.staffingRequirement.update({
       where: {
         id,
       },
@@ -389,19 +392,55 @@ export async function updateShiftCapacity(id: string, amount: number) {
 
 
 export async function fetchManagerPositions() {
-  const session = await requireSession(SystemRole.MANAGER);
-  const courtId = session.user.courtId ?? '';
-  return getPositions(courtId);
+  const session = await requireSession(PortalRole.MANAGER);
+  const facilityId = session.user.facilityId ?? '';
+  return getPositions(facilityId);
 }
 
 export async function fetchManagerShiftCapacities() {
-  const session = await requireSession(SystemRole.MANAGER);
-  const courtId = session.user.courtId ?? '';
-  return getShiftCapacities(courtId);
+  const session = await requireSession(PortalRole.MANAGER);
+  const facilityId = session.user.facilityId ?? '';
+  return getShiftCapacities(facilityId);
 }
 
 export async function fetchManagerShiftStaffingPositions() {
-  const session = await requireSession(SystemRole.MANAGER);
-  const courtId = session.user.courtId ?? '';
-  return getShiftStaffingPositions(courtId);
+  const session = await requireSession(PortalRole.MANAGER);
+  const facilityId = session.user.facilityId ?? '';
+  return getShiftStaffingPositions(facilityId);
+}
+
+export async function fetchSubmissionWindowRule() {
+  const session = await requireSession(PortalRole.MANAGER);
+  const facilityId = session.user.facilityId ?? '';
+  return getSubmissionWindowRule(facilityId);
+}
+
+export async function saveSubmissionWindowRule(
+  rule: SubmissionWindowRule,
+): Promise<{ ok: true } | { error: string }> {
+  const session = await requireSession(PortalRole.MANAGER);
+  const facilityId = session.user.facilityId;
+  if (!facilityId) return { error: 'למנהל אין בית משפט משויך' };
+
+  const ruleError = ruleOrderError(rule);
+  if (ruleError) return { error: ruleError };
+
+  await prisma.facility.update({
+    where: { id: facilityId },
+    data: {
+      submissionOpenWeekday: rule.openWeekday,
+      submissionOpenTime: rule.openTime,
+      submissionCloseWeekday: rule.closeWeekday,
+      submissionCloseTime: rule.closeTime,
+    },
+  });
+
+  return { ok: true };
+}
+
+export async function updatePositionCapability(positionId: string, requiredCapability: 'GUARD' | 'CONTROLLER' | 'SHIFT_MANAGER') {
+  const session = await requireSession(PortalRole.MANAGER);
+  if (!['GUARD','CONTROLLER','SHIFT_MANAGER'].includes(requiredCapability)) return { error: 'כשירות לא תקינה' };
+  const result = await prisma.shiftRole.updateMany({ where: { id: positionId, facilityId: session.user.facilityId ?? '' }, data: { requiredCapability } });
+  return result.count ? { ok: true as const } : { error: 'תפקיד לא נמצא' };
 }

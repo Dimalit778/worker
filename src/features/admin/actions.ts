@@ -1,4 +1,6 @@
 'use server';
+import { PortalRole } from '@/lib/auth/portal';
+import { Capability } from '@/generated/prisma/client';
 
 import bcrypt from 'bcryptjs';
 import { revalidatePath } from 'next/cache';
@@ -17,10 +19,10 @@ import type {
 } from '@/features/admin/types';
 
 const DEFAULT_POSITIONS = [
-  { code: 1, name: 'קצין מתקן', displayOrder: 1, color: '#2563eb' },
-  { code: 2, name: 'אחמ״ש', displayOrder: 2, color: '#16a34a' },
-  { code: 3, name: 'בקר', displayOrder: 3, color: '#64748b' },
-  { code: 4, name: 'מאבטח', displayOrder: 4, color: '#dc2626' },
+  { code: 1, name: 'קצין מתקן', requiredCapability: Capability.SHIFT_MANAGER, displayOrder: 1, color: '#2563eb' },
+  { code: 2, name: 'אחמ״ש', requiredCapability: Capability.SHIFT_MANAGER, displayOrder: 2, color: '#16a34a' },
+  { code: 3, name: 'בקר', requiredCapability: Capability.CONTROLLER, displayOrder: 3, color: '#64748b' },
+  { code: 4, name: 'מאבטח', requiredCapability: Capability.GUARD, displayOrder: 4, color: '#dc2626' },
 ];
 
 function normalizeText(value: string) {
@@ -45,24 +47,24 @@ function uniqueErrorMessage(error: unknown, fallback: string) {
 }
 
 async function assertAdmin() {
-  await requireSession(SystemRole.ADMIN);
+  await requireSession(PortalRole.ADMIN);
 }
 
 export async function getAdminCourtsData(): Promise<AdminCourtsData> {
   await assertAdmin();
 
-  const regions = await prisma.region.findMany({
+  const regions = await prisma.district.findMany({
     select: {
       id: true,
       name: true,
       code: true,
-      courts: {
+      facilities: {
         select: {
           id: true,
           name: true,
           code: true,
-          regionId: true,
-          positions: {
+          districtId: true,
+          shiftRoles: {
             select: {
               id: true,
               name: true,
@@ -74,13 +76,14 @@ export async function getAdminCourtsData(): Promise<AdminCourtsData> {
           employees: {
             select: {
               id: true,
+              capability: true,
               firstName: true,
               lastName: true,
               displayName: true,
               phone: true,
               isActive: true,
               isReligious: true,
-              position: {
+              primaryShiftRole: {
                 select: {
                   id: true,
                   name: true,
@@ -94,7 +97,7 @@ export async function getAdminCourtsData(): Promise<AdminCourtsData> {
                 },
               },
             },
-            orderBy: [{ position: { code: 'asc' } }, { displayName: 'asc' }],
+            orderBy: [{ primaryShiftRole: { code: 'asc' } }, { displayName: 'asc' }],
           },
         },
         orderBy: [{ name: 'asc' }],
@@ -106,11 +109,13 @@ export async function getAdminCourtsData(): Promise<AdminCourtsData> {
   return {
     regions: regions.map((region) => ({
       ...region,
-      courts: region.courts.map((court) => ({
+      courts: region.facilities.map((court) => ({
         ...court,
+        positions: court.shiftRoles,
         employeeCount: court.employees.length,
         employees: court.employees.map((employee) => ({
           id: employee.id,
+          capability: employee.capability,
           firstName: employee.firstName,
           lastName: employee.lastName,
           displayName: employee.displayName,
@@ -119,7 +124,7 @@ export async function getAdminCourtsData(): Promise<AdminCourtsData> {
           isActive: employee.isActive,
           isReligious: employee.isReligious,
           systemRole: employee.user?.systemRole ?? null,
-          position: employee.position,
+          position: employee.primaryShiftRole,
         })),
       })),
     })),
@@ -131,31 +136,31 @@ export async function createAdminCourt(params: CreateAdminCourtParams): Promise<
 
   const name = normalizeText(params.name);
   const code = normalizeCourtCode(params.code);
-  const regionId = normalizeText(params.regionId);
+  const districtId = normalizeText(params.districtId);
 
-  if (!name || !code || !regionId) {
+  if (!name || !code || !districtId) {
     return { error: 'שם בית משפט, קוד ומחוז הם שדות חובה' };
   }
 
   try {
-    const region = await prisma.region.findUnique({ where: { id: regionId }, select: { id: true } });
+    const region = await prisma.district.findUnique({ where: { id: districtId }, select: { id: true } });
     if (!region) {
       return { error: 'מחוז לא נמצא' };
     }
 
     await prisma.$transaction(async (tx) => {
-      const court = await tx.court.create({
+      const court = await tx.facility.create({
         data: {
           name,
           code,
-          regionId,
+          districtId,
         },
       });
 
-      await tx.position.createMany({
+      await tx.shiftRole.createMany({
         data: DEFAULT_POSITIONS.map((position) => ({
           ...position,
-          courtId: court.id,
+          facilityId: court.id,
           isActive: true,
         })),
       });
@@ -171,19 +176,19 @@ export async function createAdminCourt(params: CreateAdminCourtParams): Promise<
 export async function updateAdminCourt(params: UpdateAdminCourtParams): Promise<AdminActionResult> {
   await assertAdmin();
 
-  const courtId = normalizeText(params.courtId);
+  const facilityId = normalizeText(params.facilityId);
   const name = normalizeText(params.name);
   const code = normalizeCourtCode(params.code);
-  const regionId = normalizeText(params.regionId);
+  const districtId = normalizeText(params.districtId);
 
-  if (!courtId || !name || !code || !regionId) {
+  if (!facilityId || !name || !code || !districtId) {
     return { error: 'שם בית משפט, קוד ומחוז הם שדות חובה' };
   }
 
   try {
     const [court, region] = await Promise.all([
-      prisma.court.findUnique({ where: { id: courtId }, select: { id: true } }),
-      prisma.region.findUnique({ where: { id: regionId }, select: { id: true } }),
+      prisma.facility.findUnique({ where: { id: facilityId }, select: { id: true } }),
+      prisma.district.findUnique({ where: { id: districtId }, select: { id: true } }),
     ]);
 
     if (!court) {
@@ -193,9 +198,9 @@ export async function updateAdminCourt(params: UpdateAdminCourtParams): Promise<
       return { error: 'מחוז לא נמצא' };
     }
 
-    await prisma.court.update({
-      where: { id: courtId },
-      data: { name, code, regionId },
+    await prisma.facility.update({
+      where: { id: facilityId },
+      data: { name, code, districtId },
     });
 
     revalidatePath('/admin/courts');
@@ -205,17 +210,17 @@ export async function updateAdminCourt(params: UpdateAdminCourtParams): Promise<
   }
 }
 
-export async function deleteAdminCourt(courtId: string): Promise<AdminActionResult> {
+export async function deleteAdminCourt(facilityId: string): Promise<AdminActionResult> {
   await assertAdmin();
 
-  const id = normalizeText(courtId);
+  const id = normalizeText(facilityId);
   if (!id) {
     return { error: 'בית משפט לא תקין' };
   }
 
   try {
     await prisma.$transaction(async (tx) => {
-      const court = await tx.court.findUnique({
+      const court = await tx.facility.findUnique({
         where: { id },
         select: {
           id: true,
@@ -238,10 +243,10 @@ export async function deleteAdminCourt(courtId: string): Promise<AdminActionResu
       const userIds = court.employees.flatMap((employee) => (employee.user ? [employee.user.id] : []));
 
       if (userIds.length > 0) {
-        const externalScheduleRefs = await tx.workSchedule.count({
+        const externalScheduleRefs = await tx.roster.count({
           where: {
             createdById: { in: userIds },
-            courtId: { not: id },
+            facilityId: { not: id },
           },
         });
 
@@ -250,7 +255,7 @@ export async function deleteAdminCourt(courtId: string): Promise<AdminActionResu
         }
       }
 
-      await tx.workSchedule.deleteMany({ where: { courtId: id } });
+      await tx.roster.deleteMany({ where: { facilityId: id } });
 
       if (userIds.length > 0) {
         await tx.user.deleteMany({ where: { id: { in: userIds } } });
@@ -260,7 +265,7 @@ export async function deleteAdminCourt(courtId: string): Promise<AdminActionResu
         await tx.employee.deleteMany({ where: { id: { in: employeeIds } } });
       }
 
-      await tx.court.delete({ where: { id } });
+      await tx.facility.delete({ where: { id } });
     });
 
     revalidatePath('/admin/courts');
@@ -280,15 +285,16 @@ export async function deleteAdminCourt(courtId: string): Promise<AdminActionResu
 export async function createAdminEmployee(params: CreateAdminEmployeeParams): Promise<AdminActionResult> {
   await assertAdmin();
 
-  const courtId = normalizeText(params.courtId);
+  const facilityId = normalizeText(params.facilityId);
   const firstName = normalizeText(params.firstName);
   const lastName = normalizeText(params.lastName);
   const displayName = normalizeText(params.displayName);
   const email = normalizeEmail(params.email);
   const positionId = normalizeText(params.positionId);
+  if (!params.capability || !Object.values(Capability).includes(params.capability)) return { error: 'יש לבחור כשירות' };
   const phone = params.phone?.trim() || null;
 
-  if (!courtId || !firstName || !lastName || !displayName || !email || !positionId) {
+  if (!facilityId || !firstName || !lastName || !displayName || !email || !positionId) {
     return { error: 'שם, שם תצוגה, אימייל ותפקיד הם שדות חובה' };
   }
 
@@ -297,10 +303,10 @@ export async function createAdminEmployee(params: CreateAdminEmployeeParams): Pr
   }
 
   try {
-    const position = await prisma.position.findFirst({
+    const position = await prisma.shiftRole.findFirst({
       where: {
         id: positionId,
-        courtId,
+        facilityId,
       },
       select: { id: true },
     });
@@ -327,8 +333,9 @@ export async function createAdminEmployee(params: CreateAdminEmployeeParams): Pr
           lastName,
           displayName,
           phone,
-          positionId,
-          courtId,
+          capability: params.capability,
+          primaryShiftRoleId: positionId,
+          facilityId,
           isActive: params.isActive,
           isReligious: params.isReligious,
         },
@@ -338,7 +345,7 @@ export async function createAdminEmployee(params: CreateAdminEmployeeParams): Pr
         data: {
           email,
           passwordHash,
-          systemRole: SystemRole.EMPLOYEE,
+          systemRole: SystemRole.USER,
           mustChangePassword: true,
           employeeId: employee.id,
         },
@@ -366,6 +373,7 @@ export async function updateAdminEmployee(params: UpdateAdminEmployeeParams): Pr
   const displayName = normalizeText(params.displayName);
   const email = normalizeEmail(params.email);
   const positionId = normalizeText(params.positionId);
+  if (!params.capability || !Object.values(Capability).includes(params.capability)) return { error: 'יש לבחור כשירות' };
   const phone = params.phone?.trim() || null;
 
   if (!employeeId || !firstName || !lastName || !displayName || !email || !positionId) {
@@ -382,7 +390,7 @@ export async function updateAdminEmployee(params: UpdateAdminEmployeeParams): Pr
         where: { id: employeeId },
         select: {
           id: true,
-          courtId: true,
+          facilityId: true,
           user: {
             select: { id: true, email: true },
           },
@@ -393,10 +401,10 @@ export async function updateAdminEmployee(params: UpdateAdminEmployeeParams): Pr
         throw new Error('EMPLOYEE_NOT_FOUND');
       }
 
-      const position = await tx.position.findFirst({
+      const position = await tx.shiftRole.findFirst({
         where: {
           id: positionId,
-          courtId: employee.courtId,
+          facilityId: employee.facilityId,
         },
         select: { id: true },
       });
@@ -412,7 +420,8 @@ export async function updateAdminEmployee(params: UpdateAdminEmployeeParams): Pr
           lastName,
           displayName,
           phone,
-          positionId,
+          capability: params.capability,
+          primaryShiftRoleId: positionId,
           isActive: params.isActive,
           isReligious: params.isReligious,
         },
@@ -429,7 +438,7 @@ export async function updateAdminEmployee(params: UpdateAdminEmployeeParams): Pr
           data: {
             email,
             passwordHash,
-            systemRole: SystemRole.EMPLOYEE,
+            systemRole: SystemRole.USER,
             mustChangePassword: true,
             employeeId,
           },
@@ -476,21 +485,7 @@ export async function deleteAdminEmployee(employeeId: string): Promise<AdminActi
         throw new Error('EMPLOYEE_NOT_FOUND');
       }
 
-      if (employee.user) {
-        const blockingRefs = await Promise.all([
-          tx.workSchedule.count({ where: { createdById: employee.user.id } }),
-          tx.workScheduleVersion.count({ where: { createdById: employee.user.id } }),
-          tx.scheduleChangeLog.count({ where: { changedById: employee.user.id } }),
-        ]);
-
-        if (blockingRefs.some((count) => count > 0)) {
-          throw new Error('EMPLOYEE_HAS_HISTORY');
-        }
-
-        await tx.user.delete({ where: { id: employee.user.id } });
-      }
-
-      await tx.employee.delete({ where: { id } });
+      await tx.employee.update({ where: { id }, data: { isActive: false } });
     });
 
     revalidatePath('/admin/courts');

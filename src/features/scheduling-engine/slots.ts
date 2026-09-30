@@ -25,8 +25,8 @@ export function createDateKey(date: Date): string {
 }
 
 // Returns a unique string key for a slot. Used to track fill counts in maps.
-export function createSlotKey(slot: EngineSlot): string {
-  return `${slot.courtId}|${slot.positionId}|${createDateKey(slot.date)}|${slot.shiftType}`;
+export function createSlotKey(slot: Pick<EngineSlot, 'facilityId' | 'positionId' | 'date' | 'shiftType'>): string {
+  return `${slot.facilityId}|${slot.positionId}|${createDateKey(slot.date)}|${slot.shiftType}`;
 }
 
 // Determines day category from a UTC date.
@@ -49,13 +49,14 @@ export function buildSlots(input: EngineInput): EngineSlot[] {
   const slots: EngineSlot[] = [];
 
   for (const date of allDates) {
-    const dayCategory = getDayCategory(date);
+    const dayCategory = input.holidayCategories?.get(createDateKey(date)) ?? getDayCategory(date);
     for (const capacity of input.capacities) {
       if (capacity.dayCategory === dayCategory && capacity.amount > 0) {
         slots.push({
-          courtId: input.period.courtId,
+          facilityId: input.period.facilityId,
           positionId: capacity.positionId,
           positionName: capacity.positionName,
+          requiredCapability: capacity.requiredCapability,
           date,
           shiftType: capacity.shiftType,
           dayCategory,
@@ -87,8 +88,8 @@ export function sortSlotsByPriority(slots: EngineSlot[]): EngineSlot[] {
     if (dateDiff !== 0) return dateDiff;
 
     return (
-      (getPositionRoleRank(b.positionName) ?? 0) -
-      (getPositionRoleRank(a.positionName) ?? 0)
+      (getPositionRoleRank(b.requiredCapability) ?? 0) -
+      (getPositionRoleRank(a.requiredCapability) ?? 0)
     );
   });
 }

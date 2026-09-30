@@ -1,0 +1,8 @@
+{
+  "crons": [
+    {
+      "path": "/api/cron/submission-windows",
+      "schedule": "*/10 * * * *"
+    }
+  ]
+}

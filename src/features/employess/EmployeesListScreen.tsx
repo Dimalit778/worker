@@ -4,11 +4,11 @@ import { EmployeesTable } from '@/features/employess/components/employees-table'
 import { useEmployeesList } from '@/features/employess/hooks';
 
 type Props = {
-  courtId?: string;
+  facilityId?: string;
 };
 
-export function EmployeesListScreen({ courtId }: Props) {
-  const { data, isLoading, isError } = useEmployeesList(courtId);
+export function EmployeesListScreen({ facilityId }: Props) {
+  const { data, isLoading, isError } = useEmployeesList(facilityId);
 
   if (isLoading) {
     return (
@@ -28,8 +28,8 @@ export function EmployeesListScreen({ courtId }: Props) {
     <EmployeesTable
       employees={data.employees}
       positions={data.positions}
-      courtId={courtId}
-      showHeader={!courtId}
+      facilityId={facilityId}
+      showHeader={!facilityId}
     />
   );
 }

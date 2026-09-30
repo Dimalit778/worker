@@ -4,7 +4,6 @@ import Link from 'next/link';
 import { ArrowRight } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { ScheduleCalendar } from '@/features/availability/components/schedule-calendar';
-import { availabilityEntriesToRecord } from '@/features/availability/utils';
 import { useMyEmployeeSubmissions } from '@/features/availability/hooks';
 
 export function EmployeeSubmissionPeriodClient({ periodId }: { periodId: string }) {
@@ -36,7 +35,7 @@ export function EmployeeSubmissionPeriodClient({ periodId }: { periodId: string 
           endDate: period.endDate,
           status: period.status,
         }}
-        initialEntries={availabilityEntriesToRecord(period.entries)}
+        initialEntries={Object.fromEntries(period.entries.map(e => [`${e.date instanceof Date ? e.date.toISOString().slice(0,10) : String(e.date).slice(0,10)}-${e.shiftType}`, e.preference ?? (e.isAvailable ? 'AVAILABLE' : 'UNAVAILABLE')]))}
         initialSubmitted={period.isSubmitted}
         initialNote={period.note}
         viewOnly

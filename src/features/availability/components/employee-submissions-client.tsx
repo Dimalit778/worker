@@ -1,7 +1,7 @@
 'use client';
 
 import { SubmissionsTable } from '@/features/availability/components/submissions-table';
-import { availabilityEntriesToRecord } from '@/features/availability/utils';
+import { availabilityPreferencesToRecord, countAvailableEntries } from '@/features/availability/utils';
 import { useMyEmployeeSubmissions } from '@/features/availability/hooks';
 
 export function EmployeeSubmissionsClient() {
@@ -16,8 +16,8 @@ export function EmployeeSubmissionsClient() {
   }
 
   const submissionsPayload = periods.map((p) => {
-    const entries = availabilityEntriesToRecord(p.entries);
-    const selectedSlotCount = Object.values(entries).filter(Boolean).length;
+    const entries = availabilityPreferencesToRecord(p.entries);
+    const selectedSlotCount = countAvailableEntries(entries);
     return {
       id: p.id,
       name: p.name,

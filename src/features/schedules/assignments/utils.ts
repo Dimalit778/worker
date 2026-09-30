@@ -1,4 +1,5 @@
-import { ScheduleStatus, ShiftType } from '@/generated/prisma/client';
+import { PeriodScheduleStatus } from '@/features/schedules/period-status';
+import { ShiftType } from '@/generated/prisma/client';
 import {
   AssignmentCellKey,
   AssignmentMap,
@@ -28,6 +29,7 @@ export function buildAssignmentMap(
     employeeId: string;
     employeeDisplayName: string;
     slotIndex: number;
+    isLocked?: boolean;
   }>,
 ): AssignmentMap {
   const map: AssignmentMap = {};
@@ -40,6 +42,7 @@ export function buildAssignmentMap(
     const list = (map[key] ??= []);
     list.push({
       id: row.id,
+      isLocked: row.isLocked,
       employeeId: row.employeeId,
       employeeDisplayName: row.employeeDisplayName,
       positionId: row.positionId,
@@ -59,14 +62,14 @@ export function buildAssignmentMap(
 export function toScheduleData(
   scheduleRow: {
     id: string;
-    status: ScheduleStatus;
+    status: PeriodScheduleStatus;
     period: {
       name: string;
       startDate: Date;
       endDate: Date;
     };
   },
-  courtId: string,
+  facilityId: string,
   employees: ScheduleEmployeeOption[],
   capacity: ScheduleCapacityRule[],
   assignments: AssignmentMap,
@@ -79,7 +82,7 @@ export function toScheduleData(
     startDate: scheduleRow.period.startDate.toISOString().slice(0, 10),
     endDate: scheduleRow.period.endDate.toISOString().slice(0, 10),
     scheduleStatus: scheduleRow.status,
-    courtId,
+    facilityId,
     employees,
     capacity,
     assignments,

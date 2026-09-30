@@ -12,7 +12,7 @@ import { datesInRange, SHIFTS, DAY_HE } from '../utils';
 
 type Props = {
   period: PeriodInfo;
-  initialEntries: Record<string, boolean>;
+  initialEntries: Record<string, boolean | 'AVAILABLE' | 'PREFERRED' | 'UNAVAILABLE'>;
   initialSubmitted: boolean;
   initialNote?: string;
 
@@ -26,7 +26,7 @@ export function ScheduleCalendar({
   initialNote = '',
   viewOnly = false,
 }: Props) {
-  const [entries, setEntries] = useState<Record<string, boolean>>(initialEntries);
+  const [entries, setEntries] = useState<Record<string, boolean | 'AVAILABLE' | 'PREFERRED' | 'UNAVAILABLE'>>(initialEntries);
   const [note, setNote] = useState(initialNote);
   const [submitted, setSubmitted] = useState(initialSubmitted);
   const queryClient = useQueryClient();
@@ -45,7 +45,7 @@ export function ScheduleCalendar({
   const pending = submitMutation.isPending;
 
   const dates = datesInRange(period.startDate, period.endDate);
-  const readonly = viewOnly || submitted || period.status === 'LOCKED' || period.status === 'ARCHIVED';
+  const readonly = viewOnly || period.status === 'LOCKED' || period.status === 'ARCHIVED';
 
   // Split into two weeks for layout
   const week1 = dates.slice(0, 7);
@@ -54,14 +54,14 @@ export function ScheduleCalendar({
   function handleToggle(date: string, shiftType: ShiftType) {
     if (readonly) return;
     const key = `${date}-${shiftType}`;
-    setEntries((prev) => ({ ...prev, [key]: !prev[key] }));
+    setEntries((prev) => ({ ...prev, [key]: (prev[key] === 'PREFERRED' ? 'UNAVAILABLE' : prev[key] === 'AVAILABLE' || prev[key] === true ? 'PREFERRED' : 'AVAILABLE') }));
   }
 
   function handleSubmit() {
-    submitMutation.mutate({ entries, note });
+    submitMutation.mutate({ periodId: period.id, entries, note });
   }
 
-  const selected = Object.values(entries).filter(Boolean).length;
+  const selected = Object.values(entries).filter(v => v === true || v === 'AVAILABLE' || v === 'PREFERRED').length;
 
   return (
     <div className="space-y-5" dir="rtl">
@@ -142,7 +142,8 @@ export function ScheduleCalendar({
                     </td>
                     {week.map((date) => {
                       const key = `${date}-${shift.key}`;
-                      const on = !!entries[key];
+                      const on = entries[key] === true || entries[key] === 'AVAILABLE' || entries[key] === 'PREFERRED';
+                      const preferred = entries[key] === 'PREFERRED';
                       const d = new Date(`${date}T12:00:00Z`);
                       const isWeekend = d.getUTCDay() === 5 || d.getUTCDay() === 6;
                       return (
@@ -153,7 +154,7 @@ export function ScheduleCalendar({
                           <button
                             onClick={() => handleToggle(date, shift.key)}
                             disabled={readonly}
-                            title={on ? 'לחץ לביטול' : 'לחץ לבחירה'}
+                            title="לחיצה מחליפה בין לא יכול, זמין ומעדיף" aria-label={`${date} ${shift.label}: ${preferred ? 'מעדיף' : on ? 'זמין' : 'לא יכול'}`}
                             className={cn(
                               'w-full h-9 rounded-md transition-all duration-150 flex items-center justify-center',
                               on
@@ -163,11 +164,7 @@ export function ScheduleCalendar({
                               !readonly && !on && 'hover:scale-95',
                             )}
                           >
-                            {on && (
-                              <svg className="w-3.5 h-3.5" viewBox="0 0 16 16" fill="currentColor">
-                                <path d="M13.78 4.22a.75.75 0 0 1 0 1.06l-7.25 7.25a.75.75 0 0 1-1.06 0L2.22 9.28a.75.75 0 0 1 1.06-1.06L6 10.94l6.72-6.72a.75.75 0 0 1 1.06 0Z" />
-                              </svg>
-                            )}
+                            {preferred ? '★ מעדיף' : on ? '✓ זמין' : 'לא יכול'}
                           </button>
                         </td>
                       );
@@ -203,16 +200,17 @@ export function ScheduleCalendar({
       </div>
 
       {/* Submit */}
-      {!viewOnly && !submitted && period.status === 'OPEN' && (
+      {!viewOnly && period.status === 'OPEN' && (
         <div className="flex items-center gap-3 pt-1">
           <button
             onClick={handleSubmit}
-            disabled={pending || selected === 0}
+            disabled={pending}
             className="bg-foreground text-background text-sm px-6 py-2.5 rounded-lg font-medium hover:opacity-90 disabled:opacity-40 transition-opacity"
           >
-            {pending ? 'שומר...' : 'הגש זמינות'}
+            {pending ? 'שומר...' : submitted ? 'עדכן זמינות' : 'הגש זמינות'}
           </button>
-          {selected === 0 && <p className="text-xs text-muted-foreground">יש לבחור לפחות משמרת אחת</p>}
+          {submitMutation.data?.error && <p role="alert">{submitMutation.data.error}</p>}
+          {submitMutation.isError && <p role="alert">שמירת ההגשה נכשלה</p>}
         </div>
       )}
 

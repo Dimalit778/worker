@@ -30,6 +30,7 @@ export function EmployeeAvailabilityClient() {
 
   return (
     <ScheduleCalendar
+      key={data.period.id}
       period={data.period}
       initialEntries={data.entries}
       initialSubmitted={data.isSubmitted}

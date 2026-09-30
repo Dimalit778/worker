@@ -74,8 +74,8 @@ export function generateSchedule(input: EngineInput): EngineOutput {
   const allSlots = sortSlotsByPriority(buildSlots(input));
 
   // workingAssignments grows throughout both phases. Never mutates input.
-  const workingAssignments: EngineAssignment[] = [...input.manualAssignments];
-  const fairness = initFairness(input.manualAssignments);
+  const workingAssignments: EngineAssignment[] = [...(input.boundaryAssignments ?? []), ...input.manualAssignments];
+  const fairness = initFairness([...(input.historicalAssignments ?? []), ...input.manualAssignments]);
 
   // Slot fill counts seeded from manual assignments; passed to Phase 1 for
   // interface compatibility (weekly-minimums derives live counts internally).
@@ -116,11 +116,11 @@ export function generateSchedule(input: EngineInput): EngineOutput {
 
       if (eligible.length === 0) break;
 
-      const [best] = sortCandidatesByScore(eligible, slot, fairness);
+      const [best] = sortCandidatesByScore(eligible, slot, fairness, input.preferences);
 
       const assignment: EngineAssignment = {
         employeeId: best.id,
-        courtId: slot.courtId,
+        facilityId: slot.facilityId,
         positionId: slot.positionId,
         positionName: slot.positionName,
         date: slot.date,
@@ -147,7 +147,7 @@ export function generateSchedule(input: EngineInput): EngineOutput {
       workingAssignments
         .filter(
           (a) =>
-            a.courtId === slot.courtId &&
+            a.facilityId === slot.facilityId &&
             a.positionId === slot.positionId &&
             a.shiftType === slot.shiftType &&
             isSameDate(a.date, slot.date)
@@ -181,7 +181,7 @@ export function generateSchedule(input: EngineInput): EngineOutput {
       ) {
         overflowCandidates.push({
           employeeId: employee.id,
-          courtId: slot.courtId,
+          facilityId: slot.facilityId,
           positionId: slot.positionId,
           date: slot.date,
           shiftType: slot.shiftType,
@@ -208,12 +208,12 @@ export function generateSchedule(input: EngineInput): EngineOutput {
       fairnessSummary: fairness,
     }),
     overflowCandidates,
-    fairnessSummary: computeFairnessSummary(workingAssignments),
+    fairnessSummary: computeFairnessSummary([...input.manualAssignments, ...autoAssignments]),
     stats: {
       totalSlots: allSlots.length,
       filledSlots: filledSlotCount,
       unfilledSlots: unfilledSlots.length,
-      totalAssignments: workingAssignments.length,
+      totalAssignments: input.manualAssignments.length + autoAssignments.length,
       employeesWithUnmetMinimums: new Set(unmetMinimums.map((u) => u.employeeId)).size,
       durationMs: Date.now() - startTime,
     },

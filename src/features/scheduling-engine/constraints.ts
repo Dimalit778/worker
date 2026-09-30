@@ -34,7 +34,10 @@ export function isAvailable(
   return availability.get(employeeId)?.has(key) ?? false;
 }
 
-// H2 — Employee already has an assignment on the same or adjacent shift.
+// H2 — Employee already has an assignment on the same shift, or on a shift
+// that leaves less than a full 8-hour rest gap before/after it. There are no
+// "streak" exceptions: any pair of shifts closer together than 8 hours apart
+// is always blocked.
 export function areAdjacentShifts(
   firstDate: Date,
   firstShiftType: ShiftType,
@@ -85,7 +88,10 @@ export function isDoubleBooked(
   );
 }
 
-// H3 — Rest rule: NIGHT → next day MORNING is forbidden (and the inverse).
+// H3 — 8-hour rest rule: the only cross-day case where two shifts are less
+// than 8 hours apart is NIGHT ending right where the next day's MORNING
+// begins (and vice versa), so that pair is blocked. No other exception or
+// "streak" rule applies here.
 // Checks both directions so callers don't need to think about ordering:
 // - Assigning MORNING on date D: blocked if employee has NIGHT on D-1.
 // - Assigning NIGHT on date D: blocked if employee has MORNING on D+1.
@@ -118,7 +124,7 @@ export function violatesRestRule(
   return false;
 }
 
-// H4 + H5 + H7 — Employee belongs to the same court, has the required position,
+// H4 + H5 + H7 — Employee belongs to the same court, has sufficient capability,
 // and is active.
 export function isEligibleForSlot(
   employee: EngineEmployee,
@@ -126,21 +132,20 @@ export function isEligibleForSlot(
 ): boolean {
   return (
     employee.isActive &&
-    employee.courtId === slot.courtId &&
-    (employee.positionId === slot.positionId ||
-      canEmployeeFillPosition(employee.positionName, slot.positionName))
+    employee.facilityId === slot.facilityId &&
+    canEmployeeFillPosition(employee.capability, slot.requiredCapability)
   );
 }
 
 // H6 — Count how many assignments currently fill a slot (by positionId + date +
-// shiftType + courtId). Used both to enforce capacity and to track overflow.
+// shiftType + facilityId). Used both to enforce capacity and to track overflow.
 export function getSlotFillCount(
   slot: EngineSlot,
   assignments: EngineAssignment[]
 ): number {
   return assignments.filter(
     (a) =>
-      a.courtId === slot.courtId &&
+      a.facilityId === slot.facilityId &&
       a.positionId === slot.positionId &&
       a.shiftType === slot.shiftType &&
       isSameDate(a.date, slot.date)
@@ -156,7 +161,7 @@ export function getShiftFillCount(
 ): number {
   return assignments.filter(
     (a) =>
-      a.courtId === slot.courtId &&
+      a.facilityId === slot.facilityId &&
       a.shiftType === slot.shiftType &&
       isSameDate(a.date, slot.date)
   ).length;
@@ -180,7 +185,7 @@ export function hasAdjacentAvailableSlotWithLowerFill(
   const currentShiftFill = getShiftFillCount(slot, assignments);
 
   return allSlots.some((candidate) => {
-    if (candidate.courtId !== slot.courtId) return false;
+    if (candidate.facilityId !== slot.facilityId) return false;
     if (!areAdjacentShifts(slot.date, slot.shiftType, candidate.date, candidate.shiftType)) {
       return false;
     }

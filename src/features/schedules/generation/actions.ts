@@ -1,148 +1,29 @@
 'use server';
-
 import { generateSchedule } from '@/features/scheduling-engine/generate-schedule';
-import type { EngineInput, EngineStats } from '@/features/scheduling-engine/types';
+import { validateAssignments } from '@/features/scheduling-engine/validate';
 import { requireManager } from '@/lib/db/auth-helpers';
-import { prisma } from '@/lib/db/client';
-import { ScheduleStatus, WarningSeverity, WarningType } from '@/generated/prisma/client';
+import { scheduleTransaction, editableDraft, type VersionExpectation } from '../services/transactions';
+import { loadSchedulingInput } from './queries';
+import { saveScheduleAnalysis } from './recalculate';
 
-import { resolveDraftVersionForGeneration } from '@/features/schedules/versions/queries';
-import { getAutoScheduleInputData } from './queries';
-
-export type GenerateAutoScheduleResult =
-  | {
-      ok: true;
-      scheduleId: string;
-      totalAssignments: number;
-      warningCount: number;
-      errorWarningCount: number;
-      stats: EngineStats;
-    }
-  | { error: string };
-
-export async function generateAutoSchedule(scheduleId: string): Promise<GenerateAutoScheduleResult> {
-  const { userId, courtId } = await requireManager();
-
-  const data = await getAutoScheduleInputData(scheduleId);
-  if (!data.found) return { error: data.message };
-
-  const currentSchedule = await prisma.workSchedule.findUnique({
-    where: { id: scheduleId, courtId },
-    select: { id: true, status: true },
-  });
-
-  if (!currentSchedule) return { error: 'Schedule not found' };
-  if (currentSchedule.status === ScheduleStatus.ARCHIVED) {
-    return { error: 'Cannot regenerate an archived schedule' };
-  }
-
-  const input: EngineInput = {
-    ...data.input,
-    scheduleId: currentSchedule.id,
-  };
-  const output = generateSchedule(input);
-
-  await prisma.$transaction(
-    async (tx) => {
-      const freshSchedule = await tx.workSchedule.findUnique({
-        where: { id: scheduleId, courtId },
-        select: { status: true, courtId: true },
-      });
-
-      if (!freshSchedule) throw new Error('Schedule not found');
-      if (freshSchedule.status === ScheduleStatus.ARCHIVED) {
-        throw new Error('Cannot regenerate an archived schedule');
-      }
-      if (freshSchedule.status === ScheduleStatus.OPEN) {
-        await tx.workSchedule.update({
-          where: { id: scheduleId, courtId },
-          data: { status: ScheduleStatus.LOCKED },
-        });
-      } else if (
-        freshSchedule.status !== ScheduleStatus.LOCKED &&
-        freshSchedule.status !== ScheduleStatus.PUBLISHED
-      ) {
-        throw new Error('Period must be open, locked, or published before auto scheduling');
-      }
-
-      const draftVersion = await resolveDraftVersionForGeneration(tx, {
-        scheduleId,
-        courtId: freshSchedule.courtId,
-        createdById: userId,
-      });
-
-      await tx.shiftAssignment.deleteMany({
-        where: { versionId: draftVersion.id },
-      });
-
-      if (output.assignments.length > 0) {
-        await tx.shiftAssignment.createMany({
-          data: output.assignments.map((assignment) => ({
-            scheduleId,
-            versionId: draftVersion.id,
-            employeeId: assignment.employeeId,
-            courtId: assignment.courtId,
-            positionId: assignment.positionId,
-            date: assignment.date,
-            shiftType: assignment.shiftType,
-          })),
-        });
-      }
-
-      await tx.scheduleWarning.deleteMany({
-        where: { scheduleId },
-      });
-
-      if (output.warnings.length > 0) {
-        await tx.scheduleWarning.createMany({
-          data: output.warnings.map((warning) => ({
-            scheduleId,
-            type: warning.type as WarningType,
-            severity: warning.severity as WarningSeverity,
-            employeeId: warning.employeeId ?? null,
-            courtId: input.period.courtId,
-            positionId: warning.positionId ?? null,
-            shiftType: warning.shiftType ?? null,
-            date: warning.date ?? null,
-            message: warning.message,
-          })),
-        });
-      }
-
-      await tx.fairnessRecord.deleteMany({
-        where: { scheduleId },
-      });
-
-      if (output.fairnessSummary.size > 0) {
-        await tx.fairnessRecord.createMany({
-          data: Array.from(output.fairnessSummary.values()).map((fairness) => ({
-            employeeId: fairness.employeeId,
-            scheduleId,
-            totalShifts: fairness.totalShifts,
-            morningShifts: fairness.morningShifts,
-            eveningShifts: fairness.eveningShifts,
-            nightShifts: fairness.nightShifts,
-            weekendShifts: fairness.weekendShifts,
-          })),
-        });
-      }
-
-      await tx.workSchedule.update({
-        where: { id: scheduleId, courtId },
-        data: {
-          generatedAt: new Date(),
-        },
-      });
-    },
-    { timeout: 20_000 },
-  );
-
-  return {
-    ok: true,
-    scheduleId,
-    totalAssignments: output.assignments.length,
-    warningCount: output.warnings.length,
-    errorWarningCount: output.warnings.filter((warning) => warning.severity === 'ERROR').length,
-    stats: output.stats,
-  };
+export async function generateAutoSchedule(scheduleId: string, expected: VersionExpectation) {
+  const actor = await requireManager();
+  try {
+    return await scheduleTransaction(actor, async tx => {
+      const { version, schedule } = await editableDraft(tx, actor, scheduleId, expected);
+      const { input, assignments: before } = await loadSchedulingInput(tx, scheduleId, actor.facilityId, version.id);
+      const output = generateSchedule(input);
+      const all = [...input.manualAssignments, ...output.assignments];
+      const failures = validateAssignments(input, all);
+      if (failures.length) throw new Error(failures.join('; '));
+      await tx.shiftAssignment.deleteMany({ where: { versionId: version.id, isLocked: false } });
+      if (output.assignments.length) await tx.shiftAssignment.createMany({ data: output.assignments.map(a => ({ scheduleId, versionId: version.id, facilityId: actor.facilityId, employeeId: a.employeeId, shiftRoleId: a.positionId, date: a.date, shiftType: a.shiftType, source: 'AUTOMATIC', isLocked: false })) });
+      const analysis = await saveScheduleAnalysis(tx, version.id, input, all);
+      await tx.rosterVersion.update({ where: { id: version.id }, data: { revision: { increment: 1 } } });
+      await tx.schedulePeriod.update({ where: { id: schedule.periodId }, data: { submissionState: 'CLOSED' } });
+      await tx.roster.update({ where: { id: scheduleId }, data: { generatedAt: new Date() } });
+      await tx.scheduleChangeLog.create({ data: { scheduleId, versionId: version.id, changedById: actor.userId, changeType: 'UPDATE', message: 'יצירה אוטומטית מחדש; איושים נעולים נשמרו', beforeData: JSON.parse(JSON.stringify(before)), afterData: JSON.parse(JSON.stringify(all)) } });
+      return { ok: true as const, scheduleId, totalAssignments: all.length, warningCount: analysis.warnings.length, errorWarningCount: analysis.warnings.filter(w => w.severity === 'ERROR').length, stats: output.stats };
+    });
+  } catch (e) { return { error: e instanceof Error ? e.message : 'יצירת שיבוץ נכשלה' }; }
 }

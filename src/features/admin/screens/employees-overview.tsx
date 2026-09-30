@@ -75,7 +75,7 @@ export function EmployeesOverview({ data }: Props) {
         {open && filteredCourts.length > 0 && (
           <ul className="absolute z-10 mt-1 w-full max-h-64 overflow-y-auto rounded-md border bg-popover shadow-md">
             {filteredCourts.map((court) => {
-              const region = data.regions.find((r) => r.id === court.regionId);
+              const region = data.regions.find((r) => r.id === court.districtId);
               return (
                 <li
                   key={court.id}
@@ -112,7 +112,7 @@ export function EmployeesOverview({ data }: Props) {
           בחר בית משפט כדי לראות את העובדים
         </div>
       ) : (
-        <EmployeesListScreen courtId={selectedCourt.id} />
+        <EmployeesListScreen facilityId={selectedCourt.id} />
       )}
     </div>
   );

@@ -1,6 +1,6 @@
+import { PortalRole } from '@/lib/auth/portal';
 import { dehydrate, HydrationBoundary } from '@tanstack/react-query';
 import { notFound } from 'next/navigation';
-import { SystemRole } from '@/generated/prisma/client';
 import { EmployeeSubmissionPeriodClient } from '@/features/availability/components/employee-submission-period-client';
 import { fetchMyEmployeeAvailability } from '@/features/availability/actions';
 import { requireSession } from '@/lib/db/auth-helpers';
@@ -12,7 +12,7 @@ type UserSubmissionPeriodPageProps = {
 };
 
 export default async function UserSubmissionPeriodPage({ params }: UserSubmissionPeriodPageProps) {
-  await requireSession(SystemRole.EMPLOYEE);
+  await requireSession(PortalRole.EMPLOYEE);
   const { periodId } = await params;
   const queryClient = getQueryClient();
 

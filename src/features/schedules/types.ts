@@ -1,4 +1,5 @@
-import type { DayCategory, ScheduleStatus, ShiftType, WarningSeverity, WarningType } from '@/generated/prisma/client';
+import { PeriodScheduleStatus } from '@/features/schedules/period-status';
+import type { DayCategory, ShiftType, WarningSeverity, WarningType } from '@/generated/prisma/client';
 
 export type StaffingDayCategory = DayCategory | 'HOLIDAY';
 
@@ -8,7 +9,7 @@ export type ScheduleSummary = {
   startDate: string;
   endDate: string;
   submissionDeadline: string;
-  status: ScheduleStatus;
+  status: PeriodScheduleStatus;
   submittedCount: number;
   totalEmployees: number;
 };
@@ -34,6 +35,7 @@ export type ScheduleCapacityRule = {
 };
 
 export type AssignmentSummary = {
+  isLocked?: boolean;
   id: string;
   employeeId: string;
   employeeDisplayName: string;
@@ -80,12 +82,16 @@ export type AvailabilitySubmissionSummary = {
 };
 
 export type CurrentScheduleData = {
+  versionId?: string | null;
+  revision?: number;
+  fairness?: Array<{ employeeId: string; employeeName: string; totalShifts: number; nightShifts: number; weekendShifts: number; draftShifts: number }>;
+
   scheduleId: string;
   scheduleName: string;
   startDate: string;
   endDate: string;
-  scheduleStatus: ScheduleStatus | null;
-  courtId: string;
+  scheduleStatus: PeriodScheduleStatus | null;
+  facilityId: string;
   employees: ScheduleEmployeeOption[];
   capacity: ScheduleCapacityRule[];
   assignments: AssignmentMap;
@@ -104,7 +110,7 @@ export type WeeklyDraftScheduleViewProps = {
   assignments: AssignmentMap;
   employees: ScheduleEmployeeOption[];
   capacity: ScheduleCapacityRule[];
-  courtId: string;
+  facilityId: string;
   overflowCandidates?: OverflowCandidateMap;
   readonly?: boolean;
   highlightedEmployeeId?: string | null;
@@ -119,7 +125,7 @@ export type WeekDay = {
 
 export type AssignEmployeeToSlotParams = {
   scheduleId: string;
-  courtId?: string;
+  facilityId?: string;
   employeeId: string;
   positionId: string;
   shiftType: ShiftType;

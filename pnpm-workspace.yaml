@@ -1,9 +1,17 @@
-ignoredBuiltDependencies:
-  - sharp
-  - unrs-resolver
+allowBuilds:
+  '@prisma/engines': true
+  esbuild: true
+  msw: false
+  prisma: true
+  puppeteer: true
+  sharp: true
+  unrs-resolver: true
 
 onlyBuiltDependencies:
   - "@prisma/client"
   - "@prisma/engines"
   - esbuild
   - prisma
+  - puppeteer
+  - sharp
+  - unrs-resolver

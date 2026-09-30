@@ -1,32 +1,34 @@
+import { PortalRole } from '@/lib/auth/portal';
 import { requireSession } from '@/lib/db/auth-helpers';
-import { ScheduleStatus, SystemRole } from '@/generated/prisma/client';
 import { prisma } from '@/lib/db/client';
+import { syncSubmissionWindows } from '@/features/periods/process-windows';
 import { LogoutButton } from '@/components/ui/logout-button';
 import { UserNav } from './user-nav';
 
 export default async function UserLayout({ children }: { children: React.ReactNode }) {
-  const session = await requireSession(SystemRole.EMPLOYEE);
+  const session = await requireSession(PortalRole.EMPLOYEE);
+  await syncSubmissionWindows(session.user.facilityId);
 
   const [primaryCourt, hasOpenPeriod] = await Promise.all([
-    session.user.courtId ? prisma.court.findUnique({ where: { id: session.user.courtId } }) : null,
+    session.user.facilityId ? prisma.facility.findUnique({ where: { id: session.user.facilityId } }) : null,
     (async () => {
       const user = await prisma.user.findUnique({
         where: { id: session.user.id },
         select: {
           employeeId: true,
-          employee: { select: { position: { select: { code: true } } } },
+          employee: { select: { primaryShiftRole: { select: { code: true } } } },
         },
       });
       if (!user?.employeeId) return false;
-      if (user.employee?.position.code === 1) return false;
+      if (user.employee?.primaryShiftRole.code === 1) return false;
 
-      const openPeriod = await prisma.workSchedule.findFirst({
-        where: { status: ScheduleStatus.OPEN, courtId: session.user.courtId },
+      const openPeriod = await prisma.roster.findFirst({
+        where: { archivedAt: null, facilityId: session.user.facilityId ?? '', period: { submissionState: 'OPEN' } },
         select: { periodId: true },
       });
       if (!openPeriod) return false;
 
-      const submitted = await prisma.availabilityForm.findUnique({
+      const submitted = await prisma.availabilitySubmission.findUnique({
         where: { periodId_employeeId: { periodId: openPeriod.periodId, employeeId: user.employeeId } },
         select: { isSubmitted: true },
       });

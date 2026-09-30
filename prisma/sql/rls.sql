@@ -70,7 +70,7 @@ RETURNS TEXT
 LANGUAGE SQL
 STABLE
 AS $$
-  SELECT "courtId" FROM "WorkSchedule" WHERE "id" = schedule_id
+  SELECT "courtId" FROM "Roster" WHERE "id" = schedule_id
 $$;
 
 CREATE OR REPLACE FUNCTION app_private.period_court_id(period_id TEXT)
@@ -105,8 +105,8 @@ ALTER TABLE "Employee" ENABLE ROW LEVEL SECURITY;
 ALTER TABLE "Position" ENABLE ROW LEVEL SECURITY;
 ALTER TABLE "ShiftCapacity" ENABLE ROW LEVEL SECURITY;
 ALTER TABLE "SchedulePeriod" ENABLE ROW LEVEL SECURITY;
-ALTER TABLE "WorkSchedule" ENABLE ROW LEVEL SECURITY;
-ALTER TABLE "WorkScheduleVersion" ENABLE ROW LEVEL SECURITY;
+ALTER TABLE "Roster" ENABLE ROW LEVEL SECURITY;
+ALTER TABLE "RosterVersion" ENABLE ROW LEVEL SECURITY;
 ALTER TABLE "ShiftAssignment" ENABLE ROW LEVEL SECURITY;
 ALTER TABLE "ScheduleWarning" ENABLE ROW LEVEL SECURITY;
 ALTER TABLE "FairnessRecord" ENABLE ROW LEVEL SECURITY;
@@ -144,15 +144,15 @@ CREATE POLICY "SchedulePeriod_manager_write_own_court" ON "SchedulePeriod"
 FOR ALL USING (app_private.is_manager_for_court("courtId"))
 WITH CHECK (app_private.is_manager_for_court("courtId"));
 
-CREATE POLICY "WorkSchedule_read_own_court" ON "WorkSchedule"
+CREATE POLICY "Roster_read_own_court" ON "Roster"
 FOR SELECT USING (app_private.can_read_court("courtId"));
-CREATE POLICY "WorkSchedule_manager_write_own_court" ON "WorkSchedule"
+CREATE POLICY "Roster_manager_write_own_court" ON "Roster"
 FOR ALL USING (app_private.is_manager_for_court("courtId"))
 WITH CHECK (app_private.is_manager_for_court("courtId"));
 
-CREATE POLICY "WorkScheduleVersion_read_own_court" ON "WorkScheduleVersion"
+CREATE POLICY "RosterVersion_read_own_court" ON "RosterVersion"
 FOR SELECT USING (app_private.can_read_court("courtId"));
-CREATE POLICY "WorkScheduleVersion_manager_write_own_court" ON "WorkScheduleVersion"
+CREATE POLICY "RosterVersion_manager_write_own_court" ON "RosterVersion"
 FOR ALL USING (app_private.is_manager_for_court("courtId"))
 WITH CHECK (app_private.is_manager_for_court("courtId"));
 
