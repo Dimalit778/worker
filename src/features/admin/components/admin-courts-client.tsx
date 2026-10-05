@@ -260,6 +260,7 @@ export function AdminCourtsClient({ data }: Props) {
           key={`create-${dialog.court.id}`}
           court={dialog.court}
           pending={pendingLabel === 'create-employee'}
+          error={error}
           onClose={() => setDialog(null)}
           onSubmit={handleEmployeeSaved}
         />
@@ -271,6 +272,7 @@ export function AdminCourtsClient({ data }: Props) {
           court={dialog.court}
           employee={dialog.employee}
           pending={pendingLabel === 'update-employee'}
+          error={error}
           onClose={() => setDialog(null)}
           onSubmit={handleEmployeeSaved}
         />
@@ -515,16 +517,20 @@ function EmployeeDialog({
   court,
   employee,
   pending,
+  error,
   onClose,
   onSubmit,
 }: {
   court: AdminCourtItem;
   employee?: AdminEmployeeItem;
   pending: boolean;
+  error: string | null;
   onClose: () => void;
   onSubmit: (input: CreateAdminEmployeeParams | UpdateAdminEmployeeParams) => Promise<void>;
 }) {
   const [positionId, setPositionId] = useState(employee?.position.id ?? court.positions[0]?.id ?? '');
+  const [isActive, setIsActive] = useState(employee?.isActive ?? true);
+  const [isReligious, setIsReligious] = useState(employee?.isReligious ?? false);
   const isEdit = !!employee;
 
   function handleSubmit(event: FormEvent<HTMLFormElement>) {
@@ -537,8 +543,8 @@ function EmployeeDialog({
       phone: String(formData.get('phone') ?? '').trim() || null,
       email: String(formData.get('email') ?? ''),
       positionId,
-      isActive: formData.has('isActive'),
-      isReligious: formData.has('isReligious'),
+      isActive,
+      isReligious,
     };
 
     return onSubmit(isEdit ? { ...base, employeeId: employee.id } : { ...base, facilityId: court.id });
@@ -604,14 +610,16 @@ function EmployeeDialog({
 
           <div className="flex flex-wrap gap-6">
             <label className="flex items-center gap-2 text-sm">
-              <Checkbox name="isActive" defaultChecked={employee?.isActive ?? true} />
+              <Checkbox checked={isActive} onCheckedChange={(checked) => setIsActive(checked === true)} />
               פעיל
             </label>
             <label className="flex items-center gap-2 text-sm">
-              <Checkbox name="isReligious" defaultChecked={employee?.isReligious ?? false} />
+              <Checkbox checked={isReligious} onCheckedChange={(checked) => setIsReligious(checked === true)} />
               דתי
             </label>
           </div>
+
+          {error && <p className="text-sm text-destructive">{error}</p>}
 
           <DialogFooter>
             <Button type="button" variant="outline" onClick={onClose} disabled={pending}>

@@ -6,7 +6,7 @@ import { useMutation, useQueryClient } from '@tanstack/react-query';
 import { cn } from '@/lib/utils';
 import { calendarDateISO } from '@/features/periods/utils';
 import { createAssignment, removeAssignment, updateAssignment } from '@/features/schedules/assignments/actions';
-import { invalidateScheduleQueries } from '@/features/schedules/hooks';
+import { applyScheduleEdit } from '@/features/schedules/hooks';
 import type {
   AssignmentMap,
   AssignmentSummary,
@@ -55,7 +55,7 @@ type ShiftSlot = {
   key: string;
   positionId: string;
   positionName: string;
-  positionCode: number;
+  positionRank: number;
   positionColor: string | null;
   slotIndex: number;
   assignment: AssignmentSummary | null;
@@ -212,7 +212,7 @@ function buildShiftSlots(params: {
         key: `${cellKey}-${slotIndex}`,
         positionId: position.positionId,
         positionName: position.positionName,
-        positionCode: position.positionCode,
+        positionRank: position.positionRank,
         positionColor: position.positionColor,
         slotIndex,
         assignment,
@@ -233,7 +233,7 @@ function buildShiftSlots(params: {
             key: `${cellKey}-${assignment.slotIndex}`,
             positionId: assignment.positionId,
             positionName: assignment.positionName,
-            positionCode: Number.MAX_SAFE_INTEGER,
+            positionRank: Number.MAX_SAFE_INTEGER,
             positionColor: null,
             slotIndex: assignment.slotIndex,
             assignment,
@@ -245,7 +245,7 @@ function buildShiftSlots(params: {
 
   return slots.sort(
     (a, b) =>
-      a.positionCode - b.positionCode ||
+      a.positionRank - b.positionRank ||
       a.slotIndex - b.slotIndex ||
       a.positionName.localeCompare(b.positionName, 'he'),
   );
@@ -294,14 +294,12 @@ function AssignmentSlotCard({
   const assignmentMutation = useMutation({
     mutationFn: async (input: { type: 'select'; employeeId: string } | { type: 'remove'; assignmentId: string }) => {
       if (input.type === 'remove') {
-        await removeAssignment(input.assignmentId, expected);
-        return;
+        return removeAssignment(input.assignmentId, expected);
       }
       if (slot.assignment) {
-        await updateAssignment(slot.assignment.id, input.employeeId, expected);
-        return;
+        return updateAssignment(slot.assignment.id, input.employeeId, expected);
       }
-      await createAssignment({
+      return createAssignment({
         scheduleId,
         employeeId: input.employeeId,
         facilityId,
@@ -311,7 +309,7 @@ function AssignmentSlotCard({
         slotIndex: slot.slotIndex,
       }, expected);
     },
-    onSuccess: () => invalidateScheduleQueries(queryClient, scheduleId),
+    onSuccess: update => applyScheduleEdit(queryClient, update),
     onError: (e: Error) => setError(e.message || 'שגיאה בשיבוץ'),
   });
 
@@ -392,8 +390,8 @@ function AssignmentSlotCard({
       {open && anchorRect ? (
         <GuardPicker
           employees={employees}
-          currentUserId={slot.assignment?.employeeId ?? null}
           disabledEmployeeIds={assignedEmployeeIds}
+          currentUserId={slot.assignment?.employeeId ?? null}
           anchorRect={anchorRect}
           onSelect={handleSelect}
           onRemove={handleRemove}

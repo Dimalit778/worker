@@ -141,7 +141,7 @@ export function ManagerEmployeeDetailClient({ employeeId }: { employeeId: string
                 <InfoRow label="שם תצוגה" value={employee.displayName} icon={BadgeCheck} />
                 <InfoRow
                   label="תפקיד"
-                  value={`${employee.position.name} (${employee.position.code})`}
+                  value={`${employee.position.name} (${employee.position.rank})`}
                   icon={ShieldCheck}
                 />
                 <InfoRow label="טלפון" value={employee.phone || 'לא הוזן'} icon={Phone} />

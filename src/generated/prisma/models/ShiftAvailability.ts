@@ -14,7 +14,7 @@ import type * as Prisma from "../internal/prismaNamespace"
 
 /**
  * Model ShiftAvailability
- * בחירת זמינות אחת בתוך הגשה: תאריך, סוג משמרת וזמין/מועדף/לא זמין.
+ * זמינות לסוג משמרת בתאריך מסוים; העדר בחירה אינו נחשב זמינות.
  */
 export type ShiftAvailabilityModel = runtime.Types.Result.DefaultSelection<Prisma.$ShiftAvailabilityPayload>
 
@@ -25,65 +25,53 @@ export type AggregateShiftAvailability = {
 }
 
 export type ShiftAvailabilityMinAggregateOutputType = {
-  preference: $Enums.AvailabilityPreference | null
   id: string | null
   submissionId: string | null
   date: Date | null
   shiftType: $Enums.ShiftType | null
-  createdAt: Date | null
-  updatedAt: Date | null
+  preference: $Enums.AvailabilityPreference | null
 }
 
 export type ShiftAvailabilityMaxAggregateOutputType = {
-  preference: $Enums.AvailabilityPreference | null
   id: string | null
   submissionId: string | null
   date: Date | null
   shiftType: $Enums.ShiftType | null
-  createdAt: Date | null
-  updatedAt: Date | null
+  preference: $Enums.AvailabilityPreference | null
 }
 
 export type ShiftAvailabilityCountAggregateOutputType = {
-  preference: number
   id: number
   submissionId: number
   date: number
   shiftType: number
-  createdAt: number
-  updatedAt: number
+  preference: number
   _all: number
 }
 
 
 export type ShiftAvailabilityMinAggregateInputType = {
-  preference?: true
   id?: true
   submissionId?: true
   date?: true
   shiftType?: true
-  createdAt?: true
-  updatedAt?: true
+  preference?: true
 }
 
 export type ShiftAvailabilityMaxAggregateInputType = {
-  preference?: true
   id?: true
   submissionId?: true
   date?: true
   shiftType?: true
-  createdAt?: true
-  updatedAt?: true
+  preference?: true
 }
 
 export type ShiftAvailabilityCountAggregateInputType = {
-  preference?: true
   id?: true
   submissionId?: true
   date?: true
   shiftType?: true
-  createdAt?: true
-  updatedAt?: true
+  preference?: true
   _all?: true
 }
 
@@ -160,13 +148,11 @@ export type ShiftAvailabilityGroupByArgs<ExtArgs extends runtime.Types.Extension
 }
 
 export type ShiftAvailabilityGroupByOutputType = {
-  preference: $Enums.AvailabilityPreference
   id: string
   submissionId: string
   date: Date
   shiftType: $Enums.ShiftType
-  createdAt: Date
-  updatedAt: Date
+  preference: $Enums.AvailabilityPreference
   _count: ShiftAvailabilityCountAggregateOutputType | null
   _min: ShiftAvailabilityMinAggregateOutputType | null
   _max: ShiftAvailabilityMaxAggregateOutputType | null
@@ -191,24 +177,20 @@ export type ShiftAvailabilityWhereInput = {
   AND?: Prisma.ShiftAvailabilityWhereInput | Prisma.ShiftAvailabilityWhereInput[]
   OR?: Prisma.ShiftAvailabilityWhereInput[]
   NOT?: Prisma.ShiftAvailabilityWhereInput | Prisma.ShiftAvailabilityWhereInput[]
-  preference?: Prisma.EnumAvailabilityPreferenceFilter<"ShiftAvailability"> | $Enums.AvailabilityPreference
   id?: Prisma.StringFilter<"ShiftAvailability"> | string
   submissionId?: Prisma.StringFilter<"ShiftAvailability"> | string
   date?: Prisma.DateTimeFilter<"ShiftAvailability"> | Date | string
   shiftType?: Prisma.EnumShiftTypeFilter<"ShiftAvailability"> | $Enums.ShiftType
-  createdAt?: Prisma.DateTimeFilter<"ShiftAvailability"> | Date | string
-  updatedAt?: Prisma.DateTimeFilter<"ShiftAvailability"> | Date | string
+  preference?: Prisma.EnumAvailabilityPreferenceFilter<"ShiftAvailability"> | $Enums.AvailabilityPreference
   submission?: Prisma.XOR<Prisma.AvailabilitySubmissionScalarRelationFilter, Prisma.AvailabilitySubmissionWhereInput>
 }
 
 export type ShiftAvailabilityOrderByWithRelationInput = {
-  preference?: Prisma.SortOrder
   id?: Prisma.SortOrder
   submissionId?: Prisma.SortOrder
   date?: Prisma.SortOrder
   shiftType?: Prisma.SortOrder
-  createdAt?: Prisma.SortOrder
-  updatedAt?: Prisma.SortOrder
+  preference?: Prisma.SortOrder
   submission?: Prisma.AvailabilitySubmissionOrderByWithRelationInput
 }
 
@@ -218,23 +200,19 @@ export type ShiftAvailabilityWhereUniqueInput = Prisma.AtLeast<{
   AND?: Prisma.ShiftAvailabilityWhereInput | Prisma.ShiftAvailabilityWhereInput[]
   OR?: Prisma.ShiftAvailabilityWhereInput[]
   NOT?: Prisma.ShiftAvailabilityWhereInput | Prisma.ShiftAvailabilityWhereInput[]
-  preference?: Prisma.EnumAvailabilityPreferenceFilter<"ShiftAvailability"> | $Enums.AvailabilityPreference
   submissionId?: Prisma.StringFilter<"ShiftAvailability"> | string
   date?: Prisma.DateTimeFilter<"ShiftAvailability"> | Date | string
   shiftType?: Prisma.EnumShiftTypeFilter<"ShiftAvailability"> | $Enums.ShiftType
-  createdAt?: Prisma.DateTimeFilter<"ShiftAvailability"> | Date | string
-  updatedAt?: Prisma.DateTimeFilter<"ShiftAvailability"> | Date | string
+  preference?: Prisma.EnumAvailabilityPreferenceFilter<"ShiftAvailability"> | $Enums.AvailabilityPreference
   submission?: Prisma.XOR<Prisma.AvailabilitySubmissionScalarRelationFilter, Prisma.AvailabilitySubmissionWhereInput>
 }, "id" | "submissionId_date_shiftType">
 
 export type ShiftAvailabilityOrderByWithAggregationInput = {
-  preference?: Prisma.SortOrder
   id?: Prisma.SortOrder
   submissionId?: Prisma.SortOrder
   date?: Prisma.SortOrder
   shiftType?: Prisma.SortOrder
-  createdAt?: Prisma.SortOrder
-  updatedAt?: Prisma.SortOrder
+  preference?: Prisma.SortOrder
   _count?: Prisma.ShiftAvailabilityCountOrderByAggregateInput
   _max?: Prisma.ShiftAvailabilityMaxOrderByAggregateInput
   _min?: Prisma.ShiftAvailabilityMinOrderByAggregateInput
@@ -244,82 +222,66 @@ export type ShiftAvailabilityScalarWhereWithAggregatesInput = {
   AND?: Prisma.ShiftAvailabilityScalarWhereWithAggregatesInput | Prisma.ShiftAvailabilityScalarWhereWithAggregatesInput[]
   OR?: Prisma.ShiftAvailabilityScalarWhereWithAggregatesInput[]
   NOT?: Prisma.ShiftAvailabilityScalarWhereWithAggregatesInput | Prisma.ShiftAvailabilityScalarWhereWithAggregatesInput[]
-  preference?: Prisma.EnumAvailabilityPreferenceWithAggregatesFilter<"ShiftAvailability"> | $Enums.AvailabilityPreference
   id?: Prisma.StringWithAggregatesFilter<"ShiftAvailability"> | string
   submissionId?: Prisma.StringWithAggregatesFilter<"ShiftAvailability"> | string
   date?: Prisma.DateTimeWithAggregatesFilter<"ShiftAvailability"> | Date | string
   shiftType?: Prisma.EnumShiftTypeWithAggregatesFilter<"ShiftAvailability"> | $Enums.ShiftType
-  createdAt?: Prisma.DateTimeWithAggregatesFilter<"ShiftAvailability"> | Date | string
-  updatedAt?: Prisma.DateTimeWithAggregatesFilter<"ShiftAvailability"> | Date | string
+  preference?: Prisma.EnumAvailabilityPreferenceWithAggregatesFilter<"ShiftAvailability"> | $Enums.AvailabilityPreference
 }
 
 export type ShiftAvailabilityCreateInput = {
-  preference?: $Enums.AvailabilityPreference
   id?: string
   date: Date | string
   shiftType: $Enums.ShiftType
-  createdAt?: Date | string
-  updatedAt?: Date | string
-  submission: Prisma.AvailabilitySubmissionCreateNestedOneWithoutShiftAvailabilitiesInput
+  preference: $Enums.AvailabilityPreference
+  submission: Prisma.AvailabilitySubmissionCreateNestedOneWithoutAvailabilitiesInput
 }
 
 export type ShiftAvailabilityUncheckedCreateInput = {
-  preference?: $Enums.AvailabilityPreference
   id?: string
   submissionId: string
   date: Date | string
   shiftType: $Enums.ShiftType
-  createdAt?: Date | string
-  updatedAt?: Date | string
+  preference: $Enums.AvailabilityPreference
 }
 
 export type ShiftAvailabilityUpdateInput = {
-  preference?: Prisma.EnumAvailabilityPreferenceFieldUpdateOperationsInput | $Enums.AvailabilityPreference
   id?: Prisma.StringFieldUpdateOperationsInput | string
   date?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   shiftType?: Prisma.EnumShiftTypeFieldUpdateOperationsInput | $Enums.ShiftType
-  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
-  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
-  submission?: Prisma.AvailabilitySubmissionUpdateOneRequiredWithoutShiftAvailabilitiesNestedInput
+  preference?: Prisma.EnumAvailabilityPreferenceFieldUpdateOperationsInput | $Enums.AvailabilityPreference
+  submission?: Prisma.AvailabilitySubmissionUpdateOneRequiredWithoutAvailabilitiesNestedInput
 }
 
 export type ShiftAvailabilityUncheckedUpdateInput = {
-  preference?: Prisma.EnumAvailabilityPreferenceFieldUpdateOperationsInput | $Enums.AvailabilityPreference
   id?: Prisma.StringFieldUpdateOperationsInput | string
   submissionId?: Prisma.StringFieldUpdateOperationsInput | string
   date?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   shiftType?: Prisma.EnumShiftTypeFieldUpdateOperationsInput | $Enums.ShiftType
-  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
-  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  preference?: Prisma.EnumAvailabilityPreferenceFieldUpdateOperationsInput | $Enums.AvailabilityPreference
 }
 
 export type ShiftAvailabilityCreateManyInput = {
-  preference?: $Enums.AvailabilityPreference
   id?: string
   submissionId: string
   date: Date | string
   shiftType: $Enums.ShiftType
-  createdAt?: Date | string
-  updatedAt?: Date | string
+  preference: $Enums.AvailabilityPreference
 }
 
 export type ShiftAvailabilityUpdateManyMutationInput = {
-  preference?: Prisma.EnumAvailabilityPreferenceFieldUpdateOperationsInput | $Enums.AvailabilityPreference
   id?: Prisma.StringFieldUpdateOperationsInput | string
   date?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   shiftType?: Prisma.EnumShiftTypeFieldUpdateOperationsInput | $Enums.ShiftType
-  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
-  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  preference?: Prisma.EnumAvailabilityPreferenceFieldUpdateOperationsInput | $Enums.AvailabilityPreference
 }
 
 export type ShiftAvailabilityUncheckedUpdateManyInput = {
-  preference?: Prisma.EnumAvailabilityPreferenceFieldUpdateOperationsInput | $Enums.AvailabilityPreference
   id?: Prisma.StringFieldUpdateOperationsInput | string
   submissionId?: Prisma.StringFieldUpdateOperationsInput | string
   date?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   shiftType?: Prisma.EnumShiftTypeFieldUpdateOperationsInput | $Enums.ShiftType
-  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
-  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  preference?: Prisma.EnumAvailabilityPreferenceFieldUpdateOperationsInput | $Enums.AvailabilityPreference
 }
 
 export type ShiftAvailabilityListRelationFilter = {
@@ -339,33 +301,27 @@ export type ShiftAvailabilitySubmissionIdDateShiftTypeCompoundUniqueInput = {
 }
 
 export type ShiftAvailabilityCountOrderByAggregateInput = {
-  preference?: Prisma.SortOrder
   id?: Prisma.SortOrder
   submissionId?: Prisma.SortOrder
   date?: Prisma.SortOrder
   shiftType?: Prisma.SortOrder
-  createdAt?: Prisma.SortOrder
-  updatedAt?: Prisma.SortOrder
+  preference?: Prisma.SortOrder
 }
 
 export type ShiftAvailabilityMaxOrderByAggregateInput = {
-  preference?: Prisma.SortOrder
   id?: Prisma.SortOrder
   submissionId?: Prisma.SortOrder
   date?: Prisma.SortOrder
   shiftType?: Prisma.SortOrder
-  createdAt?: Prisma.SortOrder
-  updatedAt?: Prisma.SortOrder
+  preference?: Prisma.SortOrder
 }
 
 export type ShiftAvailabilityMinOrderByAggregateInput = {
-  preference?: Prisma.SortOrder
   id?: Prisma.SortOrder
   submissionId?: Prisma.SortOrder
   date?: Prisma.SortOrder
   shiftType?: Prisma.SortOrder
-  createdAt?: Prisma.SortOrder
-  updatedAt?: Prisma.SortOrder
+  preference?: Prisma.SortOrder
 }
 
 export type ShiftAvailabilityCreateNestedManyWithoutSubmissionInput = {
@@ -415,21 +371,17 @@ export type EnumAvailabilityPreferenceFieldUpdateOperationsInput = {
 }
 
 export type ShiftAvailabilityCreateWithoutSubmissionInput = {
-  preference?: $Enums.AvailabilityPreference
   id?: string
   date: Date | string
   shiftType: $Enums.ShiftType
-  createdAt?: Date | string
-  updatedAt?: Date | string
+  preference: $Enums.AvailabilityPreference
 }
 
 export type ShiftAvailabilityUncheckedCreateWithoutSubmissionInput = {
-  preference?: $Enums.AvailabilityPreference
   id?: string
   date: Date | string
   shiftType: $Enums.ShiftType
-  createdAt?: Date | string
-  updatedAt?: Date | string
+  preference: $Enums.AvailabilityPreference
 }
 
 export type ShiftAvailabilityCreateOrConnectWithoutSubmissionInput = {
@@ -462,97 +414,79 @@ export type ShiftAvailabilityScalarWhereInput = {
   AND?: Prisma.ShiftAvailabilityScalarWhereInput | Prisma.ShiftAvailabilityScalarWhereInput[]
   OR?: Prisma.ShiftAvailabilityScalarWhereInput[]
   NOT?: Prisma.ShiftAvailabilityScalarWhereInput | Prisma.ShiftAvailabilityScalarWhereInput[]
-  preference?: Prisma.EnumAvailabilityPreferenceFilter<"ShiftAvailability"> | $Enums.AvailabilityPreference
   id?: Prisma.StringFilter<"ShiftAvailability"> | string
   submissionId?: Prisma.StringFilter<"ShiftAvailability"> | string
   date?: Prisma.DateTimeFilter<"ShiftAvailability"> | Date | string
   shiftType?: Prisma.EnumShiftTypeFilter<"ShiftAvailability"> | $Enums.ShiftType
-  createdAt?: Prisma.DateTimeFilter<"ShiftAvailability"> | Date | string
-  updatedAt?: Prisma.DateTimeFilter<"ShiftAvailability"> | Date | string
+  preference?: Prisma.EnumAvailabilityPreferenceFilter<"ShiftAvailability"> | $Enums.AvailabilityPreference
 }
 
 export type ShiftAvailabilityCreateManySubmissionInput = {
-  preference?: $Enums.AvailabilityPreference
   id?: string
   date: Date | string
   shiftType: $Enums.ShiftType
-  createdAt?: Date | string
-  updatedAt?: Date | string
+  preference: $Enums.AvailabilityPreference
 }
 
 export type ShiftAvailabilityUpdateWithoutSubmissionInput = {
-  preference?: Prisma.EnumAvailabilityPreferenceFieldUpdateOperationsInput | $Enums.AvailabilityPreference
   id?: Prisma.StringFieldUpdateOperationsInput | string
   date?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   shiftType?: Prisma.EnumShiftTypeFieldUpdateOperationsInput | $Enums.ShiftType
-  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
-  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  preference?: Prisma.EnumAvailabilityPreferenceFieldUpdateOperationsInput | $Enums.AvailabilityPreference
 }
 
 export type ShiftAvailabilityUncheckedUpdateWithoutSubmissionInput = {
-  preference?: Prisma.EnumAvailabilityPreferenceFieldUpdateOperationsInput | $Enums.AvailabilityPreference
   id?: Prisma.StringFieldUpdateOperationsInput | string
   date?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   shiftType?: Prisma.EnumShiftTypeFieldUpdateOperationsInput | $Enums.ShiftType
-  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
-  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  preference?: Prisma.EnumAvailabilityPreferenceFieldUpdateOperationsInput | $Enums.AvailabilityPreference
 }
 
 export type ShiftAvailabilityUncheckedUpdateManyWithoutSubmissionInput = {
-  preference?: Prisma.EnumAvailabilityPreferenceFieldUpdateOperationsInput | $Enums.AvailabilityPreference
   id?: Prisma.StringFieldUpdateOperationsInput | string
   date?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   shiftType?: Prisma.EnumShiftTypeFieldUpdateOperationsInput | $Enums.ShiftType
-  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
-  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  preference?: Prisma.EnumAvailabilityPreferenceFieldUpdateOperationsInput | $Enums.AvailabilityPreference
 }
 
 
 
 export type ShiftAvailabilitySelect<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetSelect<{
-  preference?: boolean
   id?: boolean
   submissionId?: boolean
   date?: boolean
   shiftType?: boolean
-  createdAt?: boolean
-  updatedAt?: boolean
+  preference?: boolean
   submission?: boolean | Prisma.AvailabilitySubmissionDefaultArgs<ExtArgs>
 }, ExtArgs["result"]["shiftAvailability"]>
 
 export type ShiftAvailabilitySelectCreateManyAndReturn<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetSelect<{
-  preference?: boolean
   id?: boolean
   submissionId?: boolean
   date?: boolean
   shiftType?: boolean
-  createdAt?: boolean
-  updatedAt?: boolean
+  preference?: boolean
   submission?: boolean | Prisma.AvailabilitySubmissionDefaultArgs<ExtArgs>
 }, ExtArgs["result"]["shiftAvailability"]>
 
 export type ShiftAvailabilitySelectUpdateManyAndReturn<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetSelect<{
-  preference?: boolean
   id?: boolean
   submissionId?: boolean
   date?: boolean
   shiftType?: boolean
-  createdAt?: boolean
-  updatedAt?: boolean
+  preference?: boolean
   submission?: boolean | Prisma.AvailabilitySubmissionDefaultArgs<ExtArgs>
 }, ExtArgs["result"]["shiftAvailability"]>
 
 export type ShiftAvailabilitySelectScalar = {
-  preference?: boolean
   id?: boolean
   submissionId?: boolean
   date?: boolean
   shiftType?: boolean
-  createdAt?: boolean
-  updatedAt?: boolean
+  preference?: boolean
 }
 
-export type ShiftAvailabilityOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"preference" | "id" | "submissionId" | "date" | "shiftType" | "createdAt" | "updatedAt", ExtArgs["result"]["shiftAvailability"]>
+export type ShiftAvailabilityOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"id" | "submissionId" | "date" | "shiftType" | "preference", ExtArgs["result"]["shiftAvailability"]>
 export type ShiftAvailabilityInclude<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
   submission?: boolean | Prisma.AvailabilitySubmissionDefaultArgs<ExtArgs>
 }
@@ -569,13 +503,11 @@ export type $ShiftAvailabilityPayload<ExtArgs extends runtime.Types.Extensions.I
     submission: Prisma.$AvailabilitySubmissionPayload<ExtArgs>
   }
   scalars: runtime.Types.Extensions.GetPayloadResult<{
-    preference: $Enums.AvailabilityPreference
     id: string
     submissionId: string
     date: Date
     shiftType: $Enums.ShiftType
-    createdAt: Date
-    updatedAt: Date
+    preference: $Enums.AvailabilityPreference
   }, ExtArgs["result"]["shiftAvailability"]>
   composites: {}
 }
@@ -1000,13 +932,11 @@ export interface Prisma__ShiftAvailabilityClient<T, Null = never, ExtArgs extend
  * Fields of the ShiftAvailability model
  */
 export interface ShiftAvailabilityFieldRefs {
-  readonly preference: Prisma.FieldRef<"ShiftAvailability", 'AvailabilityPreference'>
   readonly id: Prisma.FieldRef<"ShiftAvailability", 'String'>
   readonly submissionId: Prisma.FieldRef<"ShiftAvailability", 'String'>
   readonly date: Prisma.FieldRef<"ShiftAvailability", 'DateTime'>
   readonly shiftType: Prisma.FieldRef<"ShiftAvailability", 'ShiftType'>
-  readonly createdAt: Prisma.FieldRef<"ShiftAvailability", 'DateTime'>
-  readonly updatedAt: Prisma.FieldRef<"ShiftAvailability", 'DateTime'>
+  readonly preference: Prisma.FieldRef<"ShiftAvailability", 'AvailabilityPreference'>
 }
     
 

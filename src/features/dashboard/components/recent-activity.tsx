@@ -6,6 +6,7 @@ const CHANGE_TYPE_HE: Record<RecentActivityItem['changeType'], string> = {
   UPDATE: 'עדכון',
   DELETE: 'מחיקה',
   PUBLISH: 'פרסום',
+  ARCHIVE: 'ארכיון',
   MANUAL_OVERRIDE: 'שינוי ידני',
 };
 

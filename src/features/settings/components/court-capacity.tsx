@@ -8,6 +8,7 @@ import { DAY_CATEGORIES, DAY_META, SHIFT_ORDER, SHIFT_LABELS } from '@/features/
 import { addStaffingRequirement, updateStaffingRequirement } from '@/features/settings/actions';
 import { invalidateSettingsQueries } from '@/features/settings/hooks';
 import { queryKeys } from '@/lib/react-query/query-keys';
+import { invalidateScheduleQueries } from '@/features/schedules/hooks';
 import { cn } from '@/lib/utils';
 import { ChevronDown } from 'lucide-react';
 import { Input } from '@/components/ui/input';
@@ -15,7 +16,7 @@ import { Input } from '@/components/ui/input';
 type PositionOption = {
   id: string;
   name: string;
-  code: number;
+  rank: number;
 };
 
 type StaffingRow = {
@@ -179,6 +180,7 @@ export function CourtCapacityRules({
       setSaved(next);
       setDraft(next);
       invalidateSettingsQueries(queryClient, facilityId);
+      invalidateScheduleQueries(queryClient);
       queryClient.invalidateQueries({ queryKey: queryKeys.settings.capacities(facilityId) });
     },
     onError: (error: Error) => {

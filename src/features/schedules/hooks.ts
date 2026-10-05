@@ -2,6 +2,8 @@
 
 import { useQuery, useQueryClient } from '@tanstack/react-query';
 import { queryKeys } from '@/lib/react-query/query-keys';
+import type { createAssignment } from '@/features/schedules/assignments/actions';
+import type { CurrentScheduleData } from './types';
 import { fetchCurrentSchedule, fetchDraftSchedule } from '@/features/schedules/assignments/actions';
 import { fetchUpcomingSchedule } from '@/features/schedules/assignments/upcoming-actions';
 
@@ -19,6 +21,28 @@ export function invalidateScheduleQueries(queryClient: ReturnType<typeof useQuer
   }
 
   return Promise.all(tasks);
+}
+
+/** Apply the confirmed save, including its revision, without waiting for a full reload. */
+export async function applyScheduleEdit(
+  queryClient: ReturnType<typeof useQueryClient>,
+  update: Awaited<ReturnType<typeof createAssignment>> | undefined,
+) {
+  if (!update) return;
+  await queryClient.cancelQueries({
+    queryKey: queryKeys.schedules.all(),
+    predicate: query => (query.state.data as CurrentScheduleData | null)?.scheduleId === update.scheduleId,
+  });
+  queryClient.setQueriesData<CurrentScheduleData | null>(
+    { queryKey: queryKeys.schedules.all() },
+    current => {
+      if (!current || current.scheduleId !== update.scheduleId || (current.revision ?? 0) > update.revision) return current;
+      return { ...current, ...update, editingVersionNumber: update.revision };
+    },
+  );
+  // Inactive views refresh when opened; they need not delay this save.
+  void queryClient.invalidateQueries({ queryKey: queryKeys.dashboard.all(), refetchType: 'none' });
+  void queryClient.invalidateQueries({ queryKey: queryKeys.schedules.assignments(update.scheduleId), refetchType: 'none' });
 }
 
 export function useCurrentSchedule() {

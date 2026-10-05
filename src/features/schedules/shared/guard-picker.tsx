@@ -34,19 +34,14 @@ export function GuardPicker({
   onSelect,
   onRemove,
   onClose,
-  swapCandidates,
-  onSwap,
 }: Props) {
   const [query, setQuery] = useState('');
   const inputRef = useRef<HTMLInputElement>(null);
   const panelRef = useRef<HTMLDivElement>(null);
 
-  const selectableEmployees = employees.filter((employee) => {
-    if (employee.id === currentUserId) return true;
-    return !disabledEmployeeIds?.has(employee.id);
-  });
+  const selectableEmployees = employees.filter(employee => !disabledEmployeeIds?.has(employee.id));
   const filtered = query.trim()
-    ? selectableEmployees.filter((e) => e.displayName.includes(query.trim()))
+    ? selectableEmployees.filter((employee) => employee.displayName.includes(query.trim()))
     : selectableEmployees;
 
   useEffect(() => {
@@ -99,25 +94,6 @@ export function GuardPicker({
           </li>
         ))}
       </ul>
-
-      {currentUserId && swapCandidates && swapCandidates.length > 0 && onSwap && (
-        <div className="border-t border-border mt-1 px-2 py-1">
-          <p className="px-1 pb-1 text-[10px] font-semibold text-muted-foreground">החלף עם...</p>
-          <ul className="max-h-32 overflow-y-auto">
-            {swapCandidates.map((candidate) => (
-              <li key={candidate.assignmentId}>
-                <button
-                  type="button"
-                  onClick={() => onSwap(candidate.assignmentId)}
-                  className="w-full cursor-pointer rounded-sm px-2 py-1 text-start text-xs hover:bg-accent"
-                >
-                  {candidate.displayName}
-                </button>
-              </li>
-            ))}
-          </ul>
-        </div>
-      )}
 
       {currentUserId && (
         <div className="border-t border-border mt-1">

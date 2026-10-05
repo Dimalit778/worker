@@ -4,7 +4,7 @@ import { AlertTriangle, Info } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { SHIFT_LABELS } from '@/features/schedules/constants';
 import type { ScheduleWarningSummary } from '@/features/schedules/types';
-import type { WarningSeverity, WarningType } from '@/generated/prisma/client';
+import type { WarningSeverity, WarningType } from '@/features/scheduling-engine/types';
 import { groupWarningsByEmployee, type EmployeeWarningGroup } from '../utils';
 
 type EmployeeWarningsPanelProps = {
@@ -24,7 +24,7 @@ const WARNING_TYPE_LABELS: Record<WarningType, string> = {
 };
 
 const SEVERITY_LABELS: Record<WarningSeverity, string> = {
-  ERROR: 'שגיאה',
+  ERROR: 'בעיה',
   WARNING: 'אזהרה',
   INFO: 'מידע',
 };
@@ -65,7 +65,7 @@ export function EmployeeWarningsPanel({ groups }: EmployeeWarningsPanelProps) {
   if (groups.length === 0) return null;
 
   return (
-    <div className="flex flex-col gap-2" dir="rtl">
+    <div className="grid grid-cols-1 items-start gap-2 lg:grid-cols-2" dir="rtl">
       {groups.map((group) => {
         const s = GROUP_STYLES[group.worstSeverity];
         const count = group.warnings.length;
@@ -101,7 +101,7 @@ export function EmployeeWarningsPanel({ groups }: EmployeeWarningsPanelProps) {
                       ·
                     </span>
                     <span>
-                      {WARNING_TYPE_LABELS[w.type]}
+                      {w.message || WARNING_TYPE_LABELS[w.type]}
                       {context && <span className="text-muted-foreground mr-1">— {context}</span>}
                     </span>
                   </p>

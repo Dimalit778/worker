@@ -1,11 +1,6 @@
 'use client';
 
-import { useState, useTransition } from 'react';
-import { useQueryClient } from '@tanstack/react-query';
 import { cn } from '@/lib/utils';
-import { Button } from '@/components/ui/button';
-import { Input } from '@/components/ui/input';
-import { Label } from '@/components/ui/label';
 import type {
   AssignmentMap,
   AssignmentSummary,
@@ -17,8 +12,6 @@ import type {
 import { SHIFT_STYLES } from '../constants';
 import type { ShiftType } from '@/generated/prisma/client';
 import { AssignmentCell } from './assignment-cell';
-import { upsertPositionForDisplayOrder } from '@/features/settings/actions';
-import { invalidateScheduleQueries } from '@/features/schedules/hooks';
 import {
   blockedEmployeeIdsForShift,
   createAssignmentCellKey,
@@ -33,10 +26,6 @@ import {
 const ROW_NUM_COL_PX = '2rem';
 const POSITION_COL_PX = '3.5rem';
 const narrowColCell = 'w-14 min-w-0 max-w-14';
-
-type PositionRowModalState = {
-  rowNumber: number;
-};
 
 type ShiftSectionProps = {
   shiftType: ShiftType;
@@ -65,11 +54,6 @@ export function ShiftSection(props: ShiftSectionProps) {
     readonly,
     highlightedEmployeeId,
   } = props;
-  const queryClient = useQueryClient();
-  const [positionModal, setPositionModal] = useState<PositionRowModalState | null>(null);
-  const [positionName, setPositionName] = useState('');
-  const [positionError, setPositionError] = useState<string | null>(null);
-  const [isSavingPosition, startSavingPosition] = useTransition();
   const style = SHIFT_STYLES[shiftType];
   const sortedDays = [...weekDays].sort((a, b) => a.dayOfWeek - b.dayOfWeek);
   const weekIsos = sortedDays.map((d) => d.iso);
@@ -79,7 +63,7 @@ export function ShiftSection(props: ShiftSectionProps) {
   const allAssignedEntries = Object.values(assignments).flat();
 
   type VisualRow = {
-    pos: { positionId: string; positionName: string; positionCode: number; positionColor: string | null };
+    pos: { positionId: string; positionName: string; positionRank: number; positionColor: string | null };
     visualRow: number;
     rowSpan: number;
     isFirstRow: boolean;
@@ -90,19 +74,14 @@ export function ShiftSection(props: ShiftSectionProps) {
 
   for (const pos of positionsOrdered) {
     const assignmentsByDay = new Map<string, AssignmentSummary[]>();
-    let maxAssignedInWeek = 0;
 
     for (const day of sortedDays) {
       const cellKey = createAssignmentCellKey({ date: day.iso, shiftType, positionId: pos.positionId });
       const sorted = [...(assignments[cellKey] ?? [])].sort((a, b) => a.slotIndex - b.slotIndex);
       assignmentsByDay.set(day.iso, sorted);
-      maxAssignedInWeek = Math.max(maxAssignedInWeek, sorted.length);
     }
 
-    const maxSlotsInWeek = Math.max(
-      maxSlotsForPositionInWeek(capacity, shiftType, pos.positionId, weekIsos),
-      maxAssignedInWeek,
-    );
+    const maxSlotsInWeek = maxSlotsForPositionInWeek(capacity, shiftType, pos.positionId, weekIsos);
     if (maxSlotsInWeek <= 0) continue;
 
     Array.from({ length: maxSlotsInWeek }, (_, vr) => vr).forEach((vr, i) => {
@@ -110,47 +89,20 @@ export function ShiftSection(props: ShiftSectionProps) {
     });
   }
 
-  function openPositionModal(rowNumber: number, currentPositionName: string) {
-    const name = isGuardPositionLabel(currentPositionName) ? '' : currentPositionName;
-    setPositionError(null);
-    setPositionName(name);
-    setPositionModal({ rowNumber });
-  }
-
-  function closePositionModal() {
-    if (isSavingPosition) return;
-    setPositionModal(null);
-    setPositionName('');
-    setPositionError(null);
-  }
-
-  function savePositionForRow() {
-    if (!positionModal) return;
-
-    startSavingPosition(async () => {
-      const result = await upsertPositionForDisplayOrder({
-        displayOrder: positionModal.rowNumber,
-        name: positionName,
-      });
-
-      if ('error' in result) {
-        setPositionError(result.error);
-        return;
-      }
-
-      setPositionModal(null);
-      setPositionName('');
-      setPositionError(null);
-      await invalidateScheduleQueries(queryClient, scheduleId);
-    });
-  }
+  // Weekend columns have their own ordered slots, independent of weekday role rows.
+  const weekendSlotsByDay = new Map(sortedDays
+    .filter(day => day.dayOfWeek === 5 || day.dayOfWeek === 6)
+    .map(day => [day.iso, positionsOrdered.flatMap(pos => {
+      const required = getCapacityForCell(capacity, getDayCategoryForDate(day.iso), shiftType, pos.positionId);
+      return Array.from({ length: required }, (_, slotIndex) => ({ pos, slotIndex }));
+    })]));
 
   if (bodyRows.length === 0) {
     return (
       <div className="mb-5" dir="rtl">
         <div
           className={cn(
-            'flex items-center justify-between gap-2 px-3 py-2 rounded-lg text-white font-bold text-sm',
+            'flex items-center justify-between gap-2 px-3 py-2 rounded-lg text-white font-bold text-[13px]',
             style.header,
           )}
         >
@@ -168,7 +120,7 @@ export function ShiftSection(props: ShiftSectionProps) {
     <div className="mb-5" dir="rtl">
       <div
         className={cn(
-          'flex items-center justify-between gap-2 px-3 py-2 rounded-t-lg text-white font-bold text-sm',
+          'flex items-center justify-between gap-2 px-3 py-2 rounded-t-lg text-white font-bold text-[13px]',
           style.header,
         )}
       >
@@ -224,37 +176,33 @@ export function ShiftSection(props: ShiftSectionProps) {
           <tbody>
             {bodyRows.map(({ pos, visualRow, rowSpan, isFirstRow, assignmentsByDay }, rowIdx) => {
               const hidePositionLabel = isGuardPositionLabel(pos.positionName);
+              const isGrayPosition = pos.positionRank === 2 || pos.positionRank === 3;
+              const grayStyle = isGrayPosition ? { backgroundColor: '#e5e7eb' } : undefined;
 
               return (
                 <tr
                   key={`${pos.positionId}-${visualRow}`}
                   className="bg-white"
-                  style={pos.positionColor ? { backgroundColor: pos.positionColor + '28' } : undefined}
+                  style={grayStyle ?? (pos.positionColor ? { backgroundColor: pos.positionColor + '28' } : undefined)}
                 >
                   <td
+                    style={grayStyle}
                     className={cn(
                       'px-0.5 py-1 text-center border border-border text-muted-foreground font-semibold bg-muted/30',
+                      isGrayPosition && 'border-gray-300',
                     )}
                   >
-                    {readonly ? (
-                      rowIdx + 1
-                    ) : (
-                      <button
-                        type="button"
-                        className="h-6 w-6 min-w-0 rounded-sm px-0 text-xs font-semibold hover:bg-accent hover:text-accent-foreground focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring"
-                        onClick={() => openPositionModal(rowIdx + 1, pos.positionName)}
-                      >
-                        {rowIdx + 1}
-                      </button>
-                    )}
+                    {rowIdx + 1}
                   </td>
                   {isFirstRow ? (
                     <td
                       rowSpan={rowSpan}
+                      style={grayStyle}
                       className={cn(
                         narrowColCell,
                         'align-middle px-0.5 py-1 text-center border border-border bg-muted/20 text-[10px] font-semibold leading-tight overflow-hidden',
                         hidePositionLabel && 'text-transparent',
+                        isGrayPosition && 'border-gray-300',
                       )}
                       title={hidePositionLabel ? undefined : pos.positionName}
                       aria-label={hidePositionLabel ? pos.positionName : undefined}
@@ -263,17 +211,25 @@ export function ShiftSection(props: ShiftSectionProps) {
                     </td>
                   ) : null}
                   {sortedDays.map((day) => {
+                    const weekendSlots = weekendSlotsByDay.get(day.iso);
+                    const weekendSlot = weekendSlots?.[rowIdx];
+                    if (weekendSlots && !weekendSlot) {
+                      // A single blank area below the configured slots, without phantom role cells.
+                      return rowIdx === weekendSlots.length ? (
+                        <td key={day.iso} rowSpan={bodyRows.length - rowIdx} className="border border-border bg-white" aria-label="אין תקנים נוספים" />
+                      ) : null;
+                    }
+                    const cellPosition = weekendSlot?.pos ?? pos;
+                    const cellRow = weekendSlot?.slotIndex ?? visualRow;
                     const cat = getDayCategoryForDate(day.iso);
-                    const required = getCapacityForCell(capacity, cat, shiftType, pos.positionId);
-                    const sortedAssignments = assignmentsByDay.get(day.iso)!;
-                    const assignment = sortedAssignments[visualRow] ?? null;
-                    const closed = visualRow >= required && !assignment;
-                    const usedSlots = new Set(sortedAssignments.map((a) => a.slotIndex));
-                    const targetSlotIndex =
-                      assignment?.slotIndex ??
-                      Array.from({ length: required }, (_, i) => i).find((i) => !usedSlots.has(i)) ??
-                      visualRow;
-                    const cellKey = createAssignmentCellKey({ date: day.iso, shiftType, positionId: pos.positionId });
+                    const required = getCapacityForCell(capacity, cat, shiftType, cellPosition.positionId);
+                    const cellKey = createAssignmentCellKey({ date: day.iso, shiftType, positionId: cellPosition.positionId });
+                    const sortedAssignments = weekendSlot
+                      ? [...(assignments[cellKey] ?? [])].sort((a, b) => a.slotIndex - b.slotIndex)
+                      : assignmentsByDay.get(day.iso)!;
+                    const assignment = sortedAssignments[cellRow] ?? null;
+                    const closed = cellRow >= required;
+                    const targetSlotIndex = assignment?.slotIndex ?? cellRow;
                     const overflowKey = `${cellKey}-${targetSlotIndex}` as keyof OverflowCandidateMap;
 
                     const blockedOnShift = blockedEmployeeIdsForShift(assignments, day.iso, shiftType);
@@ -302,7 +258,9 @@ export function ShiftSection(props: ShiftSectionProps) {
                         facilityId={facilityId}
                         date={day.iso}
                         shiftType={shiftType}
-                        positionId={pos.positionId}
+                        positionId={cellPosition.positionId}
+                        positionColor={cellPosition.positionColor}
+                        mutedPosition={cellPosition.positionRank === 2 || cellPosition.positionRank === 3}
                         slotIndex={targetSlotIndex}
                         overflowCandidates={overflowCandidates?.[overflowKey] ?? []}
                         readonly={readonly}
@@ -318,44 +276,6 @@ export function ShiftSection(props: ShiftSectionProps) {
         </table>
       </div>
 
-      {positionModal ? (
-        <div
-          className="fixed inset-0 z-50 flex items-center justify-center bg-black/40 px-4"
-          dir="rtl"
-          role="dialog"
-          aria-modal="true"
-          aria-labelledby="position-row-modal-title"
-        >
-          <div className="w-full max-w-sm rounded-lg border border-border bg-background p-4 shadow-lg">
-            <div className="mb-4">
-              <h2 id="position-row-modal-title" className="text-base font-semibold">
-                הוספת תפקיד לשורה
-              </h2>
-              <p className="mt-1 text-sm text-muted-foreground">שורה {positionModal.rowNumber}</p>
-            </div>
-
-            <div className="space-y-2">
-              <Label htmlFor="position-row-name">שם התפקיד</Label>
-              <Input
-                id="position-row-name"
-                value={positionName}
-                onChange={(event) => setPositionName(event.target.value)}
-                autoFocus
-              />
-              {positionError ? <p className="text-sm text-destructive">{positionError}</p> : null}
-            </div>
-
-            <div className="mt-5 flex justify-end gap-2">
-              <Button type="button" variant="outline" onClick={closePositionModal} disabled={isSavingPosition}>
-                ביטול
-              </Button>
-              <Button type="button" onClick={savePositionForRow} disabled={isSavingPosition}>
-                {isSavingPosition ? 'שומר...' : 'שמירה'}
-              </Button>
-            </div>
-          </div>
-        </div>
-      ) : null}
     </div>
   );
 }

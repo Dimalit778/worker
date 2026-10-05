@@ -6,7 +6,7 @@ import { useMutation, useQueryClient } from '@tanstack/react-query';
 import { Plus, UserCheck } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { createAssignment, removeAssignment, swapAssignments, updateAssignment } from '@/features/schedules/assignments/actions';
-import { invalidateScheduleQueries } from '@/features/schedules/hooks';
+import { applyScheduleEdit } from '@/features/schedules/hooks';
 import type { ScheduleEmployeeOption } from '@/features/schedules/types';
 import type { ShiftType } from '@/generated/prisma/client';
 import { GuardPicker, type SwapCandidate } from '@/features/schedules/shared/guard-picker';
@@ -67,19 +67,16 @@ function AssignmentPicker({
         | { type: 'swap'; assignmentId: string },
     ) => {
       if (input.type === 'remove') {
-        await removeAssignment(input.assignmentId, expected);
-        return;
+        return removeAssignment(input.assignmentId, expected);
       }
       if (input.type === 'swap') {
         if (!slot.assignment) return;
-        await swapAssignments(slot.assignment.id, input.assignmentId, expected);
-        return;
+        return swapAssignments(slot.assignment.id, input.assignmentId, expected);
       }
       if (mode === 'edit' && slot.assignment) {
-        await updateAssignment(slot.assignment.id, input.employeeId, expected);
-        return;
+        return updateAssignment(slot.assignment.id, input.employeeId, expected);
       }
-      await createAssignment({
+      return createAssignment({
         scheduleId,
         employeeId: input.employeeId,
         facilityId,
@@ -89,7 +86,7 @@ function AssignmentPicker({
         slotIndex: slot.slotIndex,
       }, expected);
     },
-    onSuccess: () => invalidateScheduleQueries(queryClient, scheduleId),
+    onSuccess: update => applyScheduleEdit(queryClient, update),
     onError: (e: Error) => setError(e.message || 'שגיאה בשיבוץ'),
   });
 
@@ -142,8 +139,8 @@ function AssignmentPicker({
       {open && anchorRect ? (
         <GuardPicker
           employees={employees}
-          currentUserId={slot.assignment?.employeeId ?? null}
           disabledEmployeeIds={assignedEmployeeIds}
+          currentUserId={slot.assignment?.employeeId ?? null}
           anchorRect={anchorRect}
           onSelect={handleSelect}
           onRemove={mode === 'edit' ? handleRemove : () => {}}

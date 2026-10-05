@@ -11,13 +11,26 @@ function setup(initialSubmitted = false) {
     <ScheduleCalendar period={{ id: 'explicit-period', name: 'test', startDate: '2098-01-06', endDate: '2098-01-06', status: 'OPEN' }} initialEntries={{}} initialSubmitted={initialSubmitted} />
   </QueryClientProvider>);
 }
-it('cycles unavailable → available → preferred and submits the explicit period', async () => {
+it('selects a colored shift and submits the explicit period', async () => {
   setup();
-  fireEvent.click(screen.getByRole('button', { name: '2098-01-06 בוקר: לא יכול' }));
-  fireEvent.click(screen.getByRole('button', { name: '2098-01-06 בוקר: זמין' }));
-  expect(screen.getByRole('button', { name: '2098-01-06 בוקר: מעדיף' })).toBeInTheDocument();
+  const shift = screen.getByRole('button', { name: '2098-01-06 בוקר' });
+  expect(shift).toHaveAttribute('aria-pressed', 'false');
+  expect(shift).toBeEmptyDOMElement();
+  fireEvent.click(shift);
+  expect(shift).toHaveAttribute('aria-pressed', 'true');
+  expect(shift).toHaveClass('bg-amber-400');
   fireEvent.click(screen.getByRole('button', { name: 'הגש זמינות' }));
-  await waitFor(() => expect(submitAvailability).toHaveBeenCalledWith({ periodId: 'explicit-period', entries: { '2098-01-06-MORNING': 'PREFERRED' }, note: '' }, expect.anything()));
+  await waitFor(() => expect(submitAvailability).toHaveBeenCalledWith({ periodId: 'explicit-period', entries: { '2098-01-06-MORNING': 'AVAILABLE' }, note: '' }, expect.anything()));
+});
+it('clears the shift on the second click', async () => {
+  setup();
+  const shift = screen.getByRole('button', { name: '2098-01-06 בוקר' });
+  fireEvent.click(shift);
+  fireEvent.click(shift);
+  expect(shift).toHaveAttribute('aria-pressed', 'false');
+  expect(shift).not.toHaveClass('bg-amber-400');
+  fireEvent.click(screen.getByRole('button', { name: 'הגש זמינות' }));
+  await waitFor(() => expect(submitAvailability).toHaveBeenCalledWith({ periodId: 'explicit-period', entries: { '2098-01-06-MORNING': 'UNAVAILABLE' }, note: '' }, expect.anything()));
 });
 it('allows a submitted employee to update availability and submit no available shifts', async () => {
   setup(true);

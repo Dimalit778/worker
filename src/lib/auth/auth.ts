@@ -2,7 +2,7 @@ import type { NextAuthOptions } from 'next-auth';
 import CredentialsProvider from 'next-auth/providers/credentials';
 import { PrismaAdapter } from '@next-auth/prisma-adapter';
 import bcrypt from 'bcryptjs';
-import { FacilityRole, SystemRole } from '@/generated/prisma/client';
+import { SystemRole } from '@/generated/prisma/client';
 import { prisma } from '@/lib/db/client';
 import { PortalRole, type PortalRole as PortalRoleValue } from '@/lib/auth/portal';
 
@@ -30,10 +30,6 @@ export const authOptions: NextAuthOptions = {
 
         const user = await prisma.user.findFirst({
           where: { email: credentials.identifier },
-          include: {
-            employee: true,
-            facilityRoles: { where: { role: FacilityRole.MANAGER }, orderBy: { facilityId: 'asc' } },
-          },
         });
 
         if (!user) return null;
@@ -41,29 +37,22 @@ export const authOptions: NextAuthOptions = {
         const isValid = await bcrypt.compare(credentials.password, user.passwordHash);
         if (!isValid) return null;
 
-        const managerRole = user.facilityRoles[0];
         const portal =
           user.systemRole === SystemRole.ADMIN
             ? PortalRole.ADMIN
-            : managerRole
+            : user.canEditSchedule
               ? PortalRole.MANAGER
-              : user.employee
-                ? PortalRole.EMPLOYEE
-                : null;
-        if (!portal) return null;
-        if (portal === PortalRole.EMPLOYEE && !user.employee?.isActive) return null;
-        if (portal === PortalRole.MANAGER && !managerRole) return null;
+              : PortalRole.EMPLOYEE;
 
         return {
           id: user.id,
           email: user.email,
-          fullName: user.employee?.displayName ?? user.email,
-          phone: user.employee?.phone ?? null,
+          fullName: user.displayName,
           systemRole: user.systemRole,
           portal,
-          facilityId: managerRole?.facilityId ?? user.employee?.facilityId ?? null,
-          employeeId: user.employee?.id ?? null,
-          mustChangePassword: user.mustChangePassword,
+          facilityId: user.facilityId,
+          employeeId: user.id,
+          mustChangePassword: false,
         };
       },
     }),

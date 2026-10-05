@@ -40,7 +40,7 @@ const SLOT: EngineSlot = {
   positionId: "pos1",
   date: d("2024-01-01"),
   shiftType: "MORNING",
-  requiredCapability: "GUARD", dayCategory: "WEEKDAY",
+  requiredRank: 1, dayCategory: "WEEKDAY",
   requiredAmount: 1,
 };
 
@@ -138,7 +138,7 @@ describe("violatesRestRule", () => {
 // ─── isEligibleForSlot ────────────────────────────────────────────────────────
 
 describe("isEligibleForSlot", () => {
-  const active: EngineEmployee = { id: "emp1", facilityId: "court1", positionId: "pos1", capability: "GUARD", isActive: true };
+  const active: EngineEmployee = { id: "emp1", facilityId: "court1", positionId: "pos1", rank: 1, isActive: true };
 
   it("returns true for active employee with matching facilityId and positionId", () => {
     expect(isEligibleForSlot(active, SLOT)).toBe(true);
@@ -152,7 +152,7 @@ describe("isEligibleForSlot", () => {
     expect(isEligibleForSlot({ ...active, facilityId: "court2" }, SLOT)).toBe(false);
   });
 
-  it("returns false when required capability exceeds employee capability", () => {
-    expect(isEligibleForSlot(active, { ...SLOT, requiredCapability: "CONTROLLER" })).toBe(false);
+  it("returns false when required rank is more senior than the employee", () => {
+    expect(isEligibleForSlot({ ...active, rank: 4 }, { ...SLOT, requiredRank: 1 })).toBe(false);
   });
 });

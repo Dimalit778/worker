@@ -79,10 +79,10 @@ export function getCapacityForCell(
 export function getOrderedPositionsForShift(
   rules: ScheduleCapacityRule[],
   shiftType: ShiftType,
-): Array<{ positionId: string; positionName: string; positionCode: number; positionColor: string | null }> {
+): Array<{ positionId: string; positionName: string; positionRank: number; positionColor: string | null }> {
   const map = new Map<
     string,
-    { positionId: string; positionName: string; positionCode: number; positionColor: string | null }
+    { positionId: string; positionName: string; positionRank: number; positionColor: string | null }
   >();
   for (const r of rules) {
     if (r.shiftType !== shiftType) continue;
@@ -90,13 +90,13 @@ export function getOrderedPositionsForShift(
       map.set(r.positionId, {
         positionId: r.positionId,
         positionName: r.displayName,
-        positionCode: r.code,
+        positionRank: r.rank,
         positionColor: r.color,
       });
     }
   }
   return [...map.values()].sort(
-    (a, b) => a.positionCode - b.positionCode || a.positionName.localeCompare(b.positionName, 'he'),
+    (a, b) => a.positionRank - b.positionRank || a.positionName.localeCompare(b.positionName, 'he'),
   );
 }
 

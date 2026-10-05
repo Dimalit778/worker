@@ -1,6 +1,5 @@
 'use server';
 import { PortalRole } from '@/lib/auth/portal';
-import { Capability } from '@/generated/prisma/client';
 
 import bcrypt from 'bcryptjs';
 import { revalidatePath } from 'next/cache';
@@ -9,6 +8,7 @@ import { Prisma, SystemRole } from '@/generated/prisma/client';
 import { prisma } from '@/lib/db/client';
 import { requireSession } from '@/lib/db/auth-helpers';
 import { getInitialPasswordFromEmail } from '@/features/employess/utils';
+import { DEFAULT_SHIFT_TIMES } from '@/features/schedules/shift-times';
 import type {
   AdminActionResult,
   AdminCourtsData,
@@ -17,13 +17,6 @@ import type {
   UpdateAdminCourtParams,
   UpdateAdminEmployeeParams,
 } from '@/features/admin/types';
-
-const DEFAULT_POSITIONS = [
-  { code: 1, name: 'קצין מתקן', requiredCapability: Capability.SHIFT_MANAGER, displayOrder: 1, color: '#2563eb' },
-  { code: 2, name: 'אחמ״ש', requiredCapability: Capability.SHIFT_MANAGER, displayOrder: 2, color: '#16a34a' },
-  { code: 3, name: 'בקר', requiredCapability: Capability.CONTROLLER, displayOrder: 3, color: '#64748b' },
-  { code: 4, name: 'מאבטח', requiredCapability: Capability.GUARD, displayOrder: 4, color: '#dc2626' },
-];
 
 function normalizeText(value: string) {
   return value.trim();
@@ -53,6 +46,11 @@ async function assertAdmin() {
 export async function getAdminCourtsData(): Promise<AdminCourtsData> {
   await assertAdmin();
 
+  const globalRoles = await prisma.role.findMany({
+    select: { id: true, name: true, rank: true },
+    orderBy: { rank: 'asc' },
+  });
+
   const regions = await prisma.district.findMany({
     select: {
       id: true,
@@ -64,40 +62,25 @@ export async function getAdminCourtsData(): Promise<AdminCourtsData> {
           name: true,
           code: true,
           districtId: true,
-          shiftRoles: {
+          users: {
             select: {
               id: true,
-              name: true,
-              code: true,
-              isActive: true,
-            },
-            orderBy: [{ code: 'asc' }, { name: 'asc' }],
-          },
-          employees: {
-            select: {
-              id: true,
-              capability: true,
               firstName: true,
               lastName: true,
               displayName: true,
-              phone: true,
-              isActive: true,
+              phoneNumber: true,
               isReligious: true,
-              primaryShiftRole: {
+              email: true,
+              systemRole: true,
+              role: {
                 select: {
                   id: true,
                   name: true,
-                  code: true,
-                },
-              },
-              user: {
-                select: {
-                  email: true,
-                  systemRole: true,
+                  rank: true,
                 },
               },
             },
-            orderBy: [{ primaryShiftRole: { code: 'asc' } }, { displayName: 'asc' }],
+            orderBy: [{ role: { rank: 'asc' } }, { displayName: 'asc' }],
           },
         },
         orderBy: [{ name: 'asc' }],
@@ -111,20 +94,19 @@ export async function getAdminCourtsData(): Promise<AdminCourtsData> {
       ...region,
       courts: region.facilities.map((court) => ({
         ...court,
-        positions: court.shiftRoles,
-        employeeCount: court.employees.length,
-        employees: court.employees.map((employee) => ({
+        positions: globalRoles.map((role) => ({ ...role, isActive: true })),
+        employeeCount: court.users.length,
+        employees: court.users.map((employee) => ({
           id: employee.id,
-          capability: employee.capability,
           firstName: employee.firstName,
           lastName: employee.lastName,
           displayName: employee.displayName,
-          phone: employee.phone,
-          email: employee.user?.email ?? '',
-          isActive: employee.isActive,
+          phone: employee.phoneNumber,
+          email: employee.email,
+          isActive: true,
           isReligious: employee.isReligious,
-          systemRole: employee.user?.systemRole ?? null,
-          position: employee.primaryShiftRole,
+          systemRole: employee.systemRole,
+          position: employee.role,
         })),
       })),
     })),
@@ -148,22 +130,18 @@ export async function createAdminCourt(params: CreateAdminCourtParams): Promise<
       return { error: 'מחוז לא נמצא' };
     }
 
-    await prisma.$transaction(async (tx) => {
-      const court = await tx.facility.create({
-        data: {
-          name,
-          code,
-          districtId,
+    await prisma.facility.create({
+      data: {
+        name,
+        code,
+        districtId,
+        shifts: {
+          create: DEFAULT_SHIFT_TIMES.map((shift) => ({
+            ...shift,
+            endDayOffset: shift.shiftType === 'NIGHT' ? 1 : 0,
+          })),
         },
-      });
-
-      await tx.shiftRole.createMany({
-        data: DEFAULT_POSITIONS.map((position) => ({
-          ...position,
-          facilityId: court.id,
-          isActive: true,
-        })),
-      });
+      },
     });
 
     revalidatePath('/admin/courts');
@@ -224,13 +202,8 @@ export async function deleteAdminCourt(facilityId: string): Promise<AdminActionR
         where: { id },
         select: {
           id: true,
-          employees: {
-            select: {
-              id: true,
-              user: {
-                select: { id: true },
-              },
-            },
+          users: {
+            select: { id: true },
           },
         },
       });
@@ -239,30 +212,19 @@ export async function deleteAdminCourt(facilityId: string): Promise<AdminActionR
         throw new Error('COURT_NOT_FOUND');
       }
 
-      const employeeIds = court.employees.map((employee) => employee.id);
-      const userIds = court.employees.flatMap((employee) => (employee.user ? [employee.user.id] : []));
+      const userIds = court.users.map((employee) => employee.id);
 
-      if (userIds.length > 0) {
-        const externalScheduleRefs = await tx.roster.count({
-          where: {
-            createdById: { in: userIds },
-            facilityId: { not: id },
-          },
-        });
-
-        if (externalScheduleRefs > 0) {
-          throw new Error('COURT_USERS_HAVE_EXTERNAL_SCHEDULES');
-        }
-      }
-
-      await tx.roster.deleteMany({ where: { facilityId: id } });
+      await tx.scheduleSlot.deleteMany({ where: { facilityId: id } });
+      await tx.shiftAvailability.deleteMany({ where: { submission: { facilityId: id } } });
+      await tx.availabilitySubmission.deleteMany({ where: { facilityId: id } });
+      await tx.scheduleChange.deleteMany({ where: { facilityId: id } });
+      await tx.schedule.deleteMany({ where: { facilityId: id } });
+      await tx.staffingRequirement.deleteMany({ where: { facilityId: id } });
+      await tx.facilityShift.deleteMany({ where: { facilityId: id } });
+      await tx.position.deleteMany({ where: { facilityId: id } });
 
       if (userIds.length > 0) {
         await tx.user.deleteMany({ where: { id: { in: userIds } } });
-      }
-
-      if (employeeIds.length > 0) {
-        await tx.employee.deleteMany({ where: { id: { in: employeeIds } } });
       }
 
       await tx.facility.delete({ where: { id } });
@@ -291,7 +253,6 @@ export async function createAdminEmployee(params: CreateAdminEmployeeParams): Pr
   const displayName = normalizeText(params.displayName);
   const email = normalizeEmail(params.email);
   const positionId = normalizeText(params.positionId);
-  if (!params.capability || !Object.values(Capability).includes(params.capability)) return { error: 'יש לבחור כשירות' };
   const phone = params.phone?.trim() || null;
 
   if (!facilityId || !firstName || !lastName || !displayName || !email || !positionId) {
@@ -303,12 +264,9 @@ export async function createAdminEmployee(params: CreateAdminEmployeeParams): Pr
   }
 
   try {
-    const position = await prisma.shiftRole.findFirst({
-      where: {
-        id: positionId,
-        facilityId,
-      },
-      select: { id: true },
+    const position = await prisma.role.findUnique({
+      where: { id: positionId },
+      select: { id: true, rank: true },
     });
 
     if (!position) {
@@ -327,27 +285,19 @@ export async function createAdminEmployee(params: CreateAdminEmployeeParams): Pr
         throw new Error('USER_EMAIL_EXISTS');
       }
 
-      const employee = await tx.employee.create({
-        data: {
-          firstName,
-          lastName,
-          displayName,
-          phone,
-          capability: params.capability,
-          primaryShiftRoleId: positionId,
-          facilityId,
-          isActive: params.isActive,
-          isReligious: params.isReligious,
-        },
-      });
-
       await tx.user.create({
         data: {
           email,
           passwordHash,
           systemRole: SystemRole.USER,
-          mustChangePassword: true,
-          employeeId: employee.id,
+          firstName,
+          lastName,
+          displayName,
+          phoneNumber: phone,
+          roleId: position.id,
+          facilityId,
+          canEditSchedule: position.rank === 1,
+          isReligious: params.isReligious,
         },
       });
     });
@@ -373,7 +323,6 @@ export async function updateAdminEmployee(params: UpdateAdminEmployeeParams): Pr
   const displayName = normalizeText(params.displayName);
   const email = normalizeEmail(params.email);
   const positionId = normalizeText(params.positionId);
-  if (!params.capability || !Object.values(Capability).includes(params.capability)) return { error: 'יש לבחור כשירות' };
   const phone = params.phone?.trim() || null;
 
   if (!employeeId || !firstName || !lastName || !displayName || !email || !positionId) {
@@ -386,64 +335,37 @@ export async function updateAdminEmployee(params: UpdateAdminEmployeeParams): Pr
 
   try {
     await prisma.$transaction(async (tx) => {
-      const employee = await tx.employee.findUnique({
+      const employee = await tx.user.findUnique({
         where: { id: employeeId },
-        select: {
-          id: true,
-          facilityId: true,
-          user: {
-            select: { id: true, email: true },
-          },
-        },
+        select: { id: true, facilityId: true },
       });
 
-      if (!employee) {
+      if (!employee || !employee.facilityId) {
         throw new Error('EMPLOYEE_NOT_FOUND');
       }
 
-      const position = await tx.shiftRole.findFirst({
-        where: {
-          id: positionId,
-          facilityId: employee.facilityId,
-        },
-        select: { id: true },
+      const position = await tx.role.findUnique({
+        where: { id: positionId },
+        select: { id: true, rank: true },
       });
 
       if (!position) {
         throw new Error('POSITION_NOT_IN_COURT');
       }
 
-      await tx.employee.update({
+      await tx.user.update({
         where: { id: employeeId },
         data: {
+          email,
           firstName,
           lastName,
           displayName,
-          phone,
-          capability: params.capability,
-          primaryShiftRoleId: positionId,
-          isActive: params.isActive,
+          phoneNumber: phone,
+          roleId: position.id,
+          canEditSchedule: position.rank === 1,
           isReligious: params.isReligious,
         },
       });
-
-      if (employee.user) {
-        await tx.user.update({
-          where: { id: employee.user.id },
-          data: { email },
-        });
-      } else {
-        const passwordHash = await bcrypt.hash(getInitialPasswordFromEmail(email), 12);
-        await tx.user.create({
-          data: {
-            email,
-            passwordHash,
-            systemRole: SystemRole.USER,
-            mustChangePassword: true,
-            employeeId,
-          },
-        });
-      }
     });
 
     revalidatePath('/admin/courts');
@@ -471,21 +393,20 @@ export async function deleteAdminEmployee(employeeId: string): Promise<AdminActi
 
   try {
     await prisma.$transaction(async (tx) => {
-      const employee = await tx.employee.findUnique({
+      const employee = await tx.user.findUnique({
         where: { id },
-        select: {
-          id: true,
-          user: {
-            select: { id: true },
-          },
-        },
+        select: { id: true },
       });
 
       if (!employee) {
         throw new Error('EMPLOYEE_NOT_FOUND');
       }
 
-      await tx.employee.update({ where: { id }, data: { isActive: false } });
+      const changes = await tx.scheduleChange.count({ where: { changedById: id } });
+      if (changes > 0) throw new Error('EMPLOYEE_HAS_HISTORY');
+      await tx.scheduleSlot.updateMany({ where: { userId: id }, data: { userId: null } });
+      await tx.availabilitySubmission.deleteMany({ where: { userId: id } });
+      await tx.user.delete({ where: { id } });
     });
 
     revalidatePath('/admin/courts');

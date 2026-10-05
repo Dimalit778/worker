@@ -36,11 +36,11 @@ suite('scheduling services against migrated PostgreSQL', () => {
     const region = await prisma.district.create({ data: { name: 'test', code: suffix } });
     const court = await prisma.facility.create({ data: { name: 'test', code: suffix, districtId: region.id } });
     facilityId = court.id;
-    const position = await prisma.shiftRole.create({ data: { facilityId, name: 'renamable label', code: 4, requiredCapability: 'GUARD' } });
+    const position = await prisma.shiftRole.create({ data: { facilityId, name: 'renamable label', rank: 4 } });
     positionId = position.id;
-    const employee = await prisma.employee.create({ data: { facilityId, primaryShiftRoleId: positionId, capability: 'GUARD', firstName: 'Test', lastName: 'Employee', displayName: 'Test Employee' } });
+    const employee = await prisma.user.create({ data: { email: `${suffix}-emp@test.invalid`, passwordHash: 'unused', facilityId, shiftRoleId: positionId, firstName: 'Test', lastName: 'Employee', displayName: 'Test Employee' } });
     employeeId = employee.id;
-    const manager = await prisma.user.create({ data: { email: `${suffix}@test.invalid`, passwordHash: 'unused', systemRole: 'USER', facilityRoles: { create: { facilityId, role: 'MANAGER' } } } });
+    const manager = await prisma.user.create({ data: { email: `${suffix}@test.invalid`, passwordHash: 'unused', systemRole: 'USER', firstName: 'Test', lastName: 'Manager', displayName: 'Test Manager', facilityId, shiftRoleId: positionId, facilityRoles: { create: { facilityId, role: 'MANAGER' } } } });
     managerId = identity.userId = manager.id;
     const period = await prisma.schedulePeriod.create({ data: { facilityId, name: 'test', startDate: date('2098-01-06'), endDate: date('2098-01-19'), submissionOpensAt: new Date('2020-01-01'), submissionDeadline: date('2098-01-05'), submissionState: 'OPEN' } });
     periodId = period.id;
@@ -93,9 +93,10 @@ suite('scheduling services against migrated PostgreSQL', () => {
     expect(await prisma.shiftAssignment.count({ where: { scheduleId } })).toBe(0);
   });
 
-  it('rejects missing capability even if employee position id matches', async () => {
-    await prisma.shiftRole.update({ where: { id: positionId }, data: { requiredCapability: 'CONTROLLER' } });
-    await expect(add()).rejects.toThrow('תקינים');
+  it('rejects assigning an employee to a slot above their rank', async () => {
+    const higherRolePosition = await prisma.shiftRole.create({ data: { facilityId, name: 'higher rank role', rank: 1 } });
+    await prisma.staffingRequirement.create({ data: { facilityId, shiftRoleId: higherRolePosition.id, dayCategory: 'WEEKDAY', shiftType: 'MORNING', requiredCount: 1 } });
+    await expect(createAssignment({ scheduleId, employeeId, positionId: higherRolePosition.id, date: '2098-01-06', shiftType: 'MORNING', slotIndex: 0 }, expected)).rejects.toThrow('תקינים');
   });
 
   it('rejects stale edits and serializes concurrent writers', async () => {
@@ -142,14 +143,14 @@ suite('scheduling services against migrated PostgreSQL', () => {
   it('does not allow a different court manager to edit the schedule', async () => {
     const region = await prisma.district.findFirstOrThrow({ where: { facilities: { some: { id: facilityId } } } });
     const other = await prisma.facility.create({ data: { name: 'other', code: randomUUID(), districtId: region.id } });
-    const manager = await prisma.user.create({ data: { email: `${randomUUID()}@test.invalid`, passwordHash: 'x', systemRole: 'USER', facilityRoles: { create: { facilityId: other.id, role: 'MANAGER' } } } });
+    const otherRole = await prisma.shiftRole.create({ data: { facilityId: other.id, name: 'other role', rank: 1 } });
+    const manager = await prisma.user.create({ data: { email: `${randomUUID()}@test.invalid`, passwordHash: 'x', systemRole: 'USER', firstName: 'Other', lastName: 'Manager', displayName: 'Other Manager', facilityId: other.id, shiftRoleId: otherRole.id, facilityRoles: { create: { facilityId: other.id, role: 'MANAGER' } } } });
     identity.userId = manager.id;
     await expect(add()).rejects.toThrow();
   });
 
   it('scopes employee submissions to the authenticated employee and enforces deadline without cron', async () => {
-    const user = await prisma.user.create({ data: { email: `${randomUUID()}@test.invalid`, passwordHash: 'x', employeeId } });
-    identity.userId = user.id;
+    identity.userId = employeeId;
     const result = await submitAvailability({ periodId, entries: { '2098-01-06-MORNING': 'PREFERRED', '2098-01-07-NIGHT': 'UNAVAILABLE' } });
     expect(result.ok).toBe(true);
     const input = await loadSchedulingInput(prisma, scheduleId, facilityId, expected.versionId);

@@ -34,7 +34,7 @@ export type ShiftSlot = {
   key: string;
   positionId: string;
   positionName: string;
-  positionCode: number;
+  positionRank: number;
   positionColor: string | null;
   slotIndex: number;
   requiredCount: number;

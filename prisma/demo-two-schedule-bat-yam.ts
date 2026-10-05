@@ -33,8 +33,8 @@ const prisma = new PrismaClient({
   adapter: new PrismaNeon({ connectionString }),
 });
 
-const COURT_CODE = 'BAT_YAM';
-const FACILITY_OFFICER_CODE = 1;
+const FACILITY_CODE = 'BAT_YAM';
+const FACILITY_OFFICER_RANK = 1;
 const DEMO_NAME_PREFIX = 'דמו בת ים';
 const TIME_ZONE = 'Asia/Jerusalem';
 const SHIFT_TYPES = [ShiftType.MORNING, ShiftType.EVENING, ShiftType.NIGHT] as const;
@@ -343,10 +343,10 @@ async function main() {
   const today = todayIso();
 
   const court = await prisma.facility.findUnique({
-    where: { code: COURT_CODE },
+    where: { code: FACILITY_CODE },
     select: { id: true, name: true },
   });
-  if (!court) throw new Error(`Court ${COURT_CODE} not found. Run prisma/seed.ts first.`);
+  if (!court) throw new Error(`Court ${FACILITY_CODE} not found. Run prisma/seed.ts first.`);
 
   const manager = await prisma.user.findFirst({
     where: { facilityRoles: { some: { facilityId: court.id, role: 'MANAGER' } } },
@@ -355,21 +355,21 @@ async function main() {
   if (!manager) throw new Error(`Manager user not found for ${court.name}`);
 
   const positions = await prisma.shiftRole.findMany({
-    where: { facilityId: court.id, isActive: true, code: { not: FACILITY_OFFICER_CODE } },
-    select: { id: true, code: true, name: true },
+    where: { OR: [{ facilityId: court.id }, { facilityId: null }], isActive: true, rank: { not: FACILITY_OFFICER_RANK } },
+    select: { id: true, rank: true, name: true },
   });
   if (positions.length === 0) {
     throw new Error('לא נמצאו תפקידים פעילים מלבד קצין מתקן. הריצו prisma/seed.ts קודם.');
   }
 
-  const employees = await prisma.employee.findMany({
-    where: { facilityId: court.id, isActive: true, primaryShiftRole: { code: { not: FACILITY_OFFICER_CODE } } },
+  const employees = await prisma.user.findMany({
+    where: { facilityId: court.id, isActive: true, shiftRole: { rank: { not: FACILITY_OFFICER_RANK } } },
     select: {
       id: true,
-      primaryShiftRoleId: true,
-      primaryShiftRole: { select: { name: true } },
+      shiftRoleId: true,
+      shiftRole: { select: { name: true } },
     },
-    orderBy: [{ primaryShiftRole: { code: 'asc' } }, { id: 'asc' }],
+    orderBy: [{ shiftRole: { rank: 'asc' } }, { id: 'asc' }],
   });
   if (employees.length === 0) {
     throw new Error(`אין עובדים פעילים מלבד קצין מתקן ב${court.name}`);
@@ -377,8 +377,8 @@ async function main() {
 
   const employeeRefs: EmployeeRef[] = employees.map((employee) => ({
     id: employee.id,
-    positionId: employee.primaryShiftRoleId,
-    positionName: employee.primaryShiftRole.name,
+    positionId: employee.shiftRoleId!,
+    positionName: employee.shiftRole!.name,
   }));
   const byPositionId = new Map<string, EmployeeRef[]>();
   for (const employee of employeeRefs) {
@@ -391,7 +391,7 @@ async function main() {
     where: {
       facilityId: court.id,
       isActive: true,
-      shiftRole: { code: { not: FACILITY_OFFICER_CODE } },
+      shiftRole: { rank: { not: FACILITY_OFFICER_RANK } },
     },
     select: { shiftRoleId: true, shiftType: true, dayCategory: true, requiredCount: true },
   });

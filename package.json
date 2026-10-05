@@ -4,7 +4,7 @@
   "private": true,
   "scripts": {
     "postinstall": "prisma generate",
-    "dev": "next dev",
+    "dev": "next dev --webpack",
     "build": "next build",
     "typecheck": "tsc --noEmit",
     "lint": "eslint src tests",
@@ -20,11 +20,11 @@
     "db:migrate": "prisma migrate dev",
     "db:seed": "tsx --env-file=.env.local prisma/seed.ts",
     "db:seed:employees": "tsx --env-file=.env.local prisma/seed-employees.ts",
-    "db:seed:region-courts": "tsx --env-file=.env.local prisma/seed-region-courts.ts",
     "db:seed:demo-bat-yam": "tsx --env-file=.env.local prisma/demo-two-schedule-bat-yam.ts",
     "db:studio": "prisma studio",
     "test:integration": "vitest run tests/scheduling-postgres.test.ts",
-    "db:check-rls": "tsx scripts/check-rls.ts"
+    "db:check-rls": "tsx scripts/check-rls.ts",
+    "db:seed:district-facilities": "tsx prisma/seed-district-facilities.ts"
   },
   "dependencies": {
     "@next-auth/prisma-adapter": "^1.0.7",

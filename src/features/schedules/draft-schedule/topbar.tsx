@@ -27,7 +27,7 @@ export function TopBar({ data, showCreateButton = false }: { data: CurrentSchedu
     <Card size="sm" className="shadow-sm">
       <CardHeader className="border-b border-border/50 space-y-4 pb-4">
         <div className="flex flex-col gap-3 sm:flex-row sm:items-start sm:justify-between">
-          <div className="min-w-0 space-y-2">
+          <div className="min-w-0 ">
             <div className="flex flex-wrap items-center gap-2">
               <CardTitle className="text-xl font-semibold">שיבוץ בהכנה</CardTitle>
               <ScheduleStatusBadge status={data.scheduleStatus} />

@@ -1,13 +1,11 @@
-import type { Capability } from '@/generated/prisma/client';
 export type AdminPositionOption = {
   id: string;
   name: string;
-  code: number;
+  rank: number;
   isActive: boolean;
 };
 
 export type AdminEmployeeItem = {
-  capability?: Capability;
   id: string;
   firstName: string;
   lastName: string;
@@ -20,7 +18,7 @@ export type AdminEmployeeItem = {
   position: {
     id: string;
     name: string;
-    code: number;
+    rank: number;
   };
 };
 
@@ -58,7 +56,6 @@ export type UpdateAdminCourtParams = CreateAdminCourtParams & {
 };
 
 export type CreateAdminEmployeeParams = {
-  capability?: Capability;
   facilityId: string;
   firstName: string;
   lastName: string;

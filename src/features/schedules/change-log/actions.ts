@@ -12,7 +12,7 @@ import {
 export async function fetchScheduleChangeLog(scheduleId: string): Promise<ScheduleChangeLogEntry[]> {
   const { facilityId } = await requireManager();
 
-  const schedule = await prisma.roster.findFirst({
+  const schedule = await prisma.schedule.findFirst({
     where: { id: scheduleId, facilityId },
     select: { id: true },
   });

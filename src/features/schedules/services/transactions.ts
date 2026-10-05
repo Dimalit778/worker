@@ -11,10 +11,14 @@ export async function scheduleTransaction<T>(actor: ScheduleActor, fn: (tx: Pris
   try {
     return await prisma.$transaction(async tx => {
       await tx.$queryRaw`SELECT id FROM "Facility" WHERE id=${actor.facilityId} FOR UPDATE`;
-      const membership = await tx.userFacilityRole.findUnique({
-        where: { userId_facilityId: { userId: actor.userId, facilityId: actor.facilityId } },
+      const editor = await tx.user.findFirst({
+        where: {
+          id: actor.userId,
+          OR: [{ systemRole: 'ADMIN' }, { facilityId: actor.facilityId, canEditSchedule: true }],
+        },
+        select: { id: true },
       });
-      if (membership?.role !== 'MANAGER') throw new Error('אין הרשאת ניהול למתקן');
+      if (!editor) throw new Error('אין הרשאת ניהול למתקן');
       return fn(tx);
     }, { isolationLevel: Prisma.TransactionIsolationLevel.Serializable, timeout: 20000 });
   } catch (error) {
@@ -25,40 +29,26 @@ export async function scheduleTransaction<T>(actor: ScheduleActor, fn: (tx: Pris
 
 export async function checkedVersion(tx: Prisma.TransactionClient, actor: ScheduleActor, scheduleId: string, expected: VersionExpectation) {
   if (!expected || !Number.isInteger(expected.revision) || expected.revision < 0) throw new Error(STALE_VERSION);
-  const schedule = await tx.roster.findFirst({ where: { id: scheduleId, facilityId: actor.facilityId }, include: { period: true } });
-  if (!schedule || schedule.archivedAt || schedule.period.endDate < todayUtcDateForTimeZone('Asia/Jerusalem')) throw new Error('לא ניתן לערוך שיבוץ זה');
-  const version = await tx.rosterVersion.findFirst({ where: { scheduleId, facilityId: actor.facilityId, OR: [{ status: 'DRAFT' }, { status: 'PUBLISHED', isActive: true }] }, orderBy: { version: 'desc' } });
-  if ((version?.id ?? null) !== expected.versionId || (version?.revision ?? 0) !== expected.revision) throw new Error(STALE_VERSION);
-  return { schedule, version };
+  const schedule = await tx.schedule.findFirst({ where: { id: scheduleId, facilityId: actor.facilityId } });
+  if (!schedule || schedule.status === 'ARCHIVED' || schedule.endDate < todayUtcDateForTimeZone('Asia/Jerusalem')) throw new Error('לא ניתן לערוך שיבוץ זה');
+  if (schedule.id !== expected.versionId || schedule.revision !== expected.revision) throw new Error(STALE_VERSION);
+  return { schedule, version: schedule };
 }
 
 export async function editableDraft(tx: Prisma.TransactionClient, actor: ScheduleActor, scheduleId: string, expected: VersionExpectation) {
   const { schedule, version } = await checkedVersion(tx, actor, scheduleId, expected);
-  if (version?.status === 'DRAFT') return { schedule, version };
-  const max = await tx.rosterVersion.aggregate({ where: { scheduleId }, _max: { version: true } });
-  const draft = await tx.rosterVersion.create({ data: { scheduleId, facilityId: actor.facilityId, createdById: actor.userId, version: (max._max.version ?? 0) + 1, isActive: false } });
-  if (version) {
-    const assignments = await tx.shiftAssignment.findMany({ where: { versionId: version.id } });
-    if (assignments.length) {
-      await tx.shiftAssignment.createMany({
-        data: assignments.map((assignment) => ({
-          scheduleId,
-          facilityId: actor.facilityId,
-          versionId: draft.id,
-          employeeId: assignment.employeeId,
-          shiftRoleId: assignment.shiftRoleId,
-          date: assignment.date,
-          shiftType: assignment.shiftType,
-          source: assignment.source,
-          isLocked: assignment.isLocked,
-        })),
-      });
-    }
-  }
-  await tx.scheduleChangeLog.create({ data: {
-    scheduleId, versionId: draft.id, changedById: actor.userId, changeType: 'CREATE',
-    message: version ? 'נפתחה טיוטת תיקון' : 'נפתחה טיוטה ראשונה',
-    afterData: { version: draft.version, copiedFromVersionId: version?.id ?? null },
+  if (version.status === 'DRAFT') return { schedule, version };
+  const draft = await tx.schedule.update({
+    where: { id: schedule.id },
+    data: { status: 'DRAFT', revision: { increment: 1 } },
+  });
+  await tx.scheduleChange.create({ data: {
+    facilityId: actor.facilityId,
+    scheduleId,
+    changedById: actor.userId,
+    changeType: 'CREATE',
+    reason: 'נפתחה טיוטת תיקון',
+    afterData: { copiedFromStatus: version.status },
   } });
-  return { schedule, version: draft };
+  return { schedule: draft, version: draft };
 }

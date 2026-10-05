@@ -5,7 +5,7 @@ import { EngineEmployee, EngineSlot, FairnessSummary } from "../types";
 // ─── Fixtures ─────────────────────────────────────────────────────────────────
 
 function emp(id: string): EngineEmployee {
-  return { id, facilityId: "court1", positionId: "pos1", positionName: "מאבטח", capability: "GUARD", isActive: true };
+  return { id, facilityId: "court1", positionId: "pos1", positionName: "מאבטח", rank: 1, isActive: true };
 }
 
 function fairness(
@@ -29,7 +29,7 @@ const SLOT: EngineSlot = {
   positionName: "מאבטח",
   date: new Date("2024-01-01T00:00:00.000Z"),
   shiftType: "MORNING",
-  requiredCapability: "GUARD", dayCategory: "WEEKDAY",
+  requiredRank: 1, dayCategory: "WEEKDAY",
   requiredAmount: 1,
 };
 

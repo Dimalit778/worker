@@ -12,27 +12,33 @@ export default async function UserLayout({ children }: { children: React.ReactNo
   const [primaryCourt, hasOpenPeriod] = await Promise.all([
     session.user.facilityId ? prisma.facility.findUnique({ where: { id: session.user.facilityId } }) : null,
     (async () => {
+      const now = new Date();
       const user = await prisma.user.findUnique({
         where: { id: session.user.id },
         select: {
-          employeeId: true,
-          employee: { select: { primaryShiftRole: { select: { code: true } } } },
+          facilityId: true,
+          role: { select: { rank: true } },
         },
       });
-      if (!user?.employeeId) return false;
-      if (user.employee?.primaryShiftRole.code === 1) return false;
+      if (!user?.facilityId) return false;
+      if (user.role.rank === 1) return false;
 
-      const openPeriod = await prisma.roster.findFirst({
-        where: { archivedAt: null, facilityId: session.user.facilityId ?? '', period: { submissionState: 'OPEN' } },
-        select: { periodId: true },
+      const openSchedule = await prisma.schedule.findFirst({
+        where: {
+          facilityId: user.facilityId,
+          status: 'DRAFT',
+          submissionOpensAt: { lte: now },
+          submissionClosesAt: { gt: now },
+        },
+        select: { id: true },
       });
-      if (!openPeriod) return false;
+      if (!openSchedule) return false;
 
       const submitted = await prisma.availabilitySubmission.findUnique({
-        where: { periodId_employeeId: { periodId: openPeriod.periodId, employeeId: user.employeeId } },
-        select: { isSubmitted: true },
+        where: { scheduleId_userId: { scheduleId: openSchedule.id, userId: session.user.id } },
+        select: { submittedAt: true },
       });
-      return !submitted?.isSubmitted;
+      return submitted?.submittedAt == null;
     })(),
   ]);
 

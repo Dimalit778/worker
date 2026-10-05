@@ -1,6 +1,5 @@
 'use client';
 
-import type { Capability } from '@/generated/prisma/client';
 import { useState } from 'react';
 import { useMutation, useQueryClient } from '@tanstack/react-query';
 import { X } from 'lucide-react';
@@ -24,7 +23,6 @@ export function EmployeeModal({ employee, positions, facilityId, onClose }: Prop
   const queryClient = useQueryClient();
   const saveMutation = useMutation({
     mutationFn: async (input: {
-      capability: Capability;
       isEdit: boolean;
       employeeId?: string;
       firstName: string;
@@ -40,7 +38,6 @@ export function EmployeeModal({ employee, positions, facilityId, onClose }: Prop
         if (facilityId) {
           return updateAdminEmployee({
             employeeId: input.employeeId,
-            capability: input.capability,
         firstName: input.firstName,
             lastName: input.lastName,
             phone: input.phone,
@@ -54,7 +51,6 @@ export function EmployeeModal({ employee, positions, facilityId, onClose }: Prop
 
         return updateEmployee({
           employeeId: input.employeeId,
-          capability: input.capability,
         firstName: input.firstName,
           lastName: input.lastName,
           phone: input.phone,
@@ -68,7 +64,6 @@ export function EmployeeModal({ employee, positions, facilityId, onClose }: Prop
       if (facilityId) {
         return createAdminEmployee({
           facilityId,
-          capability: input.capability,
         firstName: input.firstName,
           lastName: input.lastName,
           phone: input.phone,
@@ -81,7 +76,6 @@ export function EmployeeModal({ employee, positions, facilityId, onClose }: Prop
       }
 
       return createEmployee({
-        capability: input.capability,
         firstName: input.firstName,
         lastName: input.lastName,
         phone: input.phone,
@@ -105,12 +99,15 @@ export function EmployeeModal({ employee, positions, facilityId, onClose }: Prop
       setCreatedEmail(variables.email);
       setCreated(true);
     },
+    onError: () => setError('יצירת העובד נכשלה'),
   });
   const pending = saveMutation.isPending;
   const [error, setError] = useState<string | null>(null);
   const [created, setCreated] = useState(false);
   const [createdEmail, setCreatedEmail] = useState('');
-  const [positionId, setPositionId] = useState(employee?.position.id ?? '');
+  const [positionId, setPositionId] = useState(employee?.position.id ?? positions[0]?.id ?? '');
+  const [isActive, setIsActive] = useState(employee?.isActive ?? true);
+  const [isReligious, setIsReligious] = useState(employee?.isReligious ?? false);
   const isEdit = !!employee;
 
   function handleSubmit(e: React.FormEvent<HTMLFormElement>) {
@@ -124,12 +121,9 @@ export function EmployeeModal({ employee, positions, facilityId, onClose }: Prop
     const phone = phoneValue.length > 0 ? phoneValue : null;
     const email = String(fd.get('email') ?? '').trim();
     const displayName = String(fd.get('displayName') ?? '').trim();
-    const positionId = String(fd.get('positionId') ?? '');
-    const isActive = isEdit ? fd.has('isActive') : true;
-    const isReligious = fd.has('isReligious');
+    const selectedPositionId = positionId || String(fd.get('positionId') ?? '');
 
     saveMutation.mutate({
-      capability: String(fd.get('capability')) as Capability,
       isEdit,
       employeeId: employee?.id,
       firstName,
@@ -137,7 +131,7 @@ export function EmployeeModal({ employee, positions, facilityId, onClose }: Prop
       phone,
       email,
       displayName,
-      positionId,
+      positionId: selectedPositionId,
       isActive,
       isReligious,
     });
@@ -172,11 +166,6 @@ export function EmployeeModal({ employee, positions, facilityId, onClose }: Prop
         </div>
 
         <form onSubmit={handleSubmit} className="space-y-4">
-          <label className="block text-sm">כשירות מקצועית
-            <select name="capability" defaultValue={employee?.capability ?? 'GUARD'} className="block w-full border rounded p-2">
-              <option value="GUARD">מאבטח</option><option value="CONTROLLER">בקר</option><option value="SHIFT_MANAGER">אחמ״ש</option>
-            </select>
-          </label>
           <div>
             <Label className="block text-sm font-medium mb-1">שם פרטי *</Label>
             <Input name="firstName" defaultValue={employee?.firstName ?? ''} required />
@@ -216,39 +205,37 @@ export function EmployeeModal({ employee, positions, facilityId, onClose }: Prop
             <Input name="displayName" defaultValue={employee?.displayName ?? ''} required />
           </div>
 
-          {isEdit && (
-            <div className="flex justify-between">
-              <div className="flex items-center gap-2">
-                <Checkbox
-                  name="isActive"
-                  id="isActive"
-                  defaultChecked={employee?.isActive ?? false}
-                  className="w-4 h-4"
-                />
-                <Label htmlFor="isActive" className="text-sm font-medium">
-                  פעיל
-                </Label>
-              </div>
-              <div className="flex items-center gap-2">
-                <Checkbox
-                  name="isReligious"
-                  id="isReligious"
-                  defaultChecked={employee?.isReligious ?? false}
-                  className="w-4 h-4"
-                />
-                <Label htmlFor="isReligious" className="text-sm font-medium">
-                  מאבטח דתי
-                </Label>
-              </div>
+          <div className="flex justify-between">
+            <div className="flex items-center gap-2">
+              <Checkbox
+                id="isActive"
+                checked={isActive}
+                onCheckedChange={(checked) => setIsActive(checked === true)}
+                className="w-4 h-4"
+              />
+              <Label htmlFor="isActive" className="text-sm font-medium">
+                פעיל
+              </Label>
             </div>
-          )}
+            <div className="flex items-center gap-2">
+              <Checkbox
+                id="isReligious"
+                checked={isReligious}
+                onCheckedChange={(checked) => setIsReligious(checked === true)}
+                className="w-4 h-4"
+              />
+              <Label htmlFor="isReligious" className="text-sm font-medium">
+                מאבטח דתי
+              </Label>
+            </div>
+          </div>
 
           {error && <p className="text-sm text-destructive">{error}</p>}
 
           <div className="flex gap-3 pt-2">
             <Button
               type="submit"
-              disabled={pending}
+              disabled={pending || !positionId}
               className="flex-1 bg-foreground text-background rounded-md py-2 text-sm font-medium hover:opacity-90 disabled:opacity-50"
             >
               {pending ? 'שומר...' : 'שמור'}

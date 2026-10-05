@@ -54,7 +54,12 @@ export function ScheduleCalendar({
   function handleToggle(date: string, shiftType: ShiftType) {
     if (readonly) return;
     const key = `${date}-${shiftType}`;
-    setEntries((prev) => ({ ...prev, [key]: (prev[key] === 'PREFERRED' ? 'UNAVAILABLE' : prev[key] === 'AVAILABLE' || prev[key] === true ? 'PREFERRED' : 'AVAILABLE') }));
+    setEntries((prev) => ({
+      ...prev,
+      [key]: prev[key] === true || prev[key] === 'AVAILABLE' || prev[key] === 'PREFERRED'
+        ? 'UNAVAILABLE'
+        : 'AVAILABLE',
+    }));
   }
 
   function handleSubmit() {
@@ -89,6 +94,12 @@ export function ScheduleCalendar({
           <span className="text-sm text-muted-foreground">{selected} משמרות נבחרו</span>
         )}
       </div>
+
+      {!readonly && (
+        <p className="text-sm text-muted-foreground">
+          סמנו את המשמרות שבהן אתם זמינים. לחיצה נוספת מבטלת את הסימון.
+        </p>
+      )}
 
       {/* Legend */}
       <div className="flex gap-3 text-xs">
@@ -143,7 +154,6 @@ export function ScheduleCalendar({
                     {week.map((date) => {
                       const key = `${date}-${shift.key}`;
                       const on = entries[key] === true || entries[key] === 'AVAILABLE' || entries[key] === 'PREFERRED';
-                      const preferred = entries[key] === 'PREFERRED';
                       const d = new Date(`${date}T12:00:00Z`);
                       const isWeekend = d.getUTCDay() === 5 || d.getUTCDay() === 6;
                       return (
@@ -152,20 +162,21 @@ export function ScheduleCalendar({
                           className={cn('border-e last:border-e-0 border-border p-1', isWeekend && 'bg-slate-50/60')}
                         >
                           <button
+                            type="button"
                             onClick={() => handleToggle(date, shift.key)}
                             disabled={readonly}
-                            title="לחיצה מחליפה בין לא יכול, זמין ומעדיף" aria-label={`${date} ${shift.label}: ${preferred ? 'מעדיף' : on ? 'זמין' : 'לא יכול'}`}
+                            aria-label={`${date} ${shift.label}`}
+                            aria-pressed={on}
+                            title={readonly ? undefined : on ? 'ביטול סימון' : 'סימון משמרת'}
                             className={cn(
-                              'w-full h-9 rounded-md transition-all duration-150 flex items-center justify-center',
+                              'w-full h-9 rounded-md transition-all duration-150 flex items-center justify-center focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2',
                               on
                                 ? `${shift.bg} ${shift.text} shadow-sm`
                                 : 'border border-dashed border-border hover:border-solid hover:bg-muted/50',
                               readonly && 'cursor-default',
                               !readonly && !on && 'hover:scale-95',
                             )}
-                          >
-                            {preferred ? '★ מעדיף' : on ? '✓ זמין' : 'לא יכול'}
-                          </button>
+                          />
                         </td>
                       );
                     })}

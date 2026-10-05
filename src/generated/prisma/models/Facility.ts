@@ -14,26 +14,14 @@ import type * as Prisma from "../internal/prismaNamespace"
 
 /**
  * Model Facility
- * מתקן שבו עובדים, מגישים זמינות ומפרסמים סידורי עבודה.
+ * 
  */
 export type FacilityModel = runtime.Types.Result.DefaultSelection<Prisma.$FacilityPayload>
 
 export type AggregateFacility = {
   _count: FacilityCountAggregateOutputType | null
-  _avg: FacilityAvgAggregateOutputType | null
-  _sum: FacilitySumAggregateOutputType | null
   _min: FacilityMinAggregateOutputType | null
   _max: FacilityMaxAggregateOutputType | null
-}
-
-export type FacilityAvgAggregateOutputType = {
-  submissionOpenWeekday: number | null
-  submissionCloseWeekday: number | null
-}
-
-export type FacilitySumAggregateOutputType = {
-  submissionOpenWeekday: number | null
-  submissionCloseWeekday: number | null
 }
 
 export type FacilityMinAggregateOutputType = {
@@ -41,10 +29,6 @@ export type FacilityMinAggregateOutputType = {
   name: string | null
   code: string | null
   districtId: string | null
-  submissionOpenWeekday: number | null
-  submissionOpenTime: string | null
-  submissionCloseWeekday: number | null
-  submissionCloseTime: string | null
   createdAt: Date | null
   updatedAt: Date | null
 }
@@ -54,10 +38,6 @@ export type FacilityMaxAggregateOutputType = {
   name: string | null
   code: string | null
   districtId: string | null
-  submissionOpenWeekday: number | null
-  submissionOpenTime: string | null
-  submissionCloseWeekday: number | null
-  submissionCloseTime: string | null
   createdAt: Date | null
   updatedAt: Date | null
 }
@@ -67,35 +47,17 @@ export type FacilityCountAggregateOutputType = {
   name: number
   code: number
   districtId: number
-  submissionOpenWeekday: number
-  submissionOpenTime: number
-  submissionCloseWeekday: number
-  submissionCloseTime: number
   createdAt: number
   updatedAt: number
   _all: number
 }
 
 
-export type FacilityAvgAggregateInputType = {
-  submissionOpenWeekday?: true
-  submissionCloseWeekday?: true
-}
-
-export type FacilitySumAggregateInputType = {
-  submissionOpenWeekday?: true
-  submissionCloseWeekday?: true
-}
-
 export type FacilityMinAggregateInputType = {
   id?: true
   name?: true
   code?: true
   districtId?: true
-  submissionOpenWeekday?: true
-  submissionOpenTime?: true
-  submissionCloseWeekday?: true
-  submissionCloseTime?: true
   createdAt?: true
   updatedAt?: true
 }
@@ -105,10 +67,6 @@ export type FacilityMaxAggregateInputType = {
   name?: true
   code?: true
   districtId?: true
-  submissionOpenWeekday?: true
-  submissionOpenTime?: true
-  submissionCloseWeekday?: true
-  submissionCloseTime?: true
   createdAt?: true
   updatedAt?: true
 }
@@ -118,10 +76,6 @@ export type FacilityCountAggregateInputType = {
   name?: true
   code?: true
   districtId?: true
-  submissionOpenWeekday?: true
-  submissionOpenTime?: true
-  submissionCloseWeekday?: true
-  submissionCloseTime?: true
   createdAt?: true
   updatedAt?: true
   _all?: true
@@ -165,18 +119,6 @@ export type FacilityAggregateArgs<ExtArgs extends runtime.Types.Extensions.Inter
   /**
    * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
    * 
-   * Select which fields to average
-  **/
-  _avg?: FacilityAvgAggregateInputType
-  /**
-   * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
-   * 
-   * Select which fields to sum
-  **/
-  _sum?: FacilitySumAggregateInputType
-  /**
-   * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
-   * 
    * Select which fields to find the minimum value
   **/
   _min?: FacilityMinAggregateInputType
@@ -207,8 +149,6 @@ export type FacilityGroupByArgs<ExtArgs extends runtime.Types.Extensions.Interna
   take?: number
   skip?: number
   _count?: FacilityCountAggregateInputType | true
-  _avg?: FacilityAvgAggregateInputType
-  _sum?: FacilitySumAggregateInputType
   _min?: FacilityMinAggregateInputType
   _max?: FacilityMaxAggregateInputType
 }
@@ -218,15 +158,9 @@ export type FacilityGroupByOutputType = {
   name: string
   code: string
   districtId: string
-  submissionOpenWeekday: number | null
-  submissionOpenTime: string | null
-  submissionCloseWeekday: number | null
-  submissionCloseTime: string | null
   createdAt: Date
   updatedAt: Date
   _count: FacilityCountAggregateOutputType | null
-  _avg: FacilityAvgAggregateOutputType | null
-  _sum: FacilitySumAggregateOutputType | null
   _min: FacilityMinAggregateOutputType | null
   _max: FacilityMaxAggregateOutputType | null
 }
@@ -254,22 +188,14 @@ export type FacilityWhereInput = {
   name?: Prisma.StringFilter<"Facility"> | string
   code?: Prisma.StringFilter<"Facility"> | string
   districtId?: Prisma.StringFilter<"Facility"> | string
-  submissionOpenWeekday?: Prisma.IntNullableFilter<"Facility"> | number | null
-  submissionOpenTime?: Prisma.StringNullableFilter<"Facility"> | string | null
-  submissionCloseWeekday?: Prisma.IntNullableFilter<"Facility"> | number | null
-  submissionCloseTime?: Prisma.StringNullableFilter<"Facility"> | string | null
   createdAt?: Prisma.DateTimeFilter<"Facility"> | Date | string
   updatedAt?: Prisma.DateTimeFilter<"Facility"> | Date | string
   district?: Prisma.XOR<Prisma.DistrictScalarRelationFilter, Prisma.DistrictWhereInput>
-  facilityRoles?: Prisma.UserFacilityRoleListRelationFilter
-  employees?: Prisma.EmployeeListRelationFilter
-  shiftRoles?: Prisma.ShiftRoleListRelationFilter
+  users?: Prisma.UserListRelationFilter
+  shifts?: Prisma.FacilityShiftListRelationFilter
+  positions?: Prisma.PositionListRelationFilter
   staffingRequirements?: Prisma.StaffingRequirementListRelationFilter
-  schedulePeriods?: Prisma.SchedulePeriodListRelationFilter
-  schedules?: Prisma.RosterListRelationFilter
-  scheduleVersions?: Prisma.RosterVersionListRelationFilter
-  shiftAssignments?: Prisma.ShiftAssignmentListRelationFilter
-  warnings?: Prisma.ScheduleWarningListRelationFilter
+  schedules?: Prisma.ScheduleListRelationFilter
 }
 
 export type FacilityOrderByWithRelationInput = {
@@ -277,22 +203,14 @@ export type FacilityOrderByWithRelationInput = {
   name?: Prisma.SortOrder
   code?: Prisma.SortOrder
   districtId?: Prisma.SortOrder
-  submissionOpenWeekday?: Prisma.SortOrderInput | Prisma.SortOrder
-  submissionOpenTime?: Prisma.SortOrderInput | Prisma.SortOrder
-  submissionCloseWeekday?: Prisma.SortOrderInput | Prisma.SortOrder
-  submissionCloseTime?: Prisma.SortOrderInput | Prisma.SortOrder
   createdAt?: Prisma.SortOrder
   updatedAt?: Prisma.SortOrder
   district?: Prisma.DistrictOrderByWithRelationInput
-  facilityRoles?: Prisma.UserFacilityRoleOrderByRelationAggregateInput
-  employees?: Prisma.EmployeeOrderByRelationAggregateInput
-  shiftRoles?: Prisma.ShiftRoleOrderByRelationAggregateInput
+  users?: Prisma.UserOrderByRelationAggregateInput
+  shifts?: Prisma.FacilityShiftOrderByRelationAggregateInput
+  positions?: Prisma.PositionOrderByRelationAggregateInput
   staffingRequirements?: Prisma.StaffingRequirementOrderByRelationAggregateInput
-  schedulePeriods?: Prisma.SchedulePeriodOrderByRelationAggregateInput
-  schedules?: Prisma.RosterOrderByRelationAggregateInput
-  scheduleVersions?: Prisma.RosterVersionOrderByRelationAggregateInput
-  shiftAssignments?: Prisma.ShiftAssignmentOrderByRelationAggregateInput
-  warnings?: Prisma.ScheduleWarningOrderByRelationAggregateInput
+  schedules?: Prisma.ScheduleOrderByRelationAggregateInput
 }
 
 export type FacilityWhereUniqueInput = Prisma.AtLeast<{
@@ -303,22 +221,14 @@ export type FacilityWhereUniqueInput = Prisma.AtLeast<{
   NOT?: Prisma.FacilityWhereInput | Prisma.FacilityWhereInput[]
   name?: Prisma.StringFilter<"Facility"> | string
   districtId?: Prisma.StringFilter<"Facility"> | string
-  submissionOpenWeekday?: Prisma.IntNullableFilter<"Facility"> | number | null
-  submissionOpenTime?: Prisma.StringNullableFilter<"Facility"> | string | null
-  submissionCloseWeekday?: Prisma.IntNullableFilter<"Facility"> | number | null
-  submissionCloseTime?: Prisma.StringNullableFilter<"Facility"> | string | null
   createdAt?: Prisma.DateTimeFilter<"Facility"> | Date | string
   updatedAt?: Prisma.DateTimeFilter<"Facility"> | Date | string
   district?: Prisma.XOR<Prisma.DistrictScalarRelationFilter, Prisma.DistrictWhereInput>
-  facilityRoles?: Prisma.UserFacilityRoleListRelationFilter
-  employees?: Prisma.EmployeeListRelationFilter
-  shiftRoles?: Prisma.ShiftRoleListRelationFilter
+  users?: Prisma.UserListRelationFilter
+  shifts?: Prisma.FacilityShiftListRelationFilter
+  positions?: Prisma.PositionListRelationFilter
   staffingRequirements?: Prisma.StaffingRequirementListRelationFilter
-  schedulePeriods?: Prisma.SchedulePeriodListRelationFilter
-  schedules?: Prisma.RosterListRelationFilter
-  scheduleVersions?: Prisma.RosterVersionListRelationFilter
-  shiftAssignments?: Prisma.ShiftAssignmentListRelationFilter
-  warnings?: Prisma.ScheduleWarningListRelationFilter
+  schedules?: Prisma.ScheduleListRelationFilter
 }, "id" | "code">
 
 export type FacilityOrderByWithAggregationInput = {
@@ -326,17 +236,11 @@ export type FacilityOrderByWithAggregationInput = {
   name?: Prisma.SortOrder
   code?: Prisma.SortOrder
   districtId?: Prisma.SortOrder
-  submissionOpenWeekday?: Prisma.SortOrderInput | Prisma.SortOrder
-  submissionOpenTime?: Prisma.SortOrderInput | Prisma.SortOrder
-  submissionCloseWeekday?: Prisma.SortOrderInput | Prisma.SortOrder
-  submissionCloseTime?: Prisma.SortOrderInput | Prisma.SortOrder
   createdAt?: Prisma.SortOrder
   updatedAt?: Prisma.SortOrder
   _count?: Prisma.FacilityCountOrderByAggregateInput
-  _avg?: Prisma.FacilityAvgOrderByAggregateInput
   _max?: Prisma.FacilityMaxOrderByAggregateInput
   _min?: Prisma.FacilityMinOrderByAggregateInput
-  _sum?: Prisma.FacilitySumOrderByAggregateInput
 }
 
 export type FacilityScalarWhereWithAggregatesInput = {
@@ -347,10 +251,6 @@ export type FacilityScalarWhereWithAggregatesInput = {
   name?: Prisma.StringWithAggregatesFilter<"Facility"> | string
   code?: Prisma.StringWithAggregatesFilter<"Facility"> | string
   districtId?: Prisma.StringWithAggregatesFilter<"Facility"> | string
-  submissionOpenWeekday?: Prisma.IntNullableWithAggregatesFilter<"Facility"> | number | null
-  submissionOpenTime?: Prisma.StringNullableWithAggregatesFilter<"Facility"> | string | null
-  submissionCloseWeekday?: Prisma.IntNullableWithAggregatesFilter<"Facility"> | number | null
-  submissionCloseTime?: Prisma.StringNullableWithAggregatesFilter<"Facility"> | string | null
   createdAt?: Prisma.DateTimeWithAggregatesFilter<"Facility"> | Date | string
   updatedAt?: Prisma.DateTimeWithAggregatesFilter<"Facility"> | Date | string
 }
@@ -359,22 +259,14 @@ export type FacilityCreateInput = {
   id?: string
   name: string
   code: string
-  submissionOpenWeekday?: number | null
-  submissionOpenTime?: string | null
-  submissionCloseWeekday?: number | null
-  submissionCloseTime?: string | null
   createdAt?: Date | string
   updatedAt?: Date | string
   district: Prisma.DistrictCreateNestedOneWithoutFacilitiesInput
-  facilityRoles?: Prisma.UserFacilityRoleCreateNestedManyWithoutFacilityInput
-  employees?: Prisma.EmployeeCreateNestedManyWithoutFacilityInput
-  shiftRoles?: Prisma.ShiftRoleCreateNestedManyWithoutFacilityInput
+  users?: Prisma.UserCreateNestedManyWithoutFacilityInput
+  shifts?: Prisma.FacilityShiftCreateNestedManyWithoutFacilityInput
+  positions?: Prisma.PositionCreateNestedManyWithoutFacilityInput
   staffingRequirements?: Prisma.StaffingRequirementCreateNestedManyWithoutFacilityInput
-  schedulePeriods?: Prisma.SchedulePeriodCreateNestedManyWithoutFacilityInput
-  schedules?: Prisma.RosterCreateNestedManyWithoutFacilityInput
-  scheduleVersions?: Prisma.RosterVersionCreateNestedManyWithoutFacilityInput
-  shiftAssignments?: Prisma.ShiftAssignmentCreateNestedManyWithoutFacilityInput
-  warnings?: Prisma.ScheduleWarningCreateNestedManyWithoutFacilityInput
+  schedules?: Prisma.ScheduleCreateNestedManyWithoutFacilityInput
 }
 
 export type FacilityUncheckedCreateInput = {
@@ -382,43 +274,27 @@ export type FacilityUncheckedCreateInput = {
   name: string
   code: string
   districtId: string
-  submissionOpenWeekday?: number | null
-  submissionOpenTime?: string | null
-  submissionCloseWeekday?: number | null
-  submissionCloseTime?: string | null
   createdAt?: Date | string
   updatedAt?: Date | string
-  facilityRoles?: Prisma.UserFacilityRoleUncheckedCreateNestedManyWithoutFacilityInput
-  employees?: Prisma.EmployeeUncheckedCreateNestedManyWithoutFacilityInput
-  shiftRoles?: Prisma.ShiftRoleUncheckedCreateNestedManyWithoutFacilityInput
+  users?: Prisma.UserUncheckedCreateNestedManyWithoutFacilityInput
+  shifts?: Prisma.FacilityShiftUncheckedCreateNestedManyWithoutFacilityInput
+  positions?: Prisma.PositionUncheckedCreateNestedManyWithoutFacilityInput
   staffingRequirements?: Prisma.StaffingRequirementUncheckedCreateNestedManyWithoutFacilityInput
-  schedulePeriods?: Prisma.SchedulePeriodUncheckedCreateNestedManyWithoutFacilityInput
-  schedules?: Prisma.RosterUncheckedCreateNestedManyWithoutFacilityInput
-  scheduleVersions?: Prisma.RosterVersionUncheckedCreateNestedManyWithoutFacilityInput
-  shiftAssignments?: Prisma.ShiftAssignmentUncheckedCreateNestedManyWithoutFacilityInput
-  warnings?: Prisma.ScheduleWarningUncheckedCreateNestedManyWithoutFacilityInput
+  schedules?: Prisma.ScheduleUncheckedCreateNestedManyWithoutFacilityInput
 }
 
 export type FacilityUpdateInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
   name?: Prisma.StringFieldUpdateOperationsInput | string
   code?: Prisma.StringFieldUpdateOperationsInput | string
-  submissionOpenWeekday?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
-  submissionOpenTime?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  submissionCloseWeekday?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
-  submissionCloseTime?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   district?: Prisma.DistrictUpdateOneRequiredWithoutFacilitiesNestedInput
-  facilityRoles?: Prisma.UserFacilityRoleUpdateManyWithoutFacilityNestedInput
-  employees?: Prisma.EmployeeUpdateManyWithoutFacilityNestedInput
-  shiftRoles?: Prisma.ShiftRoleUpdateManyWithoutFacilityNestedInput
+  users?: Prisma.UserUpdateManyWithoutFacilityNestedInput
+  shifts?: Prisma.FacilityShiftUpdateManyWithoutFacilityNestedInput
+  positions?: Prisma.PositionUpdateManyWithoutFacilityNestedInput
   staffingRequirements?: Prisma.StaffingRequirementUpdateManyWithoutFacilityNestedInput
-  schedulePeriods?: Prisma.SchedulePeriodUpdateManyWithoutFacilityNestedInput
-  schedules?: Prisma.RosterUpdateManyWithoutFacilityNestedInput
-  scheduleVersions?: Prisma.RosterVersionUpdateManyWithoutFacilityNestedInput
-  shiftAssignments?: Prisma.ShiftAssignmentUpdateManyWithoutFacilityNestedInput
-  warnings?: Prisma.ScheduleWarningUpdateManyWithoutFacilityNestedInput
+  schedules?: Prisma.ScheduleUpdateManyWithoutFacilityNestedInput
 }
 
 export type FacilityUncheckedUpdateInput = {
@@ -426,21 +302,13 @@ export type FacilityUncheckedUpdateInput = {
   name?: Prisma.StringFieldUpdateOperationsInput | string
   code?: Prisma.StringFieldUpdateOperationsInput | string
   districtId?: Prisma.StringFieldUpdateOperationsInput | string
-  submissionOpenWeekday?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
-  submissionOpenTime?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  submissionCloseWeekday?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
-  submissionCloseTime?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
-  facilityRoles?: Prisma.UserFacilityRoleUncheckedUpdateManyWithoutFacilityNestedInput
-  employees?: Prisma.EmployeeUncheckedUpdateManyWithoutFacilityNestedInput
-  shiftRoles?: Prisma.ShiftRoleUncheckedUpdateManyWithoutFacilityNestedInput
+  users?: Prisma.UserUncheckedUpdateManyWithoutFacilityNestedInput
+  shifts?: Prisma.FacilityShiftUncheckedUpdateManyWithoutFacilityNestedInput
+  positions?: Prisma.PositionUncheckedUpdateManyWithoutFacilityNestedInput
   staffingRequirements?: Prisma.StaffingRequirementUncheckedUpdateManyWithoutFacilityNestedInput
-  schedulePeriods?: Prisma.SchedulePeriodUncheckedUpdateManyWithoutFacilityNestedInput
-  schedules?: Prisma.RosterUncheckedUpdateManyWithoutFacilityNestedInput
-  scheduleVersions?: Prisma.RosterVersionUncheckedUpdateManyWithoutFacilityNestedInput
-  shiftAssignments?: Prisma.ShiftAssignmentUncheckedUpdateManyWithoutFacilityNestedInput
-  warnings?: Prisma.ScheduleWarningUncheckedUpdateManyWithoutFacilityNestedInput
+  schedules?: Prisma.ScheduleUncheckedUpdateManyWithoutFacilityNestedInput
 }
 
 export type FacilityCreateManyInput = {
@@ -448,10 +316,6 @@ export type FacilityCreateManyInput = {
   name: string
   code: string
   districtId: string
-  submissionOpenWeekday?: number | null
-  submissionOpenTime?: string | null
-  submissionCloseWeekday?: number | null
-  submissionCloseTime?: string | null
   createdAt?: Date | string
   updatedAt?: Date | string
 }
@@ -460,10 +324,6 @@ export type FacilityUpdateManyMutationInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
   name?: Prisma.StringFieldUpdateOperationsInput | string
   code?: Prisma.StringFieldUpdateOperationsInput | string
-  submissionOpenWeekday?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
-  submissionOpenTime?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  submissionCloseWeekday?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
-  submissionCloseTime?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
 }
@@ -473,10 +333,6 @@ export type FacilityUncheckedUpdateManyInput = {
   name?: Prisma.StringFieldUpdateOperationsInput | string
   code?: Prisma.StringFieldUpdateOperationsInput | string
   districtId?: Prisma.StringFieldUpdateOperationsInput | string
-  submissionOpenWeekday?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
-  submissionOpenTime?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  submissionCloseWeekday?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
-  submissionCloseTime?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
 }
@@ -501,17 +357,8 @@ export type FacilityCountOrderByAggregateInput = {
   name?: Prisma.SortOrder
   code?: Prisma.SortOrder
   districtId?: Prisma.SortOrder
-  submissionOpenWeekday?: Prisma.SortOrder
-  submissionOpenTime?: Prisma.SortOrder
-  submissionCloseWeekday?: Prisma.SortOrder
-  submissionCloseTime?: Prisma.SortOrder
   createdAt?: Prisma.SortOrder
   updatedAt?: Prisma.SortOrder
-}
-
-export type FacilityAvgOrderByAggregateInput = {
-  submissionOpenWeekday?: Prisma.SortOrder
-  submissionCloseWeekday?: Prisma.SortOrder
 }
 
 export type FacilityMaxOrderByAggregateInput = {
@@ -519,10 +366,6 @@ export type FacilityMaxOrderByAggregateInput = {
   name?: Prisma.SortOrder
   code?: Prisma.SortOrder
   districtId?: Prisma.SortOrder
-  submissionOpenWeekday?: Prisma.SortOrder
-  submissionOpenTime?: Prisma.SortOrder
-  submissionCloseWeekday?: Prisma.SortOrder
-  submissionCloseTime?: Prisma.SortOrder
   createdAt?: Prisma.SortOrder
   updatedAt?: Prisma.SortOrder
 }
@@ -532,17 +375,8 @@ export type FacilityMinOrderByAggregateInput = {
   name?: Prisma.SortOrder
   code?: Prisma.SortOrder
   districtId?: Prisma.SortOrder
-  submissionOpenWeekday?: Prisma.SortOrder
-  submissionOpenTime?: Prisma.SortOrder
-  submissionCloseWeekday?: Prisma.SortOrder
-  submissionCloseTime?: Prisma.SortOrder
   createdAt?: Prisma.SortOrder
   updatedAt?: Prisma.SortOrder
-}
-
-export type FacilitySumOrderByAggregateInput = {
-  submissionOpenWeekday?: Prisma.SortOrder
-  submissionCloseWeekday?: Prisma.SortOrder
 }
 
 export type FacilityNullableScalarRelationFilter = {
@@ -550,18 +384,18 @@ export type FacilityNullableScalarRelationFilter = {
   isNot?: Prisma.FacilityWhereInput | null
 }
 
-export type FacilityCreateNestedOneWithoutFacilityRolesInput = {
-  create?: Prisma.XOR<Prisma.FacilityCreateWithoutFacilityRolesInput, Prisma.FacilityUncheckedCreateWithoutFacilityRolesInput>
-  connectOrCreate?: Prisma.FacilityCreateOrConnectWithoutFacilityRolesInput
+export type FacilityCreateNestedOneWithoutUsersInput = {
+  create?: Prisma.XOR<Prisma.FacilityCreateWithoutUsersInput, Prisma.FacilityUncheckedCreateWithoutUsersInput>
+  connectOrCreate?: Prisma.FacilityCreateOrConnectWithoutUsersInput
   connect?: Prisma.FacilityWhereUniqueInput
 }
 
-export type FacilityUpdateOneRequiredWithoutFacilityRolesNestedInput = {
-  create?: Prisma.XOR<Prisma.FacilityCreateWithoutFacilityRolesInput, Prisma.FacilityUncheckedCreateWithoutFacilityRolesInput>
-  connectOrCreate?: Prisma.FacilityCreateOrConnectWithoutFacilityRolesInput
-  upsert?: Prisma.FacilityUpsertWithoutFacilityRolesInput
+export type FacilityUpdateOneRequiredWithoutUsersNestedInput = {
+  create?: Prisma.XOR<Prisma.FacilityCreateWithoutUsersInput, Prisma.FacilityUncheckedCreateWithoutUsersInput>
+  connectOrCreate?: Prisma.FacilityCreateOrConnectWithoutUsersInput
+  upsert?: Prisma.FacilityUpsertWithoutUsersInput
   connect?: Prisma.FacilityWhereUniqueInput
-  update?: Prisma.XOR<Prisma.XOR<Prisma.FacilityUpdateToOneWithWhereWithoutFacilityRolesInput, Prisma.FacilityUpdateWithoutFacilityRolesInput>, Prisma.FacilityUncheckedUpdateWithoutFacilityRolesInput>
+  update?: Prisma.XOR<Prisma.XOR<Prisma.FacilityUpdateToOneWithWhereWithoutUsersInput, Prisma.FacilityUpdateWithoutUsersInput>, Prisma.FacilityUncheckedUpdateWithoutUsersInput>
 }
 
 export type FacilityCreateNestedManyWithoutDistrictInput = {
@@ -606,32 +440,34 @@ export type FacilityUncheckedUpdateManyWithoutDistrictNestedInput = {
   deleteMany?: Prisma.FacilityScalarWhereInput | Prisma.FacilityScalarWhereInput[]
 }
 
-export type FacilityCreateNestedOneWithoutEmployeesInput = {
-  create?: Prisma.XOR<Prisma.FacilityCreateWithoutEmployeesInput, Prisma.FacilityUncheckedCreateWithoutEmployeesInput>
-  connectOrCreate?: Prisma.FacilityCreateOrConnectWithoutEmployeesInput
+export type FacilityCreateNestedOneWithoutShiftsInput = {
+  create?: Prisma.XOR<Prisma.FacilityCreateWithoutShiftsInput, Prisma.FacilityUncheckedCreateWithoutShiftsInput>
+  connectOrCreate?: Prisma.FacilityCreateOrConnectWithoutShiftsInput
   connect?: Prisma.FacilityWhereUniqueInput
 }
 
-export type FacilityUpdateOneRequiredWithoutEmployeesNestedInput = {
-  create?: Prisma.XOR<Prisma.FacilityCreateWithoutEmployeesInput, Prisma.FacilityUncheckedCreateWithoutEmployeesInput>
-  connectOrCreate?: Prisma.FacilityCreateOrConnectWithoutEmployeesInput
-  upsert?: Prisma.FacilityUpsertWithoutEmployeesInput
+export type FacilityUpdateOneRequiredWithoutShiftsNestedInput = {
+  create?: Prisma.XOR<Prisma.FacilityCreateWithoutShiftsInput, Prisma.FacilityUncheckedCreateWithoutShiftsInput>
+  connectOrCreate?: Prisma.FacilityCreateOrConnectWithoutShiftsInput
+  upsert?: Prisma.FacilityUpsertWithoutShiftsInput
   connect?: Prisma.FacilityWhereUniqueInput
-  update?: Prisma.XOR<Prisma.XOR<Prisma.FacilityUpdateToOneWithWhereWithoutEmployeesInput, Prisma.FacilityUpdateWithoutEmployeesInput>, Prisma.FacilityUncheckedUpdateWithoutEmployeesInput>
+  update?: Prisma.XOR<Prisma.XOR<Prisma.FacilityUpdateToOneWithWhereWithoutShiftsInput, Prisma.FacilityUpdateWithoutShiftsInput>, Prisma.FacilityUncheckedUpdateWithoutShiftsInput>
 }
 
-export type FacilityCreateNestedOneWithoutShiftRolesInput = {
-  create?: Prisma.XOR<Prisma.FacilityCreateWithoutShiftRolesInput, Prisma.FacilityUncheckedCreateWithoutShiftRolesInput>
-  connectOrCreate?: Prisma.FacilityCreateOrConnectWithoutShiftRolesInput
+export type FacilityCreateNestedOneWithoutPositionsInput = {
+  create?: Prisma.XOR<Prisma.FacilityCreateWithoutPositionsInput, Prisma.FacilityUncheckedCreateWithoutPositionsInput>
+  connectOrCreate?: Prisma.FacilityCreateOrConnectWithoutPositionsInput
   connect?: Prisma.FacilityWhereUniqueInput
 }
 
-export type FacilityUpdateOneRequiredWithoutShiftRolesNestedInput = {
-  create?: Prisma.XOR<Prisma.FacilityCreateWithoutShiftRolesInput, Prisma.FacilityUncheckedCreateWithoutShiftRolesInput>
-  connectOrCreate?: Prisma.FacilityCreateOrConnectWithoutShiftRolesInput
-  upsert?: Prisma.FacilityUpsertWithoutShiftRolesInput
+export type FacilityUpdateOneWithoutPositionsNestedInput = {
+  create?: Prisma.XOR<Prisma.FacilityCreateWithoutPositionsInput, Prisma.FacilityUncheckedCreateWithoutPositionsInput>
+  connectOrCreate?: Prisma.FacilityCreateOrConnectWithoutPositionsInput
+  upsert?: Prisma.FacilityUpsertWithoutPositionsInput
+  disconnect?: Prisma.FacilityWhereInput | boolean
+  delete?: Prisma.FacilityWhereInput | boolean
   connect?: Prisma.FacilityWhereUniqueInput
-  update?: Prisma.XOR<Prisma.XOR<Prisma.FacilityUpdateToOneWithWhereWithoutShiftRolesInput, Prisma.FacilityUpdateWithoutShiftRolesInput>, Prisma.FacilityUncheckedUpdateWithoutShiftRolesInput>
+  update?: Prisma.XOR<Prisma.XOR<Prisma.FacilityUpdateToOneWithWhereWithoutPositionsInput, Prisma.FacilityUpdateWithoutPositionsInput>, Prisma.FacilityUncheckedUpdateWithoutPositionsInput>
 }
 
 export type FacilityCreateNestedOneWithoutStaffingRequirementsInput = {
@@ -648,20 +484,6 @@ export type FacilityUpdateOneRequiredWithoutStaffingRequirementsNestedInput = {
   update?: Prisma.XOR<Prisma.XOR<Prisma.FacilityUpdateToOneWithWhereWithoutStaffingRequirementsInput, Prisma.FacilityUpdateWithoutStaffingRequirementsInput>, Prisma.FacilityUncheckedUpdateWithoutStaffingRequirementsInput>
 }
 
-export type FacilityCreateNestedOneWithoutSchedulePeriodsInput = {
-  create?: Prisma.XOR<Prisma.FacilityCreateWithoutSchedulePeriodsInput, Prisma.FacilityUncheckedCreateWithoutSchedulePeriodsInput>
-  connectOrCreate?: Prisma.FacilityCreateOrConnectWithoutSchedulePeriodsInput
-  connect?: Prisma.FacilityWhereUniqueInput
-}
-
-export type FacilityUpdateOneRequiredWithoutSchedulePeriodsNestedInput = {
-  create?: Prisma.XOR<Prisma.FacilityCreateWithoutSchedulePeriodsInput, Prisma.FacilityUncheckedCreateWithoutSchedulePeriodsInput>
-  connectOrCreate?: Prisma.FacilityCreateOrConnectWithoutSchedulePeriodsInput
-  upsert?: Prisma.FacilityUpsertWithoutSchedulePeriodsInput
-  connect?: Prisma.FacilityWhereUniqueInput
-  update?: Prisma.XOR<Prisma.XOR<Prisma.FacilityUpdateToOneWithWhereWithoutSchedulePeriodsInput, Prisma.FacilityUpdateWithoutSchedulePeriodsInput>, Prisma.FacilityUncheckedUpdateWithoutSchedulePeriodsInput>
-}
-
 export type FacilityCreateNestedOneWithoutSchedulesInput = {
   create?: Prisma.XOR<Prisma.FacilityCreateWithoutSchedulesInput, Prisma.FacilityUncheckedCreateWithoutSchedulesInput>
   connectOrCreate?: Prisma.FacilityCreateOrConnectWithoutSchedulesInput
@@ -676,190 +498,98 @@ export type FacilityUpdateOneRequiredWithoutSchedulesNestedInput = {
   update?: Prisma.XOR<Prisma.XOR<Prisma.FacilityUpdateToOneWithWhereWithoutSchedulesInput, Prisma.FacilityUpdateWithoutSchedulesInput>, Prisma.FacilityUncheckedUpdateWithoutSchedulesInput>
 }
 
-export type FacilityCreateNestedOneWithoutScheduleVersionsInput = {
-  create?: Prisma.XOR<Prisma.FacilityCreateWithoutScheduleVersionsInput, Prisma.FacilityUncheckedCreateWithoutScheduleVersionsInput>
-  connectOrCreate?: Prisma.FacilityCreateOrConnectWithoutScheduleVersionsInput
-  connect?: Prisma.FacilityWhereUniqueInput
-}
-
-export type FacilityUpdateOneRequiredWithoutScheduleVersionsNestedInput = {
-  create?: Prisma.XOR<Prisma.FacilityCreateWithoutScheduleVersionsInput, Prisma.FacilityUncheckedCreateWithoutScheduleVersionsInput>
-  connectOrCreate?: Prisma.FacilityCreateOrConnectWithoutScheduleVersionsInput
-  upsert?: Prisma.FacilityUpsertWithoutScheduleVersionsInput
-  connect?: Prisma.FacilityWhereUniqueInput
-  update?: Prisma.XOR<Prisma.XOR<Prisma.FacilityUpdateToOneWithWhereWithoutScheduleVersionsInput, Prisma.FacilityUpdateWithoutScheduleVersionsInput>, Prisma.FacilityUncheckedUpdateWithoutScheduleVersionsInput>
-}
-
-export type FacilityCreateNestedOneWithoutShiftAssignmentsInput = {
-  create?: Prisma.XOR<Prisma.FacilityCreateWithoutShiftAssignmentsInput, Prisma.FacilityUncheckedCreateWithoutShiftAssignmentsInput>
-  connectOrCreate?: Prisma.FacilityCreateOrConnectWithoutShiftAssignmentsInput
-  connect?: Prisma.FacilityWhereUniqueInput
-}
-
-export type FacilityUpdateOneRequiredWithoutShiftAssignmentsNestedInput = {
-  create?: Prisma.XOR<Prisma.FacilityCreateWithoutShiftAssignmentsInput, Prisma.FacilityUncheckedCreateWithoutShiftAssignmentsInput>
-  connectOrCreate?: Prisma.FacilityCreateOrConnectWithoutShiftAssignmentsInput
-  upsert?: Prisma.FacilityUpsertWithoutShiftAssignmentsInput
-  connect?: Prisma.FacilityWhereUniqueInput
-  update?: Prisma.XOR<Prisma.XOR<Prisma.FacilityUpdateToOneWithWhereWithoutShiftAssignmentsInput, Prisma.FacilityUpdateWithoutShiftAssignmentsInput>, Prisma.FacilityUncheckedUpdateWithoutShiftAssignmentsInput>
-}
-
-export type FacilityCreateNestedOneWithoutWarningsInput = {
-  create?: Prisma.XOR<Prisma.FacilityCreateWithoutWarningsInput, Prisma.FacilityUncheckedCreateWithoutWarningsInput>
-  connectOrCreate?: Prisma.FacilityCreateOrConnectWithoutWarningsInput
-  connect?: Prisma.FacilityWhereUniqueInput
-}
-
-export type FacilityUpdateOneWithoutWarningsNestedInput = {
-  create?: Prisma.XOR<Prisma.FacilityCreateWithoutWarningsInput, Prisma.FacilityUncheckedCreateWithoutWarningsInput>
-  connectOrCreate?: Prisma.FacilityCreateOrConnectWithoutWarningsInput
-  upsert?: Prisma.FacilityUpsertWithoutWarningsInput
-  disconnect?: Prisma.FacilityWhereInput | boolean
-  delete?: Prisma.FacilityWhereInput | boolean
-  connect?: Prisma.FacilityWhereUniqueInput
-  update?: Prisma.XOR<Prisma.XOR<Prisma.FacilityUpdateToOneWithWhereWithoutWarningsInput, Prisma.FacilityUpdateWithoutWarningsInput>, Prisma.FacilityUncheckedUpdateWithoutWarningsInput>
-}
-
-export type FacilityCreateWithoutFacilityRolesInput = {
+export type FacilityCreateWithoutUsersInput = {
   id?: string
   name: string
   code: string
-  submissionOpenWeekday?: number | null
-  submissionOpenTime?: string | null
-  submissionCloseWeekday?: number | null
-  submissionCloseTime?: string | null
   createdAt?: Date | string
   updatedAt?: Date | string
   district: Prisma.DistrictCreateNestedOneWithoutFacilitiesInput
-  employees?: Prisma.EmployeeCreateNestedManyWithoutFacilityInput
-  shiftRoles?: Prisma.ShiftRoleCreateNestedManyWithoutFacilityInput
+  shifts?: Prisma.FacilityShiftCreateNestedManyWithoutFacilityInput
+  positions?: Prisma.PositionCreateNestedManyWithoutFacilityInput
   staffingRequirements?: Prisma.StaffingRequirementCreateNestedManyWithoutFacilityInput
-  schedulePeriods?: Prisma.SchedulePeriodCreateNestedManyWithoutFacilityInput
-  schedules?: Prisma.RosterCreateNestedManyWithoutFacilityInput
-  scheduleVersions?: Prisma.RosterVersionCreateNestedManyWithoutFacilityInput
-  shiftAssignments?: Prisma.ShiftAssignmentCreateNestedManyWithoutFacilityInput
-  warnings?: Prisma.ScheduleWarningCreateNestedManyWithoutFacilityInput
+  schedules?: Prisma.ScheduleCreateNestedManyWithoutFacilityInput
 }
 
-export type FacilityUncheckedCreateWithoutFacilityRolesInput = {
+export type FacilityUncheckedCreateWithoutUsersInput = {
   id?: string
   name: string
   code: string
   districtId: string
-  submissionOpenWeekday?: number | null
-  submissionOpenTime?: string | null
-  submissionCloseWeekday?: number | null
-  submissionCloseTime?: string | null
   createdAt?: Date | string
   updatedAt?: Date | string
-  employees?: Prisma.EmployeeUncheckedCreateNestedManyWithoutFacilityInput
-  shiftRoles?: Prisma.ShiftRoleUncheckedCreateNestedManyWithoutFacilityInput
+  shifts?: Prisma.FacilityShiftUncheckedCreateNestedManyWithoutFacilityInput
+  positions?: Prisma.PositionUncheckedCreateNestedManyWithoutFacilityInput
   staffingRequirements?: Prisma.StaffingRequirementUncheckedCreateNestedManyWithoutFacilityInput
-  schedulePeriods?: Prisma.SchedulePeriodUncheckedCreateNestedManyWithoutFacilityInput
-  schedules?: Prisma.RosterUncheckedCreateNestedManyWithoutFacilityInput
-  scheduleVersions?: Prisma.RosterVersionUncheckedCreateNestedManyWithoutFacilityInput
-  shiftAssignments?: Prisma.ShiftAssignmentUncheckedCreateNestedManyWithoutFacilityInput
-  warnings?: Prisma.ScheduleWarningUncheckedCreateNestedManyWithoutFacilityInput
+  schedules?: Prisma.ScheduleUncheckedCreateNestedManyWithoutFacilityInput
 }
 
-export type FacilityCreateOrConnectWithoutFacilityRolesInput = {
+export type FacilityCreateOrConnectWithoutUsersInput = {
   where: Prisma.FacilityWhereUniqueInput
-  create: Prisma.XOR<Prisma.FacilityCreateWithoutFacilityRolesInput, Prisma.FacilityUncheckedCreateWithoutFacilityRolesInput>
+  create: Prisma.XOR<Prisma.FacilityCreateWithoutUsersInput, Prisma.FacilityUncheckedCreateWithoutUsersInput>
 }
 
-export type FacilityUpsertWithoutFacilityRolesInput = {
-  update: Prisma.XOR<Prisma.FacilityUpdateWithoutFacilityRolesInput, Prisma.FacilityUncheckedUpdateWithoutFacilityRolesInput>
-  create: Prisma.XOR<Prisma.FacilityCreateWithoutFacilityRolesInput, Prisma.FacilityUncheckedCreateWithoutFacilityRolesInput>
+export type FacilityUpsertWithoutUsersInput = {
+  update: Prisma.XOR<Prisma.FacilityUpdateWithoutUsersInput, Prisma.FacilityUncheckedUpdateWithoutUsersInput>
+  create: Prisma.XOR<Prisma.FacilityCreateWithoutUsersInput, Prisma.FacilityUncheckedCreateWithoutUsersInput>
   where?: Prisma.FacilityWhereInput
 }
 
-export type FacilityUpdateToOneWithWhereWithoutFacilityRolesInput = {
+export type FacilityUpdateToOneWithWhereWithoutUsersInput = {
   where?: Prisma.FacilityWhereInput
-  data: Prisma.XOR<Prisma.FacilityUpdateWithoutFacilityRolesInput, Prisma.FacilityUncheckedUpdateWithoutFacilityRolesInput>
+  data: Prisma.XOR<Prisma.FacilityUpdateWithoutUsersInput, Prisma.FacilityUncheckedUpdateWithoutUsersInput>
 }
 
-export type FacilityUpdateWithoutFacilityRolesInput = {
+export type FacilityUpdateWithoutUsersInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
   name?: Prisma.StringFieldUpdateOperationsInput | string
   code?: Prisma.StringFieldUpdateOperationsInput | string
-  submissionOpenWeekday?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
-  submissionOpenTime?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  submissionCloseWeekday?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
-  submissionCloseTime?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   district?: Prisma.DistrictUpdateOneRequiredWithoutFacilitiesNestedInput
-  employees?: Prisma.EmployeeUpdateManyWithoutFacilityNestedInput
-  shiftRoles?: Prisma.ShiftRoleUpdateManyWithoutFacilityNestedInput
+  shifts?: Prisma.FacilityShiftUpdateManyWithoutFacilityNestedInput
+  positions?: Prisma.PositionUpdateManyWithoutFacilityNestedInput
   staffingRequirements?: Prisma.StaffingRequirementUpdateManyWithoutFacilityNestedInput
-  schedulePeriods?: Prisma.SchedulePeriodUpdateManyWithoutFacilityNestedInput
-  schedules?: Prisma.RosterUpdateManyWithoutFacilityNestedInput
-  scheduleVersions?: Prisma.RosterVersionUpdateManyWithoutFacilityNestedInput
-  shiftAssignments?: Prisma.ShiftAssignmentUpdateManyWithoutFacilityNestedInput
-  warnings?: Prisma.ScheduleWarningUpdateManyWithoutFacilityNestedInput
+  schedules?: Prisma.ScheduleUpdateManyWithoutFacilityNestedInput
 }
 
-export type FacilityUncheckedUpdateWithoutFacilityRolesInput = {
+export type FacilityUncheckedUpdateWithoutUsersInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
   name?: Prisma.StringFieldUpdateOperationsInput | string
   code?: Prisma.StringFieldUpdateOperationsInput | string
   districtId?: Prisma.StringFieldUpdateOperationsInput | string
-  submissionOpenWeekday?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
-  submissionOpenTime?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  submissionCloseWeekday?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
-  submissionCloseTime?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
-  employees?: Prisma.EmployeeUncheckedUpdateManyWithoutFacilityNestedInput
-  shiftRoles?: Prisma.ShiftRoleUncheckedUpdateManyWithoutFacilityNestedInput
+  shifts?: Prisma.FacilityShiftUncheckedUpdateManyWithoutFacilityNestedInput
+  positions?: Prisma.PositionUncheckedUpdateManyWithoutFacilityNestedInput
   staffingRequirements?: Prisma.StaffingRequirementUncheckedUpdateManyWithoutFacilityNestedInput
-  schedulePeriods?: Prisma.SchedulePeriodUncheckedUpdateManyWithoutFacilityNestedInput
-  schedules?: Prisma.RosterUncheckedUpdateManyWithoutFacilityNestedInput
-  scheduleVersions?: Prisma.RosterVersionUncheckedUpdateManyWithoutFacilityNestedInput
-  shiftAssignments?: Prisma.ShiftAssignmentUncheckedUpdateManyWithoutFacilityNestedInput
-  warnings?: Prisma.ScheduleWarningUncheckedUpdateManyWithoutFacilityNestedInput
+  schedules?: Prisma.ScheduleUncheckedUpdateManyWithoutFacilityNestedInput
 }
 
 export type FacilityCreateWithoutDistrictInput = {
   id?: string
   name: string
   code: string
-  submissionOpenWeekday?: number | null
-  submissionOpenTime?: string | null
-  submissionCloseWeekday?: number | null
-  submissionCloseTime?: string | null
   createdAt?: Date | string
   updatedAt?: Date | string
-  facilityRoles?: Prisma.UserFacilityRoleCreateNestedManyWithoutFacilityInput
-  employees?: Prisma.EmployeeCreateNestedManyWithoutFacilityInput
-  shiftRoles?: Prisma.ShiftRoleCreateNestedManyWithoutFacilityInput
+  users?: Prisma.UserCreateNestedManyWithoutFacilityInput
+  shifts?: Prisma.FacilityShiftCreateNestedManyWithoutFacilityInput
+  positions?: Prisma.PositionCreateNestedManyWithoutFacilityInput
   staffingRequirements?: Prisma.StaffingRequirementCreateNestedManyWithoutFacilityInput
-  schedulePeriods?: Prisma.SchedulePeriodCreateNestedManyWithoutFacilityInput
-  schedules?: Prisma.RosterCreateNestedManyWithoutFacilityInput
-  scheduleVersions?: Prisma.RosterVersionCreateNestedManyWithoutFacilityInput
-  shiftAssignments?: Prisma.ShiftAssignmentCreateNestedManyWithoutFacilityInput
-  warnings?: Prisma.ScheduleWarningCreateNestedManyWithoutFacilityInput
+  schedules?: Prisma.ScheduleCreateNestedManyWithoutFacilityInput
 }
 
 export type FacilityUncheckedCreateWithoutDistrictInput = {
   id?: string
   name: string
   code: string
-  submissionOpenWeekday?: number | null
-  submissionOpenTime?: string | null
-  submissionCloseWeekday?: number | null
-  submissionCloseTime?: string | null
   createdAt?: Date | string
   updatedAt?: Date | string
-  facilityRoles?: Prisma.UserFacilityRoleUncheckedCreateNestedManyWithoutFacilityInput
-  employees?: Prisma.EmployeeUncheckedCreateNestedManyWithoutFacilityInput
-  shiftRoles?: Prisma.ShiftRoleUncheckedCreateNestedManyWithoutFacilityInput
+  users?: Prisma.UserUncheckedCreateNestedManyWithoutFacilityInput
+  shifts?: Prisma.FacilityShiftUncheckedCreateNestedManyWithoutFacilityInput
+  positions?: Prisma.PositionUncheckedCreateNestedManyWithoutFacilityInput
   staffingRequirements?: Prisma.StaffingRequirementUncheckedCreateNestedManyWithoutFacilityInput
-  schedulePeriods?: Prisma.SchedulePeriodUncheckedCreateNestedManyWithoutFacilityInput
-  schedules?: Prisma.RosterUncheckedCreateNestedManyWithoutFacilityInput
-  scheduleVersions?: Prisma.RosterVersionUncheckedCreateNestedManyWithoutFacilityInput
-  shiftAssignments?: Prisma.ShiftAssignmentUncheckedCreateNestedManyWithoutFacilityInput
-  warnings?: Prisma.ScheduleWarningUncheckedCreateNestedManyWithoutFacilityInput
+  schedules?: Prisma.ScheduleUncheckedCreateNestedManyWithoutFacilityInput
 }
 
 export type FacilityCreateOrConnectWithoutDistrictInput = {
@@ -896,233 +626,157 @@ export type FacilityScalarWhereInput = {
   name?: Prisma.StringFilter<"Facility"> | string
   code?: Prisma.StringFilter<"Facility"> | string
   districtId?: Prisma.StringFilter<"Facility"> | string
-  submissionOpenWeekday?: Prisma.IntNullableFilter<"Facility"> | number | null
-  submissionOpenTime?: Prisma.StringNullableFilter<"Facility"> | string | null
-  submissionCloseWeekday?: Prisma.IntNullableFilter<"Facility"> | number | null
-  submissionCloseTime?: Prisma.StringNullableFilter<"Facility"> | string | null
   createdAt?: Prisma.DateTimeFilter<"Facility"> | Date | string
   updatedAt?: Prisma.DateTimeFilter<"Facility"> | Date | string
 }
 
-export type FacilityCreateWithoutEmployeesInput = {
+export type FacilityCreateWithoutShiftsInput = {
   id?: string
   name: string
   code: string
-  submissionOpenWeekday?: number | null
-  submissionOpenTime?: string | null
-  submissionCloseWeekday?: number | null
-  submissionCloseTime?: string | null
   createdAt?: Date | string
   updatedAt?: Date | string
   district: Prisma.DistrictCreateNestedOneWithoutFacilitiesInput
-  facilityRoles?: Prisma.UserFacilityRoleCreateNestedManyWithoutFacilityInput
-  shiftRoles?: Prisma.ShiftRoleCreateNestedManyWithoutFacilityInput
+  users?: Prisma.UserCreateNestedManyWithoutFacilityInput
+  positions?: Prisma.PositionCreateNestedManyWithoutFacilityInput
   staffingRequirements?: Prisma.StaffingRequirementCreateNestedManyWithoutFacilityInput
-  schedulePeriods?: Prisma.SchedulePeriodCreateNestedManyWithoutFacilityInput
-  schedules?: Prisma.RosterCreateNestedManyWithoutFacilityInput
-  scheduleVersions?: Prisma.RosterVersionCreateNestedManyWithoutFacilityInput
-  shiftAssignments?: Prisma.ShiftAssignmentCreateNestedManyWithoutFacilityInput
-  warnings?: Prisma.ScheduleWarningCreateNestedManyWithoutFacilityInput
+  schedules?: Prisma.ScheduleCreateNestedManyWithoutFacilityInput
 }
 
-export type FacilityUncheckedCreateWithoutEmployeesInput = {
+export type FacilityUncheckedCreateWithoutShiftsInput = {
   id?: string
   name: string
   code: string
   districtId: string
-  submissionOpenWeekday?: number | null
-  submissionOpenTime?: string | null
-  submissionCloseWeekday?: number | null
-  submissionCloseTime?: string | null
   createdAt?: Date | string
   updatedAt?: Date | string
-  facilityRoles?: Prisma.UserFacilityRoleUncheckedCreateNestedManyWithoutFacilityInput
-  shiftRoles?: Prisma.ShiftRoleUncheckedCreateNestedManyWithoutFacilityInput
+  users?: Prisma.UserUncheckedCreateNestedManyWithoutFacilityInput
+  positions?: Prisma.PositionUncheckedCreateNestedManyWithoutFacilityInput
   staffingRequirements?: Prisma.StaffingRequirementUncheckedCreateNestedManyWithoutFacilityInput
-  schedulePeriods?: Prisma.SchedulePeriodUncheckedCreateNestedManyWithoutFacilityInput
-  schedules?: Prisma.RosterUncheckedCreateNestedManyWithoutFacilityInput
-  scheduleVersions?: Prisma.RosterVersionUncheckedCreateNestedManyWithoutFacilityInput
-  shiftAssignments?: Prisma.ShiftAssignmentUncheckedCreateNestedManyWithoutFacilityInput
-  warnings?: Prisma.ScheduleWarningUncheckedCreateNestedManyWithoutFacilityInput
+  schedules?: Prisma.ScheduleUncheckedCreateNestedManyWithoutFacilityInput
 }
 
-export type FacilityCreateOrConnectWithoutEmployeesInput = {
+export type FacilityCreateOrConnectWithoutShiftsInput = {
   where: Prisma.FacilityWhereUniqueInput
-  create: Prisma.XOR<Prisma.FacilityCreateWithoutEmployeesInput, Prisma.FacilityUncheckedCreateWithoutEmployeesInput>
+  create: Prisma.XOR<Prisma.FacilityCreateWithoutShiftsInput, Prisma.FacilityUncheckedCreateWithoutShiftsInput>
 }
 
-export type FacilityUpsertWithoutEmployeesInput = {
-  update: Prisma.XOR<Prisma.FacilityUpdateWithoutEmployeesInput, Prisma.FacilityUncheckedUpdateWithoutEmployeesInput>
-  create: Prisma.XOR<Prisma.FacilityCreateWithoutEmployeesInput, Prisma.FacilityUncheckedCreateWithoutEmployeesInput>
+export type FacilityUpsertWithoutShiftsInput = {
+  update: Prisma.XOR<Prisma.FacilityUpdateWithoutShiftsInput, Prisma.FacilityUncheckedUpdateWithoutShiftsInput>
+  create: Prisma.XOR<Prisma.FacilityCreateWithoutShiftsInput, Prisma.FacilityUncheckedCreateWithoutShiftsInput>
   where?: Prisma.FacilityWhereInput
 }
 
-export type FacilityUpdateToOneWithWhereWithoutEmployeesInput = {
+export type FacilityUpdateToOneWithWhereWithoutShiftsInput = {
   where?: Prisma.FacilityWhereInput
-  data: Prisma.XOR<Prisma.FacilityUpdateWithoutEmployeesInput, Prisma.FacilityUncheckedUpdateWithoutEmployeesInput>
+  data: Prisma.XOR<Prisma.FacilityUpdateWithoutShiftsInput, Prisma.FacilityUncheckedUpdateWithoutShiftsInput>
 }
 
-export type FacilityUpdateWithoutEmployeesInput = {
+export type FacilityUpdateWithoutShiftsInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
   name?: Prisma.StringFieldUpdateOperationsInput | string
   code?: Prisma.StringFieldUpdateOperationsInput | string
-  submissionOpenWeekday?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
-  submissionOpenTime?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  submissionCloseWeekday?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
-  submissionCloseTime?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   district?: Prisma.DistrictUpdateOneRequiredWithoutFacilitiesNestedInput
-  facilityRoles?: Prisma.UserFacilityRoleUpdateManyWithoutFacilityNestedInput
-  shiftRoles?: Prisma.ShiftRoleUpdateManyWithoutFacilityNestedInput
+  users?: Prisma.UserUpdateManyWithoutFacilityNestedInput
+  positions?: Prisma.PositionUpdateManyWithoutFacilityNestedInput
   staffingRequirements?: Prisma.StaffingRequirementUpdateManyWithoutFacilityNestedInput
-  schedulePeriods?: Prisma.SchedulePeriodUpdateManyWithoutFacilityNestedInput
-  schedules?: Prisma.RosterUpdateManyWithoutFacilityNestedInput
-  scheduleVersions?: Prisma.RosterVersionUpdateManyWithoutFacilityNestedInput
-  shiftAssignments?: Prisma.ShiftAssignmentUpdateManyWithoutFacilityNestedInput
-  warnings?: Prisma.ScheduleWarningUpdateManyWithoutFacilityNestedInput
+  schedules?: Prisma.ScheduleUpdateManyWithoutFacilityNestedInput
 }
 
-export type FacilityUncheckedUpdateWithoutEmployeesInput = {
+export type FacilityUncheckedUpdateWithoutShiftsInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
   name?: Prisma.StringFieldUpdateOperationsInput | string
   code?: Prisma.StringFieldUpdateOperationsInput | string
   districtId?: Prisma.StringFieldUpdateOperationsInput | string
-  submissionOpenWeekday?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
-  submissionOpenTime?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  submissionCloseWeekday?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
-  submissionCloseTime?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
-  facilityRoles?: Prisma.UserFacilityRoleUncheckedUpdateManyWithoutFacilityNestedInput
-  shiftRoles?: Prisma.ShiftRoleUncheckedUpdateManyWithoutFacilityNestedInput
+  users?: Prisma.UserUncheckedUpdateManyWithoutFacilityNestedInput
+  positions?: Prisma.PositionUncheckedUpdateManyWithoutFacilityNestedInput
   staffingRequirements?: Prisma.StaffingRequirementUncheckedUpdateManyWithoutFacilityNestedInput
-  schedulePeriods?: Prisma.SchedulePeriodUncheckedUpdateManyWithoutFacilityNestedInput
-  schedules?: Prisma.RosterUncheckedUpdateManyWithoutFacilityNestedInput
-  scheduleVersions?: Prisma.RosterVersionUncheckedUpdateManyWithoutFacilityNestedInput
-  shiftAssignments?: Prisma.ShiftAssignmentUncheckedUpdateManyWithoutFacilityNestedInput
-  warnings?: Prisma.ScheduleWarningUncheckedUpdateManyWithoutFacilityNestedInput
+  schedules?: Prisma.ScheduleUncheckedUpdateManyWithoutFacilityNestedInput
 }
 
-export type FacilityCreateWithoutShiftRolesInput = {
+export type FacilityCreateWithoutPositionsInput = {
   id?: string
   name: string
   code: string
-  submissionOpenWeekday?: number | null
-  submissionOpenTime?: string | null
-  submissionCloseWeekday?: number | null
-  submissionCloseTime?: string | null
   createdAt?: Date | string
   updatedAt?: Date | string
   district: Prisma.DistrictCreateNestedOneWithoutFacilitiesInput
-  facilityRoles?: Prisma.UserFacilityRoleCreateNestedManyWithoutFacilityInput
-  employees?: Prisma.EmployeeCreateNestedManyWithoutFacilityInput
+  users?: Prisma.UserCreateNestedManyWithoutFacilityInput
+  shifts?: Prisma.FacilityShiftCreateNestedManyWithoutFacilityInput
   staffingRequirements?: Prisma.StaffingRequirementCreateNestedManyWithoutFacilityInput
-  schedulePeriods?: Prisma.SchedulePeriodCreateNestedManyWithoutFacilityInput
-  schedules?: Prisma.RosterCreateNestedManyWithoutFacilityInput
-  scheduleVersions?: Prisma.RosterVersionCreateNestedManyWithoutFacilityInput
-  shiftAssignments?: Prisma.ShiftAssignmentCreateNestedManyWithoutFacilityInput
-  warnings?: Prisma.ScheduleWarningCreateNestedManyWithoutFacilityInput
+  schedules?: Prisma.ScheduleCreateNestedManyWithoutFacilityInput
 }
 
-export type FacilityUncheckedCreateWithoutShiftRolesInput = {
+export type FacilityUncheckedCreateWithoutPositionsInput = {
   id?: string
   name: string
   code: string
   districtId: string
-  submissionOpenWeekday?: number | null
-  submissionOpenTime?: string | null
-  submissionCloseWeekday?: number | null
-  submissionCloseTime?: string | null
   createdAt?: Date | string
   updatedAt?: Date | string
-  facilityRoles?: Prisma.UserFacilityRoleUncheckedCreateNestedManyWithoutFacilityInput
-  employees?: Prisma.EmployeeUncheckedCreateNestedManyWithoutFacilityInput
+  users?: Prisma.UserUncheckedCreateNestedManyWithoutFacilityInput
+  shifts?: Prisma.FacilityShiftUncheckedCreateNestedManyWithoutFacilityInput
   staffingRequirements?: Prisma.StaffingRequirementUncheckedCreateNestedManyWithoutFacilityInput
-  schedulePeriods?: Prisma.SchedulePeriodUncheckedCreateNestedManyWithoutFacilityInput
-  schedules?: Prisma.RosterUncheckedCreateNestedManyWithoutFacilityInput
-  scheduleVersions?: Prisma.RosterVersionUncheckedCreateNestedManyWithoutFacilityInput
-  shiftAssignments?: Prisma.ShiftAssignmentUncheckedCreateNestedManyWithoutFacilityInput
-  warnings?: Prisma.ScheduleWarningUncheckedCreateNestedManyWithoutFacilityInput
+  schedules?: Prisma.ScheduleUncheckedCreateNestedManyWithoutFacilityInput
 }
 
-export type FacilityCreateOrConnectWithoutShiftRolesInput = {
+export type FacilityCreateOrConnectWithoutPositionsInput = {
   where: Prisma.FacilityWhereUniqueInput
-  create: Prisma.XOR<Prisma.FacilityCreateWithoutShiftRolesInput, Prisma.FacilityUncheckedCreateWithoutShiftRolesInput>
+  create: Prisma.XOR<Prisma.FacilityCreateWithoutPositionsInput, Prisma.FacilityUncheckedCreateWithoutPositionsInput>
 }
 
-export type FacilityUpsertWithoutShiftRolesInput = {
-  update: Prisma.XOR<Prisma.FacilityUpdateWithoutShiftRolesInput, Prisma.FacilityUncheckedUpdateWithoutShiftRolesInput>
-  create: Prisma.XOR<Prisma.FacilityCreateWithoutShiftRolesInput, Prisma.FacilityUncheckedCreateWithoutShiftRolesInput>
+export type FacilityUpsertWithoutPositionsInput = {
+  update: Prisma.XOR<Prisma.FacilityUpdateWithoutPositionsInput, Prisma.FacilityUncheckedUpdateWithoutPositionsInput>
+  create: Prisma.XOR<Prisma.FacilityCreateWithoutPositionsInput, Prisma.FacilityUncheckedCreateWithoutPositionsInput>
   where?: Prisma.FacilityWhereInput
 }
 
-export type FacilityUpdateToOneWithWhereWithoutShiftRolesInput = {
+export type FacilityUpdateToOneWithWhereWithoutPositionsInput = {
   where?: Prisma.FacilityWhereInput
-  data: Prisma.XOR<Prisma.FacilityUpdateWithoutShiftRolesInput, Prisma.FacilityUncheckedUpdateWithoutShiftRolesInput>
+  data: Prisma.XOR<Prisma.FacilityUpdateWithoutPositionsInput, Prisma.FacilityUncheckedUpdateWithoutPositionsInput>
 }
 
-export type FacilityUpdateWithoutShiftRolesInput = {
+export type FacilityUpdateWithoutPositionsInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
   name?: Prisma.StringFieldUpdateOperationsInput | string
   code?: Prisma.StringFieldUpdateOperationsInput | string
-  submissionOpenWeekday?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
-  submissionOpenTime?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  submissionCloseWeekday?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
-  submissionCloseTime?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   district?: Prisma.DistrictUpdateOneRequiredWithoutFacilitiesNestedInput
-  facilityRoles?: Prisma.UserFacilityRoleUpdateManyWithoutFacilityNestedInput
-  employees?: Prisma.EmployeeUpdateManyWithoutFacilityNestedInput
+  users?: Prisma.UserUpdateManyWithoutFacilityNestedInput
+  shifts?: Prisma.FacilityShiftUpdateManyWithoutFacilityNestedInput
   staffingRequirements?: Prisma.StaffingRequirementUpdateManyWithoutFacilityNestedInput
-  schedulePeriods?: Prisma.SchedulePeriodUpdateManyWithoutFacilityNestedInput
-  schedules?: Prisma.RosterUpdateManyWithoutFacilityNestedInput
-  scheduleVersions?: Prisma.RosterVersionUpdateManyWithoutFacilityNestedInput
-  shiftAssignments?: Prisma.ShiftAssignmentUpdateManyWithoutFacilityNestedInput
-  warnings?: Prisma.ScheduleWarningUpdateManyWithoutFacilityNestedInput
+  schedules?: Prisma.ScheduleUpdateManyWithoutFacilityNestedInput
 }
 
-export type FacilityUncheckedUpdateWithoutShiftRolesInput = {
+export type FacilityUncheckedUpdateWithoutPositionsInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
   name?: Prisma.StringFieldUpdateOperationsInput | string
   code?: Prisma.StringFieldUpdateOperationsInput | string
   districtId?: Prisma.StringFieldUpdateOperationsInput | string
-  submissionOpenWeekday?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
-  submissionOpenTime?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  submissionCloseWeekday?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
-  submissionCloseTime?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
-  facilityRoles?: Prisma.UserFacilityRoleUncheckedUpdateManyWithoutFacilityNestedInput
-  employees?: Prisma.EmployeeUncheckedUpdateManyWithoutFacilityNestedInput
+  users?: Prisma.UserUncheckedUpdateManyWithoutFacilityNestedInput
+  shifts?: Prisma.FacilityShiftUncheckedUpdateManyWithoutFacilityNestedInput
   staffingRequirements?: Prisma.StaffingRequirementUncheckedUpdateManyWithoutFacilityNestedInput
-  schedulePeriods?: Prisma.SchedulePeriodUncheckedUpdateManyWithoutFacilityNestedInput
-  schedules?: Prisma.RosterUncheckedUpdateManyWithoutFacilityNestedInput
-  scheduleVersions?: Prisma.RosterVersionUncheckedUpdateManyWithoutFacilityNestedInput
-  shiftAssignments?: Prisma.ShiftAssignmentUncheckedUpdateManyWithoutFacilityNestedInput
-  warnings?: Prisma.ScheduleWarningUncheckedUpdateManyWithoutFacilityNestedInput
+  schedules?: Prisma.ScheduleUncheckedUpdateManyWithoutFacilityNestedInput
 }
 
 export type FacilityCreateWithoutStaffingRequirementsInput = {
   id?: string
   name: string
   code: string
-  submissionOpenWeekday?: number | null
-  submissionOpenTime?: string | null
-  submissionCloseWeekday?: number | null
-  submissionCloseTime?: string | null
   createdAt?: Date | string
   updatedAt?: Date | string
   district: Prisma.DistrictCreateNestedOneWithoutFacilitiesInput
-  facilityRoles?: Prisma.UserFacilityRoleCreateNestedManyWithoutFacilityInput
-  employees?: Prisma.EmployeeCreateNestedManyWithoutFacilityInput
-  shiftRoles?: Prisma.ShiftRoleCreateNestedManyWithoutFacilityInput
-  schedulePeriods?: Prisma.SchedulePeriodCreateNestedManyWithoutFacilityInput
-  schedules?: Prisma.RosterCreateNestedManyWithoutFacilityInput
-  scheduleVersions?: Prisma.RosterVersionCreateNestedManyWithoutFacilityInput
-  shiftAssignments?: Prisma.ShiftAssignmentCreateNestedManyWithoutFacilityInput
-  warnings?: Prisma.ScheduleWarningCreateNestedManyWithoutFacilityInput
+  users?: Prisma.UserCreateNestedManyWithoutFacilityInput
+  shifts?: Prisma.FacilityShiftCreateNestedManyWithoutFacilityInput
+  positions?: Prisma.PositionCreateNestedManyWithoutFacilityInput
+  schedules?: Prisma.ScheduleCreateNestedManyWithoutFacilityInput
 }
 
 export type FacilityUncheckedCreateWithoutStaffingRequirementsInput = {
@@ -1130,20 +784,12 @@ export type FacilityUncheckedCreateWithoutStaffingRequirementsInput = {
   name: string
   code: string
   districtId: string
-  submissionOpenWeekday?: number | null
-  submissionOpenTime?: string | null
-  submissionCloseWeekday?: number | null
-  submissionCloseTime?: string | null
   createdAt?: Date | string
   updatedAt?: Date | string
-  facilityRoles?: Prisma.UserFacilityRoleUncheckedCreateNestedManyWithoutFacilityInput
-  employees?: Prisma.EmployeeUncheckedCreateNestedManyWithoutFacilityInput
-  shiftRoles?: Prisma.ShiftRoleUncheckedCreateNestedManyWithoutFacilityInput
-  schedulePeriods?: Prisma.SchedulePeriodUncheckedCreateNestedManyWithoutFacilityInput
-  schedules?: Prisma.RosterUncheckedCreateNestedManyWithoutFacilityInput
-  scheduleVersions?: Prisma.RosterVersionUncheckedCreateNestedManyWithoutFacilityInput
-  shiftAssignments?: Prisma.ShiftAssignmentUncheckedCreateNestedManyWithoutFacilityInput
-  warnings?: Prisma.ScheduleWarningUncheckedCreateNestedManyWithoutFacilityInput
+  users?: Prisma.UserUncheckedCreateNestedManyWithoutFacilityInput
+  shifts?: Prisma.FacilityShiftUncheckedCreateNestedManyWithoutFacilityInput
+  positions?: Prisma.PositionUncheckedCreateNestedManyWithoutFacilityInput
+  schedules?: Prisma.ScheduleUncheckedCreateNestedManyWithoutFacilityInput
 }
 
 export type FacilityCreateOrConnectWithoutStaffingRequirementsInput = {
@@ -1166,21 +812,13 @@ export type FacilityUpdateWithoutStaffingRequirementsInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
   name?: Prisma.StringFieldUpdateOperationsInput | string
   code?: Prisma.StringFieldUpdateOperationsInput | string
-  submissionOpenWeekday?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
-  submissionOpenTime?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  submissionCloseWeekday?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
-  submissionCloseTime?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   district?: Prisma.DistrictUpdateOneRequiredWithoutFacilitiesNestedInput
-  facilityRoles?: Prisma.UserFacilityRoleUpdateManyWithoutFacilityNestedInput
-  employees?: Prisma.EmployeeUpdateManyWithoutFacilityNestedInput
-  shiftRoles?: Prisma.ShiftRoleUpdateManyWithoutFacilityNestedInput
-  schedulePeriods?: Prisma.SchedulePeriodUpdateManyWithoutFacilityNestedInput
-  schedules?: Prisma.RosterUpdateManyWithoutFacilityNestedInput
-  scheduleVersions?: Prisma.RosterVersionUpdateManyWithoutFacilityNestedInput
-  shiftAssignments?: Prisma.ShiftAssignmentUpdateManyWithoutFacilityNestedInput
-  warnings?: Prisma.ScheduleWarningUpdateManyWithoutFacilityNestedInput
+  users?: Prisma.UserUpdateManyWithoutFacilityNestedInput
+  shifts?: Prisma.FacilityShiftUpdateManyWithoutFacilityNestedInput
+  positions?: Prisma.PositionUpdateManyWithoutFacilityNestedInput
+  schedules?: Prisma.ScheduleUpdateManyWithoutFacilityNestedInput
 }
 
 export type FacilityUncheckedUpdateWithoutStaffingRequirementsInput = {
@@ -1188,141 +826,25 @@ export type FacilityUncheckedUpdateWithoutStaffingRequirementsInput = {
   name?: Prisma.StringFieldUpdateOperationsInput | string
   code?: Prisma.StringFieldUpdateOperationsInput | string
   districtId?: Prisma.StringFieldUpdateOperationsInput | string
-  submissionOpenWeekday?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
-  submissionOpenTime?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  submissionCloseWeekday?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
-  submissionCloseTime?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
-  facilityRoles?: Prisma.UserFacilityRoleUncheckedUpdateManyWithoutFacilityNestedInput
-  employees?: Prisma.EmployeeUncheckedUpdateManyWithoutFacilityNestedInput
-  shiftRoles?: Prisma.ShiftRoleUncheckedUpdateManyWithoutFacilityNestedInput
-  schedulePeriods?: Prisma.SchedulePeriodUncheckedUpdateManyWithoutFacilityNestedInput
-  schedules?: Prisma.RosterUncheckedUpdateManyWithoutFacilityNestedInput
-  scheduleVersions?: Prisma.RosterVersionUncheckedUpdateManyWithoutFacilityNestedInput
-  shiftAssignments?: Prisma.ShiftAssignmentUncheckedUpdateManyWithoutFacilityNestedInput
-  warnings?: Prisma.ScheduleWarningUncheckedUpdateManyWithoutFacilityNestedInput
-}
-
-export type FacilityCreateWithoutSchedulePeriodsInput = {
-  id?: string
-  name: string
-  code: string
-  submissionOpenWeekday?: number | null
-  submissionOpenTime?: string | null
-  submissionCloseWeekday?: number | null
-  submissionCloseTime?: string | null
-  createdAt?: Date | string
-  updatedAt?: Date | string
-  district: Prisma.DistrictCreateNestedOneWithoutFacilitiesInput
-  facilityRoles?: Prisma.UserFacilityRoleCreateNestedManyWithoutFacilityInput
-  employees?: Prisma.EmployeeCreateNestedManyWithoutFacilityInput
-  shiftRoles?: Prisma.ShiftRoleCreateNestedManyWithoutFacilityInput
-  staffingRequirements?: Prisma.StaffingRequirementCreateNestedManyWithoutFacilityInput
-  schedules?: Prisma.RosterCreateNestedManyWithoutFacilityInput
-  scheduleVersions?: Prisma.RosterVersionCreateNestedManyWithoutFacilityInput
-  shiftAssignments?: Prisma.ShiftAssignmentCreateNestedManyWithoutFacilityInput
-  warnings?: Prisma.ScheduleWarningCreateNestedManyWithoutFacilityInput
-}
-
-export type FacilityUncheckedCreateWithoutSchedulePeriodsInput = {
-  id?: string
-  name: string
-  code: string
-  districtId: string
-  submissionOpenWeekday?: number | null
-  submissionOpenTime?: string | null
-  submissionCloseWeekday?: number | null
-  submissionCloseTime?: string | null
-  createdAt?: Date | string
-  updatedAt?: Date | string
-  facilityRoles?: Prisma.UserFacilityRoleUncheckedCreateNestedManyWithoutFacilityInput
-  employees?: Prisma.EmployeeUncheckedCreateNestedManyWithoutFacilityInput
-  shiftRoles?: Prisma.ShiftRoleUncheckedCreateNestedManyWithoutFacilityInput
-  staffingRequirements?: Prisma.StaffingRequirementUncheckedCreateNestedManyWithoutFacilityInput
-  schedules?: Prisma.RosterUncheckedCreateNestedManyWithoutFacilityInput
-  scheduleVersions?: Prisma.RosterVersionUncheckedCreateNestedManyWithoutFacilityInput
-  shiftAssignments?: Prisma.ShiftAssignmentUncheckedCreateNestedManyWithoutFacilityInput
-  warnings?: Prisma.ScheduleWarningUncheckedCreateNestedManyWithoutFacilityInput
-}
-
-export type FacilityCreateOrConnectWithoutSchedulePeriodsInput = {
-  where: Prisma.FacilityWhereUniqueInput
-  create: Prisma.XOR<Prisma.FacilityCreateWithoutSchedulePeriodsInput, Prisma.FacilityUncheckedCreateWithoutSchedulePeriodsInput>
-}
-
-export type FacilityUpsertWithoutSchedulePeriodsInput = {
-  update: Prisma.XOR<Prisma.FacilityUpdateWithoutSchedulePeriodsInput, Prisma.FacilityUncheckedUpdateWithoutSchedulePeriodsInput>
-  create: Prisma.XOR<Prisma.FacilityCreateWithoutSchedulePeriodsInput, Prisma.FacilityUncheckedCreateWithoutSchedulePeriodsInput>
-  where?: Prisma.FacilityWhereInput
-}
-
-export type FacilityUpdateToOneWithWhereWithoutSchedulePeriodsInput = {
-  where?: Prisma.FacilityWhereInput
-  data: Prisma.XOR<Prisma.FacilityUpdateWithoutSchedulePeriodsInput, Prisma.FacilityUncheckedUpdateWithoutSchedulePeriodsInput>
-}
-
-export type FacilityUpdateWithoutSchedulePeriodsInput = {
-  id?: Prisma.StringFieldUpdateOperationsInput | string
-  name?: Prisma.StringFieldUpdateOperationsInput | string
-  code?: Prisma.StringFieldUpdateOperationsInput | string
-  submissionOpenWeekday?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
-  submissionOpenTime?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  submissionCloseWeekday?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
-  submissionCloseTime?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
-  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
-  district?: Prisma.DistrictUpdateOneRequiredWithoutFacilitiesNestedInput
-  facilityRoles?: Prisma.UserFacilityRoleUpdateManyWithoutFacilityNestedInput
-  employees?: Prisma.EmployeeUpdateManyWithoutFacilityNestedInput
-  shiftRoles?: Prisma.ShiftRoleUpdateManyWithoutFacilityNestedInput
-  staffingRequirements?: Prisma.StaffingRequirementUpdateManyWithoutFacilityNestedInput
-  schedules?: Prisma.RosterUpdateManyWithoutFacilityNestedInput
-  scheduleVersions?: Prisma.RosterVersionUpdateManyWithoutFacilityNestedInput
-  shiftAssignments?: Prisma.ShiftAssignmentUpdateManyWithoutFacilityNestedInput
-  warnings?: Prisma.ScheduleWarningUpdateManyWithoutFacilityNestedInput
-}
-
-export type FacilityUncheckedUpdateWithoutSchedulePeriodsInput = {
-  id?: Prisma.StringFieldUpdateOperationsInput | string
-  name?: Prisma.StringFieldUpdateOperationsInput | string
-  code?: Prisma.StringFieldUpdateOperationsInput | string
-  districtId?: Prisma.StringFieldUpdateOperationsInput | string
-  submissionOpenWeekday?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
-  submissionOpenTime?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  submissionCloseWeekday?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
-  submissionCloseTime?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
-  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
-  facilityRoles?: Prisma.UserFacilityRoleUncheckedUpdateManyWithoutFacilityNestedInput
-  employees?: Prisma.EmployeeUncheckedUpdateManyWithoutFacilityNestedInput
-  shiftRoles?: Prisma.ShiftRoleUncheckedUpdateManyWithoutFacilityNestedInput
-  staffingRequirements?: Prisma.StaffingRequirementUncheckedUpdateManyWithoutFacilityNestedInput
-  schedules?: Prisma.RosterUncheckedUpdateManyWithoutFacilityNestedInput
-  scheduleVersions?: Prisma.RosterVersionUncheckedUpdateManyWithoutFacilityNestedInput
-  shiftAssignments?: Prisma.ShiftAssignmentUncheckedUpdateManyWithoutFacilityNestedInput
-  warnings?: Prisma.ScheduleWarningUncheckedUpdateManyWithoutFacilityNestedInput
+  users?: Prisma.UserUncheckedUpdateManyWithoutFacilityNestedInput
+  shifts?: Prisma.FacilityShiftUncheckedUpdateManyWithoutFacilityNestedInput
+  positions?: Prisma.PositionUncheckedUpdateManyWithoutFacilityNestedInput
+  schedules?: Prisma.ScheduleUncheckedUpdateManyWithoutFacilityNestedInput
 }
 
 export type FacilityCreateWithoutSchedulesInput = {
   id?: string
   name: string
   code: string
-  submissionOpenWeekday?: number | null
-  submissionOpenTime?: string | null
-  submissionCloseWeekday?: number | null
-  submissionCloseTime?: string | null
   createdAt?: Date | string
   updatedAt?: Date | string
   district: Prisma.DistrictCreateNestedOneWithoutFacilitiesInput
-  facilityRoles?: Prisma.UserFacilityRoleCreateNestedManyWithoutFacilityInput
-  employees?: Prisma.EmployeeCreateNestedManyWithoutFacilityInput
-  shiftRoles?: Prisma.ShiftRoleCreateNestedManyWithoutFacilityInput
+  users?: Prisma.UserCreateNestedManyWithoutFacilityInput
+  shifts?: Prisma.FacilityShiftCreateNestedManyWithoutFacilityInput
+  positions?: Prisma.PositionCreateNestedManyWithoutFacilityInput
   staffingRequirements?: Prisma.StaffingRequirementCreateNestedManyWithoutFacilityInput
-  schedulePeriods?: Prisma.SchedulePeriodCreateNestedManyWithoutFacilityInput
-  scheduleVersions?: Prisma.RosterVersionCreateNestedManyWithoutFacilityInput
-  shiftAssignments?: Prisma.ShiftAssignmentCreateNestedManyWithoutFacilityInput
-  warnings?: Prisma.ScheduleWarningCreateNestedManyWithoutFacilityInput
 }
 
 export type FacilityUncheckedCreateWithoutSchedulesInput = {
@@ -1330,20 +852,12 @@ export type FacilityUncheckedCreateWithoutSchedulesInput = {
   name: string
   code: string
   districtId: string
-  submissionOpenWeekday?: number | null
-  submissionOpenTime?: string | null
-  submissionCloseWeekday?: number | null
-  submissionCloseTime?: string | null
   createdAt?: Date | string
   updatedAt?: Date | string
-  facilityRoles?: Prisma.UserFacilityRoleUncheckedCreateNestedManyWithoutFacilityInput
-  employees?: Prisma.EmployeeUncheckedCreateNestedManyWithoutFacilityInput
-  shiftRoles?: Prisma.ShiftRoleUncheckedCreateNestedManyWithoutFacilityInput
+  users?: Prisma.UserUncheckedCreateNestedManyWithoutFacilityInput
+  shifts?: Prisma.FacilityShiftUncheckedCreateNestedManyWithoutFacilityInput
+  positions?: Prisma.PositionUncheckedCreateNestedManyWithoutFacilityInput
   staffingRequirements?: Prisma.StaffingRequirementUncheckedCreateNestedManyWithoutFacilityInput
-  schedulePeriods?: Prisma.SchedulePeriodUncheckedCreateNestedManyWithoutFacilityInput
-  scheduleVersions?: Prisma.RosterVersionUncheckedCreateNestedManyWithoutFacilityInput
-  shiftAssignments?: Prisma.ShiftAssignmentUncheckedCreateNestedManyWithoutFacilityInput
-  warnings?: Prisma.ScheduleWarningUncheckedCreateNestedManyWithoutFacilityInput
 }
 
 export type FacilityCreateOrConnectWithoutSchedulesInput = {
@@ -1366,21 +880,13 @@ export type FacilityUpdateWithoutSchedulesInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
   name?: Prisma.StringFieldUpdateOperationsInput | string
   code?: Prisma.StringFieldUpdateOperationsInput | string
-  submissionOpenWeekday?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
-  submissionOpenTime?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  submissionCloseWeekday?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
-  submissionCloseTime?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   district?: Prisma.DistrictUpdateOneRequiredWithoutFacilitiesNestedInput
-  facilityRoles?: Prisma.UserFacilityRoleUpdateManyWithoutFacilityNestedInput
-  employees?: Prisma.EmployeeUpdateManyWithoutFacilityNestedInput
-  shiftRoles?: Prisma.ShiftRoleUpdateManyWithoutFacilityNestedInput
+  users?: Prisma.UserUpdateManyWithoutFacilityNestedInput
+  shifts?: Prisma.FacilityShiftUpdateManyWithoutFacilityNestedInput
+  positions?: Prisma.PositionUpdateManyWithoutFacilityNestedInput
   staffingRequirements?: Prisma.StaffingRequirementUpdateManyWithoutFacilityNestedInput
-  schedulePeriods?: Prisma.SchedulePeriodUpdateManyWithoutFacilityNestedInput
-  scheduleVersions?: Prisma.RosterVersionUpdateManyWithoutFacilityNestedInput
-  shiftAssignments?: Prisma.ShiftAssignmentUpdateManyWithoutFacilityNestedInput
-  warnings?: Prisma.ScheduleWarningUpdateManyWithoutFacilityNestedInput
 }
 
 export type FacilityUncheckedUpdateWithoutSchedulesInput = {
@@ -1388,330 +894,18 @@ export type FacilityUncheckedUpdateWithoutSchedulesInput = {
   name?: Prisma.StringFieldUpdateOperationsInput | string
   code?: Prisma.StringFieldUpdateOperationsInput | string
   districtId?: Prisma.StringFieldUpdateOperationsInput | string
-  submissionOpenWeekday?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
-  submissionOpenTime?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  submissionCloseWeekday?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
-  submissionCloseTime?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
-  facilityRoles?: Prisma.UserFacilityRoleUncheckedUpdateManyWithoutFacilityNestedInput
-  employees?: Prisma.EmployeeUncheckedUpdateManyWithoutFacilityNestedInput
-  shiftRoles?: Prisma.ShiftRoleUncheckedUpdateManyWithoutFacilityNestedInput
+  users?: Prisma.UserUncheckedUpdateManyWithoutFacilityNestedInput
+  shifts?: Prisma.FacilityShiftUncheckedUpdateManyWithoutFacilityNestedInput
+  positions?: Prisma.PositionUncheckedUpdateManyWithoutFacilityNestedInput
   staffingRequirements?: Prisma.StaffingRequirementUncheckedUpdateManyWithoutFacilityNestedInput
-  schedulePeriods?: Prisma.SchedulePeriodUncheckedUpdateManyWithoutFacilityNestedInput
-  scheduleVersions?: Prisma.RosterVersionUncheckedUpdateManyWithoutFacilityNestedInput
-  shiftAssignments?: Prisma.ShiftAssignmentUncheckedUpdateManyWithoutFacilityNestedInput
-  warnings?: Prisma.ScheduleWarningUncheckedUpdateManyWithoutFacilityNestedInput
-}
-
-export type FacilityCreateWithoutScheduleVersionsInput = {
-  id?: string
-  name: string
-  code: string
-  submissionOpenWeekday?: number | null
-  submissionOpenTime?: string | null
-  submissionCloseWeekday?: number | null
-  submissionCloseTime?: string | null
-  createdAt?: Date | string
-  updatedAt?: Date | string
-  district: Prisma.DistrictCreateNestedOneWithoutFacilitiesInput
-  facilityRoles?: Prisma.UserFacilityRoleCreateNestedManyWithoutFacilityInput
-  employees?: Prisma.EmployeeCreateNestedManyWithoutFacilityInput
-  shiftRoles?: Prisma.ShiftRoleCreateNestedManyWithoutFacilityInput
-  staffingRequirements?: Prisma.StaffingRequirementCreateNestedManyWithoutFacilityInput
-  schedulePeriods?: Prisma.SchedulePeriodCreateNestedManyWithoutFacilityInput
-  schedules?: Prisma.RosterCreateNestedManyWithoutFacilityInput
-  shiftAssignments?: Prisma.ShiftAssignmentCreateNestedManyWithoutFacilityInput
-  warnings?: Prisma.ScheduleWarningCreateNestedManyWithoutFacilityInput
-}
-
-export type FacilityUncheckedCreateWithoutScheduleVersionsInput = {
-  id?: string
-  name: string
-  code: string
-  districtId: string
-  submissionOpenWeekday?: number | null
-  submissionOpenTime?: string | null
-  submissionCloseWeekday?: number | null
-  submissionCloseTime?: string | null
-  createdAt?: Date | string
-  updatedAt?: Date | string
-  facilityRoles?: Prisma.UserFacilityRoleUncheckedCreateNestedManyWithoutFacilityInput
-  employees?: Prisma.EmployeeUncheckedCreateNestedManyWithoutFacilityInput
-  shiftRoles?: Prisma.ShiftRoleUncheckedCreateNestedManyWithoutFacilityInput
-  staffingRequirements?: Prisma.StaffingRequirementUncheckedCreateNestedManyWithoutFacilityInput
-  schedulePeriods?: Prisma.SchedulePeriodUncheckedCreateNestedManyWithoutFacilityInput
-  schedules?: Prisma.RosterUncheckedCreateNestedManyWithoutFacilityInput
-  shiftAssignments?: Prisma.ShiftAssignmentUncheckedCreateNestedManyWithoutFacilityInput
-  warnings?: Prisma.ScheduleWarningUncheckedCreateNestedManyWithoutFacilityInput
-}
-
-export type FacilityCreateOrConnectWithoutScheduleVersionsInput = {
-  where: Prisma.FacilityWhereUniqueInput
-  create: Prisma.XOR<Prisma.FacilityCreateWithoutScheduleVersionsInput, Prisma.FacilityUncheckedCreateWithoutScheduleVersionsInput>
-}
-
-export type FacilityUpsertWithoutScheduleVersionsInput = {
-  update: Prisma.XOR<Prisma.FacilityUpdateWithoutScheduleVersionsInput, Prisma.FacilityUncheckedUpdateWithoutScheduleVersionsInput>
-  create: Prisma.XOR<Prisma.FacilityCreateWithoutScheduleVersionsInput, Prisma.FacilityUncheckedCreateWithoutScheduleVersionsInput>
-  where?: Prisma.FacilityWhereInput
-}
-
-export type FacilityUpdateToOneWithWhereWithoutScheduleVersionsInput = {
-  where?: Prisma.FacilityWhereInput
-  data: Prisma.XOR<Prisma.FacilityUpdateWithoutScheduleVersionsInput, Prisma.FacilityUncheckedUpdateWithoutScheduleVersionsInput>
-}
-
-export type FacilityUpdateWithoutScheduleVersionsInput = {
-  id?: Prisma.StringFieldUpdateOperationsInput | string
-  name?: Prisma.StringFieldUpdateOperationsInput | string
-  code?: Prisma.StringFieldUpdateOperationsInput | string
-  submissionOpenWeekday?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
-  submissionOpenTime?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  submissionCloseWeekday?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
-  submissionCloseTime?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
-  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
-  district?: Prisma.DistrictUpdateOneRequiredWithoutFacilitiesNestedInput
-  facilityRoles?: Prisma.UserFacilityRoleUpdateManyWithoutFacilityNestedInput
-  employees?: Prisma.EmployeeUpdateManyWithoutFacilityNestedInput
-  shiftRoles?: Prisma.ShiftRoleUpdateManyWithoutFacilityNestedInput
-  staffingRequirements?: Prisma.StaffingRequirementUpdateManyWithoutFacilityNestedInput
-  schedulePeriods?: Prisma.SchedulePeriodUpdateManyWithoutFacilityNestedInput
-  schedules?: Prisma.RosterUpdateManyWithoutFacilityNestedInput
-  shiftAssignments?: Prisma.ShiftAssignmentUpdateManyWithoutFacilityNestedInput
-  warnings?: Prisma.ScheduleWarningUpdateManyWithoutFacilityNestedInput
-}
-
-export type FacilityUncheckedUpdateWithoutScheduleVersionsInput = {
-  id?: Prisma.StringFieldUpdateOperationsInput | string
-  name?: Prisma.StringFieldUpdateOperationsInput | string
-  code?: Prisma.StringFieldUpdateOperationsInput | string
-  districtId?: Prisma.StringFieldUpdateOperationsInput | string
-  submissionOpenWeekday?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
-  submissionOpenTime?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  submissionCloseWeekday?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
-  submissionCloseTime?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
-  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
-  facilityRoles?: Prisma.UserFacilityRoleUncheckedUpdateManyWithoutFacilityNestedInput
-  employees?: Prisma.EmployeeUncheckedUpdateManyWithoutFacilityNestedInput
-  shiftRoles?: Prisma.ShiftRoleUncheckedUpdateManyWithoutFacilityNestedInput
-  staffingRequirements?: Prisma.StaffingRequirementUncheckedUpdateManyWithoutFacilityNestedInput
-  schedulePeriods?: Prisma.SchedulePeriodUncheckedUpdateManyWithoutFacilityNestedInput
-  schedules?: Prisma.RosterUncheckedUpdateManyWithoutFacilityNestedInput
-  shiftAssignments?: Prisma.ShiftAssignmentUncheckedUpdateManyWithoutFacilityNestedInput
-  warnings?: Prisma.ScheduleWarningUncheckedUpdateManyWithoutFacilityNestedInput
-}
-
-export type FacilityCreateWithoutShiftAssignmentsInput = {
-  id?: string
-  name: string
-  code: string
-  submissionOpenWeekday?: number | null
-  submissionOpenTime?: string | null
-  submissionCloseWeekday?: number | null
-  submissionCloseTime?: string | null
-  createdAt?: Date | string
-  updatedAt?: Date | string
-  district: Prisma.DistrictCreateNestedOneWithoutFacilitiesInput
-  facilityRoles?: Prisma.UserFacilityRoleCreateNestedManyWithoutFacilityInput
-  employees?: Prisma.EmployeeCreateNestedManyWithoutFacilityInput
-  shiftRoles?: Prisma.ShiftRoleCreateNestedManyWithoutFacilityInput
-  staffingRequirements?: Prisma.StaffingRequirementCreateNestedManyWithoutFacilityInput
-  schedulePeriods?: Prisma.SchedulePeriodCreateNestedManyWithoutFacilityInput
-  schedules?: Prisma.RosterCreateNestedManyWithoutFacilityInput
-  scheduleVersions?: Prisma.RosterVersionCreateNestedManyWithoutFacilityInput
-  warnings?: Prisma.ScheduleWarningCreateNestedManyWithoutFacilityInput
-}
-
-export type FacilityUncheckedCreateWithoutShiftAssignmentsInput = {
-  id?: string
-  name: string
-  code: string
-  districtId: string
-  submissionOpenWeekday?: number | null
-  submissionOpenTime?: string | null
-  submissionCloseWeekday?: number | null
-  submissionCloseTime?: string | null
-  createdAt?: Date | string
-  updatedAt?: Date | string
-  facilityRoles?: Prisma.UserFacilityRoleUncheckedCreateNestedManyWithoutFacilityInput
-  employees?: Prisma.EmployeeUncheckedCreateNestedManyWithoutFacilityInput
-  shiftRoles?: Prisma.ShiftRoleUncheckedCreateNestedManyWithoutFacilityInput
-  staffingRequirements?: Prisma.StaffingRequirementUncheckedCreateNestedManyWithoutFacilityInput
-  schedulePeriods?: Prisma.SchedulePeriodUncheckedCreateNestedManyWithoutFacilityInput
-  schedules?: Prisma.RosterUncheckedCreateNestedManyWithoutFacilityInput
-  scheduleVersions?: Prisma.RosterVersionUncheckedCreateNestedManyWithoutFacilityInput
-  warnings?: Prisma.ScheduleWarningUncheckedCreateNestedManyWithoutFacilityInput
-}
-
-export type FacilityCreateOrConnectWithoutShiftAssignmentsInput = {
-  where: Prisma.FacilityWhereUniqueInput
-  create: Prisma.XOR<Prisma.FacilityCreateWithoutShiftAssignmentsInput, Prisma.FacilityUncheckedCreateWithoutShiftAssignmentsInput>
-}
-
-export type FacilityUpsertWithoutShiftAssignmentsInput = {
-  update: Prisma.XOR<Prisma.FacilityUpdateWithoutShiftAssignmentsInput, Prisma.FacilityUncheckedUpdateWithoutShiftAssignmentsInput>
-  create: Prisma.XOR<Prisma.FacilityCreateWithoutShiftAssignmentsInput, Prisma.FacilityUncheckedCreateWithoutShiftAssignmentsInput>
-  where?: Prisma.FacilityWhereInput
-}
-
-export type FacilityUpdateToOneWithWhereWithoutShiftAssignmentsInput = {
-  where?: Prisma.FacilityWhereInput
-  data: Prisma.XOR<Prisma.FacilityUpdateWithoutShiftAssignmentsInput, Prisma.FacilityUncheckedUpdateWithoutShiftAssignmentsInput>
-}
-
-export type FacilityUpdateWithoutShiftAssignmentsInput = {
-  id?: Prisma.StringFieldUpdateOperationsInput | string
-  name?: Prisma.StringFieldUpdateOperationsInput | string
-  code?: Prisma.StringFieldUpdateOperationsInput | string
-  submissionOpenWeekday?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
-  submissionOpenTime?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  submissionCloseWeekday?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
-  submissionCloseTime?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
-  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
-  district?: Prisma.DistrictUpdateOneRequiredWithoutFacilitiesNestedInput
-  facilityRoles?: Prisma.UserFacilityRoleUpdateManyWithoutFacilityNestedInput
-  employees?: Prisma.EmployeeUpdateManyWithoutFacilityNestedInput
-  shiftRoles?: Prisma.ShiftRoleUpdateManyWithoutFacilityNestedInput
-  staffingRequirements?: Prisma.StaffingRequirementUpdateManyWithoutFacilityNestedInput
-  schedulePeriods?: Prisma.SchedulePeriodUpdateManyWithoutFacilityNestedInput
-  schedules?: Prisma.RosterUpdateManyWithoutFacilityNestedInput
-  scheduleVersions?: Prisma.RosterVersionUpdateManyWithoutFacilityNestedInput
-  warnings?: Prisma.ScheduleWarningUpdateManyWithoutFacilityNestedInput
-}
-
-export type FacilityUncheckedUpdateWithoutShiftAssignmentsInput = {
-  id?: Prisma.StringFieldUpdateOperationsInput | string
-  name?: Prisma.StringFieldUpdateOperationsInput | string
-  code?: Prisma.StringFieldUpdateOperationsInput | string
-  districtId?: Prisma.StringFieldUpdateOperationsInput | string
-  submissionOpenWeekday?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
-  submissionOpenTime?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  submissionCloseWeekday?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
-  submissionCloseTime?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
-  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
-  facilityRoles?: Prisma.UserFacilityRoleUncheckedUpdateManyWithoutFacilityNestedInput
-  employees?: Prisma.EmployeeUncheckedUpdateManyWithoutFacilityNestedInput
-  shiftRoles?: Prisma.ShiftRoleUncheckedUpdateManyWithoutFacilityNestedInput
-  staffingRequirements?: Prisma.StaffingRequirementUncheckedUpdateManyWithoutFacilityNestedInput
-  schedulePeriods?: Prisma.SchedulePeriodUncheckedUpdateManyWithoutFacilityNestedInput
-  schedules?: Prisma.RosterUncheckedUpdateManyWithoutFacilityNestedInput
-  scheduleVersions?: Prisma.RosterVersionUncheckedUpdateManyWithoutFacilityNestedInput
-  warnings?: Prisma.ScheduleWarningUncheckedUpdateManyWithoutFacilityNestedInput
-}
-
-export type FacilityCreateWithoutWarningsInput = {
-  id?: string
-  name: string
-  code: string
-  submissionOpenWeekday?: number | null
-  submissionOpenTime?: string | null
-  submissionCloseWeekday?: number | null
-  submissionCloseTime?: string | null
-  createdAt?: Date | string
-  updatedAt?: Date | string
-  district: Prisma.DistrictCreateNestedOneWithoutFacilitiesInput
-  facilityRoles?: Prisma.UserFacilityRoleCreateNestedManyWithoutFacilityInput
-  employees?: Prisma.EmployeeCreateNestedManyWithoutFacilityInput
-  shiftRoles?: Prisma.ShiftRoleCreateNestedManyWithoutFacilityInput
-  staffingRequirements?: Prisma.StaffingRequirementCreateNestedManyWithoutFacilityInput
-  schedulePeriods?: Prisma.SchedulePeriodCreateNestedManyWithoutFacilityInput
-  schedules?: Prisma.RosterCreateNestedManyWithoutFacilityInput
-  scheduleVersions?: Prisma.RosterVersionCreateNestedManyWithoutFacilityInput
-  shiftAssignments?: Prisma.ShiftAssignmentCreateNestedManyWithoutFacilityInput
-}
-
-export type FacilityUncheckedCreateWithoutWarningsInput = {
-  id?: string
-  name: string
-  code: string
-  districtId: string
-  submissionOpenWeekday?: number | null
-  submissionOpenTime?: string | null
-  submissionCloseWeekday?: number | null
-  submissionCloseTime?: string | null
-  createdAt?: Date | string
-  updatedAt?: Date | string
-  facilityRoles?: Prisma.UserFacilityRoleUncheckedCreateNestedManyWithoutFacilityInput
-  employees?: Prisma.EmployeeUncheckedCreateNestedManyWithoutFacilityInput
-  shiftRoles?: Prisma.ShiftRoleUncheckedCreateNestedManyWithoutFacilityInput
-  staffingRequirements?: Prisma.StaffingRequirementUncheckedCreateNestedManyWithoutFacilityInput
-  schedulePeriods?: Prisma.SchedulePeriodUncheckedCreateNestedManyWithoutFacilityInput
-  schedules?: Prisma.RosterUncheckedCreateNestedManyWithoutFacilityInput
-  scheduleVersions?: Prisma.RosterVersionUncheckedCreateNestedManyWithoutFacilityInput
-  shiftAssignments?: Prisma.ShiftAssignmentUncheckedCreateNestedManyWithoutFacilityInput
-}
-
-export type FacilityCreateOrConnectWithoutWarningsInput = {
-  where: Prisma.FacilityWhereUniqueInput
-  create: Prisma.XOR<Prisma.FacilityCreateWithoutWarningsInput, Prisma.FacilityUncheckedCreateWithoutWarningsInput>
-}
-
-export type FacilityUpsertWithoutWarningsInput = {
-  update: Prisma.XOR<Prisma.FacilityUpdateWithoutWarningsInput, Prisma.FacilityUncheckedUpdateWithoutWarningsInput>
-  create: Prisma.XOR<Prisma.FacilityCreateWithoutWarningsInput, Prisma.FacilityUncheckedCreateWithoutWarningsInput>
-  where?: Prisma.FacilityWhereInput
-}
-
-export type FacilityUpdateToOneWithWhereWithoutWarningsInput = {
-  where?: Prisma.FacilityWhereInput
-  data: Prisma.XOR<Prisma.FacilityUpdateWithoutWarningsInput, Prisma.FacilityUncheckedUpdateWithoutWarningsInput>
-}
-
-export type FacilityUpdateWithoutWarningsInput = {
-  id?: Prisma.StringFieldUpdateOperationsInput | string
-  name?: Prisma.StringFieldUpdateOperationsInput | string
-  code?: Prisma.StringFieldUpdateOperationsInput | string
-  submissionOpenWeekday?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
-  submissionOpenTime?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  submissionCloseWeekday?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
-  submissionCloseTime?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
-  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
-  district?: Prisma.DistrictUpdateOneRequiredWithoutFacilitiesNestedInput
-  facilityRoles?: Prisma.UserFacilityRoleUpdateManyWithoutFacilityNestedInput
-  employees?: Prisma.EmployeeUpdateManyWithoutFacilityNestedInput
-  shiftRoles?: Prisma.ShiftRoleUpdateManyWithoutFacilityNestedInput
-  staffingRequirements?: Prisma.StaffingRequirementUpdateManyWithoutFacilityNestedInput
-  schedulePeriods?: Prisma.SchedulePeriodUpdateManyWithoutFacilityNestedInput
-  schedules?: Prisma.RosterUpdateManyWithoutFacilityNestedInput
-  scheduleVersions?: Prisma.RosterVersionUpdateManyWithoutFacilityNestedInput
-  shiftAssignments?: Prisma.ShiftAssignmentUpdateManyWithoutFacilityNestedInput
-}
-
-export type FacilityUncheckedUpdateWithoutWarningsInput = {
-  id?: Prisma.StringFieldUpdateOperationsInput | string
-  name?: Prisma.StringFieldUpdateOperationsInput | string
-  code?: Prisma.StringFieldUpdateOperationsInput | string
-  districtId?: Prisma.StringFieldUpdateOperationsInput | string
-  submissionOpenWeekday?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
-  submissionOpenTime?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  submissionCloseWeekday?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
-  submissionCloseTime?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
-  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
-  facilityRoles?: Prisma.UserFacilityRoleUncheckedUpdateManyWithoutFacilityNestedInput
-  employees?: Prisma.EmployeeUncheckedUpdateManyWithoutFacilityNestedInput
-  shiftRoles?: Prisma.ShiftRoleUncheckedUpdateManyWithoutFacilityNestedInput
-  staffingRequirements?: Prisma.StaffingRequirementUncheckedUpdateManyWithoutFacilityNestedInput
-  schedulePeriods?: Prisma.SchedulePeriodUncheckedUpdateManyWithoutFacilityNestedInput
-  schedules?: Prisma.RosterUncheckedUpdateManyWithoutFacilityNestedInput
-  scheduleVersions?: Prisma.RosterVersionUncheckedUpdateManyWithoutFacilityNestedInput
-  shiftAssignments?: Prisma.ShiftAssignmentUncheckedUpdateManyWithoutFacilityNestedInput
 }
 
 export type FacilityCreateManyDistrictInput = {
   id?: string
   name: string
   code: string
-  submissionOpenWeekday?: number | null
-  submissionOpenTime?: string | null
-  submissionCloseWeekday?: number | null
-  submissionCloseTime?: string | null
   createdAt?: Date | string
   updatedAt?: Date | string
 }
@@ -1720,52 +914,32 @@ export type FacilityUpdateWithoutDistrictInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
   name?: Prisma.StringFieldUpdateOperationsInput | string
   code?: Prisma.StringFieldUpdateOperationsInput | string
-  submissionOpenWeekday?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
-  submissionOpenTime?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  submissionCloseWeekday?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
-  submissionCloseTime?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
-  facilityRoles?: Prisma.UserFacilityRoleUpdateManyWithoutFacilityNestedInput
-  employees?: Prisma.EmployeeUpdateManyWithoutFacilityNestedInput
-  shiftRoles?: Prisma.ShiftRoleUpdateManyWithoutFacilityNestedInput
+  users?: Prisma.UserUpdateManyWithoutFacilityNestedInput
+  shifts?: Prisma.FacilityShiftUpdateManyWithoutFacilityNestedInput
+  positions?: Prisma.PositionUpdateManyWithoutFacilityNestedInput
   staffingRequirements?: Prisma.StaffingRequirementUpdateManyWithoutFacilityNestedInput
-  schedulePeriods?: Prisma.SchedulePeriodUpdateManyWithoutFacilityNestedInput
-  schedules?: Prisma.RosterUpdateManyWithoutFacilityNestedInput
-  scheduleVersions?: Prisma.RosterVersionUpdateManyWithoutFacilityNestedInput
-  shiftAssignments?: Prisma.ShiftAssignmentUpdateManyWithoutFacilityNestedInput
-  warnings?: Prisma.ScheduleWarningUpdateManyWithoutFacilityNestedInput
+  schedules?: Prisma.ScheduleUpdateManyWithoutFacilityNestedInput
 }
 
 export type FacilityUncheckedUpdateWithoutDistrictInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
   name?: Prisma.StringFieldUpdateOperationsInput | string
   code?: Prisma.StringFieldUpdateOperationsInput | string
-  submissionOpenWeekday?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
-  submissionOpenTime?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  submissionCloseWeekday?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
-  submissionCloseTime?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
-  facilityRoles?: Prisma.UserFacilityRoleUncheckedUpdateManyWithoutFacilityNestedInput
-  employees?: Prisma.EmployeeUncheckedUpdateManyWithoutFacilityNestedInput
-  shiftRoles?: Prisma.ShiftRoleUncheckedUpdateManyWithoutFacilityNestedInput
+  users?: Prisma.UserUncheckedUpdateManyWithoutFacilityNestedInput
+  shifts?: Prisma.FacilityShiftUncheckedUpdateManyWithoutFacilityNestedInput
+  positions?: Prisma.PositionUncheckedUpdateManyWithoutFacilityNestedInput
   staffingRequirements?: Prisma.StaffingRequirementUncheckedUpdateManyWithoutFacilityNestedInput
-  schedulePeriods?: Prisma.SchedulePeriodUncheckedUpdateManyWithoutFacilityNestedInput
-  schedules?: Prisma.RosterUncheckedUpdateManyWithoutFacilityNestedInput
-  scheduleVersions?: Prisma.RosterVersionUncheckedUpdateManyWithoutFacilityNestedInput
-  shiftAssignments?: Prisma.ShiftAssignmentUncheckedUpdateManyWithoutFacilityNestedInput
-  warnings?: Prisma.ScheduleWarningUncheckedUpdateManyWithoutFacilityNestedInput
+  schedules?: Prisma.ScheduleUncheckedUpdateManyWithoutFacilityNestedInput
 }
 
 export type FacilityUncheckedUpdateManyWithoutDistrictInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
   name?: Prisma.StringFieldUpdateOperationsInput | string
   code?: Prisma.StringFieldUpdateOperationsInput | string
-  submissionOpenWeekday?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
-  submissionOpenTime?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  submissionCloseWeekday?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
-  submissionCloseTime?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
 }
@@ -1776,27 +950,19 @@ export type FacilityUncheckedUpdateManyWithoutDistrictInput = {
  */
 
 export type FacilityCountOutputType = {
-  facilityRoles: number
-  employees: number
-  shiftRoles: number
+  users: number
+  shifts: number
+  positions: number
   staffingRequirements: number
-  schedulePeriods: number
   schedules: number
-  scheduleVersions: number
-  shiftAssignments: number
-  warnings: number
 }
 
 export type FacilityCountOutputTypeSelect<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
-  facilityRoles?: boolean | FacilityCountOutputTypeCountFacilityRolesArgs
-  employees?: boolean | FacilityCountOutputTypeCountEmployeesArgs
-  shiftRoles?: boolean | FacilityCountOutputTypeCountShiftRolesArgs
+  users?: boolean | FacilityCountOutputTypeCountUsersArgs
+  shifts?: boolean | FacilityCountOutputTypeCountShiftsArgs
+  positions?: boolean | FacilityCountOutputTypeCountPositionsArgs
   staffingRequirements?: boolean | FacilityCountOutputTypeCountStaffingRequirementsArgs
-  schedulePeriods?: boolean | FacilityCountOutputTypeCountSchedulePeriodsArgs
   schedules?: boolean | FacilityCountOutputTypeCountSchedulesArgs
-  scheduleVersions?: boolean | FacilityCountOutputTypeCountScheduleVersionsArgs
-  shiftAssignments?: boolean | FacilityCountOutputTypeCountShiftAssignmentsArgs
-  warnings?: boolean | FacilityCountOutputTypeCountWarningsArgs
 }
 
 /**
@@ -1812,22 +978,22 @@ export type FacilityCountOutputTypeDefaultArgs<ExtArgs extends runtime.Types.Ext
 /**
  * FacilityCountOutputType without action
  */
-export type FacilityCountOutputTypeCountFacilityRolesArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
-  where?: Prisma.UserFacilityRoleWhereInput
+export type FacilityCountOutputTypeCountUsersArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+  where?: Prisma.UserWhereInput
 }
 
 /**
  * FacilityCountOutputType without action
  */
-export type FacilityCountOutputTypeCountEmployeesArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
-  where?: Prisma.EmployeeWhereInput
+export type FacilityCountOutputTypeCountShiftsArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+  where?: Prisma.FacilityShiftWhereInput
 }
 
 /**
  * FacilityCountOutputType without action
  */
-export type FacilityCountOutputTypeCountShiftRolesArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
-  where?: Prisma.ShiftRoleWhereInput
+export type FacilityCountOutputTypeCountPositionsArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+  where?: Prisma.PositionWhereInput
 }
 
 /**
@@ -1840,36 +1006,8 @@ export type FacilityCountOutputTypeCountStaffingRequirementsArgs<ExtArgs extends
 /**
  * FacilityCountOutputType without action
  */
-export type FacilityCountOutputTypeCountSchedulePeriodsArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
-  where?: Prisma.SchedulePeriodWhereInput
-}
-
-/**
- * FacilityCountOutputType without action
- */
 export type FacilityCountOutputTypeCountSchedulesArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
-  where?: Prisma.RosterWhereInput
-}
-
-/**
- * FacilityCountOutputType without action
- */
-export type FacilityCountOutputTypeCountScheduleVersionsArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
-  where?: Prisma.RosterVersionWhereInput
-}
-
-/**
- * FacilityCountOutputType without action
- */
-export type FacilityCountOutputTypeCountShiftAssignmentsArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
-  where?: Prisma.ShiftAssignmentWhereInput
-}
-
-/**
- * FacilityCountOutputType without action
- */
-export type FacilityCountOutputTypeCountWarningsArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
-  where?: Prisma.ScheduleWarningWhereInput
+  where?: Prisma.ScheduleWhereInput
 }
 
 
@@ -1878,22 +1016,14 @@ export type FacilitySelect<ExtArgs extends runtime.Types.Extensions.InternalArgs
   name?: boolean
   code?: boolean
   districtId?: boolean
-  submissionOpenWeekday?: boolean
-  submissionOpenTime?: boolean
-  submissionCloseWeekday?: boolean
-  submissionCloseTime?: boolean
   createdAt?: boolean
   updatedAt?: boolean
   district?: boolean | Prisma.DistrictDefaultArgs<ExtArgs>
-  facilityRoles?: boolean | Prisma.Facility$facilityRolesArgs<ExtArgs>
-  employees?: boolean | Prisma.Facility$employeesArgs<ExtArgs>
-  shiftRoles?: boolean | Prisma.Facility$shiftRolesArgs<ExtArgs>
+  users?: boolean | Prisma.Facility$usersArgs<ExtArgs>
+  shifts?: boolean | Prisma.Facility$shiftsArgs<ExtArgs>
+  positions?: boolean | Prisma.Facility$positionsArgs<ExtArgs>
   staffingRequirements?: boolean | Prisma.Facility$staffingRequirementsArgs<ExtArgs>
-  schedulePeriods?: boolean | Prisma.Facility$schedulePeriodsArgs<ExtArgs>
   schedules?: boolean | Prisma.Facility$schedulesArgs<ExtArgs>
-  scheduleVersions?: boolean | Prisma.Facility$scheduleVersionsArgs<ExtArgs>
-  shiftAssignments?: boolean | Prisma.Facility$shiftAssignmentsArgs<ExtArgs>
-  warnings?: boolean | Prisma.Facility$warningsArgs<ExtArgs>
   _count?: boolean | Prisma.FacilityCountOutputTypeDefaultArgs<ExtArgs>
 }, ExtArgs["result"]["facility"]>
 
@@ -1902,10 +1032,6 @@ export type FacilitySelectCreateManyAndReturn<ExtArgs extends runtime.Types.Exte
   name?: boolean
   code?: boolean
   districtId?: boolean
-  submissionOpenWeekday?: boolean
-  submissionOpenTime?: boolean
-  submissionCloseWeekday?: boolean
-  submissionCloseTime?: boolean
   createdAt?: boolean
   updatedAt?: boolean
   district?: boolean | Prisma.DistrictDefaultArgs<ExtArgs>
@@ -1916,10 +1042,6 @@ export type FacilitySelectUpdateManyAndReturn<ExtArgs extends runtime.Types.Exte
   name?: boolean
   code?: boolean
   districtId?: boolean
-  submissionOpenWeekday?: boolean
-  submissionOpenTime?: boolean
-  submissionCloseWeekday?: boolean
-  submissionCloseTime?: boolean
   createdAt?: boolean
   updatedAt?: boolean
   district?: boolean | Prisma.DistrictDefaultArgs<ExtArgs>
@@ -1930,26 +1052,18 @@ export type FacilitySelectScalar = {
   name?: boolean
   code?: boolean
   districtId?: boolean
-  submissionOpenWeekday?: boolean
-  submissionOpenTime?: boolean
-  submissionCloseWeekday?: boolean
-  submissionCloseTime?: boolean
   createdAt?: boolean
   updatedAt?: boolean
 }
 
-export type FacilityOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"id" | "name" | "code" | "districtId" | "submissionOpenWeekday" | "submissionOpenTime" | "submissionCloseWeekday" | "submissionCloseTime" | "createdAt" | "updatedAt", ExtArgs["result"]["facility"]>
+export type FacilityOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"id" | "name" | "code" | "districtId" | "createdAt" | "updatedAt", ExtArgs["result"]["facility"]>
 export type FacilityInclude<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
   district?: boolean | Prisma.DistrictDefaultArgs<ExtArgs>
-  facilityRoles?: boolean | Prisma.Facility$facilityRolesArgs<ExtArgs>
-  employees?: boolean | Prisma.Facility$employeesArgs<ExtArgs>
-  shiftRoles?: boolean | Prisma.Facility$shiftRolesArgs<ExtArgs>
+  users?: boolean | Prisma.Facility$usersArgs<ExtArgs>
+  shifts?: boolean | Prisma.Facility$shiftsArgs<ExtArgs>
+  positions?: boolean | Prisma.Facility$positionsArgs<ExtArgs>
   staffingRequirements?: boolean | Prisma.Facility$staffingRequirementsArgs<ExtArgs>
-  schedulePeriods?: boolean | Prisma.Facility$schedulePeriodsArgs<ExtArgs>
   schedules?: boolean | Prisma.Facility$schedulesArgs<ExtArgs>
-  scheduleVersions?: boolean | Prisma.Facility$scheduleVersionsArgs<ExtArgs>
-  shiftAssignments?: boolean | Prisma.Facility$shiftAssignmentsArgs<ExtArgs>
-  warnings?: boolean | Prisma.Facility$warningsArgs<ExtArgs>
   _count?: boolean | Prisma.FacilityCountOutputTypeDefaultArgs<ExtArgs>
 }
 export type FacilityIncludeCreateManyAndReturn<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
@@ -1963,25 +1077,17 @@ export type $FacilityPayload<ExtArgs extends runtime.Types.Extensions.InternalAr
   name: "Facility"
   objects: {
     district: Prisma.$DistrictPayload<ExtArgs>
-    facilityRoles: Prisma.$UserFacilityRolePayload<ExtArgs>[]
-    employees: Prisma.$EmployeePayload<ExtArgs>[]
-    shiftRoles: Prisma.$ShiftRolePayload<ExtArgs>[]
+    users: Prisma.$UserPayload<ExtArgs>[]
+    shifts: Prisma.$FacilityShiftPayload<ExtArgs>[]
+    positions: Prisma.$PositionPayload<ExtArgs>[]
     staffingRequirements: Prisma.$StaffingRequirementPayload<ExtArgs>[]
-    schedulePeriods: Prisma.$SchedulePeriodPayload<ExtArgs>[]
-    schedules: Prisma.$RosterPayload<ExtArgs>[]
-    scheduleVersions: Prisma.$RosterVersionPayload<ExtArgs>[]
-    shiftAssignments: Prisma.$ShiftAssignmentPayload<ExtArgs>[]
-    warnings: Prisma.$ScheduleWarningPayload<ExtArgs>[]
+    schedules: Prisma.$SchedulePayload<ExtArgs>[]
   }
   scalars: runtime.Types.Extensions.GetPayloadResult<{
     id: string
     name: string
     code: string
     districtId: string
-    submissionOpenWeekday: number | null
-    submissionOpenTime: string | null
-    submissionCloseWeekday: number | null
-    submissionCloseTime: string | null
     createdAt: Date
     updatedAt: Date
   }, ExtArgs["result"]["facility"]>
@@ -2379,15 +1485,11 @@ readonly fields: FacilityFieldRefs;
 export interface Prisma__FacilityClient<T, Null = never, ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs, GlobalOmitOptions = {}> extends Prisma.PrismaPromise<T> {
   readonly [Symbol.toStringTag]: "PrismaPromise"
   district<T extends Prisma.DistrictDefaultArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.DistrictDefaultArgs<ExtArgs>>): Prisma.Prisma__DistrictClient<runtime.Types.Result.GetResult<Prisma.$DistrictPayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions> | Null, Null, ExtArgs, GlobalOmitOptions>
-  facilityRoles<T extends Prisma.Facility$facilityRolesArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.Facility$facilityRolesArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$UserFacilityRolePayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
-  employees<T extends Prisma.Facility$employeesArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.Facility$employeesArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$EmployeePayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
-  shiftRoles<T extends Prisma.Facility$shiftRolesArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.Facility$shiftRolesArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$ShiftRolePayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
+  users<T extends Prisma.Facility$usersArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.Facility$usersArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$UserPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
+  shifts<T extends Prisma.Facility$shiftsArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.Facility$shiftsArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$FacilityShiftPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
+  positions<T extends Prisma.Facility$positionsArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.Facility$positionsArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$PositionPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
   staffingRequirements<T extends Prisma.Facility$staffingRequirementsArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.Facility$staffingRequirementsArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$StaffingRequirementPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
-  schedulePeriods<T extends Prisma.Facility$schedulePeriodsArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.Facility$schedulePeriodsArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$SchedulePeriodPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
-  schedules<T extends Prisma.Facility$schedulesArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.Facility$schedulesArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$RosterPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
-  scheduleVersions<T extends Prisma.Facility$scheduleVersionsArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.Facility$scheduleVersionsArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$RosterVersionPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
-  shiftAssignments<T extends Prisma.Facility$shiftAssignmentsArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.Facility$shiftAssignmentsArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$ShiftAssignmentPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
-  warnings<T extends Prisma.Facility$warningsArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.Facility$warningsArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$ScheduleWarningPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
+  schedules<T extends Prisma.Facility$schedulesArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.Facility$schedulesArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$SchedulePayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
   /**
    * Attaches callbacks for the resolution and/or rejection of the Promise.
    * @param onfulfilled The callback to execute when the Promise is resolved.
@@ -2421,10 +1523,6 @@ export interface FacilityFieldRefs {
   readonly name: Prisma.FieldRef<"Facility", 'String'>
   readonly code: Prisma.FieldRef<"Facility", 'String'>
   readonly districtId: Prisma.FieldRef<"Facility", 'String'>
-  readonly submissionOpenWeekday: Prisma.FieldRef<"Facility", 'Int'>
-  readonly submissionOpenTime: Prisma.FieldRef<"Facility", 'String'>
-  readonly submissionCloseWeekday: Prisma.FieldRef<"Facility", 'Int'>
-  readonly submissionCloseTime: Prisma.FieldRef<"Facility", 'String'>
   readonly createdAt: Prisma.FieldRef<"Facility", 'DateTime'>
   readonly updatedAt: Prisma.FieldRef<"Facility", 'DateTime'>
 }
@@ -2828,75 +1926,75 @@ export type FacilityDeleteManyArgs<ExtArgs extends runtime.Types.Extensions.Inte
 }
 
 /**
- * Facility.facilityRoles
+ * Facility.users
  */
-export type Facility$facilityRolesArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+export type Facility$usersArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
   /**
-   * Select specific fields to fetch from the UserFacilityRole
+   * Select specific fields to fetch from the User
    */
-  select?: Prisma.UserFacilityRoleSelect<ExtArgs> | null
+  select?: Prisma.UserSelect<ExtArgs> | null
   /**
-   * Omit specific fields from the UserFacilityRole
+   * Omit specific fields from the User
    */
-  omit?: Prisma.UserFacilityRoleOmit<ExtArgs> | null
+  omit?: Prisma.UserOmit<ExtArgs> | null
   /**
    * Choose, which related nodes to fetch as well
    */
-  include?: Prisma.UserFacilityRoleInclude<ExtArgs> | null
-  where?: Prisma.UserFacilityRoleWhereInput
-  orderBy?: Prisma.UserFacilityRoleOrderByWithRelationInput | Prisma.UserFacilityRoleOrderByWithRelationInput[]
-  cursor?: Prisma.UserFacilityRoleWhereUniqueInput
+  include?: Prisma.UserInclude<ExtArgs> | null
+  where?: Prisma.UserWhereInput
+  orderBy?: Prisma.UserOrderByWithRelationInput | Prisma.UserOrderByWithRelationInput[]
+  cursor?: Prisma.UserWhereUniqueInput
   take?: number
   skip?: number
-  distinct?: Prisma.UserFacilityRoleScalarFieldEnum | Prisma.UserFacilityRoleScalarFieldEnum[]
+  distinct?: Prisma.UserScalarFieldEnum | Prisma.UserScalarFieldEnum[]
 }
 
 /**
- * Facility.employees
+ * Facility.shifts
  */
-export type Facility$employeesArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+export type Facility$shiftsArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
   /**
-   * Select specific fields to fetch from the Employee
+   * Select specific fields to fetch from the FacilityShift
    */
-  select?: Prisma.EmployeeSelect<ExtArgs> | null
+  select?: Prisma.FacilityShiftSelect<ExtArgs> | null
   /**
-   * Omit specific fields from the Employee
+   * Omit specific fields from the FacilityShift
    */
-  omit?: Prisma.EmployeeOmit<ExtArgs> | null
+  omit?: Prisma.FacilityShiftOmit<ExtArgs> | null
   /**
    * Choose, which related nodes to fetch as well
    */
-  include?: Prisma.EmployeeInclude<ExtArgs> | null
-  where?: Prisma.EmployeeWhereInput
-  orderBy?: Prisma.EmployeeOrderByWithRelationInput | Prisma.EmployeeOrderByWithRelationInput[]
-  cursor?: Prisma.EmployeeWhereUniqueInput
+  include?: Prisma.FacilityShiftInclude<ExtArgs> | null
+  where?: Prisma.FacilityShiftWhereInput
+  orderBy?: Prisma.FacilityShiftOrderByWithRelationInput | Prisma.FacilityShiftOrderByWithRelationInput[]
+  cursor?: Prisma.FacilityShiftWhereUniqueInput
   take?: number
   skip?: number
-  distinct?: Prisma.EmployeeScalarFieldEnum | Prisma.EmployeeScalarFieldEnum[]
+  distinct?: Prisma.FacilityShiftScalarFieldEnum | Prisma.FacilityShiftScalarFieldEnum[]
 }
 
 /**
- * Facility.shiftRoles
+ * Facility.positions
  */
-export type Facility$shiftRolesArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+export type Facility$positionsArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
   /**
-   * Select specific fields to fetch from the ShiftRole
+   * Select specific fields to fetch from the Position
    */
-  select?: Prisma.ShiftRoleSelect<ExtArgs> | null
+  select?: Prisma.PositionSelect<ExtArgs> | null
   /**
-   * Omit specific fields from the ShiftRole
+   * Omit specific fields from the Position
    */
-  omit?: Prisma.ShiftRoleOmit<ExtArgs> | null
+  omit?: Prisma.PositionOmit<ExtArgs> | null
   /**
    * Choose, which related nodes to fetch as well
    */
-  include?: Prisma.ShiftRoleInclude<ExtArgs> | null
-  where?: Prisma.ShiftRoleWhereInput
-  orderBy?: Prisma.ShiftRoleOrderByWithRelationInput | Prisma.ShiftRoleOrderByWithRelationInput[]
-  cursor?: Prisma.ShiftRoleWhereUniqueInput
+  include?: Prisma.PositionInclude<ExtArgs> | null
+  where?: Prisma.PositionWhereInput
+  orderBy?: Prisma.PositionOrderByWithRelationInput | Prisma.PositionOrderByWithRelationInput[]
+  cursor?: Prisma.PositionWhereUniqueInput
   take?: number
   skip?: number
-  distinct?: Prisma.ShiftRoleScalarFieldEnum | Prisma.ShiftRoleScalarFieldEnum[]
+  distinct?: Prisma.PositionScalarFieldEnum | Prisma.PositionScalarFieldEnum[]
 }
 
 /**
@@ -2924,123 +2022,27 @@ export type Facility$staffingRequirementsArgs<ExtArgs extends runtime.Types.Exte
 }
 
 /**
- * Facility.schedulePeriods
- */
-export type Facility$schedulePeriodsArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
-  /**
-   * Select specific fields to fetch from the SchedulePeriod
-   */
-  select?: Prisma.SchedulePeriodSelect<ExtArgs> | null
-  /**
-   * Omit specific fields from the SchedulePeriod
-   */
-  omit?: Prisma.SchedulePeriodOmit<ExtArgs> | null
-  /**
-   * Choose, which related nodes to fetch as well
-   */
-  include?: Prisma.SchedulePeriodInclude<ExtArgs> | null
-  where?: Prisma.SchedulePeriodWhereInput
-  orderBy?: Prisma.SchedulePeriodOrderByWithRelationInput | Prisma.SchedulePeriodOrderByWithRelationInput[]
-  cursor?: Prisma.SchedulePeriodWhereUniqueInput
-  take?: number
-  skip?: number
-  distinct?: Prisma.SchedulePeriodScalarFieldEnum | Prisma.SchedulePeriodScalarFieldEnum[]
-}
-
-/**
  * Facility.schedules
  */
 export type Facility$schedulesArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
   /**
-   * Select specific fields to fetch from the Roster
+   * Select specific fields to fetch from the Schedule
    */
-  select?: Prisma.RosterSelect<ExtArgs> | null
+  select?: Prisma.ScheduleSelect<ExtArgs> | null
   /**
-   * Omit specific fields from the Roster
+   * Omit specific fields from the Schedule
    */
-  omit?: Prisma.RosterOmit<ExtArgs> | null
-  /**
-   * Choose, which related nodes to fetch as well
-   */
-  include?: Prisma.RosterInclude<ExtArgs> | null
-  where?: Prisma.RosterWhereInput
-  orderBy?: Prisma.RosterOrderByWithRelationInput | Prisma.RosterOrderByWithRelationInput[]
-  cursor?: Prisma.RosterWhereUniqueInput
-  take?: number
-  skip?: number
-  distinct?: Prisma.RosterScalarFieldEnum | Prisma.RosterScalarFieldEnum[]
-}
-
-/**
- * Facility.scheduleVersions
- */
-export type Facility$scheduleVersionsArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
-  /**
-   * Select specific fields to fetch from the RosterVersion
-   */
-  select?: Prisma.RosterVersionSelect<ExtArgs> | null
-  /**
-   * Omit specific fields from the RosterVersion
-   */
-  omit?: Prisma.RosterVersionOmit<ExtArgs> | null
+  omit?: Prisma.ScheduleOmit<ExtArgs> | null
   /**
    * Choose, which related nodes to fetch as well
    */
-  include?: Prisma.RosterVersionInclude<ExtArgs> | null
-  where?: Prisma.RosterVersionWhereInput
-  orderBy?: Prisma.RosterVersionOrderByWithRelationInput | Prisma.RosterVersionOrderByWithRelationInput[]
-  cursor?: Prisma.RosterVersionWhereUniqueInput
+  include?: Prisma.ScheduleInclude<ExtArgs> | null
+  where?: Prisma.ScheduleWhereInput
+  orderBy?: Prisma.ScheduleOrderByWithRelationInput | Prisma.ScheduleOrderByWithRelationInput[]
+  cursor?: Prisma.ScheduleWhereUniqueInput
   take?: number
   skip?: number
-  distinct?: Prisma.RosterVersionScalarFieldEnum | Prisma.RosterVersionScalarFieldEnum[]
-}
-
-/**
- * Facility.shiftAssignments
- */
-export type Facility$shiftAssignmentsArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
-  /**
-   * Select specific fields to fetch from the ShiftAssignment
-   */
-  select?: Prisma.ShiftAssignmentSelect<ExtArgs> | null
-  /**
-   * Omit specific fields from the ShiftAssignment
-   */
-  omit?: Prisma.ShiftAssignmentOmit<ExtArgs> | null
-  /**
-   * Choose, which related nodes to fetch as well
-   */
-  include?: Prisma.ShiftAssignmentInclude<ExtArgs> | null
-  where?: Prisma.ShiftAssignmentWhereInput
-  orderBy?: Prisma.ShiftAssignmentOrderByWithRelationInput | Prisma.ShiftAssignmentOrderByWithRelationInput[]
-  cursor?: Prisma.ShiftAssignmentWhereUniqueInput
-  take?: number
-  skip?: number
-  distinct?: Prisma.ShiftAssignmentScalarFieldEnum | Prisma.ShiftAssignmentScalarFieldEnum[]
-}
-
-/**
- * Facility.warnings
- */
-export type Facility$warningsArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
-  /**
-   * Select specific fields to fetch from the ScheduleWarning
-   */
-  select?: Prisma.ScheduleWarningSelect<ExtArgs> | null
-  /**
-   * Omit specific fields from the ScheduleWarning
-   */
-  omit?: Prisma.ScheduleWarningOmit<ExtArgs> | null
-  /**
-   * Choose, which related nodes to fetch as well
-   */
-  include?: Prisma.ScheduleWarningInclude<ExtArgs> | null
-  where?: Prisma.ScheduleWarningWhereInput
-  orderBy?: Prisma.ScheduleWarningOrderByWithRelationInput | Prisma.ScheduleWarningOrderByWithRelationInput[]
-  cursor?: Prisma.ScheduleWarningWhereUniqueInput
-  take?: number
-  skip?: number
-  distinct?: Prisma.ScheduleWarningScalarFieldEnum | Prisma.ScheduleWarningScalarFieldEnum[]
+  distinct?: Prisma.ScheduleScalarFieldEnum | Prisma.ScheduleScalarFieldEnum[]
 }
 
 /**

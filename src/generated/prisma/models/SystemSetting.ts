@@ -14,7 +14,7 @@ import type * as Prisma from "../internal/prismaNamespace"
 
 /**
  * Model SystemSetting
- * הגדרת מערכת אחת לפי מפתח.
+ * הגדרות מערכת קיימות שאינן חלק ממבנה הסידור.
  */
 export type SystemSettingModel = runtime.Types.Result.DefaultSelection<Prisma.$SystemSettingPayload>
 

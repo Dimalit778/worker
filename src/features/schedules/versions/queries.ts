@@ -1,29 +1,23 @@
-import { ScheduleVersionStatus } from '@/generated/prisma/client';
+import { ScheduleStatus } from '@/generated/prisma/client';
 import { prisma } from '@/lib/db/client';
 
 export async function getLatestDraftVersionId(scheduleId: string): Promise<string | null> {
-  const version = await prisma.rosterVersion.findFirst({
-    where: { scheduleId, status: ScheduleVersionStatus.DRAFT },
-    orderBy: { version: 'desc' },
+  const schedule = await prisma.schedule.findFirst({
+    where: { id: scheduleId, status: ScheduleStatus.DRAFT },
     select: { id: true },
   });
-  return version?.id ?? null;
+  return schedule?.id ?? null;
 }
 
 export async function getPublishedActiveVersionId(scheduleId: string): Promise<string | null> {
-  const version = await prisma.rosterVersion.findFirst({
-    where: {
-      scheduleId,
-      status: ScheduleVersionStatus.PUBLISHED,
-      isActive: true,
-    },
-    orderBy: { version: 'desc' },
+  const schedule = await prisma.schedule.findFirst({
+    where: { id: scheduleId, status: ScheduleStatus.PUBLISHED },
     select: { id: true },
   });
-  return version?.id ?? null;
+  return schedule?.id ?? null;
 }
 
-/** Manager draft UI: latest draft if editing, otherwise the live published version. */
+/** Manager draft UI edits the schedule row itself. A published schedule is the live version. */
 export async function getDraftEditingVersionId(scheduleId: string): Promise<string | null> {
   const draftId = await getLatestDraftVersionId(scheduleId);
   if (draftId) return draftId;
@@ -31,22 +25,15 @@ export async function getDraftEditingVersionId(scheduleId: string): Promise<stri
 }
 
 export async function getDraftVersionMeta(scheduleId: string) {
-  const draft = await prisma.rosterVersion.findFirst({
-    where: { scheduleId, status: ScheduleVersionStatus.DRAFT },
-    orderBy: { version: 'desc' },
-    select: { id: true, version: true, revision: true },
-  });
-
-  const published = await prisma.rosterVersion.findFirst({
-    where: { scheduleId, status: ScheduleVersionStatus.PUBLISHED, isActive: true },
-    orderBy: { version: 'desc' },
-    select: { id: true, version: true, revision: true },
+  const schedule = await prisma.schedule.findUnique({
+    where: { id: scheduleId },
+    select: { id: true, status: true, revision: true },
   });
 
   return {
-    versionId: draft?.id ?? published?.id ?? null,
-    revision: draft?.revision ?? published?.revision ?? 0,
-    hasUnpublishedDraft: !!draft,
-    editingVersionNumber: draft?.version ?? published?.version ?? null,
+    versionId: schedule?.id ?? null,
+    revision: schedule?.revision ?? 0,
+    hasUnpublishedDraft: schedule?.status === ScheduleStatus.DRAFT,
+    editingVersionNumber: schedule ? schedule.revision : null,
   };
 }

@@ -9,65 +9,12 @@
 * 🟢 You can import this file directly.
 */
 
-export const Capability = {
-  GUARD: 'GUARD',
-  CONTROLLER: 'CONTROLLER',
-  SHIFT_MANAGER: 'SHIFT_MANAGER'
-} as const
-
-export type Capability = (typeof Capability)[keyof typeof Capability]
-
-
-export const AvailabilityPreference = {
-  AVAILABLE: 'AVAILABLE',
-  PREFERRED: 'PREFERRED',
-  UNAVAILABLE: 'UNAVAILABLE'
-} as const
-
-export type AvailabilityPreference = (typeof AvailabilityPreference)[keyof typeof AvailabilityPreference]
-
-
-export const SubmissionState = {
-  SCHEDULED: 'SCHEDULED',
-  OPEN: 'OPEN',
-  CLOSED: 'CLOSED'
-} as const
-
-export type SubmissionState = (typeof SubmissionState)[keyof typeof SubmissionState]
-
-
-export const AssignmentSource = {
-  MANUAL: 'MANUAL',
-  AUTOMATIC: 'AUTOMATIC'
-} as const
-
-export type AssignmentSource = (typeof AssignmentSource)[keyof typeof AssignmentSource]
-
-
 export const SystemRole = {
   USER: 'USER',
   ADMIN: 'ADMIN'
 } as const
 
 export type SystemRole = (typeof SystemRole)[keyof typeof SystemRole]
-
-
-export const FacilityRole = {
-  MANAGER: 'MANAGER'
-} as const
-
-export type FacilityRole = (typeof FacilityRole)[keyof typeof FacilityRole]
-
-
-export const ScheduleChangeType = {
-  CREATE: 'CREATE',
-  UPDATE: 'UPDATE',
-  DELETE: 'DELETE',
-  PUBLISH: 'PUBLISH',
-  MANUAL_OVERRIDE: 'MANUAL_OVERRIDE'
-} as const
-
-export type ScheduleChangeType = (typeof ScheduleChangeType)[keyof typeof ScheduleChangeType]
 
 
 export const ShiftType = {
@@ -79,15 +26,6 @@ export const ShiftType = {
 export type ShiftType = (typeof ShiftType)[keyof typeof ShiftType]
 
 
-export const ScheduleVersionStatus = {
-  DRAFT: 'DRAFT',
-  PUBLISHED: 'PUBLISHED',
-  ARCHIVED: 'ARCHIVED'
-} as const
-
-export type ScheduleVersionStatus = (typeof ScheduleVersionStatus)[keyof typeof ScheduleVersionStatus]
-
-
 export const DayCategory = {
   WEEKDAY: 'WEEKDAY',
   FRIDAY: 'FRIDAY',
@@ -97,30 +35,39 @@ export const DayCategory = {
 export type DayCategory = (typeof DayCategory)[keyof typeof DayCategory]
 
 
-export const HolidayKind = {
-  EVE: 'EVE',
-  HOLIDAY: 'HOLIDAY',
-  SPECIAL_DAY: 'SPECIAL_DAY'
+export const ScheduleStatus = {
+  DRAFT: 'DRAFT',
+  PUBLISHED: 'PUBLISHED',
+  ARCHIVED: 'ARCHIVED'
 } as const
 
-export type HolidayKind = (typeof HolidayKind)[keyof typeof HolidayKind]
+export type ScheduleStatus = (typeof ScheduleStatus)[keyof typeof ScheduleStatus]
 
 
-export const WarningType = {
-  UNDERSTAFFED: 'UNDERSTAFFED',
-  UNFILLED: 'UNFILLED',
-  MIN_NOT_MET: 'MIN_NOT_MET',
-  CONFLICT: 'CONFLICT',
-  FAIRNESS: 'FAIRNESS'
+export const AvailabilityPreference = {
+  AVAILABLE: 'AVAILABLE',
+  PREFERRED: 'PREFERRED',
+  UNAVAILABLE: 'UNAVAILABLE'
 } as const
 
-export type WarningType = (typeof WarningType)[keyof typeof WarningType]
+export type AvailabilityPreference = (typeof AvailabilityPreference)[keyof typeof AvailabilityPreference]
 
 
-export const WarningSeverity = {
-  ERROR: 'ERROR',
-  WARNING: 'WARNING',
-  INFO: 'INFO'
+export const AssignmentSource = {
+  MANUAL: 'MANUAL',
+  AUTOMATIC: 'AUTOMATIC'
 } as const
 
-export type WarningSeverity = (typeof WarningSeverity)[keyof typeof WarningSeverity]
+export type AssignmentSource = (typeof AssignmentSource)[keyof typeof AssignmentSource]
+
+
+export const ScheduleChangeType = {
+  CREATE: 'CREATE',
+  UPDATE: 'UPDATE',
+  DELETE: 'DELETE',
+  PUBLISH: 'PUBLISH',
+  ARCHIVE: 'ARCHIVE',
+  MANUAL_OVERRIDE: 'MANUAL_OVERRIDE'
+} as const
+
+export type ScheduleChangeType = (typeof ScheduleChangeType)[keyof typeof ScheduleChangeType]

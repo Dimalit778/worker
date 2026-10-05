@@ -23,7 +23,7 @@ export function createMinimumWarnings(unmetMinimums: UnmetMinimum[]): EngineWarn
     severity: "ERROR" as const,
     employeeId: u.employeeId,
     shiftType: u.shiftType,
-    message: `Week ${u.weekNumber}: needs ${u.required} ${u.shiftType} shift(s), has ${u.actual}`,
+    message: `שבוע ${u.weekNumber}: ${u.required === 1 ? `נדרשת משמרת ${SHIFT_LABELS[u.shiftType]} אחת` : `נדרשות ${u.required} משמרות ${SHIFT_LABELS[u.shiftType]}`}; בפועל: ${u.actual}.`,
   }));
 }
 
@@ -47,7 +47,7 @@ export function createCapacityWarnings(
         positionId: slot.positionId,
         date: slot.date,
         shiftType: slot.shiftType,
-        message: `${slot.shiftType} on ${createDateKey(slot.date)}: 0/${slot.requiredAmount} assigned`,
+        message: `${createDateKey(slot.date).split("-").reverse().join("/")} · ${SHIFT_LABELS[slot.shiftType]} — אין עובדים משובצים; התקן הנדרש: ${slot.requiredAmount}.`,
       });
     } else if (fillCount > 0 && fillCount < slot.requiredAmount) {
       warnings.push({
@@ -56,7 +56,7 @@ export function createCapacityWarnings(
         positionId: slot.positionId,
         date: slot.date,
         shiftType: slot.shiftType,
-        message: `${slot.shiftType} on ${createDateKey(slot.date)}: ${fillCount}/${slot.requiredAmount} assigned`,
+        message: `${createDateKey(slot.date).split("-").reverse().join("/")} · ${SHIFT_LABELS[slot.shiftType]} — משובצים ${fillCount} מתוך ${slot.requiredAmount} עובדים נדרשים.`,
       });
     }
   }
@@ -219,7 +219,7 @@ export function createFairnessWarnings(
       type: "FAIRNESS" as const,
       severity: "INFO" as const,
       employeeId: s.employeeId,
-      message: `${s.totalShifts} shifts assigned (average: ${average.toFixed(1)})`,
+      message: `מספר המשמרות ששובצו: ${s.totalShifts}; הממוצע לעובד: ${average.toFixed(1)}.`,
     }));
 }
 

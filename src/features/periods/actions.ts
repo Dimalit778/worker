@@ -15,45 +15,37 @@ import {
   ruleOrderError,
 } from './submission-window';
 import { processDueSubmissionWindows } from './process-windows';
+import { saveSubmissionWindowSetting } from '@/features/settings/queries';
 
 export async function getSchedulesList(): Promise<PeriodSummary[]> {
   const session = await requireSession(PortalRole.MANAGER);
 
-  const periods = await prisma.roster.findMany({
+  const periods = await prisma.schedule.findMany({
     where: {
       facilityId: session.user.facilityId ?? '',
     },
-    orderBy: { period: { startDate: 'desc' } },
+    orderBy: { startDate: 'desc' },
     include: {
-      versions: { select: { status: true, isActive: true } },
-      period: {
-        include: {
-          _count: {
-            select: {
-              availabilitySubmissions: { where: { isSubmitted: true, employee: { primaryShiftRole: { code: { not: 1 } } } } },
-            },
-          },
+      _count: {
+        select: {
+          submissions: { where: { submittedAt: { not: null }, user: { role: { rank: { not: 1 } } } } },
         },
       },
     },
   });
 
-  const totalEmployees = await prisma.employee.count({
-    where: { facilityId: session.user.facilityId ?? '', isActive: true, primaryShiftRole: { code: { not: 1 } } },
+  const totalEmployees = await prisma.user.count({
+    where: { facilityId: session.user.facilityId ?? '', role: { rank: { not: 1 } } },
   });
 
   return periods.map((p) => ({
     id: p.id,
-    name: p.period.name,
-    startDate: p.period.startDate.toISOString().slice(0, 10),
-    endDate: p.period.endDate.toISOString().slice(0, 10),
-    submissionDeadline: p.period.submissionDeadline.toISOString(),
-    status: periodScheduleStatus({
-      archivedAt: p.archivedAt,
-      submissionState: p.period.submissionState,
-      versions: p.versions,
-    }),
-    submittedCount: p.period._count.availabilitySubmissions ?? 0,
+    name: p.name,
+    startDate: p.startDate.toISOString().slice(0, 10),
+    endDate: p.endDate.toISOString().slice(0, 10),
+    submissionDeadline: p.submissionClosesAt.toISOString(),
+    status: periodScheduleStatus(p),
+    submittedCount: p._count.submissions ?? 0,
     totalEmployees: totalEmployees ?? 0,
   }));
 }
@@ -110,11 +102,12 @@ export async function createSchedule(data: {
 
   try {
     const schedule = await scheduleTransaction({ userId: session.user.id, facilityId: session.user.facilityId! }, async (tx) => {
-      const overlapping = await tx.schedulePeriod.findFirst({
+      const overlapping = await tx.schedule.findFirst({
         where: {
           facilityId: session.user.facilityId ?? '',
           startDate: { lte: end },
           endDate: { gte: start },
+          status: { not: 'ARCHIVED' },
         },
       });
 
@@ -125,41 +118,28 @@ export async function createSchedule(data: {
       }
 
       if (standingRule) {
-        await tx.facility.update({
-          where: { id: session.user.facilityId ?? '' },
-          data: {
-            submissionOpenWeekday: standingRule.open.weekday,
-            submissionOpenTime: standingRule.open.time,
-            submissionCloseWeekday: standingRule.close.weekday,
-            submissionCloseTime: standingRule.close.time,
-          },
+        await saveSubmissionWindowSetting(session.user.facilityId ?? '', {
+          openWeekday: standingRule.open.weekday,
+          openTime: standingRule.open.time,
+          closeWeekday: standingRule.close.weekday,
+          closeTime: standingRule.close.time,
         });
       }
 
-      const period = await tx.schedulePeriod.create({
+      return tx.schedule.create({
         data: {
           name: data.name.trim(),
           startDate: start,
           endDate: end,
           submissionOpensAt: opensAt,
-          submissionDeadline: deadline,
-          submissionWindowManaged: true,
+          submissionClosesAt: deadline,
           facilityId: session.user.facilityId ?? '',
-        },
-      });
-
-      return tx.roster.create({
-        data: {
-          id: period.id,
-          periodId: period.id,
-          facilityId: session.user.facilityId ?? '',
-          createdById: session.user.id,
         },
       });
     });
 
     const processed = await processDueSubmissionWindows(session.user.facilityId);
-    const emailWarning = processed.emailErrors[schedule.periodId];
+    const emailWarning = processed.emailErrors[schedule.id];
     return {
       ok: true,
       id: schedule.id,
@@ -181,14 +161,13 @@ export async function deleteSchedule(scheduleId: string): Promise<{ ok: true } |
 
   try {
     await scheduleTransaction({ userId: session.user.id, facilityId: session.user.facilityId! }, async tx => {
-      const schedule = await tx.roster.findFirst({ where: { id: scheduleId, facilityId: session.user.facilityId! }, include: { versions: true, _count: { select: { changeLogs: true } } } });
+      const schedule = await tx.schedule.findFirst({ where: { id: scheduleId, facilityId: session.user.facilityId! }, include: { _count: { select: { changes: true, slots: true } } } });
       if (!schedule) throw new Error('השיבוץ לא נמצא');
-      if (schedule.versions.some(v => v.publishedAt) || schedule._count.changeLogs) {
-        await tx.roster.update({ where: { id: scheduleId }, data: { archivedAt: new Date() } });
-        await tx.schedulePeriod.update({ where: { id: schedule.periodId }, data: { submissionState: 'CLOSED' } });
-        await tx.scheduleChangeLog.create({ data: { scheduleId, changedById: session.user.id, changeType: 'UPDATE', message: 'השיבוץ הועבר לארכיון', beforeData: { archivedAt: schedule.archivedAt }, afterData: { status: 'ARCHIVED' } } });
+      if (schedule.publishedAt || schedule._count.changes || schedule._count.slots) {
+        await tx.schedule.update({ where: { id: scheduleId }, data: { status: 'ARCHIVED' } });
+        await tx.scheduleChange.create({ data: { facilityId: session.user.facilityId!, scheduleId, changedById: session.user.id, changeType: 'ARCHIVE', reason: 'השיבוץ הועבר לארכיון', beforeData: { status: schedule.status }, afterData: { status: 'ARCHIVED' } } });
       } else {
-        await tx.schedulePeriod.delete({ where: { id: schedule.periodId } });
+        await tx.schedule.delete({ where: { id: scheduleId } });
       }
     });
     return { ok: true };
@@ -206,19 +185,19 @@ export async function updateScheduleStatus(
   try {
     if (!['OPEN','LOCKED','ARCHIVED'].includes(status)) return { error: 'מעבר סטטוס לא מותר; פרסום מתבצע מתוך טיוטה' };
     await scheduleTransaction({ userId: session.user.id, facilityId: session.user.facilityId! }, async tx => {
-      const schedule = await tx.roster.findFirst({
+      const schedule = await tx.schedule.findFirst({
         where: { id: scheduleId, facilityId: session.user.facilityId! },
-        include: { period: true, versions: { select: { status: true, isActive: true } } },
       });
-      const current = schedule
-        ? periodScheduleStatus({ archivedAt: schedule.archivedAt, submissionState: schedule.period.submissionState, versions: schedule.versions })
-        : null;
+      const current = schedule ? periodScheduleStatus(schedule) : null;
       if (!schedule || current === 'ARCHIVED' || (current === 'PUBLISHED' && status !== 'ARCHIVED')) throw new Error('מעבר סטטוס לא מותר');
       const now = new Date();
-      if (status === 'OPEN' && (now < schedule.period.submissionOpensAt || now >= schedule.period.submissionDeadline)) throw new Error('מחוץ לחלון ההגשות');
-      await tx.schedulePeriod.update({ where: { id: schedule.periodId }, data: { submissionState: status === 'OPEN' ? 'OPEN' : 'CLOSED' } });
-      if (status === 'ARCHIVED') await tx.roster.update({ where: { id: scheduleId }, data: { archivedAt: now } });
-      await tx.scheduleChangeLog.create({ data: { scheduleId, changedById: session.user.id, changeType: 'UPDATE', message: 'עודכן מצב התקופה', beforeData: { status: current }, afterData: { status } } });
+      if (status === 'OPEN' && (now < schedule.submissionOpensAt || now >= schedule.submissionClosesAt)) throw new Error('מחוץ לחלון ההגשות');
+      if (status === 'ARCHIVED') {
+        await tx.schedule.update({ where: { id: scheduleId }, data: { status: 'ARCHIVED' } });
+      } else if (status === 'LOCKED' && schedule.submissionClosesAt > now) {
+        await tx.schedule.update({ where: { id: scheduleId }, data: { submissionClosesAt: now } });
+      }
+      await tx.scheduleChange.create({ data: { facilityId: session.user.facilityId!, scheduleId, changedById: session.user.id, changeType: status === 'ARCHIVED' ? 'ARCHIVE' : 'UPDATE', reason: 'עודכן מצב התקופה', beforeData: { status: current }, afterData: { status } } });
     });
 
     return { ok: true };

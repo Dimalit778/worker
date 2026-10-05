@@ -9,6 +9,8 @@ import { saveScheduleAnalysis } from '../generation/recalculate';
 import { validateAssignments } from '@/features/scheduling-engine/validate';
 import { parseISODateToUtcMidnight } from '@/features/periods/utils';
 import { prisma } from '@/lib/db/client';
+import { loadedScheduleDetails } from './loaded-details';
+import { defaultShiftTimes, isValidShiftTime, shiftBounds } from '../shift-times';
 
 type Edit = { kind: 'create'; params: AssignEmployeeToSlotParams } |
   { kind: 'update'; assignmentId: string; employeeId: string } |
@@ -21,40 +23,47 @@ async function editSchedule(scheduleId: string, expected: VersionExpectation, ed
   return scheduleTransaction(actor, async tx => {
     const { version } = await checkedVersion(tx, actor, scheduleId, expected);
     if (!version || version.status !== 'DRAFT') throw new Error('יש לפתוח טיוטת תיקון לפני עריכה');
-    const before = await tx.shiftAssignment.findMany({ where: { versionId: version.id } });
+    const before = await tx.scheduleSlot.findMany({ where: { scheduleId: version.id } });
     const existing = edit.kind === 'create' ? null : before.find(a => a.id === edit.assignmentId);
     if (edit.kind !== 'create' && !existing) throw new Error('השיבוץ לא נמצא בגרסה הנוכחית');
     if (edit.kind === 'create') {
       const p = edit.params;
       const date = parseISODateToUtcMidnight(p.date);
       if (!Number.isFinite(date.getTime()) || date.toISOString().slice(0,10) !== p.date) throw new Error('תאריך לא תקין');
-      await tx.shiftAssignment.create({ data: { scheduleId, versionId: version.id, facilityId: actor.facilityId, employeeId: p.employeeId, shiftRoleId: p.positionId, date, shiftType: p.shiftType, source: 'MANUAL', isLocked: false } });
+      const hasTimes = p.startTime !== undefined || p.endTime !== undefined;
+      if (hasTimes && (!p.startTime || !p.endTime || !isValidShiftTime(p.startTime) || !isValidShiftTime(p.endTime) || p.startTime === p.endTime)) throw new Error('שעות משמרת לא תקינות');
+      const position = await tx.position.findFirst({ where: { id: p.positionId, OR: [{ facilityId: actor.facilityId }, { facilityId: null }] }, select: { id: true } });
+      if (!position) throw new Error('התפקיד אינו שייך למתקן');
+      const defaults = defaultShiftTimes(p.shiftType);
+      const bounds = shiftBounds(date, p.startTime || defaults.startTime, p.endTime || defaults.endTime);
+      const last = await tx.scheduleSlot.aggregate({ where: { scheduleId, date, shiftType: p.shiftType, positionId: p.positionId }, _max: { slotNumber: true } });
+      await tx.scheduleSlot.create({ data: { scheduleId, facilityId: actor.facilityId, userId: p.employeeId, positionId: p.positionId, date, shiftType: p.shiftType, slotNumber: (last._max.slotNumber ?? 0) + 1, ...bounds, source: 'MANUAL', isLocked: false } });
     } else if (edit.kind === 'remove') {
-      await tx.shiftAssignment.delete({ where: { id: existing!.id } });
+      await tx.scheduleSlot.delete({ where: { id: existing!.id } });
     } else if (edit.kind === 'lock') {
-      await tx.shiftAssignment.update({ where: { id: existing!.id }, data: { isLocked: edit.isLocked } });
+      await tx.scheduleSlot.update({ where: { id: existing!.id }, data: { isLocked: edit.isLocked } });
     } else if (edit.kind === 'update') {
-      await tx.shiftAssignment.update({ where: { id: existing!.id }, data: { employeeId: edit.employeeId, source: 'MANUAL' } });
+      await tx.scheduleSlot.update({ where: { id: existing!.id }, data: { userId: edit.employeeId, source: 'MANUAL' } });
     } else {
       const other = before.find(a => a.id === edit.otherId);
       if (!other || other.id === existing!.id) throw new Error('יש לבחור שני שיבוצים שונים באותה טיוטה');
-      // Delete/reinsert together to avoid transient uniqueness violations during a swap.
-      await tx.shiftAssignment.deleteMany({ where: { id: { in: [existing!.id, other.id] } } });
-      await tx.shiftAssignment.createMany({ data: [{ ...existing!, employeeId: other.employeeId, source: 'MANUAL' }, { ...other, employeeId: existing!.employeeId, source: 'MANUAL' }] });
+      await tx.scheduleSlot.update({ where: { id: existing!.id }, data: { userId: other.userId, source: 'MANUAL' } });
+      await tx.scheduleSlot.update({ where: { id: other.id }, data: { userId: existing!.userId, source: 'MANUAL' } });
     }
-    const data = await loadSchedulingInput(tx, scheduleId, actor.facilityId, version.id);
+    const data = await loadSchedulingInput(tx, scheduleId, actor.facilityId, version.id, version);
     const failures = validateAssignments(data.input, data.allAssignments);
     if (failures.length && edit.kind !== 'remove' && edit.kind !== 'lock') throw new Error(failures.join('; '));
-    await saveScheduleAnalysis(tx, version.id, data.input, data.allAssignments);
-    await tx.rosterVersion.update({ where: { id: version.id }, data: { revision: { increment: 1 } } });
-    await tx.scheduleChangeLog.create({ data: { scheduleId, versionId: version.id, changedById: actor.userId, changeType: edit.kind === 'create' ? 'CREATE' : edit.kind === 'remove' ? 'DELETE' : 'UPDATE', message: `עדכון טיוטה: ${edit.kind}`, beforeData: JSON.parse(JSON.stringify(before)), afterData: JSON.parse(JSON.stringify(data.assignments)) } });
-    return { scheduleId };
+    const details = loadedScheduleDetails(data);
+    await tx.schedule.update({ where: { id: version.id }, data: { revision: { increment: 1 } } });
+    await tx.scheduleChange.create({ data: { facilityId: actor.facilityId, scheduleId, changedById: actor.userId, changeType: edit.kind === 'create' ? 'CREATE' : edit.kind === 'remove' ? 'DELETE' : 'UPDATE', reason: `עדכון טיוטה: ${edit.kind}`, beforeData: JSON.parse(JSON.stringify(before)), afterData: JSON.parse(JSON.stringify(data.assignments)) } });
+    return { scheduleId, revision: version.revision + 1, versionId: version.id,
+      assignments: details.assignments, warnings: details.warnings, fairness: details.fairness };
   });
 }
 
 async function scheduleForAssignment(assignmentId: string) {
   const { facilityId } = await requireManager();
-  const assignment = await prisma.shiftAssignment.findFirst({ where: { id: assignmentId, facilityId }, select: { scheduleId: true } });
+  const assignment = await prisma.scheduleSlot.findFirst({ where: { id: assignmentId, facilityId }, select: { scheduleId: true } });
   if (!assignment) throw new Error('השיבוץ לא נמצא');
   return assignment.scheduleId;
 }

@@ -1,13 +1,14 @@
-import { periodScheduleStatus, PeriodScheduleStatus } from '@/features/schedules/period-status';
+import { periodScheduleStatus } from '@/features/schedules/period-status';
 import { PortalRole } from '@/lib/auth/portal';
 import { prisma } from '@/lib/db/client';
 import type { PeriodSummary } from '@/features/periods/types';
 import { getScheduleWarnings } from '@/features/schedules/assignments/queries';
 import { parseISODateToUtcMidnight, todayUtcDateForTimeZone } from '@/features/periods/utils';
-import type { ManagerDashboardData, MissingEmployee, ScheduleSnapshot } from './types';
+import type { ManagerDashboardData, ScheduleSnapshot } from './types';
 import { requireSession } from '@/lib/db/auth-helpers';
 
 const SCHEDULE_TIME_ZONE = 'Asia/Jerusalem';
+const staffedUser = { role: { rank: { not: 1 } } };
 
 export type StaffPositionCount = {
   name: string;
@@ -24,66 +25,59 @@ function yearDateRange(year: number) {
 function toScheduleSnapshot(
   schedule: {
     id: string;
-    archivedAt: Date | null;
-    versions: { status: 'DRAFT' | 'PUBLISHED' | 'ARCHIVED'; isActive: boolean }[];
-    period: {
-      name: string;
-      submissionState: 'SCHEDULED' | 'OPEN' | 'CLOSED';
-      startDate: Date;
-      endDate: Date;
-      submissionDeadline?: Date;
-    };
+    name: string;
+    status: 'DRAFT' | 'PUBLISHED' | 'ARCHIVED';
+    startDate: Date;
+    endDate: Date;
+    submissionOpensAt: Date;
+    submissionClosesAt: Date;
   },
   extras?: {
     submittedCount?: number;
     totalEmployees?: number;
-    missingEmployees?: MissingEmployee[];
+    missingEmployees?: ManagerDashboardData['submissionSummary'] extends infer T ? T extends { missingEmployees: infer M } ? M : never : never;
   },
 ): ScheduleSnapshot {
   return {
     id: schedule.id,
-    name: schedule.period.name,
-    startDate: schedule.period.startDate.toISOString().slice(0, 10),
-    endDate: schedule.period.endDate.toISOString().slice(0, 10),
-    status: periodScheduleStatus({
-      archivedAt: schedule.archivedAt,
-      submissionState: schedule.period.submissionState,
-      versions: schedule.versions,
-    }),
-    submissionDeadline: schedule.period.submissionDeadline?.toISOString(),
+    name: schedule.name,
+    startDate: schedule.startDate.toISOString().slice(0, 10),
+    endDate: schedule.endDate.toISOString().slice(0, 10),
+    status: periodScheduleStatus(schedule),
+    submissionDeadline: schedule.submissionClosesAt.toISOString(),
     ...extras,
   };
 }
 
-async function getSubmissionData(periodId: string, facilityId: string) {
+async function getSubmissionData(scheduleId: string, facilityId: string) {
   const [submittedSubmissions, totalEmployees, employees] = await Promise.all([
     prisma.availabilitySubmission.findMany({
       where: {
-        periodId,
-        isSubmitted: true,
-        employee: { facilityId, isActive: true, primaryShiftRole: { code: { not: 1 } } },
+        scheduleId,
+        submittedAt: { not: null },
+        user: { facilityId, ...staffedUser },
       },
-      select: { employeeId: true },
+      select: { userId: true },
     }),
-    prisma.employee.count({ where: { facilityId, isActive: true, primaryShiftRole: { code: { not: 1 } } } }),
-    prisma.employee.findMany({
-      where: { facilityId, isActive: true, primaryShiftRole: { code: { not: 1 } } },
+    prisma.user.count({ where: { facilityId, ...staffedUser } }),
+    prisma.user.findMany({
+      where: { facilityId, ...staffedUser },
       select: {
         id: true,
         displayName: true,
-        primaryShiftRole: { select: { name: true } },
+        role: { select: { name: true } },
       },
       orderBy: [{ displayName: 'asc' }],
     }),
   ]);
 
-  const submittedIds = new Set(submittedSubmissions.map((s) => s.employeeId));
+  const submittedIds = new Set(submittedSubmissions.map((s) => s.userId));
   const missingEmployees = employees
     .filter((employee) => !submittedIds.has(employee.id))
     .map((employee) => ({
       id: employee.id,
       displayName: employee.displayName,
-      positionName: employee.primaryShiftRole.name,
+      positionName: employee.role.name,
     }));
 
   return {
@@ -96,26 +90,18 @@ async function getSubmissionData(periodId: string, facilityId: string) {
 export async function getStaffCountsByPosition(facilityId: string): Promise<StaffPositionCount[]> {
   if (!facilityId) return [];
 
-  const positions = await prisma.shiftRole.findMany({
-    where: {
-      facilityId,
-      isActive: true,
-    },
+  const roles = await prisma.role.findMany({
     select: {
       name: true,
-      code: true,
-      _count: {
-        select: {
-          primaryEmployees: { where: { isActive: true } },
-        },
-      },
+      rank: true,
+      _count: { select: { users: { where: { facilityId } } } },
     },
-    orderBy: { code: 'asc' },
+    orderBy: { rank: 'asc' },
   });
 
-  return positions.map((p) => ({
-    name: p.name,
-    count: p._count.primaryEmployees,
+  return roles.map((role) => ({
+    name: role.name,
+    count: role._count.users,
   }));
 }
 
@@ -125,45 +111,32 @@ export async function getSchedulesForYear(facilityId: string, year: number): Pro
   const { start, end } = yearDateRange(year);
 
   const [schedules, totalEmployees] = await Promise.all([
-    prisma.roster.findMany({
+    prisma.schedule.findMany({
       where: {
         facilityId,
-        period: {
-          startDate: { lte: end },
-          endDate: { gte: start },
-        },
+        startDate: { lte: end },
+        endDate: { gte: start },
       },
-      orderBy: { period: { startDate: 'asc' } },
+      orderBy: { startDate: 'asc' },
       include: {
-        versions: { select: { status: true, isActive: true } },
-        period: {
-          include: {
-            _count: {
-              select: {
-                availabilitySubmissions: { where: { isSubmitted: true, employee: { primaryShiftRole: { code: { not: 1 } } } } },
-              },
-            },
+        _count: {
+          select: {
+            submissions: { where: { submittedAt: { not: null }, user: staffedUser } },
           },
         },
       },
     }),
-    prisma.employee.count({
-      where: { facilityId, isActive: true, primaryShiftRole: { code: { not: 1 } } },
-    }),
+    prisma.user.count({ where: { facilityId, ...staffedUser } }),
   ]);
 
   return schedules.map((schedule) => ({
     id: schedule.id,
-    name: schedule.period.name,
-    startDate: schedule.period.startDate.toISOString().slice(0, 10),
-    endDate: schedule.period.endDate.toISOString().slice(0, 10),
-    submissionDeadline: schedule.period.submissionDeadline.toISOString(),
-    status: periodScheduleStatus({
-      archivedAt: schedule.archivedAt,
-      submissionState: schedule.period.submissionState,
-      versions: schedule.versions,
-    }),
-    submittedCount: schedule.period._count.availabilitySubmissions,
+    name: schedule.name,
+    startDate: schedule.startDate.toISOString().slice(0, 10),
+    endDate: schedule.endDate.toISOString().slice(0, 10),
+    submissionDeadline: schedule.submissionClosesAt.toISOString(),
+    status: periodScheduleStatus(schedule),
+    submittedCount: schedule._count.submissions,
     totalEmployees,
   }));
 }
@@ -187,27 +160,22 @@ export async function getManagerDashboardData(year: number): Promise<ManagerDash
 
   const [byPosition, totalActive, yearSchedules, activeRow, draftRow] = await Promise.all([
     getStaffCountsByPosition(facilityId),
-    prisma.employee.count({ where: { facilityId, isActive: true } }),
+    prisma.user.count({ where: { facilityId } }),
     getSchedulesForYear(facilityId, year),
-    prisma.roster.findFirst({
+    prisma.schedule.findFirst({
       where: {
         facilityId,
-        archivedAt: null,
-        versions: { some: { status: 'PUBLISHED', isActive: true } },
-        period: { endDate: { gte: today } },
+        status: 'PUBLISHED',
+        endDate: { gte: today },
       },
-      include: { period: true, versions: { select: { status: true, isActive: true } } },
-      orderBy: { period: { startDate: 'desc' } },
+      orderBy: { startDate: 'desc' },
     }),
-    prisma.roster.findFirst({
+    prisma.schedule.findFirst({
       where: {
         facilityId,
-        archivedAt: null,
-        versions: { none: { status: 'PUBLISHED', isActive: true } },
-        period: { submissionState: { in: ['SCHEDULED', 'OPEN'] } },
+        status: 'DRAFT',
       },
-      include: { period: true, versions: { select: { status: true, isActive: true } } },
-      orderBy: { period: { startDate: 'desc' } },
+      orderBy: { startDate: 'desc' },
     }),
   ]);
 
@@ -217,7 +185,7 @@ export async function getManagerDashboardData(year: number): Promise<ManagerDash
   let submissionSummary: ManagerDashboardData['submissionSummary'] = null;
 
   if (draftRow) {
-    const submission = await getSubmissionData(draftRow.periodId, facilityId);
+    const submission = await getSubmissionData(draftRow.id, facilityId);
     draftSchedule = toScheduleSnapshot(draftRow, submission);
     submissionSummary = {
       submittedCount: submission.submittedCount,

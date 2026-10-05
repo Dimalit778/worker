@@ -31,17 +31,17 @@ const POSITION = "pos1";
 
 // Provides 1 MORNING and 1 EVENING slot per day (across day categories).
 const BASE_CAPACITIES: EngineCapacity[] = [
-  { positionId: POSITION, shiftType: "MORNING", requiredCapability: "GUARD", dayCategory: "WEEKDAY", amount: 1 },
-  { positionId: POSITION, shiftType: "EVENING", requiredCapability: "GUARD", dayCategory: "WEEKDAY", amount: 1 },
-  { positionId: POSITION, shiftType: "MORNING", requiredCapability: "GUARD", dayCategory: "FRIDAY", amount: 1 },
-  { positionId: POSITION, shiftType: "EVENING", requiredCapability: "GUARD", dayCategory: "FRIDAY", amount: 1 },
-  { positionId: POSITION, shiftType: "MORNING", requiredCapability: "GUARD", dayCategory: "SATURDAY", amount: 1 },
+  { positionId: POSITION, shiftType: "MORNING", requiredRank: 1, dayCategory: "WEEKDAY", amount: 1 },
+  { positionId: POSITION, shiftType: "EVENING", requiredRank: 1, dayCategory: "WEEKDAY", amount: 1 },
+  { positionId: POSITION, shiftType: "MORNING", requiredRank: 1, dayCategory: "FRIDAY", amount: 1 },
+  { positionId: POSITION, shiftType: "EVENING", requiredRank: 1, dayCategory: "FRIDAY", amount: 1 },
+  { positionId: POSITION, shiftType: "MORNING", requiredRank: 1, dayCategory: "SATURDAY", amount: 1 },
 ];
 
 // ─── Fixture builders ─────────────────────────────────────────────────────────
 
 function emp(id: string): EngineEmployee {
-  return { id, facilityId: COURT, positionId: POSITION, capability: "GUARD", isActive: true };
+  return { id, facilityId: COURT, positionId: POSITION, rank: 1, isActive: true };
 }
 
 function availAll(employeeId: string, dates: Date[]): Map<string, Set<string>> {

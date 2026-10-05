@@ -124,8 +124,8 @@ export function violatesRestRule(
   return false;
 }
 
-// H4 + H5 + H7 — Employee belongs to the same court, has sufficient capability,
-// and is active.
+// H4 + H5 + H7 — Employee belongs to the same facility, has a high enough
+// rank for the slot's required role, and is active.
 export function isEligibleForSlot(
   employee: EngineEmployee,
   slot: EngineSlot
@@ -133,7 +133,7 @@ export function isEligibleForSlot(
   return (
     employee.isActive &&
     employee.facilityId === slot.facilityId &&
-    canEmployeeFillPosition(employee.capability, slot.requiredCapability)
+    canEmployeeFillPosition(employee.rank, slot.requiredRank)
   );
 }
 

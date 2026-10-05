@@ -1,7 +1,6 @@
 import { prisma } from '@/lib/db/client';
 import { ScheduleChangeType } from '@/generated/prisma/client';
 
-
 export type ScheduleChangeLogEntry = {
   id: string;
   createdAt: Date;
@@ -19,22 +18,16 @@ export type ScheduleChangeLogGroup = {
 };
 
 export async function getScheduleChangeLog(scheduleId: string, facilityId: string): Promise<ScheduleChangeLogEntry[]> {
-  const rows = await prisma.scheduleChangeLog.findMany({
-    where: { scheduleId, schedule: { facilityId } },
+  const rows = await prisma.scheduleChange.findMany({
+    where: { scheduleId, facilityId },
     orderBy: { createdAt: 'desc' },
     select: {
       id: true,
       createdAt: true,
       changeType: true,
-      message: true,
       reason: true,
-      version: { select: { version: true } },
-      changedBy: {
-        select: {
-          email: true,
-          employee: { select: { displayName: true } },
-        },
-      },
+      schedule: { select: { revision: true } },
+      changedBy: { select: { displayName: true } },
     },
   });
 
@@ -42,29 +35,24 @@ export async function getScheduleChangeLog(scheduleId: string, facilityId: strin
     id: row.id,
     createdAt: row.createdAt,
     changeType: row.changeType,
-    message: row.message,
+    message: row.reason,
     reason: row.reason,
-    versionNumber: row.version?.version ?? null,
-    changedByName: row.changedBy.employee?.displayName ?? row.changedBy.email,
+    versionNumber: row.schedule.revision,
+    changedByName: row.changedBy.displayName,
   }));
 }
 
-/** All retained schedule history for the court, including completed/archived periods. */
 export async function getActiveAndUpcomingScheduleChangeLogs(facilityId: string): Promise<ScheduleChangeLogGroup[]> {
-
-  const schedules = await prisma.roster.findMany({
-    where: {
-      facilityId,
-      changeLogs: { some: {} },
-    },
-    select: { id: true, period: { select: { name: true, startDate: true } } },
-    orderBy: { period: { startDate: 'asc' } },
+  const schedules = await prisma.schedule.findMany({
+    where: { facilityId, changes: { some: {} } },
+    select: { id: true, name: true, startDate: true },
+    orderBy: { startDate: 'asc' },
   });
 
   const groups = await Promise.all(
     schedules.map(async (schedule) => ({
       scheduleId: schedule.id,
-      scheduleName: schedule.period.name,
+      scheduleName: schedule.name,
       entries: await getScheduleChangeLog(schedule.id, facilityId),
     })),
   );

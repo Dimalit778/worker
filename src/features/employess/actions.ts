@@ -3,7 +3,7 @@ import { periodScheduleStatus } from '@/features/schedules/period-status';
 import { PortalRole } from '@/lib/auth/portal';
 
 import bcrypt from 'bcryptjs';
-import { SystemRole, Capability } from '@/generated/prisma/client';
+import { SystemRole } from '@/generated/prisma/client';
 import { prisma } from '@/lib/db/client';
 import { requireSession } from '@/lib/db/auth-helpers';
 import type {
@@ -37,9 +37,8 @@ export async function createEmployee(params: CreateEmployeeParams): Promise<{ ok
     return { error: 'מייל לא תקין' };
   }
 
-  if (!params.capability || !Object.values(Capability).includes(params.capability)) return { error: 'יש לבחור כשירות' };
-  const position = await prisma.shiftRole.findFirst({ where: { id: positionId, facilityId, isActive: true } });
-  if (!position) return { error: 'התפקיד אינו שייך למתקן' };
+  const role = await prisma.role.findUnique({ where: { id: positionId } });
+  if (!role) return { error: 'התפקיד אינו שייך למתקן' };
   const initialPassword = getInitialPasswordFromEmail(email);
   const passwordHash = await bcrypt.hash(initialPassword, 12);
 
@@ -54,27 +53,19 @@ export async function createEmployee(params: CreateEmployeeParams): Promise<{ ok
         throw new Error('USER_EMAIL_EXISTS');
       }
 
-      const employee = await tx.employee.create({
-        data: {
-          firstName,
-          lastName,
-          displayName,
-          phone,
-          primaryShiftRoleId: positionId,
-          capability: params.capability,
-          facilityId,
-          isActive: true,
-          isReligious,
-        },
-      });
-
       await tx.user.create({
         data: {
           email,
           passwordHash,
           systemRole: SystemRole.USER,
-          mustChangePassword: true,
-          employeeId: employee.id,
+          firstName,
+          lastName,
+          displayName,
+          phoneNumber: phone,
+          roleId: role.id,
+          facilityId,
+          canEditSchedule: role.rank === 1,
+          isReligious,
         },
       });
     });
@@ -95,15 +86,14 @@ export async function updateEmployee(params: UpdateEmployeeParams): Promise<{ ok
 
   const { employeeId, firstName, lastName, phone, displayName, isReligious, positionId, isActive } = params;
 
-  const employee = await prisma.employee.findFirst({
+  const employee = await prisma.user.findFirst({
     where: { id: employeeId, facilityId: facilityId ?? '' },
   });
   if (!employee) return { error: 'מאבטח לא נמצא' };
 
-  if (!params.capability || !Object.values(Capability).includes(params.capability)) return { error: 'יש לבחור כשירות' };
-  await prisma.employee.update({
+  await prisma.user.update({
     where: { id: employeeId },
-    data: { firstName, lastName, phone, displayName, isReligious, primaryShiftRoleId: positionId, isActive, capability: params.capability },
+    data: { firstName, lastName, phoneNumber: phone, displayName, isReligious, roleId: positionId },
   });
 
   return { ok: true };
@@ -113,16 +103,12 @@ export async function deleteEmployee(employeeId: string): Promise<{ ok: true } |
   const session = await requireSession(PortalRole.MANAGER);
   const facilityId = session.user.facilityId;
 
-  const employee = await prisma.employee.findFirst({
+  const employee = await prisma.user.findFirst({
     where: { id: employeeId, facilityId: facilityId ?? '' },
   });
   if (!employee) return { error: 'עובד לא נמצא' };
 
-  await prisma.$transaction(async (tx) => {
-    await tx.employee.update({ where: { id: employeeId }, data: { isActive: false } });
-  });
-
-  return { ok: true };
+  return { error: 'לא ניתן להשבית עובד במודל הנוכחי' };
 }
 
 export async function getEmployeesPageData(facilityId?: string): Promise<EmployeesPageData> {
@@ -150,63 +136,48 @@ export async function getEmployeesPageData(facilityId?: string): Promise<Employe
   }
 
   const [employees, positions] = await Promise.all([
-    prisma.employee.findMany({
+    prisma.user.findMany({
       where: { facilityId: targetCourtId },
       select: {
         id: true,
-        capability: true,
-      firstName: true,
+        firstName: true,
         lastName: true,
-        phone: true,
+        phoneNumber: true,
+        email: true,
         displayName: true,
         isReligious: true,
-        isActive: true,
-        primaryShiftRole: {
+        role: {
           select: {
             id: true,
             name: true,
-            code: true,
-          },
-        },
-        user: {
-          select: {
-            email: true,
+            rank: true,
           },
         },
       },
-      orderBy: [{ primaryShiftRole: { code: 'asc' } }, { displayName: 'asc' }],
+      orderBy: [{ role: { rank: 'asc' } }, { displayName: 'asc' }],
     }),
 
-    prisma.shiftRole.findMany({
-      where: {
-        facilityId: targetCourtId,
-        isActive: true,
-      },
+    prisma.role.findMany({
       select: {
         id: true,
         name: true,
-        code: true,
+        rank: true,
       },
-      orderBy: [{ code: 'asc' }, { createdAt: 'asc' }],
+      orderBy: [{ rank: 'asc' }],
     }),
   ]);
 
   return {
     employees: employees.map((employee) => ({
       id: employee.id,
-      capability: employee.capability,
       firstName: employee.firstName,
       lastName: employee.lastName,
-      phone: employee.phone,
-      email: employee.user?.email ?? '',
+      phone: employee.phoneNumber,
+      email: employee.email,
       displayName: employee.displayName,
       isReligious: employee.isReligious,
-      isActive: employee.isActive,
-      position: {
-        id: employee.primaryShiftRole.id,
-        name: employee.primaryShiftRole.name,
-        code: employee.primaryShiftRole.code,
-      },
+      isActive: true,
+      position: employee.role,
     })),
     positions,
   };
@@ -217,25 +188,22 @@ export async function getManagerEmployeeDetail(employeeId: string): Promise<Empl
   const facilityId = session.user.facilityId;
   if (!facilityId) return { error: 'למנהל אין בית משפט משויך' };
 
-  const employee = await prisma.employee.findFirst({
+  const employee = await prisma.user.findFirst({
     where: { id: employeeId, facilityId },
     select: {
       id: true,
-      capability: true,
       firstName: true,
       lastName: true,
       displayName: true,
-      phone: true,
-      isActive: true,
+      phoneNumber: true,
       isReligious: true,
       createdAt: true,
       updatedAt: true,
-      primaryShiftRole: {
+      role: {
         select: {
           id: true,
           name: true,
-          code: true,
-          isActive: true,
+          rank: true,
         },
       },
       facility: {
@@ -250,86 +218,37 @@ export async function getManagerEmployeeDetail(employeeId: string): Promise<Empl
           },
         },
       },
-      user: {
-        select: {
-          id: true,
-          email: true,
-          mustChangePassword: true,
-          createdAt: true,
-          updatedAt: true,
-        },
-      },
+      email: true,
     },
   });
 
-  if (!employee) return { error: 'עובד לא נמצא' };
+  if (!employee || !employee.facility) return { error: 'עובד לא נמצא' };
 
   const [
     submittedCount,
     totalAvailabilityRecords,
     selectedSlots,
     assignments,
-    manualAssignments,
-    warnings,
-    fairnessRecordCount,
     recentAssignments,
-    fairnessRecords,
   ] = await Promise.all([
-    prisma.availabilitySubmission.count({ where: { employeeId, isSubmitted: true } }),
-    prisma.availabilitySubmission.count({ where: { employeeId } }),
+    prisma.availabilitySubmission.count({ where: { userId: employeeId, submittedAt: { not: null } } }),
+    prisma.availabilitySubmission.count({ where: { userId: employeeId } }),
     prisma.shiftAvailability.count({
       where: {
-        submission: { employeeId },
+        submission: { userId: employeeId },
       },
     }),
-    prisma.shiftAssignment.count({ where: { employeeId, facilityId, version: { status: 'PUBLISHED', isActive: true } } }),
-    Promise.resolve(0),
-    prisma.scheduleWarning.count({ where: { employeeId, facilityId, version: { status: 'PUBLISHED', isActive: true } } }),
-    prisma.employeeScheduleStats.count({ where: { employeeId, version: { status: 'PUBLISHED', isActive: true } } }),
-    prisma.shiftAssignment.findMany({
-      where: { employeeId, facilityId, version: { status: 'PUBLISHED', isActive: true } },
+    prisma.scheduleSlot.count({ where: { userId: employeeId, facilityId, schedule: { status: 'PUBLISHED' } } }),
+    prisma.scheduleSlot.findMany({
+      where: { userId: employeeId, facilityId, schedule: { status: 'PUBLISHED' } },
       orderBy: { date: 'desc' },
       take: 8,
       select: {
         id: true,
         date: true,
         shiftType: true,
-        shiftRole: {
-          select: {
-            name: true,
-          },
-        },
-        schedule: {
-          select: {
-            period: {
-              select: {
-                name: true,
-              },
-            },
-          },
-        },
-      },
-    }),
-    prisma.employeeScheduleStats.findMany({
-      where: { employeeId, version: { status: 'PUBLISHED', isActive: true } },
-      orderBy: { schedule: { period: { startDate: 'desc' } } },
-      take: 6,
-      select: {
-        id: true,
-        totalShifts: true,
-        morningShifts: true,
-        eveningShifts: true,
-        nightShifts: true,
-        weekendShifts: true,
-        schedule: {
-          select: {
-            period: {
-              select: {
-                name: true,
-              },
-            },
-          },
-        },
+        position: { select: { name: true } },
+        schedule: { select: { name: true } },
       },
     }),
   ]);
@@ -337,59 +256,48 @@ export async function getManagerEmployeeDetail(employeeId: string): Promise<Empl
   return {
     employee: {
       id: employee.id,
-      capability: employee.capability,
       firstName: employee.firstName,
       lastName: employee.lastName,
       displayName: employee.displayName,
-      phone: employee.phone,
-      email: employee.user?.email ?? '',
-      isActive: employee.isActive,
+      phone: employee.phoneNumber,
+      email: employee.email,
+      isActive: true,
       isReligious: employee.isReligious,
       createdAt: employee.createdAt.toISOString(),
       updatedAt: employee.updatedAt.toISOString(),
-      position: employee.primaryShiftRole,
+      position: { ...employee.role, isActive: true },
       court: {
         id: employee.facility.id,
         name: employee.facility.name,
         code: employee.facility.code,
         regionName: employee.facility.district.name,
       },
-      user: employee.user
-        ? {
-            id: employee.user.id,
-            email: employee.user.email,
-            mustChangePassword: employee.user.mustChangePassword,
-            createdAt: employee.user.createdAt.toISOString(),
-            updatedAt: employee.user.updatedAt.toISOString(),
-          }
-        : null,
+      user: {
+        id: employee.id,
+        email: employee.email,
+        mustChangePassword: false,
+        createdAt: employee.createdAt.toISOString(),
+        updatedAt: employee.updatedAt.toISOString(),
+      },
     },
     stats: {
       submissions: submittedCount,
       totalAvailabilityRecords,
       selectedSlots,
       assignments,
-      manualAssignments,
-      warnings,
-      fairnessRecords: fairnessRecordCount,
+      manualAssignments: 0,
+      warnings: 0,
+      fairnessRecords: 0,
     },
     recentAssignments: recentAssignments.map((assignment) => ({
       id: assignment.id,
       date: assignment.date.toISOString().slice(0, 10),
       shiftType: assignment.shiftType,
       isManualOverride: false,
-      positionName: assignment.shiftRole.name,
-      periodName: assignment.schedule.period.name,
+      positionName: assignment.position.name,
+      periodName: assignment.schedule.name,
     })),
-    fairnessRecords: fairnessRecords.map((record) => ({
-      id: record.id,
-      periodName: record.schedule.period.name,
-      totalShifts: record.totalShifts,
-      morningShifts: record.morningShifts,
-      eveningShifts: record.eveningShifts,
-      nightShifts: record.nightShifts,
-      weekendShifts: record.weekendShifts,
-    })),
+    fairnessRecords: [],
   };
 }
 
@@ -398,16 +306,14 @@ export async function getManagerEmployeeSubmissions(employeeId: string): Promise
   const facilityId = session.user.facilityId;
   if (!facilityId) return { error: 'למנהל אין בית משפט משויך' };
 
-  const employee = await prisma.employee.findFirst({
+  const employee = await prisma.user.findFirst({
     where: { id: employeeId, facilityId },
     select: {
       id: true,
-      capability: true,
       firstName: true,
       lastName: true,
       displayName: true,
-      isActive: true,
-      primaryShiftRole: {
+      role: {
         select: {
           name: true,
         },
@@ -417,30 +323,24 @@ export async function getManagerEmployeeSubmissions(employeeId: string): Promise
 
   if (!employee) return { error: 'עובד לא נמצא' };
 
-  const periods = await prisma.roster.findMany({
+  const periods = await prisma.schedule.findMany({
     where: { facilityId },
-    orderBy: { period: { startDate: 'desc' } },
+    orderBy: { startDate: 'desc' },
     select: {
       id: true,
-      archivedAt: true,
-      versions: { select: { status: true, isActive: true } },
-      period: {
+      name: true,
+      status: true,
+      startDate: true,
+      endDate: true,
+      submissionOpensAt: true,
+      submissionClosesAt: true,
+      submissions: {
+        where: { userId: employeeId },
+        take: 1,
         select: {
-          name: true,
-          submissionState: true,
-          startDate: true,
-          endDate: true,
-          submissionDeadline: true,
-          availabilitySubmissions: {
-            where: { employeeId },
-            take: 1,
-            select: {
-              id: true,
-              isSubmitted: true,
-              submittedAt: true,
-              shiftAvailabilities: true,
-            },
-          },
+          id: true,
+          submittedAt: true,
+          availabilities: true,
         },
       },
     },
@@ -450,15 +350,14 @@ export async function getManagerEmployeeSubmissions(employeeId: string): Promise
     employee: {
       id: employee.id,
       displayName: employee.displayName,
-      capability: employee.capability,
       firstName: employee.firstName,
       lastName: employee.lastName,
-      positionName: employee.primaryShiftRole.name,
-      isActive: employee.isActive,
+      positionName: employee.role.name,
+      isActive: true,
     },
     periods: periods.map((period) => {
-      const availability = period.period.availabilitySubmissions[0] ?? null;
-      const shifts = availability?.shiftAvailabilities ?? [];
+      const availability = period.submissions[0] ?? null;
+      const shifts = availability?.availabilities ?? [];
       const entries = availabilityPreferencesToRecord(
         shifts.map((shift) => ({
           date: shift.date,
@@ -470,17 +369,13 @@ export async function getManagerEmployeeSubmissions(employeeId: string): Promise
 
       return {
         id: period.id,
-        name: period.period.name,
-        startDate: period.period.startDate.toISOString().slice(0, 10),
-        endDate: period.period.endDate.toISOString().slice(0, 10),
-        submissionDeadline: period.period.submissionDeadline.toISOString(),
-        status: periodScheduleStatus({
-          archivedAt: period.archivedAt,
-          submissionState: period.period.submissionState,
-          versions: period.versions,
-        }),
+        name: period.name,
+        startDate: period.startDate.toISOString().slice(0, 10),
+        endDate: period.endDate.toISOString().slice(0, 10),
+        submissionDeadline: period.submissionClosesAt.toISOString(),
+        status: periodScheduleStatus(period),
         availabilityId: availability?.id ?? null,
-        isSubmitted: availability?.isSubmitted ?? false,
+        isSubmitted: availability?.submittedAt != null,
         submittedAt: availability?.submittedAt?.toISOString() ?? null,
         entries,
         selectedSlotCount: countAvailableEntries(entries),

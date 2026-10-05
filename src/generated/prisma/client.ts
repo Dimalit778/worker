@@ -58,96 +58,67 @@ export type Session = Prisma.SessionModel
 export type VerificationToken = Prisma.VerificationTokenModel
 /**
  * Model User
- * חשבון כניסה. שיוך לעובד והרשאות ניהול במתקן הם קשרים נפרדים.
+ * עובד במתקן אחד. דירוג נגזר מהתפקיד ואינו נשמר בשדה נוסף.
  */
 export type User = Prisma.UserModel
 /**
- * Model UserFacilityRole
- * תפקיד הרשאה של משתמש במתקן; אינו כשירות לעבודה במשמרת.
+ * Model Role
+ * תפקיד משותף: קצין=1, אחמש=2, בקר=3, מאבטח=4. מספר קטן יותר מציין דרגה גבוהה יותר.
  */
-export type UserFacilityRole = Prisma.UserFacilityRoleModel
-/**
- * Model UserPermission
- * חריג הרשאה אישי. נשמר לתמיכה במנגנון ההרשאות הקיים.
- */
-export type UserPermission = Prisma.UserPermissionModel
+export type Role = Prisma.RoleModel
 /**
  * Model District
- * מחוז שמאגד מתקנים.
+ * 
  */
 export type District = Prisma.DistrictModel
 /**
  * Model Facility
- * מתקן שבו עובדים, מגישים זמינות ומפרסמים סידורי עבודה.
+ * 
  */
 export type Facility = Prisma.FacilityModel
 /**
- * Model Employee
- * עובד במתקן יחיד. capability מגדיר לאילו תפקידים במשמרת הוא כשיר.
+ * Model FacilityShift
+ * 
  */
-export type Employee = Prisma.EmployeeModel
+export type FacilityShift = Prisma.FacilityShiftModel
 /**
- * Model ShiftRole
- * תפקיד במשמרת עם כשירות נדרשת; עשוי לשמש גם כתפקיד ראשי ברשומת עובד.
+ * Model Position
+ * ארבע עמדות בסיס משותפות לכל המתקנים; עמדות נוספות שייכות למתקן אחד.
+ * Base positions cannot be removed; deactivate custom positions instead of deleting history.
  */
-export type ShiftRole = Prisma.ShiftRoleModel
+export type Position = Prisma.PositionModel
 /**
  * Model StaffingRequirement
- * מספר עובדים נדרש לפי מתקן, תפקיד, סוג משמרת וסוג יום.
+ * תבנית מספר המקומות הדרושים; מועתקת למקומות בעת יצירת סידור.
  */
 export type StaffingRequirement = Prisma.StaffingRequirementModel
 /**
+ * Model Schedule
+ * 
+ */
+export type Schedule = Prisma.ScheduleModel
+/**
+ * Model ScheduleSlot
+ * 
+ */
+export type ScheduleSlot = Prisma.ScheduleSlotModel
+/**
  * Model AvailabilitySubmission
- * הגשת זמינות אחת לעובד ולתקופה; isSubmitted מבדיל טיוטה מהגשה שנשלחה.
+ * הגשה אחת לעובד ולסידור. submittedAt ריק = טיוטה.
  */
 export type AvailabilitySubmission = Prisma.AvailabilitySubmissionModel
 /**
  * Model ShiftAvailability
- * בחירת זמינות אחת בתוך הגשה: תאריך, סוג משמרת וזמין/מועדף/לא זמין.
+ * זמינות לסוג משמרת בתאריך מסוים; העדר בחירה אינו נחשב זמינות.
  */
 export type ShiftAvailability = Prisma.ShiftAvailabilityModel
 /**
- * Model SchedulePeriod
- * תאריכי העבודה וחלון ההגשות במתקן. משותף להגשות העובדים ולסידור העבודה.
+ * Model ScheduleChange
+ * היסטוריה שנכתבת באותה טרנזקציה עם השינוי. אין למחוק או לערוך אירועים.
  */
-export type SchedulePeriod = Prisma.SchedulePeriodModel
-/**
- * Model Roster
- * סידור העבודה של תקופה אחת. מרכז גרסאות; הפרסום נשמר בגרסה בלבד.
- */
-export type Roster = Prisma.RosterModel
-/**
- * Model RosterVersion
- * גרסת טיוטה או פרסום. version הוא מספר הגרסה; revision מונע דריסת עריכות.
- */
-export type RosterVersion = Prisma.RosterVersionModel
-/**
- * Model ShiftAssignment
- * איוש: עובד בתאריך, במשמרת ובתפקיד בתוך גרסת סידור מסוימת.
- */
-export type ShiftAssignment = Prisma.ShiftAssignmentModel
-/**
- * Model ScheduleWarning
- * אזהרה מחושבת ששייכת לגרסת סידור מסוימת.
- */
-export type ScheduleWarning = Prisma.ScheduleWarningModel
-/**
- * Model EmployeeScheduleStats
- * מדדי עומס מחושבים לעובד בגרסה אחת; אינם רישום נוכחות בפועל.
- */
-export type EmployeeScheduleStats = Prisma.EmployeeScheduleStatsModel
-/**
- * Model ScheduleChangeLog
- * אירוע בהיסטוריית הסידור: מי שינה, הסיבה והנתונים לפני ואחרי.
- */
-export type ScheduleChangeLog = Prisma.ScheduleChangeLogModel
-/**
- * Model Holiday
- * חג או יום מיוחד המשפיע על סיווג היום לצורך השיבוץ.
- */
-export type Holiday = Prisma.HolidayModel
+export type ScheduleChange = Prisma.ScheduleChangeModel
 /**
  * Model SystemSetting
- * הגדרת מערכת אחת לפי מפתח.
+ * הגדרות מערכת קיימות שאינן חלק ממבנה הסידור.
  */
 export type SystemSetting = Prisma.SystemSettingModel

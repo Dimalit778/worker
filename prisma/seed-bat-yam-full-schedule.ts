@@ -1,12 +1,7 @@
 import { resolve } from 'node:path';
 import { config } from 'dotenv';
 import { PrismaNeon } from '@prisma/adapter-neon';
-import {
-  PrismaClient,
-  DayCategory,
-  ScheduleVersionStatus,
-  ShiftType,
-} from '../src/generated/prisma/client';
+import { PrismaClient, DayCategory, ScheduleStatus, ShiftType } from '../src/generated/prisma/client';
 
 config({ path: resolve(process.cwd(), '.env.local') });
 config({ path: resolve(process.cwd(), '.env') });
@@ -20,7 +15,7 @@ const prisma = new PrismaClient({
   adapter: new PrismaNeon({ connectionString }),
 });
 
-const COURT_CODE = 'BAT_YAM';
+const FACILITY_CODE = 'BAT_YAM';
 
 const DEMO_PERIOD = {
   name: 'אוקטובר 2026 - שיבוץ דמו',
@@ -33,7 +28,7 @@ const SHIFT_TYPES = [ShiftType.MORNING, ShiftType.EVENING, ShiftType.NIGHT] as c
 const DAY_CATEGORIES = [DayCategory.WEEKDAY, DayCategory.FRIDAY, DayCategory.SATURDAY] as const;
 
 /** תקנים עם כוח אדם נדרש — אחמ״ש, בקר, מאבטח */
-const STAFFED_POSITION_CODES = [2, 3, 4] as const;
+const STAFFED_POSITION_RANKS = [2, 3, 4] as const;
 
 type EmployeeRef = { id: string; firstName: string; lastName: string };
 
@@ -64,31 +59,31 @@ function dayCategoryForDate(iso: string): DayCategory {
 async function getStaffedPositions(facilityId: string) {
   const positions = await prisma.shiftRole.findMany({
     where: {
-      facilityId,
+      OR: [{ facilityId }, { facilityId: null }],
       isActive: true,
-      code: { in: [...STAFFED_POSITION_CODES] },
+      rank: { in: [...STAFFED_POSITION_RANKS] },
     },
-    select: { id: true, code: true, name: true },
-    orderBy: { code: 'asc' },
+    select: { id: true, rank: true, name: true },
+    orderBy: { rank: 'asc' },
   });
 
-  if (positions.length !== STAFFED_POSITION_CODES.length) {
+  if (positions.length !== STAFFED_POSITION_RANKS.length) {
     throw new Error(
-      `Expected positions ${STAFFED_POSITION_CODES.join(', ')} for court ${facilityId}. Run prisma/seed.ts first.`,
+      `Expected positions ${STAFFED_POSITION_RANKS.join(', ')} for court ${facilityId}. Run prisma/seed.ts first.`,
     );
   }
 
   return positions;
 }
 
-async function ensureShiftCapacities(facilityId: string, positions: Array<{ id: string; code: number }>) {
+async function ensureShiftCapacities(facilityId: string, positions: Array<{ id: string; rank: number }>) {
   let display = 0;
 
   for (const shiftType of SHIFT_TYPES) {
     for (const dayCategory of DAY_CATEGORIES) {
       for (const position of positions) {
         display += 1;
-        const requiredCount = position.code === 4 ? 2 : 1;
+        const requiredCount = position.rank === 4 ? 2 : 1;
 
         await prisma.staffingRequirement.upsert({
           where: {
@@ -152,12 +147,12 @@ async function deleteExistingSchedules(facilityId: string, startDate: Date, endD
 
 export async function seedBatYamFullSchedule() {
   const court = await prisma.facility.findUnique({
-    where: { code: COURT_CODE },
+    where: { code: FACILITY_CODE },
     select: { id: true, name: true, code: true },
   });
 
   if (!court) {
-    throw new Error(`Court ${COURT_CODE} not found. Run prisma/seed.ts first.`);
+    throw new Error(`Court ${FACILITY_CODE} not found. Run prisma/seed.ts first.`);
   }
 
   const positions = await getStaffedPositions(court.id);
@@ -166,7 +161,7 @@ export async function seedBatYamFullSchedule() {
   const manager = await prisma.user.findFirst({
     where: {
       facilityRoles: { some: { role: 'MANAGER' } },
-      employee: { facilityId: court.id },
+      facilityId: court.id,
     },
     select: { id: true, email: true },
   });
@@ -210,9 +205,9 @@ export async function seedBatYamFullSchedule() {
     },
   });
 
-  const employees = await prisma.employee.findMany({
+  const employees = await prisma.user.findMany({
     where: { facilityId: court.id, isActive: true },
-    include: { primaryShiftRole: { select: { name: true } } },
+    include: { shiftRole: { select: { name: true } } },
   });
 
   if (employees.length === 0) {
@@ -221,7 +216,7 @@ export async function seedBatYamFullSchedule() {
 
   const byPositionName = new Map<string, EmployeeRef[]>();
   for (const employee of employees) {
-    const name = employee.primaryShiftRole.name;
+    const name = employee.shiftRole!.name;
     const list = byPositionName.get(name) ?? [];
     list.push({ id: employee.id, firstName: employee.firstName, lastName: employee.lastName });
     byPositionName.set(name, list);

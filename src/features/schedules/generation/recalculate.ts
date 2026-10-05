@@ -19,11 +19,6 @@ export function analyzeSchedule(input: EngineInput, assignments: EngineAssignmen
   return { fairnessSummary, warnings };
 }
 
-export async function saveScheduleAnalysis(tx: Prisma.TransactionClient, versionId: string, input: EngineInput, assignments: EngineAssignment[]) {
-  const analysis = analyzeSchedule(input, assignments);
-  await tx.scheduleWarning.deleteMany({ where: { versionId } });
-  await tx.employeeScheduleStats.deleteMany({ where: { versionId } });
-  if (analysis.warnings.length) await tx.scheduleWarning.createMany({ data: analysis.warnings.map(w => ({ ...w, versionId, scheduleId: input.scheduleId, facilityId: input.period.facilityId })) });
-  if (analysis.fairnessSummary.size) await tx.employeeScheduleStats.createMany({ data: [...analysis.fairnessSummary.values()].map(f => ({ ...f, versionId, scheduleId: input.scheduleId, totalHours: f.totalShifts * 8 })) });
-  return analysis;
+export async function saveScheduleAnalysis(_tx: Prisma.TransactionClient, _versionId: string, input: EngineInput, assignments: EngineAssignment[]) {
+  return analyzeSchedule(input, assignments);
 }

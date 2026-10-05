@@ -1,4 +1,3 @@
-import type { Capability } from './role-eligibility';
 // Pure TypeScript types for the scheduling engine.
 // No Prisma imports. No runtime logic.
 
@@ -22,7 +21,7 @@ export type OverflowCandidateReason = "CAPACITY_FULL" | "LOWER_SCORE";
 // ─── Input types ─────────────────────────────────────────────────────────────
 
 export interface EngineEmployee {
-  capability: Capability;
+  rank: number;
   id: string;
   positionId: string;
   positionName?: string;
@@ -31,7 +30,7 @@ export interface EngineEmployee {
 }
 
 export interface EngineCapacity {
-  requiredCapability: Capability;
+  requiredRank: number;
   positionId: string;
   positionName?: string;
   shiftType: ShiftType;
@@ -48,6 +47,8 @@ export interface EngineAssignment {
   shiftType: ShiftType;
   slotIndex: number;
   isManualOverride: boolean;
+  /** Persisted origin: manager edits may override submitted availability. */
+  source?: 'MANUAL' | 'AUTOMATIC';
 }
 
 export interface EngineInput {
@@ -76,7 +77,7 @@ export interface EngineInput {
 // ─── Engine working types ─────────────────────────────────────────────────────
 
 export interface EngineSlot {
-  requiredCapability: Capability;
+  requiredRank: number;
   facilityId: string;
   positionId: string;
   positionName?: string;

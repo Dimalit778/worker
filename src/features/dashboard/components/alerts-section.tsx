@@ -13,7 +13,7 @@ type AlertsSectionProps = {
 };
 
 export function AlertsSection({ warnings, submissionSummary, embedded = false }: AlertsSectionProps) {
-  if (!submissionSummary && warnings.length === 0) return null;
+  if (!submissionSummary && !warnings.some((warning) => warning.severity === 'ERROR')) return null;
 
   const stats = submissionSummary ? (
     <ScheduleStats
@@ -31,8 +31,8 @@ export function AlertsSection({ warnings, submissionSummary, embedded = false }:
   return (
     <section className="space-y-3">
       <div>
-        <h2 className="text-lg font-semibold">התראות ומצב הגשות</h2>
-        <p className="text-sm text-muted-foreground">שגיאות, אזהרות ועובדים שלא הגישו זמינות</p>
+        <h2 className="text-lg font-semibold">בעיות ומצב הגשות</h2>
+        <p className="text-sm text-muted-foreground">בעיות ועובדים שלא הגישו זמינות</p>
       </div>
       {stats}
     </section>

@@ -1,10 +1,10 @@
-import { seedCapability } from './seed-capability';
 import { resolve } from 'node:path';
 import { config } from 'dotenv';
 import { PrismaNeon } from '@prisma/adapter-neon';
 import bcrypt from 'bcryptjs';
 import { PrismaClient, SystemRole, ShiftType, DayCategory } from '../src/generated/prisma/client';
 import { BAT_YAM_EMPLOYEES } from './data';
+import { DEFAULT_SHIFT_TIMES } from '../src/features/schedules/shift-times';
 
 config({ path: resolve(process.cwd(), '.env.local') });
 config({ path: resolve(process.cwd(), '.env') });
@@ -26,9 +26,8 @@ type CourtSeed = {
 };
 
 type PositionSeed = {
-  code: number;
+  rank: number;
   name: string;
-  displayOrder: number;
 };
 
 type EmployeeSeed = {
@@ -36,8 +35,8 @@ type EmployeeSeed = {
   lastName: string;
   displayName: string;
   phone?: string;
-  positionCode: number;
-  courtCode: string;
+  positionRank: number;
+  facilityCode: string;
   email: string;
   password: string;
   isReligious?: boolean;
@@ -47,8 +46,8 @@ type EmployeeSeed = {
 };
 
 type StaffingRequirementSeed = {
-  courtCode: string;
-  positionCode: number;
+  facilityCode: string;
+  positionRank: number;
   shiftType: ShiftType;
   dayCategory: DayCategory;
   requiredCount: number;
@@ -71,10 +70,10 @@ const COURTS: CourtSeed[] = [
 ];
 
 const POSITIONS: PositionSeed[] = [
-  { code: 1, name: 'קצין מתקן', displayOrder: 1 },
-  { code: 2, name: 'אחמ״ש', displayOrder: 2 },
-  { code: 3, name: 'בקר', displayOrder: 3 },
-  { code: 4, name: 'מאבטח', displayOrder: 4 },
+  { rank: 1, name: 'קצין מתקן' },
+  { rank: 2, name: 'אחמ״ש' },
+  { rank: 3, name: 'בקר' },
+  { rank: 4, name: 'מאבטח' },
 ];
 
 const EMPLOYEES: EmployeeSeed[] = BAT_YAM_EMPLOYEES;
@@ -86,8 +85,8 @@ const ALL_DAY_CATEGORIES = [
   DayCategory.SATURDAY,
 ] as const;
 
-function defaultRequiredCountForPosition(positionCode: number) {
-  switch (positionCode) {
+function defaultRequiredCountForPosition(positionRank: number) {
+  switch (positionRank) {
     case 2:
       return 2; // אחמ״ש
     case 3:
@@ -103,12 +102,12 @@ const SHIFT_CAPACITIES: StaffingRequirementSeed[] = COURTS.flatMap((court) =>
   ALL_SHIFT_TYPES.flatMap((shiftType) =>
     ALL_DAY_CATEGORIES.flatMap((dayCategory) =>
       POSITIONS.filter((position) => position.name !== 'קצין מתקן').map((position) => ({
-        courtCode: court.code,
-        positionCode: position.code,
+        facilityCode: court.code,
+        positionRank: position.rank,
         shiftType,
         dayCategory,
-        requiredCount: defaultRequiredCountForPosition(position.code),
-        displayOrder: position.displayOrder,
+        requiredCount: defaultRequiredCountForPosition(position.rank),
+        displayOrder: position.rank,
       })),
     ),
   ),
@@ -145,32 +144,29 @@ async function seedRegionsAndCourts() {
         name: court.name,
         code: court.code,
         districtId,
+        shiftTimes: { create: DEFAULT_SHIFT_TIMES },
       },
     });
   }
 }
 
 async function seedPositions() {
-  const courts = await prisma.facility.findMany();
-
-  for (const court of courts) {
-    await prisma.shiftRole.createMany({
-      data: POSITIONS.map((position) => ({
-        facilityId: court.id,
-        code: position.code,
-        requiredCapability: seedCapability(position.code),
-        name: position.name,
-        isActive: true,
-      })),
-    });
-  }
+  // Global roles (facilityId null), shared by all facilities.
+  await prisma.shiftRole.createMany({
+    data: POSITIONS.map((position) => ({
+      facilityId: null,
+      rank: position.rank,
+      name: position.name,
+      isActive: true,
+    })),
+  });
 }
 
 async function seedEmployeesAndUsers() {
   for (const emp of EMPLOYEES) {
     const court = await prisma.facility.findUnique({
       where: {
-        code: emp.courtCode,
+        code: emp.facilityCode,
       },
     });
 
@@ -180,30 +176,16 @@ async function seedEmployeesAndUsers() {
 
     const position = await prisma.shiftRole.findFirst({
       where: {
-        facilityId: court.id,
-        code: emp.positionCode,
+        facilityId: null,
+        rank: emp.positionRank,
       },
     });
 
     if (!position) {
       throw new Error(
-        `Position not found for employee: ${emp.email}. courtCode=${emp.courtCode}, positionCode=${emp.positionCode}`,
+        `Position not found for employee: ${emp.email}. facilityCode=${emp.facilityCode}, positionRank=${emp.positionRank}`,
       );
     }
-
-    const employee = await prisma.employee.create({
-      data: {
-        firstName: emp.firstName,
-        lastName: emp.lastName,
-        displayName: emp.displayName,
-        phone: emp.phone ?? null,
-        primaryShiftRoleId: position.id,
-        capability: seedCapability(emp.positionCode),
-        facilityId: court.id,
-        isActive: true,
-        isReligious: emp.isReligious ?? false,
-      },
-    });
 
     const passwordHash = await bcrypt.hash(emp.password, 10);
 
@@ -214,7 +196,14 @@ async function seedEmployeesAndUsers() {
         systemRole: emp.systemRole ?? SystemRole.USER,
         facilityRoles: emp.isManager ? { create: { facilityId: court.id, role: 'MANAGER' } } : undefined,
         mustChangePassword: emp.mustChangePassword ?? false,
-        employeeId: employee.id,
+        firstName: emp.firstName,
+        lastName: emp.lastName,
+        displayName: emp.displayName,
+        phone: emp.phone ?? null,
+        shiftRoleId: position.id,
+        facilityId: court.id,
+        isActive: true,
+        isReligious: emp.isReligious ?? false,
       },
     });
   }
@@ -224,24 +213,24 @@ async function seedShiftCapacities() {
   for (const capacity of SHIFT_CAPACITIES) {
     const court = await prisma.facility.findUnique({
       where: {
-        code: capacity.courtCode,
+        code: capacity.facilityCode,
       },
     });
 
     if (!court) {
-      throw new Error(`Court not found for shift capacity: ${capacity.courtCode}`);
+      throw new Error(`Court not found for shift capacity: ${capacity.facilityCode}`);
     }
 
     const position = await prisma.shiftRole.findFirst({
       where: {
-        facilityId: court.id,
-        code: capacity.positionCode,
+        facilityId: null,
+        rank: capacity.positionRank,
       },
     });
 
     if (!position) {
       throw new Error(
-        `Position not found for shift capacity. courtCode=${capacity.courtCode}, positionCode=${capacity.positionCode}`,
+        `Position not found for shift capacity. facilityCode=${capacity.facilityCode}, positionRank=${capacity.positionRank}`,
       );
     }
 

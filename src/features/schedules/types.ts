@@ -1,5 +1,6 @@
 import { PeriodScheduleStatus } from '@/features/schedules/period-status';
-import type { DayCategory, ShiftType, WarningSeverity, WarningType } from '@/generated/prisma/client';
+import type { DayCategory, ShiftType } from '@/generated/prisma/client';
+import type { WarningSeverity, WarningType } from '@/features/scheduling-engine/types';
 
 export type StaffingDayCategory = DayCategory | 'HOLIDAY';
 
@@ -19,7 +20,7 @@ export type ScheduleEmployeeOption = {
   position: {
     id: string;
     name: string;
-    code: number;
+    rank: number;
   } | null;
 };
 
@@ -27,7 +28,7 @@ export type ScheduleCapacityRule = {
   id: string;
   positionId: string;
   displayName: string;
-  code: number;
+  rank: number;
   color: string | null;
   shiftType: ShiftType;
   dayCategory: DayCategory;
@@ -131,6 +132,9 @@ export type AssignEmployeeToSlotParams = {
   shiftType: ShiftType;
   date: string;
   slotIndex: number;
+  /** Optional hours ("HH:mm") overriding the facility default for this assignment. */
+  startTime?: string;
+  endTime?: string;
 };
 // Schedule mode: current or future
 export type ScheduleMode = 'current' | 'future';

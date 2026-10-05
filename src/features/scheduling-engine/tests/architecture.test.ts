@@ -6,19 +6,19 @@ import { sortCandidatesByScore } from '../scoring';
 import { createEmptyFairnessSummary } from '../fairness';
 import type { EngineAssignment, EngineInput, EngineSlot } from '../types';
 const date = new Date('2098-01-06T00:00:00Z');
-const slot: EngineSlot = { facilityId: 'court', positionId: 'role', requiredCapability: 'GUARD', shiftType: 'NIGHT', date, dayCategory: 'WEEKDAY', requiredAmount: 1 };
-const employee = (id: string) => ({ id, facilityId: 'court', positionId: 'unrelated-rank', capability: 'GUARD' as const, isActive: true });
+const slot: EngineSlot = { facilityId: 'court', positionId: 'role', requiredRank: 1, shiftType: 'NIGHT', date, dayCategory: 'WEEKDAY', requiredAmount: 1 };
+const employee = (id: string) => ({ id, facilityId: 'court', positionId: 'unrelated-rank', rank: 1, isActive: true });
 const a = employee('a'); const b = employee('b');
 const key = '2098-01-06|NIGHT';
 function input(): EngineInput {
-  return { scheduleId: 's', period: { id: 'p', facilityId: 'court', startDate: date, endDate: date }, employees: [a,b], week1Dates: [date], week2Dates: [], capacities: [{ positionId: 'role', requiredCapability: 'GUARD', shiftType: 'NIGHT', dayCategory: 'WEEKDAY', amount: 1 }], availability: new Map([['a',new Set([key])],['b',new Set([key])]]), preferences: new Map([['a',new Set([key])]]), manualAssignments: [] };
+  return { scheduleId: 's', period: { id: 'p', facilityId: 'court', startDate: date, endDate: date }, employees: [a,b], week1Dates: [date], week2Dates: [], capacities: [{ positionId: 'role', requiredRank: 1, shiftType: 'NIGHT', dayCategory: 'WEEKDAY', amount: 1 }], availability: new Map([['a',new Set([key])],['b',new Set([key])]]), preferences: new Map([['a',new Set([key])]]), manualAssignments: [] };
 }
 const assignment: EngineAssignment = { employeeId: 'a', facilityId: 'court', positionId: 'role', date, shiftType: 'NIGHT', slotIndex: 0, isManualOverride: false };
 describe('architecture rules', () => {
-  it('uses stable capabilities, never display labels or position identity', () => {
-    expect(canEmployeeFillPosition('SHIFT_MANAGER','GUARD')).toBe(true);
-    expect(canEmployeeFillPosition('GUARD','CONTROLLER')).toBe(false);
-    expect(canEmployeeFillPosition('אחמ״ש','מאבטח')).toBe(false);
+  it('uses numeric ranks, never display labels or position identity', () => {
+    expect(canEmployeeFillPosition(1, 3)).toBe(true);
+    expect(canEmployeeFillPosition(3, 1)).toBe(false);
+    expect(canEmployeeFillPosition(undefined, 1)).toBe(false);
     expect(validateAssignments(input(), [assignment])).toEqual([]);
   });
   it('historical nights beat a preference for another night', () => {

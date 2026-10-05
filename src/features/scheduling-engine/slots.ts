@@ -1,5 +1,4 @@
 import { DayCategory, EngineInput, EngineSlot, ShiftType } from "./types";
-import { getPositionRoleRank } from "./role-eligibility";
 
 // ─── Priority tables ──────────────────────────────────────────────────────────
 
@@ -56,7 +55,7 @@ export function buildSlots(input: EngineInput): EngineSlot[] {
           facilityId: input.period.facilityId,
           positionId: capacity.positionId,
           positionName: capacity.positionName,
-          requiredCapability: capacity.requiredCapability,
+          requiredRank: capacity.requiredRank,
           date,
           shiftType: capacity.shiftType,
           dayCategory,
@@ -87,9 +86,6 @@ export function sortSlotsByPriority(slots: EngineSlot[]): EngineSlot[] {
     const dateDiff = a.date.getTime() - b.date.getTime();
     if (dateDiff !== 0) return dateDiff;
 
-    return (
-      (getPositionRoleRank(b.requiredCapability) ?? 0) -
-      (getPositionRoleRank(a.requiredCapability) ?? 0)
-    );
+    return a.requiredRank - b.requiredRank;
   });
 }

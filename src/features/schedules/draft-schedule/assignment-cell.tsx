@@ -5,8 +5,8 @@ import { useRef, useState } from 'react';
 import { useMutation, useQueryClient } from '@tanstack/react-query';
 import { cn } from '@/lib/utils';
 import { GuardPicker, type SwapCandidate } from '@/features/schedules/shared/guard-picker';
-import { createAssignment, setAssignmentLocked, removeAssignment, swapAssignments, updateAssignment } from '@/features/schedules/assignments/actions';
-import { invalidateScheduleQueries } from '@/features/schedules/hooks';
+import { createAssignment, removeAssignment, swapAssignments, updateAssignment } from '@/features/schedules/assignments/actions';
+import { applyScheduleEdit } from '@/features/schedules/hooks';
 import { OverflowCandidates } from '../shared/overflow-candidates';
 import type { AssignmentSummary, OverflowCandidateSummary, ScheduleEmployeeOption } from '@/features/schedules/types';
 import type { ShiftType } from '@/generated/prisma/client';
@@ -21,6 +21,8 @@ type Props = {
   date: string;
   shiftType: ShiftType;
   positionId: string;
+  positionColor?: string | null;
+  mutedPosition?: boolean;
   slotIndex: number;
   overflowCandidates?: OverflowCandidateSummary[];
   readonly?: boolean;
@@ -39,6 +41,8 @@ export function AssignmentCell({
   date,
   shiftType,
   positionId,
+  positionColor,
+  mutedPosition = false,
   slotIndex,
   overflowCandidates = [],
   readonly = false,
@@ -56,29 +60,21 @@ export function AssignmentCell({
   const assignmentMutation = useMutation({
     mutationFn: async (
       input:
-        | { type: 'lock' }
         | { type: 'select'; employeeId: string }
         | { type: 'remove'; assignmentId: string }
         | { type: 'swap'; assignmentId: string },
     ) => {
-      if (input.type === 'lock') {
-        if (assignment) await setAssignmentLocked(assignment.id, !assignment.isLocked, expected);
-        return;
-      }
       if (input.type === 'remove') {
-        await removeAssignment(input.assignmentId, expected);
-        return;
+        return removeAssignment(input.assignmentId, expected);
       }
       if (input.type === 'swap') {
         if (!assignment) return;
-        await swapAssignments(assignment.id, input.assignmentId, expected);
-        return;
+        return swapAssignments(assignment.id, input.assignmentId, expected);
       }
       if (assignment) {
-        await updateAssignment(assignment.id, input.employeeId, expected);
-        return;
+        return updateAssignment(assignment.id, input.employeeId, expected);
       }
-      await createAssignment({
+      return createAssignment({
         scheduleId,
         employeeId: input.employeeId,
         facilityId,
@@ -88,12 +84,15 @@ export function AssignmentCell({
         slotIndex,
       }, expected);
     },
-    onSuccess: () => invalidateScheduleQueries(queryClient, scheduleId),
+    onSuccess: update => applyScheduleEdit(queryClient, update),
     onError: (e: Error) => setError(e.message || 'שגיאה בשיבוץ'),
   });
 
   const pending = assignmentMutation.isPending;
   const isHighlighted = Boolean(highlightedEmployeeId && assignment?.employeeId === highlightedEmployeeId);
+  const positionStyle = (positionColor === undefined && !mutedPosition) || isHighlighted || anonymousRow
+    ? undefined
+    : { backgroundColor: mutedPosition ? '#e5e7eb' : positionColor ? `${positionColor}28` : '#ffffff' };
   const highlightClass =
     'bg-amber-200/90 text-amber-950 ring-2 ring-amber-500 ring-inset shadow-[inset_0_0_0_1px_rgba(245,158,11,0.45)]';
 
@@ -101,7 +100,7 @@ export function AssignmentCell({
     if (anonymousRow) {
       return <td className="border border-border bg-white min-w-[62px] min-h-[26px] px-1 py-0.5" aria-hidden />;
     }
-    return <td className="bg-gray-200" />;
+    return <td className="border border-gray-300 bg-gray-200" />;
   }
 
   if (readonly) {
@@ -111,8 +110,10 @@ export function AssignmentCell({
         className={cn(
           'relative border border-border text-center text-xs min-w-[62px] min-h-[26px] px-1 py-0.5',
           anonymousRow && 'bg-white',
+          mutedPosition && 'border-gray-300',
           isHighlighted && !anonymousRow && highlightClass,
         )}
+        style={positionStyle}
         aria-label={anonymousRow && assignment ? assignment.employeeDisplayName : undefined}
       >
         {!anonymousRow && <span className="truncate block max-w-[58px] mx-auto">{label}</span>}
@@ -143,10 +144,12 @@ export function AssignmentCell({
   return (
     <td
       ref={tdRef}
+      style={positionStyle}
       className={cn(
         'relative border border-border text-center text-xs cursor-pointer select-none transition-colors',
         'min-w-[62px] min-h-[26px] px-1 py-0.5',
         anonymousRow ? 'bg-white' : assignment ? 'hover:bg-accent/60' : 'bg-muted/40 hover:bg-accent/30',
+        mutedPosition && 'border-gray-300',
         isHighlighted && !anonymousRow && highlightClass,
         pending && 'opacity-50 pointer-events-none',
         open && 'ring-2 ring-primary ring-inset',
@@ -159,7 +162,6 @@ export function AssignmentCell({
       }}
     >
       <span className="truncate block max-w-[58px] mx-auto">{assignment?.employeeDisplayName ?? ''}</span>
-      {assignment && <button type="button" aria-label={assignment.isLocked ? 'בטל נעילה ליצירה מחדש' : 'נעל ליצירה מחדש'} onClick={e => { e.stopPropagation(); assignmentMutation.mutate({ type: 'lock' }); }} className="text-[10px]">{assignment.isLocked ? '🔒' : 'נעל'}</button>}
       {error && (
         <span className="absolute inset-0 flex items-center justify-center bg-red-50 text-red-600 text-[10px] leading-tight px-0.5 z-10">
           {error}
@@ -170,8 +172,8 @@ export function AssignmentCell({
       {open && anchorRect && (
         <GuardPicker
           employees={employees}
-          currentUserId={assignment?.employeeId ?? null}
           disabledEmployeeIds={assignedEmployeeIds}
+          currentUserId={assignment?.employeeId ?? null}
           anchorRect={anchorRect}
           onSelect={handleSelect}
           onRemove={handleRemove}

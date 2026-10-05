@@ -1,4 +1,4 @@
-import type { WarningSeverity } from '@/generated/prisma/client';
+import type { WarningSeverity } from '@/features/scheduling-engine/types';
 import type { ScheduleWarningSummary } from '../types';
 
 export type EmployeeWarningGroup = {

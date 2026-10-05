@@ -16,7 +16,7 @@ const prisma = new PrismaClient({
   adapter: new PrismaNeon({ connectionString }),
 });
 
-const COURT_CODE = 'BAT_YAM';
+const FACILITY_CODE = 'BAT_YAM';
 
 const SCHEDULE_NAME = 'אפריל 2026 - שיבוץ קיים';
 const START_DATE = '2026-04-26';
@@ -26,7 +26,7 @@ const SUBMISSION_DEADLINE = '2026-04-25T20:00:00.000Z';
 const SHIFT_TYPES = [ShiftType.MORNING, ShiftType.EVENING, ShiftType.NIGHT] as const;
 
 /** אחמ״ש, בקר, מאבטח — מקביל ל-SHIFT_MANAGER / BAKAR / GUARD בגרסה הישנה */
-const ASSIGNMENT_POSITION_CODES = [2, 3, 4] as const;
+const ASSIGNMENT_POSITION_RANKS = [2, 3, 4] as const;
 
 function parseDateOnly(date: string): Date {
   return new Date(`${date}T00:00:00.000Z`);
@@ -52,12 +52,12 @@ async function deleteExistingSchedule(facilityId: string, startDate: Date, endDa
 
 async function seedBatYamExistingSchedule() {
   const court = await prisma.facility.findUnique({
-    where: { code: COURT_CODE },
+    where: { code: FACILITY_CODE },
     select: { id: true, name: true, code: true },
   });
 
   if (!court) {
-    throw new Error(`Court not found: ${COURT_CODE}. Run prisma/seed.ts first.`);
+    throw new Error(`Court not found: ${FACILITY_CODE}. Run prisma/seed.ts first.`);
   }
 
   const manager = await prisma.user.findFirst({
@@ -67,7 +67,8 @@ async function seedBatYamExistingSchedule() {
     select: {
       id: true,
       email: true,
-      employee: { select: { firstName: true, lastName: true } },
+      firstName: true,
+      lastName: true,
     },
   });
 
@@ -80,7 +81,7 @@ async function seedBatYamExistingSchedule() {
 
   await deleteExistingSchedule(court.id, startDate, endDate);
 
-  const employees = await prisma.employee.findMany({
+  const employees = await prisma.user.findMany({
     where: { facilityId: court.id, isActive: true },
     select: { id: true, firstName: true, lastName: true },
     orderBy: [{ firstName: 'asc' }, { lastName: 'asc' }],
@@ -92,18 +93,18 @@ async function seedBatYamExistingSchedule() {
 
   const positions = await prisma.shiftRole.findMany({
     where: {
-      facilityId: court.id,
+      OR: [{ facilityId: court.id }, { facilityId: null }],
       isActive: true,
-      code: { in: [...ASSIGNMENT_POSITION_CODES] },
+      rank: { in: [...ASSIGNMENT_POSITION_RANKS] },
     },
-    select: { id: true, code: true, name: true },
-    orderBy: { code: 'asc' },
+    select: { id: true, rank: true, name: true },
+    orderBy: { rank: 'asc' },
   });
 
-  if (positions.length !== ASSIGNMENT_POSITION_CODES.length) {
-    const found = positions.map((p) => p.code).join(', ');
+  if (positions.length !== ASSIGNMENT_POSITION_RANKS.length) {
+    const found = positions.map((p) => p.rank).join(', ');
     throw new Error(
-      `Expected positions with codes ${ASSIGNMENT_POSITION_CODES.join(', ')} for ${court.name}, found: ${found}`,
+      `Expected positions with ranks ${ASSIGNMENT_POSITION_RANKS.join(', ')} for ${court.name}, found: ${found}`,
     );
   }
 

@@ -1,8 +1,6 @@
 import { PeriodScheduleStatus } from '@/features/schedules/period-status';
-import type { Capability } from '@/generated/prisma/client';
 
 export type CreateEmployeeParams = {
-  capability?: Capability;
   firstName: string;
   lastName: string;
   phone: string | null;
@@ -13,7 +11,6 @@ export type CreateEmployeeParams = {
 };
 
 export type UpdateEmployeeParams = {
-  capability?: Capability;
   employeeId: string;
   firstName: string;
   lastName: string;
@@ -26,11 +23,10 @@ export type UpdateEmployeeParams = {
 export type PositionOption = {
   id: string;
   name: string;
-  code: number;
+  rank: number;
 };
 
 export type EmployeeListItem = {
-  capability?: Capability;
   id: string;
   firstName: string;
   lastName: string;
@@ -42,7 +38,7 @@ export type EmployeeListItem = {
   position: {
     id: string;
     name: string;
-    code: number;
+    rank: number;
   };
 };
 
@@ -58,7 +54,6 @@ export type EmployeesPageData =
 export type EmployeeDetailData =
   | {
       employee: {
-        capability?: Capability;
         id: string;
         firstName: string;
         lastName: string;
@@ -72,7 +67,7 @@ export type EmployeeDetailData =
         position: {
           id: string;
           name: string;
-          code: number;
+          rank: number;
           isActive: boolean;
         };
         court: {
@@ -137,7 +132,6 @@ export type EmployeeSubmissionPeriod = {
 export type EmployeeSubmissionsData =
   | {
       employee: {
-        capability?: Capability;
         id: string;
         displayName: string;
         firstName: string;

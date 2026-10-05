@@ -14,7 +14,7 @@ import type * as Prisma from "../internal/prismaNamespace"
 
 /**
  * Model District
- * מחוז שמאגד מתקנים.
+ * 
  */
 export type DistrictModel = runtime.Types.Result.DefaultSelection<Prisma.$DistrictPayload>
 

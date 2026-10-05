@@ -1,6 +1,6 @@
-import type { ScheduleVersionStatus, SubmissionState } from '@/generated/prisma/client';
+import type { ScheduleStatus } from '@/generated/prisma/client';
 
-/** Display status composed from period submission state and the active version. */
+/** Display status composed from the schedule status and its submission window. */
 export const PeriodScheduleStatus = {
   DRAFT: 'DRAFT',
   OPEN: 'OPEN',
@@ -11,16 +11,17 @@ export const PeriodScheduleStatus = {
 
 export type PeriodScheduleStatus = (typeof PeriodScheduleStatus)[keyof typeof PeriodScheduleStatus];
 
-export function periodScheduleStatus(input: {
-  archivedAt?: Date | null;
-  submissionState: SubmissionState;
-  versions?: { status: ScheduleVersionStatus; isActive: boolean }[];
-}): PeriodScheduleStatus {
-  if (input.archivedAt) return PeriodScheduleStatus.ARCHIVED;
-  if (input.versions?.some((version) => version.status === 'PUBLISHED' && version.isActive)) {
-    return PeriodScheduleStatus.PUBLISHED;
-  }
-  if (input.submissionState === 'OPEN') return PeriodScheduleStatus.OPEN;
-  if (input.submissionState === 'CLOSED') return PeriodScheduleStatus.LOCKED;
+export function periodScheduleStatus(
+  schedule: {
+    status: ScheduleStatus;
+    submissionOpensAt: Date;
+    submissionClosesAt: Date;
+  },
+  now = new Date(),
+): PeriodScheduleStatus {
+  if (schedule.status === 'ARCHIVED') return PeriodScheduleStatus.ARCHIVED;
+  if (schedule.status === 'PUBLISHED') return PeriodScheduleStatus.PUBLISHED;
+  if (now >= schedule.submissionOpensAt && now < schedule.submissionClosesAt) return PeriodScheduleStatus.OPEN;
+  if (now >= schedule.submissionClosesAt) return PeriodScheduleStatus.LOCKED;
   return PeriodScheduleStatus.DRAFT;
 }

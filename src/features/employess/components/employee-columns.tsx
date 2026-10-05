@@ -90,7 +90,7 @@ export function createEmployeesColumns({
         return (
           <Badge
             variant="secondary"
-            className={cn('rounded-md px-2 py-0.5 text-xs font-semibold', POSITION_STYLE[employee.position.code])}
+            className={cn('rounded-md px-2 py-0.5 text-xs font-semibold', POSITION_STYLE[employee.position.rank])}
           >
             {employee.position.name}
           </Badge>

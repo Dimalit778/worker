@@ -118,7 +118,7 @@ export function buildShiftSlots(params: {
         key: `${cellKey}-${slotIndex}`,
         positionId: position.positionId,
         positionName: position.positionName,
-        positionCode: position.positionCode,
+        positionRank: position.positionRank,
         positionColor: position.positionColor,
         slotIndex,
         requiredCount: required,
@@ -140,7 +140,7 @@ export function buildShiftSlots(params: {
             key: `${cellKey}-${assignment.slotIndex}`,
             positionId: assignment.positionId,
             positionName: assignment.positionName,
-            positionCode: Number.MAX_SAFE_INTEGER,
+            positionRank: Number.MAX_SAFE_INTEGER,
             positionColor: null,
             slotIndex: assignment.slotIndex,
             requiredCount: 0,
@@ -153,7 +153,7 @@ export function buildShiftSlots(params: {
 
   return slots.sort(
     (a, b) =>
-      a.positionCode - b.positionCode ||
+      a.positionRank - b.positionRank ||
       a.slotIndex - b.slotIndex ||
       a.positionName.localeCompare(b.positionName, 'he'),
   );

@@ -6,7 +6,7 @@ const RULES: ScheduleCapacityRule[] = [
   {
     positionId: 'guard',
     displayName: 'מאבטח',
-    code: 1,
+    rank: 1,
     shiftType: 'MORNING',
     dayCategory: 'WEEKDAY',
     amount: 15,
@@ -14,7 +14,7 @@ const RULES: ScheduleCapacityRule[] = [
   {
     positionId: 'guard',
     displayName: 'מאבטח',
-    code: 1,
+    rank: 1,
     shiftType: 'EVENING',
     dayCategory: 'WEEKDAY',
     amount: 6,
@@ -22,7 +22,7 @@ const RULES: ScheduleCapacityRule[] = [
   {
     positionId: 'guard',
     displayName: 'מאבטח',
-    code: 1,
+    rank: 1,
     shiftType: 'NIGHT',
     dayCategory: 'SATURDAY',
     amount: 3,

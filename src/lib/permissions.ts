@@ -1,4 +1,4 @@
-import { FacilityRole, SystemRole } from '@/generated/prisma/client'
+import { SystemRole } from '@/generated/prisma/client'
 import { prisma } from '@/lib/db/client'
 import { PortalRole, type PortalRole as PortalRoleValue } from '@/lib/auth/portal'
 
@@ -32,34 +32,20 @@ const GRANT_ALLOWED: Record<PermissionKey, PortalRoleValue[]> = {
   [PERMISSIONS.GRANT_PERMISSIONS]: [PortalRole.ADMIN],
 }
 
-function portalsFor(user: { systemRole: SystemRole; facilityRoles: { role: FacilityRole }[] }): PortalRoleValue[] {
+function portalsFor(user: { systemRole: SystemRole; canEditSchedule: boolean }): PortalRoleValue[] {
   const portals: PortalRoleValue[] = []
   if (user.systemRole === SystemRole.ADMIN) portals.push(PortalRole.ADMIN)
-  if (user.facilityRoles.some((membership) => membership.role === FacilityRole.MANAGER)) portals.push(PortalRole.MANAGER)
+  if (user.canEditSchedule) portals.push(PortalRole.MANAGER)
   return portals
 }
 
 export async function hasPermission(userId: string, permission: PermissionKey): Promise<boolean> {
   const user = await prisma.user.findUnique({
     where: { id: userId },
-    select: {
-      systemRole: true,
-      facilityRoles: { select: { role: true } },
-      receivedPermissions: {
-        where: {
-          permissionKey: permission,
-          OR: [{ expiresAt: null }, { expiresAt: { gt: new Date() } }],
-        },
-        select: { granted: true },
-      },
-    },
+    select: { systemRole: true, canEditSchedule: true },
   })
 
   if (!user) return false
-
-  if (user.receivedPermissions.length > 0) {
-    return user.receivedPermissions[0].granted
-  }
 
   const portals = portalsFor(user)
   if (portals.includes(PortalRole.ADMIN)) return true
@@ -69,11 +55,7 @@ export async function hasPermission(userId: string, permission: PermissionKey): 
 
 export async function grantPermission({
   granterId,
-  targetUserId,
   permission,
-  grant,
-  note,
-  expiresAt,
 }: {
   granterId:     string
   targetUserId:  string
@@ -84,7 +66,7 @@ export async function grantPermission({
 }) {
   const granter = await prisma.user.findUnique({
     where: { id: granterId },
-    select: { systemRole: true, facilityRoles: { select: { role: true } } },
+    select: { systemRole: true, canEditSchedule: true },
   })
 
   if (!granter) throw new Error('Granter not found')
@@ -94,21 +76,13 @@ export async function grantPermission({
     throw new Error(`${granter.systemRole} cannot grant permission "${permission}"`)
   }
 
-  return prisma.userPermission.upsert({
-    where:  { userId_permissionKey: { userId: targetUserId, permissionKey: permission } },
-    create: { userId: targetUserId, permissionKey: permission, granted: grant, grantedById: granterId, note, expiresAt },
-    update: { granted: grant, grantedById: granterId, note, expiresAt, updatedAt: new Date() },
-  })
+  throw new Error('הרשאות מותאמות אישית אינן נשמרות במודל הנוכחי')
 }
 
 export function revokePermission(granterId: string, targetUserId: string, permission: PermissionKey) {
   return grantPermission({ granterId, targetUserId, permission, grant: false })
 }
 
-export function getUserPermissions(userId: string) {
-  return prisma.userPermission.findMany({
-    where:   { userId },
-    include: { grantedBy: { select: { id: true, email: true } } },
-    orderBy: { createdAt: 'desc' },
-  })
+export function getUserPermissions(_userId: string) {
+  return Promise.resolve([])
 }

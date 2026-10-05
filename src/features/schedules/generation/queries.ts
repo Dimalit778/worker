@@ -1,51 +1,86 @@
-import type { Prisma } from '@/generated/prisma/client';
+import type { Prisma, Schedule } from '@/generated/prisma/client';
 import { prisma } from '@/lib/db/client';
 import { requireManager } from '@/lib/db/auth-helpers';
 import { addDays } from '@/features/scheduling-engine/constraints';
 import type { EngineAssignment, EngineInput } from '@/features/scheduling-engine/types';
 
-export async function loadSchedulingInput(tx: Prisma.TransactionClient, scheduleId: string, facilityId: string, versionId: string | null) {
-  const schedule = await tx.roster.findFirst({ where: { id: scheduleId, facilityId }, include: { period: true } });
+const staffedUser = { role: { rank: { not: 1 } } };
+const staffedPosition = {
+  isActive: true,
+  NOT: { OR: [{ requiredRank: 1 }, { baseRole: { rank: 1 } }] },
+};
+
+export async function loadSchedulingInput(tx: Prisma.TransactionClient, scheduleId: string, facilityId: string, versionId: string | null, loadedSchedule?: Schedule) {
+  const schedule = loadedSchedule ?? await tx.schedule.findFirst({ where: { id: scheduleId, facilityId } });
   if (!schedule) throw new Error('השיבוץ לא נמצא');
-  const [employees, capacities, forms, assignments, surrounding, holidays] = await Promise.all([
-    tx.employee.findMany({ where: { facilityId, isActive: true, primaryShiftRole: { code: { not: 1 } } } }),
-    tx.staffingRequirement.findMany({ where: { facilityId, isActive: true, shiftRole: { isActive: true, code: { not: 1 } } }, include: { shiftRole: true } }),
-    tx.availabilitySubmission.findMany({ where: { periodId: schedule.periodId, isSubmitted: true, employee: { facilityId } }, include: { shiftAvailabilities: true } }),
-    versionId ? tx.shiftAssignment.findMany({ where: { versionId, scheduleId, facilityId } }) : Promise.resolve([]),
-    tx.shiftAssignment.findMany({ where: { facilityId, scheduleId: { not: scheduleId }, version: { status: 'PUBLISHED', isActive: true }, date: { gte: addDays(schedule.period.startDate, -56), lte: addDays(schedule.period.endDate, 1) } } }),
-    tx.holiday.findMany({ where: { date: { gte: schedule.period.startDate, lte: schedule.period.endDate } } }),
+  const [employees, capacities, forms, assignments, surrounding] = await Promise.all([
+    tx.user.findMany({ where: { facilityId, ...staffedUser }, select: { id: true, displayName: true, roleId: true, role: { select: { id: true, name: true, rank: true } } } }),
+    tx.staffingRequirement.findMany({ where: { facilityId, position: staffedPosition }, include: { position: { include: { baseRole: true } } } }),
+    tx.availabilitySubmission.findMany({
+      where: { scheduleId, submittedAt: { not: null }, user: { facilityId } },
+      include: { availabilities: true },
+    }),
+    versionId ? tx.scheduleSlot.findMany({ where: { scheduleId, facilityId, userId: { not: null } }, include: { user: { select: { displayName: true } }, position: { select: { name: true } } } }) : Promise.resolve([]),
+    tx.scheduleSlot.findMany({
+      where: {
+        facilityId,
+        scheduleId: { not: scheduleId },
+        userId: { not: null },
+        schedule: { status: 'PUBLISHED' },
+        date: { gte: addDays(schedule.startDate, -56), lte: addDays(schedule.endDate, 1) },
+      },
+    }),
   ]);
-  const toEngine = (a: typeof assignments[number]): EngineAssignment => ({
-    employeeId: a.employeeId, facilityId: a.facilityId, positionId: a.shiftRoleId,
-    date: a.date, shiftType: a.shiftType, slotIndex: 0, isManualOverride: a.isLocked,
+  const toEngine = (a: { userId: string | null; facilityId: string; positionId: string; date: Date; shiftType: EngineAssignment['shiftType']; slotNumber: number; isLocked: boolean; source: EngineAssignment['source'] }): EngineAssignment => ({
+    employeeId: a.userId ?? '',
+    facilityId: a.facilityId,
+    positionId: a.positionId,
+    date: a.date,
+    shiftType: a.shiftType,
+    slotIndex: Math.max(0, a.slotNumber - 1),
+    isManualOverride: a.isLocked,
+    source: a.source,
   });
   const availability = new Map<string, Set<string>>();
   const preferences = new Map<string, Set<string>>();
   for (const form of forms) {
-    availability.set(form.employeeId, new Set(form.shiftAvailabilities.filter(s => s.preference !== 'UNAVAILABLE').map(s => `${s.date.toISOString().slice(0,10)}|${s.shiftType}`)));
-    preferences.set(form.employeeId, new Set(form.shiftAvailabilities.filter(s => s.preference === 'PREFERRED').map(s => `${s.date.toISOString().slice(0,10)}|${s.shiftType}`)));
+    availability.set(form.userId, new Set(form.availabilities.filter((s) => s.preference !== 'UNAVAILABLE').map((s) => `${s.date.toISOString().slice(0, 10)}|${s.shiftType}`)));
+    preferences.set(form.userId, new Set(form.availabilities.filter((s) => s.preference === 'PREFERRED').map((s) => `${s.date.toISOString().slice(0, 10)}|${s.shiftType}`)));
   }
   const dates: Date[] = [];
-  for (let d = schedule.period.startDate; d <= schedule.period.endDate; d = addDays(d, 1)) dates.push(d);
+  for (let d = schedule.startDate; d <= schedule.endDate; d = addDays(d, 1)) dates.push(d);
   const input: EngineInput = {
-    scheduleId, period: { id: schedule.periodId, facilityId, startDate: schedule.period.startDate, endDate: schedule.period.endDate },
-    week1Dates: dates.slice(0,7), week2Dates: dates.slice(7),
-    employees: employees.map(e => ({ id: e.id, facilityId, positionId: e.primaryShiftRoleId, capability: e.capability, isActive: e.isActive })),
-    capacities: capacities.map(c => ({ positionId: c.shiftRoleId, positionName: c.shiftRole.name, requiredCapability: c.shiftRole.requiredCapability, shiftType: c.shiftType, dayCategory: c.dayCategory, amount: c.requiredCount })),
-    availability, preferences,
-    manualAssignments: assignments.filter(a => a.isLocked).map(toEngine),
-    historicalAssignments: surrounding.filter(a => a.date < schedule.period.startDate).map(toEngine),
-    boundaryAssignments: surrounding.filter(a => a.date >= addDays(schedule.period.startDate, -1)).map(toEngine),
-    holidayCategories: new Map(holidays.map(h => [h.date.toISOString().slice(0,10), h.behavesAs])),
+    scheduleId,
+    period: { id: schedule.id, facilityId, startDate: schedule.startDate, endDate: schedule.endDate },
+    week1Dates: dates.slice(0, 7),
+    week2Dates: dates.slice(7),
+    employees: employees.map((e) => ({ id: e.id, facilityId, positionId: e.roleId, rank: e.role.rank, isActive: true })),
+    capacities: capacities.map((c) => ({
+      positionId: c.positionId,
+      positionName: c.position.name,
+      requiredRank: c.position.requiredRank ?? c.position.baseRole?.rank ?? c.position.displayOrder,
+      shiftType: c.shiftType,
+      dayCategory: c.dayCategory,
+      amount: c.requiredCount,
+    })),
+    availability,
+    preferences,
+    manualAssignments: assignments.filter((a) => a.isLocked && a.userId).map(toEngine),
+    historicalAssignments: surrounding.filter((a) => a.date < schedule.startDate && a.userId).map(toEngine),
+    boundaryAssignments: surrounding.filter((a) => a.date >= addDays(schedule.startDate, -1) && a.userId).map(toEngine),
+    holidayCategories: new Map(),
   };
-  return { input, assignments, allAssignments: assignments.map(toEngine), schedule };
+  return { input, employees, capacities, forms, assignments, allAssignments: assignments.filter((a) => a.userId).map(toEngine), schedule };
 }
 
 export async function getAutoScheduleInputData(scheduleId: string) {
   const { facilityId } = await requireManager();
-  const version = await prisma.rosterVersion.findFirst({ where: { scheduleId, facilityId, OR: [{ status: 'DRAFT' }, { status: 'PUBLISHED', isActive: true }] }, orderBy: { version: 'desc' } });
+  const schedule = await prisma.schedule.findFirst({
+    where: { id: scheduleId, facilityId, status: { in: ['DRAFT', 'PUBLISHED'] } },
+    select: { id: true },
+  });
   try {
-    const data = await loadSchedulingInput(prisma, scheduleId, facilityId, version?.id ?? null);
+    const data = await loadSchedulingInput(prisma, scheduleId, facilityId, schedule?.id ?? null);
     return { found: true as const, input: data.input, schedule: data.schedule };
   } catch {
     return { found: false as const, message: 'השיבוץ לא נמצא' };
