@@ -4,7 +4,7 @@ import { PrismaAdapter } from '@next-auth/prisma-adapter';
 import bcrypt from 'bcryptjs';
 import { SystemRole } from '@/generated/prisma/client';
 import { prisma } from '@/lib/db/client';
-import { isLocked, lockoutUntil, MAX_FAILED_LOGINS } from '@/lib/auth/lockout';
+import { lockoutUntil, MAX_FAILED_LOGINS } from '@/lib/auth/lockout';
 import { PortalRole, type PortalRole as PortalRoleValue } from '@/lib/auth/portal';
 
 export const ACCOUNT_LOCKED_ERROR = 'ACCOUNT_LOCKED';
@@ -37,17 +37,22 @@ export const authOptions: NextAuthOptions = {
 
         if (!user || !user.isActive) return null;
 
-        if (isLocked(user.lockedUntil)) throw new Error(ACCOUNT_LOCKED_ERROR);
+        // Reserve this attempt atomically before checking the password, so parallel guesses can't exceed the limit.
+        const now = new Date();
+        const reserved = await prisma.user.updateMany({
+          where: {
+            id: user.id,
+            OR: [{ lockedUntil: null }, { lockedUntil: { lte: now } }],
+            failedLoginCount: { lt: MAX_FAILED_LOGINS },
+          },
+          data: { failedLoginCount: { increment: 1 } },
+        });
+        if (reserved.count !== 1) throw new Error(ACCOUNT_LOCKED_ERROR);
 
         const isValid = await bcrypt.compare(credentials.password, user.passwordHash);
         if (!isValid) {
-          // Atomic increment so parallel attempts cannot slip past the limit.
-          const { failedLoginCount } = await prisma.user.update({
-            where: { id: user.id },
-            data: { failedLoginCount: { increment: 1 } },
-            select: { failedLoginCount: true },
-          });
-          if (failedLoginCount >= MAX_FAILED_LOGINS) {
+          const current = await prisma.user.findUnique({ where: { id: user.id }, select: { failedLoginCount: true } });
+          if ((current?.failedLoginCount ?? 0) >= MAX_FAILED_LOGINS) {
             await prisma.user.update({
               where: { id: user.id },
               data: { failedLoginCount: 0, lockedUntil: lockoutUntil() },
@@ -56,12 +61,10 @@ export const authOptions: NextAuthOptions = {
           return null;
         }
 
-        if (user.failedLoginCount !== 0 || user.lockedUntil) {
-          await prisma.user.update({
-            where: { id: user.id },
-            data: { failedLoginCount: 0, lockedUntil: null },
-          });
-        }
+        await prisma.user.update({
+          where: { id: user.id },
+          data: { failedLoginCount: 0, lockedUntil: null },
+        });
 
         const portal =
           user.systemRole === SystemRole.ADMIN

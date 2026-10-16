@@ -118,7 +118,9 @@ export async function resendEmployeeInvite(employeeId: string): Promise<CreateEm
   });
   if (!employee) return { error: 'עובד לא נמצא' };
 
-  return { ok: true, ...(await sendInvite(employee.id, employee.email)) };
+  // The account may already be in use, so the link goes only to the employee's own email, never back to the caller.
+  const { emailError } = await sendInvite(employee.id, employee.email);
+  return emailError ? { ok: true, emailError } : { ok: true };
 }
 
 export async function setEmployeeActive(employeeId: string, isActive: boolean): Promise<SetEmployeeActiveResult> {
