@@ -20,6 +20,20 @@ export type UpdateEmployeeParams = {
   positionId: string;
   isActive: boolean;
 };
+export type FutureAssignment = {
+  slotId: string;
+  startsAt: string;
+  date: string;
+  shiftType: string;
+  positionName: string;
+  periodName: string;
+  versionStatus: 'DRAFT' | 'PUBLISHED';
+};
+
+export type SetEmployeeActiveResult =
+  | { ok: true; isActive: boolean; futureAssignments: FutureAssignment[] }
+  | { error: string };
+
 export type PositionOption = {
   id: string;
   name: string;
