@@ -136,6 +136,10 @@ export const UserScalarFieldEnum = {
   facilityId: 'facilityId',
   roleId: 'roleId',
   canEditSchedule: 'canEditSchedule',
+  isActive: 'isActive',
+  deactivatedAt: 'deactivatedAt',
+  failedLoginCount: 'failedLoginCount',
+  lockedUntil: 'lockedUntil',
   createdAt: 'createdAt',
   updatedAt: 'updatedAt'
 } as const
@@ -226,6 +230,8 @@ export const ScheduleScalarFieldEnum = {
   submissionClosesAt: 'submissionClosesAt',
   status: 'status',
   publishedAt: 'publishedAt',
+  openNotifiedAt: 'openNotifiedAt',
+  reminderSentAt: 'reminderSentAt',
   draftVersionId: 'draftVersionId',
   publishedVersionId: 'publishedVersionId',
   createdAt: 'createdAt',

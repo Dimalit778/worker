@@ -109,6 +109,12 @@ model User {
 
   canEditSchedule Boolean @default(false)
 
+  /// עובד מושבת אינו יכול להתחבר או להשתבץ; ההיסטוריה נשמרת.
+  isActive         Boolean   @default(true)
+  deactivatedAt    DateTime? @db.Timestamptz(3)
+  failedLoginCount Int       @default(0)
+  lockedUntil      DateTime? @db.Timestamptz(3)
+
   facility    Facility                 @relation(fields: [facilityId], references: [id], onDelete: Restrict)
   slots       ScheduleSlot[]
   submissions AvailabilitySubmission[]
@@ -233,6 +239,8 @@ model Schedule {
   submissionClosesAt DateTime          @db.Timestamptz(3)
   status             ScheduleStatus    @default(DRAFT)
   publishedAt        DateTime?         @db.Timestamptz(3)
+  openNotifiedAt     DateTime?         @db.Timestamptz(3)
+  reminderSentAt     DateTime?         @db.Timestamptz(3)
   draftVersionId     String?           @unique
   publishedVersionId String?           @unique
   draftVersion       ScheduleVersion?  @relation("DraftVersion", fields: [draftVersionId, id, facilityId], references: [id, scheduleId, facilityId], onDelete: Restrict)
