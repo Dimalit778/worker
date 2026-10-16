@@ -109,7 +109,11 @@ export async function resendEmployeeInvite(employeeId: string): Promise<CreateEm
   if (!isAdmin && session.user.portal !== PortalRole.MANAGER) return { error: 'אין הרשאה' };
 
   const employee = await prisma.user.findFirst({
-    where: { id: employeeId, ...(isAdmin ? {} : { facilityId: session.user.facilityId ?? '' }) },
+    // Managers may only re-invite regular employees, never other managers or admins.
+    where: {
+      id: employeeId,
+      ...(isAdmin ? {} : { facilityId: session.user.facilityId ?? '', systemRole: SystemRole.USER, canEditSchedule: false }),
+    },
     select: { id: true, email: true },
   });
   if (!employee) return { error: 'עובד לא נמצא' };

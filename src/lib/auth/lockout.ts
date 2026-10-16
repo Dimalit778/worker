@@ -5,6 +5,10 @@ export function isLocked(lockedUntil: Date | null, now: Date = new Date()): bool
   return lockedUntil !== null && lockedUntil.getTime() > now.getTime();
 }
 
+export function lockoutUntil(now: Date = new Date()): Date {
+  return new Date(now.getTime() + LOCKOUT_MS);
+}
+
 /** Next lockout state after a failed password attempt. */
 export function nextFailureState(
   failedLoginCount: number,

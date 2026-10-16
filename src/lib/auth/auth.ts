@@ -4,7 +4,7 @@ import { PrismaAdapter } from '@next-auth/prisma-adapter';
 import bcrypt from 'bcryptjs';
 import { SystemRole } from '@/generated/prisma/client';
 import { prisma } from '@/lib/db/client';
-import { isLocked, nextFailureState } from '@/lib/auth/lockout';
+import { isLocked, lockoutUntil, MAX_FAILED_LOGINS } from '@/lib/auth/lockout';
 import { PortalRole, type PortalRole as PortalRoleValue } from '@/lib/auth/portal';
 
 export const ACCOUNT_LOCKED_ERROR = 'ACCOUNT_LOCKED';
@@ -41,10 +41,18 @@ export const authOptions: NextAuthOptions = {
 
         const isValid = await bcrypt.compare(credentials.password, user.passwordHash);
         if (!isValid) {
-          await prisma.user.update({
+          // Atomic increment so parallel attempts cannot slip past the limit.
+          const { failedLoginCount } = await prisma.user.update({
             where: { id: user.id },
-            data: nextFailureState(user.failedLoginCount),
+            data: { failedLoginCount: { increment: 1 } },
+            select: { failedLoginCount: true },
           });
+          if (failedLoginCount >= MAX_FAILED_LOGINS) {
+            await prisma.user.update({
+              where: { id: user.id },
+              data: { failedLoginCount: 0, lockedUntil: lockoutUntil() },
+            });
+          }
           return null;
         }
 
