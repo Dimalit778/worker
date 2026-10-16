@@ -10,9 +10,9 @@ import { TopBar } from '@/features/schedules/draft-schedule/topbar';
 import { ScheduleStats } from '@/features/schedules/draft-schedule/schedule-stats';
 import { useDraftSchedule } from '@/features/schedules/hooks';
 
-export function ManagerDraftScreen() {
+export function ManagerDraftScreen({ scheduleId }: { scheduleId?: string }) {
   const search = useSearchParams();
-  const { data, isLoading, isError } = useDraftSchedule(search.get('scheduleId') ?? undefined);
+  const { data, isLoading, isError } = useDraftSchedule(scheduleId ?? search.get('scheduleId') ?? undefined);
 
   if (isLoading) {
     return (
