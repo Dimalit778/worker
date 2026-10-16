@@ -1,5 +1,15 @@
 This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
 
+## Worktree development
+
+Linked worktrees use a dedicated local PostgreSQL cluster, managed environment and free ports:
+
+```sh
+pnpm worktree:dev
+```
+
+The first run asks for explicit approval before applying schema migrations to that isolated database. It prints the browser URL and demo credentials. Codex, Claude Code and Cursor setup hooks prepare dependencies/env/Prisma without applying migrations. See [the project worktree guide](docs/worktree-development.md). Node.js 22.12+, pnpm and PostgreSQL binaries are required.
+
 ## Getting Started
 
 First, run the development server:

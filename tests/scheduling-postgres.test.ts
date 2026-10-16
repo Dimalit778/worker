@@ -14,168 +14,198 @@ vi.mock('@/lib/db/client', async () => {
 });
 import { prisma } from '@/lib/db/client';
 import { requireManager } from '@/lib/db/auth-helpers';
-import { createAssignment, startScheduleCorrection } from '@/features/schedules/assignments/actions';
+import { createAssignment, removeAssignment, startScheduleCorrection } from '@/features/schedules/assignments/actions';
 import { generateAutoSchedule } from '@/features/schedules/generation/actions';
 import { publishSchedule } from '@/features/schedules/draft-schedule/actions';
-import { getUpcomingSchedule } from '@/features/schedules/assignments/queries';
+import { getCurrentSchedule, getUpcomingSchedule } from '@/features/schedules/assignments/queries';
 import { loadSchedulingInput } from '@/features/schedules/generation/queries';
-import { submitAvailability } from '@/features/availability/actions';
+import { reconcileDraftCapacity } from '@/features/schedules/services/reconcile-capacity';
+import { scheduleTransaction } from '@/features/schedules/services/transactions';
 
 const date = (day: string) => new Date(`${day}T00:00:00Z`);
 const suite = process.env.TEST_DATABASE_URL ? describe : describe.skip;
-suite('scheduling services against migrated PostgreSQL', () => {
+suite('schedule versions against migrated PostgreSQL', () => {
   let facilityId: string;
   let scheduleId: string;
-  let periodId: string;
   let positionId: string;
   let employeeId: string;
   let managerId: string;
   let expected: { versionId: string | null; revision: number };
   beforeEach(async () => {
     const suffix = randomUUID();
-    const region = await prisma.district.create({ data: { name: 'test', code: suffix } });
-    const court = await prisma.facility.create({ data: { name: 'test', code: suffix, districtId: region.id } });
-    facilityId = court.id;
-    const position = await prisma.shiftRole.create({ data: { facilityId, name: 'renamable label', rank: 4 } });
+    const district = await prisma.district.create({ data: { name: 'test', code: suffix } });
+    const facility = await prisma.facility.create({ data: { name: 'test', code: suffix, districtId: district.id } });
+    facilityId = facility.id;
+    const role = await prisma.role.upsert({ where: { rank: 4 }, update: {}, create: { code: 'GUARD', name: 'guard', rank: 4 } });
+    const position = await prisma.position.create({ data: { facilityId, name: 'guard', requiredRank: 4, displayOrder: 4 } });
     positionId = position.id;
-    const employee = await prisma.user.create({ data: { email: `${suffix}-emp@test.invalid`, passwordHash: 'unused', facilityId, shiftRoleId: positionId, firstName: 'Test', lastName: 'Employee', displayName: 'Test Employee' } });
+    const employee = await prisma.user.create({ data: { email: `${suffix}-emp@test.invalid`, passwordHash: 'unused', facilityId, roleId: role.id, firstName: 'Test', lastName: 'Employee', displayName: 'Test Employee' } });
     employeeId = employee.id;
-    const manager = await prisma.user.create({ data: { email: `${suffix}@test.invalid`, passwordHash: 'unused', systemRole: 'USER', firstName: 'Test', lastName: 'Manager', displayName: 'Test Manager', facilityId, shiftRoleId: positionId, facilityRoles: { create: { facilityId, role: 'MANAGER' } } } });
+    const manager = await prisma.user.create({ data: { email: `${suffix}@test.invalid`, passwordHash: 'unused', canEditSchedule: true, firstName: 'Test', lastName: 'Manager', displayName: 'Test Manager', facilityId, roleId: role.id } });
     managerId = identity.userId = manager.id;
-    const period = await prisma.schedulePeriod.create({ data: { facilityId, name: 'test', startDate: date('2098-01-06'), endDate: date('2098-01-19'), submissionOpensAt: new Date('2020-01-01'), submissionDeadline: date('2098-01-05'), submissionState: 'OPEN' } });
-    periodId = period.id;
-    const schedule = await prisma.roster.create({ data: { facilityId, periodId, createdById: manager.id } });
+    const schedule = await prisma.schedule.create({ data: { facilityId, name: 'test', startDate: date('2098-01-06'), endDate: date('2098-01-19'), submissionOpensAt: new Date('2020-01-01'), submissionClosesAt: date('2098-01-05') } });
     scheduleId = schedule.id;
     for (const dayCategory of ['WEEKDAY','FRIDAY','SATURDAY'] as const) {
       for (const shiftType of ['MORNING','EVENING','NIGHT'] as const) {
-        await prisma.staffingRequirement.create({ data: { facilityId, shiftRoleId: positionId, dayCategory, shiftType, requiredCount: 1 } });
+        await prisma.staffingRequirement.create({ data: { facilityId, positionId, dayCategory, shiftType, requiredCount: 1 } });
       }
     }
-    await prisma.availabilitySubmission.create({ data: { employeeId, periodId, isSubmitted: true, shiftAvailabilities: { create: [{ date: date('2098-01-06'), shiftType: 'MORNING', preference: 'PREFERRED' }, { date: date('2098-01-07'), shiftType: 'NIGHT' }] } } });
+    await prisma.availabilitySubmission.create({ data: { userId: employeeId, facilityId, scheduleId, submittedAt: new Date(), availabilities: { create: [{ date: date('2098-01-06'), shiftType: 'MORNING', preference: 'PREFERRED' }, { date: date('2098-01-07'), shiftType: 'NIGHT', preference: 'AVAILABLE' }] } } });
     expected = await startScheduleCorrection(scheduleId, { versionId: null, revision: 0 });
   });
   afterAll(async () => { await prisma?.$disconnect(); });
-  const add = async (token = expected) => createAssignment({ scheduleId, employeeId, positionId, date: '2098-01-06', shiftType: 'MORNING', slotIndex: 0 }, token);
+  const add = async (token = expected) => {
+    const result = await createAssignment({ scheduleId, employeeId, positionId, date: '2098-01-06', shiftType: 'MORNING', slotIndex: 0 }, token);
+    expected = { versionId: result.versionId, revision: result.revision };
+    return result;
+  };
   const publish = async () => {
-    const result = await publishSchedule(scheduleId, { ...expected, reason: 'test publication', confirmIssues: true });
-    expect(result).toEqual({ ok: true });
-    const version = await prisma.rosterVersion.findUniqueOrThrow({ where: { id: expected.versionId! } });
+    expect(await publishSchedule(scheduleId, { ...expected, confirmIssues: true })).toEqual({ ok: true });
+    const version = await prisma.scheduleVersion.findUniqueOrThrow({ where: { id: expected.versionId! } });
     expected = { versionId: version.id, revision: version.revision };
   };
 
-  it('keeps published assignments visible until a correction is published and counts history once', async () => {
-    await add(); expected.revision++;
-    await publish();
-    const original = await prisma.shiftAssignment.findFirstOrThrow({ where: { versionId: expected.versionId! } });
+  it('keeps published assignments visible until republication and counts history only once', async () => {
+    await add(); await publish();
+    const original = await prisma.scheduleSlot.findFirstOrThrow({ where: { versionId: expected.versionId! } });
     const oldId = expected.versionId!;
     expected = await startScheduleCorrection(scheduleId, expected);
     expect(expected.versionId).not.toBe(oldId);
-    const copy = await prisma.shiftAssignment.findFirstOrThrow({ where: { versionId: expected.versionId! } });
-    expect(copy.employeeId).toBe(original.employeeId);
-    await createAssignment({ scheduleId, employeeId, positionId, date: '2098-01-07', shiftType: 'NIGHT', slotIndex: 0 }, expected);
-    expected.revision++;
+    const copy = await prisma.scheduleSlot.findFirstOrThrow({ where: { versionId: expected.versionId! } });
+    expect(copy).toMatchObject({ userId: original.userId, source: original.source, startsAt: original.startsAt, endsAt: original.endsAt, isLocked: original.isLocked });
+    expect(copy.id).not.toBe(original.id);
+    const result = await createAssignment({ scheduleId, employeeId, positionId, date: '2098-01-07', shiftType: 'NIGHT', slotIndex: 0 }, expected);
+    expected.revision = result.revision;
     const visible = await getUpcomingSchedule(facilityId);
+    expect(visible?.versionId).toBe(oldId);
     expect(Object.values(visible!.assignments).flat()).toHaveLength(1);
-    expect(await prisma.rosterVersion.count({ where: { scheduleId, isActive: true, id: oldId } })).toBe(1);
+    expect(await prisma.schedule.findUniqueOrThrow({ where: { id: scheduleId } })).toMatchObject({ status: 'PUBLISHED', publishedVersionId: oldId, draftVersionId: expected.versionId });
     await publish();
-    expect(await prisma.shiftAssignment.count({ where: { scheduleId } })).toBe(3);
-    expect(await prisma.shiftAssignment.count({ where: { scheduleId, version: { isActive: true } } })).toBe(2);
-    const future = await prisma.schedulePeriod.create({ data: { facilityId, name: 'future', startDate: date('2098-01-20'), endDate: date('2098-02-02'), submissionOpensAt: date('2098-01-01'), submissionDeadline: date('2098-01-19') } });
-    const next = await prisma.roster.create({ data: { facilityId, periodId: future.id, createdById: managerId } });
+    expect(Object.values((await getUpcomingSchedule(facilityId))!.assignments).flat()).toHaveLength(2);
+    expect(await prisma.scheduleSlot.count({ where: { scheduleId } })).toBe(3);
+    const next = await prisma.schedule.create({ data: { facilityId, name: 'next', startDate: date('2098-01-20'), endDate: date('2098-02-02'), submissionOpensAt: date('2098-01-01'), submissionClosesAt: date('2098-01-19') } });
     const input = await loadSchedulingInput(prisma, next.id, facilityId, null);
     expect(input.input.historicalAssignments).toHaveLength(2);
+    expect(await prisma.availabilitySubmission.count({ where: { scheduleId, userId: employeeId } })).toBe(1);
+    expect(await prisma.scheduleChange.count({ where: { scheduleId, versionId: oldId, changeType: 'PUBLISH' } })).toBe(1);
   });
 
-  it('rejects unavailable and unsubmitted availability for manual changes', async () => {
-    await expect(createAssignment({ scheduleId, employeeId, positionId, date: '2098-01-06', shiftType: 'NIGHT', slotIndex: 0 }, expected)).rejects.toThrow('זמינות');
-    await prisma.availabilitySubmission.update({ where: { periodId_employeeId: { periodId, employeeId } }, data: { isSubmitted: false } });
-    await expect(add()).rejects.toThrow('זמינות');
-    expect(await prisma.shiftAssignment.count({ where: { scheduleId } })).toBe(0);
+  it('retains the current published roster while its correction is edited', async () => {
+    await add(); await publish();
+    const publishedId = expected.versionId;
+    // Put this fixture in the current period without changing its version or assignments.
+    await prisma.schedule.update({ where: { id: scheduleId }, data: { startDate: date('2020-01-01'), endDate: date('2098-01-19') } });
+    expected = await startScheduleCorrection(scheduleId, expected);
+    const copy = await prisma.scheduleSlot.findFirstOrThrow({ where: { versionId: expected.versionId! } });
+    const removed = await removeAssignment(copy.id, expected); expected.revision = removed.revision;
+    expect((await getCurrentSchedule(facilityId))?.versionId).toBe(publishedId);
+    expect(Object.values((await getCurrentSchedule(facilityId))!.assignments).flat()).toHaveLength(1);
   });
 
-  it('rejects assigning an employee to a slot above their rank', async () => {
-    const higherRolePosition = await prisma.shiftRole.create({ data: { facilityId, name: 'higher rank role', rank: 1 } });
-    await prisma.staffingRequirement.create({ data: { facilityId, shiftRoleId: higherRolePosition.id, dayCategory: 'WEEKDAY', shiftType: 'MORNING', requiredCount: 1 } });
-    await expect(createAssignment({ scheduleId, employeeId, positionId: higherRolePosition.id, date: '2098-01-06', shiftType: 'MORNING', slotIndex: 0 }, expected)).rejects.toThrow('תקינים');
+  it('does not expose an initial draft before first publication', async () => {
+    await add();
+    expect(await getUpcomingSchedule(facilityId)).toBeNull();
+    expect(await getCurrentSchedule(facilityId)).toBeNull();
   });
 
   it('rejects stale edits and serializes concurrent writers', async () => {
-    const result = await Promise.allSettled([add(), add()]);
+    const token = { ...expected };
+    const result = await Promise.allSettled([add(token), add(token)]);
     expect(result.filter(r => r.status === 'fulfilled')).toHaveLength(1);
-    expect(await prisma.shiftAssignment.count({ where: { scheduleId } })).toBe(1);
-    await expect(add()).rejects.toThrow('לרענן');
+    expect(await prisma.scheduleSlot.count({ where: { scheduleId } })).toBe(1);
+    await expect(add(token)).rejects.toThrow('לרענן');
+  });
+
+  it('allows exactly one concurrent correction and rejects edits using published slot IDs', async () => {
+    await add(); await publish();
+    const published = await prisma.scheduleSlot.findFirstOrThrow({ where: { versionId: expected.versionId! } });
+    const results = await Promise.allSettled([startScheduleCorrection(scheduleId, expected), startScheduleCorrection(scheduleId, expected)]);
+    expect(results.filter(r => r.status === 'fulfilled')).toHaveLength(1);
+    const draft = await prisma.scheduleVersion.findFirstOrThrow({ where: { scheduleId, status: 'DRAFT' } });
+    expected = { versionId: draft.id, revision: draft.revision };
+    await expect(removeAssignment(published.id, expected)).rejects.toThrow('בגרסה הנוכחית');
   });
 
   it('allows exactly one concurrent publication', async () => {
-    await add(); expected.revision++;
-    const options = { ...expected, reason: 'publish', confirmIssues: true };
+    await add();
+    const options = { ...expected, confirmIssues: true };
     const results = await Promise.all([publishSchedule(scheduleId, options), publishSchedule(scheduleId, options)]);
     expect(results.filter(r => 'ok' in r)).toHaveLength(1);
-    expect(await prisma.rosterVersion.count({ where: { scheduleId, isActive: true } })).toBe(1);
+    expect(await prisma.scheduleVersion.count({ where: { scheduleId, status: 'PUBLISHED' } })).toBe(1);
   });
 
-  it('protects old assignments, version metadata, audit and target-version moves at database level', async () => {
-    await add(); expected.revision++;
-    await publish();
+  it('protects published slots, metadata, deletion, and moves into a published version in SQL', async () => {
+    await add(); await publish();
     const publishedId = expected.versionId!;
-    const assignment = await prisma.shiftAssignment.findFirstOrThrow({ where: { versionId: publishedId } });
-    await expect(prisma.shiftAssignment.update({ where: { id: assignment.id }, data: { isLocked: true } })).rejects.toThrow('immutable');
-    await expect(prisma.rosterVersion.update({ where: { id: publishedId }, data: { status: 'DRAFT', publishedAt: null } })).rejects.toThrow('immutable');
-    await expect(prisma.rosterVersion.delete({ where: { id: publishedId } })).rejects.toThrow();
-    await expect(prisma.scheduleChangeLog.deleteMany({ where: { scheduleId } })).rejects.toThrow('append-only');
+    const assignment = await prisma.scheduleSlot.findFirstOrThrow({ where: { versionId: publishedId } });
+    await expect(prisma.scheduleSlot.update({ where: { id: assignment.id }, data: { isLocked: true } })).rejects.toThrow('immutable');
+    await expect(prisma.scheduleSlot.delete({ where: { id: assignment.id } })).rejects.toThrow('immutable');
+    await expect(prisma.scheduleVersion.update({ where: { id: publishedId }, data: { status: 'DRAFT', publishedAt: null } })).rejects.toThrow('immutable');
+    await expect(prisma.scheduleVersion.delete({ where: { id: publishedId } })).rejects.toThrow();
     expected = await startScheduleCorrection(scheduleId, expected);
-    const copy = await prisma.shiftAssignment.findFirstOrThrow({ where: { versionId: expected.versionId! } });
-    await expect(prisma.shiftAssignment.update({ where: { id: copy.id }, data: { versionId: publishedId } })).rejects.toThrow('immutable');
+    const copy = await prisma.scheduleSlot.findFirstOrThrow({ where: { versionId: expected.versionId! } });
+    await expect(prisma.scheduleSlot.update({ where: { id: copy.id }, data: { versionId: publishedId } })).rejects.toThrow('immutable');
   });
 
-  it('rejects inconsistent assignment/version/schedule references', async () => {
-    const p = await prisma.schedulePeriod.create({ data: { facilityId, name: 'different', startDate: date('2098-02-03'), endDate: date('2098-02-16'), submissionDeadline: date('2098-02-02') } });
-    const other = await prisma.roster.create({ data: { facilityId, periodId: p.id, createdById: managerId } });
-    await expect(prisma.shiftAssignment.create({ data: { facilityId, scheduleId: other.id, versionId: expected.versionId!, employeeId, shiftRoleId: positionId, date: date('2098-01-06'), shiftType: 'MORNING' } })).rejects.toThrow();
+  it('rejects version references belonging to another schedule or facility', async () => {
+    const other = await prisma.schedule.create({ data: { facilityId, name: 'other', startDate: date('2098-02-03'), endDate: date('2098-02-16'), submissionOpensAt: date('2098-01-01'), submissionClosesAt: date('2098-02-02') } });
+    await expect(prisma.schedule.update({ where: { id: other.id }, data: { draftVersionId: expected.versionId } })).rejects.toThrow();
+    const assignment = { facilityId, scheduleId: other.id, versionId: expected.versionId!, userId: employeeId, positionId, date: date('2098-01-06'), shiftType: 'MORNING' as const, slotNumber: 1, startsAt: new Date('2098-01-06T05:00Z'), endsAt: new Date('2098-01-06T13:00Z') };
+    await expect(prisma.scheduleSlot.create({ data: assignment })).rejects.toThrow();
   });
 
-  it('uses current membership, so a revoked manager cannot mutate', async () => {
-    await prisma.userFacilityRole.delete({ where: { userId_facilityId: { userId: managerId, facilityId } } });
-    await expect(requireManager()).rejects.toThrow('UNAUTHORIZED');
-    await expect(add()).rejects.toThrow('UNAUTHORIZED');
+  it('leaves the live pointer unchanged when correction publication fails validation', async () => {
+    await add(); await publish();
+    const publishedId = expected.versionId!;
+    expected = await startScheduleCorrection(scheduleId, expected);
+    const copy = await prisma.scheduleSlot.findFirstOrThrow({ where: { versionId: expected.versionId! } });
+    await prisma.scheduleSlot.update({ where: { id: copy.id }, data: { date: date('2099-01-01') } });
+    const result = await publishSchedule(scheduleId, { ...expected, confirmIssues: true });
+    expect('error' in result).toBe(true);
+    const schedule = await prisma.schedule.findUniqueOrThrow({ where: { id: scheduleId } });
+    expect(schedule).toMatchObject({ status: 'PUBLISHED', publishedVersionId: publishedId, draftVersionId: expected.versionId });
+    expect((await getUpcomingSchedule(facilityId))?.versionId).toBe(publishedId);
   });
 
-  it('does not allow a different court manager to edit the schedule', async () => {
-    const region = await prisma.district.findFirstOrThrow({ where: { facilities: { some: { id: facilityId } } } });
-    const other = await prisma.facility.create({ data: { name: 'other', code: randomUUID(), districtId: region.id } });
-    const otherRole = await prisma.shiftRole.create({ data: { facilityId: other.id, name: 'other role', rank: 1 } });
-    const manager = await prisma.user.create({ data: { email: `${randomUUID()}@test.invalid`, passwordHash: 'x', systemRole: 'USER', firstName: 'Other', lastName: 'Manager', displayName: 'Other Manager', facilityId: other.id, shiftRoleId: otherRole.id, facilityRoles: { create: { facilityId: other.id, role: 'MANAGER' } } } });
-    identity.userId = manager.id;
+  it('rejects a manager belonging to a different facility', async () => {
+    const district = await prisma.district.findFirstOrThrow({ where: { facilities: { some: { id: facilityId } } } });
+    const facility = await prisma.facility.create({ data: { name: 'other', code: randomUUID(), districtId: district.id } });
+    const manager = await prisma.user.findUniqueOrThrow({ where: { id: managerId } });
+    const other = await prisma.user.create({ data: { email: `${randomUUID()}@test.invalid`, passwordHash: 'x', facilityId: facility.id, roleId: manager.roleId, firstName: 'Other', lastName: 'Manager', displayName: 'Other Manager', canEditSchedule: true } });
+    identity.userId = other.id;
     await expect(add()).rejects.toThrow();
   });
 
-  it('scopes employee submissions to the authenticated employee and enforces deadline without cron', async () => {
-    identity.userId = employeeId;
-    const result = await submitAvailability({ periodId, entries: { '2098-01-06-MORNING': 'PREFERRED', '2098-01-07-NIGHT': 'UNAVAILABLE' } });
-    expect(result.ok).toBe(true);
-    const input = await loadSchedulingInput(prisma, scheduleId, facilityId, expected.versionId);
-    expect(input.input.preferences?.get(employeeId)?.has('2098-01-06|MORNING')).toBe(true);
-    expect(input.input.availability.get(employeeId)?.has('2098-01-07|NIGHT')).toBe(false);
-    await prisma.schedulePeriod.update({ where: { id: periodId }, data: { submissionDeadline: new Date('2021-01-01') } });
-    expect((await submitAvailability({ periodId, entries: {} })).ok).toBe(false);
+  it('uses current permissions, so a revoked manager cannot mutate', async () => {
+    await prisma.user.update({ where: { id: managerId }, data: { canEditSchedule: false } });
+    await expect(requireManager()).rejects.toThrow();
+    await expect(add()).rejects.toThrow();
   });
 
-  it('regeneration retains only explicit locks and removes replaceable manual assignments', async () => {
-    await add(); expected.revision++;
-    const row = await prisma.shiftAssignment.findFirstOrThrow({ where: { scheduleId } });
-    await prisma.shiftAssignment.update({ where: { id: row.id }, data: { isLocked: true } });
+  it('regenerates only the draft and preserves the published snapshot and explicit locks', async () => {
+    await add(); await publish();
+    const publishedId = expected.versionId!;
+    const before = await prisma.scheduleSlot.findMany({ where: { versionId: publishedId } });
+    expected = await startScheduleCorrection(scheduleId, expected);
+    const row = await prisma.scheduleSlot.findFirstOrThrow({ where: { versionId: expected.versionId! } });
+    await prisma.scheduleSlot.update({ where: { id: row.id }, data: { isLocked: true } });
     const result = await generateAutoSchedule(scheduleId, expected);
     expect('ok' in result).toBe(true);
-    expect(await prisma.shiftAssignment.findUnique({ where: { id: row.id } })).not.toBeNull();
-    expect(await prisma.shiftAssignment.count({ where: { scheduleId, source: 'AUTOMATIC' } })).toBeGreaterThan(0);
+    expect(await prisma.scheduleSlot.findUnique({ where: { id: row.id } })).not.toBeNull();
+    expect(await prisma.scheduleSlot.findMany({ where: { versionId: publishedId } })).toEqual(before);
+    expect(await prisma.scheduleSlot.count({ where: { versionId: expected.versionId!, source: 'AUTOMATIC' } })).toBeGreaterThan(0);
   });
 
-  it('checks rest against the previous published period', async () => {
-    const previousPeriod = await prisma.schedulePeriod.create({ data: { facilityId, name: 'previous', startDate: date('2097-12-23'), endDate: date('2098-01-05'), submissionDeadline: date('2097-12-22') } });
-    const previous = await prisma.roster.create({ data: { facilityId, periodId: previousPeriod.id, createdById: managerId } });
-    const v = await prisma.rosterVersion.create({ data: { facilityId, scheduleId: previous.id, createdById: managerId, version: 1 } });
-    await prisma.shiftAssignment.create({ data: { facilityId, scheduleId: previous.id, versionId: v.id, employeeId, shiftRoleId: positionId, date: date('2098-01-05'), shiftType: 'NIGHT' } });
-    await prisma.rosterVersion.update({ where: { id: v.id }, data: { status: 'PUBLISHED', publishedAt: new Date(), isActive: true } });
-    await expect(add()).rejects.toThrow('מנוחה');
+  it('keeps published capacity unchanged and reconciles only correction drafts', async () => {
+    await add(); await publish();
+    const publishedId = expected.versionId!;
+    const visible = await getUpcomingSchedule(facilityId);
+    expected = await startScheduleCorrection(scheduleId, expected);
+    await scheduleTransaction({ facilityId, userId: managerId }, async tx => {
+      await tx.staffingRequirement.updateMany({ where: { facilityId }, data: { requiredCount: 2 } });
+      await reconcileDraftCapacity(tx, { facilityId, userId: managerId });
+    });
+    expect((await getUpcomingSchedule(facilityId))?.capacity).toEqual(visible?.capacity);
+    expect((await getUpcomingSchedule(facilityId))?.versionId).toBe(publishedId);
   });
 });

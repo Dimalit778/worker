@@ -1,7 +1,7 @@
 import { beforeEach, expect, it, vi } from 'vitest';
 
 const mocks = vi.hoisted(() => ({
-  tx: { schedule: { update: vi.fn() }, scheduleChange: { create: vi.fn() } },
+  tx: { scheduleVersion: { update: vi.fn() }, schedule: { update: vi.fn() }, scheduleChange: { create: vi.fn() } },
   checkedVersion: vi.fn(), loadSchedulingInput: vi.fn(), validateAssignments: vi.fn(), saveScheduleAnalysis: vi.fn(),
 }));
 vi.mock('@/lib/db/auth-helpers', () => ({ requireManager: async () => ({ facilityId: 'facility', userId: 'manager' }) }));
@@ -18,7 +18,7 @@ const expected = { versionId: 'schedule', revision: 1 };
 beforeEach(() => {
   vi.clearAllMocks();
   mocks.checkedVersion.mockResolvedValue({ version: { id: 'schedule', status: 'DRAFT', revision: 1 } });
-  mocks.loadSchedulingInput.mockResolvedValue({ input: {}, allAssignments: [] });
+  mocks.loadSchedulingInput.mockResolvedValue({ input: {}, allAssignments: [], capacities: [] });
   mocks.validateAssignments.mockReturnValue([]);
   mocks.saveScheduleAnalysis.mockResolvedValue({ warnings: [] });
 });

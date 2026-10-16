@@ -224,16 +224,20 @@ model StaffingRequirement {
 }
 
 model Schedule {
-  id                 String         @id @default(cuid())
+  id                 String            @id @default(cuid())
   facilityId         String
   name               String
-  startDate          DateTime       @db.Date
-  endDate            DateTime       @db.Date
-  submissionOpensAt  DateTime       @db.Timestamptz(3)
-  submissionClosesAt DateTime       @db.Timestamptz(3)
-  status             ScheduleStatus @default(DRAFT)
-  publishedAt        DateTime?      @db.Timestamptz(3)
-  revision           Int            @default(0)
+  startDate          DateTime          @db.Date
+  endDate            DateTime          @db.Date
+  submissionOpensAt  DateTime          @db.Timestamptz(3)
+  submissionClosesAt DateTime          @db.Timestamptz(3)
+  status             ScheduleStatus    @default(DRAFT)
+  publishedAt        DateTime?         @db.Timestamptz(3)
+  draftVersionId     String?           @unique
+  publishedVersionId String?           @unique
+  draftVersion       ScheduleVersion?  @relation("DraftVersion", fields: [draftVersionId, id, facilityId], references: [id, scheduleId, facilityId], onDelete: Restrict)
+  publishedVersion   ScheduleVersion?  @relation("PublishedVersion", fields: [publishedVersionId, id, facilityId], references: [id, scheduleId, facilityId], onDelete: Restrict)
+  versions           ScheduleVersion[] @relation("ScheduleVersions")
 
   facility    Facility                 @relation(fields: [facilityId], references: [id], onDelete: Restrict)
   slots       ScheduleSlot[]
@@ -245,12 +249,37 @@ model Schedule {
 
   @@unique([id, facilityId])
   @@unique([facilityId, startDate, endDate])
+  @@unique([draftVersionId, id, facilityId])
+  @@unique([publishedVersionId, id, facilityId])
+}
+
+/// Published versions and their slots are immutable; Schedule pointers select the live/editing version.
+model ScheduleVersion {
+  id               String         @id @default(cuid())
+  scheduleId       String
+  facilityId       String
+  number           Int
+  revision         Int            @default(0)
+  status           ScheduleStatus @default(DRAFT)
+  publishedAt      DateTime?      @db.Timestamptz(3)
+  createdAt        DateTime       @default(now())
+  capacitySnapshot Json?
+
+  schedule     Schedule         @relation("ScheduleVersions", fields: [scheduleId, facilityId], references: [id, facilityId], onDelete: Restrict)
+  draftFor     Schedule?        @relation("DraftVersion")
+  publishedFor Schedule?        @relation("PublishedVersion")
+  slots        ScheduleSlot[]
+  changes      ScheduleChange[]
+
+  @@unique([id, scheduleId, facilityId])
+  @@unique([scheduleId, number])
 }
 
 model ScheduleSlot {
   id         String           @id @default(cuid())
   facilityId String
   scheduleId String
+  versionId  String
   positionId String
   date       DateTime         @db.Date
   shiftType  ShiftType
@@ -262,15 +291,16 @@ model ScheduleSlot {
   isLocked   Boolean          @default(false)
   note       String?
 
-  schedule Schedule @relation(fields: [scheduleId, facilityId], references: [id, facilityId], onDelete: Restrict)
+  schedule Schedule        @relation(fields: [scheduleId, facilityId], references: [id, facilityId], onDelete: Restrict)
+  version  ScheduleVersion @relation(fields: [versionId, scheduleId, facilityId], references: [id, scheduleId, facilityId], onDelete: Restrict)
   // Position must be global or belong to facilityId; validate on writes.
-  position Position @relation(fields: [positionId], references: [id], onDelete: Restrict)
-  user     User?    @relation(fields: [userId, facilityId], references: [id, facilityId], onDelete: Restrict)
+  position Position        @relation(fields: [positionId], references: [id], onDelete: Restrict)
+  user     User?           @relation(fields: [userId, facilityId], references: [id, facilityId], onDelete: Restrict)
 
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
 
-  @@unique([scheduleId, date, shiftType, positionId, slotNumber])
+  @@unique([versionId, date, shiftType, positionId, slotNumber])
   @@index([userId, startsAt])
   @@index([positionId, facilityId])
 }
@@ -314,14 +344,16 @@ model ScheduleChange {
   facilityId  String
   scheduleId  String
   changedById String
+  versionId   String?
   changeType  ScheduleChangeType
   reason      String?
   beforeData  Json?
   afterData   Json?
   createdAt   DateTime           @default(now()) @db.Timestamptz(3)
 
-  schedule  Schedule @relation(fields: [scheduleId, facilityId], references: [id, facilityId], onDelete: Restrict)
-  changedBy User     @relation(fields: [changedById, facilityId], references: [id, facilityId], onDelete: Restrict)
+  schedule  Schedule         @relation(fields: [scheduleId, facilityId], references: [id, facilityId], onDelete: Restrict)
+  version   ScheduleVersion? @relation(fields: [versionId, scheduleId, facilityId], references: [id, scheduleId, facilityId], onDelete: Restrict)
+  changedBy User             @relation(fields: [changedById, facilityId], references: [id, facilityId], onDelete: Restrict)
 
   @@index([scheduleId, createdAt])
   @@index([changedById, facilityId])

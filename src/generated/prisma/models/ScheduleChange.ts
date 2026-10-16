@@ -29,6 +29,7 @@ export type ScheduleChangeMinAggregateOutputType = {
   facilityId: string | null
   scheduleId: string | null
   changedById: string | null
+  versionId: string | null
   changeType: $Enums.ScheduleChangeType | null
   reason: string | null
   createdAt: Date | null
@@ -39,6 +40,7 @@ export type ScheduleChangeMaxAggregateOutputType = {
   facilityId: string | null
   scheduleId: string | null
   changedById: string | null
+  versionId: string | null
   changeType: $Enums.ScheduleChangeType | null
   reason: string | null
   createdAt: Date | null
@@ -49,6 +51,7 @@ export type ScheduleChangeCountAggregateOutputType = {
   facilityId: number
   scheduleId: number
   changedById: number
+  versionId: number
   changeType: number
   reason: number
   beforeData: number
@@ -63,6 +66,7 @@ export type ScheduleChangeMinAggregateInputType = {
   facilityId?: true
   scheduleId?: true
   changedById?: true
+  versionId?: true
   changeType?: true
   reason?: true
   createdAt?: true
@@ -73,6 +77,7 @@ export type ScheduleChangeMaxAggregateInputType = {
   facilityId?: true
   scheduleId?: true
   changedById?: true
+  versionId?: true
   changeType?: true
   reason?: true
   createdAt?: true
@@ -83,6 +88,7 @@ export type ScheduleChangeCountAggregateInputType = {
   facilityId?: true
   scheduleId?: true
   changedById?: true
+  versionId?: true
   changeType?: true
   reason?: true
   beforeData?: true
@@ -168,6 +174,7 @@ export type ScheduleChangeGroupByOutputType = {
   facilityId: string
   scheduleId: string
   changedById: string
+  versionId: string | null
   changeType: $Enums.ScheduleChangeType
   reason: string | null
   beforeData: runtime.JsonValue | null
@@ -201,12 +208,14 @@ export type ScheduleChangeWhereInput = {
   facilityId?: Prisma.StringFilter<"ScheduleChange"> | string
   scheduleId?: Prisma.StringFilter<"ScheduleChange"> | string
   changedById?: Prisma.StringFilter<"ScheduleChange"> | string
+  versionId?: Prisma.StringNullableFilter<"ScheduleChange"> | string | null
   changeType?: Prisma.EnumScheduleChangeTypeFilter<"ScheduleChange"> | $Enums.ScheduleChangeType
   reason?: Prisma.StringNullableFilter<"ScheduleChange"> | string | null
   beforeData?: Prisma.JsonNullableFilter<"ScheduleChange">
   afterData?: Prisma.JsonNullableFilter<"ScheduleChange">
   createdAt?: Prisma.DateTimeFilter<"ScheduleChange"> | Date | string
   schedule?: Prisma.XOR<Prisma.ScheduleScalarRelationFilter, Prisma.ScheduleWhereInput>
+  version?: Prisma.XOR<Prisma.ScheduleVersionNullableScalarRelationFilter, Prisma.ScheduleVersionWhereInput> | null
   changedBy?: Prisma.XOR<Prisma.UserScalarRelationFilter, Prisma.UserWhereInput>
 }
 
@@ -215,12 +224,14 @@ export type ScheduleChangeOrderByWithRelationInput = {
   facilityId?: Prisma.SortOrder
   scheduleId?: Prisma.SortOrder
   changedById?: Prisma.SortOrder
+  versionId?: Prisma.SortOrderInput | Prisma.SortOrder
   changeType?: Prisma.SortOrder
   reason?: Prisma.SortOrderInput | Prisma.SortOrder
   beforeData?: Prisma.SortOrderInput | Prisma.SortOrder
   afterData?: Prisma.SortOrderInput | Prisma.SortOrder
   createdAt?: Prisma.SortOrder
   schedule?: Prisma.ScheduleOrderByWithRelationInput
+  version?: Prisma.ScheduleVersionOrderByWithRelationInput
   changedBy?: Prisma.UserOrderByWithRelationInput
 }
 
@@ -232,12 +243,14 @@ export type ScheduleChangeWhereUniqueInput = Prisma.AtLeast<{
   facilityId?: Prisma.StringFilter<"ScheduleChange"> | string
   scheduleId?: Prisma.StringFilter<"ScheduleChange"> | string
   changedById?: Prisma.StringFilter<"ScheduleChange"> | string
+  versionId?: Prisma.StringNullableFilter<"ScheduleChange"> | string | null
   changeType?: Prisma.EnumScheduleChangeTypeFilter<"ScheduleChange"> | $Enums.ScheduleChangeType
   reason?: Prisma.StringNullableFilter<"ScheduleChange"> | string | null
   beforeData?: Prisma.JsonNullableFilter<"ScheduleChange">
   afterData?: Prisma.JsonNullableFilter<"ScheduleChange">
   createdAt?: Prisma.DateTimeFilter<"ScheduleChange"> | Date | string
   schedule?: Prisma.XOR<Prisma.ScheduleScalarRelationFilter, Prisma.ScheduleWhereInput>
+  version?: Prisma.XOR<Prisma.ScheduleVersionNullableScalarRelationFilter, Prisma.ScheduleVersionWhereInput> | null
   changedBy?: Prisma.XOR<Prisma.UserScalarRelationFilter, Prisma.UserWhereInput>
 }, "id">
 
@@ -246,6 +259,7 @@ export type ScheduleChangeOrderByWithAggregationInput = {
   facilityId?: Prisma.SortOrder
   scheduleId?: Prisma.SortOrder
   changedById?: Prisma.SortOrder
+  versionId?: Prisma.SortOrderInput | Prisma.SortOrder
   changeType?: Prisma.SortOrder
   reason?: Prisma.SortOrderInput | Prisma.SortOrder
   beforeData?: Prisma.SortOrderInput | Prisma.SortOrder
@@ -264,6 +278,7 @@ export type ScheduleChangeScalarWhereWithAggregatesInput = {
   facilityId?: Prisma.StringWithAggregatesFilter<"ScheduleChange"> | string
   scheduleId?: Prisma.StringWithAggregatesFilter<"ScheduleChange"> | string
   changedById?: Prisma.StringWithAggregatesFilter<"ScheduleChange"> | string
+  versionId?: Prisma.StringNullableWithAggregatesFilter<"ScheduleChange"> | string | null
   changeType?: Prisma.EnumScheduleChangeTypeWithAggregatesFilter<"ScheduleChange"> | $Enums.ScheduleChangeType
   reason?: Prisma.StringNullableWithAggregatesFilter<"ScheduleChange"> | string | null
   beforeData?: Prisma.JsonNullableWithAggregatesFilter<"ScheduleChange">
@@ -279,6 +294,7 @@ export type ScheduleChangeCreateInput = {
   afterData?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
   createdAt?: Date | string
   schedule: Prisma.ScheduleCreateNestedOneWithoutChangesInput
+  version?: Prisma.ScheduleVersionCreateNestedOneWithoutChangesInput
   changedBy: Prisma.UserCreateNestedOneWithoutChangesInput
 }
 
@@ -287,6 +303,7 @@ export type ScheduleChangeUncheckedCreateInput = {
   facilityId: string
   scheduleId: string
   changedById: string
+  versionId?: string | null
   changeType: $Enums.ScheduleChangeType
   reason?: string | null
   beforeData?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
@@ -302,6 +319,7 @@ export type ScheduleChangeUpdateInput = {
   afterData?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   schedule?: Prisma.ScheduleUpdateOneRequiredWithoutChangesNestedInput
+  version?: Prisma.ScheduleVersionUpdateOneWithoutChangesNestedInput
   changedBy?: Prisma.UserUpdateOneRequiredWithoutChangesNestedInput
 }
 
@@ -310,6 +328,7 @@ export type ScheduleChangeUncheckedUpdateInput = {
   facilityId?: Prisma.StringFieldUpdateOperationsInput | string
   scheduleId?: Prisma.StringFieldUpdateOperationsInput | string
   changedById?: Prisma.StringFieldUpdateOperationsInput | string
+  versionId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   changeType?: Prisma.EnumScheduleChangeTypeFieldUpdateOperationsInput | $Enums.ScheduleChangeType
   reason?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   beforeData?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
@@ -322,6 +341,7 @@ export type ScheduleChangeCreateManyInput = {
   facilityId: string
   scheduleId: string
   changedById: string
+  versionId?: string | null
   changeType: $Enums.ScheduleChangeType
   reason?: string | null
   beforeData?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
@@ -343,6 +363,7 @@ export type ScheduleChangeUncheckedUpdateManyInput = {
   facilityId?: Prisma.StringFieldUpdateOperationsInput | string
   scheduleId?: Prisma.StringFieldUpdateOperationsInput | string
   changedById?: Prisma.StringFieldUpdateOperationsInput | string
+  versionId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   changeType?: Prisma.EnumScheduleChangeTypeFieldUpdateOperationsInput | $Enums.ScheduleChangeType
   reason?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   beforeData?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
@@ -365,6 +386,7 @@ export type ScheduleChangeCountOrderByAggregateInput = {
   facilityId?: Prisma.SortOrder
   scheduleId?: Prisma.SortOrder
   changedById?: Prisma.SortOrder
+  versionId?: Prisma.SortOrder
   changeType?: Prisma.SortOrder
   reason?: Prisma.SortOrder
   beforeData?: Prisma.SortOrder
@@ -377,6 +399,7 @@ export type ScheduleChangeMaxOrderByAggregateInput = {
   facilityId?: Prisma.SortOrder
   scheduleId?: Prisma.SortOrder
   changedById?: Prisma.SortOrder
+  versionId?: Prisma.SortOrder
   changeType?: Prisma.SortOrder
   reason?: Prisma.SortOrder
   createdAt?: Prisma.SortOrder
@@ -387,6 +410,7 @@ export type ScheduleChangeMinOrderByAggregateInput = {
   facilityId?: Prisma.SortOrder
   scheduleId?: Prisma.SortOrder
   changedById?: Prisma.SortOrder
+  versionId?: Prisma.SortOrder
   changeType?: Prisma.SortOrder
   reason?: Prisma.SortOrder
   createdAt?: Prisma.SortOrder
@@ -476,6 +500,48 @@ export type ScheduleChangeUncheckedUpdateManyWithoutScheduleNestedInput = {
   deleteMany?: Prisma.ScheduleChangeScalarWhereInput | Prisma.ScheduleChangeScalarWhereInput[]
 }
 
+export type ScheduleChangeCreateNestedManyWithoutVersionInput = {
+  create?: Prisma.XOR<Prisma.ScheduleChangeCreateWithoutVersionInput, Prisma.ScheduleChangeUncheckedCreateWithoutVersionInput> | Prisma.ScheduleChangeCreateWithoutVersionInput[] | Prisma.ScheduleChangeUncheckedCreateWithoutVersionInput[]
+  connectOrCreate?: Prisma.ScheduleChangeCreateOrConnectWithoutVersionInput | Prisma.ScheduleChangeCreateOrConnectWithoutVersionInput[]
+  createMany?: Prisma.ScheduleChangeCreateManyVersionInputEnvelope
+  connect?: Prisma.ScheduleChangeWhereUniqueInput | Prisma.ScheduleChangeWhereUniqueInput[]
+}
+
+export type ScheduleChangeUncheckedCreateNestedManyWithoutVersionInput = {
+  create?: Prisma.XOR<Prisma.ScheduleChangeCreateWithoutVersionInput, Prisma.ScheduleChangeUncheckedCreateWithoutVersionInput> | Prisma.ScheduleChangeCreateWithoutVersionInput[] | Prisma.ScheduleChangeUncheckedCreateWithoutVersionInput[]
+  connectOrCreate?: Prisma.ScheduleChangeCreateOrConnectWithoutVersionInput | Prisma.ScheduleChangeCreateOrConnectWithoutVersionInput[]
+  createMany?: Prisma.ScheduleChangeCreateManyVersionInputEnvelope
+  connect?: Prisma.ScheduleChangeWhereUniqueInput | Prisma.ScheduleChangeWhereUniqueInput[]
+}
+
+export type ScheduleChangeUpdateManyWithoutVersionNestedInput = {
+  create?: Prisma.XOR<Prisma.ScheduleChangeCreateWithoutVersionInput, Prisma.ScheduleChangeUncheckedCreateWithoutVersionInput> | Prisma.ScheduleChangeCreateWithoutVersionInput[] | Prisma.ScheduleChangeUncheckedCreateWithoutVersionInput[]
+  connectOrCreate?: Prisma.ScheduleChangeCreateOrConnectWithoutVersionInput | Prisma.ScheduleChangeCreateOrConnectWithoutVersionInput[]
+  upsert?: Prisma.ScheduleChangeUpsertWithWhereUniqueWithoutVersionInput | Prisma.ScheduleChangeUpsertWithWhereUniqueWithoutVersionInput[]
+  createMany?: Prisma.ScheduleChangeCreateManyVersionInputEnvelope
+  set?: Prisma.ScheduleChangeWhereUniqueInput | Prisma.ScheduleChangeWhereUniqueInput[]
+  disconnect?: Prisma.ScheduleChangeWhereUniqueInput | Prisma.ScheduleChangeWhereUniqueInput[]
+  delete?: Prisma.ScheduleChangeWhereUniqueInput | Prisma.ScheduleChangeWhereUniqueInput[]
+  connect?: Prisma.ScheduleChangeWhereUniqueInput | Prisma.ScheduleChangeWhereUniqueInput[]
+  update?: Prisma.ScheduleChangeUpdateWithWhereUniqueWithoutVersionInput | Prisma.ScheduleChangeUpdateWithWhereUniqueWithoutVersionInput[]
+  updateMany?: Prisma.ScheduleChangeUpdateManyWithWhereWithoutVersionInput | Prisma.ScheduleChangeUpdateManyWithWhereWithoutVersionInput[]
+  deleteMany?: Prisma.ScheduleChangeScalarWhereInput | Prisma.ScheduleChangeScalarWhereInput[]
+}
+
+export type ScheduleChangeUncheckedUpdateManyWithoutVersionNestedInput = {
+  create?: Prisma.XOR<Prisma.ScheduleChangeCreateWithoutVersionInput, Prisma.ScheduleChangeUncheckedCreateWithoutVersionInput> | Prisma.ScheduleChangeCreateWithoutVersionInput[] | Prisma.ScheduleChangeUncheckedCreateWithoutVersionInput[]
+  connectOrCreate?: Prisma.ScheduleChangeCreateOrConnectWithoutVersionInput | Prisma.ScheduleChangeCreateOrConnectWithoutVersionInput[]
+  upsert?: Prisma.ScheduleChangeUpsertWithWhereUniqueWithoutVersionInput | Prisma.ScheduleChangeUpsertWithWhereUniqueWithoutVersionInput[]
+  createMany?: Prisma.ScheduleChangeCreateManyVersionInputEnvelope
+  set?: Prisma.ScheduleChangeWhereUniqueInput | Prisma.ScheduleChangeWhereUniqueInput[]
+  disconnect?: Prisma.ScheduleChangeWhereUniqueInput | Prisma.ScheduleChangeWhereUniqueInput[]
+  delete?: Prisma.ScheduleChangeWhereUniqueInput | Prisma.ScheduleChangeWhereUniqueInput[]
+  connect?: Prisma.ScheduleChangeWhereUniqueInput | Prisma.ScheduleChangeWhereUniqueInput[]
+  update?: Prisma.ScheduleChangeUpdateWithWhereUniqueWithoutVersionInput | Prisma.ScheduleChangeUpdateWithWhereUniqueWithoutVersionInput[]
+  updateMany?: Prisma.ScheduleChangeUpdateManyWithWhereWithoutVersionInput | Prisma.ScheduleChangeUpdateManyWithWhereWithoutVersionInput[]
+  deleteMany?: Prisma.ScheduleChangeScalarWhereInput | Prisma.ScheduleChangeScalarWhereInput[]
+}
+
 export type EnumScheduleChangeTypeFieldUpdateOperationsInput = {
   set?: $Enums.ScheduleChangeType
 }
@@ -488,11 +554,13 @@ export type ScheduleChangeCreateWithoutChangedByInput = {
   afterData?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
   createdAt?: Date | string
   schedule: Prisma.ScheduleCreateNestedOneWithoutChangesInput
+  version?: Prisma.ScheduleVersionCreateNestedOneWithoutChangesInput
 }
 
 export type ScheduleChangeUncheckedCreateWithoutChangedByInput = {
   id?: string
   scheduleId: string
+  versionId?: string | null
   changeType: $Enums.ScheduleChangeType
   reason?: string | null
   beforeData?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
@@ -534,6 +602,7 @@ export type ScheduleChangeScalarWhereInput = {
   facilityId?: Prisma.StringFilter<"ScheduleChange"> | string
   scheduleId?: Prisma.StringFilter<"ScheduleChange"> | string
   changedById?: Prisma.StringFilter<"ScheduleChange"> | string
+  versionId?: Prisma.StringNullableFilter<"ScheduleChange"> | string | null
   changeType?: Prisma.EnumScheduleChangeTypeFilter<"ScheduleChange"> | $Enums.ScheduleChangeType
   reason?: Prisma.StringNullableFilter<"ScheduleChange"> | string | null
   beforeData?: Prisma.JsonNullableFilter<"ScheduleChange">
@@ -548,12 +617,14 @@ export type ScheduleChangeCreateWithoutScheduleInput = {
   beforeData?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
   afterData?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
   createdAt?: Date | string
+  version?: Prisma.ScheduleVersionCreateNestedOneWithoutChangesInput
   changedBy: Prisma.UserCreateNestedOneWithoutChangesInput
 }
 
 export type ScheduleChangeUncheckedCreateWithoutScheduleInput = {
   id?: string
   changedById: string
+  versionId?: string | null
   changeType: $Enums.ScheduleChangeType
   reason?: string | null
   beforeData?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
@@ -587,9 +658,57 @@ export type ScheduleChangeUpdateManyWithWhereWithoutScheduleInput = {
   data: Prisma.XOR<Prisma.ScheduleChangeUpdateManyMutationInput, Prisma.ScheduleChangeUncheckedUpdateManyWithoutScheduleInput>
 }
 
+export type ScheduleChangeCreateWithoutVersionInput = {
+  id?: string
+  changeType: $Enums.ScheduleChangeType
+  reason?: string | null
+  beforeData?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
+  afterData?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
+  createdAt?: Date | string
+  schedule: Prisma.ScheduleCreateNestedOneWithoutChangesInput
+  changedBy: Prisma.UserCreateNestedOneWithoutChangesInput
+}
+
+export type ScheduleChangeUncheckedCreateWithoutVersionInput = {
+  id?: string
+  changedById: string
+  changeType: $Enums.ScheduleChangeType
+  reason?: string | null
+  beforeData?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
+  afterData?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
+  createdAt?: Date | string
+}
+
+export type ScheduleChangeCreateOrConnectWithoutVersionInput = {
+  where: Prisma.ScheduleChangeWhereUniqueInput
+  create: Prisma.XOR<Prisma.ScheduleChangeCreateWithoutVersionInput, Prisma.ScheduleChangeUncheckedCreateWithoutVersionInput>
+}
+
+export type ScheduleChangeCreateManyVersionInputEnvelope = {
+  data: Prisma.ScheduleChangeCreateManyVersionInput | Prisma.ScheduleChangeCreateManyVersionInput[]
+  skipDuplicates?: boolean
+}
+
+export type ScheduleChangeUpsertWithWhereUniqueWithoutVersionInput = {
+  where: Prisma.ScheduleChangeWhereUniqueInput
+  update: Prisma.XOR<Prisma.ScheduleChangeUpdateWithoutVersionInput, Prisma.ScheduleChangeUncheckedUpdateWithoutVersionInput>
+  create: Prisma.XOR<Prisma.ScheduleChangeCreateWithoutVersionInput, Prisma.ScheduleChangeUncheckedCreateWithoutVersionInput>
+}
+
+export type ScheduleChangeUpdateWithWhereUniqueWithoutVersionInput = {
+  where: Prisma.ScheduleChangeWhereUniqueInput
+  data: Prisma.XOR<Prisma.ScheduleChangeUpdateWithoutVersionInput, Prisma.ScheduleChangeUncheckedUpdateWithoutVersionInput>
+}
+
+export type ScheduleChangeUpdateManyWithWhereWithoutVersionInput = {
+  where: Prisma.ScheduleChangeScalarWhereInput
+  data: Prisma.XOR<Prisma.ScheduleChangeUpdateManyMutationInput, Prisma.ScheduleChangeUncheckedUpdateManyWithoutVersionInput>
+}
+
 export type ScheduleChangeCreateManyChangedByInput = {
   id?: string
   scheduleId: string
+  versionId?: string | null
   changeType: $Enums.ScheduleChangeType
   reason?: string | null
   beforeData?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
@@ -605,11 +724,13 @@ export type ScheduleChangeUpdateWithoutChangedByInput = {
   afterData?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   schedule?: Prisma.ScheduleUpdateOneRequiredWithoutChangesNestedInput
+  version?: Prisma.ScheduleVersionUpdateOneWithoutChangesNestedInput
 }
 
 export type ScheduleChangeUncheckedUpdateWithoutChangedByInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
   scheduleId?: Prisma.StringFieldUpdateOperationsInput | string
+  versionId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   changeType?: Prisma.EnumScheduleChangeTypeFieldUpdateOperationsInput | $Enums.ScheduleChangeType
   reason?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   beforeData?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
@@ -620,6 +741,7 @@ export type ScheduleChangeUncheckedUpdateWithoutChangedByInput = {
 export type ScheduleChangeUncheckedUpdateManyWithoutChangedByInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
   scheduleId?: Prisma.StringFieldUpdateOperationsInput | string
+  versionId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   changeType?: Prisma.EnumScheduleChangeTypeFieldUpdateOperationsInput | $Enums.ScheduleChangeType
   reason?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   beforeData?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
@@ -630,6 +752,7 @@ export type ScheduleChangeUncheckedUpdateManyWithoutChangedByInput = {
 export type ScheduleChangeCreateManyScheduleInput = {
   id?: string
   changedById: string
+  versionId?: string | null
   changeType: $Enums.ScheduleChangeType
   reason?: string | null
   beforeData?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
@@ -644,10 +767,54 @@ export type ScheduleChangeUpdateWithoutScheduleInput = {
   beforeData?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
   afterData?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  version?: Prisma.ScheduleVersionUpdateOneWithoutChangesNestedInput
   changedBy?: Prisma.UserUpdateOneRequiredWithoutChangesNestedInput
 }
 
 export type ScheduleChangeUncheckedUpdateWithoutScheduleInput = {
+  id?: Prisma.StringFieldUpdateOperationsInput | string
+  changedById?: Prisma.StringFieldUpdateOperationsInput | string
+  versionId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  changeType?: Prisma.EnumScheduleChangeTypeFieldUpdateOperationsInput | $Enums.ScheduleChangeType
+  reason?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  beforeData?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
+  afterData?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
+  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+}
+
+export type ScheduleChangeUncheckedUpdateManyWithoutScheduleInput = {
+  id?: Prisma.StringFieldUpdateOperationsInput | string
+  changedById?: Prisma.StringFieldUpdateOperationsInput | string
+  versionId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  changeType?: Prisma.EnumScheduleChangeTypeFieldUpdateOperationsInput | $Enums.ScheduleChangeType
+  reason?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  beforeData?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
+  afterData?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
+  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+}
+
+export type ScheduleChangeCreateManyVersionInput = {
+  id?: string
+  changedById: string
+  changeType: $Enums.ScheduleChangeType
+  reason?: string | null
+  beforeData?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
+  afterData?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
+  createdAt?: Date | string
+}
+
+export type ScheduleChangeUpdateWithoutVersionInput = {
+  id?: Prisma.StringFieldUpdateOperationsInput | string
+  changeType?: Prisma.EnumScheduleChangeTypeFieldUpdateOperationsInput | $Enums.ScheduleChangeType
+  reason?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  beforeData?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
+  afterData?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
+  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  schedule?: Prisma.ScheduleUpdateOneRequiredWithoutChangesNestedInput
+  changedBy?: Prisma.UserUpdateOneRequiredWithoutChangesNestedInput
+}
+
+export type ScheduleChangeUncheckedUpdateWithoutVersionInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
   changedById?: Prisma.StringFieldUpdateOperationsInput | string
   changeType?: Prisma.EnumScheduleChangeTypeFieldUpdateOperationsInput | $Enums.ScheduleChangeType
@@ -657,7 +824,7 @@ export type ScheduleChangeUncheckedUpdateWithoutScheduleInput = {
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
 }
 
-export type ScheduleChangeUncheckedUpdateManyWithoutScheduleInput = {
+export type ScheduleChangeUncheckedUpdateManyWithoutVersionInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
   changedById?: Prisma.StringFieldUpdateOperationsInput | string
   changeType?: Prisma.EnumScheduleChangeTypeFieldUpdateOperationsInput | $Enums.ScheduleChangeType
@@ -674,12 +841,14 @@ export type ScheduleChangeSelect<ExtArgs extends runtime.Types.Extensions.Intern
   facilityId?: boolean
   scheduleId?: boolean
   changedById?: boolean
+  versionId?: boolean
   changeType?: boolean
   reason?: boolean
   beforeData?: boolean
   afterData?: boolean
   createdAt?: boolean
   schedule?: boolean | Prisma.ScheduleDefaultArgs<ExtArgs>
+  version?: boolean | Prisma.ScheduleChange$versionArgs<ExtArgs>
   changedBy?: boolean | Prisma.UserDefaultArgs<ExtArgs>
 }, ExtArgs["result"]["scheduleChange"]>
 
@@ -688,12 +857,14 @@ export type ScheduleChangeSelectCreateManyAndReturn<ExtArgs extends runtime.Type
   facilityId?: boolean
   scheduleId?: boolean
   changedById?: boolean
+  versionId?: boolean
   changeType?: boolean
   reason?: boolean
   beforeData?: boolean
   afterData?: boolean
   createdAt?: boolean
   schedule?: boolean | Prisma.ScheduleDefaultArgs<ExtArgs>
+  version?: boolean | Prisma.ScheduleChange$versionArgs<ExtArgs>
   changedBy?: boolean | Prisma.UserDefaultArgs<ExtArgs>
 }, ExtArgs["result"]["scheduleChange"]>
 
@@ -702,12 +873,14 @@ export type ScheduleChangeSelectUpdateManyAndReturn<ExtArgs extends runtime.Type
   facilityId?: boolean
   scheduleId?: boolean
   changedById?: boolean
+  versionId?: boolean
   changeType?: boolean
   reason?: boolean
   beforeData?: boolean
   afterData?: boolean
   createdAt?: boolean
   schedule?: boolean | Prisma.ScheduleDefaultArgs<ExtArgs>
+  version?: boolean | Prisma.ScheduleChange$versionArgs<ExtArgs>
   changedBy?: boolean | Prisma.UserDefaultArgs<ExtArgs>
 }, ExtArgs["result"]["scheduleChange"]>
 
@@ -716,6 +889,7 @@ export type ScheduleChangeSelectScalar = {
   facilityId?: boolean
   scheduleId?: boolean
   changedById?: boolean
+  versionId?: boolean
   changeType?: boolean
   reason?: boolean
   beforeData?: boolean
@@ -723,17 +897,20 @@ export type ScheduleChangeSelectScalar = {
   createdAt?: boolean
 }
 
-export type ScheduleChangeOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"id" | "facilityId" | "scheduleId" | "changedById" | "changeType" | "reason" | "beforeData" | "afterData" | "createdAt", ExtArgs["result"]["scheduleChange"]>
+export type ScheduleChangeOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"id" | "facilityId" | "scheduleId" | "changedById" | "versionId" | "changeType" | "reason" | "beforeData" | "afterData" | "createdAt", ExtArgs["result"]["scheduleChange"]>
 export type ScheduleChangeInclude<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
   schedule?: boolean | Prisma.ScheduleDefaultArgs<ExtArgs>
+  version?: boolean | Prisma.ScheduleChange$versionArgs<ExtArgs>
   changedBy?: boolean | Prisma.UserDefaultArgs<ExtArgs>
 }
 export type ScheduleChangeIncludeCreateManyAndReturn<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
   schedule?: boolean | Prisma.ScheduleDefaultArgs<ExtArgs>
+  version?: boolean | Prisma.ScheduleChange$versionArgs<ExtArgs>
   changedBy?: boolean | Prisma.UserDefaultArgs<ExtArgs>
 }
 export type ScheduleChangeIncludeUpdateManyAndReturn<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
   schedule?: boolean | Prisma.ScheduleDefaultArgs<ExtArgs>
+  version?: boolean | Prisma.ScheduleChange$versionArgs<ExtArgs>
   changedBy?: boolean | Prisma.UserDefaultArgs<ExtArgs>
 }
 
@@ -741,6 +918,7 @@ export type $ScheduleChangePayload<ExtArgs extends runtime.Types.Extensions.Inte
   name: "ScheduleChange"
   objects: {
     schedule: Prisma.$SchedulePayload<ExtArgs>
+    version: Prisma.$ScheduleVersionPayload<ExtArgs> | null
     changedBy: Prisma.$UserPayload<ExtArgs>
   }
   scalars: runtime.Types.Extensions.GetPayloadResult<{
@@ -748,6 +926,7 @@ export type $ScheduleChangePayload<ExtArgs extends runtime.Types.Extensions.Inte
     facilityId: string
     scheduleId: string
     changedById: string
+    versionId: string | null
     changeType: $Enums.ScheduleChangeType
     reason: string | null
     beforeData: runtime.JsonValue | null
@@ -1148,6 +1327,7 @@ readonly fields: ScheduleChangeFieldRefs;
 export interface Prisma__ScheduleChangeClient<T, Null = never, ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs, GlobalOmitOptions = {}> extends Prisma.PrismaPromise<T> {
   readonly [Symbol.toStringTag]: "PrismaPromise"
   schedule<T extends Prisma.ScheduleDefaultArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.ScheduleDefaultArgs<ExtArgs>>): Prisma.Prisma__ScheduleClient<runtime.Types.Result.GetResult<Prisma.$SchedulePayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions> | Null, Null, ExtArgs, GlobalOmitOptions>
+  version<T extends Prisma.ScheduleChange$versionArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.ScheduleChange$versionArgs<ExtArgs>>): Prisma.Prisma__ScheduleVersionClient<runtime.Types.Result.GetResult<Prisma.$ScheduleVersionPayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions> | null, null, ExtArgs, GlobalOmitOptions>
   changedBy<T extends Prisma.UserDefaultArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.UserDefaultArgs<ExtArgs>>): Prisma.Prisma__UserClient<runtime.Types.Result.GetResult<Prisma.$UserPayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions> | Null, Null, ExtArgs, GlobalOmitOptions>
   /**
    * Attaches callbacks for the resolution and/or rejection of the Promise.
@@ -1182,6 +1362,7 @@ export interface ScheduleChangeFieldRefs {
   readonly facilityId: Prisma.FieldRef<"ScheduleChange", 'String'>
   readonly scheduleId: Prisma.FieldRef<"ScheduleChange", 'String'>
   readonly changedById: Prisma.FieldRef<"ScheduleChange", 'String'>
+  readonly versionId: Prisma.FieldRef<"ScheduleChange", 'String'>
   readonly changeType: Prisma.FieldRef<"ScheduleChange", 'ScheduleChangeType'>
   readonly reason: Prisma.FieldRef<"ScheduleChange", 'String'>
   readonly beforeData: Prisma.FieldRef<"ScheduleChange", 'Json'>
@@ -1585,6 +1766,25 @@ export type ScheduleChangeDeleteManyArgs<ExtArgs extends runtime.Types.Extension
    * Limit how many ScheduleChanges to delete.
    */
   limit?: number
+}
+
+/**
+ * ScheduleChange.version
+ */
+export type ScheduleChange$versionArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+  /**
+   * Select specific fields to fetch from the ScheduleVersion
+   */
+  select?: Prisma.ScheduleVersionSelect<ExtArgs> | null
+  /**
+   * Omit specific fields from the ScheduleVersion
+   */
+  omit?: Prisma.ScheduleVersionOmit<ExtArgs> | null
+  /**
+   * Choose, which related nodes to fetch as well
+   */
+  include?: Prisma.ScheduleVersionInclude<ExtArgs> | null
+  where?: Prisma.ScheduleVersionWhereInput
 }
 
 /**

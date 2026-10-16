@@ -126,7 +126,7 @@ export async function createSchedule(data: {
         });
       }
 
-      return tx.schedule.create({
+      const created = await tx.schedule.create({
         data: {
           name: data.name.trim(),
           startDate: start,
@@ -136,6 +136,8 @@ export async function createSchedule(data: {
           facilityId: session.user.facilityId ?? '',
         },
       });
+      const version = await tx.scheduleVersion.create({ data: { scheduleId: created.id, facilityId: created.facilityId, number: 1 } });
+      return tx.schedule.update({ where: { id: created.id }, data: { draftVersionId: version.id } });
     });
 
     const processed = await processDueSubmissionWindows(session.user.facilityId);
@@ -163,7 +165,7 @@ export async function deleteSchedule(scheduleId: string): Promise<{ ok: true } |
     await scheduleTransaction({ userId: session.user.id, facilityId: session.user.facilityId! }, async tx => {
       const schedule = await tx.schedule.findFirst({ where: { id: scheduleId, facilityId: session.user.facilityId! }, include: { _count: { select: { changes: true, slots: true } } } });
       if (!schedule) throw new Error('השיבוץ לא נמצא');
-      if (schedule.publishedAt || schedule._count.changes || schedule._count.slots) {
+      if (schedule.publishedAt || schedule.draftVersionId || schedule._count.changes || schedule._count.slots) {
         await tx.schedule.update({ where: { id: scheduleId }, data: { status: 'ARCHIVED' } });
         await tx.scheduleChange.create({ data: { facilityId: session.user.facilityId!, scheduleId, changedById: session.user.id, changeType: 'ARCHIVE', reason: 'השיבוץ הועבר לארכיון', beforeData: { status: schedule.status }, afterData: { status: 'ARCHIVED' } } });
       } else {

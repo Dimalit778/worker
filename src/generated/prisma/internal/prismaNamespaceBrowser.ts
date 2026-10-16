@@ -62,6 +62,7 @@ export const ModelName = {
   Position: 'Position',
   StaffingRequirement: 'StaffingRequirement',
   Schedule: 'Schedule',
+  ScheduleVersion: 'ScheduleVersion',
   ScheduleSlot: 'ScheduleSlot',
   AvailabilitySubmission: 'AvailabilitySubmission',
   ShiftAvailability: 'ShiftAvailability',
@@ -225,7 +226,8 @@ export const ScheduleScalarFieldEnum = {
   submissionClosesAt: 'submissionClosesAt',
   status: 'status',
   publishedAt: 'publishedAt',
-  revision: 'revision',
+  draftVersionId: 'draftVersionId',
+  publishedVersionId: 'publishedVersionId',
   createdAt: 'createdAt',
   updatedAt: 'updatedAt'
 } as const
@@ -233,10 +235,26 @@ export const ScheduleScalarFieldEnum = {
 export type ScheduleScalarFieldEnum = (typeof ScheduleScalarFieldEnum)[keyof typeof ScheduleScalarFieldEnum]
 
 
+export const ScheduleVersionScalarFieldEnum = {
+  id: 'id',
+  scheduleId: 'scheduleId',
+  facilityId: 'facilityId',
+  number: 'number',
+  revision: 'revision',
+  status: 'status',
+  publishedAt: 'publishedAt',
+  createdAt: 'createdAt',
+  capacitySnapshot: 'capacitySnapshot'
+} as const
+
+export type ScheduleVersionScalarFieldEnum = (typeof ScheduleVersionScalarFieldEnum)[keyof typeof ScheduleVersionScalarFieldEnum]
+
+
 export const ScheduleSlotScalarFieldEnum = {
   id: 'id',
   facilityId: 'facilityId',
   scheduleId: 'scheduleId',
+  versionId: 'versionId',
   positionId: 'positionId',
   date: 'date',
   shiftType: 'shiftType',
@@ -284,6 +302,7 @@ export const ScheduleChangeScalarFieldEnum = {
   facilityId: 'facilityId',
   scheduleId: 'scheduleId',
   changedById: 'changedById',
+  versionId: 'versionId',
   changeType: 'changeType',
   reason: 'reason',
   beforeData: 'beforeData',

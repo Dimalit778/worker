@@ -30,14 +30,14 @@ export async function applyScheduleEdit(
 ) {
   if (!update) return;
   await queryClient.cancelQueries({
-    queryKey: queryKeys.schedules.all(),
+    queryKey: queryKeys.schedules.draft(),
     predicate: query => (query.state.data as CurrentScheduleData | null)?.scheduleId === update.scheduleId,
   });
   queryClient.setQueriesData<CurrentScheduleData | null>(
-    { queryKey: queryKeys.schedules.all() },
+    { queryKey: queryKeys.schedules.draft() },
     current => {
-      if (!current || current.scheduleId !== update.scheduleId || (current.revision ?? 0) > update.revision) return current;
-      return { ...current, ...update, editingVersionNumber: update.revision };
+      if (!current || current.scheduleId !== update.scheduleId || current.versionId !== update.versionId || (current.revision ?? 0) > update.revision) return current;
+      return { ...current, ...update, editingVersionNumber: current.editingVersionNumber };
     },
   );
   // Inactive views refresh when opened; they need not delay this save.
