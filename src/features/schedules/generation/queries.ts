@@ -14,7 +14,7 @@ export async function loadSchedulingInput(tx: Prisma.TransactionClient, schedule
   const schedule = loadedSchedule ?? await tx.schedule.findFirst({ where: { id: scheduleId, facilityId } });
   if (!schedule) throw new Error('השיבוץ לא נמצא');
   const [employees, capacities, forms, assignments, surrounding] = await Promise.all([
-    tx.user.findMany({ where: { facilityId, ...staffedUser }, select: { id: true, displayName: true, roleId: true, role: { select: { id: true, name: true, rank: true } } } }),
+    tx.user.findMany({ where: { facilityId, ...staffedUser }, select: { id: true, displayName: true, roleId: true, isActive: true, role: { select: { id: true, name: true, rank: true } } } }),
     tx.staffingRequirement.findMany({ where: { facilityId, position: staffedPosition }, include: { position: { include: { baseRole: true } } } }),
     tx.availabilitySubmission.findMany({
       where: { scheduleId, submittedAt: { not: null }, user: { facilityId } },
@@ -54,7 +54,7 @@ export async function loadSchedulingInput(tx: Prisma.TransactionClient, schedule
     period: { id: schedule.id, facilityId, startDate: schedule.startDate, endDate: schedule.endDate },
     week1Dates: dates.slice(0, 7),
     week2Dates: dates.slice(7),
-    employees: employees.map((e) => ({ id: e.id, facilityId, positionId: e.roleId, rank: e.role.rank, isActive: true })),
+    employees: employees.map((e) => ({ id: e.id, facilityId, positionId: e.roleId, rank: e.role.rank, isActive: e.isActive })),
     capacities: capacities.map((c) => ({
       positionId: c.positionId,
       positionName: c.position.name,

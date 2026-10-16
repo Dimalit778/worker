@@ -7,6 +7,8 @@ import { scheduleTransaction, checkedVersion, editableDraft, type VersionExpecta
 import { loadSchedulingInput } from '../generation/queries';
 import { saveScheduleAnalysis } from '../generation/recalculate';
 import { validateAssignments } from '@/features/scheduling-engine/validate';
+import { computeManualViolations, type ManualViolation } from '@/features/scheduling-engine/manual-violations';
+import type { EngineAssignment } from '@/features/scheduling-engine/types';
 import { parseISODateToUtcMidnight } from '@/features/periods/utils';
 import { prisma } from '@/lib/db/client';
 import { loadedScheduleDetails } from './loaded-details';
@@ -18,7 +20,29 @@ type Edit = { kind: 'create'; params: AssignEmployeeToSlotParams } |
   { kind: 'swap'; assignmentId: string; otherId: string } |
   { kind: 'lock'; assignmentId: string; isLocked: boolean };
 
-async function editSchedule(scheduleId: string, expected: VersionExpectation, edit: Edit) {
+export type ManualOverride = { reason: string };
+export type OverrideRequired = { ok: false; requiresOverride: true; violations: ManualViolation[] };
+class OverrideRequiredError extends Error {
+  constructor(readonly violations: ManualViolation[]) { super('נדרש אישור חריגה'); }
+}
+
+const toEngineAssignment = (a: { userId: string | null; facilityId: string; positionId: string; date: Date; shiftType: EngineAssignment['shiftType']; slotNumber: number; isLocked: boolean; source: EngineAssignment['source'] }): EngineAssignment => ({
+  employeeId: a.userId ?? '', facilityId: a.facilityId, positionId: a.positionId, date: a.date, shiftType: a.shiftType,
+  slotIndex: Math.max(0, a.slotNumber - 1), isManualOverride: a.isLocked, source: a.source,
+});
+
+async function editSchedule(scheduleId: string, expected: VersionExpectation, edit: Edit, override?: ManualOverride) {
+  try {
+    return await applyEdit(scheduleId, expected, edit, override);
+  } catch (error) {
+    if (error instanceof OverrideRequiredError) return { ok: false, requiresOverride: true, violations: error.violations } as OverrideRequired;
+    throw error;
+  }
+}
+
+async function applyEdit(scheduleId: string, expected: VersionExpectation, edit: Edit, override?: ManualOverride) {
+  const reason = override?.reason?.trim();
+  if (override && (!reason || reason.length < 3)) throw new Error('יש לציין סיבה לחריגה');
   const actor = await requireManager();
   return scheduleTransaction(actor, async tx => {
     const { version } = await checkedVersion(tx, actor, scheduleId, expected);
@@ -26,6 +50,7 @@ async function editSchedule(scheduleId: string, expected: VersionExpectation, ed
     const before = await tx.scheduleSlot.findMany({ where: { scheduleId, versionId: version.id } });
     const existing = edit.kind === 'create' ? null : before.find(a => a.id === edit.assignmentId);
     if (edit.kind !== 'create' && !existing) throw new Error('השיבוץ לא נמצא בגרסה הנוכחית');
+    const changedIds: string[] = [];
     if (edit.kind === 'create') {
       const p = edit.params;
       const date = parseISODateToUtcMidnight(p.date);
@@ -37,26 +62,38 @@ async function editSchedule(scheduleId: string, expected: VersionExpectation, ed
       const defaults = defaultShiftTimes(p.shiftType);
       const bounds = shiftBounds(date, p.startTime || defaults.startTime, p.endTime || defaults.endTime);
       const last = await tx.scheduleSlot.aggregate({ where: { scheduleId, versionId: version.id, date, shiftType: p.shiftType, positionId: p.positionId }, _max: { slotNumber: true } });
-      await tx.scheduleSlot.create({ data: { scheduleId, versionId: version.id, facilityId: actor.facilityId, userId: p.employeeId, positionId: p.positionId, date, shiftType: p.shiftType, slotNumber: (last._max.slotNumber ?? 0) + 1, ...bounds, source: 'MANUAL', isLocked: false } });
+      const created = await tx.scheduleSlot.create({ data: { scheduleId, versionId: version.id, facilityId: actor.facilityId, userId: p.employeeId, positionId: p.positionId, date, shiftType: p.shiftType, slotNumber: (last._max.slotNumber ?? 0) + 1, ...bounds, source: 'MANUAL', isLocked: false } });
+      changedIds.push(created.id);
     } else if (edit.kind === 'remove') {
       await tx.scheduleSlot.delete({ where: { id: existing!.id } });
     } else if (edit.kind === 'lock') {
       await tx.scheduleSlot.update({ where: { id: existing!.id }, data: { isLocked: edit.isLocked } });
     } else if (edit.kind === 'update') {
       await tx.scheduleSlot.update({ where: { id: existing!.id }, data: { userId: edit.employeeId, source: 'MANUAL' } });
+      changedIds.push(existing!.id);
     } else {
       const other = before.find(a => a.id === edit.otherId);
       if (!other || other.id === existing!.id) throw new Error('יש לבחור שני שיבוצים שונים באותה טיוטה');
       await tx.scheduleSlot.update({ where: { id: existing!.id }, data: { userId: other.userId, source: 'MANUAL' } });
       await tx.scheduleSlot.update({ where: { id: other.id }, data: { userId: existing!.userId, source: 'MANUAL' } });
+      changedIds.push(existing!.id, other.id);
     }
     const data = await loadSchedulingInput(tx, scheduleId, actor.facilityId, version.id);
     const failures = validateAssignments(data.input, data.allAssignments);
     if (failures.length && edit.kind !== 'remove' && edit.kind !== 'lock') throw new Error(failures.join('; '));
+    // Manual placements: hard integrity rules block; business rules need an explicit manager approval.
+    const violations: ManualViolation[] = [];
+    for (const row of data.assignments.filter(a => changedIds.includes(a.id))) {
+      const result = computeManualViolations(data.input, data.assignments.filter(a => a.id !== row.id).map(toEngineAssignment), toEngineAssignment(row));
+      if (result.blocking.length) throw new Error(result.blocking.join('; '));
+      const prefix = changedIds.length > 1 ? `${row.user?.displayName ?? ''}: ` : '';
+      violations.push(...result.violations.map(v => ({ ...v, message: prefix + v.message })));
+    }
+    if (violations.length && !reason) throw new OverrideRequiredError(violations);
     const details = loadedScheduleDetails(data);
     await tx.scheduleVersion.update({ where: { id: version.id }, data: { revision: { increment: 1 } } });
-    await tx.scheduleChange.create({ data: { facilityId: actor.facilityId, scheduleId, versionId: version.id, changedById: actor.userId, changeType: edit.kind === 'create' ? 'CREATE' : edit.kind === 'remove' ? 'DELETE' : 'UPDATE', reason: `עדכון טיוטה: ${edit.kind}`, beforeData: JSON.parse(JSON.stringify(before)), afterData: JSON.parse(JSON.stringify(data.assignments)) } });
-    return { scheduleId, revision: version.revision + 1, versionId: version.id,
+    await tx.scheduleChange.create({ data: { facilityId: actor.facilityId, scheduleId, versionId: version.id, changedById: actor.userId, changeType: violations.length ? 'MANUAL_OVERRIDE' : edit.kind === 'create' ? 'CREATE' : edit.kind === 'remove' ? 'DELETE' : 'UPDATE', reason: violations.length ? reason : `עדכון טיוטה: ${edit.kind}`, beforeData: JSON.parse(JSON.stringify(before)), afterData: JSON.parse(JSON.stringify(violations.length ? { violations, approvedById: actor.userId, approvedAt: new Date().toISOString(), assignments: data.assignments } : data.assignments)) } });
+    return { ok: true as const, scheduleId, revision: version.revision + 1, versionId: version.id,
       assignments: details.assignments, warnings: details.warnings, fairness: details.fairness };
   });
 }
@@ -67,20 +104,20 @@ async function scheduleForAssignment(assignmentId: string) {
   if (!assignment) throw new Error('השיבוץ לא נמצא');
   return assignment.scheduleId;
 }
-export async function createAssignment(params: AssignEmployeeToSlotParams, expected: VersionExpectation) {
-  return editSchedule(params.scheduleId, expected, { kind: 'create', params });
+export async function createAssignment(params: AssignEmployeeToSlotParams, expected: VersionExpectation, override?: ManualOverride) {
+  return editSchedule(params.scheduleId, expected, { kind: 'create', params }, override);
 }
-export async function updateAssignment(assignmentId: string, employeeId: string, expected: VersionExpectation) {
-  return editSchedule(await scheduleForAssignment(assignmentId), expected, { kind: 'update', assignmentId, employeeId });
+export async function updateAssignment(assignmentId: string, employeeId: string, expected: VersionExpectation, override?: ManualOverride) {
+  return editSchedule(await scheduleForAssignment(assignmentId), expected, { kind: 'update', assignmentId, employeeId }, override);
 }
-export async function updateAssignmentEmployee(assignmentId: string, employeeId: string, expected: VersionExpectation) {
-  return updateAssignment(assignmentId, employeeId, expected);
+export async function updateAssignmentEmployee(assignmentId: string, employeeId: string, expected: VersionExpectation, override?: ManualOverride) {
+  return updateAssignment(assignmentId, employeeId, expected, override);
 }
 export async function removeAssignment(assignmentId: string, expected: VersionExpectation) {
   return editSchedule(await scheduleForAssignment(assignmentId), expected, { kind: 'remove', assignmentId });
 }
-export async function swapAssignments(assignmentId: string, otherId: string, expected: VersionExpectation) {
-  return editSchedule(await scheduleForAssignment(assignmentId), expected, { kind: 'swap', assignmentId, otherId });
+export async function swapAssignments(assignmentId: string, otherId: string, expected: VersionExpectation, override?: ManualOverride) {
+  return editSchedule(await scheduleForAssignment(assignmentId), expected, { kind: 'swap', assignmentId, otherId }, override);
 }
 export async function setAssignmentLocked(assignmentId: string, isLocked: boolean, expected: VersionExpectation) {
   return editSchedule(await scheduleForAssignment(assignmentId), expected, { kind: 'lock', assignmentId, isLocked });

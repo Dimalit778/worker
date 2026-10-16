@@ -7,6 +7,8 @@ import { cn } from '@/lib/utils';
 import { calendarDateISO } from '@/features/periods/utils';
 import { createAssignment, removeAssignment, updateAssignment } from '@/features/schedules/assignments/actions';
 import { applyScheduleEdit } from '@/features/schedules/hooks';
+import { ManualOverrideDialog } from '@/features/schedules/shared/manual-override-dialog';
+import type { ManualViolation } from '@/features/scheduling-engine/manual-violations';
 import type {
   AssignmentMap,
   AssignmentSummary,
@@ -290,14 +292,15 @@ function AssignmentSlotCard({
   const [open, setOpen] = useState(false);
   const [anchorRect, setAnchorRect] = useState<DOMRect | null>(null);
   const [error, setError] = useState<string | null>(null);
+  const [overrideRequest, setOverrideRequest] = useState<{ violations: ManualViolation[]; input: { type: 'select'; employeeId: string } } | null>(null);
 
   const assignmentMutation = useMutation({
-    mutationFn: async (input: { type: 'select'; employeeId: string } | { type: 'remove'; assignmentId: string }) => {
+    mutationFn: async (input: { type: 'select'; employeeId: string; override?: { reason: string } } | { type: 'remove'; assignmentId: string }) => {
       if (input.type === 'remove') {
         return removeAssignment(input.assignmentId, expected);
       }
       if (slot.assignment) {
-        return updateAssignment(slot.assignment.id, input.employeeId, expected);
+        return updateAssignment(slot.assignment.id, input.employeeId, expected, input.override);
       }
       return createAssignment({
         scheduleId,
@@ -307,9 +310,15 @@ function AssignmentSlotCard({
         shiftType,
         date,
         slotIndex: slot.slotIndex,
-      }, expected);
+      }, expected, input.override);
     },
-    onSuccess: update => applyScheduleEdit(queryClient, update),
+    onSuccess: (update, input) => {
+      if (update && 'requiresOverride' in update) {
+        setOverrideRequest({ violations: update.violations, input: input as { type: 'select'; employeeId: string } });
+        return;
+      }
+      return applyScheduleEdit(queryClient, update);
+    },
     onError: (e: Error) => setError(e.message || 'שגיאה בשיבוץ'),
   });
 
@@ -398,6 +407,14 @@ function AssignmentSlotCard({
           onClose={() => setOpen(false)}
         />
       ) : null}
+      <ManualOverrideDialog
+        violations={overrideRequest?.violations ?? null}
+        onCancel={() => setOverrideRequest(null)}
+        onConfirm={reason => {
+          if (overrideRequest) assignmentMutation.mutate({ ...overrideRequest.input, override: { reason } });
+          setOverrideRequest(null);
+        }}
+      />
     </div>
   );
 }
