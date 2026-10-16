@@ -43,7 +43,7 @@ export type AdminCourtsData = {
   regions: AdminRegionItem[];
 };
 
-export type AdminActionResult = { ok: true } | { error: string };
+export type AdminActionResult = { ok: true; inviteLink?: string; emailError?: string } | { error: string };
 
 export type CreateAdminCourtParams = {
   name: string;

@@ -2,7 +2,7 @@
 
 import Link from 'next/link';
 import type { ColumnDef } from '@tanstack/react-table';
-import { ArrowUpDown, Eye, MoreHorizontal, Pencil, Trash2 } from 'lucide-react';
+import { ArrowUpDown, Eye, MailPlus, MoreHorizontal, Pencil, Trash2 } from 'lucide-react';
 
 import { cn } from '@/lib/utils';
 import { EmployeeListItem } from '@/features/employess/types';
@@ -22,6 +22,7 @@ import { POSITION_STYLE } from '../utils';
 type EmployeesColumnsProps = {
   onEdit: (employee: EmployeeListItem) => void;
   onDelete: (employee: EmployeeListItem) => void;
+  onResendInvite: (employee: EmployeeListItem) => void;
   deletePending?: boolean;
   hideDetailLinks?: boolean;
 };
@@ -29,6 +30,7 @@ type EmployeesColumnsProps = {
 export function createEmployeesColumns({
   onEdit,
   onDelete,
+  onResendInvite,
   deletePending,
   hideDetailLinks = false,
 }: EmployeesColumnsProps): ColumnDef<EmployeeListItem>[] {
@@ -138,7 +140,7 @@ export function createEmployeesColumns({
                 </Button>
               </DropdownMenuTrigger>
 
-              <DropdownMenuContent align="end" className="w-40">
+              <DropdownMenuContent align="end" className="w-48">
                 <DropdownMenuLabel>פעולות</DropdownMenuLabel>
 
                 {!hideDetailLinks && (
@@ -153,6 +155,11 @@ export function createEmployeesColumns({
                 <DropdownMenuItem onClick={() => onEdit(employee)}>
                   <Pencil className="ml-2 h-4 w-4" />
                   עריכה
+                </DropdownMenuItem>
+
+                <DropdownMenuItem onClick={() => onResendInvite(employee)}>
+                  <MailPlus className="ml-2 h-4 w-4" />
+                  שליחת הזמנה מחדש
                 </DropdownMenuItem>
 
                 <DropdownMenuSeparator />
