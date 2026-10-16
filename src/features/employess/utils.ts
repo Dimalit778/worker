@@ -25,9 +25,6 @@ function toFutureAssignments(slots: FutureSlotRow[]): FutureAssignment[] {
     }));
 }
 
-function getInitialPasswordFromEmail(email: string): string {
-  return email.trim().toLowerCase().split('@')[0];
-}
 const POSITION_STYLE: Record<number, string> = {
   1: 'bg-slate-800 text-white',
   2: 'bg-blue-100 text-blue-800',
@@ -43,4 +40,4 @@ const POSITION_STYLE: Record<number, string> = {
   12: 'bg-cyan-100 text-cyan-800',
 };
 
-export { getInitialPasswordFromEmail, toFutureAssignments, POSITION_STYLE };
+export { toFutureAssignments, POSITION_STYLE };

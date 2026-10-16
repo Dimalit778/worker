@@ -5,7 +5,7 @@ import { useMutation, useQueryClient } from '@tanstack/react-query';
 import { Plus } from 'lucide-react';
 
 import { EmployeeListItem, FutureAssignment, PositionOption } from '@/features/employess/types';
-import { setEmployeeActive } from '@/features/employess/actions';
+import { resendEmployeeInvite, setEmployeeActive } from '@/features/employess/actions';
 import { deleteAdminEmployee } from '@/features/admin/actions';
 import { invalidateEmployeesList } from '@/features/employess/hooks';
 import { SHIFT_LABELS } from '@/features/schedules/constants';
@@ -23,6 +23,7 @@ import {
 } from '@/components/ui/alert-dialog';
 
 import { EmployeeModal } from './employee-modal';
+import { InviteNotice } from './invite-notice';
 import { EmployeesDataTable } from './emplloyee-data-table';
 import { createEmployeesColumns } from './employee-columns';
 
@@ -72,6 +73,19 @@ export function EmployeesTable({
     name: string;
     assignments: FutureAssignment[];
   } | null>(null);
+  const { mutate: resendInvite } = useMutation({
+    mutationFn: (employeeId: string) => resendEmployeeInvite(employeeId),
+    onSuccess: (result) => {
+      if ('error' in result) {
+        setError(result.error);
+        return;
+      }
+      setInviteResult({ inviteLink: result.inviteLink, emailError: result.emailError });
+    },
+    onError: () => setError('שליחת ההזמנה נכשלה'),
+  });
+  const [inviteResult, setInviteResult] = useState<{ inviteLink?: string; emailError?: string } | null>(null);
+
   const [modalOpen, setModalOpen] = useState(false);
   const [editingEmployee, setEditingEmployee] = useState<EmployeeListItem | null>(null);
   const [deleteTarget, setDeleteTarget] = useState<{
@@ -120,6 +134,14 @@ export function EmployeesTable({
     setError(null);
     activeMutation.mutate({ id: activeTarget.id, isActive: activeTarget.activate });
   }
+  const handleResendInvite = useCallback(
+    (employee: EmployeeListItem) => {
+      setError(null);
+      setInviteResult(null);
+      resendInvite(employee.id);
+    },
+    [resendInvite, setError, setInviteResult],
+  );
 
   function handleConfirmDelete() {
     if (!deleteTarget) return;
@@ -133,10 +155,11 @@ export function EmployeesTable({
         onEdit: openEdit,
         onDelete: facilityId ? handleDeleteClick : undefined,
         onToggleActive: facilityId ? undefined : handleToggleActive,
+        onResendInvite: handleResendInvite,
         deletePending,
         hideDetailLinks: Boolean(facilityId),
       }),
-    [facilityId, deletePending, handleDeleteClick, handleToggleActive, openEdit],
+    [facilityId, deletePending, handleDeleteClick, handleToggleActive, handleResendInvite, openEdit],
   );
 
   return (
@@ -266,6 +289,7 @@ export function EmployeesTable({
           </AlertDialogFooter>
         </AlertDialogContent>
       </AlertDialog>
+      {inviteResult && <InviteNotice inviteLink={inviteResult.inviteLink} emailError={inviteResult.emailError} />}
 
       {error && <p className="text-sm text-destructive">{error}</p>}
     </div>

@@ -1,13 +1,12 @@
 'use server';
 import { PortalRole } from '@/lib/auth/portal';
 
-import bcrypt from 'bcryptjs';
 import { revalidatePath } from 'next/cache';
 
 import { Prisma, SystemRole } from '@/generated/prisma/client';
 import { prisma } from '@/lib/db/client';
 import { requireSession } from '@/lib/db/auth-helpers';
-import { getInitialPasswordFromEmail } from '@/features/employess/utils';
+import { sendInvite, unusablePasswordHash } from '@/lib/auth/invite';
 import { DEFAULT_SHIFT_TIMES } from '@/features/schedules/shift-times';
 import type {
   AdminActionResult,
@@ -280,9 +279,9 @@ export async function createAdminEmployee(params: CreateAdminEmployeeParams): Pr
       return { error: 'התפקיד לא שייך לבית המשפט שנבחר' };
     }
 
-    const passwordHash = await bcrypt.hash(getInitialPasswordFromEmail(email), 12);
+    const passwordHash = await unusablePasswordHash();
 
-    await prisma.$transaction(async (tx) => {
+    const userId = await prisma.$transaction(async (tx) => {
       const existingUser = await tx.user.findUnique({
         where: { email },
         select: { id: true },
@@ -292,7 +291,7 @@ export async function createAdminEmployee(params: CreateAdminEmployeeParams): Pr
         throw new Error('USER_EMAIL_EXISTS');
       }
 
-      await tx.user.create({
+      const created = await tx.user.create({
         data: {
           email,
           passwordHash,
@@ -306,12 +305,14 @@ export async function createAdminEmployee(params: CreateAdminEmployeeParams): Pr
           canEditSchedule: position.rank === 1,
           isReligious: params.isReligious,
         },
+        select: { id: true },
       });
+      return created.id;
     });
 
     revalidatePath('/admin/courts');
     revalidatePath('/admin/employees');
-    return { ok: true };
+    return { ok: true, ...(await sendInvite(userId, email)) };
   } catch (error) {
     if (error instanceof Error && error.message === 'USER_EMAIL_EXISTS') {
       return { error: 'כבר קיים משתמש עם האימייל הזה' };

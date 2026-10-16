@@ -8,7 +8,7 @@ import { createEmployee, updateEmployee } from '@/features/employess/actions';
 import { createAdminEmployee, updateAdminEmployee } from '@/features/admin/actions';
 import { invalidateEmployeeDetail, invalidateEmployeesList } from '@/features/employess/hooks';
 import { Button } from '@/components/ui/button';
-import { getInitialPasswordFromEmail } from '../utils';
+import { InviteNotice } from './invite-notice';
 
 import { Select, SelectTrigger, SelectValue, SelectContent, SelectItem, Label, Input, Checkbox } from '@/components/ui';
 
@@ -96,7 +96,8 @@ export function EmployeeModal({ employee, positions, facilityId, onClose }: Prop
         return;
       }
       invalidateEmployeesList(queryClient, facilityId);
-      setCreatedEmail(variables.email);
+      const invite = result as { inviteLink?: string; emailError?: string };
+      setCreatedInvite({ inviteLink: invite.inviteLink, emailError: invite.emailError });
       setCreated(true);
     },
     onError: () => setError('יצירת העובד נכשלה'),
@@ -104,7 +105,7 @@ export function EmployeeModal({ employee, positions, facilityId, onClose }: Prop
   const pending = saveMutation.isPending;
   const [error, setError] = useState<string | null>(null);
   const [created, setCreated] = useState(false);
-  const [createdEmail, setCreatedEmail] = useState('');
+  const [createdInvite, setCreatedInvite] = useState<{ inviteLink?: string; emailError?: string }>({});
   const [positionId, setPositionId] = useState(employee?.position.id ?? positions[0]?.id ?? '');
   const [isActive, setIsActive] = useState(employee?.isActive ?? true);
   const [isReligious, setIsReligious] = useState(employee?.isReligious ?? false);
@@ -142,11 +143,7 @@ export function EmployeeModal({ employee, positions, facilityId, onClose }: Prop
       <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50" dir="rtl">
         <div className="bg-white rounded-xl shadow-2xl w-full max-w-md p-6 space-y-4">
           <h2 className="font-bold text-lg">מאבטח נוסף בהצלחה</h2>
-          <p className="text-sm text-muted-foreground text-center">
-            הסיסמה הראשונית היא
-            <span className="font-mono font-semibold"> {getInitialPasswordFromEmail(createdEmail)}</span>. המאבטח יתבקש
-            לשנות אותה בכניסה הראשונה.
-          </p>
+          <InviteNotice inviteLink={createdInvite.inviteLink} emailError={createdInvite.emailError} />
           <Button onClick={onClose} className="w-full">
             סגור
           </Button>

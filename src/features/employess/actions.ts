@@ -2,7 +2,6 @@
 import { periodScheduleStatus } from '@/features/schedules/period-status';
 import { PortalRole } from '@/lib/auth/portal';
 
-import bcrypt from 'bcryptjs';
 import { SystemRole } from '@/generated/prisma/client';
 import { prisma } from '@/lib/db/client';
 import { requireSession } from '@/lib/db/auth-helpers';
@@ -15,9 +14,12 @@ import type {
   UpdateEmployeeParams,
 } from '@/features/employess/types';
 import { availabilityPreferencesToRecord, countAvailableEntries } from '@/features/availability/utils';
-import { getInitialPasswordFromEmail, toFutureAssignments } from './utils';
+import { toFutureAssignments } from './utils';
+import { sendInvite, unusablePasswordHash, type InviteResult } from '@/lib/auth/invite';
 
-export async function createEmployee(params: CreateEmployeeParams): Promise<{ ok: true } | { error: string }> {
+export type CreateEmployeeResult = ({ ok: true } & Partial<InviteResult>) | { error: string };
+
+export async function createEmployee(params: CreateEmployeeParams): Promise<CreateEmployeeResult> {
   const session = await requireSession(PortalRole.MANAGER);
 
   const facilityId = session.user.facilityId;
@@ -40,11 +42,10 @@ export async function createEmployee(params: CreateEmployeeParams): Promise<{ ok
 
   const role = await prisma.role.findUnique({ where: { id: positionId } });
   if (!role) return { error: 'התפקיד אינו שייך למתקן' };
-  const initialPassword = getInitialPasswordFromEmail(email);
-  const passwordHash = await bcrypt.hash(initialPassword, 12);
+  const passwordHash = await unusablePasswordHash();
 
   try {
-    await prisma.$transaction(async (tx) => {
+    const userId = await prisma.$transaction(async (tx) => {
       const existingUser = await tx.user.findUnique({
         where: { email },
         select: { id: true },
@@ -54,7 +55,7 @@ export async function createEmployee(params: CreateEmployeeParams): Promise<{ ok
         throw new Error('USER_EMAIL_EXISTS');
       }
 
-      await tx.user.create({
+      const created = await tx.user.create({
         data: {
           email,
           passwordHash,
@@ -68,10 +69,12 @@ export async function createEmployee(params: CreateEmployeeParams): Promise<{ ok
           canEditSchedule: role.rank === 1,
           isReligious,
         },
+        select: { id: true },
       });
+      return created.id;
     });
 
-    return { ok: true };
+    return { ok: true, ...(await sendInvite(userId, email)) };
   } catch (error) {
     if (error instanceof Error && error.message === 'USER_EMAIL_EXISTS') {
       return { error: 'כבר קיים משתמש עם האימייל הזה' };
@@ -98,6 +101,20 @@ export async function updateEmployee(params: UpdateEmployeeParams): Promise<{ ok
   });
 
   return { ok: true };
+}
+
+export async function resendEmployeeInvite(employeeId: string): Promise<CreateEmployeeResult> {
+  const session = await requireSession();
+  const isAdmin = session.user.systemRole === SystemRole.ADMIN;
+  if (!isAdmin && session.user.portal !== PortalRole.MANAGER) return { error: 'אין הרשאה' };
+
+  const employee = await prisma.user.findFirst({
+    where: { id: employeeId, ...(isAdmin ? {} : { facilityId: session.user.facilityId ?? '' }) },
+    select: { id: true, email: true },
+  });
+  if (!employee) return { error: 'עובד לא נמצא' };
+
+  return { ok: true, ...(await sendInvite(employee.id, employee.email)) };
 }
 
 export async function setEmployeeActive(employeeId: string, isActive: boolean): Promise<SetEmployeeActiveResult> {

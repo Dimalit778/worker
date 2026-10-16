@@ -4,7 +4,10 @@ import { PrismaAdapter } from '@next-auth/prisma-adapter';
 import bcrypt from 'bcryptjs';
 import { SystemRole } from '@/generated/prisma/client';
 import { prisma } from '@/lib/db/client';
+import { isLocked, nextFailureState } from '@/lib/auth/lockout';
 import { PortalRole, type PortalRole as PortalRoleValue } from '@/lib/auth/portal';
+
+export const ACCOUNT_LOCKED_ERROR = 'ACCOUNT_LOCKED';
 
 function portalFromLegacy(role: unknown): PortalRoleValue | undefined {
   if (role === 'ADMIN') return PortalRole.ADMIN;
@@ -32,10 +35,25 @@ export const authOptions: NextAuthOptions = {
           where: { email: credentials.identifier },
         });
 
-        if (!user) return null;
+        if (!user || !user.isActive) return null;
+
+        if (isLocked(user.lockedUntil)) throw new Error(ACCOUNT_LOCKED_ERROR);
 
         const isValid = await bcrypt.compare(credentials.password, user.passwordHash);
-        if (!isValid) return null;
+        if (!isValid) {
+          await prisma.user.update({
+            where: { id: user.id },
+            data: nextFailureState(user.failedLoginCount),
+          });
+          return null;
+        }
+
+        if (user.failedLoginCount !== 0 || user.lockedUntil) {
+          await prisma.user.update({
+            where: { id: user.id },
+            data: { failedLoginCount: 0, lockedUntil: null },
+          });
+        }
 
         const portal =
           user.systemRole === SystemRole.ADMIN

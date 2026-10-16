@@ -2,6 +2,7 @@
 
 import { useState, SyntheticEvent } from 'react';
 import { signIn } from 'next-auth/react';
+import Link from 'next/link';
 import { useRouter } from 'next/navigation';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -28,7 +29,11 @@ export function LoginForm() {
     setLoading(false);
 
     if (result?.error) {
-      setError('מזהה או סיסמה שגויים');
+      setError(
+        result.error === 'ACCOUNT_LOCKED'
+          ? 'החשבון ננעל זמנית עקב ניסיונות כושלים רבים. נסה שוב בעוד 15 דקות או אפס את הסיסמה'
+          : 'מזהה או סיסמה שגויים',
+      );
       return;
     }
 
@@ -69,6 +74,12 @@ export function LoginForm() {
       <Button type="submit" className="w-full" disabled={loading}>
         {loading ? 'מתחבר...' : 'התחבר'}
       </Button>
+
+      <div className="text-center text-sm">
+        <Link href="/forgot-password" className="underline">
+          שכחתי סיסמה
+        </Link>
+      </div>
     </form>
   );
 }
