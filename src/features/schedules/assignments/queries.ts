@@ -17,7 +17,7 @@ import { buildAssignmentMap, toScheduleData } from './utils';
 import { todayUtcDateForTimeZone } from '@/features/periods/utils';
 
 const SCHEDULE_TIME_ZONE = 'Asia/Jerusalem';
-const staffedUser = { role: { rank: { not: 1 } } };
+const staffedUser = { isActive: true, role: { rank: { not: 1 } } };
 const staffedPosition = {
   isActive: true,
   NOT: { OR: [{ requiredRank: 1 }, { baseRole: { rank: 1 } }] },

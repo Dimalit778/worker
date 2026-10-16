@@ -19,7 +19,7 @@ export function validateAssignments(
     const employee = employees.get(assignment.employeeId);
     if (isManual(assignment)) {
       // Keep data ownership and the schedule's date range intact, without applying staffing rules.
-      if (!employee || !employee.isActive || employee.facilityId !== input.period.facilityId ||
+      if (!employee || employee.facilityId !== input.period.facilityId ||
           assignment.facilityId !== input.period.facilityId ||
           assignment.date < input.period.startDate || assignment.date > input.period.endDate ||
           !Number.isFinite(assignment.date.getTime()) ||

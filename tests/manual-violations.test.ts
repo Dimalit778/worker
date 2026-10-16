@@ -48,3 +48,9 @@ describe('computeManualViolations', () => {
     expect(computeManualViolations(input(), [], { ...candidate, date: new Date('2026-11-01T00:00:00Z') }).blocking).not.toEqual([]);
   });
 });
+
+it('existing manual assignments of an inactive employee do not fail validation of other edits', async () => {
+  const { validateAssignments } = await import('@/features/scheduling-engine/validate');
+  const data = input(); data.employees[0].isActive = false;
+  expect(validateAssignments(data, [candidate])).toEqual([]);
+});
