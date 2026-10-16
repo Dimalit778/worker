@@ -26,7 +26,7 @@ export async function getScheduleChangeLog(scheduleId: string, facilityId: strin
       createdAt: true,
       changeType: true,
       reason: true,
-      schedule: { select: { revision: true } },
+      version: { select: { number: true } },
       changedBy: { select: { displayName: true } },
     },
   });
@@ -37,7 +37,7 @@ export async function getScheduleChangeLog(scheduleId: string, facilityId: strin
     changeType: row.changeType,
     message: row.reason,
     reason: row.reason,
-    versionNumber: row.schedule.revision,
+    versionNumber: row.version?.number ?? null,
     changedByName: row.changedBy.displayName,
   }));
 }

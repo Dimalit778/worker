@@ -20,18 +20,8 @@ export type ScheduleModel = runtime.Types.Result.DefaultSelection<Prisma.$Schedu
 
 export type AggregateSchedule = {
   _count: ScheduleCountAggregateOutputType | null
-  _avg: ScheduleAvgAggregateOutputType | null
-  _sum: ScheduleSumAggregateOutputType | null
   _min: ScheduleMinAggregateOutputType | null
   _max: ScheduleMaxAggregateOutputType | null
-}
-
-export type ScheduleAvgAggregateOutputType = {
-  revision: number | null
-}
-
-export type ScheduleSumAggregateOutputType = {
-  revision: number | null
 }
 
 export type ScheduleMinAggregateOutputType = {
@@ -44,7 +34,10 @@ export type ScheduleMinAggregateOutputType = {
   submissionClosesAt: Date | null
   status: $Enums.ScheduleStatus | null
   publishedAt: Date | null
-  revision: number | null
+  openNotifiedAt: Date | null
+  reminderSentAt: Date | null
+  draftVersionId: string | null
+  publishedVersionId: string | null
   createdAt: Date | null
   updatedAt: Date | null
 }
@@ -59,7 +52,10 @@ export type ScheduleMaxAggregateOutputType = {
   submissionClosesAt: Date | null
   status: $Enums.ScheduleStatus | null
   publishedAt: Date | null
-  revision: number | null
+  openNotifiedAt: Date | null
+  reminderSentAt: Date | null
+  draftVersionId: string | null
+  publishedVersionId: string | null
   createdAt: Date | null
   updatedAt: Date | null
 }
@@ -74,20 +70,15 @@ export type ScheduleCountAggregateOutputType = {
   submissionClosesAt: number
   status: number
   publishedAt: number
-  revision: number
+  openNotifiedAt: number
+  reminderSentAt: number
+  draftVersionId: number
+  publishedVersionId: number
   createdAt: number
   updatedAt: number
   _all: number
 }
 
-
-export type ScheduleAvgAggregateInputType = {
-  revision?: true
-}
-
-export type ScheduleSumAggregateInputType = {
-  revision?: true
-}
 
 export type ScheduleMinAggregateInputType = {
   id?: true
@@ -99,7 +90,10 @@ export type ScheduleMinAggregateInputType = {
   submissionClosesAt?: true
   status?: true
   publishedAt?: true
-  revision?: true
+  openNotifiedAt?: true
+  reminderSentAt?: true
+  draftVersionId?: true
+  publishedVersionId?: true
   createdAt?: true
   updatedAt?: true
 }
@@ -114,7 +108,10 @@ export type ScheduleMaxAggregateInputType = {
   submissionClosesAt?: true
   status?: true
   publishedAt?: true
-  revision?: true
+  openNotifiedAt?: true
+  reminderSentAt?: true
+  draftVersionId?: true
+  publishedVersionId?: true
   createdAt?: true
   updatedAt?: true
 }
@@ -129,7 +126,10 @@ export type ScheduleCountAggregateInputType = {
   submissionClosesAt?: true
   status?: true
   publishedAt?: true
-  revision?: true
+  openNotifiedAt?: true
+  reminderSentAt?: true
+  draftVersionId?: true
+  publishedVersionId?: true
   createdAt?: true
   updatedAt?: true
   _all?: true
@@ -173,18 +173,6 @@ export type ScheduleAggregateArgs<ExtArgs extends runtime.Types.Extensions.Inter
   /**
    * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
    * 
-   * Select which fields to average
-  **/
-  _avg?: ScheduleAvgAggregateInputType
-  /**
-   * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
-   * 
-   * Select which fields to sum
-  **/
-  _sum?: ScheduleSumAggregateInputType
-  /**
-   * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
-   * 
    * Select which fields to find the minimum value
   **/
   _min?: ScheduleMinAggregateInputType
@@ -215,8 +203,6 @@ export type ScheduleGroupByArgs<ExtArgs extends runtime.Types.Extensions.Interna
   take?: number
   skip?: number
   _count?: ScheduleCountAggregateInputType | true
-  _avg?: ScheduleAvgAggregateInputType
-  _sum?: ScheduleSumAggregateInputType
   _min?: ScheduleMinAggregateInputType
   _max?: ScheduleMaxAggregateInputType
 }
@@ -231,12 +217,13 @@ export type ScheduleGroupByOutputType = {
   submissionClosesAt: Date
   status: $Enums.ScheduleStatus
   publishedAt: Date | null
-  revision: number
+  openNotifiedAt: Date | null
+  reminderSentAt: Date | null
+  draftVersionId: string | null
+  publishedVersionId: string | null
   createdAt: Date
   updatedAt: Date
   _count: ScheduleCountAggregateOutputType | null
-  _avg: ScheduleAvgAggregateOutputType | null
-  _sum: ScheduleSumAggregateOutputType | null
   _min: ScheduleMinAggregateOutputType | null
   _max: ScheduleMaxAggregateOutputType | null
 }
@@ -269,9 +256,15 @@ export type ScheduleWhereInput = {
   submissionClosesAt?: Prisma.DateTimeFilter<"Schedule"> | Date | string
   status?: Prisma.EnumScheduleStatusFilter<"Schedule"> | $Enums.ScheduleStatus
   publishedAt?: Prisma.DateTimeNullableFilter<"Schedule"> | Date | string | null
-  revision?: Prisma.IntFilter<"Schedule"> | number
+  openNotifiedAt?: Prisma.DateTimeNullableFilter<"Schedule"> | Date | string | null
+  reminderSentAt?: Prisma.DateTimeNullableFilter<"Schedule"> | Date | string | null
+  draftVersionId?: Prisma.StringNullableFilter<"Schedule"> | string | null
+  publishedVersionId?: Prisma.StringNullableFilter<"Schedule"> | string | null
   createdAt?: Prisma.DateTimeFilter<"Schedule"> | Date | string
   updatedAt?: Prisma.DateTimeFilter<"Schedule"> | Date | string
+  draftVersion?: Prisma.XOR<Prisma.ScheduleVersionNullableScalarRelationFilter, Prisma.ScheduleVersionWhereInput> | null
+  publishedVersion?: Prisma.XOR<Prisma.ScheduleVersionNullableScalarRelationFilter, Prisma.ScheduleVersionWhereInput> | null
+  versions?: Prisma.ScheduleVersionListRelationFilter
   facility?: Prisma.XOR<Prisma.FacilityScalarRelationFilter, Prisma.FacilityWhereInput>
   slots?: Prisma.ScheduleSlotListRelationFilter
   submissions?: Prisma.AvailabilitySubmissionListRelationFilter
@@ -288,9 +281,15 @@ export type ScheduleOrderByWithRelationInput = {
   submissionClosesAt?: Prisma.SortOrder
   status?: Prisma.SortOrder
   publishedAt?: Prisma.SortOrderInput | Prisma.SortOrder
-  revision?: Prisma.SortOrder
+  openNotifiedAt?: Prisma.SortOrderInput | Prisma.SortOrder
+  reminderSentAt?: Prisma.SortOrderInput | Prisma.SortOrder
+  draftVersionId?: Prisma.SortOrderInput | Prisma.SortOrder
+  publishedVersionId?: Prisma.SortOrderInput | Prisma.SortOrder
   createdAt?: Prisma.SortOrder
   updatedAt?: Prisma.SortOrder
+  draftVersion?: Prisma.ScheduleVersionOrderByWithRelationInput
+  publishedVersion?: Prisma.ScheduleVersionOrderByWithRelationInput
+  versions?: Prisma.ScheduleVersionOrderByRelationAggregateInput
   facility?: Prisma.FacilityOrderByWithRelationInput
   slots?: Prisma.ScheduleSlotOrderByRelationAggregateInput
   submissions?: Prisma.AvailabilitySubmissionOrderByRelationAggregateInput
@@ -299,8 +298,12 @@ export type ScheduleOrderByWithRelationInput = {
 
 export type ScheduleWhereUniqueInput = Prisma.AtLeast<{
   id?: string
+  draftVersionId?: string
+  publishedVersionId?: string
   id_facilityId?: Prisma.ScheduleIdFacilityIdCompoundUniqueInput
   facilityId_startDate_endDate?: Prisma.ScheduleFacilityIdStartDateEndDateCompoundUniqueInput
+  draftVersionId_id_facilityId?: Prisma.ScheduleDraftVersionIdIdFacilityIdCompoundUniqueInput
+  publishedVersionId_id_facilityId?: Prisma.SchedulePublishedVersionIdIdFacilityIdCompoundUniqueInput
   AND?: Prisma.ScheduleWhereInput | Prisma.ScheduleWhereInput[]
   OR?: Prisma.ScheduleWhereInput[]
   NOT?: Prisma.ScheduleWhereInput | Prisma.ScheduleWhereInput[]
@@ -312,14 +315,18 @@ export type ScheduleWhereUniqueInput = Prisma.AtLeast<{
   submissionClosesAt?: Prisma.DateTimeFilter<"Schedule"> | Date | string
   status?: Prisma.EnumScheduleStatusFilter<"Schedule"> | $Enums.ScheduleStatus
   publishedAt?: Prisma.DateTimeNullableFilter<"Schedule"> | Date | string | null
-  revision?: Prisma.IntFilter<"Schedule"> | number
+  openNotifiedAt?: Prisma.DateTimeNullableFilter<"Schedule"> | Date | string | null
+  reminderSentAt?: Prisma.DateTimeNullableFilter<"Schedule"> | Date | string | null
   createdAt?: Prisma.DateTimeFilter<"Schedule"> | Date | string
   updatedAt?: Prisma.DateTimeFilter<"Schedule"> | Date | string
+  draftVersion?: Prisma.XOR<Prisma.ScheduleVersionNullableScalarRelationFilter, Prisma.ScheduleVersionWhereInput> | null
+  publishedVersion?: Prisma.XOR<Prisma.ScheduleVersionNullableScalarRelationFilter, Prisma.ScheduleVersionWhereInput> | null
+  versions?: Prisma.ScheduleVersionListRelationFilter
   facility?: Prisma.XOR<Prisma.FacilityScalarRelationFilter, Prisma.FacilityWhereInput>
   slots?: Prisma.ScheduleSlotListRelationFilter
   submissions?: Prisma.AvailabilitySubmissionListRelationFilter
   changes?: Prisma.ScheduleChangeListRelationFilter
-}, "id" | "id_facilityId" | "facilityId_startDate_endDate">
+}, "id" | "draftVersionId" | "publishedVersionId" | "id_facilityId" | "facilityId_startDate_endDate" | "draftVersionId_id_facilityId" | "publishedVersionId_id_facilityId">
 
 export type ScheduleOrderByWithAggregationInput = {
   id?: Prisma.SortOrder
@@ -331,14 +338,15 @@ export type ScheduleOrderByWithAggregationInput = {
   submissionClosesAt?: Prisma.SortOrder
   status?: Prisma.SortOrder
   publishedAt?: Prisma.SortOrderInput | Prisma.SortOrder
-  revision?: Prisma.SortOrder
+  openNotifiedAt?: Prisma.SortOrderInput | Prisma.SortOrder
+  reminderSentAt?: Prisma.SortOrderInput | Prisma.SortOrder
+  draftVersionId?: Prisma.SortOrderInput | Prisma.SortOrder
+  publishedVersionId?: Prisma.SortOrderInput | Prisma.SortOrder
   createdAt?: Prisma.SortOrder
   updatedAt?: Prisma.SortOrder
   _count?: Prisma.ScheduleCountOrderByAggregateInput
-  _avg?: Prisma.ScheduleAvgOrderByAggregateInput
   _max?: Prisma.ScheduleMaxOrderByAggregateInput
   _min?: Prisma.ScheduleMinOrderByAggregateInput
-  _sum?: Prisma.ScheduleSumOrderByAggregateInput
 }
 
 export type ScheduleScalarWhereWithAggregatesInput = {
@@ -354,13 +362,15 @@ export type ScheduleScalarWhereWithAggregatesInput = {
   submissionClosesAt?: Prisma.DateTimeWithAggregatesFilter<"Schedule"> | Date | string
   status?: Prisma.EnumScheduleStatusWithAggregatesFilter<"Schedule"> | $Enums.ScheduleStatus
   publishedAt?: Prisma.DateTimeNullableWithAggregatesFilter<"Schedule"> | Date | string | null
-  revision?: Prisma.IntWithAggregatesFilter<"Schedule"> | number
+  openNotifiedAt?: Prisma.DateTimeNullableWithAggregatesFilter<"Schedule"> | Date | string | null
+  reminderSentAt?: Prisma.DateTimeNullableWithAggregatesFilter<"Schedule"> | Date | string | null
+  draftVersionId?: Prisma.StringNullableWithAggregatesFilter<"Schedule"> | string | null
+  publishedVersionId?: Prisma.StringNullableWithAggregatesFilter<"Schedule"> | string | null
   createdAt?: Prisma.DateTimeWithAggregatesFilter<"Schedule"> | Date | string
   updatedAt?: Prisma.DateTimeWithAggregatesFilter<"Schedule"> | Date | string
 }
 
 export type ScheduleCreateInput = {
-  id?: string
   name: string
   startDate: Date | string
   endDate: Date | string
@@ -368,9 +378,13 @@ export type ScheduleCreateInput = {
   submissionClosesAt: Date | string
   status?: $Enums.ScheduleStatus
   publishedAt?: Date | string | null
-  revision?: number
+  openNotifiedAt?: Date | string | null
+  reminderSentAt?: Date | string | null
   createdAt?: Date | string
   updatedAt?: Date | string
+  draftVersion?: Prisma.ScheduleVersionCreateNestedOneWithoutDraftForInput
+  publishedVersion?: Prisma.ScheduleVersionCreateNestedOneWithoutPublishedForInput
+  versions?: Prisma.ScheduleVersionCreateNestedManyWithoutScheduleInput
   facility: Prisma.FacilityCreateNestedOneWithoutSchedulesInput
   slots?: Prisma.ScheduleSlotCreateNestedManyWithoutScheduleInput
   submissions?: Prisma.AvailabilitySubmissionCreateNestedManyWithoutScheduleInput
@@ -387,16 +401,19 @@ export type ScheduleUncheckedCreateInput = {
   submissionClosesAt: Date | string
   status?: $Enums.ScheduleStatus
   publishedAt?: Date | string | null
-  revision?: number
+  openNotifiedAt?: Date | string | null
+  reminderSentAt?: Date | string | null
+  draftVersionId?: string | null
+  publishedVersionId?: string | null
   createdAt?: Date | string
   updatedAt?: Date | string
+  versions?: Prisma.ScheduleVersionUncheckedCreateNestedManyWithoutScheduleInput
   slots?: Prisma.ScheduleSlotUncheckedCreateNestedManyWithoutScheduleInput
   submissions?: Prisma.AvailabilitySubmissionUncheckedCreateNestedManyWithoutScheduleInput
   changes?: Prisma.ScheduleChangeUncheckedCreateNestedManyWithoutScheduleInput
 }
 
 export type ScheduleUpdateInput = {
-  id?: Prisma.StringFieldUpdateOperationsInput | string
   name?: Prisma.StringFieldUpdateOperationsInput | string
   startDate?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   endDate?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
@@ -404,9 +421,13 @@ export type ScheduleUpdateInput = {
   submissionClosesAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   status?: Prisma.EnumScheduleStatusFieldUpdateOperationsInput | $Enums.ScheduleStatus
   publishedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
-  revision?: Prisma.IntFieldUpdateOperationsInput | number
+  openNotifiedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  reminderSentAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  draftVersion?: Prisma.ScheduleVersionUpdateOneWithoutDraftForNestedInput
+  publishedVersion?: Prisma.ScheduleVersionUpdateOneWithoutPublishedForNestedInput
+  versions?: Prisma.ScheduleVersionUpdateManyWithoutScheduleNestedInput
   facility?: Prisma.FacilityUpdateOneRequiredWithoutSchedulesNestedInput
   slots?: Prisma.ScheduleSlotUpdateManyWithoutScheduleNestedInput
   submissions?: Prisma.AvailabilitySubmissionUpdateManyWithoutScheduleNestedInput
@@ -423,9 +444,13 @@ export type ScheduleUncheckedUpdateInput = {
   submissionClosesAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   status?: Prisma.EnumScheduleStatusFieldUpdateOperationsInput | $Enums.ScheduleStatus
   publishedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
-  revision?: Prisma.IntFieldUpdateOperationsInput | number
+  openNotifiedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  reminderSentAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  draftVersionId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  publishedVersionId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  versions?: Prisma.ScheduleVersionUncheckedUpdateManyWithoutScheduleNestedInput
   slots?: Prisma.ScheduleSlotUncheckedUpdateManyWithoutScheduleNestedInput
   submissions?: Prisma.AvailabilitySubmissionUncheckedUpdateManyWithoutScheduleNestedInput
   changes?: Prisma.ScheduleChangeUncheckedUpdateManyWithoutScheduleNestedInput
@@ -441,13 +466,15 @@ export type ScheduleCreateManyInput = {
   submissionClosesAt: Date | string
   status?: $Enums.ScheduleStatus
   publishedAt?: Date | string | null
-  revision?: number
+  openNotifiedAt?: Date | string | null
+  reminderSentAt?: Date | string | null
+  draftVersionId?: string | null
+  publishedVersionId?: string | null
   createdAt?: Date | string
   updatedAt?: Date | string
 }
 
 export type ScheduleUpdateManyMutationInput = {
-  id?: Prisma.StringFieldUpdateOperationsInput | string
   name?: Prisma.StringFieldUpdateOperationsInput | string
   startDate?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   endDate?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
@@ -455,7 +482,8 @@ export type ScheduleUpdateManyMutationInput = {
   submissionClosesAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   status?: Prisma.EnumScheduleStatusFieldUpdateOperationsInput | $Enums.ScheduleStatus
   publishedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
-  revision?: Prisma.IntFieldUpdateOperationsInput | number
+  openNotifiedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  reminderSentAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
 }
@@ -470,7 +498,10 @@ export type ScheduleUncheckedUpdateManyInput = {
   submissionClosesAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   status?: Prisma.EnumScheduleStatusFieldUpdateOperationsInput | $Enums.ScheduleStatus
   publishedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
-  revision?: Prisma.IntFieldUpdateOperationsInput | number
+  openNotifiedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  reminderSentAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  draftVersionId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  publishedVersionId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
 }
@@ -496,6 +527,18 @@ export type ScheduleFacilityIdStartDateEndDateCompoundUniqueInput = {
   endDate: Date | string
 }
 
+export type ScheduleDraftVersionIdIdFacilityIdCompoundUniqueInput = {
+  draftVersionId: string
+  id: string
+  facilityId: string
+}
+
+export type SchedulePublishedVersionIdIdFacilityIdCompoundUniqueInput = {
+  publishedVersionId: string
+  id: string
+  facilityId: string
+}
+
 export type ScheduleCountOrderByAggregateInput = {
   id?: Prisma.SortOrder
   facilityId?: Prisma.SortOrder
@@ -506,13 +549,12 @@ export type ScheduleCountOrderByAggregateInput = {
   submissionClosesAt?: Prisma.SortOrder
   status?: Prisma.SortOrder
   publishedAt?: Prisma.SortOrder
-  revision?: Prisma.SortOrder
+  openNotifiedAt?: Prisma.SortOrder
+  reminderSentAt?: Prisma.SortOrder
+  draftVersionId?: Prisma.SortOrder
+  publishedVersionId?: Prisma.SortOrder
   createdAt?: Prisma.SortOrder
   updatedAt?: Prisma.SortOrder
-}
-
-export type ScheduleAvgOrderByAggregateInput = {
-  revision?: Prisma.SortOrder
 }
 
 export type ScheduleMaxOrderByAggregateInput = {
@@ -525,7 +567,10 @@ export type ScheduleMaxOrderByAggregateInput = {
   submissionClosesAt?: Prisma.SortOrder
   status?: Prisma.SortOrder
   publishedAt?: Prisma.SortOrder
-  revision?: Prisma.SortOrder
+  openNotifiedAt?: Prisma.SortOrder
+  reminderSentAt?: Prisma.SortOrder
+  draftVersionId?: Prisma.SortOrder
+  publishedVersionId?: Prisma.SortOrder
   createdAt?: Prisma.SortOrder
   updatedAt?: Prisma.SortOrder
 }
@@ -540,18 +585,22 @@ export type ScheduleMinOrderByAggregateInput = {
   submissionClosesAt?: Prisma.SortOrder
   status?: Prisma.SortOrder
   publishedAt?: Prisma.SortOrder
-  revision?: Prisma.SortOrder
+  openNotifiedAt?: Prisma.SortOrder
+  reminderSentAt?: Prisma.SortOrder
+  draftVersionId?: Prisma.SortOrder
+  publishedVersionId?: Prisma.SortOrder
   createdAt?: Prisma.SortOrder
   updatedAt?: Prisma.SortOrder
-}
-
-export type ScheduleSumOrderByAggregateInput = {
-  revision?: Prisma.SortOrder
 }
 
 export type ScheduleScalarRelationFilter = {
   is?: Prisma.ScheduleWhereInput
   isNot?: Prisma.ScheduleWhereInput
+}
+
+export type ScheduleNullableScalarRelationFilter = {
+  is?: Prisma.ScheduleWhereInput | null
+  isNot?: Prisma.ScheduleWhereInput | null
 }
 
 export type ScheduleCreateNestedManyWithoutFacilityInput = {
@@ -600,8 +649,82 @@ export type EnumScheduleStatusFieldUpdateOperationsInput = {
   set?: $Enums.ScheduleStatus
 }
 
-export type NullableDateTimeFieldUpdateOperationsInput = {
-  set?: Date | string | null
+export type ScheduleCreateNestedOneWithoutVersionsInput = {
+  create?: Prisma.XOR<Prisma.ScheduleCreateWithoutVersionsInput, Prisma.ScheduleUncheckedCreateWithoutVersionsInput>
+  connectOrCreate?: Prisma.ScheduleCreateOrConnectWithoutVersionsInput
+  connect?: Prisma.ScheduleWhereUniqueInput
+}
+
+export type ScheduleCreateNestedOneWithoutDraftVersionInput = {
+  create?: Prisma.XOR<Prisma.ScheduleCreateWithoutDraftVersionInput, Prisma.ScheduleUncheckedCreateWithoutDraftVersionInput>
+  connectOrCreate?: Prisma.ScheduleCreateOrConnectWithoutDraftVersionInput
+  connect?: Prisma.ScheduleWhereUniqueInput
+}
+
+export type ScheduleCreateNestedOneWithoutPublishedVersionInput = {
+  create?: Prisma.XOR<Prisma.ScheduleCreateWithoutPublishedVersionInput, Prisma.ScheduleUncheckedCreateWithoutPublishedVersionInput>
+  connectOrCreate?: Prisma.ScheduleCreateOrConnectWithoutPublishedVersionInput
+  connect?: Prisma.ScheduleWhereUniqueInput
+}
+
+export type ScheduleUncheckedCreateNestedOneWithoutDraftVersionInput = {
+  create?: Prisma.XOR<Prisma.ScheduleCreateWithoutDraftVersionInput, Prisma.ScheduleUncheckedCreateWithoutDraftVersionInput>
+  connectOrCreate?: Prisma.ScheduleCreateOrConnectWithoutDraftVersionInput
+  connect?: Prisma.ScheduleWhereUniqueInput
+}
+
+export type ScheduleUncheckedCreateNestedOneWithoutPublishedVersionInput = {
+  create?: Prisma.XOR<Prisma.ScheduleCreateWithoutPublishedVersionInput, Prisma.ScheduleUncheckedCreateWithoutPublishedVersionInput>
+  connectOrCreate?: Prisma.ScheduleCreateOrConnectWithoutPublishedVersionInput
+  connect?: Prisma.ScheduleWhereUniqueInput
+}
+
+export type ScheduleUpdateOneRequiredWithoutVersionsNestedInput = {
+  create?: Prisma.XOR<Prisma.ScheduleCreateWithoutVersionsInput, Prisma.ScheduleUncheckedCreateWithoutVersionsInput>
+  connectOrCreate?: Prisma.ScheduleCreateOrConnectWithoutVersionsInput
+  upsert?: Prisma.ScheduleUpsertWithoutVersionsInput
+  connect?: Prisma.ScheduleWhereUniqueInput
+  update?: Prisma.XOR<Prisma.XOR<Prisma.ScheduleUpdateToOneWithWhereWithoutVersionsInput, Prisma.ScheduleUpdateWithoutVersionsInput>, Prisma.ScheduleUncheckedUpdateWithoutVersionsInput>
+}
+
+export type ScheduleUpdateOneWithoutDraftVersionNestedInput = {
+  create?: Prisma.XOR<Prisma.ScheduleCreateWithoutDraftVersionInput, Prisma.ScheduleUncheckedCreateWithoutDraftVersionInput>
+  connectOrCreate?: Prisma.ScheduleCreateOrConnectWithoutDraftVersionInput
+  upsert?: Prisma.ScheduleUpsertWithoutDraftVersionInput
+  disconnect?: Prisma.ScheduleWhereInput | boolean
+  delete?: Prisma.ScheduleWhereInput | boolean
+  connect?: Prisma.ScheduleWhereUniqueInput
+  update?: Prisma.XOR<Prisma.XOR<Prisma.ScheduleUpdateToOneWithWhereWithoutDraftVersionInput, Prisma.ScheduleUpdateWithoutDraftVersionInput>, Prisma.ScheduleUncheckedUpdateWithoutDraftVersionInput>
+}
+
+export type ScheduleUpdateOneWithoutPublishedVersionNestedInput = {
+  create?: Prisma.XOR<Prisma.ScheduleCreateWithoutPublishedVersionInput, Prisma.ScheduleUncheckedCreateWithoutPublishedVersionInput>
+  connectOrCreate?: Prisma.ScheduleCreateOrConnectWithoutPublishedVersionInput
+  upsert?: Prisma.ScheduleUpsertWithoutPublishedVersionInput
+  disconnect?: Prisma.ScheduleWhereInput | boolean
+  delete?: Prisma.ScheduleWhereInput | boolean
+  connect?: Prisma.ScheduleWhereUniqueInput
+  update?: Prisma.XOR<Prisma.XOR<Prisma.ScheduleUpdateToOneWithWhereWithoutPublishedVersionInput, Prisma.ScheduleUpdateWithoutPublishedVersionInput>, Prisma.ScheduleUncheckedUpdateWithoutPublishedVersionInput>
+}
+
+export type ScheduleUncheckedUpdateOneWithoutDraftVersionNestedInput = {
+  create?: Prisma.XOR<Prisma.ScheduleCreateWithoutDraftVersionInput, Prisma.ScheduleUncheckedCreateWithoutDraftVersionInput>
+  connectOrCreate?: Prisma.ScheduleCreateOrConnectWithoutDraftVersionInput
+  upsert?: Prisma.ScheduleUpsertWithoutDraftVersionInput
+  disconnect?: Prisma.ScheduleWhereInput | boolean
+  delete?: Prisma.ScheduleWhereInput | boolean
+  connect?: Prisma.ScheduleWhereUniqueInput
+  update?: Prisma.XOR<Prisma.XOR<Prisma.ScheduleUpdateToOneWithWhereWithoutDraftVersionInput, Prisma.ScheduleUpdateWithoutDraftVersionInput>, Prisma.ScheduleUncheckedUpdateWithoutDraftVersionInput>
+}
+
+export type ScheduleUncheckedUpdateOneWithoutPublishedVersionNestedInput = {
+  create?: Prisma.XOR<Prisma.ScheduleCreateWithoutPublishedVersionInput, Prisma.ScheduleUncheckedCreateWithoutPublishedVersionInput>
+  connectOrCreate?: Prisma.ScheduleCreateOrConnectWithoutPublishedVersionInput
+  upsert?: Prisma.ScheduleUpsertWithoutPublishedVersionInput
+  disconnect?: Prisma.ScheduleWhereInput | boolean
+  delete?: Prisma.ScheduleWhereInput | boolean
+  connect?: Prisma.ScheduleWhereUniqueInput
+  update?: Prisma.XOR<Prisma.XOR<Prisma.ScheduleUpdateToOneWithWhereWithoutPublishedVersionInput, Prisma.ScheduleUpdateWithoutPublishedVersionInput>, Prisma.ScheduleUncheckedUpdateWithoutPublishedVersionInput>
 }
 
 export type ScheduleCreateNestedOneWithoutSlotsInput = {
@@ -647,7 +770,6 @@ export type ScheduleUpdateOneRequiredWithoutChangesNestedInput = {
 }
 
 export type ScheduleCreateWithoutFacilityInput = {
-  id?: string
   name: string
   startDate: Date | string
   endDate: Date | string
@@ -655,9 +777,13 @@ export type ScheduleCreateWithoutFacilityInput = {
   submissionClosesAt: Date | string
   status?: $Enums.ScheduleStatus
   publishedAt?: Date | string | null
-  revision?: number
+  openNotifiedAt?: Date | string | null
+  reminderSentAt?: Date | string | null
   createdAt?: Date | string
   updatedAt?: Date | string
+  draftVersion?: Prisma.ScheduleVersionCreateNestedOneWithoutDraftForInput
+  publishedVersion?: Prisma.ScheduleVersionCreateNestedOneWithoutPublishedForInput
+  versions?: Prisma.ScheduleVersionCreateNestedManyWithoutScheduleInput
   slots?: Prisma.ScheduleSlotCreateNestedManyWithoutScheduleInput
   submissions?: Prisma.AvailabilitySubmissionCreateNestedManyWithoutScheduleInput
   changes?: Prisma.ScheduleChangeCreateNestedManyWithoutScheduleInput
@@ -672,9 +798,13 @@ export type ScheduleUncheckedCreateWithoutFacilityInput = {
   submissionClosesAt: Date | string
   status?: $Enums.ScheduleStatus
   publishedAt?: Date | string | null
-  revision?: number
+  openNotifiedAt?: Date | string | null
+  reminderSentAt?: Date | string | null
+  draftVersionId?: string | null
+  publishedVersionId?: string | null
   createdAt?: Date | string
   updatedAt?: Date | string
+  versions?: Prisma.ScheduleVersionUncheckedCreateNestedManyWithoutScheduleInput
   slots?: Prisma.ScheduleSlotUncheckedCreateNestedManyWithoutScheduleInput
   submissions?: Prisma.AvailabilitySubmissionUncheckedCreateNestedManyWithoutScheduleInput
   changes?: Prisma.ScheduleChangeUncheckedCreateNestedManyWithoutScheduleInput
@@ -719,13 +849,15 @@ export type ScheduleScalarWhereInput = {
   submissionClosesAt?: Prisma.DateTimeFilter<"Schedule"> | Date | string
   status?: Prisma.EnumScheduleStatusFilter<"Schedule"> | $Enums.ScheduleStatus
   publishedAt?: Prisma.DateTimeNullableFilter<"Schedule"> | Date | string | null
-  revision?: Prisma.IntFilter<"Schedule"> | number
+  openNotifiedAt?: Prisma.DateTimeNullableFilter<"Schedule"> | Date | string | null
+  reminderSentAt?: Prisma.DateTimeNullableFilter<"Schedule"> | Date | string | null
+  draftVersionId?: Prisma.StringNullableFilter<"Schedule"> | string | null
+  publishedVersionId?: Prisma.StringNullableFilter<"Schedule"> | string | null
   createdAt?: Prisma.DateTimeFilter<"Schedule"> | Date | string
   updatedAt?: Prisma.DateTimeFilter<"Schedule"> | Date | string
 }
 
-export type ScheduleCreateWithoutSlotsInput = {
-  id?: string
+export type ScheduleCreateWithoutVersionsInput = {
   name: string
   startDate: Date | string
   endDate: Date | string
@@ -733,9 +865,299 @@ export type ScheduleCreateWithoutSlotsInput = {
   submissionClosesAt: Date | string
   status?: $Enums.ScheduleStatus
   publishedAt?: Date | string | null
-  revision?: number
+  openNotifiedAt?: Date | string | null
+  reminderSentAt?: Date | string | null
   createdAt?: Date | string
   updatedAt?: Date | string
+  draftVersion?: Prisma.ScheduleVersionCreateNestedOneWithoutDraftForInput
+  publishedVersion?: Prisma.ScheduleVersionCreateNestedOneWithoutPublishedForInput
+  facility: Prisma.FacilityCreateNestedOneWithoutSchedulesInput
+  slots?: Prisma.ScheduleSlotCreateNestedManyWithoutScheduleInput
+  submissions?: Prisma.AvailabilitySubmissionCreateNestedManyWithoutScheduleInput
+  changes?: Prisma.ScheduleChangeCreateNestedManyWithoutScheduleInput
+}
+
+export type ScheduleUncheckedCreateWithoutVersionsInput = {
+  id?: string
+  facilityId: string
+  name: string
+  startDate: Date | string
+  endDate: Date | string
+  submissionOpensAt: Date | string
+  submissionClosesAt: Date | string
+  status?: $Enums.ScheduleStatus
+  publishedAt?: Date | string | null
+  openNotifiedAt?: Date | string | null
+  reminderSentAt?: Date | string | null
+  draftVersionId?: string | null
+  publishedVersionId?: string | null
+  createdAt?: Date | string
+  updatedAt?: Date | string
+  slots?: Prisma.ScheduleSlotUncheckedCreateNestedManyWithoutScheduleInput
+  submissions?: Prisma.AvailabilitySubmissionUncheckedCreateNestedManyWithoutScheduleInput
+  changes?: Prisma.ScheduleChangeUncheckedCreateNestedManyWithoutScheduleInput
+}
+
+export type ScheduleCreateOrConnectWithoutVersionsInput = {
+  where: Prisma.ScheduleWhereUniqueInput
+  create: Prisma.XOR<Prisma.ScheduleCreateWithoutVersionsInput, Prisma.ScheduleUncheckedCreateWithoutVersionsInput>
+}
+
+export type ScheduleCreateWithoutDraftVersionInput = {
+  name: string
+  startDate: Date | string
+  endDate: Date | string
+  submissionOpensAt: Date | string
+  submissionClosesAt: Date | string
+  status?: $Enums.ScheduleStatus
+  publishedAt?: Date | string | null
+  openNotifiedAt?: Date | string | null
+  reminderSentAt?: Date | string | null
+  createdAt?: Date | string
+  updatedAt?: Date | string
+  publishedVersion?: Prisma.ScheduleVersionCreateNestedOneWithoutPublishedForInput
+  versions?: Prisma.ScheduleVersionCreateNestedManyWithoutScheduleInput
+  facility: Prisma.FacilityCreateNestedOneWithoutSchedulesInput
+  slots?: Prisma.ScheduleSlotCreateNestedManyWithoutScheduleInput
+  submissions?: Prisma.AvailabilitySubmissionCreateNestedManyWithoutScheduleInput
+  changes?: Prisma.ScheduleChangeCreateNestedManyWithoutScheduleInput
+}
+
+export type ScheduleUncheckedCreateWithoutDraftVersionInput = {
+  name: string
+  startDate: Date | string
+  endDate: Date | string
+  submissionOpensAt: Date | string
+  submissionClosesAt: Date | string
+  status?: $Enums.ScheduleStatus
+  publishedAt?: Date | string | null
+  openNotifiedAt?: Date | string | null
+  reminderSentAt?: Date | string | null
+  publishedVersionId?: string | null
+  createdAt?: Date | string
+  updatedAt?: Date | string
+  versions?: Prisma.ScheduleVersionUncheckedCreateNestedManyWithoutScheduleInput
+  slots?: Prisma.ScheduleSlotUncheckedCreateNestedManyWithoutScheduleInput
+  submissions?: Prisma.AvailabilitySubmissionUncheckedCreateNestedManyWithoutScheduleInput
+  changes?: Prisma.ScheduleChangeUncheckedCreateNestedManyWithoutScheduleInput
+}
+
+export type ScheduleCreateOrConnectWithoutDraftVersionInput = {
+  where: Prisma.ScheduleWhereUniqueInput
+  create: Prisma.XOR<Prisma.ScheduleCreateWithoutDraftVersionInput, Prisma.ScheduleUncheckedCreateWithoutDraftVersionInput>
+}
+
+export type ScheduleCreateWithoutPublishedVersionInput = {
+  name: string
+  startDate: Date | string
+  endDate: Date | string
+  submissionOpensAt: Date | string
+  submissionClosesAt: Date | string
+  status?: $Enums.ScheduleStatus
+  publishedAt?: Date | string | null
+  openNotifiedAt?: Date | string | null
+  reminderSentAt?: Date | string | null
+  createdAt?: Date | string
+  updatedAt?: Date | string
+  draftVersion?: Prisma.ScheduleVersionCreateNestedOneWithoutDraftForInput
+  versions?: Prisma.ScheduleVersionCreateNestedManyWithoutScheduleInput
+  facility: Prisma.FacilityCreateNestedOneWithoutSchedulesInput
+  slots?: Prisma.ScheduleSlotCreateNestedManyWithoutScheduleInput
+  submissions?: Prisma.AvailabilitySubmissionCreateNestedManyWithoutScheduleInput
+  changes?: Prisma.ScheduleChangeCreateNestedManyWithoutScheduleInput
+}
+
+export type ScheduleUncheckedCreateWithoutPublishedVersionInput = {
+  name: string
+  startDate: Date | string
+  endDate: Date | string
+  submissionOpensAt: Date | string
+  submissionClosesAt: Date | string
+  status?: $Enums.ScheduleStatus
+  publishedAt?: Date | string | null
+  openNotifiedAt?: Date | string | null
+  reminderSentAt?: Date | string | null
+  draftVersionId?: string | null
+  createdAt?: Date | string
+  updatedAt?: Date | string
+  versions?: Prisma.ScheduleVersionUncheckedCreateNestedManyWithoutScheduleInput
+  slots?: Prisma.ScheduleSlotUncheckedCreateNestedManyWithoutScheduleInput
+  submissions?: Prisma.AvailabilitySubmissionUncheckedCreateNestedManyWithoutScheduleInput
+  changes?: Prisma.ScheduleChangeUncheckedCreateNestedManyWithoutScheduleInput
+}
+
+export type ScheduleCreateOrConnectWithoutPublishedVersionInput = {
+  where: Prisma.ScheduleWhereUniqueInput
+  create: Prisma.XOR<Prisma.ScheduleCreateWithoutPublishedVersionInput, Prisma.ScheduleUncheckedCreateWithoutPublishedVersionInput>
+}
+
+export type ScheduleUpsertWithoutVersionsInput = {
+  update: Prisma.XOR<Prisma.ScheduleUpdateWithoutVersionsInput, Prisma.ScheduleUncheckedUpdateWithoutVersionsInput>
+  create: Prisma.XOR<Prisma.ScheduleCreateWithoutVersionsInput, Prisma.ScheduleUncheckedCreateWithoutVersionsInput>
+  where?: Prisma.ScheduleWhereInput
+}
+
+export type ScheduleUpdateToOneWithWhereWithoutVersionsInput = {
+  where?: Prisma.ScheduleWhereInput
+  data: Prisma.XOR<Prisma.ScheduleUpdateWithoutVersionsInput, Prisma.ScheduleUncheckedUpdateWithoutVersionsInput>
+}
+
+export type ScheduleUpdateWithoutVersionsInput = {
+  name?: Prisma.StringFieldUpdateOperationsInput | string
+  startDate?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  endDate?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  submissionOpensAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  submissionClosesAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  status?: Prisma.EnumScheduleStatusFieldUpdateOperationsInput | $Enums.ScheduleStatus
+  publishedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  openNotifiedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  reminderSentAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  draftVersion?: Prisma.ScheduleVersionUpdateOneWithoutDraftForNestedInput
+  publishedVersion?: Prisma.ScheduleVersionUpdateOneWithoutPublishedForNestedInput
+  facility?: Prisma.FacilityUpdateOneRequiredWithoutSchedulesNestedInput
+  slots?: Prisma.ScheduleSlotUpdateManyWithoutScheduleNestedInput
+  submissions?: Prisma.AvailabilitySubmissionUpdateManyWithoutScheduleNestedInput
+  changes?: Prisma.ScheduleChangeUpdateManyWithoutScheduleNestedInput
+}
+
+export type ScheduleUncheckedUpdateWithoutVersionsInput = {
+  id?: Prisma.StringFieldUpdateOperationsInput | string
+  facilityId?: Prisma.StringFieldUpdateOperationsInput | string
+  name?: Prisma.StringFieldUpdateOperationsInput | string
+  startDate?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  endDate?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  submissionOpensAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  submissionClosesAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  status?: Prisma.EnumScheduleStatusFieldUpdateOperationsInput | $Enums.ScheduleStatus
+  publishedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  openNotifiedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  reminderSentAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  draftVersionId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  publishedVersionId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  slots?: Prisma.ScheduleSlotUncheckedUpdateManyWithoutScheduleNestedInput
+  submissions?: Prisma.AvailabilitySubmissionUncheckedUpdateManyWithoutScheduleNestedInput
+  changes?: Prisma.ScheduleChangeUncheckedUpdateManyWithoutScheduleNestedInput
+}
+
+export type ScheduleUpsertWithoutDraftVersionInput = {
+  update: Prisma.XOR<Prisma.ScheduleUpdateWithoutDraftVersionInput, Prisma.ScheduleUncheckedUpdateWithoutDraftVersionInput>
+  create: Prisma.XOR<Prisma.ScheduleCreateWithoutDraftVersionInput, Prisma.ScheduleUncheckedCreateWithoutDraftVersionInput>
+  where?: Prisma.ScheduleWhereInput
+}
+
+export type ScheduleUpdateToOneWithWhereWithoutDraftVersionInput = {
+  where?: Prisma.ScheduleWhereInput
+  data: Prisma.XOR<Prisma.ScheduleUpdateWithoutDraftVersionInput, Prisma.ScheduleUncheckedUpdateWithoutDraftVersionInput>
+}
+
+export type ScheduleUpdateWithoutDraftVersionInput = {
+  name?: Prisma.StringFieldUpdateOperationsInput | string
+  startDate?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  endDate?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  submissionOpensAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  submissionClosesAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  status?: Prisma.EnumScheduleStatusFieldUpdateOperationsInput | $Enums.ScheduleStatus
+  publishedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  openNotifiedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  reminderSentAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  publishedVersion?: Prisma.ScheduleVersionUpdateOneWithoutPublishedForNestedInput
+  versions?: Prisma.ScheduleVersionUpdateManyWithoutScheduleNestedInput
+  facility?: Prisma.FacilityUpdateOneRequiredWithoutSchedulesNestedInput
+  slots?: Prisma.ScheduleSlotUpdateManyWithoutScheduleNestedInput
+  submissions?: Prisma.AvailabilitySubmissionUpdateManyWithoutScheduleNestedInput
+  changes?: Prisma.ScheduleChangeUpdateManyWithoutScheduleNestedInput
+}
+
+export type ScheduleUncheckedUpdateWithoutDraftVersionInput = {
+  name?: Prisma.StringFieldUpdateOperationsInput | string
+  startDate?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  endDate?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  submissionOpensAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  submissionClosesAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  status?: Prisma.EnumScheduleStatusFieldUpdateOperationsInput | $Enums.ScheduleStatus
+  publishedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  openNotifiedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  reminderSentAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  publishedVersionId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  versions?: Prisma.ScheduleVersionUncheckedUpdateManyWithoutScheduleNestedInput
+  slots?: Prisma.ScheduleSlotUncheckedUpdateManyWithoutScheduleNestedInput
+  submissions?: Prisma.AvailabilitySubmissionUncheckedUpdateManyWithoutScheduleNestedInput
+  changes?: Prisma.ScheduleChangeUncheckedUpdateManyWithoutScheduleNestedInput
+}
+
+export type ScheduleUpsertWithoutPublishedVersionInput = {
+  update: Prisma.XOR<Prisma.ScheduleUpdateWithoutPublishedVersionInput, Prisma.ScheduleUncheckedUpdateWithoutPublishedVersionInput>
+  create: Prisma.XOR<Prisma.ScheduleCreateWithoutPublishedVersionInput, Prisma.ScheduleUncheckedCreateWithoutPublishedVersionInput>
+  where?: Prisma.ScheduleWhereInput
+}
+
+export type ScheduleUpdateToOneWithWhereWithoutPublishedVersionInput = {
+  where?: Prisma.ScheduleWhereInput
+  data: Prisma.XOR<Prisma.ScheduleUpdateWithoutPublishedVersionInput, Prisma.ScheduleUncheckedUpdateWithoutPublishedVersionInput>
+}
+
+export type ScheduleUpdateWithoutPublishedVersionInput = {
+  name?: Prisma.StringFieldUpdateOperationsInput | string
+  startDate?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  endDate?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  submissionOpensAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  submissionClosesAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  status?: Prisma.EnumScheduleStatusFieldUpdateOperationsInput | $Enums.ScheduleStatus
+  publishedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  openNotifiedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  reminderSentAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  draftVersion?: Prisma.ScheduleVersionUpdateOneWithoutDraftForNestedInput
+  versions?: Prisma.ScheduleVersionUpdateManyWithoutScheduleNestedInput
+  facility?: Prisma.FacilityUpdateOneRequiredWithoutSchedulesNestedInput
+  slots?: Prisma.ScheduleSlotUpdateManyWithoutScheduleNestedInput
+  submissions?: Prisma.AvailabilitySubmissionUpdateManyWithoutScheduleNestedInput
+  changes?: Prisma.ScheduleChangeUpdateManyWithoutScheduleNestedInput
+}
+
+export type ScheduleUncheckedUpdateWithoutPublishedVersionInput = {
+  name?: Prisma.StringFieldUpdateOperationsInput | string
+  startDate?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  endDate?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  submissionOpensAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  submissionClosesAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  status?: Prisma.EnumScheduleStatusFieldUpdateOperationsInput | $Enums.ScheduleStatus
+  publishedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  openNotifiedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  reminderSentAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  draftVersionId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  versions?: Prisma.ScheduleVersionUncheckedUpdateManyWithoutScheduleNestedInput
+  slots?: Prisma.ScheduleSlotUncheckedUpdateManyWithoutScheduleNestedInput
+  submissions?: Prisma.AvailabilitySubmissionUncheckedUpdateManyWithoutScheduleNestedInput
+  changes?: Prisma.ScheduleChangeUncheckedUpdateManyWithoutScheduleNestedInput
+}
+
+export type ScheduleCreateWithoutSlotsInput = {
+  name: string
+  startDate: Date | string
+  endDate: Date | string
+  submissionOpensAt: Date | string
+  submissionClosesAt: Date | string
+  status?: $Enums.ScheduleStatus
+  publishedAt?: Date | string | null
+  openNotifiedAt?: Date | string | null
+  reminderSentAt?: Date | string | null
+  createdAt?: Date | string
+  updatedAt?: Date | string
+  draftVersion?: Prisma.ScheduleVersionCreateNestedOneWithoutDraftForInput
+  publishedVersion?: Prisma.ScheduleVersionCreateNestedOneWithoutPublishedForInput
+  versions?: Prisma.ScheduleVersionCreateNestedManyWithoutScheduleInput
   facility: Prisma.FacilityCreateNestedOneWithoutSchedulesInput
   submissions?: Prisma.AvailabilitySubmissionCreateNestedManyWithoutScheduleInput
   changes?: Prisma.ScheduleChangeCreateNestedManyWithoutScheduleInput
@@ -751,9 +1173,13 @@ export type ScheduleUncheckedCreateWithoutSlotsInput = {
   submissionClosesAt: Date | string
   status?: $Enums.ScheduleStatus
   publishedAt?: Date | string | null
-  revision?: number
+  openNotifiedAt?: Date | string | null
+  reminderSentAt?: Date | string | null
+  draftVersionId?: string | null
+  publishedVersionId?: string | null
   createdAt?: Date | string
   updatedAt?: Date | string
+  versions?: Prisma.ScheduleVersionUncheckedCreateNestedManyWithoutScheduleInput
   submissions?: Prisma.AvailabilitySubmissionUncheckedCreateNestedManyWithoutScheduleInput
   changes?: Prisma.ScheduleChangeUncheckedCreateNestedManyWithoutScheduleInput
 }
@@ -775,7 +1201,6 @@ export type ScheduleUpdateToOneWithWhereWithoutSlotsInput = {
 }
 
 export type ScheduleUpdateWithoutSlotsInput = {
-  id?: Prisma.StringFieldUpdateOperationsInput | string
   name?: Prisma.StringFieldUpdateOperationsInput | string
   startDate?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   endDate?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
@@ -783,9 +1208,13 @@ export type ScheduleUpdateWithoutSlotsInput = {
   submissionClosesAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   status?: Prisma.EnumScheduleStatusFieldUpdateOperationsInput | $Enums.ScheduleStatus
   publishedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
-  revision?: Prisma.IntFieldUpdateOperationsInput | number
+  openNotifiedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  reminderSentAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  draftVersion?: Prisma.ScheduleVersionUpdateOneWithoutDraftForNestedInput
+  publishedVersion?: Prisma.ScheduleVersionUpdateOneWithoutPublishedForNestedInput
+  versions?: Prisma.ScheduleVersionUpdateManyWithoutScheduleNestedInput
   facility?: Prisma.FacilityUpdateOneRequiredWithoutSchedulesNestedInput
   submissions?: Prisma.AvailabilitySubmissionUpdateManyWithoutScheduleNestedInput
   changes?: Prisma.ScheduleChangeUpdateManyWithoutScheduleNestedInput
@@ -801,15 +1230,18 @@ export type ScheduleUncheckedUpdateWithoutSlotsInput = {
   submissionClosesAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   status?: Prisma.EnumScheduleStatusFieldUpdateOperationsInput | $Enums.ScheduleStatus
   publishedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
-  revision?: Prisma.IntFieldUpdateOperationsInput | number
+  openNotifiedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  reminderSentAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  draftVersionId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  publishedVersionId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  versions?: Prisma.ScheduleVersionUncheckedUpdateManyWithoutScheduleNestedInput
   submissions?: Prisma.AvailabilitySubmissionUncheckedUpdateManyWithoutScheduleNestedInput
   changes?: Prisma.ScheduleChangeUncheckedUpdateManyWithoutScheduleNestedInput
 }
 
 export type ScheduleCreateWithoutSubmissionsInput = {
-  id?: string
   name: string
   startDate: Date | string
   endDate: Date | string
@@ -817,9 +1249,13 @@ export type ScheduleCreateWithoutSubmissionsInput = {
   submissionClosesAt: Date | string
   status?: $Enums.ScheduleStatus
   publishedAt?: Date | string | null
-  revision?: number
+  openNotifiedAt?: Date | string | null
+  reminderSentAt?: Date | string | null
   createdAt?: Date | string
   updatedAt?: Date | string
+  draftVersion?: Prisma.ScheduleVersionCreateNestedOneWithoutDraftForInput
+  publishedVersion?: Prisma.ScheduleVersionCreateNestedOneWithoutPublishedForInput
+  versions?: Prisma.ScheduleVersionCreateNestedManyWithoutScheduleInput
   facility: Prisma.FacilityCreateNestedOneWithoutSchedulesInput
   slots?: Prisma.ScheduleSlotCreateNestedManyWithoutScheduleInput
   changes?: Prisma.ScheduleChangeCreateNestedManyWithoutScheduleInput
@@ -835,9 +1271,13 @@ export type ScheduleUncheckedCreateWithoutSubmissionsInput = {
   submissionClosesAt: Date | string
   status?: $Enums.ScheduleStatus
   publishedAt?: Date | string | null
-  revision?: number
+  openNotifiedAt?: Date | string | null
+  reminderSentAt?: Date | string | null
+  draftVersionId?: string | null
+  publishedVersionId?: string | null
   createdAt?: Date | string
   updatedAt?: Date | string
+  versions?: Prisma.ScheduleVersionUncheckedCreateNestedManyWithoutScheduleInput
   slots?: Prisma.ScheduleSlotUncheckedCreateNestedManyWithoutScheduleInput
   changes?: Prisma.ScheduleChangeUncheckedCreateNestedManyWithoutScheduleInput
 }
@@ -859,7 +1299,6 @@ export type ScheduleUpdateToOneWithWhereWithoutSubmissionsInput = {
 }
 
 export type ScheduleUpdateWithoutSubmissionsInput = {
-  id?: Prisma.StringFieldUpdateOperationsInput | string
   name?: Prisma.StringFieldUpdateOperationsInput | string
   startDate?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   endDate?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
@@ -867,9 +1306,13 @@ export type ScheduleUpdateWithoutSubmissionsInput = {
   submissionClosesAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   status?: Prisma.EnumScheduleStatusFieldUpdateOperationsInput | $Enums.ScheduleStatus
   publishedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
-  revision?: Prisma.IntFieldUpdateOperationsInput | number
+  openNotifiedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  reminderSentAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  draftVersion?: Prisma.ScheduleVersionUpdateOneWithoutDraftForNestedInput
+  publishedVersion?: Prisma.ScheduleVersionUpdateOneWithoutPublishedForNestedInput
+  versions?: Prisma.ScheduleVersionUpdateManyWithoutScheduleNestedInput
   facility?: Prisma.FacilityUpdateOneRequiredWithoutSchedulesNestedInput
   slots?: Prisma.ScheduleSlotUpdateManyWithoutScheduleNestedInput
   changes?: Prisma.ScheduleChangeUpdateManyWithoutScheduleNestedInput
@@ -885,15 +1328,18 @@ export type ScheduleUncheckedUpdateWithoutSubmissionsInput = {
   submissionClosesAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   status?: Prisma.EnumScheduleStatusFieldUpdateOperationsInput | $Enums.ScheduleStatus
   publishedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
-  revision?: Prisma.IntFieldUpdateOperationsInput | number
+  openNotifiedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  reminderSentAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  draftVersionId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  publishedVersionId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  versions?: Prisma.ScheduleVersionUncheckedUpdateManyWithoutScheduleNestedInput
   slots?: Prisma.ScheduleSlotUncheckedUpdateManyWithoutScheduleNestedInput
   changes?: Prisma.ScheduleChangeUncheckedUpdateManyWithoutScheduleNestedInput
 }
 
 export type ScheduleCreateWithoutChangesInput = {
-  id?: string
   name: string
   startDate: Date | string
   endDate: Date | string
@@ -901,9 +1347,13 @@ export type ScheduleCreateWithoutChangesInput = {
   submissionClosesAt: Date | string
   status?: $Enums.ScheduleStatus
   publishedAt?: Date | string | null
-  revision?: number
+  openNotifiedAt?: Date | string | null
+  reminderSentAt?: Date | string | null
   createdAt?: Date | string
   updatedAt?: Date | string
+  draftVersion?: Prisma.ScheduleVersionCreateNestedOneWithoutDraftForInput
+  publishedVersion?: Prisma.ScheduleVersionCreateNestedOneWithoutPublishedForInput
+  versions?: Prisma.ScheduleVersionCreateNestedManyWithoutScheduleInput
   facility: Prisma.FacilityCreateNestedOneWithoutSchedulesInput
   slots?: Prisma.ScheduleSlotCreateNestedManyWithoutScheduleInput
   submissions?: Prisma.AvailabilitySubmissionCreateNestedManyWithoutScheduleInput
@@ -919,9 +1369,13 @@ export type ScheduleUncheckedCreateWithoutChangesInput = {
   submissionClosesAt: Date | string
   status?: $Enums.ScheduleStatus
   publishedAt?: Date | string | null
-  revision?: number
+  openNotifiedAt?: Date | string | null
+  reminderSentAt?: Date | string | null
+  draftVersionId?: string | null
+  publishedVersionId?: string | null
   createdAt?: Date | string
   updatedAt?: Date | string
+  versions?: Prisma.ScheduleVersionUncheckedCreateNestedManyWithoutScheduleInput
   slots?: Prisma.ScheduleSlotUncheckedCreateNestedManyWithoutScheduleInput
   submissions?: Prisma.AvailabilitySubmissionUncheckedCreateNestedManyWithoutScheduleInput
 }
@@ -943,7 +1397,6 @@ export type ScheduleUpdateToOneWithWhereWithoutChangesInput = {
 }
 
 export type ScheduleUpdateWithoutChangesInput = {
-  id?: Prisma.StringFieldUpdateOperationsInput | string
   name?: Prisma.StringFieldUpdateOperationsInput | string
   startDate?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   endDate?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
@@ -951,9 +1404,13 @@ export type ScheduleUpdateWithoutChangesInput = {
   submissionClosesAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   status?: Prisma.EnumScheduleStatusFieldUpdateOperationsInput | $Enums.ScheduleStatus
   publishedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
-  revision?: Prisma.IntFieldUpdateOperationsInput | number
+  openNotifiedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  reminderSentAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  draftVersion?: Prisma.ScheduleVersionUpdateOneWithoutDraftForNestedInput
+  publishedVersion?: Prisma.ScheduleVersionUpdateOneWithoutPublishedForNestedInput
+  versions?: Prisma.ScheduleVersionUpdateManyWithoutScheduleNestedInput
   facility?: Prisma.FacilityUpdateOneRequiredWithoutSchedulesNestedInput
   slots?: Prisma.ScheduleSlotUpdateManyWithoutScheduleNestedInput
   submissions?: Prisma.AvailabilitySubmissionUpdateManyWithoutScheduleNestedInput
@@ -969,9 +1426,13 @@ export type ScheduleUncheckedUpdateWithoutChangesInput = {
   submissionClosesAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   status?: Prisma.EnumScheduleStatusFieldUpdateOperationsInput | $Enums.ScheduleStatus
   publishedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
-  revision?: Prisma.IntFieldUpdateOperationsInput | number
+  openNotifiedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  reminderSentAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  draftVersionId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  publishedVersionId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  versions?: Prisma.ScheduleVersionUncheckedUpdateManyWithoutScheduleNestedInput
   slots?: Prisma.ScheduleSlotUncheckedUpdateManyWithoutScheduleNestedInput
   submissions?: Prisma.AvailabilitySubmissionUncheckedUpdateManyWithoutScheduleNestedInput
 }
@@ -985,13 +1446,15 @@ export type ScheduleCreateManyFacilityInput = {
   submissionClosesAt: Date | string
   status?: $Enums.ScheduleStatus
   publishedAt?: Date | string | null
-  revision?: number
+  openNotifiedAt?: Date | string | null
+  reminderSentAt?: Date | string | null
+  draftVersionId?: string | null
+  publishedVersionId?: string | null
   createdAt?: Date | string
   updatedAt?: Date | string
 }
 
 export type ScheduleUpdateWithoutFacilityInput = {
-  id?: Prisma.StringFieldUpdateOperationsInput | string
   name?: Prisma.StringFieldUpdateOperationsInput | string
   startDate?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   endDate?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
@@ -999,9 +1462,13 @@ export type ScheduleUpdateWithoutFacilityInput = {
   submissionClosesAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   status?: Prisma.EnumScheduleStatusFieldUpdateOperationsInput | $Enums.ScheduleStatus
   publishedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
-  revision?: Prisma.IntFieldUpdateOperationsInput | number
+  openNotifiedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  reminderSentAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  draftVersion?: Prisma.ScheduleVersionUpdateOneWithoutDraftForNestedInput
+  publishedVersion?: Prisma.ScheduleVersionUpdateOneWithoutPublishedForNestedInput
+  versions?: Prisma.ScheduleVersionUpdateManyWithoutScheduleNestedInput
   slots?: Prisma.ScheduleSlotUpdateManyWithoutScheduleNestedInput
   submissions?: Prisma.AvailabilitySubmissionUpdateManyWithoutScheduleNestedInput
   changes?: Prisma.ScheduleChangeUpdateManyWithoutScheduleNestedInput
@@ -1016,9 +1483,13 @@ export type ScheduleUncheckedUpdateWithoutFacilityInput = {
   submissionClosesAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   status?: Prisma.EnumScheduleStatusFieldUpdateOperationsInput | $Enums.ScheduleStatus
   publishedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
-  revision?: Prisma.IntFieldUpdateOperationsInput | number
+  openNotifiedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  reminderSentAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  draftVersionId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  publishedVersionId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  versions?: Prisma.ScheduleVersionUncheckedUpdateManyWithoutScheduleNestedInput
   slots?: Prisma.ScheduleSlotUncheckedUpdateManyWithoutScheduleNestedInput
   submissions?: Prisma.AvailabilitySubmissionUncheckedUpdateManyWithoutScheduleNestedInput
   changes?: Prisma.ScheduleChangeUncheckedUpdateManyWithoutScheduleNestedInput
@@ -1033,7 +1504,10 @@ export type ScheduleUncheckedUpdateManyWithoutFacilityInput = {
   submissionClosesAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   status?: Prisma.EnumScheduleStatusFieldUpdateOperationsInput | $Enums.ScheduleStatus
   publishedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
-  revision?: Prisma.IntFieldUpdateOperationsInput | number
+  openNotifiedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  reminderSentAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  draftVersionId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  publishedVersionId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
 }
@@ -1044,12 +1518,14 @@ export type ScheduleUncheckedUpdateManyWithoutFacilityInput = {
  */
 
 export type ScheduleCountOutputType = {
+  versions: number
   slots: number
   submissions: number
   changes: number
 }
 
 export type ScheduleCountOutputTypeSelect<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+  versions?: boolean | ScheduleCountOutputTypeCountVersionsArgs
   slots?: boolean | ScheduleCountOutputTypeCountSlotsArgs
   submissions?: boolean | ScheduleCountOutputTypeCountSubmissionsArgs
   changes?: boolean | ScheduleCountOutputTypeCountChangesArgs
@@ -1063,6 +1539,13 @@ export type ScheduleCountOutputTypeDefaultArgs<ExtArgs extends runtime.Types.Ext
    * Select specific fields to fetch from the ScheduleCountOutputType
    */
   select?: Prisma.ScheduleCountOutputTypeSelect<ExtArgs> | null
+}
+
+/**
+ * ScheduleCountOutputType without action
+ */
+export type ScheduleCountOutputTypeCountVersionsArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+  where?: Prisma.ScheduleVersionWhereInput
 }
 
 /**
@@ -1097,9 +1580,15 @@ export type ScheduleSelect<ExtArgs extends runtime.Types.Extensions.InternalArgs
   submissionClosesAt?: boolean
   status?: boolean
   publishedAt?: boolean
-  revision?: boolean
+  openNotifiedAt?: boolean
+  reminderSentAt?: boolean
+  draftVersionId?: boolean
+  publishedVersionId?: boolean
   createdAt?: boolean
   updatedAt?: boolean
+  draftVersion?: boolean | Prisma.Schedule$draftVersionArgs<ExtArgs>
+  publishedVersion?: boolean | Prisma.Schedule$publishedVersionArgs<ExtArgs>
+  versions?: boolean | Prisma.Schedule$versionsArgs<ExtArgs>
   facility?: boolean | Prisma.FacilityDefaultArgs<ExtArgs>
   slots?: boolean | Prisma.Schedule$slotsArgs<ExtArgs>
   submissions?: boolean | Prisma.Schedule$submissionsArgs<ExtArgs>
@@ -1117,9 +1606,14 @@ export type ScheduleSelectCreateManyAndReturn<ExtArgs extends runtime.Types.Exte
   submissionClosesAt?: boolean
   status?: boolean
   publishedAt?: boolean
-  revision?: boolean
+  openNotifiedAt?: boolean
+  reminderSentAt?: boolean
+  draftVersionId?: boolean
+  publishedVersionId?: boolean
   createdAt?: boolean
   updatedAt?: boolean
+  draftVersion?: boolean | Prisma.Schedule$draftVersionArgs<ExtArgs>
+  publishedVersion?: boolean | Prisma.Schedule$publishedVersionArgs<ExtArgs>
   facility?: boolean | Prisma.FacilityDefaultArgs<ExtArgs>
 }, ExtArgs["result"]["schedule"]>
 
@@ -1133,9 +1627,14 @@ export type ScheduleSelectUpdateManyAndReturn<ExtArgs extends runtime.Types.Exte
   submissionClosesAt?: boolean
   status?: boolean
   publishedAt?: boolean
-  revision?: boolean
+  openNotifiedAt?: boolean
+  reminderSentAt?: boolean
+  draftVersionId?: boolean
+  publishedVersionId?: boolean
   createdAt?: boolean
   updatedAt?: boolean
+  draftVersion?: boolean | Prisma.Schedule$draftVersionArgs<ExtArgs>
+  publishedVersion?: boolean | Prisma.Schedule$publishedVersionArgs<ExtArgs>
   facility?: boolean | Prisma.FacilityDefaultArgs<ExtArgs>
 }, ExtArgs["result"]["schedule"]>
 
@@ -1149,13 +1648,19 @@ export type ScheduleSelectScalar = {
   submissionClosesAt?: boolean
   status?: boolean
   publishedAt?: boolean
-  revision?: boolean
+  openNotifiedAt?: boolean
+  reminderSentAt?: boolean
+  draftVersionId?: boolean
+  publishedVersionId?: boolean
   createdAt?: boolean
   updatedAt?: boolean
 }
 
-export type ScheduleOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"id" | "facilityId" | "name" | "startDate" | "endDate" | "submissionOpensAt" | "submissionClosesAt" | "status" | "publishedAt" | "revision" | "createdAt" | "updatedAt", ExtArgs["result"]["schedule"]>
+export type ScheduleOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"id" | "facilityId" | "name" | "startDate" | "endDate" | "submissionOpensAt" | "submissionClosesAt" | "status" | "publishedAt" | "openNotifiedAt" | "reminderSentAt" | "draftVersionId" | "publishedVersionId" | "createdAt" | "updatedAt", ExtArgs["result"]["schedule"]>
 export type ScheduleInclude<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+  draftVersion?: boolean | Prisma.Schedule$draftVersionArgs<ExtArgs>
+  publishedVersion?: boolean | Prisma.Schedule$publishedVersionArgs<ExtArgs>
+  versions?: boolean | Prisma.Schedule$versionsArgs<ExtArgs>
   facility?: boolean | Prisma.FacilityDefaultArgs<ExtArgs>
   slots?: boolean | Prisma.Schedule$slotsArgs<ExtArgs>
   submissions?: boolean | Prisma.Schedule$submissionsArgs<ExtArgs>
@@ -1163,15 +1668,22 @@ export type ScheduleInclude<ExtArgs extends runtime.Types.Extensions.InternalArg
   _count?: boolean | Prisma.ScheduleCountOutputTypeDefaultArgs<ExtArgs>
 }
 export type ScheduleIncludeCreateManyAndReturn<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+  draftVersion?: boolean | Prisma.Schedule$draftVersionArgs<ExtArgs>
+  publishedVersion?: boolean | Prisma.Schedule$publishedVersionArgs<ExtArgs>
   facility?: boolean | Prisma.FacilityDefaultArgs<ExtArgs>
 }
 export type ScheduleIncludeUpdateManyAndReturn<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+  draftVersion?: boolean | Prisma.Schedule$draftVersionArgs<ExtArgs>
+  publishedVersion?: boolean | Prisma.Schedule$publishedVersionArgs<ExtArgs>
   facility?: boolean | Prisma.FacilityDefaultArgs<ExtArgs>
 }
 
 export type $SchedulePayload<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
   name: "Schedule"
   objects: {
+    draftVersion: Prisma.$ScheduleVersionPayload<ExtArgs> | null
+    publishedVersion: Prisma.$ScheduleVersionPayload<ExtArgs> | null
+    versions: Prisma.$ScheduleVersionPayload<ExtArgs>[]
     facility: Prisma.$FacilityPayload<ExtArgs>
     slots: Prisma.$ScheduleSlotPayload<ExtArgs>[]
     submissions: Prisma.$AvailabilitySubmissionPayload<ExtArgs>[]
@@ -1187,7 +1699,10 @@ export type $SchedulePayload<ExtArgs extends runtime.Types.Extensions.InternalAr
     submissionClosesAt: Date
     status: $Enums.ScheduleStatus
     publishedAt: Date | null
-    revision: number
+    openNotifiedAt: Date | null
+    reminderSentAt: Date | null
+    draftVersionId: string | null
+    publishedVersionId: string | null
     createdAt: Date
     updatedAt: Date
   }, ExtArgs["result"]["schedule"]>
@@ -1584,6 +2099,9 @@ readonly fields: ScheduleFieldRefs;
  */
 export interface Prisma__ScheduleClient<T, Null = never, ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs, GlobalOmitOptions = {}> extends Prisma.PrismaPromise<T> {
   readonly [Symbol.toStringTag]: "PrismaPromise"
+  draftVersion<T extends Prisma.Schedule$draftVersionArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.Schedule$draftVersionArgs<ExtArgs>>): Prisma.Prisma__ScheduleVersionClient<runtime.Types.Result.GetResult<Prisma.$ScheduleVersionPayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions> | null, null, ExtArgs, GlobalOmitOptions>
+  publishedVersion<T extends Prisma.Schedule$publishedVersionArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.Schedule$publishedVersionArgs<ExtArgs>>): Prisma.Prisma__ScheduleVersionClient<runtime.Types.Result.GetResult<Prisma.$ScheduleVersionPayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions> | null, null, ExtArgs, GlobalOmitOptions>
+  versions<T extends Prisma.Schedule$versionsArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.Schedule$versionsArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$ScheduleVersionPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
   facility<T extends Prisma.FacilityDefaultArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.FacilityDefaultArgs<ExtArgs>>): Prisma.Prisma__FacilityClient<runtime.Types.Result.GetResult<Prisma.$FacilityPayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions> | Null, Null, ExtArgs, GlobalOmitOptions>
   slots<T extends Prisma.Schedule$slotsArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.Schedule$slotsArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$ScheduleSlotPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
   submissions<T extends Prisma.Schedule$submissionsArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.Schedule$submissionsArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$AvailabilitySubmissionPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
@@ -1626,7 +2144,10 @@ export interface ScheduleFieldRefs {
   readonly submissionClosesAt: Prisma.FieldRef<"Schedule", 'DateTime'>
   readonly status: Prisma.FieldRef<"Schedule", 'ScheduleStatus'>
   readonly publishedAt: Prisma.FieldRef<"Schedule", 'DateTime'>
-  readonly revision: Prisma.FieldRef<"Schedule", 'Int'>
+  readonly openNotifiedAt: Prisma.FieldRef<"Schedule", 'DateTime'>
+  readonly reminderSentAt: Prisma.FieldRef<"Schedule", 'DateTime'>
+  readonly draftVersionId: Prisma.FieldRef<"Schedule", 'String'>
+  readonly publishedVersionId: Prisma.FieldRef<"Schedule", 'String'>
   readonly createdAt: Prisma.FieldRef<"Schedule", 'DateTime'>
   readonly updatedAt: Prisma.FieldRef<"Schedule", 'DateTime'>
 }
@@ -2027,6 +2548,68 @@ export type ScheduleDeleteManyArgs<ExtArgs extends runtime.Types.Extensions.Inte
    * Limit how many Schedules to delete.
    */
   limit?: number
+}
+
+/**
+ * Schedule.draftVersion
+ */
+export type Schedule$draftVersionArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+  /**
+   * Select specific fields to fetch from the ScheduleVersion
+   */
+  select?: Prisma.ScheduleVersionSelect<ExtArgs> | null
+  /**
+   * Omit specific fields from the ScheduleVersion
+   */
+  omit?: Prisma.ScheduleVersionOmit<ExtArgs> | null
+  /**
+   * Choose, which related nodes to fetch as well
+   */
+  include?: Prisma.ScheduleVersionInclude<ExtArgs> | null
+  where?: Prisma.ScheduleVersionWhereInput
+}
+
+/**
+ * Schedule.publishedVersion
+ */
+export type Schedule$publishedVersionArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+  /**
+   * Select specific fields to fetch from the ScheduleVersion
+   */
+  select?: Prisma.ScheduleVersionSelect<ExtArgs> | null
+  /**
+   * Omit specific fields from the ScheduleVersion
+   */
+  omit?: Prisma.ScheduleVersionOmit<ExtArgs> | null
+  /**
+   * Choose, which related nodes to fetch as well
+   */
+  include?: Prisma.ScheduleVersionInclude<ExtArgs> | null
+  where?: Prisma.ScheduleVersionWhereInput
+}
+
+/**
+ * Schedule.versions
+ */
+export type Schedule$versionsArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+  /**
+   * Select specific fields to fetch from the ScheduleVersion
+   */
+  select?: Prisma.ScheduleVersionSelect<ExtArgs> | null
+  /**
+   * Omit specific fields from the ScheduleVersion
+   */
+  omit?: Prisma.ScheduleVersionOmit<ExtArgs> | null
+  /**
+   * Choose, which related nodes to fetch as well
+   */
+  include?: Prisma.ScheduleVersionInclude<ExtArgs> | null
+  where?: Prisma.ScheduleVersionWhereInput
+  orderBy?: Prisma.ScheduleVersionOrderByWithRelationInput | Prisma.ScheduleVersionOrderByWithRelationInput[]
+  cursor?: Prisma.ScheduleVersionWhereUniqueInput
+  take?: number
+  skip?: number
+  distinct?: Prisma.ScheduleVersionScalarFieldEnum | Prisma.ScheduleVersionScalarFieldEnum[]
 }
 
 /**

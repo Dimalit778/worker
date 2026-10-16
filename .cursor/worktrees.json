@@ -1,0 +1,5 @@
+{
+  "setup-worktree": [
+    "node scripts/worktree.mjs prepare --hook"
+  ]
+}

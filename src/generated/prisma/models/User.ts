@@ -20,8 +20,18 @@ export type UserModel = runtime.Types.Result.DefaultSelection<Prisma.$UserPayloa
 
 export type AggregateUser = {
   _count: UserCountAggregateOutputType | null
+  _avg: UserAvgAggregateOutputType | null
+  _sum: UserSumAggregateOutputType | null
   _min: UserMinAggregateOutputType | null
   _max: UserMaxAggregateOutputType | null
+}
+
+export type UserAvgAggregateOutputType = {
+  failedLoginCount: number | null
+}
+
+export type UserSumAggregateOutputType = {
+  failedLoginCount: number | null
 }
 
 export type UserMinAggregateOutputType = {
@@ -37,6 +47,10 @@ export type UserMinAggregateOutputType = {
   facilityId: string | null
   roleId: string | null
   canEditSchedule: boolean | null
+  isActive: boolean | null
+  deactivatedAt: Date | null
+  failedLoginCount: number | null
+  lockedUntil: Date | null
   createdAt: Date | null
   updatedAt: Date | null
 }
@@ -54,6 +68,10 @@ export type UserMaxAggregateOutputType = {
   facilityId: string | null
   roleId: string | null
   canEditSchedule: boolean | null
+  isActive: boolean | null
+  deactivatedAt: Date | null
+  failedLoginCount: number | null
+  lockedUntil: Date | null
   createdAt: Date | null
   updatedAt: Date | null
 }
@@ -71,11 +89,23 @@ export type UserCountAggregateOutputType = {
   facilityId: number
   roleId: number
   canEditSchedule: number
+  isActive: number
+  deactivatedAt: number
+  failedLoginCount: number
+  lockedUntil: number
   createdAt: number
   updatedAt: number
   _all: number
 }
 
+
+export type UserAvgAggregateInputType = {
+  failedLoginCount?: true
+}
+
+export type UserSumAggregateInputType = {
+  failedLoginCount?: true
+}
 
 export type UserMinAggregateInputType = {
   id?: true
@@ -90,6 +120,10 @@ export type UserMinAggregateInputType = {
   facilityId?: true
   roleId?: true
   canEditSchedule?: true
+  isActive?: true
+  deactivatedAt?: true
+  failedLoginCount?: true
+  lockedUntil?: true
   createdAt?: true
   updatedAt?: true
 }
@@ -107,6 +141,10 @@ export type UserMaxAggregateInputType = {
   facilityId?: true
   roleId?: true
   canEditSchedule?: true
+  isActive?: true
+  deactivatedAt?: true
+  failedLoginCount?: true
+  lockedUntil?: true
   createdAt?: true
   updatedAt?: true
 }
@@ -124,6 +162,10 @@ export type UserCountAggregateInputType = {
   facilityId?: true
   roleId?: true
   canEditSchedule?: true
+  isActive?: true
+  deactivatedAt?: true
+  failedLoginCount?: true
+  lockedUntil?: true
   createdAt?: true
   updatedAt?: true
   _all?: true
@@ -167,6 +209,18 @@ export type UserAggregateArgs<ExtArgs extends runtime.Types.Extensions.InternalA
   /**
    * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
    * 
+   * Select which fields to average
+  **/
+  _avg?: UserAvgAggregateInputType
+  /**
+   * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
+   * 
+   * Select which fields to sum
+  **/
+  _sum?: UserSumAggregateInputType
+  /**
+   * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
+   * 
    * Select which fields to find the minimum value
   **/
   _min?: UserMinAggregateInputType
@@ -197,6 +251,8 @@ export type UserGroupByArgs<ExtArgs extends runtime.Types.Extensions.InternalArg
   take?: number
   skip?: number
   _count?: UserCountAggregateInputType | true
+  _avg?: UserAvgAggregateInputType
+  _sum?: UserSumAggregateInputType
   _min?: UserMinAggregateInputType
   _max?: UserMaxAggregateInputType
 }
@@ -214,9 +270,15 @@ export type UserGroupByOutputType = {
   facilityId: string
   roleId: string
   canEditSchedule: boolean
+  isActive: boolean
+  deactivatedAt: Date | null
+  failedLoginCount: number
+  lockedUntil: Date | null
   createdAt: Date
   updatedAt: Date
   _count: UserCountAggregateOutputType | null
+  _avg: UserAvgAggregateOutputType | null
+  _sum: UserSumAggregateOutputType | null
   _min: UserMinAggregateOutputType | null
   _max: UserMaxAggregateOutputType | null
 }
@@ -252,6 +314,10 @@ export type UserWhereInput = {
   facilityId?: Prisma.StringFilter<"User"> | string
   roleId?: Prisma.StringFilter<"User"> | string
   canEditSchedule?: Prisma.BoolFilter<"User"> | boolean
+  isActive?: Prisma.BoolFilter<"User"> | boolean
+  deactivatedAt?: Prisma.DateTimeNullableFilter<"User"> | Date | string | null
+  failedLoginCount?: Prisma.IntFilter<"User"> | number
+  lockedUntil?: Prisma.DateTimeNullableFilter<"User"> | Date | string | null
   createdAt?: Prisma.DateTimeFilter<"User"> | Date | string
   updatedAt?: Prisma.DateTimeFilter<"User"> | Date | string
   role?: Prisma.XOR<Prisma.RoleScalarRelationFilter, Prisma.RoleWhereInput>
@@ -276,6 +342,10 @@ export type UserOrderByWithRelationInput = {
   facilityId?: Prisma.SortOrder
   roleId?: Prisma.SortOrder
   canEditSchedule?: Prisma.SortOrder
+  isActive?: Prisma.SortOrder
+  deactivatedAt?: Prisma.SortOrderInput | Prisma.SortOrder
+  failedLoginCount?: Prisma.SortOrder
+  lockedUntil?: Prisma.SortOrderInput | Prisma.SortOrder
   createdAt?: Prisma.SortOrder
   updatedAt?: Prisma.SortOrder
   role?: Prisma.RoleOrderByWithRelationInput
@@ -304,6 +374,10 @@ export type UserWhereUniqueInput = Prisma.AtLeast<{
   facilityId?: Prisma.StringFilter<"User"> | string
   roleId?: Prisma.StringFilter<"User"> | string
   canEditSchedule?: Prisma.BoolFilter<"User"> | boolean
+  isActive?: Prisma.BoolFilter<"User"> | boolean
+  deactivatedAt?: Prisma.DateTimeNullableFilter<"User"> | Date | string | null
+  failedLoginCount?: Prisma.IntFilter<"User"> | number
+  lockedUntil?: Prisma.DateTimeNullableFilter<"User"> | Date | string | null
   createdAt?: Prisma.DateTimeFilter<"User"> | Date | string
   updatedAt?: Prisma.DateTimeFilter<"User"> | Date | string
   role?: Prisma.XOR<Prisma.RoleScalarRelationFilter, Prisma.RoleWhereInput>
@@ -328,11 +402,17 @@ export type UserOrderByWithAggregationInput = {
   facilityId?: Prisma.SortOrder
   roleId?: Prisma.SortOrder
   canEditSchedule?: Prisma.SortOrder
+  isActive?: Prisma.SortOrder
+  deactivatedAt?: Prisma.SortOrderInput | Prisma.SortOrder
+  failedLoginCount?: Prisma.SortOrder
+  lockedUntil?: Prisma.SortOrderInput | Prisma.SortOrder
   createdAt?: Prisma.SortOrder
   updatedAt?: Prisma.SortOrder
   _count?: Prisma.UserCountOrderByAggregateInput
+  _avg?: Prisma.UserAvgOrderByAggregateInput
   _max?: Prisma.UserMaxOrderByAggregateInput
   _min?: Prisma.UserMinOrderByAggregateInput
+  _sum?: Prisma.UserSumOrderByAggregateInput
 }
 
 export type UserScalarWhereWithAggregatesInput = {
@@ -351,6 +431,10 @@ export type UserScalarWhereWithAggregatesInput = {
   facilityId?: Prisma.StringWithAggregatesFilter<"User"> | string
   roleId?: Prisma.StringWithAggregatesFilter<"User"> | string
   canEditSchedule?: Prisma.BoolWithAggregatesFilter<"User"> | boolean
+  isActive?: Prisma.BoolWithAggregatesFilter<"User"> | boolean
+  deactivatedAt?: Prisma.DateTimeNullableWithAggregatesFilter<"User"> | Date | string | null
+  failedLoginCount?: Prisma.IntWithAggregatesFilter<"User"> | number
+  lockedUntil?: Prisma.DateTimeNullableWithAggregatesFilter<"User"> | Date | string | null
   createdAt?: Prisma.DateTimeWithAggregatesFilter<"User"> | Date | string
   updatedAt?: Prisma.DateTimeWithAggregatesFilter<"User"> | Date | string
 }
@@ -366,6 +450,10 @@ export type UserCreateInput = {
   phoneNumber?: string | null
   isReligious?: boolean
   canEditSchedule?: boolean
+  isActive?: boolean
+  deactivatedAt?: Date | string | null
+  failedLoginCount?: number
+  lockedUntil?: Date | string | null
   createdAt?: Date | string
   updatedAt?: Date | string
   role: Prisma.RoleCreateNestedOneWithoutUsersInput
@@ -390,6 +478,10 @@ export type UserUncheckedCreateInput = {
   facilityId: string
   roleId: string
   canEditSchedule?: boolean
+  isActive?: boolean
+  deactivatedAt?: Date | string | null
+  failedLoginCount?: number
+  lockedUntil?: Date | string | null
   createdAt?: Date | string
   updatedAt?: Date | string
   slots?: Prisma.ScheduleSlotUncheckedCreateNestedManyWithoutUserInput
@@ -410,6 +502,10 @@ export type UserUpdateInput = {
   phoneNumber?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   isReligious?: Prisma.BoolFieldUpdateOperationsInput | boolean
   canEditSchedule?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  isActive?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  deactivatedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  failedLoginCount?: Prisma.IntFieldUpdateOperationsInput | number
+  lockedUntil?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   role?: Prisma.RoleUpdateOneRequiredWithoutUsersNestedInput
@@ -434,6 +530,10 @@ export type UserUncheckedUpdateInput = {
   facilityId?: Prisma.StringFieldUpdateOperationsInput | string
   roleId?: Prisma.StringFieldUpdateOperationsInput | string
   canEditSchedule?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  isActive?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  deactivatedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  failedLoginCount?: Prisma.IntFieldUpdateOperationsInput | number
+  lockedUntil?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   slots?: Prisma.ScheduleSlotUncheckedUpdateManyWithoutUserNestedInput
@@ -456,6 +556,10 @@ export type UserCreateManyInput = {
   facilityId: string
   roleId: string
   canEditSchedule?: boolean
+  isActive?: boolean
+  deactivatedAt?: Date | string | null
+  failedLoginCount?: number
+  lockedUntil?: Date | string | null
   createdAt?: Date | string
   updatedAt?: Date | string
 }
@@ -471,6 +575,10 @@ export type UserUpdateManyMutationInput = {
   phoneNumber?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   isReligious?: Prisma.BoolFieldUpdateOperationsInput | boolean
   canEditSchedule?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  isActive?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  deactivatedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  failedLoginCount?: Prisma.IntFieldUpdateOperationsInput | number
+  lockedUntil?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
 }
@@ -488,6 +596,10 @@ export type UserUncheckedUpdateManyInput = {
   facilityId?: Prisma.StringFieldUpdateOperationsInput | string
   roleId?: Prisma.StringFieldUpdateOperationsInput | string
   canEditSchedule?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  isActive?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  deactivatedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  failedLoginCount?: Prisma.IntFieldUpdateOperationsInput | number
+  lockedUntil?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
 }
@@ -515,8 +627,16 @@ export type UserCountOrderByAggregateInput = {
   facilityId?: Prisma.SortOrder
   roleId?: Prisma.SortOrder
   canEditSchedule?: Prisma.SortOrder
+  isActive?: Prisma.SortOrder
+  deactivatedAt?: Prisma.SortOrder
+  failedLoginCount?: Prisma.SortOrder
+  lockedUntil?: Prisma.SortOrder
   createdAt?: Prisma.SortOrder
   updatedAt?: Prisma.SortOrder
+}
+
+export type UserAvgOrderByAggregateInput = {
+  failedLoginCount?: Prisma.SortOrder
 }
 
 export type UserMaxOrderByAggregateInput = {
@@ -532,6 +652,10 @@ export type UserMaxOrderByAggregateInput = {
   facilityId?: Prisma.SortOrder
   roleId?: Prisma.SortOrder
   canEditSchedule?: Prisma.SortOrder
+  isActive?: Prisma.SortOrder
+  deactivatedAt?: Prisma.SortOrder
+  failedLoginCount?: Prisma.SortOrder
+  lockedUntil?: Prisma.SortOrder
   createdAt?: Prisma.SortOrder
   updatedAt?: Prisma.SortOrder
 }
@@ -549,8 +673,16 @@ export type UserMinOrderByAggregateInput = {
   facilityId?: Prisma.SortOrder
   roleId?: Prisma.SortOrder
   canEditSchedule?: Prisma.SortOrder
+  isActive?: Prisma.SortOrder
+  deactivatedAt?: Prisma.SortOrder
+  failedLoginCount?: Prisma.SortOrder
+  lockedUntil?: Prisma.SortOrder
   createdAt?: Prisma.SortOrder
   updatedAt?: Prisma.SortOrder
+}
+
+export type UserSumOrderByAggregateInput = {
+  failedLoginCount?: Prisma.SortOrder
 }
 
 export type UserListRelationFilter = {
@@ -602,6 +734,18 @@ export type EnumSystemRoleFieldUpdateOperationsInput = {
 
 export type BoolFieldUpdateOperationsInput = {
   set?: boolean
+}
+
+export type NullableDateTimeFieldUpdateOperationsInput = {
+  set?: Date | string | null
+}
+
+export type IntFieldUpdateOperationsInput = {
+  set?: number
+  increment?: number
+  decrement?: number
+  multiply?: number
+  divide?: number
 }
 
 export type UserCreateNestedManyWithoutRoleInput = {
@@ -743,6 +887,10 @@ export type UserCreateWithoutAccountsInput = {
   phoneNumber?: string | null
   isReligious?: boolean
   canEditSchedule?: boolean
+  isActive?: boolean
+  deactivatedAt?: Date | string | null
+  failedLoginCount?: number
+  lockedUntil?: Date | string | null
   createdAt?: Date | string
   updatedAt?: Date | string
   role: Prisma.RoleCreateNestedOneWithoutUsersInput
@@ -766,6 +914,10 @@ export type UserUncheckedCreateWithoutAccountsInput = {
   facilityId: string
   roleId: string
   canEditSchedule?: boolean
+  isActive?: boolean
+  deactivatedAt?: Date | string | null
+  failedLoginCount?: number
+  lockedUntil?: Date | string | null
   createdAt?: Date | string
   updatedAt?: Date | string
   slots?: Prisma.ScheduleSlotUncheckedCreateNestedManyWithoutUserInput
@@ -801,6 +953,10 @@ export type UserUpdateWithoutAccountsInput = {
   phoneNumber?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   isReligious?: Prisma.BoolFieldUpdateOperationsInput | boolean
   canEditSchedule?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  isActive?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  deactivatedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  failedLoginCount?: Prisma.IntFieldUpdateOperationsInput | number
+  lockedUntil?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   role?: Prisma.RoleUpdateOneRequiredWithoutUsersNestedInput
@@ -824,6 +980,10 @@ export type UserUncheckedUpdateWithoutAccountsInput = {
   facilityId?: Prisma.StringFieldUpdateOperationsInput | string
   roleId?: Prisma.StringFieldUpdateOperationsInput | string
   canEditSchedule?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  isActive?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  deactivatedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  failedLoginCount?: Prisma.IntFieldUpdateOperationsInput | number
+  lockedUntil?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   slots?: Prisma.ScheduleSlotUncheckedUpdateManyWithoutUserNestedInput
@@ -843,6 +1003,10 @@ export type UserCreateWithoutSessionsInput = {
   phoneNumber?: string | null
   isReligious?: boolean
   canEditSchedule?: boolean
+  isActive?: boolean
+  deactivatedAt?: Date | string | null
+  failedLoginCount?: number
+  lockedUntil?: Date | string | null
   createdAt?: Date | string
   updatedAt?: Date | string
   role: Prisma.RoleCreateNestedOneWithoutUsersInput
@@ -866,6 +1030,10 @@ export type UserUncheckedCreateWithoutSessionsInput = {
   facilityId: string
   roleId: string
   canEditSchedule?: boolean
+  isActive?: boolean
+  deactivatedAt?: Date | string | null
+  failedLoginCount?: number
+  lockedUntil?: Date | string | null
   createdAt?: Date | string
   updatedAt?: Date | string
   slots?: Prisma.ScheduleSlotUncheckedCreateNestedManyWithoutUserInput
@@ -901,6 +1069,10 @@ export type UserUpdateWithoutSessionsInput = {
   phoneNumber?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   isReligious?: Prisma.BoolFieldUpdateOperationsInput | boolean
   canEditSchedule?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  isActive?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  deactivatedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  failedLoginCount?: Prisma.IntFieldUpdateOperationsInput | number
+  lockedUntil?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   role?: Prisma.RoleUpdateOneRequiredWithoutUsersNestedInput
@@ -924,6 +1096,10 @@ export type UserUncheckedUpdateWithoutSessionsInput = {
   facilityId?: Prisma.StringFieldUpdateOperationsInput | string
   roleId?: Prisma.StringFieldUpdateOperationsInput | string
   canEditSchedule?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  isActive?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  deactivatedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  failedLoginCount?: Prisma.IntFieldUpdateOperationsInput | number
+  lockedUntil?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   slots?: Prisma.ScheduleSlotUncheckedUpdateManyWithoutUserNestedInput
@@ -943,6 +1119,10 @@ export type UserCreateWithoutRoleInput = {
   phoneNumber?: string | null
   isReligious?: boolean
   canEditSchedule?: boolean
+  isActive?: boolean
+  deactivatedAt?: Date | string | null
+  failedLoginCount?: number
+  lockedUntil?: Date | string | null
   createdAt?: Date | string
   updatedAt?: Date | string
   facility: Prisma.FacilityCreateNestedOneWithoutUsersInput
@@ -965,6 +1145,10 @@ export type UserUncheckedCreateWithoutRoleInput = {
   isReligious?: boolean
   facilityId: string
   canEditSchedule?: boolean
+  isActive?: boolean
+  deactivatedAt?: Date | string | null
+  failedLoginCount?: number
+  lockedUntil?: Date | string | null
   createdAt?: Date | string
   updatedAt?: Date | string
   slots?: Prisma.ScheduleSlotUncheckedCreateNestedManyWithoutUserInput
@@ -1016,6 +1200,10 @@ export type UserScalarWhereInput = {
   facilityId?: Prisma.StringFilter<"User"> | string
   roleId?: Prisma.StringFilter<"User"> | string
   canEditSchedule?: Prisma.BoolFilter<"User"> | boolean
+  isActive?: Prisma.BoolFilter<"User"> | boolean
+  deactivatedAt?: Prisma.DateTimeNullableFilter<"User"> | Date | string | null
+  failedLoginCount?: Prisma.IntFilter<"User"> | number
+  lockedUntil?: Prisma.DateTimeNullableFilter<"User"> | Date | string | null
   createdAt?: Prisma.DateTimeFilter<"User"> | Date | string
   updatedAt?: Prisma.DateTimeFilter<"User"> | Date | string
 }
@@ -1031,6 +1219,10 @@ export type UserCreateWithoutFacilityInput = {
   phoneNumber?: string | null
   isReligious?: boolean
   canEditSchedule?: boolean
+  isActive?: boolean
+  deactivatedAt?: Date | string | null
+  failedLoginCount?: number
+  lockedUntil?: Date | string | null
   createdAt?: Date | string
   updatedAt?: Date | string
   role: Prisma.RoleCreateNestedOneWithoutUsersInput
@@ -1053,6 +1245,10 @@ export type UserUncheckedCreateWithoutFacilityInput = {
   isReligious?: boolean
   roleId: string
   canEditSchedule?: boolean
+  isActive?: boolean
+  deactivatedAt?: Date | string | null
+  failedLoginCount?: number
+  lockedUntil?: Date | string | null
   createdAt?: Date | string
   updatedAt?: Date | string
   slots?: Prisma.ScheduleSlotUncheckedCreateNestedManyWithoutUserInput
@@ -1099,6 +1295,10 @@ export type UserCreateWithoutSlotsInput = {
   phoneNumber?: string | null
   isReligious?: boolean
   canEditSchedule?: boolean
+  isActive?: boolean
+  deactivatedAt?: Date | string | null
+  failedLoginCount?: number
+  lockedUntil?: Date | string | null
   createdAt?: Date | string
   updatedAt?: Date | string
   role: Prisma.RoleCreateNestedOneWithoutUsersInput
@@ -1122,6 +1322,10 @@ export type UserUncheckedCreateWithoutSlotsInput = {
   facilityId: string
   roleId: string
   canEditSchedule?: boolean
+  isActive?: boolean
+  deactivatedAt?: Date | string | null
+  failedLoginCount?: number
+  lockedUntil?: Date | string | null
   createdAt?: Date | string
   updatedAt?: Date | string
   submissions?: Prisma.AvailabilitySubmissionUncheckedCreateNestedManyWithoutUserInput
@@ -1157,6 +1361,10 @@ export type UserUpdateWithoutSlotsInput = {
   phoneNumber?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   isReligious?: Prisma.BoolFieldUpdateOperationsInput | boolean
   canEditSchedule?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  isActive?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  deactivatedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  failedLoginCount?: Prisma.IntFieldUpdateOperationsInput | number
+  lockedUntil?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   role?: Prisma.RoleUpdateOneRequiredWithoutUsersNestedInput
@@ -1180,6 +1388,10 @@ export type UserUncheckedUpdateWithoutSlotsInput = {
   facilityId?: Prisma.StringFieldUpdateOperationsInput | string
   roleId?: Prisma.StringFieldUpdateOperationsInput | string
   canEditSchedule?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  isActive?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  deactivatedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  failedLoginCount?: Prisma.IntFieldUpdateOperationsInput | number
+  lockedUntil?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   submissions?: Prisma.AvailabilitySubmissionUncheckedUpdateManyWithoutUserNestedInput
@@ -1199,6 +1411,10 @@ export type UserCreateWithoutSubmissionsInput = {
   phoneNumber?: string | null
   isReligious?: boolean
   canEditSchedule?: boolean
+  isActive?: boolean
+  deactivatedAt?: Date | string | null
+  failedLoginCount?: number
+  lockedUntil?: Date | string | null
   createdAt?: Date | string
   updatedAt?: Date | string
   role: Prisma.RoleCreateNestedOneWithoutUsersInput
@@ -1222,6 +1438,10 @@ export type UserUncheckedCreateWithoutSubmissionsInput = {
   facilityId: string
   roleId: string
   canEditSchedule?: boolean
+  isActive?: boolean
+  deactivatedAt?: Date | string | null
+  failedLoginCount?: number
+  lockedUntil?: Date | string | null
   createdAt?: Date | string
   updatedAt?: Date | string
   slots?: Prisma.ScheduleSlotUncheckedCreateNestedManyWithoutUserInput
@@ -1257,6 +1477,10 @@ export type UserUpdateWithoutSubmissionsInput = {
   phoneNumber?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   isReligious?: Prisma.BoolFieldUpdateOperationsInput | boolean
   canEditSchedule?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  isActive?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  deactivatedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  failedLoginCount?: Prisma.IntFieldUpdateOperationsInput | number
+  lockedUntil?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   role?: Prisma.RoleUpdateOneRequiredWithoutUsersNestedInput
@@ -1280,6 +1504,10 @@ export type UserUncheckedUpdateWithoutSubmissionsInput = {
   facilityId?: Prisma.StringFieldUpdateOperationsInput | string
   roleId?: Prisma.StringFieldUpdateOperationsInput | string
   canEditSchedule?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  isActive?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  deactivatedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  failedLoginCount?: Prisma.IntFieldUpdateOperationsInput | number
+  lockedUntil?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   slots?: Prisma.ScheduleSlotUncheckedUpdateManyWithoutUserNestedInput
@@ -1299,6 +1527,10 @@ export type UserCreateWithoutChangesInput = {
   phoneNumber?: string | null
   isReligious?: boolean
   canEditSchedule?: boolean
+  isActive?: boolean
+  deactivatedAt?: Date | string | null
+  failedLoginCount?: number
+  lockedUntil?: Date | string | null
   createdAt?: Date | string
   updatedAt?: Date | string
   role: Prisma.RoleCreateNestedOneWithoutUsersInput
@@ -1322,6 +1554,10 @@ export type UserUncheckedCreateWithoutChangesInput = {
   facilityId: string
   roleId: string
   canEditSchedule?: boolean
+  isActive?: boolean
+  deactivatedAt?: Date | string | null
+  failedLoginCount?: number
+  lockedUntil?: Date | string | null
   createdAt?: Date | string
   updatedAt?: Date | string
   slots?: Prisma.ScheduleSlotUncheckedCreateNestedManyWithoutUserInput
@@ -1357,6 +1593,10 @@ export type UserUpdateWithoutChangesInput = {
   phoneNumber?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   isReligious?: Prisma.BoolFieldUpdateOperationsInput | boolean
   canEditSchedule?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  isActive?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  deactivatedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  failedLoginCount?: Prisma.IntFieldUpdateOperationsInput | number
+  lockedUntil?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   role?: Prisma.RoleUpdateOneRequiredWithoutUsersNestedInput
@@ -1380,6 +1620,10 @@ export type UserUncheckedUpdateWithoutChangesInput = {
   facilityId?: Prisma.StringFieldUpdateOperationsInput | string
   roleId?: Prisma.StringFieldUpdateOperationsInput | string
   canEditSchedule?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  isActive?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  deactivatedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  failedLoginCount?: Prisma.IntFieldUpdateOperationsInput | number
+  lockedUntil?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   slots?: Prisma.ScheduleSlotUncheckedUpdateManyWithoutUserNestedInput
@@ -1400,6 +1644,10 @@ export type UserCreateManyRoleInput = {
   isReligious?: boolean
   facilityId: string
   canEditSchedule?: boolean
+  isActive?: boolean
+  deactivatedAt?: Date | string | null
+  failedLoginCount?: number
+  lockedUntil?: Date | string | null
   createdAt?: Date | string
   updatedAt?: Date | string
 }
@@ -1415,6 +1663,10 @@ export type UserUpdateWithoutRoleInput = {
   phoneNumber?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   isReligious?: Prisma.BoolFieldUpdateOperationsInput | boolean
   canEditSchedule?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  isActive?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  deactivatedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  failedLoginCount?: Prisma.IntFieldUpdateOperationsInput | number
+  lockedUntil?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   facility?: Prisma.FacilityUpdateOneRequiredWithoutUsersNestedInput
@@ -1437,6 +1689,10 @@ export type UserUncheckedUpdateWithoutRoleInput = {
   isReligious?: Prisma.BoolFieldUpdateOperationsInput | boolean
   facilityId?: Prisma.StringFieldUpdateOperationsInput | string
   canEditSchedule?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  isActive?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  deactivatedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  failedLoginCount?: Prisma.IntFieldUpdateOperationsInput | number
+  lockedUntil?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   slots?: Prisma.ScheduleSlotUncheckedUpdateManyWithoutUserNestedInput
@@ -1458,6 +1714,10 @@ export type UserUncheckedUpdateManyWithoutRoleInput = {
   isReligious?: Prisma.BoolFieldUpdateOperationsInput | boolean
   facilityId?: Prisma.StringFieldUpdateOperationsInput | string
   canEditSchedule?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  isActive?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  deactivatedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  failedLoginCount?: Prisma.IntFieldUpdateOperationsInput | number
+  lockedUntil?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
 }
@@ -1474,6 +1734,10 @@ export type UserCreateManyFacilityInput = {
   isReligious?: boolean
   roleId: string
   canEditSchedule?: boolean
+  isActive?: boolean
+  deactivatedAt?: Date | string | null
+  failedLoginCount?: number
+  lockedUntil?: Date | string | null
   createdAt?: Date | string
   updatedAt?: Date | string
 }
@@ -1489,6 +1753,10 @@ export type UserUpdateWithoutFacilityInput = {
   phoneNumber?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   isReligious?: Prisma.BoolFieldUpdateOperationsInput | boolean
   canEditSchedule?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  isActive?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  deactivatedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  failedLoginCount?: Prisma.IntFieldUpdateOperationsInput | number
+  lockedUntil?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   role?: Prisma.RoleUpdateOneRequiredWithoutUsersNestedInput
@@ -1511,6 +1779,10 @@ export type UserUncheckedUpdateWithoutFacilityInput = {
   isReligious?: Prisma.BoolFieldUpdateOperationsInput | boolean
   roleId?: Prisma.StringFieldUpdateOperationsInput | string
   canEditSchedule?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  isActive?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  deactivatedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  failedLoginCount?: Prisma.IntFieldUpdateOperationsInput | number
+  lockedUntil?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   slots?: Prisma.ScheduleSlotUncheckedUpdateManyWithoutUserNestedInput
@@ -1532,6 +1804,10 @@ export type UserUncheckedUpdateManyWithoutFacilityInput = {
   isReligious?: Prisma.BoolFieldUpdateOperationsInput | boolean
   roleId?: Prisma.StringFieldUpdateOperationsInput | string
   canEditSchedule?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  isActive?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  deactivatedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  failedLoginCount?: Prisma.IntFieldUpdateOperationsInput | number
+  lockedUntil?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
 }
@@ -1616,6 +1892,10 @@ export type UserSelect<ExtArgs extends runtime.Types.Extensions.InternalArgs = r
   facilityId?: boolean
   roleId?: boolean
   canEditSchedule?: boolean
+  isActive?: boolean
+  deactivatedAt?: boolean
+  failedLoginCount?: boolean
+  lockedUntil?: boolean
   createdAt?: boolean
   updatedAt?: boolean
   role?: boolean | Prisma.RoleDefaultArgs<ExtArgs>
@@ -1641,6 +1921,10 @@ export type UserSelectCreateManyAndReturn<ExtArgs extends runtime.Types.Extensio
   facilityId?: boolean
   roleId?: boolean
   canEditSchedule?: boolean
+  isActive?: boolean
+  deactivatedAt?: boolean
+  failedLoginCount?: boolean
+  lockedUntil?: boolean
   createdAt?: boolean
   updatedAt?: boolean
   role?: boolean | Prisma.RoleDefaultArgs<ExtArgs>
@@ -1660,6 +1944,10 @@ export type UserSelectUpdateManyAndReturn<ExtArgs extends runtime.Types.Extensio
   facilityId?: boolean
   roleId?: boolean
   canEditSchedule?: boolean
+  isActive?: boolean
+  deactivatedAt?: boolean
+  failedLoginCount?: boolean
+  lockedUntil?: boolean
   createdAt?: boolean
   updatedAt?: boolean
   role?: boolean | Prisma.RoleDefaultArgs<ExtArgs>
@@ -1679,11 +1967,15 @@ export type UserSelectScalar = {
   facilityId?: boolean
   roleId?: boolean
   canEditSchedule?: boolean
+  isActive?: boolean
+  deactivatedAt?: boolean
+  failedLoginCount?: boolean
+  lockedUntil?: boolean
   createdAt?: boolean
   updatedAt?: boolean
 }
 
-export type UserOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"id" | "email" | "passwordHash" | "systemRole" | "firstName" | "lastName" | "displayName" | "phoneNumber" | "isReligious" | "facilityId" | "roleId" | "canEditSchedule" | "createdAt" | "updatedAt", ExtArgs["result"]["user"]>
+export type UserOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"id" | "email" | "passwordHash" | "systemRole" | "firstName" | "lastName" | "displayName" | "phoneNumber" | "isReligious" | "facilityId" | "roleId" | "canEditSchedule" | "isActive" | "deactivatedAt" | "failedLoginCount" | "lockedUntil" | "createdAt" | "updatedAt", ExtArgs["result"]["user"]>
 export type UserInclude<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
   role?: boolean | Prisma.RoleDefaultArgs<ExtArgs>
   facility?: boolean | Prisma.FacilityDefaultArgs<ExtArgs>
@@ -1727,6 +2019,13 @@ export type $UserPayload<ExtArgs extends runtime.Types.Extensions.InternalArgs =
     facilityId: string
     roleId: string
     canEditSchedule: boolean
+    /**
+     * עובד מושבת אינו יכול להתחבר או להשתבץ; ההיסטוריה נשמרת.
+     */
+    isActive: boolean
+    deactivatedAt: Date | null
+    failedLoginCount: number
+    lockedUntil: Date | null
     createdAt: Date
     updatedAt: Date
   }, ExtArgs["result"]["user"]>
@@ -2171,6 +2470,10 @@ export interface UserFieldRefs {
   readonly facilityId: Prisma.FieldRef<"User", 'String'>
   readonly roleId: Prisma.FieldRef<"User", 'String'>
   readonly canEditSchedule: Prisma.FieldRef<"User", 'Boolean'>
+  readonly isActive: Prisma.FieldRef<"User", 'Boolean'>
+  readonly deactivatedAt: Prisma.FieldRef<"User", 'DateTime'>
+  readonly failedLoginCount: Prisma.FieldRef<"User", 'Int'>
+  readonly lockedUntil: Prisma.FieldRef<"User", 'DateTime'>
   readonly createdAt: Prisma.FieldRef<"User", 'DateTime'>
   readonly updatedAt: Prisma.FieldRef<"User", 'DateTime'>
 }

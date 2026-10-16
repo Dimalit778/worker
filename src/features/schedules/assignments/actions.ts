@@ -23,7 +23,7 @@ async function editSchedule(scheduleId: string, expected: VersionExpectation, ed
   return scheduleTransaction(actor, async tx => {
     const { version } = await checkedVersion(tx, actor, scheduleId, expected);
     if (!version || version.status !== 'DRAFT') throw new Error('יש לפתוח טיוטת תיקון לפני עריכה');
-    const before = await tx.scheduleSlot.findMany({ where: { scheduleId: version.id } });
+    const before = await tx.scheduleSlot.findMany({ where: { scheduleId, versionId: version.id } });
     const existing = edit.kind === 'create' ? null : before.find(a => a.id === edit.assignmentId);
     if (edit.kind !== 'create' && !existing) throw new Error('השיבוץ לא נמצא בגרסה הנוכחית');
     if (edit.kind === 'create') {
@@ -36,8 +36,8 @@ async function editSchedule(scheduleId: string, expected: VersionExpectation, ed
       if (!position) throw new Error('התפקיד אינו שייך למתקן');
       const defaults = defaultShiftTimes(p.shiftType);
       const bounds = shiftBounds(date, p.startTime || defaults.startTime, p.endTime || defaults.endTime);
-      const last = await tx.scheduleSlot.aggregate({ where: { scheduleId, date, shiftType: p.shiftType, positionId: p.positionId }, _max: { slotNumber: true } });
-      await tx.scheduleSlot.create({ data: { scheduleId, facilityId: actor.facilityId, userId: p.employeeId, positionId: p.positionId, date, shiftType: p.shiftType, slotNumber: (last._max.slotNumber ?? 0) + 1, ...bounds, source: 'MANUAL', isLocked: false } });
+      const last = await tx.scheduleSlot.aggregate({ where: { scheduleId, versionId: version.id, date, shiftType: p.shiftType, positionId: p.positionId }, _max: { slotNumber: true } });
+      await tx.scheduleSlot.create({ data: { scheduleId, versionId: version.id, facilityId: actor.facilityId, userId: p.employeeId, positionId: p.positionId, date, shiftType: p.shiftType, slotNumber: (last._max.slotNumber ?? 0) + 1, ...bounds, source: 'MANUAL', isLocked: false } });
     } else if (edit.kind === 'remove') {
       await tx.scheduleSlot.delete({ where: { id: existing!.id } });
     } else if (edit.kind === 'lock') {
@@ -50,12 +50,12 @@ async function editSchedule(scheduleId: string, expected: VersionExpectation, ed
       await tx.scheduleSlot.update({ where: { id: existing!.id }, data: { userId: other.userId, source: 'MANUAL' } });
       await tx.scheduleSlot.update({ where: { id: other.id }, data: { userId: existing!.userId, source: 'MANUAL' } });
     }
-    const data = await loadSchedulingInput(tx, scheduleId, actor.facilityId, version.id, version);
+    const data = await loadSchedulingInput(tx, scheduleId, actor.facilityId, version.id);
     const failures = validateAssignments(data.input, data.allAssignments);
     if (failures.length && edit.kind !== 'remove' && edit.kind !== 'lock') throw new Error(failures.join('; '));
     const details = loadedScheduleDetails(data);
-    await tx.schedule.update({ where: { id: version.id }, data: { revision: { increment: 1 } } });
-    await tx.scheduleChange.create({ data: { facilityId: actor.facilityId, scheduleId, changedById: actor.userId, changeType: edit.kind === 'create' ? 'CREATE' : edit.kind === 'remove' ? 'DELETE' : 'UPDATE', reason: `עדכון טיוטה: ${edit.kind}`, beforeData: JSON.parse(JSON.stringify(before)), afterData: JSON.parse(JSON.stringify(data.assignments)) } });
+    await tx.scheduleVersion.update({ where: { id: version.id }, data: { revision: { increment: 1 } } });
+    await tx.scheduleChange.create({ data: { facilityId: actor.facilityId, scheduleId, versionId: version.id, changedById: actor.userId, changeType: edit.kind === 'create' ? 'CREATE' : edit.kind === 'remove' ? 'DELETE' : 'UPDATE', reason: `עדכון טיוטה: ${edit.kind}`, beforeData: JSON.parse(JSON.stringify(before)), afterData: JSON.parse(JSON.stringify(data.assignments)) } });
     return { scheduleId, revision: version.revision + 1, versionId: version.id,
       assignments: details.assignments, warnings: details.warnings, fairness: details.fairness };
   });

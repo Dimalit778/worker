@@ -365,14 +365,6 @@ export type RoleUpdateOneRequiredWithoutUsersNestedInput = {
   update?: Prisma.XOR<Prisma.XOR<Prisma.RoleUpdateToOneWithWhereWithoutUsersInput, Prisma.RoleUpdateWithoutUsersInput>, Prisma.RoleUncheckedUpdateWithoutUsersInput>
 }
 
-export type IntFieldUpdateOperationsInput = {
-  set?: number
-  increment?: number
-  decrement?: number
-  multiply?: number
-  divide?: number
-}
-
 export type RoleCreateNestedOneWithoutBasePositionInput = {
   create?: Prisma.XOR<Prisma.RoleCreateWithoutBasePositionInput, Prisma.RoleUncheckedCreateWithoutBasePositionInput>
   connectOrCreate?: Prisma.RoleCreateOrConnectWithoutBasePositionInput

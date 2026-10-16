@@ -12,11 +12,11 @@ export async function reconcileDraftCapacity(tx: Prisma.TransactionClient, actor
     positionId: rule.positionId, shiftType: rule.shiftType, dayCategory: rule.dayCategory, amount: rule.requiredCount,
     requiredRank: rule.position.requiredRank ?? rule.position.baseRole?.rank ?? rule.position.displayOrder,
   }));
-  const drafts = await tx.schedule.findMany({ where: { facilityId: actor.facilityId, status: 'DRAFT' } });
+  const drafts = await tx.scheduleVersion.findMany({ where: { facilityId: actor.facilityId, status: 'DRAFT', draftFor: { is: { status: { not: 'ARCHIVED' } } } } });
   let movedCount = 0;
   for (const draft of drafts) {
     const slots = await tx.scheduleSlot.findMany({
-      where: { scheduleId: draft.id },
+      where: { scheduleId: draft.scheduleId, versionId: draft.id },
       include: { user: { include: { role: true } }, position: { include: { baseRole: true } } },
     });
     const { moves, unplaced } = planCapacityMoves(slots.flatMap(slot => slot.user ? [{
@@ -30,7 +30,7 @@ export async function reconcileDraftCapacity(tx: Prisma.TransactionClient, actor
     for (const move of moves) {
       const slot = slots.find(row => row.id === move.id)!;
       const last = await tx.scheduleSlot.aggregate({
-        where: { scheduleId: draft.id, date: slot.date, shiftType: slot.shiftType, positionId: move.positionId },
+        where: { scheduleId: draft.scheduleId, versionId: draft.id, date: slot.date, shiftType: slot.shiftType, positionId: move.positionId },
         _max: { slotNumber: true },
       });
       const updated = await tx.scheduleSlot.update({
@@ -38,9 +38,9 @@ export async function reconcileDraftCapacity(tx: Prisma.TransactionClient, actor
       });
       changes.push({ before: { id: slot.id, userId: slot.userId, date: slot.date, shiftType: slot.shiftType, positionId: slot.positionId, slotNumber: slot.slotNumber }, after: updated });
     }
-    await tx.schedule.update({ where: { id: draft.id }, data: { revision: { increment: 1 } } });
+    await tx.scheduleVersion.update({ where: { id: draft.id }, data: { revision: { increment: 1 } } });
     await tx.scheduleChange.create({ data: {
-      facilityId: actor.facilityId, scheduleId: draft.id, changedById: actor.userId, changeType: 'UPDATE',
+      facilityId: actor.facilityId, scheduleId: draft.scheduleId, versionId: draft.id, changedById: actor.userId, changeType: 'UPDATE',
       reason: 'התאמת איושים לתקנים: העברת עובדים עודפים לתפקיד מתאים פנוי',
       beforeData: JSON.parse(JSON.stringify(changes.map(change => change.before))),
       afterData: JSON.parse(JSON.stringify(changes.map(change => change.after))),

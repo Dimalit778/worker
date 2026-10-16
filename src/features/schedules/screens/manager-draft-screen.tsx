@@ -90,7 +90,7 @@ export function ManagerDraftScreen() {
           capacity={data.capacity}
           facilityId={data.facilityId}
           overflowCandidates={data.overflowCandidates}
-          readonly={isReadonly || !data.versionId}
+          readonly={isReadonly || data.scheduleStatus === 'ARCHIVED' || !data.versionId}
         />
       </div>
     </VersionProvider>

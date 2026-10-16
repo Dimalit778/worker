@@ -212,12 +212,16 @@ export async function deleteAdminCourt(facilityId: string): Promise<AdminActionR
         throw new Error('COURT_NOT_FOUND');
       }
 
+      const history = await tx.scheduleVersion.count({ where: { facilityId: id, status: { not: 'DRAFT' } } });
+      if (history) throw new Error('COURT_HAS_HISTORY');
       const userIds = court.users.map((employee) => employee.id);
 
       await tx.scheduleSlot.deleteMany({ where: { facilityId: id } });
       await tx.shiftAvailability.deleteMany({ where: { submission: { facilityId: id } } });
       await tx.availabilitySubmission.deleteMany({ where: { facilityId: id } });
       await tx.scheduleChange.deleteMany({ where: { facilityId: id } });
+      await tx.schedule.updateMany({ where: { facilityId: id }, data: { draftVersionId: null, publishedVersionId: null } });
+      await tx.scheduleVersion.deleteMany({ where: { facilityId: id } });
       await tx.schedule.deleteMany({ where: { facilityId: id } });
       await tx.staffingRequirement.deleteMany({ where: { facilityId: id } });
       await tx.facilityShift.deleteMany({ where: { facilityId: id } });
@@ -233,6 +237,9 @@ export async function deleteAdminCourt(facilityId: string): Promise<AdminActionR
     revalidatePath('/admin/courts');
     return { ok: true };
   } catch (error) {
+    if (error instanceof Error && error.message === 'COURT_HAS_HISTORY') {
+      return { error: 'לא ניתן למחוק מתקן שיש לו סידורים מפורסמים או היסטוריים' };
+    }
     if (error instanceof Error && error.message === 'COURT_NOT_FOUND') {
       return { error: 'בית המשפט לא נמצא' };
     }
@@ -403,7 +410,8 @@ export async function deleteAdminEmployee(employeeId: string): Promise<AdminActi
       }
 
       const changes = await tx.scheduleChange.count({ where: { changedById: id } });
-      if (changes > 0) throw new Error('EMPLOYEE_HAS_HISTORY');
+      const publishedAssignments = await tx.scheduleSlot.count({ where: { userId: id, version: { status: { not: 'DRAFT' } } } });
+      if (changes > 0 || publishedAssignments > 0) throw new Error('EMPLOYEE_HAS_HISTORY');
       await tx.scheduleSlot.updateMany({ where: { userId: id }, data: { userId: null } });
       await tx.availabilitySubmission.deleteMany({ where: { userId: id } });
       await tx.user.delete({ where: { id } });
@@ -417,7 +425,7 @@ export async function deleteAdminEmployee(employeeId: string): Promise<AdminActi
       return { error: 'עובד לא נמצא' };
     }
     if (error instanceof Error && error.message === 'EMPLOYEE_HAS_HISTORY') {
-      return { error: 'לא ניתן למחוק עובד שיצר שיבוצים או שינויי שיבוץ היסטוריים' };
+      return { error: 'לא ניתן למחוק עובד שיש לו שיבוצים מפורסמים או היסטוריית שינויי שיבוץ' };
     }
 
     return { error: uniqueErrorMessage(error, 'מחיקת העובד נכשלה') };

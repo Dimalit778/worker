@@ -1,0 +1,10 @@
+version = 1
+name = "worker-isolated-worktree"
+
+[setup]
+script = "node scripts/worktree.mjs prepare --hook"
+
+[[actions]]
+name = "Run isolated worktree"
+icon = "run"
+command = "pnpm worktree:dev"
