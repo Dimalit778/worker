@@ -18,7 +18,7 @@ afterEach(() => vi.clearAllMocks());
 
 it('loads each draft dataset once and reuses it for assignments, problems and submission counts', async () => {
   const date = new Date('2026-10-05T00:00:00Z');
-  db.schedule.findFirst.mockResolvedValue({ id: 's', facilityId: 'f', name: 'טיוטה', startDate: date, endDate: date, status: 'DRAFT', revision: 3 });
+  db.schedule.findFirst.mockResolvedValue({ id: 's', facilityId: 'f', name: 'טיוטה', startDate: date, endDate: date, status: 'DRAFT', draftVersionId: 'draft', draftVersion: { id: 'draft', revision: 3, number: 2 } });
   db.user.findMany.mockResolvedValue([{ id: 'e', displayName: 'דוד', roleId: 'r', role: { id: 'r', name: 'מאבטח', rank: 4 } }]);
   db.staffingRequirement.findMany.mockResolvedValue([{ id: 'c', positionId: 'p', shiftType: 'MORNING', dayCategory: 'WEEKDAY', requiredCount: 1, position: { name: 'מאבטח', color: null, requiredRank: 4, displayOrder: 4, baseRole: null } }]);
   db.availabilitySubmission.findMany.mockResolvedValue([{ userId: 'e', availabilities: [] }]);
@@ -36,23 +36,25 @@ it('loads each draft dataset once and reuses it for assignments, problems and su
   expect(data?.revision).toBe(3);
 });
 
-it('updates all cached views of the edited schedule without refetching and preserves newer revisions', async () => {
+it('updates only draft caches and preserves published views and newer revisions', async () => {
   const client = new QueryClient();
   const key = [...queryKeys.schedules.draft(), 's'];
-  const initial = { scheduleId: 's', revision: 3, assignments: {}, warnings: [] } as unknown as CurrentScheduleData;
+  const initial = { scheduleId: 's', versionId: 'draft', editingVersionNumber: 2, revision: 3, assignments: {}, warnings: [] } as unknown as CurrentScheduleData;
   client.setQueryData(key, initial);
-  client.setQueryData(queryKeys.schedules.current(), initial);
+  client.setQueryData(queryKeys.schedules.current(), { ...initial, versionId: 'published' });
   client.setQueryData(queryKeys.schedules.upcoming(), { ...initial, scheduleId: 'other' });
   client.setQueryData(queryKeys.dashboard.all(), { count: 1 });
   const refetch = vi.spyOn(client, 'refetchQueries');
-  const update = { scheduleId: 's', versionId: 's', revision: 4, assignments: {}, warnings: [], fairness: [] };
+  const update = { scheduleId: 's', versionId: 'draft', revision: 4, assignments: {}, warnings: [], fairness: [] };
   await applyScheduleEdit(client, update);
-  expect(client.getQueryData(key)).toMatchObject({ revision: 4, editingVersionNumber: 4 });
-  expect(client.getQueryData(queryKeys.schedules.current())).toMatchObject({ revision: 4 });
+  expect(client.getQueryData(key)).toMatchObject({ revision: 4, editingVersionNumber: 2 });
+  expect(client.getQueryData(queryKeys.schedules.current())).toMatchObject({ revision: 3, versionId: 'published' });
   expect(client.getQueryData(queryKeys.schedules.upcoming())).toMatchObject({ revision: 3 });
   expect(client.getQueryState(queryKeys.dashboard.all())?.isInvalidated).toBe(true);
   expect(refetch).not.toHaveBeenCalled();
   await applyScheduleEdit(client, { ...update, revision: 2 });
   expect(client.getQueryData(key)).toMatchObject({ revision: 4 });
+  await applyScheduleEdit(client, { ...update, versionId: 'old-draft', revision: 99 });
+  expect(client.getQueryData(key)).toMatchObject({ revision: 4, versionId: 'draft' });
   client.clear();
 });

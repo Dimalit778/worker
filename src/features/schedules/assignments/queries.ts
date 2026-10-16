@@ -12,9 +12,7 @@ import {
   ScheduleWarningSummary,
   CurrentScheduleData,
 } from '../types';
-import {
-  getPublishedActiveVersionId,
-} from '@/features/schedules/versions/queries';
+import type { Schedule, ScheduleVersion } from '@/generated/prisma/client';
 import { buildAssignmentMap, toScheduleData } from './utils';
 import { todayUtcDateForTimeZone } from '@/features/periods/utils';
 
@@ -82,11 +80,11 @@ async function getScheduleEmployees(facilityId: string): Promise<ScheduleEmploye
   }));
 }
 
-async function getAssignmentMap(scheduleId: string | null | undefined): Promise<AssignmentMap> {
-  if (!scheduleId) return {};
+async function getAssignmentMap(versionId: string | null | undefined): Promise<AssignmentMap> {
+  if (!versionId) return {};
 
   const rows = await prisma.scheduleSlot.findMany({
-    where: { scheduleId, userId: { not: null } },
+    where: { versionId, userId: { not: null } },
     include: {
       user: { select: { displayName: true } },
       position: { select: { id: true, name: true } },
@@ -112,14 +110,7 @@ async function getAssignmentMap(scheduleId: string | null | undefined): Promise<
   );
 }
 
-type ScheduleRow = {
-  id: string;
-  name: string;
-  startDate: Date;
-  endDate: Date;
-  status: PeriodScheduleStatus;
-  revision: number;
-};
+type ScheduleRow = Schedule & { publishedVersion: ScheduleVersion | null };
 
 function toPeriodRow(schedule: { id: string; name: string; startDate: Date; endDate: Date; status: PeriodScheduleStatus }) {
   return {
@@ -135,15 +126,16 @@ async function buildPublishedScheduleData(
 ): Promise<CurrentScheduleData | null> {
   if (!scheduleRow) return null;
 
-  const publishedVersionId = await getPublishedActiveVersionId(scheduleRow.id);
+  const publishedVersionId = scheduleRow.publishedVersionId;
+  if (!publishedVersionId) return null;
   const [assignments, capacity, employees] = await Promise.all([
-    getAssignmentMap(scheduleRow.id),
-    getScheduleCapacity(facilityId),
+    getAssignmentMap(publishedVersionId),
+    Promise.resolve((scheduleRow.publishedVersion?.capacitySnapshot ?? []) as unknown as ScheduleCapacityRule[]),
     getScheduleEmployees(facilityId),
   ]);
 
   const base = toScheduleData(toPeriodRow(scheduleRow), facilityId, employees, capacity, assignments, [], {});
-  return base ? { ...base, versionId: publishedVersionId, revision: scheduleRow.revision } : null;
+  return base ? { ...base, versionId: publishedVersionId, revision: scheduleRow.publishedVersion?.revision ?? 0 } : null;
 }
 
 export async function getCurrentSchedule(facilityId: string): Promise<CurrentScheduleData | null> {
@@ -156,6 +148,7 @@ export async function getCurrentSchedule(facilityId: string): Promise<CurrentSch
       startDate: { lte: today },
       endDate: { gte: today },
     },
+    include: { publishedVersion: true },
     orderBy: { startDate: 'desc' },
   });
 
@@ -174,6 +167,7 @@ export async function getUpcomingSchedule(facilityId: string): Promise<CurrentSc
       facilityId,
       startDate: { gt: today },
     },
+    include: { publishedVersion: true },
     orderBy: { startDate: 'asc' },
   });
 
@@ -187,13 +181,15 @@ export async function getDraftScheduleData(facilityId: string, scheduleId?: stri
   const schedule = await prisma.schedule.findFirst({
     where: {
       facilityId,
-      ...(scheduleId ? { id: scheduleId } : { status: 'DRAFT' }),
+      ...(scheduleId ? { id: scheduleId } : { draftVersionId: { not: null }, status: { not: 'ARCHIVED' } }),
     },
+    include: { draftVersion: true, publishedVersion: true },
     orderBy: { startDate: 'desc' },
   });
   if (!schedule) return null;
 
-  const editingVersionId = ['DRAFT', 'PUBLISHED'].includes(schedule.status) ? schedule.id : null;
+  const version = schedule.draftVersion ?? schedule.publishedVersion;
+  const editingVersionId = version?.id ?? null;
   const analysisInput = await loadSchedulingInput(prisma, schedule.id, facilityId, editingVersionId, schedule);
   const { employees, capacity, assignments, warnings, fairness } = loadedScheduleDetails(analysisInput);
   const submittedSubmissions = analysisInput.forms;
@@ -219,10 +215,10 @@ export async function getDraftScheduleData(facilityId: string, scheduleId?: stri
 
   return {
     ...base, fairness,
-    versionId: schedule.id,
-    revision: schedule.revision,
-    hasUnpublishedDraft: schedule.status === 'DRAFT',
-    editingVersionNumber: schedule.revision,
+    versionId: editingVersionId,
+    revision: version?.revision ?? 0,
+    hasUnpublishedDraft: !!schedule.draftVersionId,
+    editingVersionNumber: version?.number ?? null,
     availabilitySubmissionSummary: {
       submittedCount: submittedEmployeeIds.size,
       eligibleEmployeeCount: employees.length,
@@ -235,12 +231,12 @@ export async function getScheduleWarnings(scheduleId: string | null | undefined)
   if (!scheduleId) return [];
   const schedule = await prisma.schedule.findUnique({
     where: { id: scheduleId },
-    select: { facilityId: true },
+    select: { facilityId: true, draftVersionId: true, publishedVersionId: true },
   });
   if (!schedule) return [];
 
   const [data, employees, capacity] = await Promise.all([
-    loadSchedulingInput(prisma, scheduleId, schedule.facilityId, scheduleId),
+    loadSchedulingInput(prisma, scheduleId, schedule.facilityId, schedule.draftVersionId ?? schedule.publishedVersionId),
     getScheduleEmployees(schedule.facilityId),
     getScheduleCapacity(schedule.facilityId),
   ]);

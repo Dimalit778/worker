@@ -238,9 +238,9 @@ export async function getManagerEmployeeDetail(employeeId: string): Promise<Empl
         submission: { userId: employeeId },
       },
     }),
-    prisma.scheduleSlot.count({ where: { userId: employeeId, facilityId, schedule: { status: 'PUBLISHED' } } }),
+    prisma.scheduleSlot.count({ where: { userId: employeeId, facilityId, version: { publishedFor: { is: { status: 'PUBLISHED' } } } } }),
     prisma.scheduleSlot.findMany({
-      where: { userId: employeeId, facilityId, schedule: { status: 'PUBLISHED' } },
+      where: { userId: employeeId, facilityId, version: { publishedFor: { is: { status: 'PUBLISHED' } } } },
       orderBy: { date: 'desc' },
       take: 8,
       select: {

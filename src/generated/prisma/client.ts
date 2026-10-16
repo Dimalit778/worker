@@ -98,6 +98,11 @@ export type StaffingRequirement = Prisma.StaffingRequirementModel
  */
 export type Schedule = Prisma.ScheduleModel
 /**
+ * Model ScheduleVersion
+ * Published versions and their slots are immutable; Schedule pointers select the live/editing version.
+ */
+export type ScheduleVersion = Prisma.ScheduleVersionModel
+/**
  * Model ScheduleSlot
  * 
  */

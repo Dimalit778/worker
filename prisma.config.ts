@@ -2,9 +2,12 @@ import { resolve } from 'node:path';
 
 import { config } from 'dotenv';
 import { defineConfig } from 'prisma/config';
+import { guardPrismaWorktree } from './scripts/worktree-safety.mjs';
 
 config({ path: resolve(process.cwd(), '.env.local') });
 config({ path: resolve(process.cwd(), '.env') });
+
+guardPrismaWorktree(process.cwd(), process.env);
 
 function datasourceUrl(): string {
   const url = process.env.DATABASE_URL;

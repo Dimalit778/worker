@@ -20,13 +20,13 @@ export async function loadSchedulingInput(tx: Prisma.TransactionClient, schedule
       where: { scheduleId, submittedAt: { not: null }, user: { facilityId } },
       include: { availabilities: true },
     }),
-    versionId ? tx.scheduleSlot.findMany({ where: { scheduleId, facilityId, userId: { not: null } }, include: { user: { select: { displayName: true } }, position: { select: { name: true } } } }) : Promise.resolve([]),
+    versionId ? tx.scheduleSlot.findMany({ where: { scheduleId, versionId, facilityId, userId: { not: null } }, include: { user: { select: { displayName: true } }, position: { select: { name: true } } } }) : Promise.resolve([]),
     tx.scheduleSlot.findMany({
       where: {
         facilityId,
         scheduleId: { not: scheduleId },
         userId: { not: null },
-        schedule: { status: 'PUBLISHED' },
+        version: { publishedFor: { is: { status: 'PUBLISHED' } } },
         date: { gte: addDays(schedule.startDate, -56), lte: addDays(schedule.endDate, 1) },
       },
     }),
@@ -77,10 +77,10 @@ export async function getAutoScheduleInputData(scheduleId: string) {
   const { facilityId } = await requireManager();
   const schedule = await prisma.schedule.findFirst({
     where: { id: scheduleId, facilityId, status: { in: ['DRAFT', 'PUBLISHED'] } },
-    select: { id: true },
+    select: { draftVersionId: true, publishedVersionId: true },
   });
   try {
-    const data = await loadSchedulingInput(prisma, scheduleId, facilityId, schedule?.id ?? null);
+    const data = await loadSchedulingInput(prisma, scheduleId, facilityId, schedule?.draftVersionId ?? schedule?.publishedVersionId ?? null);
     return { found: true as const, input: data.input, schedule: data.schedule };
   } catch {
     return { found: false as const, message: 'השיבוץ לא נמצא' };

@@ -18,10 +18,10 @@ export async function generateAutoSchedule(scheduleId: string, expected: Version
       const failures = validateAssignments(input, all, { allowManualOverrides: false });
       if (failures.length) throw new Error(failures.join('; '));
       const locked = await tx.scheduleSlot.findMany({
-        where: { scheduleId, isLocked: true },
+        where: { scheduleId, versionId: version.id, isLocked: true },
         select: { date: true, shiftType: true, positionId: true, slotNumber: true },
       });
-      await tx.scheduleSlot.deleteMany({ where: { scheduleId, isLocked: false } });
+      await tx.scheduleSlot.deleteMany({ where: { scheduleId, versionId: version.id, isLocked: false } });
       const nextSlot = new Map<string, number>();
       for (const slot of locked) {
         const key = `${slot.date.toISOString()}|${slot.shiftType}|${slot.positionId}`;
@@ -35,7 +35,7 @@ export async function generateAutoSchedule(scheduleId: string, expected: Version
             nextSlot.set(key, slotNumber);
             const times = defaultShiftTimes(a.shiftType);
             return {
-              scheduleId,
+              scheduleId, versionId: version.id,
               facilityId: actor.facilityId,
               userId: a.employeeId,
               positionId: a.positionId,
@@ -50,14 +50,12 @@ export async function generateAutoSchedule(scheduleId: string, expected: Version
         });
       }
       const analysis = await saveScheduleAnalysis(tx, version.id, input, all);
-      await tx.schedule.update({
-        where: { id: schedule.id },
-        data: { revision: { increment: 1 }, submissionClosesAt: new Date() },
-      });
+      await tx.scheduleVersion.update({ where: { id: version.id }, data: { revision: { increment: 1 } } });
+      await tx.schedule.update({ where: { id: schedule.id }, data: { submissionClosesAt: new Date() } });
       await tx.scheduleChange.create({
         data: {
           facilityId: actor.facilityId,
-          scheduleId,
+          scheduleId, versionId: version.id,
           changedById: actor.userId,
           changeType: 'UPDATE',
           reason: 'יצירה אוטומטית מחדש; איושים נעולים נשמרו',

@@ -395,6 +395,7 @@ export const ModelName = {
   Position: 'Position',
   StaffingRequirement: 'StaffingRequirement',
   Schedule: 'Schedule',
+  ScheduleVersion: 'ScheduleVersion',
   ScheduleSlot: 'ScheduleSlot',
   AvailabilitySubmission: 'AvailabilitySubmission',
   ShiftAvailability: 'ShiftAvailability',
@@ -415,7 +416,7 @@ export type TypeMap<ExtArgs extends runtime.Types.Extensions.InternalArgs = runt
     omit: GlobalOmitOptions
   }
   meta: {
-    modelProps: "account" | "session" | "verificationToken" | "user" | "role" | "district" | "facility" | "facilityShift" | "position" | "staffingRequirement" | "schedule" | "scheduleSlot" | "availabilitySubmission" | "shiftAvailability" | "scheduleChange" | "systemSetting"
+    modelProps: "account" | "session" | "verificationToken" | "user" | "role" | "district" | "facility" | "facilityShift" | "position" | "staffingRequirement" | "schedule" | "scheduleVersion" | "scheduleSlot" | "availabilitySubmission" | "shiftAvailability" | "scheduleChange" | "systemSetting"
     txIsolationLevel: TransactionIsolationLevel
   }
   model: {
@@ -1233,6 +1234,80 @@ export type TypeMap<ExtArgs extends runtime.Types.Extensions.InternalArgs = runt
         }
       }
     }
+    ScheduleVersion: {
+      payload: Prisma.$ScheduleVersionPayload<ExtArgs>
+      fields: Prisma.ScheduleVersionFieldRefs
+      operations: {
+        findUnique: {
+          args: Prisma.ScheduleVersionFindUniqueArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$ScheduleVersionPayload> | null
+        }
+        findUniqueOrThrow: {
+          args: Prisma.ScheduleVersionFindUniqueOrThrowArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$ScheduleVersionPayload>
+        }
+        findFirst: {
+          args: Prisma.ScheduleVersionFindFirstArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$ScheduleVersionPayload> | null
+        }
+        findFirstOrThrow: {
+          args: Prisma.ScheduleVersionFindFirstOrThrowArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$ScheduleVersionPayload>
+        }
+        findMany: {
+          args: Prisma.ScheduleVersionFindManyArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$ScheduleVersionPayload>[]
+        }
+        create: {
+          args: Prisma.ScheduleVersionCreateArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$ScheduleVersionPayload>
+        }
+        createMany: {
+          args: Prisma.ScheduleVersionCreateManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        createManyAndReturn: {
+          args: Prisma.ScheduleVersionCreateManyAndReturnArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$ScheduleVersionPayload>[]
+        }
+        delete: {
+          args: Prisma.ScheduleVersionDeleteArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$ScheduleVersionPayload>
+        }
+        update: {
+          args: Prisma.ScheduleVersionUpdateArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$ScheduleVersionPayload>
+        }
+        deleteMany: {
+          args: Prisma.ScheduleVersionDeleteManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        updateMany: {
+          args: Prisma.ScheduleVersionUpdateManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        updateManyAndReturn: {
+          args: Prisma.ScheduleVersionUpdateManyAndReturnArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$ScheduleVersionPayload>[]
+        }
+        upsert: {
+          args: Prisma.ScheduleVersionUpsertArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$ScheduleVersionPayload>
+        }
+        aggregate: {
+          args: Prisma.ScheduleVersionAggregateArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.AggregateScheduleVersion>
+        }
+        groupBy: {
+          args: Prisma.ScheduleVersionGroupByArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.ScheduleVersionGroupByOutputType>[]
+        }
+        count: {
+          args: Prisma.ScheduleVersionCountArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.ScheduleVersionCountAggregateOutputType> | number
+        }
+      }
+    }
     ScheduleSlot: {
       payload: Prisma.$ScheduleSlotPayload<ExtArgs>
       fields: Prisma.ScheduleSlotFieldRefs
@@ -1782,7 +1857,8 @@ export const ScheduleScalarFieldEnum = {
   submissionClosesAt: 'submissionClosesAt',
   status: 'status',
   publishedAt: 'publishedAt',
-  revision: 'revision',
+  draftVersionId: 'draftVersionId',
+  publishedVersionId: 'publishedVersionId',
   createdAt: 'createdAt',
   updatedAt: 'updatedAt'
 } as const
@@ -1790,10 +1866,26 @@ export const ScheduleScalarFieldEnum = {
 export type ScheduleScalarFieldEnum = (typeof ScheduleScalarFieldEnum)[keyof typeof ScheduleScalarFieldEnum]
 
 
+export const ScheduleVersionScalarFieldEnum = {
+  id: 'id',
+  scheduleId: 'scheduleId',
+  facilityId: 'facilityId',
+  number: 'number',
+  revision: 'revision',
+  status: 'status',
+  publishedAt: 'publishedAt',
+  createdAt: 'createdAt',
+  capacitySnapshot: 'capacitySnapshot'
+} as const
+
+export type ScheduleVersionScalarFieldEnum = (typeof ScheduleVersionScalarFieldEnum)[keyof typeof ScheduleVersionScalarFieldEnum]
+
+
 export const ScheduleSlotScalarFieldEnum = {
   id: 'id',
   facilityId: 'facilityId',
   scheduleId: 'scheduleId',
+  versionId: 'versionId',
   positionId: 'positionId',
   date: 'date',
   shiftType: 'shiftType',
@@ -1841,6 +1933,7 @@ export const ScheduleChangeScalarFieldEnum = {
   facilityId: 'facilityId',
   scheduleId: 'scheduleId',
   changedById: 'changedById',
+  versionId: 'versionId',
   changeType: 'changeType',
   reason: 'reason',
   beforeData: 'beforeData',
@@ -2021,6 +2114,20 @@ export type ListEnumScheduleStatusFieldRefInput<$PrismaModel> = FieldRefInputTyp
 
 
 /**
+ * Reference to a field of type 'Json'
+ */
+export type JsonFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'Json'>
+    
+
+
+/**
+ * Reference to a field of type 'QueryMode'
+ */
+export type EnumQueryModeFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'QueryMode'>
+    
+
+
+/**
  * Reference to a field of type 'AssignmentSource'
  */
 export type EnumAssignmentSourceFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'AssignmentSource'>
@@ -2059,20 +2166,6 @@ export type EnumScheduleChangeTypeFieldRefInput<$PrismaModel> = FieldRefInputTyp
  * Reference to a field of type 'ScheduleChangeType[]'
  */
 export type ListEnumScheduleChangeTypeFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'ScheduleChangeType[]'>
-    
-
-
-/**
- * Reference to a field of type 'Json'
- */
-export type JsonFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'Json'>
-    
-
-
-/**
- * Reference to a field of type 'QueryMode'
- */
-export type EnumQueryModeFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'QueryMode'>
     
 
 
@@ -2210,6 +2303,7 @@ export type GlobalOmitConfig = {
   position?: Prisma.PositionOmit
   staffingRequirement?: Prisma.StaffingRequirementOmit
   schedule?: Prisma.ScheduleOmit
+  scheduleVersion?: Prisma.ScheduleVersionOmit
   scheduleSlot?: Prisma.ScheduleSlotOmit
   availabilitySubmission?: Prisma.AvailabilitySubmissionOmit
   shiftAvailability?: Prisma.ShiftAvailabilityOmit
