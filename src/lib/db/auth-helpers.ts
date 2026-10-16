@@ -43,7 +43,7 @@ export async function requireSession(requiredRole?: PortalRoleValue): Promise<Se
   const user = await prisma.user.findUnique({
     where: { id: session.user.id },
   });
-  if (!user) redirect('/login');
+  if (!user || !user.isActive) redirect('/login');
   const portal = portalFor(user);
   if (portal === PortalRole.MANAGER && !user.facilityId) redirect('/login');
   session.user = {

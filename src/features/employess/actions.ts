@@ -107,9 +107,9 @@ export async function setEmployeeActive(employeeId: string, isActive: boolean): 
 
   const employee = await prisma.user.findFirst({
     where: { id: employeeId, facilityId },
-    select: { id: true, isActive: true },
+    select: { id: true, isActive: true, systemRole: true },
   });
-  if (!employee) return { error: 'עובד לא נמצא' };
+  if (!employee || employee.systemRole === SystemRole.ADMIN) return { error: 'עובד לא נמצא' };
   if (employee.id === session.user.id && !isActive) return { error: 'לא ניתן להשבית את המשתמש שלך' };
 
   await prisma.user.update({

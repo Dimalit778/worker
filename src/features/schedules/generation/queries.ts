@@ -4,7 +4,8 @@ import { requireManager } from '@/lib/db/auth-helpers';
 import { addDays } from '@/features/scheduling-engine/constraints';
 import type { EngineAssignment, EngineInput } from '@/features/scheduling-engine/types';
 
-const staffedUser = { isActive: true, role: { rank: { not: 1 } } };
+// Inactive employees are loaded too: the engine skips them for new slots, while their existing slots stay editable.
+const staffedUser = { role: { rank: { not: 1 } } };
 const staffedPosition = {
   isActive: true,
   NOT: { OR: [{ requiredRank: 1 }, { baseRole: { rank: 1 } }] },
