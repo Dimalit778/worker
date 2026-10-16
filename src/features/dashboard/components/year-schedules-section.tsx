@@ -180,7 +180,7 @@ export function YearSchedulesSection({ yearSchedules, initialSelection }: YearSc
                 return (
                   <li key={schedule.id}>
                     <Link
-                      href="/manager/schedules"
+                      href={`/manager/schedules/${schedule.id}`}
                       className="group flex flex-col gap-4 px-5 py-4 transition-colors hover:bg-muted/30 sm:flex-row sm:items-center"
                     >
                       <div className="min-w-0 flex-1 space-y-2">
