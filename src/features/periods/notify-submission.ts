@@ -9,13 +9,36 @@ function escapeHtml(value: string): string {
     .replaceAll('"', '&quot;');
 }
 
-export async function sendSubmissionOpenedEmails(input: {
+type EmailInput = {
   recipients: string[];
   periodName: string;
   startDate: string;
   endDate: string;
   deadline: Date;
-}): Promise<{ ok: true; sent: number } | { ok: false; error: string }> {
+};
+
+type EmailResult = { ok: true; sent: number } | { ok: false; error: string };
+
+export async function sendSubmissionOpenedEmails(input: EmailInput): Promise<EmailResult> {
+  return sendEmails(input, {
+    subject: `נפתחה הגשת זמינות — ${input.periodName}`,
+    intro: 'נפתחה הגשת זמינות לתקופה',
+    deadlineLine: 'יש להגיש עד',
+  });
+}
+
+export async function sendSubmissionReminderEmails(input: EmailInput): Promise<EmailResult> {
+  return sendEmails(input, {
+    subject: `תזכורת: הגשת זמינות — ${input.periodName}`,
+    intro: 'טרם הגשת זמינות לתקופה',
+    deadlineLine: 'ההגשה נסגרת ב',
+  });
+}
+
+async function sendEmails(
+  input: EmailInput,
+  text: { subject: string; intro: string; deadlineLine: string },
+): Promise<EmailResult> {
   const apiKey = process.env.RESEND_API_KEY;
   const from = process.env.RESEND_FROM_EMAIL;
   if (!apiKey || !from) {
@@ -29,11 +52,11 @@ export async function sendSubmissionOpenedEmails(input: {
   const link = appUrl ? `${appUrl}/employee/availability` : '';
   const deadlineLabel = formatJerusalemDateTime(input.deadline);
   const range = `${formatDate(input.startDate)}–${formatDate(input.endDate)}`;
-  const subject = `נפתחה הגשת זמינות — ${input.periodName}`;
+  const subject = text.subject;
   const html = `
     <div dir="rtl" style="font-family: Arial, sans-serif; line-height: 1.5">
-      <p>נפתחה הגשת זמינות לתקופה <strong>${escapeHtml(input.periodName)}</strong> (${escapeHtml(range)}).</p>
-      <p>יש להגיש עד ${escapeHtml(deadlineLabel)}.</p>
+      <p>${text.intro} <strong>${escapeHtml(input.periodName)}</strong> (${escapeHtml(range)}).</p>
+      <p>${text.deadlineLine} ${escapeHtml(deadlineLabel)}.</p>
       ${link ? `<p><a href="${escapeHtml(link)}">להגשת הזמינות</a></p>` : ''}
     </div>
   `.trim();
