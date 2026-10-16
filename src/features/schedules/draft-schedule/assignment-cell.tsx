@@ -163,7 +163,9 @@ export function AssignmentCell({
         pending && 'opacity-50 pointer-events-none',
         open && 'ring-2 ring-primary ring-inset',
       )}
-      onClick={() => {
+      onClick={(e) => {
+        // Clicks inside portaled children (picker, override dialog) bubble here through React; ignore them.
+        if (!tdRef.current?.contains(e.target as Node)) return;
         if (!open && tdRef.current) {
           setAnchorRect(tdRef.current.getBoundingClientRect());
         }
