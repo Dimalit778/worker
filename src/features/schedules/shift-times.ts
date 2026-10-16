@@ -1,4 +1,6 @@
 import type { ShiftType } from '@/generated/prisma/client';
+import { zonedDateTimeToUtc } from '@/features/periods/submission-window';
+import { addDays } from '@/features/periods/utils';
 
 /** Default hours ("HH:mm") per shift type. endTime < startTime means the shift ends the next day. */
 export const DEFAULT_SHIFT_TIMES: { shiftType: ShiftType; startTime: string; endTime: string }[] = [
@@ -13,12 +15,13 @@ export function isValidShiftTime(value: string) {
   return TIME_PATTERN.test(value);
 }
 
-/** Combine a UTC date with facility-local hours (Asia/Jerusalem, UTC+3). */
+/** Combine a UTC-midnight calendar date with facility-local hours (Asia/Jerusalem, DST-aware). */
 export function shiftBounds(date: Date, startTime: string, endTime: string) {
   const day = date.toISOString().slice(0, 10);
-  const startsAt = new Date(`${day}T${startTime}:00+03:00`);
-  const endsAt = new Date(`${day}T${endTime}:00+03:00`);
-  if (endsAt <= startsAt) endsAt.setUTCDate(endsAt.getUTCDate() + 1);
+  const startsAt = zonedDateTimeToUtc(day, startTime);
+  // endTime <= startTime: the shift ends on the next calendar day (local).
+  const endDay = endTime <= startTime ? addDays(day, 1) : day;
+  const endsAt = zonedDateTimeToUtc(endDay, endTime);
   return { startsAt, endsAt };
 }
 
