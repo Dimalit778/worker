@@ -4,10 +4,12 @@ import { useCallback, useMemo, useState } from 'react';
 import { useMutation, useQueryClient } from '@tanstack/react-query';
 import { Plus } from 'lucide-react';
 
-import { EmployeeListItem, PositionOption } from '@/features/employess/types';
-import { deleteEmployee } from '@/features/employess/actions';
+import { EmployeeListItem, FutureAssignment, PositionOption } from '@/features/employess/types';
+import { setEmployeeActive } from '@/features/employess/actions';
 import { deleteAdminEmployee } from '@/features/admin/actions';
 import { invalidateEmployeesList } from '@/features/employess/hooks';
+import { SHIFT_LABELS } from '@/features/schedules/constants';
+import type { ShiftType } from '@/generated/prisma/client';
 import { Button } from '@/components/ui/button';
 import {
   AlertDialog,
@@ -38,8 +40,7 @@ export function EmployeesTable({
   const queryClient = useQueryClient();
 
   const deleteMutation = useMutation({
-    mutationFn: (employeeId: string) =>
-      facilityId ? deleteAdminEmployee(employeeId) : deleteEmployee(employeeId),
+    mutationFn: (employeeId: string) => deleteAdminEmployee(employeeId),
     onSuccess: (result) => {
       if ('error' in result) {
         setError(result.error);
@@ -50,13 +51,34 @@ export function EmployeesTable({
     },
   });
 
+  const activeMutation = useMutation({
+    mutationFn: ({ id, isActive }: { id: string; isActive: boolean }) => setEmployeeActive(id, isActive),
+    onSuccess: (result) => {
+      if ('error' in result) {
+        setError(result.error);
+        setActiveTarget(null);
+        return;
+      }
+      invalidateEmployeesList(queryClient, facilityId);
+      if (result.futureAssignments.length > 0) {
+        setDeactivationResult({ name: activeTarget?.name ?? '', assignments: result.futureAssignments });
+      }
+      setActiveTarget(null);
+    },
+  });
+
+  const [activeTarget, setActiveTarget] = useState<{ id: string; name: string; activate: boolean } | null>(null);
+  const [deactivationResult, setDeactivationResult] = useState<{
+    name: string;
+    assignments: FutureAssignment[];
+  } | null>(null);
   const [modalOpen, setModalOpen] = useState(false);
   const [editingEmployee, setEditingEmployee] = useState<EmployeeListItem | null>(null);
   const [deleteTarget, setDeleteTarget] = useState<{
     id: string;
     name: string;
   } | null>(null);
-  const deletePending = deleteMutation.isPending;
+  const deletePending = deleteMutation.isPending || activeMutation.isPending;
   const [error, setError] = useState<string | null>(null);
 
   function openAdd() {
@@ -84,6 +106,21 @@ export function EmployeesTable({
     });
   }, [setDeleteTarget, setError]);
 
+  const handleToggleActive = useCallback((employee: EmployeeListItem) => {
+    setError(null);
+    setActiveTarget({
+      id: employee.id,
+      name: `${employee.firstName} ${employee.lastName}`.trim(),
+      activate: !employee.isActive,
+    });
+  }, [setActiveTarget, setError]);
+
+  function handleConfirmActive() {
+    if (!activeTarget) return;
+    setError(null);
+    activeMutation.mutate({ id: activeTarget.id, isActive: activeTarget.activate });
+  }
+
   function handleConfirmDelete() {
     if (!deleteTarget) return;
     setError(null);
@@ -94,11 +131,12 @@ export function EmployeesTable({
     () =>
       createEmployeesColumns({
         onEdit: openEdit,
-        onDelete: handleDeleteClick,
+        onDelete: facilityId ? handleDeleteClick : undefined,
+        onToggleActive: facilityId ? undefined : handleToggleActive,
         deletePending,
         hideDetailLinks: Boolean(facilityId),
       }),
-    [facilityId, deletePending, handleDeleteClick, openEdit],
+    [facilityId, deletePending, handleDeleteClick, handleToggleActive, openEdit],
   );
 
   return (
@@ -164,6 +202,67 @@ export function EmployeesTable({
             >
               {deletePending ? 'מוחק...' : 'מחק'}
             </AlertDialogAction>
+          </AlertDialogFooter>
+        </AlertDialogContent>
+      </AlertDialog>
+
+      <AlertDialog
+        open={Boolean(activeTarget)}
+        onOpenChange={(open) => {
+          if (!open) setActiveTarget(null);
+        }}
+      >
+        <AlertDialogContent dir="rtl">
+          <AlertDialogHeader>
+            <AlertDialogTitle>{activeTarget?.activate ? 'הפעלה מחדש של עובד' : 'השבתת עובד'}</AlertDialogTitle>
+            <AlertDialogDescription>
+              {activeTarget?.activate
+                ? `להפעיל מחדש את ${activeTarget.name}? העובד יוכל להתחבר ולהשתבץ שוב.`
+                : `להשבית את ${activeTarget?.name}? העובד לא יוכל להתחבר ולא ישובץ בשיבוצים חדשים. ההיסטוריה והשיבוצים הקיימים נשמרים.`}
+            </AlertDialogDescription>
+          </AlertDialogHeader>
+
+          <AlertDialogFooter className="gap-2 sm:justify-start">
+            <AlertDialogCancel disabled={activeMutation.isPending}>ביטול</AlertDialogCancel>
+            <AlertDialogAction
+              disabled={activeMutation.isPending}
+              onClick={(event) => {
+                event.preventDefault();
+                handleConfirmActive();
+              }}
+            >
+              {activeMutation.isPending ? 'מעדכן...' : activeTarget?.activate ? 'הפעל' : 'השבת'}
+            </AlertDialogAction>
+          </AlertDialogFooter>
+        </AlertDialogContent>
+      </AlertDialog>
+
+      <AlertDialog
+        open={Boolean(deactivationResult)}
+        onOpenChange={(open) => {
+          if (!open) setDeactivationResult(null);
+        }}
+      >
+        <AlertDialogContent dir="rtl">
+          <AlertDialogHeader>
+            <AlertDialogTitle>שיבוצים עתידיים שדורשים טיפול</AlertDialogTitle>
+            <AlertDialogDescription>
+              {deactivationResult?.name} הושבת, אך עדיין משובץ במשמרות עתידיות. השיבוצים לא הוסרו אוטומטית.
+            </AlertDialogDescription>
+          </AlertDialogHeader>
+
+          <ul className="max-h-64 space-y-1 overflow-y-auto text-sm">
+            {deactivationResult?.assignments.map((assignment) => (
+              <li key={assignment.slotId} className="rounded-md border px-3 py-2">
+                {assignment.date} · {SHIFT_LABELS[assignment.shiftType as ShiftType] ?? assignment.shiftType} ·{' '}
+                {assignment.positionName} · {assignment.periodName}
+                {assignment.versionStatus === 'DRAFT' ? ' (טיוטה)' : ' (פורסם)'}
+              </li>
+            ))}
+          </ul>
+
+          <AlertDialogFooter className="gap-2 sm:justify-start">
+            <AlertDialogCancel>סגור</AlertDialogCancel>
           </AlertDialogFooter>
         </AlertDialogContent>
       </AlertDialog>
