@@ -28,7 +28,7 @@ export async function applyScheduleEdit(
   queryClient: ReturnType<typeof useQueryClient>,
   update: Awaited<ReturnType<typeof createAssignment>> | undefined,
 ) {
-  if (!update) return;
+  if (!update || 'requiresOverride' in update) return;
   await queryClient.cancelQueries({
     queryKey: queryKeys.schedules.draft(),
     predicate: query => (query.state.data as CurrentScheduleData | null)?.scheduleId === update.scheduleId,

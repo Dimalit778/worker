@@ -7,6 +7,8 @@ import { Plus, UserCheck } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { createAssignment, removeAssignment, swapAssignments, updateAssignment } from '@/features/schedules/assignments/actions';
 import { applyScheduleEdit } from '@/features/schedules/hooks';
+import { ManualOverrideDialog } from '@/features/schedules/shared/manual-override-dialog';
+import type { ManualViolation } from '@/features/scheduling-engine/manual-violations';
 import type { ScheduleEmployeeOption } from '@/features/schedules/types';
 import type { ShiftType } from '@/generated/prisma/client';
 import { GuardPicker, type SwapCandidate } from '@/features/schedules/shared/guard-picker';
@@ -58,23 +60,24 @@ function AssignmentPicker({
   const [open, setOpen] = useState(false);
   const [anchorRect, setAnchorRect] = useState<DOMRect | null>(null);
   const [error, setError] = useState<string | null>(null);
+  const [overrideRequest, setOverrideRequest] = useState<{ violations: ManualViolation[]; input: { type: 'select'; employeeId: string } | { type: 'swap'; assignmentId: string } } | null>(null);
 
   const assignmentMutation = useMutation({
     mutationFn: async (
       input:
-        | { type: 'select'; employeeId: string }
+        | { type: 'select'; employeeId: string; override?: { reason: string } }
         | { type: 'remove'; assignmentId: string }
-        | { type: 'swap'; assignmentId: string },
+        | { type: 'swap'; assignmentId: string; override?: { reason: string } },
     ) => {
       if (input.type === 'remove') {
         return removeAssignment(input.assignmentId, expected);
       }
       if (input.type === 'swap') {
         if (!slot.assignment) return;
-        return swapAssignments(slot.assignment.id, input.assignmentId, expected);
+        return swapAssignments(slot.assignment.id, input.assignmentId, expected, input.override);
       }
       if (mode === 'edit' && slot.assignment) {
-        return updateAssignment(slot.assignment.id, input.employeeId, expected);
+        return updateAssignment(slot.assignment.id, input.employeeId, expected, input.override);
       }
       return createAssignment({
         scheduleId,
@@ -84,9 +87,15 @@ function AssignmentPicker({
         shiftType,
         date,
         slotIndex: slot.slotIndex,
-      }, expected);
+      }, expected, input.override);
     },
-    onSuccess: update => applyScheduleEdit(queryClient, update),
+    onSuccess: (update, input) => {
+      if (update && 'requiresOverride' in update) {
+        setOverrideRequest({ violations: update.violations, input: input as Extract<typeof input, { type: 'select' | 'swap' }> });
+        return;
+      }
+      return applyScheduleEdit(queryClient, update);
+    },
     onError: (e: Error) => setError(e.message || 'שגיאה בשיבוץ'),
   });
 
@@ -149,6 +158,14 @@ function AssignmentPicker({
           onSwap={mode === 'edit' ? handleSwap : undefined}
         />
       ) : null}
+      <ManualOverrideDialog
+        violations={overrideRequest?.violations ?? null}
+        onCancel={() => setOverrideRequest(null)}
+        onConfirm={reason => {
+          if (overrideRequest) assignmentMutation.mutate({ ...overrideRequest.input, override: { reason } });
+          setOverrideRequest(null);
+        }}
+      />
     </div>
   );
 }
