@@ -17,13 +17,20 @@ export async function getScheduleData() {
     },
     orderBy: { startDate: 'asc' },
   });
-  const empty = { period: null, entries: {} as Record<string, AvailabilityPreference>, isSubmitted: false, note: '' };
-  if (!schedule) return empty;
+  if (!schedule) {
+    const next = await prisma.schedule.findFirst({
+      where: { facilityId, status: 'DRAFT', submissionOpensAt: { gt: now } },
+      orderBy: { submissionOpensAt: 'asc' },
+      select: { submissionOpensAt: true },
+    });
+    return { period: null, entries: {} as Record<string, AvailabilityPreference>, isSubmitted: false, note: '', nextOpeningAt: next?.submissionOpensAt.toISOString() ?? null };
+  }
   const form = await prisma.availabilitySubmission.findUnique({
     where: { scheduleId_userId: { scheduleId: schedule.id, userId: employeeId } },
     include: { availabilities: true },
   });
   return {
+    nextOpeningAt: null,
     period: {
       id: schedule.id,
       name: schedule.name,

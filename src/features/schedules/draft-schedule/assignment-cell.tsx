@@ -113,7 +113,7 @@ export function AssignmentCell({
   }
 
   if (readonly) {
-    const label = anonymousRow && assignment ? assignment.employeeDisplayName : (assignment?.employeeDisplayName ?? '');
+    const label = anonymousRow && assignment ? assignment.employeeDisplayName : (assignment?.employeeDisplayName ?? 'חסר עובד');
     return (
       <td
         className={cn(
@@ -172,7 +172,7 @@ export function AssignmentCell({
         setOpen((v) => !v);
       }}
     >
-      <span className="truncate block max-w-[58px] mx-auto">{assignment?.employeeDisplayName ?? ''}</span>
+      <button type="button" disabled={pending} aria-label={`${date} — ${assignment?.employeeDisplayName ?? "תקן חסר, בחירת עובד"}`} className="min-h-11 w-full rounded-sm focus-visible:outline-2 focus-visible:outline-ring"><span className="block truncate">{assignment?.employeeDisplayName ?? "חסר עובד"}</span></button>
       {error && (
         <span className="absolute inset-0 flex items-center justify-center bg-red-50 text-red-600 text-[10px] leading-tight px-0.5 z-10">
           {error}
