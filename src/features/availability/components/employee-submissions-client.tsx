@@ -25,6 +25,7 @@ export function EmployeeSubmissionsClient() {
       endDate: p.endDate,
       status: p.status,
       isSubmitted: p.isSubmitted,
+      submissionStatus: p.submissionStatus,
       entries,
       selectedSlotCount,
     };

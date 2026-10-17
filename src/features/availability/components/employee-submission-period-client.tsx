@@ -37,6 +37,7 @@ export function EmployeeSubmissionPeriodClient({ periodId }: { periodId: string 
         }}
         initialEntries={Object.fromEntries(period.entries.map(e => [`${e.date instanceof Date ? e.date.toISOString().slice(0,10) : String(e.date).slice(0,10)}-${e.shiftType}`, e.preference ?? (e.isAvailable ? 'AVAILABLE' : 'UNAVAILABLE')]))}
         initialSubmitted={period.isSubmitted}
+        status={period.submissionStatus}
         initialNote={period.note}
         viewOnly
       />

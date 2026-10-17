@@ -4,6 +4,7 @@ import { PeriodScheduleStatus } from '@/features/schedules/period-status';
 import { useMemo, useState } from 'react';
 import { cn } from '@/lib/utils';
 import { ScheduleCalendar } from './schedule-calendar';
+import { AVAILABILITY_STATUS_LABEL, type AvailabilityStatus } from '../utils';
 
 export type SubmissionsPeriodPayload = {
   id: string;
@@ -12,6 +13,7 @@ export type SubmissionsPeriodPayload = {
   endDate: string;
   status: PeriodScheduleStatus;
   isSubmitted: boolean;
+  submissionStatus: AvailabilityStatus;
   entries: Record<string, boolean | 'AVAILABLE' | 'PREFERRED' | 'UNAVAILABLE'>;
   selectedSlotCount: number;
 };
@@ -51,10 +53,14 @@ export function SubmissionsTable({ periods }: Props) {
               </p>
               <div className="mt-3 flex flex-wrap items-center gap-2 text-xs">
                 <span className="rounded-md bg-muted px-2 py-0.5 text-muted-foreground">{p.status}</span>
-                {p.isSubmitted ? (
-                  <span className="rounded-md bg-green-100 px-2 py-0.5 text-green-800">הוגש</span>
+                {p.submissionStatus === 'SUBMITTED' ? (
+                  <span className="rounded-md bg-green-100 px-2 py-0.5 text-green-800">
+                    {AVAILABILITY_STATUS_LABEL.SUBMITTED}
+                  </span>
                 ) : (
-                  <span className="rounded-md border border-border px-2 py-0.5 text-muted-foreground">טיוטה</span>
+                  <span className="rounded-md border border-border px-2 py-0.5 text-muted-foreground">
+                    {AVAILABILITY_STATUS_LABEL[p.submissionStatus]}
+                  </span>
                 )}
                 <span className="text-muted-foreground">{p.selectedSlotCount} משמרות מסומנות</span>
               </div>
@@ -75,6 +81,7 @@ export function SubmissionsTable({ periods }: Props) {
           }}
           initialEntries={selected.entries}
           initialSubmitted={selected.isSubmitted}
+          status={selected.submissionStatus}
           viewOnly
         />
       ) : null}
