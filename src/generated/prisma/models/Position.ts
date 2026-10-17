@@ -264,6 +264,7 @@ export type PositionWhereInput = {
   baseRole?: Prisma.XOR<Prisma.RoleNullableScalarRelationFilter, Prisma.RoleWhereInput> | null
   facility?: Prisma.XOR<Prisma.FacilityNullableScalarRelationFilter, Prisma.FacilityWhereInput> | null
   requirements?: Prisma.StaffingRequirementListRelationFilter
+  overrides?: Prisma.StaffingDateOverrideListRelationFilter
   slots?: Prisma.ScheduleSlotListRelationFilter
 }
 
@@ -281,6 +282,7 @@ export type PositionOrderByWithRelationInput = {
   baseRole?: Prisma.RoleOrderByWithRelationInput
   facility?: Prisma.FacilityOrderByWithRelationInput
   requirements?: Prisma.StaffingRequirementOrderByRelationAggregateInput
+  overrides?: Prisma.StaffingDateOverrideOrderByRelationAggregateInput
   slots?: Prisma.ScheduleSlotOrderByRelationAggregateInput
 }
 
@@ -302,6 +304,7 @@ export type PositionWhereUniqueInput = Prisma.AtLeast<{
   baseRole?: Prisma.XOR<Prisma.RoleNullableScalarRelationFilter, Prisma.RoleWhereInput> | null
   facility?: Prisma.XOR<Prisma.FacilityNullableScalarRelationFilter, Prisma.FacilityWhereInput> | null
   requirements?: Prisma.StaffingRequirementListRelationFilter
+  overrides?: Prisma.StaffingDateOverrideListRelationFilter
   slots?: Prisma.ScheduleSlotListRelationFilter
 }, "id" | "baseRoleId" | "facilityId_name">
 
@@ -351,6 +354,7 @@ export type PositionCreateInput = {
   baseRole?: Prisma.RoleCreateNestedOneWithoutBasePositionInput
   facility?: Prisma.FacilityCreateNestedOneWithoutPositionsInput
   requirements?: Prisma.StaffingRequirementCreateNestedManyWithoutPositionInput
+  overrides?: Prisma.StaffingDateOverrideCreateNestedManyWithoutPositionInput
   slots?: Prisma.ScheduleSlotCreateNestedManyWithoutPositionInput
 }
 
@@ -366,6 +370,7 @@ export type PositionUncheckedCreateInput = {
   createdAt?: Date | string
   updatedAt?: Date | string
   requirements?: Prisma.StaffingRequirementUncheckedCreateNestedManyWithoutPositionInput
+  overrides?: Prisma.StaffingDateOverrideUncheckedCreateNestedManyWithoutPositionInput
   slots?: Prisma.ScheduleSlotUncheckedCreateNestedManyWithoutPositionInput
 }
 
@@ -381,6 +386,7 @@ export type PositionUpdateInput = {
   baseRole?: Prisma.RoleUpdateOneWithoutBasePositionNestedInput
   facility?: Prisma.FacilityUpdateOneWithoutPositionsNestedInput
   requirements?: Prisma.StaffingRequirementUpdateManyWithoutPositionNestedInput
+  overrides?: Prisma.StaffingDateOverrideUpdateManyWithoutPositionNestedInput
   slots?: Prisma.ScheduleSlotUpdateManyWithoutPositionNestedInput
 }
 
@@ -396,6 +402,7 @@ export type PositionUncheckedUpdateInput = {
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   requirements?: Prisma.StaffingRequirementUncheckedUpdateManyWithoutPositionNestedInput
+  overrides?: Prisma.StaffingDateOverrideUncheckedUpdateManyWithoutPositionNestedInput
   slots?: Prisma.ScheduleSlotUncheckedUpdateManyWithoutPositionNestedInput
 }
 
@@ -598,6 +605,20 @@ export type PositionUpdateOneRequiredWithoutRequirementsNestedInput = {
   update?: Prisma.XOR<Prisma.XOR<Prisma.PositionUpdateToOneWithWhereWithoutRequirementsInput, Prisma.PositionUpdateWithoutRequirementsInput>, Prisma.PositionUncheckedUpdateWithoutRequirementsInput>
 }
 
+export type PositionCreateNestedOneWithoutOverridesInput = {
+  create?: Prisma.XOR<Prisma.PositionCreateWithoutOverridesInput, Prisma.PositionUncheckedCreateWithoutOverridesInput>
+  connectOrCreate?: Prisma.PositionCreateOrConnectWithoutOverridesInput
+  connect?: Prisma.PositionWhereUniqueInput
+}
+
+export type PositionUpdateOneRequiredWithoutOverridesNestedInput = {
+  create?: Prisma.XOR<Prisma.PositionCreateWithoutOverridesInput, Prisma.PositionUncheckedCreateWithoutOverridesInput>
+  connectOrCreate?: Prisma.PositionCreateOrConnectWithoutOverridesInput
+  upsert?: Prisma.PositionUpsertWithoutOverridesInput
+  connect?: Prisma.PositionWhereUniqueInput
+  update?: Prisma.XOR<Prisma.XOR<Prisma.PositionUpdateToOneWithWhereWithoutOverridesInput, Prisma.PositionUpdateWithoutOverridesInput>, Prisma.PositionUncheckedUpdateWithoutOverridesInput>
+}
+
 export type PositionCreateNestedOneWithoutSlotsInput = {
   create?: Prisma.XOR<Prisma.PositionCreateWithoutSlotsInput, Prisma.PositionUncheckedCreateWithoutSlotsInput>
   connectOrCreate?: Prisma.PositionCreateOrConnectWithoutSlotsInput
@@ -623,6 +644,7 @@ export type PositionCreateWithoutBaseRoleInput = {
   updatedAt?: Date | string
   facility?: Prisma.FacilityCreateNestedOneWithoutPositionsInput
   requirements?: Prisma.StaffingRequirementCreateNestedManyWithoutPositionInput
+  overrides?: Prisma.StaffingDateOverrideCreateNestedManyWithoutPositionInput
   slots?: Prisma.ScheduleSlotCreateNestedManyWithoutPositionInput
 }
 
@@ -637,6 +659,7 @@ export type PositionUncheckedCreateWithoutBaseRoleInput = {
   createdAt?: Date | string
   updatedAt?: Date | string
   requirements?: Prisma.StaffingRequirementUncheckedCreateNestedManyWithoutPositionInput
+  overrides?: Prisma.StaffingDateOverrideUncheckedCreateNestedManyWithoutPositionInput
   slots?: Prisma.ScheduleSlotUncheckedCreateNestedManyWithoutPositionInput
 }
 
@@ -667,6 +690,7 @@ export type PositionUpdateWithoutBaseRoleInput = {
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   facility?: Prisma.FacilityUpdateOneWithoutPositionsNestedInput
   requirements?: Prisma.StaffingRequirementUpdateManyWithoutPositionNestedInput
+  overrides?: Prisma.StaffingDateOverrideUpdateManyWithoutPositionNestedInput
   slots?: Prisma.ScheduleSlotUpdateManyWithoutPositionNestedInput
 }
 
@@ -681,6 +705,7 @@ export type PositionUncheckedUpdateWithoutBaseRoleInput = {
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   requirements?: Prisma.StaffingRequirementUncheckedUpdateManyWithoutPositionNestedInput
+  overrides?: Prisma.StaffingDateOverrideUncheckedUpdateManyWithoutPositionNestedInput
   slots?: Prisma.ScheduleSlotUncheckedUpdateManyWithoutPositionNestedInput
 }
 
@@ -695,6 +720,7 @@ export type PositionCreateWithoutFacilityInput = {
   updatedAt?: Date | string
   baseRole?: Prisma.RoleCreateNestedOneWithoutBasePositionInput
   requirements?: Prisma.StaffingRequirementCreateNestedManyWithoutPositionInput
+  overrides?: Prisma.StaffingDateOverrideCreateNestedManyWithoutPositionInput
   slots?: Prisma.ScheduleSlotCreateNestedManyWithoutPositionInput
 }
 
@@ -709,6 +735,7 @@ export type PositionUncheckedCreateWithoutFacilityInput = {
   createdAt?: Date | string
   updatedAt?: Date | string
   requirements?: Prisma.StaffingRequirementUncheckedCreateNestedManyWithoutPositionInput
+  overrides?: Prisma.StaffingDateOverrideUncheckedCreateNestedManyWithoutPositionInput
   slots?: Prisma.ScheduleSlotUncheckedCreateNestedManyWithoutPositionInput
 }
 
@@ -765,6 +792,7 @@ export type PositionCreateWithoutRequirementsInput = {
   updatedAt?: Date | string
   baseRole?: Prisma.RoleCreateNestedOneWithoutBasePositionInput
   facility?: Prisma.FacilityCreateNestedOneWithoutPositionsInput
+  overrides?: Prisma.StaffingDateOverrideCreateNestedManyWithoutPositionInput
   slots?: Prisma.ScheduleSlotCreateNestedManyWithoutPositionInput
 }
 
@@ -779,6 +807,7 @@ export type PositionUncheckedCreateWithoutRequirementsInput = {
   color?: string | null
   createdAt?: Date | string
   updatedAt?: Date | string
+  overrides?: Prisma.StaffingDateOverrideUncheckedCreateNestedManyWithoutPositionInput
   slots?: Prisma.ScheduleSlotUncheckedCreateNestedManyWithoutPositionInput
 }
 
@@ -809,6 +838,7 @@ export type PositionUpdateWithoutRequirementsInput = {
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   baseRole?: Prisma.RoleUpdateOneWithoutBasePositionNestedInput
   facility?: Prisma.FacilityUpdateOneWithoutPositionsNestedInput
+  overrides?: Prisma.StaffingDateOverrideUpdateManyWithoutPositionNestedInput
   slots?: Prisma.ScheduleSlotUpdateManyWithoutPositionNestedInput
 }
 
@@ -823,6 +853,83 @@ export type PositionUncheckedUpdateWithoutRequirementsInput = {
   color?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  overrides?: Prisma.StaffingDateOverrideUncheckedUpdateManyWithoutPositionNestedInput
+  slots?: Prisma.ScheduleSlotUncheckedUpdateManyWithoutPositionNestedInput
+}
+
+export type PositionCreateWithoutOverridesInput = {
+  id?: string
+  name: string
+  requiredRank?: number | null
+  isActive?: boolean
+  displayOrder?: number
+  color?: string | null
+  createdAt?: Date | string
+  updatedAt?: Date | string
+  baseRole?: Prisma.RoleCreateNestedOneWithoutBasePositionInput
+  facility?: Prisma.FacilityCreateNestedOneWithoutPositionsInput
+  requirements?: Prisma.StaffingRequirementCreateNestedManyWithoutPositionInput
+  slots?: Prisma.ScheduleSlotCreateNestedManyWithoutPositionInput
+}
+
+export type PositionUncheckedCreateWithoutOverridesInput = {
+  id?: string
+  facilityId?: string | null
+  name: string
+  baseRoleId?: string | null
+  requiredRank?: number | null
+  isActive?: boolean
+  displayOrder?: number
+  color?: string | null
+  createdAt?: Date | string
+  updatedAt?: Date | string
+  requirements?: Prisma.StaffingRequirementUncheckedCreateNestedManyWithoutPositionInput
+  slots?: Prisma.ScheduleSlotUncheckedCreateNestedManyWithoutPositionInput
+}
+
+export type PositionCreateOrConnectWithoutOverridesInput = {
+  where: Prisma.PositionWhereUniqueInput
+  create: Prisma.XOR<Prisma.PositionCreateWithoutOverridesInput, Prisma.PositionUncheckedCreateWithoutOverridesInput>
+}
+
+export type PositionUpsertWithoutOverridesInput = {
+  update: Prisma.XOR<Prisma.PositionUpdateWithoutOverridesInput, Prisma.PositionUncheckedUpdateWithoutOverridesInput>
+  create: Prisma.XOR<Prisma.PositionCreateWithoutOverridesInput, Prisma.PositionUncheckedCreateWithoutOverridesInput>
+  where?: Prisma.PositionWhereInput
+}
+
+export type PositionUpdateToOneWithWhereWithoutOverridesInput = {
+  where?: Prisma.PositionWhereInput
+  data: Prisma.XOR<Prisma.PositionUpdateWithoutOverridesInput, Prisma.PositionUncheckedUpdateWithoutOverridesInput>
+}
+
+export type PositionUpdateWithoutOverridesInput = {
+  id?: Prisma.StringFieldUpdateOperationsInput | string
+  name?: Prisma.StringFieldUpdateOperationsInput | string
+  requiredRank?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  isActive?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  displayOrder?: Prisma.IntFieldUpdateOperationsInput | number
+  color?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  baseRole?: Prisma.RoleUpdateOneWithoutBasePositionNestedInput
+  facility?: Prisma.FacilityUpdateOneWithoutPositionsNestedInput
+  requirements?: Prisma.StaffingRequirementUpdateManyWithoutPositionNestedInput
+  slots?: Prisma.ScheduleSlotUpdateManyWithoutPositionNestedInput
+}
+
+export type PositionUncheckedUpdateWithoutOverridesInput = {
+  id?: Prisma.StringFieldUpdateOperationsInput | string
+  facilityId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  name?: Prisma.StringFieldUpdateOperationsInput | string
+  baseRoleId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  requiredRank?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  isActive?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  displayOrder?: Prisma.IntFieldUpdateOperationsInput | number
+  color?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  requirements?: Prisma.StaffingRequirementUncheckedUpdateManyWithoutPositionNestedInput
   slots?: Prisma.ScheduleSlotUncheckedUpdateManyWithoutPositionNestedInput
 }
 
@@ -838,6 +945,7 @@ export type PositionCreateWithoutSlotsInput = {
   baseRole?: Prisma.RoleCreateNestedOneWithoutBasePositionInput
   facility?: Prisma.FacilityCreateNestedOneWithoutPositionsInput
   requirements?: Prisma.StaffingRequirementCreateNestedManyWithoutPositionInput
+  overrides?: Prisma.StaffingDateOverrideCreateNestedManyWithoutPositionInput
 }
 
 export type PositionUncheckedCreateWithoutSlotsInput = {
@@ -852,6 +960,7 @@ export type PositionUncheckedCreateWithoutSlotsInput = {
   createdAt?: Date | string
   updatedAt?: Date | string
   requirements?: Prisma.StaffingRequirementUncheckedCreateNestedManyWithoutPositionInput
+  overrides?: Prisma.StaffingDateOverrideUncheckedCreateNestedManyWithoutPositionInput
 }
 
 export type PositionCreateOrConnectWithoutSlotsInput = {
@@ -882,6 +991,7 @@ export type PositionUpdateWithoutSlotsInput = {
   baseRole?: Prisma.RoleUpdateOneWithoutBasePositionNestedInput
   facility?: Prisma.FacilityUpdateOneWithoutPositionsNestedInput
   requirements?: Prisma.StaffingRequirementUpdateManyWithoutPositionNestedInput
+  overrides?: Prisma.StaffingDateOverrideUpdateManyWithoutPositionNestedInput
 }
 
 export type PositionUncheckedUpdateWithoutSlotsInput = {
@@ -896,6 +1006,7 @@ export type PositionUncheckedUpdateWithoutSlotsInput = {
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   requirements?: Prisma.StaffingRequirementUncheckedUpdateManyWithoutPositionNestedInput
+  overrides?: Prisma.StaffingDateOverrideUncheckedUpdateManyWithoutPositionNestedInput
 }
 
 export type PositionCreateManyFacilityInput = {
@@ -921,6 +1032,7 @@ export type PositionUpdateWithoutFacilityInput = {
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   baseRole?: Prisma.RoleUpdateOneWithoutBasePositionNestedInput
   requirements?: Prisma.StaffingRequirementUpdateManyWithoutPositionNestedInput
+  overrides?: Prisma.StaffingDateOverrideUpdateManyWithoutPositionNestedInput
   slots?: Prisma.ScheduleSlotUpdateManyWithoutPositionNestedInput
 }
 
@@ -935,6 +1047,7 @@ export type PositionUncheckedUpdateWithoutFacilityInput = {
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   requirements?: Prisma.StaffingRequirementUncheckedUpdateManyWithoutPositionNestedInput
+  overrides?: Prisma.StaffingDateOverrideUncheckedUpdateManyWithoutPositionNestedInput
   slots?: Prisma.ScheduleSlotUncheckedUpdateManyWithoutPositionNestedInput
 }
 
@@ -957,11 +1070,13 @@ export type PositionUncheckedUpdateManyWithoutFacilityInput = {
 
 export type PositionCountOutputType = {
   requirements: number
+  overrides: number
   slots: number
 }
 
 export type PositionCountOutputTypeSelect<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
   requirements?: boolean | PositionCountOutputTypeCountRequirementsArgs
+  overrides?: boolean | PositionCountOutputTypeCountOverridesArgs
   slots?: boolean | PositionCountOutputTypeCountSlotsArgs
 }
 
@@ -980,6 +1095,13 @@ export type PositionCountOutputTypeDefaultArgs<ExtArgs extends runtime.Types.Ext
  */
 export type PositionCountOutputTypeCountRequirementsArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
   where?: Prisma.StaffingRequirementWhereInput
+}
+
+/**
+ * PositionCountOutputType without action
+ */
+export type PositionCountOutputTypeCountOverridesArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+  where?: Prisma.StaffingDateOverrideWhereInput
 }
 
 /**
@@ -1004,6 +1126,7 @@ export type PositionSelect<ExtArgs extends runtime.Types.Extensions.InternalArgs
   baseRole?: boolean | Prisma.Position$baseRoleArgs<ExtArgs>
   facility?: boolean | Prisma.Position$facilityArgs<ExtArgs>
   requirements?: boolean | Prisma.Position$requirementsArgs<ExtArgs>
+  overrides?: boolean | Prisma.Position$overridesArgs<ExtArgs>
   slots?: boolean | Prisma.Position$slotsArgs<ExtArgs>
   _count?: boolean | Prisma.PositionCountOutputTypeDefaultArgs<ExtArgs>
 }, ExtArgs["result"]["position"]>
@@ -1056,6 +1179,7 @@ export type PositionInclude<ExtArgs extends runtime.Types.Extensions.InternalArg
   baseRole?: boolean | Prisma.Position$baseRoleArgs<ExtArgs>
   facility?: boolean | Prisma.Position$facilityArgs<ExtArgs>
   requirements?: boolean | Prisma.Position$requirementsArgs<ExtArgs>
+  overrides?: boolean | Prisma.Position$overridesArgs<ExtArgs>
   slots?: boolean | Prisma.Position$slotsArgs<ExtArgs>
   _count?: boolean | Prisma.PositionCountOutputTypeDefaultArgs<ExtArgs>
 }
@@ -1074,6 +1198,7 @@ export type $PositionPayload<ExtArgs extends runtime.Types.Extensions.InternalAr
     baseRole: Prisma.$RolePayload<ExtArgs> | null
     facility: Prisma.$FacilityPayload<ExtArgs> | null
     requirements: Prisma.$StaffingRequirementPayload<ExtArgs>[]
+    overrides: Prisma.$StaffingDateOverridePayload<ExtArgs>[]
     slots: Prisma.$ScheduleSlotPayload<ExtArgs>[]
   }
   scalars: runtime.Types.Extensions.GetPayloadResult<{
@@ -1484,6 +1609,7 @@ export interface Prisma__PositionClient<T, Null = never, ExtArgs extends runtime
   baseRole<T extends Prisma.Position$baseRoleArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.Position$baseRoleArgs<ExtArgs>>): Prisma.Prisma__RoleClient<runtime.Types.Result.GetResult<Prisma.$RolePayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions> | null, null, ExtArgs, GlobalOmitOptions>
   facility<T extends Prisma.Position$facilityArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.Position$facilityArgs<ExtArgs>>): Prisma.Prisma__FacilityClient<runtime.Types.Result.GetResult<Prisma.$FacilityPayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions> | null, null, ExtArgs, GlobalOmitOptions>
   requirements<T extends Prisma.Position$requirementsArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.Position$requirementsArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$StaffingRequirementPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
+  overrides<T extends Prisma.Position$overridesArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.Position$overridesArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$StaffingDateOverridePayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
   slots<T extends Prisma.Position$slotsArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.Position$slotsArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$ScheduleSlotPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
   /**
    * Attaches callbacks for the resolution and/or rejection of the Promise.
@@ -1984,6 +2110,30 @@ export type Position$requirementsArgs<ExtArgs extends runtime.Types.Extensions.I
   take?: number
   skip?: number
   distinct?: Prisma.StaffingRequirementScalarFieldEnum | Prisma.StaffingRequirementScalarFieldEnum[]
+}
+
+/**
+ * Position.overrides
+ */
+export type Position$overridesArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+  /**
+   * Select specific fields to fetch from the StaffingDateOverride
+   */
+  select?: Prisma.StaffingDateOverrideSelect<ExtArgs> | null
+  /**
+   * Omit specific fields from the StaffingDateOverride
+   */
+  omit?: Prisma.StaffingDateOverrideOmit<ExtArgs> | null
+  /**
+   * Choose, which related nodes to fetch as well
+   */
+  include?: Prisma.StaffingDateOverrideInclude<ExtArgs> | null
+  where?: Prisma.StaffingDateOverrideWhereInput
+  orderBy?: Prisma.StaffingDateOverrideOrderByWithRelationInput | Prisma.StaffingDateOverrideOrderByWithRelationInput[]
+  cursor?: Prisma.StaffingDateOverrideWhereUniqueInput
+  take?: number
+  skip?: number
+  distinct?: Prisma.StaffingDateOverrideScalarFieldEnum | Prisma.StaffingDateOverrideScalarFieldEnum[]
 }
 
 /**

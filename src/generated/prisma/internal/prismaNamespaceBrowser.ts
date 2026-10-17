@@ -61,12 +61,14 @@ export const ModelName = {
   FacilityShift: 'FacilityShift',
   Position: 'Position',
   StaffingRequirement: 'StaffingRequirement',
+  StaffingDateOverride: 'StaffingDateOverride',
   Schedule: 'Schedule',
   ScheduleVersion: 'ScheduleVersion',
   ScheduleSlot: 'ScheduleSlot',
   AvailabilitySubmission: 'AvailabilitySubmission',
   ShiftAvailability: 'ShiftAvailability',
   ScheduleChange: 'ScheduleChange',
+  EmployeeRequest: 'EmployeeRequest',
   SystemSetting: 'SystemSetting'
 } as const
 
@@ -220,6 +222,22 @@ export const StaffingRequirementScalarFieldEnum = {
 export type StaffingRequirementScalarFieldEnum = (typeof StaffingRequirementScalarFieldEnum)[keyof typeof StaffingRequirementScalarFieldEnum]
 
 
+export const StaffingDateOverrideScalarFieldEnum = {
+  id: 'id',
+  facilityId: 'facilityId',
+  date: 'date',
+  positionId: 'positionId',
+  shiftType: 'shiftType',
+  requiredCount: 'requiredCount',
+  label: 'label',
+  createdById: 'createdById',
+  createdAt: 'createdAt',
+  updatedAt: 'updatedAt'
+} as const
+
+export type StaffingDateOverrideScalarFieldEnum = (typeof StaffingDateOverrideScalarFieldEnum)[keyof typeof StaffingDateOverrideScalarFieldEnum]
+
+
 export const ScheduleScalarFieldEnum = {
   id: 'id',
   facilityId: 'facilityId',
@@ -285,6 +303,9 @@ export const AvailabilitySubmissionScalarFieldEnum = {
   userId: 'userId',
   submittedAt: 'submittedAt',
   note: 'note',
+  draftEntries: 'draftEntries',
+  draftNote: 'draftNote',
+  draftSavedAt: 'draftSavedAt',
   createdAt: 'createdAt',
   updatedAt: 'updatedAt'
 } as const
@@ -317,6 +338,29 @@ export const ScheduleChangeScalarFieldEnum = {
 } as const
 
 export type ScheduleChangeScalarFieldEnum = (typeof ScheduleChangeScalarFieldEnum)[keyof typeof ScheduleChangeScalarFieldEnum]
+
+
+export const EmployeeRequestScalarFieldEnum = {
+  id: 'id',
+  facilityId: 'facilityId',
+  type: 'type',
+  status: 'status',
+  requesterId: 'requesterId',
+  startDate: 'startDate',
+  endDate: 'endDate',
+  slotId: 'slotId',
+  targetUserId: 'targetUserId',
+  reason: 'reason',
+  peerRespondedAt: 'peerRespondedAt',
+  decidedById: 'decidedById',
+  decidedAt: 'decidedAt',
+  decisionNote: 'decisionNote',
+  overrideReason: 'overrideReason',
+  createdAt: 'createdAt',
+  updatedAt: 'updatedAt'
+} as const
+
+export type EmployeeRequestScalarFieldEnum = (typeof EmployeeRequestScalarFieldEnum)[keyof typeof EmployeeRequestScalarFieldEnum]
 
 
 export const SystemSettingScalarFieldEnum = {

@@ -31,6 +31,8 @@ export type AvailabilitySubmissionMinAggregateOutputType = {
   userId: string | null
   submittedAt: Date | null
   note: string | null
+  draftNote: string | null
+  draftSavedAt: Date | null
   createdAt: Date | null
   updatedAt: Date | null
 }
@@ -42,6 +44,8 @@ export type AvailabilitySubmissionMaxAggregateOutputType = {
   userId: string | null
   submittedAt: Date | null
   note: string | null
+  draftNote: string | null
+  draftSavedAt: Date | null
   createdAt: Date | null
   updatedAt: Date | null
 }
@@ -53,6 +57,9 @@ export type AvailabilitySubmissionCountAggregateOutputType = {
   userId: number
   submittedAt: number
   note: number
+  draftEntries: number
+  draftNote: number
+  draftSavedAt: number
   createdAt: number
   updatedAt: number
   _all: number
@@ -66,6 +73,8 @@ export type AvailabilitySubmissionMinAggregateInputType = {
   userId?: true
   submittedAt?: true
   note?: true
+  draftNote?: true
+  draftSavedAt?: true
   createdAt?: true
   updatedAt?: true
 }
@@ -77,6 +86,8 @@ export type AvailabilitySubmissionMaxAggregateInputType = {
   userId?: true
   submittedAt?: true
   note?: true
+  draftNote?: true
+  draftSavedAt?: true
   createdAt?: true
   updatedAt?: true
 }
@@ -88,6 +99,9 @@ export type AvailabilitySubmissionCountAggregateInputType = {
   userId?: true
   submittedAt?: true
   note?: true
+  draftEntries?: true
+  draftNote?: true
+  draftSavedAt?: true
   createdAt?: true
   updatedAt?: true
   _all?: true
@@ -172,6 +186,9 @@ export type AvailabilitySubmissionGroupByOutputType = {
   userId: string
   submittedAt: Date | null
   note: string | null
+  draftEntries: runtime.JsonValue | null
+  draftNote: string | null
+  draftSavedAt: Date | null
   createdAt: Date
   updatedAt: Date
   _count: AvailabilitySubmissionCountAggregateOutputType | null
@@ -204,6 +221,9 @@ export type AvailabilitySubmissionWhereInput = {
   userId?: Prisma.StringFilter<"AvailabilitySubmission"> | string
   submittedAt?: Prisma.DateTimeNullableFilter<"AvailabilitySubmission"> | Date | string | null
   note?: Prisma.StringNullableFilter<"AvailabilitySubmission"> | string | null
+  draftEntries?: Prisma.JsonNullableFilter<"AvailabilitySubmission">
+  draftNote?: Prisma.StringNullableFilter<"AvailabilitySubmission"> | string | null
+  draftSavedAt?: Prisma.DateTimeNullableFilter<"AvailabilitySubmission"> | Date | string | null
   createdAt?: Prisma.DateTimeFilter<"AvailabilitySubmission"> | Date | string
   updatedAt?: Prisma.DateTimeFilter<"AvailabilitySubmission"> | Date | string
   schedule?: Prisma.XOR<Prisma.ScheduleScalarRelationFilter, Prisma.ScheduleWhereInput>
@@ -218,6 +238,9 @@ export type AvailabilitySubmissionOrderByWithRelationInput = {
   userId?: Prisma.SortOrder
   submittedAt?: Prisma.SortOrderInput | Prisma.SortOrder
   note?: Prisma.SortOrderInput | Prisma.SortOrder
+  draftEntries?: Prisma.SortOrderInput | Prisma.SortOrder
+  draftNote?: Prisma.SortOrderInput | Prisma.SortOrder
+  draftSavedAt?: Prisma.SortOrderInput | Prisma.SortOrder
   createdAt?: Prisma.SortOrder
   updatedAt?: Prisma.SortOrder
   schedule?: Prisma.ScheduleOrderByWithRelationInput
@@ -236,6 +259,9 @@ export type AvailabilitySubmissionWhereUniqueInput = Prisma.AtLeast<{
   userId?: Prisma.StringFilter<"AvailabilitySubmission"> | string
   submittedAt?: Prisma.DateTimeNullableFilter<"AvailabilitySubmission"> | Date | string | null
   note?: Prisma.StringNullableFilter<"AvailabilitySubmission"> | string | null
+  draftEntries?: Prisma.JsonNullableFilter<"AvailabilitySubmission">
+  draftNote?: Prisma.StringNullableFilter<"AvailabilitySubmission"> | string | null
+  draftSavedAt?: Prisma.DateTimeNullableFilter<"AvailabilitySubmission"> | Date | string | null
   createdAt?: Prisma.DateTimeFilter<"AvailabilitySubmission"> | Date | string
   updatedAt?: Prisma.DateTimeFilter<"AvailabilitySubmission"> | Date | string
   schedule?: Prisma.XOR<Prisma.ScheduleScalarRelationFilter, Prisma.ScheduleWhereInput>
@@ -250,6 +276,9 @@ export type AvailabilitySubmissionOrderByWithAggregationInput = {
   userId?: Prisma.SortOrder
   submittedAt?: Prisma.SortOrderInput | Prisma.SortOrder
   note?: Prisma.SortOrderInput | Prisma.SortOrder
+  draftEntries?: Prisma.SortOrderInput | Prisma.SortOrder
+  draftNote?: Prisma.SortOrderInput | Prisma.SortOrder
+  draftSavedAt?: Prisma.SortOrderInput | Prisma.SortOrder
   createdAt?: Prisma.SortOrder
   updatedAt?: Prisma.SortOrder
   _count?: Prisma.AvailabilitySubmissionCountOrderByAggregateInput
@@ -267,6 +296,9 @@ export type AvailabilitySubmissionScalarWhereWithAggregatesInput = {
   userId?: Prisma.StringWithAggregatesFilter<"AvailabilitySubmission"> | string
   submittedAt?: Prisma.DateTimeNullableWithAggregatesFilter<"AvailabilitySubmission"> | Date | string | null
   note?: Prisma.StringNullableWithAggregatesFilter<"AvailabilitySubmission"> | string | null
+  draftEntries?: Prisma.JsonNullableWithAggregatesFilter<"AvailabilitySubmission">
+  draftNote?: Prisma.StringNullableWithAggregatesFilter<"AvailabilitySubmission"> | string | null
+  draftSavedAt?: Prisma.DateTimeNullableWithAggregatesFilter<"AvailabilitySubmission"> | Date | string | null
   createdAt?: Prisma.DateTimeWithAggregatesFilter<"AvailabilitySubmission"> | Date | string
   updatedAt?: Prisma.DateTimeWithAggregatesFilter<"AvailabilitySubmission"> | Date | string
 }
@@ -275,6 +307,9 @@ export type AvailabilitySubmissionCreateInput = {
   id?: string
   submittedAt?: Date | string | null
   note?: string | null
+  draftEntries?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
+  draftNote?: string | null
+  draftSavedAt?: Date | string | null
   createdAt?: Date | string
   updatedAt?: Date | string
   schedule: Prisma.ScheduleCreateNestedOneWithoutSubmissionsInput
@@ -289,6 +324,9 @@ export type AvailabilitySubmissionUncheckedCreateInput = {
   userId: string
   submittedAt?: Date | string | null
   note?: string | null
+  draftEntries?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
+  draftNote?: string | null
+  draftSavedAt?: Date | string | null
   createdAt?: Date | string
   updatedAt?: Date | string
   availabilities?: Prisma.ShiftAvailabilityUncheckedCreateNestedManyWithoutSubmissionInput
@@ -298,6 +336,9 @@ export type AvailabilitySubmissionUpdateInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
   submittedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   note?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  draftEntries?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
+  draftNote?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  draftSavedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   schedule?: Prisma.ScheduleUpdateOneRequiredWithoutSubmissionsNestedInput
@@ -312,6 +353,9 @@ export type AvailabilitySubmissionUncheckedUpdateInput = {
   userId?: Prisma.StringFieldUpdateOperationsInput | string
   submittedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   note?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  draftEntries?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
+  draftNote?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  draftSavedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   availabilities?: Prisma.ShiftAvailabilityUncheckedUpdateManyWithoutSubmissionNestedInput
@@ -324,6 +368,9 @@ export type AvailabilitySubmissionCreateManyInput = {
   userId: string
   submittedAt?: Date | string | null
   note?: string | null
+  draftEntries?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
+  draftNote?: string | null
+  draftSavedAt?: Date | string | null
   createdAt?: Date | string
   updatedAt?: Date | string
 }
@@ -332,6 +379,9 @@ export type AvailabilitySubmissionUpdateManyMutationInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
   submittedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   note?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  draftEntries?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
+  draftNote?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  draftSavedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
 }
@@ -343,6 +393,9 @@ export type AvailabilitySubmissionUncheckedUpdateManyInput = {
   userId?: Prisma.StringFieldUpdateOperationsInput | string
   submittedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   note?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  draftEntries?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
+  draftNote?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  draftSavedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
 }
@@ -369,6 +422,9 @@ export type AvailabilitySubmissionCountOrderByAggregateInput = {
   userId?: Prisma.SortOrder
   submittedAt?: Prisma.SortOrder
   note?: Prisma.SortOrder
+  draftEntries?: Prisma.SortOrder
+  draftNote?: Prisma.SortOrder
+  draftSavedAt?: Prisma.SortOrder
   createdAt?: Prisma.SortOrder
   updatedAt?: Prisma.SortOrder
 }
@@ -380,6 +436,8 @@ export type AvailabilitySubmissionMaxOrderByAggregateInput = {
   userId?: Prisma.SortOrder
   submittedAt?: Prisma.SortOrder
   note?: Prisma.SortOrder
+  draftNote?: Prisma.SortOrder
+  draftSavedAt?: Prisma.SortOrder
   createdAt?: Prisma.SortOrder
   updatedAt?: Prisma.SortOrder
 }
@@ -391,6 +449,8 @@ export type AvailabilitySubmissionMinOrderByAggregateInput = {
   userId?: Prisma.SortOrder
   submittedAt?: Prisma.SortOrder
   note?: Prisma.SortOrder
+  draftNote?: Prisma.SortOrder
+  draftSavedAt?: Prisma.SortOrder
   createdAt?: Prisma.SortOrder
   updatedAt?: Prisma.SortOrder
 }
@@ -502,6 +562,9 @@ export type AvailabilitySubmissionCreateWithoutUserInput = {
   id?: string
   submittedAt?: Date | string | null
   note?: string | null
+  draftEntries?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
+  draftNote?: string | null
+  draftSavedAt?: Date | string | null
   createdAt?: Date | string
   updatedAt?: Date | string
   schedule: Prisma.ScheduleCreateNestedOneWithoutSubmissionsInput
@@ -513,6 +576,9 @@ export type AvailabilitySubmissionUncheckedCreateWithoutUserInput = {
   scheduleId: string
   submittedAt?: Date | string | null
   note?: string | null
+  draftEntries?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
+  draftNote?: string | null
+  draftSavedAt?: Date | string | null
   createdAt?: Date | string
   updatedAt?: Date | string
   availabilities?: Prisma.ShiftAvailabilityUncheckedCreateNestedManyWithoutSubmissionInput
@@ -554,6 +620,9 @@ export type AvailabilitySubmissionScalarWhereInput = {
   userId?: Prisma.StringFilter<"AvailabilitySubmission"> | string
   submittedAt?: Prisma.DateTimeNullableFilter<"AvailabilitySubmission"> | Date | string | null
   note?: Prisma.StringNullableFilter<"AvailabilitySubmission"> | string | null
+  draftEntries?: Prisma.JsonNullableFilter<"AvailabilitySubmission">
+  draftNote?: Prisma.StringNullableFilter<"AvailabilitySubmission"> | string | null
+  draftSavedAt?: Prisma.DateTimeNullableFilter<"AvailabilitySubmission"> | Date | string | null
   createdAt?: Prisma.DateTimeFilter<"AvailabilitySubmission"> | Date | string
   updatedAt?: Prisma.DateTimeFilter<"AvailabilitySubmission"> | Date | string
 }
@@ -562,6 +631,9 @@ export type AvailabilitySubmissionCreateWithoutScheduleInput = {
   id?: string
   submittedAt?: Date | string | null
   note?: string | null
+  draftEntries?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
+  draftNote?: string | null
+  draftSavedAt?: Date | string | null
   createdAt?: Date | string
   updatedAt?: Date | string
   user: Prisma.UserCreateNestedOneWithoutSubmissionsInput
@@ -573,6 +645,9 @@ export type AvailabilitySubmissionUncheckedCreateWithoutScheduleInput = {
   userId: string
   submittedAt?: Date | string | null
   note?: string | null
+  draftEntries?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
+  draftNote?: string | null
+  draftSavedAt?: Date | string | null
   createdAt?: Date | string
   updatedAt?: Date | string
   availabilities?: Prisma.ShiftAvailabilityUncheckedCreateNestedManyWithoutSubmissionInput
@@ -608,6 +683,9 @@ export type AvailabilitySubmissionCreateWithoutAvailabilitiesInput = {
   id?: string
   submittedAt?: Date | string | null
   note?: string | null
+  draftEntries?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
+  draftNote?: string | null
+  draftSavedAt?: Date | string | null
   createdAt?: Date | string
   updatedAt?: Date | string
   schedule: Prisma.ScheduleCreateNestedOneWithoutSubmissionsInput
@@ -621,6 +699,9 @@ export type AvailabilitySubmissionUncheckedCreateWithoutAvailabilitiesInput = {
   userId: string
   submittedAt?: Date | string | null
   note?: string | null
+  draftEntries?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
+  draftNote?: string | null
+  draftSavedAt?: Date | string | null
   createdAt?: Date | string
   updatedAt?: Date | string
 }
@@ -645,6 +726,9 @@ export type AvailabilitySubmissionUpdateWithoutAvailabilitiesInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
   submittedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   note?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  draftEntries?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
+  draftNote?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  draftSavedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   schedule?: Prisma.ScheduleUpdateOneRequiredWithoutSubmissionsNestedInput
@@ -658,6 +742,9 @@ export type AvailabilitySubmissionUncheckedUpdateWithoutAvailabilitiesInput = {
   userId?: Prisma.StringFieldUpdateOperationsInput | string
   submittedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   note?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  draftEntries?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
+  draftNote?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  draftSavedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
 }
@@ -667,6 +754,9 @@ export type AvailabilitySubmissionCreateManyUserInput = {
   scheduleId: string
   submittedAt?: Date | string | null
   note?: string | null
+  draftEntries?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
+  draftNote?: string | null
+  draftSavedAt?: Date | string | null
   createdAt?: Date | string
   updatedAt?: Date | string
 }
@@ -675,6 +765,9 @@ export type AvailabilitySubmissionUpdateWithoutUserInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
   submittedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   note?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  draftEntries?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
+  draftNote?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  draftSavedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   schedule?: Prisma.ScheduleUpdateOneRequiredWithoutSubmissionsNestedInput
@@ -686,6 +779,9 @@ export type AvailabilitySubmissionUncheckedUpdateWithoutUserInput = {
   scheduleId?: Prisma.StringFieldUpdateOperationsInput | string
   submittedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   note?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  draftEntries?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
+  draftNote?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  draftSavedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   availabilities?: Prisma.ShiftAvailabilityUncheckedUpdateManyWithoutSubmissionNestedInput
@@ -696,6 +792,9 @@ export type AvailabilitySubmissionUncheckedUpdateManyWithoutUserInput = {
   scheduleId?: Prisma.StringFieldUpdateOperationsInput | string
   submittedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   note?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  draftEntries?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
+  draftNote?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  draftSavedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
 }
@@ -705,6 +804,9 @@ export type AvailabilitySubmissionCreateManyScheduleInput = {
   userId: string
   submittedAt?: Date | string | null
   note?: string | null
+  draftEntries?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
+  draftNote?: string | null
+  draftSavedAt?: Date | string | null
   createdAt?: Date | string
   updatedAt?: Date | string
 }
@@ -713,6 +815,9 @@ export type AvailabilitySubmissionUpdateWithoutScheduleInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
   submittedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   note?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  draftEntries?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
+  draftNote?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  draftSavedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   user?: Prisma.UserUpdateOneRequiredWithoutSubmissionsNestedInput
@@ -724,6 +829,9 @@ export type AvailabilitySubmissionUncheckedUpdateWithoutScheduleInput = {
   userId?: Prisma.StringFieldUpdateOperationsInput | string
   submittedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   note?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  draftEntries?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
+  draftNote?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  draftSavedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   availabilities?: Prisma.ShiftAvailabilityUncheckedUpdateManyWithoutSubmissionNestedInput
@@ -734,6 +842,9 @@ export type AvailabilitySubmissionUncheckedUpdateManyWithoutScheduleInput = {
   userId?: Prisma.StringFieldUpdateOperationsInput | string
   submittedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   note?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  draftEntries?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
+  draftNote?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  draftSavedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
 }
@@ -776,6 +887,9 @@ export type AvailabilitySubmissionSelect<ExtArgs extends runtime.Types.Extension
   userId?: boolean
   submittedAt?: boolean
   note?: boolean
+  draftEntries?: boolean
+  draftNote?: boolean
+  draftSavedAt?: boolean
   createdAt?: boolean
   updatedAt?: boolean
   schedule?: boolean | Prisma.ScheduleDefaultArgs<ExtArgs>
@@ -791,6 +905,9 @@ export type AvailabilitySubmissionSelectCreateManyAndReturn<ExtArgs extends runt
   userId?: boolean
   submittedAt?: boolean
   note?: boolean
+  draftEntries?: boolean
+  draftNote?: boolean
+  draftSavedAt?: boolean
   createdAt?: boolean
   updatedAt?: boolean
   schedule?: boolean | Prisma.ScheduleDefaultArgs<ExtArgs>
@@ -804,6 +921,9 @@ export type AvailabilitySubmissionSelectUpdateManyAndReturn<ExtArgs extends runt
   userId?: boolean
   submittedAt?: boolean
   note?: boolean
+  draftEntries?: boolean
+  draftNote?: boolean
+  draftSavedAt?: boolean
   createdAt?: boolean
   updatedAt?: boolean
   schedule?: boolean | Prisma.ScheduleDefaultArgs<ExtArgs>
@@ -817,11 +937,14 @@ export type AvailabilitySubmissionSelectScalar = {
   userId?: boolean
   submittedAt?: boolean
   note?: boolean
+  draftEntries?: boolean
+  draftNote?: boolean
+  draftSavedAt?: boolean
   createdAt?: boolean
   updatedAt?: boolean
 }
 
-export type AvailabilitySubmissionOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"id" | "facilityId" | "scheduleId" | "userId" | "submittedAt" | "note" | "createdAt" | "updatedAt", ExtArgs["result"]["availabilitySubmission"]>
+export type AvailabilitySubmissionOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"id" | "facilityId" | "scheduleId" | "userId" | "submittedAt" | "note" | "draftEntries" | "draftNote" | "draftSavedAt" | "createdAt" | "updatedAt", ExtArgs["result"]["availabilitySubmission"]>
 export type AvailabilitySubmissionInclude<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
   schedule?: boolean | Prisma.ScheduleDefaultArgs<ExtArgs>
   user?: boolean | Prisma.UserDefaultArgs<ExtArgs>
@@ -851,6 +974,12 @@ export type $AvailabilitySubmissionPayload<ExtArgs extends runtime.Types.Extensi
     userId: string
     submittedAt: Date | null
     note: string | null
+    /**
+     * שינויים שנשמרו ולא הוגשו; ShiftAvailability מכיל רק את מה שהוגש.
+     */
+    draftEntries: runtime.JsonValue | null
+    draftNote: string | null
+    draftSavedAt: Date | null
     createdAt: Date
     updatedAt: Date
   }, ExtArgs["result"]["availabilitySubmission"]>
@@ -1285,6 +1414,9 @@ export interface AvailabilitySubmissionFieldRefs {
   readonly userId: Prisma.FieldRef<"AvailabilitySubmission", 'String'>
   readonly submittedAt: Prisma.FieldRef<"AvailabilitySubmission", 'DateTime'>
   readonly note: Prisma.FieldRef<"AvailabilitySubmission", 'String'>
+  readonly draftEntries: Prisma.FieldRef<"AvailabilitySubmission", 'Json'>
+  readonly draftNote: Prisma.FieldRef<"AvailabilitySubmission", 'String'>
+  readonly draftSavedAt: Prisma.FieldRef<"AvailabilitySubmission", 'DateTime'>
   readonly createdAt: Prisma.FieldRef<"AvailabilitySubmission", 'DateTime'>
   readonly updatedAt: Prisma.FieldRef<"AvailabilitySubmission", 'DateTime'>
 }

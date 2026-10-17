@@ -372,6 +372,40 @@ export type EnumScheduleChangeTypeWithAggregatesFilter<$PrismaModel = never> = {
   _max?: Prisma.NestedEnumScheduleChangeTypeFilter<$PrismaModel>
 }
 
+export type EnumEmployeeRequestTypeFilter<$PrismaModel = never> = {
+  equals?: $Enums.EmployeeRequestType | Prisma.EnumEmployeeRequestTypeFieldRefInput<$PrismaModel>
+  in?: $Enums.EmployeeRequestType[] | Prisma.ListEnumEmployeeRequestTypeFieldRefInput<$PrismaModel>
+  notIn?: $Enums.EmployeeRequestType[] | Prisma.ListEnumEmployeeRequestTypeFieldRefInput<$PrismaModel>
+  not?: Prisma.NestedEnumEmployeeRequestTypeFilter<$PrismaModel> | $Enums.EmployeeRequestType
+}
+
+export type EnumEmployeeRequestStatusFilter<$PrismaModel = never> = {
+  equals?: $Enums.EmployeeRequestStatus | Prisma.EnumEmployeeRequestStatusFieldRefInput<$PrismaModel>
+  in?: $Enums.EmployeeRequestStatus[] | Prisma.ListEnumEmployeeRequestStatusFieldRefInput<$PrismaModel>
+  notIn?: $Enums.EmployeeRequestStatus[] | Prisma.ListEnumEmployeeRequestStatusFieldRefInput<$PrismaModel>
+  not?: Prisma.NestedEnumEmployeeRequestStatusFilter<$PrismaModel> | $Enums.EmployeeRequestStatus
+}
+
+export type EnumEmployeeRequestTypeWithAggregatesFilter<$PrismaModel = never> = {
+  equals?: $Enums.EmployeeRequestType | Prisma.EnumEmployeeRequestTypeFieldRefInput<$PrismaModel>
+  in?: $Enums.EmployeeRequestType[] | Prisma.ListEnumEmployeeRequestTypeFieldRefInput<$PrismaModel>
+  notIn?: $Enums.EmployeeRequestType[] | Prisma.ListEnumEmployeeRequestTypeFieldRefInput<$PrismaModel>
+  not?: Prisma.NestedEnumEmployeeRequestTypeWithAggregatesFilter<$PrismaModel> | $Enums.EmployeeRequestType
+  _count?: Prisma.NestedIntFilter<$PrismaModel>
+  _min?: Prisma.NestedEnumEmployeeRequestTypeFilter<$PrismaModel>
+  _max?: Prisma.NestedEnumEmployeeRequestTypeFilter<$PrismaModel>
+}
+
+export type EnumEmployeeRequestStatusWithAggregatesFilter<$PrismaModel = never> = {
+  equals?: $Enums.EmployeeRequestStatus | Prisma.EnumEmployeeRequestStatusFieldRefInput<$PrismaModel>
+  in?: $Enums.EmployeeRequestStatus[] | Prisma.ListEnumEmployeeRequestStatusFieldRefInput<$PrismaModel>
+  notIn?: $Enums.EmployeeRequestStatus[] | Prisma.ListEnumEmployeeRequestStatusFieldRefInput<$PrismaModel>
+  not?: Prisma.NestedEnumEmployeeRequestStatusWithAggregatesFilter<$PrismaModel> | $Enums.EmployeeRequestStatus
+  _count?: Prisma.NestedIntFilter<$PrismaModel>
+  _min?: Prisma.NestedEnumEmployeeRequestStatusFilter<$PrismaModel>
+  _max?: Prisma.NestedEnumEmployeeRequestStatusFilter<$PrismaModel>
+}
+
 export type JsonFilter<$PrismaModel = never> =
 | Prisma.PatchUndefined<
     Prisma.Either<Required<JsonFilterBase<$PrismaModel>>, Exclude<keyof Required<JsonFilterBase<$PrismaModel>>, 'path'>>,
@@ -765,6 +799,40 @@ export type NestedEnumScheduleChangeTypeWithAggregatesFilter<$PrismaModel = neve
   _count?: Prisma.NestedIntFilter<$PrismaModel>
   _min?: Prisma.NestedEnumScheduleChangeTypeFilter<$PrismaModel>
   _max?: Prisma.NestedEnumScheduleChangeTypeFilter<$PrismaModel>
+}
+
+export type NestedEnumEmployeeRequestTypeFilter<$PrismaModel = never> = {
+  equals?: $Enums.EmployeeRequestType | Prisma.EnumEmployeeRequestTypeFieldRefInput<$PrismaModel>
+  in?: $Enums.EmployeeRequestType[] | Prisma.ListEnumEmployeeRequestTypeFieldRefInput<$PrismaModel>
+  notIn?: $Enums.EmployeeRequestType[] | Prisma.ListEnumEmployeeRequestTypeFieldRefInput<$PrismaModel>
+  not?: Prisma.NestedEnumEmployeeRequestTypeFilter<$PrismaModel> | $Enums.EmployeeRequestType
+}
+
+export type NestedEnumEmployeeRequestStatusFilter<$PrismaModel = never> = {
+  equals?: $Enums.EmployeeRequestStatus | Prisma.EnumEmployeeRequestStatusFieldRefInput<$PrismaModel>
+  in?: $Enums.EmployeeRequestStatus[] | Prisma.ListEnumEmployeeRequestStatusFieldRefInput<$PrismaModel>
+  notIn?: $Enums.EmployeeRequestStatus[] | Prisma.ListEnumEmployeeRequestStatusFieldRefInput<$PrismaModel>
+  not?: Prisma.NestedEnumEmployeeRequestStatusFilter<$PrismaModel> | $Enums.EmployeeRequestStatus
+}
+
+export type NestedEnumEmployeeRequestTypeWithAggregatesFilter<$PrismaModel = never> = {
+  equals?: $Enums.EmployeeRequestType | Prisma.EnumEmployeeRequestTypeFieldRefInput<$PrismaModel>
+  in?: $Enums.EmployeeRequestType[] | Prisma.ListEnumEmployeeRequestTypeFieldRefInput<$PrismaModel>
+  notIn?: $Enums.EmployeeRequestType[] | Prisma.ListEnumEmployeeRequestTypeFieldRefInput<$PrismaModel>
+  not?: Prisma.NestedEnumEmployeeRequestTypeWithAggregatesFilter<$PrismaModel> | $Enums.EmployeeRequestType
+  _count?: Prisma.NestedIntFilter<$PrismaModel>
+  _min?: Prisma.NestedEnumEmployeeRequestTypeFilter<$PrismaModel>
+  _max?: Prisma.NestedEnumEmployeeRequestTypeFilter<$PrismaModel>
+}
+
+export type NestedEnumEmployeeRequestStatusWithAggregatesFilter<$PrismaModel = never> = {
+  equals?: $Enums.EmployeeRequestStatus | Prisma.EnumEmployeeRequestStatusFieldRefInput<$PrismaModel>
+  in?: $Enums.EmployeeRequestStatus[] | Prisma.ListEnumEmployeeRequestStatusFieldRefInput<$PrismaModel>
+  notIn?: $Enums.EmployeeRequestStatus[] | Prisma.ListEnumEmployeeRequestStatusFieldRefInput<$PrismaModel>
+  not?: Prisma.NestedEnumEmployeeRequestStatusWithAggregatesFilter<$PrismaModel> | $Enums.EmployeeRequestStatus
+  _count?: Prisma.NestedIntFilter<$PrismaModel>
+  _min?: Prisma.NestedEnumEmployeeRequestStatusFilter<$PrismaModel>
+  _max?: Prisma.NestedEnumEmployeeRequestStatusFilter<$PrismaModel>
 }
 
 export type NestedJsonFilter<$PrismaModel = never> =

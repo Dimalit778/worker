@@ -195,7 +195,9 @@ export type FacilityWhereInput = {
   shifts?: Prisma.FacilityShiftListRelationFilter
   positions?: Prisma.PositionListRelationFilter
   staffingRequirements?: Prisma.StaffingRequirementListRelationFilter
+  staffingOverrides?: Prisma.StaffingDateOverrideListRelationFilter
   schedules?: Prisma.ScheduleListRelationFilter
+  requests?: Prisma.EmployeeRequestListRelationFilter
 }
 
 export type FacilityOrderByWithRelationInput = {
@@ -210,7 +212,9 @@ export type FacilityOrderByWithRelationInput = {
   shifts?: Prisma.FacilityShiftOrderByRelationAggregateInput
   positions?: Prisma.PositionOrderByRelationAggregateInput
   staffingRequirements?: Prisma.StaffingRequirementOrderByRelationAggregateInput
+  staffingOverrides?: Prisma.StaffingDateOverrideOrderByRelationAggregateInput
   schedules?: Prisma.ScheduleOrderByRelationAggregateInput
+  requests?: Prisma.EmployeeRequestOrderByRelationAggregateInput
 }
 
 export type FacilityWhereUniqueInput = Prisma.AtLeast<{
@@ -228,7 +232,9 @@ export type FacilityWhereUniqueInput = Prisma.AtLeast<{
   shifts?: Prisma.FacilityShiftListRelationFilter
   positions?: Prisma.PositionListRelationFilter
   staffingRequirements?: Prisma.StaffingRequirementListRelationFilter
+  staffingOverrides?: Prisma.StaffingDateOverrideListRelationFilter
   schedules?: Prisma.ScheduleListRelationFilter
+  requests?: Prisma.EmployeeRequestListRelationFilter
 }, "id" | "code">
 
 export type FacilityOrderByWithAggregationInput = {
@@ -266,7 +272,9 @@ export type FacilityCreateInput = {
   shifts?: Prisma.FacilityShiftCreateNestedManyWithoutFacilityInput
   positions?: Prisma.PositionCreateNestedManyWithoutFacilityInput
   staffingRequirements?: Prisma.StaffingRequirementCreateNestedManyWithoutFacilityInput
+  staffingOverrides?: Prisma.StaffingDateOverrideCreateNestedManyWithoutFacilityInput
   schedules?: Prisma.ScheduleCreateNestedManyWithoutFacilityInput
+  requests?: Prisma.EmployeeRequestCreateNestedManyWithoutFacilityInput
 }
 
 export type FacilityUncheckedCreateInput = {
@@ -280,7 +288,9 @@ export type FacilityUncheckedCreateInput = {
   shifts?: Prisma.FacilityShiftUncheckedCreateNestedManyWithoutFacilityInput
   positions?: Prisma.PositionUncheckedCreateNestedManyWithoutFacilityInput
   staffingRequirements?: Prisma.StaffingRequirementUncheckedCreateNestedManyWithoutFacilityInput
+  staffingOverrides?: Prisma.StaffingDateOverrideUncheckedCreateNestedManyWithoutFacilityInput
   schedules?: Prisma.ScheduleUncheckedCreateNestedManyWithoutFacilityInput
+  requests?: Prisma.EmployeeRequestUncheckedCreateNestedManyWithoutFacilityInput
 }
 
 export type FacilityUpdateInput = {
@@ -294,7 +304,9 @@ export type FacilityUpdateInput = {
   shifts?: Prisma.FacilityShiftUpdateManyWithoutFacilityNestedInput
   positions?: Prisma.PositionUpdateManyWithoutFacilityNestedInput
   staffingRequirements?: Prisma.StaffingRequirementUpdateManyWithoutFacilityNestedInput
+  staffingOverrides?: Prisma.StaffingDateOverrideUpdateManyWithoutFacilityNestedInput
   schedules?: Prisma.ScheduleUpdateManyWithoutFacilityNestedInput
+  requests?: Prisma.EmployeeRequestUpdateManyWithoutFacilityNestedInput
 }
 
 export type FacilityUncheckedUpdateInput = {
@@ -308,7 +320,9 @@ export type FacilityUncheckedUpdateInput = {
   shifts?: Prisma.FacilityShiftUncheckedUpdateManyWithoutFacilityNestedInput
   positions?: Prisma.PositionUncheckedUpdateManyWithoutFacilityNestedInput
   staffingRequirements?: Prisma.StaffingRequirementUncheckedUpdateManyWithoutFacilityNestedInput
+  staffingOverrides?: Prisma.StaffingDateOverrideUncheckedUpdateManyWithoutFacilityNestedInput
   schedules?: Prisma.ScheduleUncheckedUpdateManyWithoutFacilityNestedInput
+  requests?: Prisma.EmployeeRequestUncheckedUpdateManyWithoutFacilityNestedInput
 }
 
 export type FacilityCreateManyInput = {
@@ -484,6 +498,20 @@ export type FacilityUpdateOneRequiredWithoutStaffingRequirementsNestedInput = {
   update?: Prisma.XOR<Prisma.XOR<Prisma.FacilityUpdateToOneWithWhereWithoutStaffingRequirementsInput, Prisma.FacilityUpdateWithoutStaffingRequirementsInput>, Prisma.FacilityUncheckedUpdateWithoutStaffingRequirementsInput>
 }
 
+export type FacilityCreateNestedOneWithoutStaffingOverridesInput = {
+  create?: Prisma.XOR<Prisma.FacilityCreateWithoutStaffingOverridesInput, Prisma.FacilityUncheckedCreateWithoutStaffingOverridesInput>
+  connectOrCreate?: Prisma.FacilityCreateOrConnectWithoutStaffingOverridesInput
+  connect?: Prisma.FacilityWhereUniqueInput
+}
+
+export type FacilityUpdateOneRequiredWithoutStaffingOverridesNestedInput = {
+  create?: Prisma.XOR<Prisma.FacilityCreateWithoutStaffingOverridesInput, Prisma.FacilityUncheckedCreateWithoutStaffingOverridesInput>
+  connectOrCreate?: Prisma.FacilityCreateOrConnectWithoutStaffingOverridesInput
+  upsert?: Prisma.FacilityUpsertWithoutStaffingOverridesInput
+  connect?: Prisma.FacilityWhereUniqueInput
+  update?: Prisma.XOR<Prisma.XOR<Prisma.FacilityUpdateToOneWithWhereWithoutStaffingOverridesInput, Prisma.FacilityUpdateWithoutStaffingOverridesInput>, Prisma.FacilityUncheckedUpdateWithoutStaffingOverridesInput>
+}
+
 export type FacilityCreateNestedOneWithoutSchedulesInput = {
   create?: Prisma.XOR<Prisma.FacilityCreateWithoutSchedulesInput, Prisma.FacilityUncheckedCreateWithoutSchedulesInput>
   connectOrCreate?: Prisma.FacilityCreateOrConnectWithoutSchedulesInput
@@ -498,6 +526,20 @@ export type FacilityUpdateOneRequiredWithoutSchedulesNestedInput = {
   update?: Prisma.XOR<Prisma.XOR<Prisma.FacilityUpdateToOneWithWhereWithoutSchedulesInput, Prisma.FacilityUpdateWithoutSchedulesInput>, Prisma.FacilityUncheckedUpdateWithoutSchedulesInput>
 }
 
+export type FacilityCreateNestedOneWithoutRequestsInput = {
+  create?: Prisma.XOR<Prisma.FacilityCreateWithoutRequestsInput, Prisma.FacilityUncheckedCreateWithoutRequestsInput>
+  connectOrCreate?: Prisma.FacilityCreateOrConnectWithoutRequestsInput
+  connect?: Prisma.FacilityWhereUniqueInput
+}
+
+export type FacilityUpdateOneRequiredWithoutRequestsNestedInput = {
+  create?: Prisma.XOR<Prisma.FacilityCreateWithoutRequestsInput, Prisma.FacilityUncheckedCreateWithoutRequestsInput>
+  connectOrCreate?: Prisma.FacilityCreateOrConnectWithoutRequestsInput
+  upsert?: Prisma.FacilityUpsertWithoutRequestsInput
+  connect?: Prisma.FacilityWhereUniqueInput
+  update?: Prisma.XOR<Prisma.XOR<Prisma.FacilityUpdateToOneWithWhereWithoutRequestsInput, Prisma.FacilityUpdateWithoutRequestsInput>, Prisma.FacilityUncheckedUpdateWithoutRequestsInput>
+}
+
 export type FacilityCreateWithoutUsersInput = {
   id?: string
   name: string
@@ -508,7 +550,9 @@ export type FacilityCreateWithoutUsersInput = {
   shifts?: Prisma.FacilityShiftCreateNestedManyWithoutFacilityInput
   positions?: Prisma.PositionCreateNestedManyWithoutFacilityInput
   staffingRequirements?: Prisma.StaffingRequirementCreateNestedManyWithoutFacilityInput
+  staffingOverrides?: Prisma.StaffingDateOverrideCreateNestedManyWithoutFacilityInput
   schedules?: Prisma.ScheduleCreateNestedManyWithoutFacilityInput
+  requests?: Prisma.EmployeeRequestCreateNestedManyWithoutFacilityInput
 }
 
 export type FacilityUncheckedCreateWithoutUsersInput = {
@@ -521,7 +565,9 @@ export type FacilityUncheckedCreateWithoutUsersInput = {
   shifts?: Prisma.FacilityShiftUncheckedCreateNestedManyWithoutFacilityInput
   positions?: Prisma.PositionUncheckedCreateNestedManyWithoutFacilityInput
   staffingRequirements?: Prisma.StaffingRequirementUncheckedCreateNestedManyWithoutFacilityInput
+  staffingOverrides?: Prisma.StaffingDateOverrideUncheckedCreateNestedManyWithoutFacilityInput
   schedules?: Prisma.ScheduleUncheckedCreateNestedManyWithoutFacilityInput
+  requests?: Prisma.EmployeeRequestUncheckedCreateNestedManyWithoutFacilityInput
 }
 
 export type FacilityCreateOrConnectWithoutUsersInput = {
@@ -550,7 +596,9 @@ export type FacilityUpdateWithoutUsersInput = {
   shifts?: Prisma.FacilityShiftUpdateManyWithoutFacilityNestedInput
   positions?: Prisma.PositionUpdateManyWithoutFacilityNestedInput
   staffingRequirements?: Prisma.StaffingRequirementUpdateManyWithoutFacilityNestedInput
+  staffingOverrides?: Prisma.StaffingDateOverrideUpdateManyWithoutFacilityNestedInput
   schedules?: Prisma.ScheduleUpdateManyWithoutFacilityNestedInput
+  requests?: Prisma.EmployeeRequestUpdateManyWithoutFacilityNestedInput
 }
 
 export type FacilityUncheckedUpdateWithoutUsersInput = {
@@ -563,7 +611,9 @@ export type FacilityUncheckedUpdateWithoutUsersInput = {
   shifts?: Prisma.FacilityShiftUncheckedUpdateManyWithoutFacilityNestedInput
   positions?: Prisma.PositionUncheckedUpdateManyWithoutFacilityNestedInput
   staffingRequirements?: Prisma.StaffingRequirementUncheckedUpdateManyWithoutFacilityNestedInput
+  staffingOverrides?: Prisma.StaffingDateOverrideUncheckedUpdateManyWithoutFacilityNestedInput
   schedules?: Prisma.ScheduleUncheckedUpdateManyWithoutFacilityNestedInput
+  requests?: Prisma.EmployeeRequestUncheckedUpdateManyWithoutFacilityNestedInput
 }
 
 export type FacilityCreateWithoutDistrictInput = {
@@ -576,7 +626,9 @@ export type FacilityCreateWithoutDistrictInput = {
   shifts?: Prisma.FacilityShiftCreateNestedManyWithoutFacilityInput
   positions?: Prisma.PositionCreateNestedManyWithoutFacilityInput
   staffingRequirements?: Prisma.StaffingRequirementCreateNestedManyWithoutFacilityInput
+  staffingOverrides?: Prisma.StaffingDateOverrideCreateNestedManyWithoutFacilityInput
   schedules?: Prisma.ScheduleCreateNestedManyWithoutFacilityInput
+  requests?: Prisma.EmployeeRequestCreateNestedManyWithoutFacilityInput
 }
 
 export type FacilityUncheckedCreateWithoutDistrictInput = {
@@ -589,7 +641,9 @@ export type FacilityUncheckedCreateWithoutDistrictInput = {
   shifts?: Prisma.FacilityShiftUncheckedCreateNestedManyWithoutFacilityInput
   positions?: Prisma.PositionUncheckedCreateNestedManyWithoutFacilityInput
   staffingRequirements?: Prisma.StaffingRequirementUncheckedCreateNestedManyWithoutFacilityInput
+  staffingOverrides?: Prisma.StaffingDateOverrideUncheckedCreateNestedManyWithoutFacilityInput
   schedules?: Prisma.ScheduleUncheckedCreateNestedManyWithoutFacilityInput
+  requests?: Prisma.EmployeeRequestUncheckedCreateNestedManyWithoutFacilityInput
 }
 
 export type FacilityCreateOrConnectWithoutDistrictInput = {
@@ -640,7 +694,9 @@ export type FacilityCreateWithoutShiftsInput = {
   users?: Prisma.UserCreateNestedManyWithoutFacilityInput
   positions?: Prisma.PositionCreateNestedManyWithoutFacilityInput
   staffingRequirements?: Prisma.StaffingRequirementCreateNestedManyWithoutFacilityInput
+  staffingOverrides?: Prisma.StaffingDateOverrideCreateNestedManyWithoutFacilityInput
   schedules?: Prisma.ScheduleCreateNestedManyWithoutFacilityInput
+  requests?: Prisma.EmployeeRequestCreateNestedManyWithoutFacilityInput
 }
 
 export type FacilityUncheckedCreateWithoutShiftsInput = {
@@ -653,7 +709,9 @@ export type FacilityUncheckedCreateWithoutShiftsInput = {
   users?: Prisma.UserUncheckedCreateNestedManyWithoutFacilityInput
   positions?: Prisma.PositionUncheckedCreateNestedManyWithoutFacilityInput
   staffingRequirements?: Prisma.StaffingRequirementUncheckedCreateNestedManyWithoutFacilityInput
+  staffingOverrides?: Prisma.StaffingDateOverrideUncheckedCreateNestedManyWithoutFacilityInput
   schedules?: Prisma.ScheduleUncheckedCreateNestedManyWithoutFacilityInput
+  requests?: Prisma.EmployeeRequestUncheckedCreateNestedManyWithoutFacilityInput
 }
 
 export type FacilityCreateOrConnectWithoutShiftsInput = {
@@ -682,7 +740,9 @@ export type FacilityUpdateWithoutShiftsInput = {
   users?: Prisma.UserUpdateManyWithoutFacilityNestedInput
   positions?: Prisma.PositionUpdateManyWithoutFacilityNestedInput
   staffingRequirements?: Prisma.StaffingRequirementUpdateManyWithoutFacilityNestedInput
+  staffingOverrides?: Prisma.StaffingDateOverrideUpdateManyWithoutFacilityNestedInput
   schedules?: Prisma.ScheduleUpdateManyWithoutFacilityNestedInput
+  requests?: Prisma.EmployeeRequestUpdateManyWithoutFacilityNestedInput
 }
 
 export type FacilityUncheckedUpdateWithoutShiftsInput = {
@@ -695,7 +755,9 @@ export type FacilityUncheckedUpdateWithoutShiftsInput = {
   users?: Prisma.UserUncheckedUpdateManyWithoutFacilityNestedInput
   positions?: Prisma.PositionUncheckedUpdateManyWithoutFacilityNestedInput
   staffingRequirements?: Prisma.StaffingRequirementUncheckedUpdateManyWithoutFacilityNestedInput
+  staffingOverrides?: Prisma.StaffingDateOverrideUncheckedUpdateManyWithoutFacilityNestedInput
   schedules?: Prisma.ScheduleUncheckedUpdateManyWithoutFacilityNestedInput
+  requests?: Prisma.EmployeeRequestUncheckedUpdateManyWithoutFacilityNestedInput
 }
 
 export type FacilityCreateWithoutPositionsInput = {
@@ -708,7 +770,9 @@ export type FacilityCreateWithoutPositionsInput = {
   users?: Prisma.UserCreateNestedManyWithoutFacilityInput
   shifts?: Prisma.FacilityShiftCreateNestedManyWithoutFacilityInput
   staffingRequirements?: Prisma.StaffingRequirementCreateNestedManyWithoutFacilityInput
+  staffingOverrides?: Prisma.StaffingDateOverrideCreateNestedManyWithoutFacilityInput
   schedules?: Prisma.ScheduleCreateNestedManyWithoutFacilityInput
+  requests?: Prisma.EmployeeRequestCreateNestedManyWithoutFacilityInput
 }
 
 export type FacilityUncheckedCreateWithoutPositionsInput = {
@@ -721,7 +785,9 @@ export type FacilityUncheckedCreateWithoutPositionsInput = {
   users?: Prisma.UserUncheckedCreateNestedManyWithoutFacilityInput
   shifts?: Prisma.FacilityShiftUncheckedCreateNestedManyWithoutFacilityInput
   staffingRequirements?: Prisma.StaffingRequirementUncheckedCreateNestedManyWithoutFacilityInput
+  staffingOverrides?: Prisma.StaffingDateOverrideUncheckedCreateNestedManyWithoutFacilityInput
   schedules?: Prisma.ScheduleUncheckedCreateNestedManyWithoutFacilityInput
+  requests?: Prisma.EmployeeRequestUncheckedCreateNestedManyWithoutFacilityInput
 }
 
 export type FacilityCreateOrConnectWithoutPositionsInput = {
@@ -750,7 +816,9 @@ export type FacilityUpdateWithoutPositionsInput = {
   users?: Prisma.UserUpdateManyWithoutFacilityNestedInput
   shifts?: Prisma.FacilityShiftUpdateManyWithoutFacilityNestedInput
   staffingRequirements?: Prisma.StaffingRequirementUpdateManyWithoutFacilityNestedInput
+  staffingOverrides?: Prisma.StaffingDateOverrideUpdateManyWithoutFacilityNestedInput
   schedules?: Prisma.ScheduleUpdateManyWithoutFacilityNestedInput
+  requests?: Prisma.EmployeeRequestUpdateManyWithoutFacilityNestedInput
 }
 
 export type FacilityUncheckedUpdateWithoutPositionsInput = {
@@ -763,7 +831,9 @@ export type FacilityUncheckedUpdateWithoutPositionsInput = {
   users?: Prisma.UserUncheckedUpdateManyWithoutFacilityNestedInput
   shifts?: Prisma.FacilityShiftUncheckedUpdateManyWithoutFacilityNestedInput
   staffingRequirements?: Prisma.StaffingRequirementUncheckedUpdateManyWithoutFacilityNestedInput
+  staffingOverrides?: Prisma.StaffingDateOverrideUncheckedUpdateManyWithoutFacilityNestedInput
   schedules?: Prisma.ScheduleUncheckedUpdateManyWithoutFacilityNestedInput
+  requests?: Prisma.EmployeeRequestUncheckedUpdateManyWithoutFacilityNestedInput
 }
 
 export type FacilityCreateWithoutStaffingRequirementsInput = {
@@ -776,7 +846,9 @@ export type FacilityCreateWithoutStaffingRequirementsInput = {
   users?: Prisma.UserCreateNestedManyWithoutFacilityInput
   shifts?: Prisma.FacilityShiftCreateNestedManyWithoutFacilityInput
   positions?: Prisma.PositionCreateNestedManyWithoutFacilityInput
+  staffingOverrides?: Prisma.StaffingDateOverrideCreateNestedManyWithoutFacilityInput
   schedules?: Prisma.ScheduleCreateNestedManyWithoutFacilityInput
+  requests?: Prisma.EmployeeRequestCreateNestedManyWithoutFacilityInput
 }
 
 export type FacilityUncheckedCreateWithoutStaffingRequirementsInput = {
@@ -789,7 +861,9 @@ export type FacilityUncheckedCreateWithoutStaffingRequirementsInput = {
   users?: Prisma.UserUncheckedCreateNestedManyWithoutFacilityInput
   shifts?: Prisma.FacilityShiftUncheckedCreateNestedManyWithoutFacilityInput
   positions?: Prisma.PositionUncheckedCreateNestedManyWithoutFacilityInput
+  staffingOverrides?: Prisma.StaffingDateOverrideUncheckedCreateNestedManyWithoutFacilityInput
   schedules?: Prisma.ScheduleUncheckedCreateNestedManyWithoutFacilityInput
+  requests?: Prisma.EmployeeRequestUncheckedCreateNestedManyWithoutFacilityInput
 }
 
 export type FacilityCreateOrConnectWithoutStaffingRequirementsInput = {
@@ -818,7 +892,9 @@ export type FacilityUpdateWithoutStaffingRequirementsInput = {
   users?: Prisma.UserUpdateManyWithoutFacilityNestedInput
   shifts?: Prisma.FacilityShiftUpdateManyWithoutFacilityNestedInput
   positions?: Prisma.PositionUpdateManyWithoutFacilityNestedInput
+  staffingOverrides?: Prisma.StaffingDateOverrideUpdateManyWithoutFacilityNestedInput
   schedules?: Prisma.ScheduleUpdateManyWithoutFacilityNestedInput
+  requests?: Prisma.EmployeeRequestUpdateManyWithoutFacilityNestedInput
 }
 
 export type FacilityUncheckedUpdateWithoutStaffingRequirementsInput = {
@@ -831,7 +907,85 @@ export type FacilityUncheckedUpdateWithoutStaffingRequirementsInput = {
   users?: Prisma.UserUncheckedUpdateManyWithoutFacilityNestedInput
   shifts?: Prisma.FacilityShiftUncheckedUpdateManyWithoutFacilityNestedInput
   positions?: Prisma.PositionUncheckedUpdateManyWithoutFacilityNestedInput
+  staffingOverrides?: Prisma.StaffingDateOverrideUncheckedUpdateManyWithoutFacilityNestedInput
   schedules?: Prisma.ScheduleUncheckedUpdateManyWithoutFacilityNestedInput
+  requests?: Prisma.EmployeeRequestUncheckedUpdateManyWithoutFacilityNestedInput
+}
+
+export type FacilityCreateWithoutStaffingOverridesInput = {
+  id?: string
+  name: string
+  code: string
+  createdAt?: Date | string
+  updatedAt?: Date | string
+  district: Prisma.DistrictCreateNestedOneWithoutFacilitiesInput
+  users?: Prisma.UserCreateNestedManyWithoutFacilityInput
+  shifts?: Prisma.FacilityShiftCreateNestedManyWithoutFacilityInput
+  positions?: Prisma.PositionCreateNestedManyWithoutFacilityInput
+  staffingRequirements?: Prisma.StaffingRequirementCreateNestedManyWithoutFacilityInput
+  schedules?: Prisma.ScheduleCreateNestedManyWithoutFacilityInput
+  requests?: Prisma.EmployeeRequestCreateNestedManyWithoutFacilityInput
+}
+
+export type FacilityUncheckedCreateWithoutStaffingOverridesInput = {
+  id?: string
+  name: string
+  code: string
+  districtId: string
+  createdAt?: Date | string
+  updatedAt?: Date | string
+  users?: Prisma.UserUncheckedCreateNestedManyWithoutFacilityInput
+  shifts?: Prisma.FacilityShiftUncheckedCreateNestedManyWithoutFacilityInput
+  positions?: Prisma.PositionUncheckedCreateNestedManyWithoutFacilityInput
+  staffingRequirements?: Prisma.StaffingRequirementUncheckedCreateNestedManyWithoutFacilityInput
+  schedules?: Prisma.ScheduleUncheckedCreateNestedManyWithoutFacilityInput
+  requests?: Prisma.EmployeeRequestUncheckedCreateNestedManyWithoutFacilityInput
+}
+
+export type FacilityCreateOrConnectWithoutStaffingOverridesInput = {
+  where: Prisma.FacilityWhereUniqueInput
+  create: Prisma.XOR<Prisma.FacilityCreateWithoutStaffingOverridesInput, Prisma.FacilityUncheckedCreateWithoutStaffingOverridesInput>
+}
+
+export type FacilityUpsertWithoutStaffingOverridesInput = {
+  update: Prisma.XOR<Prisma.FacilityUpdateWithoutStaffingOverridesInput, Prisma.FacilityUncheckedUpdateWithoutStaffingOverridesInput>
+  create: Prisma.XOR<Prisma.FacilityCreateWithoutStaffingOverridesInput, Prisma.FacilityUncheckedCreateWithoutStaffingOverridesInput>
+  where?: Prisma.FacilityWhereInput
+}
+
+export type FacilityUpdateToOneWithWhereWithoutStaffingOverridesInput = {
+  where?: Prisma.FacilityWhereInput
+  data: Prisma.XOR<Prisma.FacilityUpdateWithoutStaffingOverridesInput, Prisma.FacilityUncheckedUpdateWithoutStaffingOverridesInput>
+}
+
+export type FacilityUpdateWithoutStaffingOverridesInput = {
+  id?: Prisma.StringFieldUpdateOperationsInput | string
+  name?: Prisma.StringFieldUpdateOperationsInput | string
+  code?: Prisma.StringFieldUpdateOperationsInput | string
+  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  district?: Prisma.DistrictUpdateOneRequiredWithoutFacilitiesNestedInput
+  users?: Prisma.UserUpdateManyWithoutFacilityNestedInput
+  shifts?: Prisma.FacilityShiftUpdateManyWithoutFacilityNestedInput
+  positions?: Prisma.PositionUpdateManyWithoutFacilityNestedInput
+  staffingRequirements?: Prisma.StaffingRequirementUpdateManyWithoutFacilityNestedInput
+  schedules?: Prisma.ScheduleUpdateManyWithoutFacilityNestedInput
+  requests?: Prisma.EmployeeRequestUpdateManyWithoutFacilityNestedInput
+}
+
+export type FacilityUncheckedUpdateWithoutStaffingOverridesInput = {
+  id?: Prisma.StringFieldUpdateOperationsInput | string
+  name?: Prisma.StringFieldUpdateOperationsInput | string
+  code?: Prisma.StringFieldUpdateOperationsInput | string
+  districtId?: Prisma.StringFieldUpdateOperationsInput | string
+  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  users?: Prisma.UserUncheckedUpdateManyWithoutFacilityNestedInput
+  shifts?: Prisma.FacilityShiftUncheckedUpdateManyWithoutFacilityNestedInput
+  positions?: Prisma.PositionUncheckedUpdateManyWithoutFacilityNestedInput
+  staffingRequirements?: Prisma.StaffingRequirementUncheckedUpdateManyWithoutFacilityNestedInput
+  schedules?: Prisma.ScheduleUncheckedUpdateManyWithoutFacilityNestedInput
+  requests?: Prisma.EmployeeRequestUncheckedUpdateManyWithoutFacilityNestedInput
 }
 
 export type FacilityCreateWithoutSchedulesInput = {
@@ -845,6 +999,8 @@ export type FacilityCreateWithoutSchedulesInput = {
   shifts?: Prisma.FacilityShiftCreateNestedManyWithoutFacilityInput
   positions?: Prisma.PositionCreateNestedManyWithoutFacilityInput
   staffingRequirements?: Prisma.StaffingRequirementCreateNestedManyWithoutFacilityInput
+  staffingOverrides?: Prisma.StaffingDateOverrideCreateNestedManyWithoutFacilityInput
+  requests?: Prisma.EmployeeRequestCreateNestedManyWithoutFacilityInput
 }
 
 export type FacilityUncheckedCreateWithoutSchedulesInput = {
@@ -858,6 +1014,8 @@ export type FacilityUncheckedCreateWithoutSchedulesInput = {
   shifts?: Prisma.FacilityShiftUncheckedCreateNestedManyWithoutFacilityInput
   positions?: Prisma.PositionUncheckedCreateNestedManyWithoutFacilityInput
   staffingRequirements?: Prisma.StaffingRequirementUncheckedCreateNestedManyWithoutFacilityInput
+  staffingOverrides?: Prisma.StaffingDateOverrideUncheckedCreateNestedManyWithoutFacilityInput
+  requests?: Prisma.EmployeeRequestUncheckedCreateNestedManyWithoutFacilityInput
 }
 
 export type FacilityCreateOrConnectWithoutSchedulesInput = {
@@ -887,6 +1045,8 @@ export type FacilityUpdateWithoutSchedulesInput = {
   shifts?: Prisma.FacilityShiftUpdateManyWithoutFacilityNestedInput
   positions?: Prisma.PositionUpdateManyWithoutFacilityNestedInput
   staffingRequirements?: Prisma.StaffingRequirementUpdateManyWithoutFacilityNestedInput
+  staffingOverrides?: Prisma.StaffingDateOverrideUpdateManyWithoutFacilityNestedInput
+  requests?: Prisma.EmployeeRequestUpdateManyWithoutFacilityNestedInput
 }
 
 export type FacilityUncheckedUpdateWithoutSchedulesInput = {
@@ -900,6 +1060,84 @@ export type FacilityUncheckedUpdateWithoutSchedulesInput = {
   shifts?: Prisma.FacilityShiftUncheckedUpdateManyWithoutFacilityNestedInput
   positions?: Prisma.PositionUncheckedUpdateManyWithoutFacilityNestedInput
   staffingRequirements?: Prisma.StaffingRequirementUncheckedUpdateManyWithoutFacilityNestedInput
+  staffingOverrides?: Prisma.StaffingDateOverrideUncheckedUpdateManyWithoutFacilityNestedInput
+  requests?: Prisma.EmployeeRequestUncheckedUpdateManyWithoutFacilityNestedInput
+}
+
+export type FacilityCreateWithoutRequestsInput = {
+  id?: string
+  name: string
+  code: string
+  createdAt?: Date | string
+  updatedAt?: Date | string
+  district: Prisma.DistrictCreateNestedOneWithoutFacilitiesInput
+  users?: Prisma.UserCreateNestedManyWithoutFacilityInput
+  shifts?: Prisma.FacilityShiftCreateNestedManyWithoutFacilityInput
+  positions?: Prisma.PositionCreateNestedManyWithoutFacilityInput
+  staffingRequirements?: Prisma.StaffingRequirementCreateNestedManyWithoutFacilityInput
+  staffingOverrides?: Prisma.StaffingDateOverrideCreateNestedManyWithoutFacilityInput
+  schedules?: Prisma.ScheduleCreateNestedManyWithoutFacilityInput
+}
+
+export type FacilityUncheckedCreateWithoutRequestsInput = {
+  id?: string
+  name: string
+  code: string
+  districtId: string
+  createdAt?: Date | string
+  updatedAt?: Date | string
+  users?: Prisma.UserUncheckedCreateNestedManyWithoutFacilityInput
+  shifts?: Prisma.FacilityShiftUncheckedCreateNestedManyWithoutFacilityInput
+  positions?: Prisma.PositionUncheckedCreateNestedManyWithoutFacilityInput
+  staffingRequirements?: Prisma.StaffingRequirementUncheckedCreateNestedManyWithoutFacilityInput
+  staffingOverrides?: Prisma.StaffingDateOverrideUncheckedCreateNestedManyWithoutFacilityInput
+  schedules?: Prisma.ScheduleUncheckedCreateNestedManyWithoutFacilityInput
+}
+
+export type FacilityCreateOrConnectWithoutRequestsInput = {
+  where: Prisma.FacilityWhereUniqueInput
+  create: Prisma.XOR<Prisma.FacilityCreateWithoutRequestsInput, Prisma.FacilityUncheckedCreateWithoutRequestsInput>
+}
+
+export type FacilityUpsertWithoutRequestsInput = {
+  update: Prisma.XOR<Prisma.FacilityUpdateWithoutRequestsInput, Prisma.FacilityUncheckedUpdateWithoutRequestsInput>
+  create: Prisma.XOR<Prisma.FacilityCreateWithoutRequestsInput, Prisma.FacilityUncheckedCreateWithoutRequestsInput>
+  where?: Prisma.FacilityWhereInput
+}
+
+export type FacilityUpdateToOneWithWhereWithoutRequestsInput = {
+  where?: Prisma.FacilityWhereInput
+  data: Prisma.XOR<Prisma.FacilityUpdateWithoutRequestsInput, Prisma.FacilityUncheckedUpdateWithoutRequestsInput>
+}
+
+export type FacilityUpdateWithoutRequestsInput = {
+  id?: Prisma.StringFieldUpdateOperationsInput | string
+  name?: Prisma.StringFieldUpdateOperationsInput | string
+  code?: Prisma.StringFieldUpdateOperationsInput | string
+  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  district?: Prisma.DistrictUpdateOneRequiredWithoutFacilitiesNestedInput
+  users?: Prisma.UserUpdateManyWithoutFacilityNestedInput
+  shifts?: Prisma.FacilityShiftUpdateManyWithoutFacilityNestedInput
+  positions?: Prisma.PositionUpdateManyWithoutFacilityNestedInput
+  staffingRequirements?: Prisma.StaffingRequirementUpdateManyWithoutFacilityNestedInput
+  staffingOverrides?: Prisma.StaffingDateOverrideUpdateManyWithoutFacilityNestedInput
+  schedules?: Prisma.ScheduleUpdateManyWithoutFacilityNestedInput
+}
+
+export type FacilityUncheckedUpdateWithoutRequestsInput = {
+  id?: Prisma.StringFieldUpdateOperationsInput | string
+  name?: Prisma.StringFieldUpdateOperationsInput | string
+  code?: Prisma.StringFieldUpdateOperationsInput | string
+  districtId?: Prisma.StringFieldUpdateOperationsInput | string
+  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  users?: Prisma.UserUncheckedUpdateManyWithoutFacilityNestedInput
+  shifts?: Prisma.FacilityShiftUncheckedUpdateManyWithoutFacilityNestedInput
+  positions?: Prisma.PositionUncheckedUpdateManyWithoutFacilityNestedInput
+  staffingRequirements?: Prisma.StaffingRequirementUncheckedUpdateManyWithoutFacilityNestedInput
+  staffingOverrides?: Prisma.StaffingDateOverrideUncheckedUpdateManyWithoutFacilityNestedInput
+  schedules?: Prisma.ScheduleUncheckedUpdateManyWithoutFacilityNestedInput
 }
 
 export type FacilityCreateManyDistrictInput = {
@@ -920,7 +1158,9 @@ export type FacilityUpdateWithoutDistrictInput = {
   shifts?: Prisma.FacilityShiftUpdateManyWithoutFacilityNestedInput
   positions?: Prisma.PositionUpdateManyWithoutFacilityNestedInput
   staffingRequirements?: Prisma.StaffingRequirementUpdateManyWithoutFacilityNestedInput
+  staffingOverrides?: Prisma.StaffingDateOverrideUpdateManyWithoutFacilityNestedInput
   schedules?: Prisma.ScheduleUpdateManyWithoutFacilityNestedInput
+  requests?: Prisma.EmployeeRequestUpdateManyWithoutFacilityNestedInput
 }
 
 export type FacilityUncheckedUpdateWithoutDistrictInput = {
@@ -933,7 +1173,9 @@ export type FacilityUncheckedUpdateWithoutDistrictInput = {
   shifts?: Prisma.FacilityShiftUncheckedUpdateManyWithoutFacilityNestedInput
   positions?: Prisma.PositionUncheckedUpdateManyWithoutFacilityNestedInput
   staffingRequirements?: Prisma.StaffingRequirementUncheckedUpdateManyWithoutFacilityNestedInput
+  staffingOverrides?: Prisma.StaffingDateOverrideUncheckedUpdateManyWithoutFacilityNestedInput
   schedules?: Prisma.ScheduleUncheckedUpdateManyWithoutFacilityNestedInput
+  requests?: Prisma.EmployeeRequestUncheckedUpdateManyWithoutFacilityNestedInput
 }
 
 export type FacilityUncheckedUpdateManyWithoutDistrictInput = {
@@ -954,7 +1196,9 @@ export type FacilityCountOutputType = {
   shifts: number
   positions: number
   staffingRequirements: number
+  staffingOverrides: number
   schedules: number
+  requests: number
 }
 
 export type FacilityCountOutputTypeSelect<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
@@ -962,7 +1206,9 @@ export type FacilityCountOutputTypeSelect<ExtArgs extends runtime.Types.Extensio
   shifts?: boolean | FacilityCountOutputTypeCountShiftsArgs
   positions?: boolean | FacilityCountOutputTypeCountPositionsArgs
   staffingRequirements?: boolean | FacilityCountOutputTypeCountStaffingRequirementsArgs
+  staffingOverrides?: boolean | FacilityCountOutputTypeCountStaffingOverridesArgs
   schedules?: boolean | FacilityCountOutputTypeCountSchedulesArgs
+  requests?: boolean | FacilityCountOutputTypeCountRequestsArgs
 }
 
 /**
@@ -1006,8 +1252,22 @@ export type FacilityCountOutputTypeCountStaffingRequirementsArgs<ExtArgs extends
 /**
  * FacilityCountOutputType without action
  */
+export type FacilityCountOutputTypeCountStaffingOverridesArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+  where?: Prisma.StaffingDateOverrideWhereInput
+}
+
+/**
+ * FacilityCountOutputType without action
+ */
 export type FacilityCountOutputTypeCountSchedulesArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
   where?: Prisma.ScheduleWhereInput
+}
+
+/**
+ * FacilityCountOutputType without action
+ */
+export type FacilityCountOutputTypeCountRequestsArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+  where?: Prisma.EmployeeRequestWhereInput
 }
 
 
@@ -1023,7 +1283,9 @@ export type FacilitySelect<ExtArgs extends runtime.Types.Extensions.InternalArgs
   shifts?: boolean | Prisma.Facility$shiftsArgs<ExtArgs>
   positions?: boolean | Prisma.Facility$positionsArgs<ExtArgs>
   staffingRequirements?: boolean | Prisma.Facility$staffingRequirementsArgs<ExtArgs>
+  staffingOverrides?: boolean | Prisma.Facility$staffingOverridesArgs<ExtArgs>
   schedules?: boolean | Prisma.Facility$schedulesArgs<ExtArgs>
+  requests?: boolean | Prisma.Facility$requestsArgs<ExtArgs>
   _count?: boolean | Prisma.FacilityCountOutputTypeDefaultArgs<ExtArgs>
 }, ExtArgs["result"]["facility"]>
 
@@ -1063,7 +1325,9 @@ export type FacilityInclude<ExtArgs extends runtime.Types.Extensions.InternalArg
   shifts?: boolean | Prisma.Facility$shiftsArgs<ExtArgs>
   positions?: boolean | Prisma.Facility$positionsArgs<ExtArgs>
   staffingRequirements?: boolean | Prisma.Facility$staffingRequirementsArgs<ExtArgs>
+  staffingOverrides?: boolean | Prisma.Facility$staffingOverridesArgs<ExtArgs>
   schedules?: boolean | Prisma.Facility$schedulesArgs<ExtArgs>
+  requests?: boolean | Prisma.Facility$requestsArgs<ExtArgs>
   _count?: boolean | Prisma.FacilityCountOutputTypeDefaultArgs<ExtArgs>
 }
 export type FacilityIncludeCreateManyAndReturn<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
@@ -1081,7 +1345,9 @@ export type $FacilityPayload<ExtArgs extends runtime.Types.Extensions.InternalAr
     shifts: Prisma.$FacilityShiftPayload<ExtArgs>[]
     positions: Prisma.$PositionPayload<ExtArgs>[]
     staffingRequirements: Prisma.$StaffingRequirementPayload<ExtArgs>[]
+    staffingOverrides: Prisma.$StaffingDateOverridePayload<ExtArgs>[]
     schedules: Prisma.$SchedulePayload<ExtArgs>[]
+    requests: Prisma.$EmployeeRequestPayload<ExtArgs>[]
   }
   scalars: runtime.Types.Extensions.GetPayloadResult<{
     id: string
@@ -1489,7 +1755,9 @@ export interface Prisma__FacilityClient<T, Null = never, ExtArgs extends runtime
   shifts<T extends Prisma.Facility$shiftsArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.Facility$shiftsArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$FacilityShiftPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
   positions<T extends Prisma.Facility$positionsArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.Facility$positionsArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$PositionPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
   staffingRequirements<T extends Prisma.Facility$staffingRequirementsArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.Facility$staffingRequirementsArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$StaffingRequirementPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
+  staffingOverrides<T extends Prisma.Facility$staffingOverridesArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.Facility$staffingOverridesArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$StaffingDateOverridePayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
   schedules<T extends Prisma.Facility$schedulesArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.Facility$schedulesArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$SchedulePayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
+  requests<T extends Prisma.Facility$requestsArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.Facility$requestsArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$EmployeeRequestPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
   /**
    * Attaches callbacks for the resolution and/or rejection of the Promise.
    * @param onfulfilled The callback to execute when the Promise is resolved.
@@ -2022,6 +2290,30 @@ export type Facility$staffingRequirementsArgs<ExtArgs extends runtime.Types.Exte
 }
 
 /**
+ * Facility.staffingOverrides
+ */
+export type Facility$staffingOverridesArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+  /**
+   * Select specific fields to fetch from the StaffingDateOverride
+   */
+  select?: Prisma.StaffingDateOverrideSelect<ExtArgs> | null
+  /**
+   * Omit specific fields from the StaffingDateOverride
+   */
+  omit?: Prisma.StaffingDateOverrideOmit<ExtArgs> | null
+  /**
+   * Choose, which related nodes to fetch as well
+   */
+  include?: Prisma.StaffingDateOverrideInclude<ExtArgs> | null
+  where?: Prisma.StaffingDateOverrideWhereInput
+  orderBy?: Prisma.StaffingDateOverrideOrderByWithRelationInput | Prisma.StaffingDateOverrideOrderByWithRelationInput[]
+  cursor?: Prisma.StaffingDateOverrideWhereUniqueInput
+  take?: number
+  skip?: number
+  distinct?: Prisma.StaffingDateOverrideScalarFieldEnum | Prisma.StaffingDateOverrideScalarFieldEnum[]
+}
+
+/**
  * Facility.schedules
  */
 export type Facility$schedulesArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
@@ -2043,6 +2335,30 @@ export type Facility$schedulesArgs<ExtArgs extends runtime.Types.Extensions.Inte
   take?: number
   skip?: number
   distinct?: Prisma.ScheduleScalarFieldEnum | Prisma.ScheduleScalarFieldEnum[]
+}
+
+/**
+ * Facility.requests
+ */
+export type Facility$requestsArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+  /**
+   * Select specific fields to fetch from the EmployeeRequest
+   */
+  select?: Prisma.EmployeeRequestSelect<ExtArgs> | null
+  /**
+   * Omit specific fields from the EmployeeRequest
+   */
+  omit?: Prisma.EmployeeRequestOmit<ExtArgs> | null
+  /**
+   * Choose, which related nodes to fetch as well
+   */
+  include?: Prisma.EmployeeRequestInclude<ExtArgs> | null
+  where?: Prisma.EmployeeRequestWhereInput
+  orderBy?: Prisma.EmployeeRequestOrderByWithRelationInput | Prisma.EmployeeRequestOrderByWithRelationInput[]
+  cursor?: Prisma.EmployeeRequestWhereUniqueInput
+  take?: number
+  skip?: number
+  distinct?: Prisma.EmployeeRequestScalarFieldEnum | Prisma.EmployeeRequestScalarFieldEnum[]
 }
 
 /**
