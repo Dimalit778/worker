@@ -111,7 +111,7 @@ export function ManagerEmployeeDetailClient({ employeeId }: { employeeId: string
               employee.isActive ? 'bg-emerald-50 text-emerald-700' : 'bg-slate-100 text-slate-600',
             )}
           >
-            {employee.isActive ? 'פעיל' : 'לא פעיל'}
+            {employee.isActive ? 'פעיל' : 'מושבת'}
           </span>
         </div>
       </div>

@@ -31,8 +31,19 @@ export async function publishSchedule(scheduleId: string, options: VersionExpect
       const analysis = await saveScheduleAnalysis(tx, version.id, data.input, data.allAssignments);
       const problems = analysis.warnings.filter((warning) => warning.severity === 'ERROR');
       if (problems.length && !options.confirmIssues) return { requiresConfirmation: true as const, issueCount: problems.length, message: `קיימות ${problems.length} בעיות בשיבוץ. לפרסם בכל זאת?` };
-      await tx.schedule.update({ where: { id: version.id }, data: { status: 'PUBLISHED', publishedAt: new Date(), revision: { increment: 1 }, submissionClosesAt: new Date() } });
-      await tx.scheduleChange.create({ data: { facilityId: actor.facilityId, scheduleId, changedById: actor.userId, changeType: 'PUBLISH', reason: options.reason?.trim() || 'פרסום שיבוץ', afterData: { revision: version.revision, note: options.confirmIssues ? 'פורסם עם אישור בעיות' : 'פורסם', confirmedWarnings: options.confirmIssues ? problems.map(w => w.message) : [] } } });
+      const now = new Date();
+      await tx.scheduleVersion.update({ where: { id: version.id }, data: {
+        status: 'PUBLISHED', publishedAt: now, revision: { increment: 1 },
+        capacitySnapshot: data.capacities.map(c => ({
+          id: c.id, positionId: c.positionId, displayName: c.position.name, color: c.position.color,
+          rank: c.position.requiredRank ?? c.position.baseRole?.rank ?? c.position.displayOrder,
+          shiftType: c.shiftType, dayCategory: c.dayCategory, amount: c.requiredCount,
+        })),
+      } });
+      await tx.schedule.update({ where: { id: scheduleId }, data: {
+        status: 'PUBLISHED', publishedAt: now, publishedVersionId: version.id, draftVersionId: null, submissionClosesAt: now,
+      } });
+      await tx.scheduleChange.create({ data: { facilityId: actor.facilityId, scheduleId, versionId: version.id, changedById: actor.userId, changeType: 'PUBLISH', reason: options.reason?.trim() || 'פרסום שיבוץ', afterData: { revision: version.revision + 1, note: options.confirmIssues ? 'פורסם עם אישור בעיות' : 'פורסם', confirmedWarnings: options.confirmIssues ? problems.map(w => w.message) : [] } } });
       return { ok: true as const };
     });
   } catch (e) { return { error: e instanceof Error ? e.message : 'פרסום נכשל' }; }

@@ -2,7 +2,7 @@
 
 import Link from 'next/link';
 import type { ColumnDef } from '@tanstack/react-table';
-import { ArrowUpDown, Eye, MoreHorizontal, Pencil, Trash2 } from 'lucide-react';
+import { ArrowUpDown, Eye, MailPlus, MoreHorizontal, Pencil, Trash2, UserCheck, UserX } from 'lucide-react';
 
 import { cn } from '@/lib/utils';
 import { EmployeeListItem } from '@/features/employess/types';
@@ -21,7 +21,9 @@ import { POSITION_STYLE } from '../utils';
 
 type EmployeesColumnsProps = {
   onEdit: (employee: EmployeeListItem) => void;
-  onDelete: (employee: EmployeeListItem) => void;
+  onDelete?: (employee: EmployeeListItem) => void;
+  onToggleActive?: (employee: EmployeeListItem) => void;
+  onResendInvite: (employee: EmployeeListItem) => void;
   deletePending?: boolean;
   hideDetailLinks?: boolean;
 };
@@ -29,6 +31,8 @@ type EmployeesColumnsProps = {
 export function createEmployeesColumns({
   onEdit,
   onDelete,
+  onToggleActive,
+  onResendInvite,
   deletePending,
   hideDetailLinks = false,
 }: EmployeesColumnsProps): ColumnDef<EmployeeListItem>[] {
@@ -117,7 +121,7 @@ export function createEmployeesColumns({
           <Badge className="rounded-full bg-green-100 text-green-800 hover:bg-green-100">פעיל</Badge>
         ) : (
           <Badge variant="secondary" className="rounded-full bg-slate-100 text-slate-600 hover:bg-slate-100">
-            לא פעיל
+            מושבת
           </Badge>
         );
       },
@@ -138,7 +142,7 @@ export function createEmployeesColumns({
                 </Button>
               </DropdownMenuTrigger>
 
-              <DropdownMenuContent align="end" className="w-40">
+              <DropdownMenuContent align="end" className="w-48">
                 <DropdownMenuLabel>פעולות</DropdownMenuLabel>
 
                 {!hideDetailLinks && (
@@ -155,16 +159,41 @@ export function createEmployeesColumns({
                   עריכה
                 </DropdownMenuItem>
 
-                <DropdownMenuSeparator />
-
-                <DropdownMenuItem
-                  disabled={deletePending}
-                  onClick={() => onDelete(employee)}
-                  className="text-destructive focus:text-destructive"
-                >
-                  <Trash2 className="ml-2 h-4 w-4" />
-                  מחיקה
+                <DropdownMenuItem onClick={() => onResendInvite(employee)}>
+                  <MailPlus className="ml-2 h-4 w-4" />
+                  שליחת הזמנה מחדש
                 </DropdownMenuItem>
+                {onToggleActive && (
+                  <>
+                    <DropdownMenuSeparator />
+                    <DropdownMenuItem
+                      disabled={deletePending}
+                      onClick={() => onToggleActive(employee)}
+                      className={employee.isActive ? 'text-destructive focus:text-destructive' : undefined}
+                    >
+                      {employee.isActive ? (
+                        <UserX className="ml-2 h-4 w-4" />
+                      ) : (
+                        <UserCheck className="ml-2 h-4 w-4" />
+                      )}
+                      {employee.isActive ? 'השבתה' : 'הפעלה מחדש'}
+                    </DropdownMenuItem>
+                  </>
+                )}
+
+                {onDelete && (
+                  <>
+                    <DropdownMenuSeparator />
+                    <DropdownMenuItem
+                      disabled={deletePending}
+                      onClick={() => onDelete(employee)}
+                      className="text-destructive focus:text-destructive"
+                    >
+                      <Trash2 className="ml-2 h-4 w-4" />
+                      מחיקה
+                    </DropdownMenuItem>
+                  </>
+                )}
               </DropdownMenuContent>
             </DropdownMenu>
           </div>

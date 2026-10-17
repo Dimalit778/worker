@@ -4,6 +4,7 @@ import { requireManager } from '@/lib/db/auth-helpers';
 import { addDays } from '@/features/scheduling-engine/constraints';
 import type { EngineAssignment, EngineInput } from '@/features/scheduling-engine/types';
 
+// Inactive employees are loaded too: the engine skips them for new slots, while their existing slots stay editable.
 const staffedUser = { role: { rank: { not: 1 } } };
 const staffedPosition = {
   isActive: true,
@@ -14,19 +15,19 @@ export async function loadSchedulingInput(tx: Prisma.TransactionClient, schedule
   const schedule = loadedSchedule ?? await tx.schedule.findFirst({ where: { id: scheduleId, facilityId } });
   if (!schedule) throw new Error('השיבוץ לא נמצא');
   const [employees, capacities, forms, assignments, surrounding] = await Promise.all([
-    tx.user.findMany({ where: { facilityId, ...staffedUser }, select: { id: true, displayName: true, roleId: true, role: { select: { id: true, name: true, rank: true } } } }),
+    tx.user.findMany({ where: { facilityId, ...staffedUser }, select: { id: true, displayName: true, roleId: true, isActive: true, role: { select: { id: true, name: true, rank: true } } } }),
     tx.staffingRequirement.findMany({ where: { facilityId, position: staffedPosition }, include: { position: { include: { baseRole: true } } } }),
     tx.availabilitySubmission.findMany({
       where: { scheduleId, submittedAt: { not: null }, user: { facilityId } },
       include: { availabilities: true },
     }),
-    versionId ? tx.scheduleSlot.findMany({ where: { scheduleId, facilityId, userId: { not: null } }, include: { user: { select: { displayName: true } }, position: { select: { name: true } } } }) : Promise.resolve([]),
+    versionId ? tx.scheduleSlot.findMany({ where: { scheduleId, versionId, facilityId, userId: { not: null } }, include: { user: { select: { displayName: true } }, position: { select: { name: true } } } }) : Promise.resolve([]),
     tx.scheduleSlot.findMany({
       where: {
         facilityId,
         scheduleId: { not: scheduleId },
         userId: { not: null },
-        schedule: { status: 'PUBLISHED' },
+        version: { publishedFor: { is: { status: 'PUBLISHED' } } },
         date: { gte: addDays(schedule.startDate, -56), lte: addDays(schedule.endDate, 1) },
       },
     }),
@@ -54,7 +55,7 @@ export async function loadSchedulingInput(tx: Prisma.TransactionClient, schedule
     period: { id: schedule.id, facilityId, startDate: schedule.startDate, endDate: schedule.endDate },
     week1Dates: dates.slice(0, 7),
     week2Dates: dates.slice(7),
-    employees: employees.map((e) => ({ id: e.id, facilityId, positionId: e.roleId, rank: e.role.rank, isActive: true })),
+    employees: employees.map((e) => ({ id: e.id, facilityId, positionId: e.roleId, rank: e.role.rank, isActive: e.isActive })),
     capacities: capacities.map((c) => ({
       positionId: c.positionId,
       positionName: c.position.name,
@@ -77,10 +78,10 @@ export async function getAutoScheduleInputData(scheduleId: string) {
   const { facilityId } = await requireManager();
   const schedule = await prisma.schedule.findFirst({
     where: { id: scheduleId, facilityId, status: { in: ['DRAFT', 'PUBLISHED'] } },
-    select: { id: true },
+    select: { draftVersionId: true, publishedVersionId: true },
   });
   try {
-    const data = await loadSchedulingInput(prisma, scheduleId, facilityId, schedule?.id ?? null);
+    const data = await loadSchedulingInput(prisma, scheduleId, facilityId, schedule?.draftVersionId ?? schedule?.publishedVersionId ?? null);
     return { found: true as const, input: data.input, schedule: data.schedule };
   } catch {
     return { found: false as const, message: 'השיבוץ לא נמצא' };

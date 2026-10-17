@@ -1,6 +1,30 @@
-function getInitialPasswordFromEmail(email: string): string {
-  return email.trim().toLowerCase().split('@')[0];
+import type { FutureAssignment } from './types';
+
+type FutureSlotRow = {
+  id: string;
+  date: Date;
+  startsAt: Date;
+  shiftType: string;
+  position: { name: string };
+  schedule: { name: string };
+  version: { status: 'DRAFT' | 'PUBLISHED' | string };
+};
+
+/** Maps raw future slot rows to display items, ordered by start time. */
+function toFutureAssignments(slots: FutureSlotRow[]): FutureAssignment[] {
+  return [...slots]
+    .sort((a, b) => a.startsAt.getTime() - b.startsAt.getTime())
+    .map((slot) => ({
+      slotId: slot.id,
+      startsAt: slot.startsAt.toISOString(),
+      date: slot.date.toISOString().slice(0, 10),
+      shiftType: slot.shiftType,
+      positionName: slot.position.name,
+      periodName: slot.schedule.name,
+      versionStatus: slot.version.status === 'DRAFT' ? 'DRAFT' : 'PUBLISHED',
+    }));
 }
+
 const POSITION_STYLE: Record<number, string> = {
   1: 'bg-slate-800 text-white',
   2: 'bg-blue-100 text-blue-800',
@@ -16,4 +40,4 @@ const POSITION_STYLE: Record<number, string> = {
   12: 'bg-cyan-100 text-cyan-800',
 };
 
-export { getInitialPasswordFromEmail, POSITION_STYLE };
+export { toFutureAssignments, POSITION_STYLE };

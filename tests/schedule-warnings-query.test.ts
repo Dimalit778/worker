@@ -23,7 +23,7 @@ const input: EngineInput = {
 
 beforeEach(() => {
   vi.clearAllMocks();
-  mocks.schedule.findUnique.mockResolvedValue({ facilityId: 'facility' });
+  mocks.schedule.findUnique.mockResolvedValue({ facilityId: 'facility', draftVersionId: 'draft', publishedVersionId: 'published' });
   mocks.user.findMany.mockResolvedValue([{ id: 'employee', displayName: 'דוד לוי', role: { id: 'role', name: 'אחמ״ש', rank: 2 } }]);
   mocks.staffingRequirement.findMany.mockResolvedValue([{
     id: 'requirement', positionId: 'position', shiftType: 'MORNING', dayCategory: 'WEEKDAY', requiredCount: 1,
@@ -57,7 +57,7 @@ describe('getScheduleWarnings', () => {
       .toBe('שבוע 1: נדרשת משמרת ערב אחת; בפועל: 0.');
     for (const warning of warnings) expect(warning.message).not.toMatch(/[A-Za-z]/);
     expect(new Set(warnings.map(w => w.id)).size).toBe(warnings.length);
-    expect(mocks.loadSchedulingInput).toHaveBeenCalledWith(mocks, 'schedule', 'facility', 'schedule');
+    expect(mocks.loadSchedulingInput).toHaveBeenCalledWith(mocks, 'schedule', 'facility', 'draft');
   });
 
   it('recalculates after an assignment is saved and removes the resolved shortage', async () => {

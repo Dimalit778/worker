@@ -8,7 +8,7 @@ import type { ManagerDashboardData, ScheduleSnapshot } from './types';
 import { requireSession } from '@/lib/db/auth-helpers';
 
 const SCHEDULE_TIME_ZONE = 'Asia/Jerusalem';
-const staffedUser = { role: { rank: { not: 1 } } };
+const staffedUser = { isActive: true, role: { rank: { not: 1 } } };
 
 export type StaffPositionCount = {
   name: string;

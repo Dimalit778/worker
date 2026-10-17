@@ -78,3 +78,7 @@ After editing:
 - Summarize what changed.
 - List changed files.
 - Mention if typecheck/lint should be run.
+
+## Shared project worktree policy
+
+Follow @AGENTS.md and @docs/worktree-development.md. Their worktree setup permission overrides the general “do not run commands” rule above. Schema mutations still require fresh explicit human approval.

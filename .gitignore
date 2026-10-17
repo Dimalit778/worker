@@ -5,3 +5,8 @@ node_modules/
 dist/
 *.tsbuildinfo
 .superpowers/
+
+# Per-worktree development runtime, credentials and optional local template
+.worktree-dev/
+.env.worktree.local
+.env.*.local

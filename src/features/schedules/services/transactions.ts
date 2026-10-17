@@ -29,26 +29,37 @@ export async function scheduleTransaction<T>(actor: ScheduleActor, fn: (tx: Pris
 
 export async function checkedVersion(tx: Prisma.TransactionClient, actor: ScheduleActor, scheduleId: string, expected: VersionExpectation) {
   if (!expected || !Number.isInteger(expected.revision) || expected.revision < 0) throw new Error(STALE_VERSION);
-  const schedule = await tx.schedule.findFirst({ where: { id: scheduleId, facilityId: actor.facilityId } });
+  const schedule = await tx.schedule.findFirst({
+    where: { id: scheduleId, facilityId: actor.facilityId },
+    include: { draftVersion: true, publishedVersion: true },
+  });
   if (!schedule || schedule.status === 'ARCHIVED' || schedule.endDate < todayUtcDateForTimeZone('Asia/Jerusalem')) throw new Error('לא ניתן לערוך שיבוץ זה');
-  if (schedule.id !== expected.versionId || schedule.revision !== expected.revision) throw new Error(STALE_VERSION);
-  return { schedule, version: schedule };
+  const version = schedule.draftVersion ?? schedule.publishedVersion;
+  if ((version?.id ?? null) !== expected.versionId || (version?.revision ?? 0) !== expected.revision) throw new Error(STALE_VERSION);
+  return { schedule, version };
 }
 
 export async function editableDraft(tx: Prisma.TransactionClient, actor: ScheduleActor, scheduleId: string, expected: VersionExpectation) {
   const { schedule, version } = await checkedVersion(tx, actor, scheduleId, expected);
-  if (version.status === 'DRAFT') return { schedule, version };
-  const draft = await tx.schedule.update({
-    where: { id: schedule.id },
-    data: { status: 'DRAFT', revision: { increment: 1 } },
-  });
-  await tx.scheduleChange.create({ data: {
-    facilityId: actor.facilityId,
-    scheduleId,
-    changedById: actor.userId,
-    changeType: 'CREATE',
-    reason: 'נפתחה טיוטת תיקון',
-    afterData: { copiedFromStatus: version.status },
+  if (version?.status === 'DRAFT') return { schedule, version };
+  const draft = await tx.scheduleVersion.create({ data: {
+    scheduleId, facilityId: actor.facilityId, number: (version?.number ?? 0) + 1,
   } });
-  return { schedule: draft, version: draft };
+  if (version) {
+    const slots = await tx.scheduleSlot.findMany({ where: { versionId: version.id } });
+    if (slots.length) await tx.scheduleSlot.createMany({ data: slots.map(slot => ({
+      scheduleId, facilityId: actor.facilityId, versionId: draft.id,
+      positionId: slot.positionId, date: slot.date, shiftType: slot.shiftType,
+      slotNumber: slot.slotNumber, startsAt: slot.startsAt, endsAt: slot.endsAt,
+      userId: slot.userId, source: slot.source, isLocked: slot.isLocked, note: slot.note,
+    })) });
+  }
+  await tx.schedule.update({ where: { id: scheduleId }, data: { draftVersionId: draft.id } });
+  await tx.scheduleChange.create({ data: {
+    facilityId: actor.facilityId, scheduleId, versionId: draft.id,
+    changedById: actor.userId, changeType: 'CREATE',
+    reason: version ? 'נפתחה טיוטת תיקון' : 'נפתחה טיוטה',
+    afterData: { copiedFromVersionId: version?.id ?? null },
+  } });
+  return { schedule, version: draft };
 }

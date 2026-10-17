@@ -137,3 +137,23 @@ export function ruleOrderError(rule: SubmissionWindowRule): string | null {
   }
   return null;
 }
+
+const REMINDER_LEAD_MS = 24 * 60 * 60 * 1000;
+
+export type WindowActions = { open: boolean; remind: boolean };
+
+/** Decides which notifications are due for a schedule at `now`. */
+export function dueWindowActions(input: {
+  now: Date;
+  opensAt: Date;
+  closesAt: Date;
+  openNotifiedAt: Date | null;
+  reminderSentAt: Date | null;
+}): WindowActions {
+  const { now, opensAt, closesAt } = input;
+  const isOpen = opensAt <= now && now < closesAt;
+  return {
+    open: isOpen && !input.openNotifiedAt,
+    remind: isOpen && !input.reminderSentAt && now.getTime() >= closesAt.getTime() - REMINDER_LEAD_MS,
+  };
+}

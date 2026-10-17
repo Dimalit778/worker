@@ -23,7 +23,7 @@ import type {
   UpdateAdminCourtParams,
   UpdateAdminEmployeeParams,
 } from '@/features/admin/types';
-import { getInitialPasswordFromEmail } from '@/features/employess/utils';
+import { InviteNotice } from '@/features/employess/components/invite-notice';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
@@ -66,12 +66,12 @@ export function AdminCourtsClient({ data }: Props) {
   const [deleteState, setDeleteState] = useState<DeleteState>(null);
   const [pendingLabel, setPendingLabel] = useState<string | null>(null);
   const [error, setError] = useState<string | null>(null);
-  const [createdEmployeeEmail, setCreatedEmployeeEmail] = useState<string | null>(null);
+  const [createdEmployee, setCreatedEmployee] = useState<{ inviteLink?: string; emailError?: string } | null>(null);
 
   const selectedCourt = courts.find((court) => court.id === selectedCourtId) ?? courts[0] ?? null;
   const totalEmployees = courts.reduce((sum, court) => sum + court.employeeCount, 0);
 
-  async function runAction(label: string, action: () => Promise<AdminActionResult>, afterSuccess?: () => void) {
+  async function runAction(label: string, action: () => Promise<AdminActionResult>, afterSuccess?: (result: Extract<AdminActionResult, { ok: true }>) => void) {
     setError(null);
     setPendingLabel(label);
 
@@ -83,7 +83,7 @@ export function AdminCourtsClient({ data }: Props) {
         return;
       }
 
-      afterSuccess?.();
+      afterSuccess?.(result);
       router.refresh();
     } finally {
       setPendingLabel(null);
@@ -106,10 +106,10 @@ export function AdminCourtsClient({ data }: Props) {
     return runAction(
       isEdit ? 'update-employee' : 'create-employee',
       () => (isEdit ? updateAdminEmployee(input) : createAdminEmployee(input)),
-      () => {
+      (result) => {
         setDialog(null);
         if (!isEdit) {
-          setCreatedEmployeeEmail(input.email);
+          setCreatedEmployee({ inviteLink: result.inviteLink, emailError: result.emailError });
         }
       },
     );
@@ -160,16 +160,15 @@ export function AdminCourtsClient({ data }: Props) {
         </div>
       )}
 
-      {createdEmployeeEmail && (
+      {createdEmployee && (
         <div className="rounded-md border border-primary/20 bg-primary/10 px-4 py-3 text-sm text-primary">
-          העובד נוסף בהצלחה. סיסמה ראשונית:{' '}
-          <span className="font-mono font-semibold">{getInitialPasswordFromEmail(createdEmployeeEmail)}</span>
+          <InviteNotice inviteLink={createdEmployee.inviteLink} emailError={createdEmployee.emailError} />
           <Button
             type="button"
             variant="ghost"
             size="sm"
             className="me-2 h-7"
-            onClick={() => setCreatedEmployeeEmail(null)}
+            onClick={() => setCreatedEmployee(null)}
           >
             סגור
           </Button>

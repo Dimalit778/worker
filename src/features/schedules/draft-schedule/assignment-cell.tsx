@@ -7,6 +7,8 @@ import { cn } from '@/lib/utils';
 import { GuardPicker, type SwapCandidate } from '@/features/schedules/shared/guard-picker';
 import { createAssignment, removeAssignment, swapAssignments, updateAssignment } from '@/features/schedules/assignments/actions';
 import { applyScheduleEdit } from '@/features/schedules/hooks';
+import { ManualOverrideDialog } from '@/features/schedules/shared/manual-override-dialog';
+import type { ManualViolation } from '@/features/scheduling-engine/manual-violations';
 import { OverflowCandidates } from '../shared/overflow-candidates';
 import type { AssignmentSummary, OverflowCandidateSummary, ScheduleEmployeeOption } from '@/features/schedules/types';
 import type { ShiftType } from '@/generated/prisma/client';
@@ -55,24 +57,25 @@ export function AssignmentCell({
   const [open, setOpen] = useState(false);
   const [anchorRect, setAnchorRect] = useState<DOMRect | null>(null);
   const [error, setError] = useState<string | null>(null);
+  const [overrideRequest, setOverrideRequest] = useState<{ violations: ManualViolation[]; input: { type: 'select'; employeeId: string } | { type: 'swap'; assignmentId: string } } | null>(null);
   const tdRef = useRef<HTMLTableCellElement>(null);
 
   const assignmentMutation = useMutation({
     mutationFn: async (
       input:
-        | { type: 'select'; employeeId: string }
+        | { type: 'select'; employeeId: string; override?: { reason: string } }
         | { type: 'remove'; assignmentId: string }
-        | { type: 'swap'; assignmentId: string },
+        | { type: 'swap'; assignmentId: string; override?: { reason: string } },
     ) => {
       if (input.type === 'remove') {
         return removeAssignment(input.assignmentId, expected);
       }
       if (input.type === 'swap') {
         if (!assignment) return;
-        return swapAssignments(assignment.id, input.assignmentId, expected);
+        return swapAssignments(assignment.id, input.assignmentId, expected, input.override);
       }
       if (assignment) {
-        return updateAssignment(assignment.id, input.employeeId, expected);
+        return updateAssignment(assignment.id, input.employeeId, expected, input.override);
       }
       return createAssignment({
         scheduleId,
@@ -82,9 +85,15 @@ export function AssignmentCell({
         shiftType,
         date,
         slotIndex,
-      }, expected);
+      }, expected, input.override);
     },
-    onSuccess: update => applyScheduleEdit(queryClient, update),
+    onSuccess: (update, input) => {
+      if (update && 'requiresOverride' in update) {
+        setOverrideRequest({ violations: update.violations, input: input as Extract<typeof input, { type: 'select' | 'swap' }> });
+        return;
+      }
+      return applyScheduleEdit(queryClient, update);
+    },
     onError: (e: Error) => setError(e.message || 'שגיאה בשיבוץ'),
   });
 
@@ -154,7 +163,9 @@ export function AssignmentCell({
         pending && 'opacity-50 pointer-events-none',
         open && 'ring-2 ring-primary ring-inset',
       )}
-      onClick={() => {
+      onClick={(e) => {
+        // Clicks inside portaled children (picker, override dialog) bubble here through React; ignore them.
+        if (!tdRef.current?.contains(e.target as Node)) return;
         if (!open && tdRef.current) {
           setAnchorRect(tdRef.current.getBoundingClientRect());
         }
@@ -182,6 +193,14 @@ export function AssignmentCell({
           onSwap={assignment ? handleSwap : undefined}
         />
       )}
+      <ManualOverrideDialog
+        violations={overrideRequest?.violations ?? null}
+        onCancel={() => setOverrideRequest(null)}
+        onConfirm={reason => {
+          if (overrideRequest) assignmentMutation.mutate({ ...overrideRequest.input, override: { reason } });
+          setOverrideRequest(null);
+        }}
+      />
     </td>
   );
 }

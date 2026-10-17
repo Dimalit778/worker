@@ -2,7 +2,6 @@
 import { periodScheduleStatus } from '@/features/schedules/period-status';
 import { PortalRole } from '@/lib/auth/portal';
 
-import bcrypt from 'bcryptjs';
 import { SystemRole } from '@/generated/prisma/client';
 import { prisma } from '@/lib/db/client';
 import { requireSession } from '@/lib/db/auth-helpers';
@@ -11,12 +10,16 @@ import type {
   EmployeeDetailData,
   EmployeeSubmissionsData,
   EmployeesPageData,
+  SetEmployeeActiveResult,
   UpdateEmployeeParams,
 } from '@/features/employess/types';
 import { availabilityPreferencesToRecord, countAvailableEntries } from '@/features/availability/utils';
-import { getInitialPasswordFromEmail } from './utils';
+import { toFutureAssignments } from './utils';
+import { sendInvite, unusablePasswordHash, type InviteResult } from '@/lib/auth/invite';
 
-export async function createEmployee(params: CreateEmployeeParams): Promise<{ ok: true } | { error: string }> {
+export type CreateEmployeeResult = ({ ok: true } & Partial<InviteResult>) | { error: string };
+
+export async function createEmployee(params: CreateEmployeeParams): Promise<CreateEmployeeResult> {
   const session = await requireSession(PortalRole.MANAGER);
 
   const facilityId = session.user.facilityId;
@@ -39,11 +42,10 @@ export async function createEmployee(params: CreateEmployeeParams): Promise<{ ok
 
   const role = await prisma.role.findUnique({ where: { id: positionId } });
   if (!role) return { error: 'התפקיד אינו שייך למתקן' };
-  const initialPassword = getInitialPasswordFromEmail(email);
-  const passwordHash = await bcrypt.hash(initialPassword, 12);
+  const passwordHash = await unusablePasswordHash();
 
   try {
-    await prisma.$transaction(async (tx) => {
+    const userId = await prisma.$transaction(async (tx) => {
       const existingUser = await tx.user.findUnique({
         where: { email },
         select: { id: true },
@@ -53,7 +55,7 @@ export async function createEmployee(params: CreateEmployeeParams): Promise<{ ok
         throw new Error('USER_EMAIL_EXISTS');
       }
 
-      await tx.user.create({
+      const created = await tx.user.create({
         data: {
           email,
           passwordHash,
@@ -67,10 +69,12 @@ export async function createEmployee(params: CreateEmployeeParams): Promise<{ ok
           canEditSchedule: role.rank === 1,
           isReligious,
         },
+        select: { id: true },
       });
+      return created.id;
     });
 
-    return { ok: true };
+    return { ok: true, ...(await sendInvite(userId, email)) };
   } catch (error) {
     if (error instanceof Error && error.message === 'USER_EMAIL_EXISTS') {
       return { error: 'כבר קיים משתמש עם האימייל הזה' };
@@ -99,16 +103,65 @@ export async function updateEmployee(params: UpdateEmployeeParams): Promise<{ ok
   return { ok: true };
 }
 
-export async function deleteEmployee(employeeId: string): Promise<{ ok: true } | { error: string }> {
-  const session = await requireSession(PortalRole.MANAGER);
-  const facilityId = session.user.facilityId;
+export async function resendEmployeeInvite(employeeId: string): Promise<CreateEmployeeResult> {
+  const session = await requireSession();
+  const isAdmin = session.user.systemRole === SystemRole.ADMIN;
+  if (!isAdmin && session.user.portal !== PortalRole.MANAGER) return { error: 'אין הרשאה' };
 
   const employee = await prisma.user.findFirst({
-    where: { id: employeeId, facilityId: facilityId ?? '' },
+    // Managers may only re-invite regular employees, never other managers or admins.
+    where: {
+      id: employeeId,
+      ...(isAdmin ? {} : { facilityId: session.user.facilityId ?? '', systemRole: SystemRole.USER, canEditSchedule: false }),
+    },
+    select: { id: true, email: true },
   });
   if (!employee) return { error: 'עובד לא נמצא' };
 
-  return { error: 'לא ניתן להשבית עובד במודל הנוכחי' };
+  // The account may already be in use, so the link goes only to the employee's own email, never back to the caller.
+  const { emailError } = await sendInvite(employee.id, employee.email);
+  return emailError ? { ok: true, emailError } : { ok: true };
+}
+
+export async function setEmployeeActive(employeeId: string, isActive: boolean): Promise<SetEmployeeActiveResult> {
+  const session = await requireSession(PortalRole.MANAGER);
+  const facilityId = session.user.facilityId;
+  if (!facilityId) return { error: 'למנהל אין בית משפט משויך' };
+
+  const employee = await prisma.user.findFirst({
+    where: { id: employeeId, facilityId },
+    select: { id: true, isActive: true, systemRole: true },
+  });
+  if (!employee || employee.systemRole === SystemRole.ADMIN) return { error: 'עובד לא נמצא' };
+  if (employee.id === session.user.id && !isActive) return { error: 'לא ניתן להשבית את המשתמש שלך' };
+
+  await prisma.user.update({
+    where: { id: employeeId },
+    data: { isActive, deactivatedAt: isActive ? null : new Date() },
+  });
+
+  if (isActive) return { ok: true, isActive, futureAssignments: [] };
+
+  // Future assignments in the current draft/published versions are reported, never deleted.
+  const slots = await prisma.scheduleSlot.findMany({
+    where: {
+      userId: employeeId,
+      facilityId,
+      startsAt: { gte: new Date() },
+      version: { OR: [{ draftFor: { isNot: null } }, { publishedFor: { isNot: null } }] },
+    },
+    select: {
+      id: true,
+      date: true,
+      startsAt: true,
+      shiftType: true,
+      position: { select: { name: true } },
+      schedule: { select: { name: true } },
+      version: { select: { status: true } },
+    },
+  });
+
+  return { ok: true, isActive, futureAssignments: toFutureAssignments(slots) };
 }
 
 export async function getEmployeesPageData(facilityId?: string): Promise<EmployeesPageData> {
@@ -146,6 +199,7 @@ export async function getEmployeesPageData(facilityId?: string): Promise<Employe
         email: true,
         displayName: true,
         isReligious: true,
+        isActive: true,
         role: {
           select: {
             id: true,
@@ -176,7 +230,7 @@ export async function getEmployeesPageData(facilityId?: string): Promise<Employe
       email: employee.email,
       displayName: employee.displayName,
       isReligious: employee.isReligious,
-      isActive: true,
+      isActive: employee.isActive,
       position: employee.role,
     })),
     positions,
@@ -197,6 +251,7 @@ export async function getManagerEmployeeDetail(employeeId: string): Promise<Empl
       displayName: true,
       phoneNumber: true,
       isReligious: true,
+      isActive: true,
       createdAt: true,
       updatedAt: true,
       role: {
@@ -238,9 +293,9 @@ export async function getManagerEmployeeDetail(employeeId: string): Promise<Empl
         submission: { userId: employeeId },
       },
     }),
-    prisma.scheduleSlot.count({ where: { userId: employeeId, facilityId, schedule: { status: 'PUBLISHED' } } }),
+    prisma.scheduleSlot.count({ where: { userId: employeeId, facilityId, version: { publishedFor: { is: { status: 'PUBLISHED' } } } } }),
     prisma.scheduleSlot.findMany({
-      where: { userId: employeeId, facilityId, schedule: { status: 'PUBLISHED' } },
+      where: { userId: employeeId, facilityId, version: { publishedFor: { is: { status: 'PUBLISHED' } } } },
       orderBy: { date: 'desc' },
       take: 8,
       select: {
@@ -261,7 +316,7 @@ export async function getManagerEmployeeDetail(employeeId: string): Promise<Empl
       displayName: employee.displayName,
       phone: employee.phoneNumber,
       email: employee.email,
-      isActive: true,
+      isActive: employee.isActive,
       isReligious: employee.isReligious,
       createdAt: employee.createdAt.toISOString(),
       updatedAt: employee.updatedAt.toISOString(),
@@ -313,6 +368,7 @@ export async function getManagerEmployeeSubmissions(employeeId: string): Promise
       firstName: true,
       lastName: true,
       displayName: true,
+      isActive: true,
       role: {
         select: {
           name: true,
@@ -353,7 +409,7 @@ export async function getManagerEmployeeSubmissions(employeeId: string): Promise
       firstName: employee.firstName,
       lastName: employee.lastName,
       positionName: employee.role.name,
-      isActive: true,
+      isActive: employee.isActive,
     },
     periods: periods.map((period) => {
       const availability = period.submissions[0] ?? null;

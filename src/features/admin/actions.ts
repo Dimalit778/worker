@@ -1,13 +1,12 @@
 'use server';
 import { PortalRole } from '@/lib/auth/portal';
 
-import bcrypt from 'bcryptjs';
 import { revalidatePath } from 'next/cache';
 
 import { Prisma, SystemRole } from '@/generated/prisma/client';
 import { prisma } from '@/lib/db/client';
 import { requireSession } from '@/lib/db/auth-helpers';
-import { getInitialPasswordFromEmail } from '@/features/employess/utils';
+import { sendInvite, unusablePasswordHash } from '@/lib/auth/invite';
 import { DEFAULT_SHIFT_TIMES } from '@/features/schedules/shift-times';
 import type {
   AdminActionResult,
@@ -212,12 +211,16 @@ export async function deleteAdminCourt(facilityId: string): Promise<AdminActionR
         throw new Error('COURT_NOT_FOUND');
       }
 
+      const history = await tx.scheduleVersion.count({ where: { facilityId: id, status: { not: 'DRAFT' } } });
+      if (history) throw new Error('COURT_HAS_HISTORY');
       const userIds = court.users.map((employee) => employee.id);
 
       await tx.scheduleSlot.deleteMany({ where: { facilityId: id } });
       await tx.shiftAvailability.deleteMany({ where: { submission: { facilityId: id } } });
       await tx.availabilitySubmission.deleteMany({ where: { facilityId: id } });
       await tx.scheduleChange.deleteMany({ where: { facilityId: id } });
+      await tx.schedule.updateMany({ where: { facilityId: id }, data: { draftVersionId: null, publishedVersionId: null } });
+      await tx.scheduleVersion.deleteMany({ where: { facilityId: id } });
       await tx.schedule.deleteMany({ where: { facilityId: id } });
       await tx.staffingRequirement.deleteMany({ where: { facilityId: id } });
       await tx.facilityShift.deleteMany({ where: { facilityId: id } });
@@ -233,6 +236,9 @@ export async function deleteAdminCourt(facilityId: string): Promise<AdminActionR
     revalidatePath('/admin/courts');
     return { ok: true };
   } catch (error) {
+    if (error instanceof Error && error.message === 'COURT_HAS_HISTORY') {
+      return { error: 'לא ניתן למחוק מתקן שיש לו סידורים מפורסמים או היסטוריים' };
+    }
     if (error instanceof Error && error.message === 'COURT_NOT_FOUND') {
       return { error: 'בית המשפט לא נמצא' };
     }
@@ -273,9 +279,9 @@ export async function createAdminEmployee(params: CreateAdminEmployeeParams): Pr
       return { error: 'התפקיד לא שייך לבית המשפט שנבחר' };
     }
 
-    const passwordHash = await bcrypt.hash(getInitialPasswordFromEmail(email), 12);
+    const passwordHash = await unusablePasswordHash();
 
-    await prisma.$transaction(async (tx) => {
+    const userId = await prisma.$transaction(async (tx) => {
       const existingUser = await tx.user.findUnique({
         where: { email },
         select: { id: true },
@@ -285,7 +291,7 @@ export async function createAdminEmployee(params: CreateAdminEmployeeParams): Pr
         throw new Error('USER_EMAIL_EXISTS');
       }
 
-      await tx.user.create({
+      const created = await tx.user.create({
         data: {
           email,
           passwordHash,
@@ -299,12 +305,14 @@ export async function createAdminEmployee(params: CreateAdminEmployeeParams): Pr
           canEditSchedule: position.rank === 1,
           isReligious: params.isReligious,
         },
+        select: { id: true },
       });
+      return created.id;
     });
 
     revalidatePath('/admin/courts');
     revalidatePath('/admin/employees');
-    return { ok: true };
+    return { ok: true, ...(await sendInvite(userId, email)) };
   } catch (error) {
     if (error instanceof Error && error.message === 'USER_EMAIL_EXISTS') {
       return { error: 'כבר קיים משתמש עם האימייל הזה' };
@@ -403,7 +411,8 @@ export async function deleteAdminEmployee(employeeId: string): Promise<AdminActi
       }
 
       const changes = await tx.scheduleChange.count({ where: { changedById: id } });
-      if (changes > 0) throw new Error('EMPLOYEE_HAS_HISTORY');
+      const publishedAssignments = await tx.scheduleSlot.count({ where: { userId: id, version: { status: { not: 'DRAFT' } } } });
+      if (changes > 0 || publishedAssignments > 0) throw new Error('EMPLOYEE_HAS_HISTORY');
       await tx.scheduleSlot.updateMany({ where: { userId: id }, data: { userId: null } });
       await tx.availabilitySubmission.deleteMany({ where: { userId: id } });
       await tx.user.delete({ where: { id } });
@@ -417,7 +426,7 @@ export async function deleteAdminEmployee(employeeId: string): Promise<AdminActi
       return { error: 'עובד לא נמצא' };
     }
     if (error instanceof Error && error.message === 'EMPLOYEE_HAS_HISTORY') {
-      return { error: 'לא ניתן למחוק עובד שיצר שיבוצים או שינויי שיבוץ היסטוריים' };
+      return { error: 'לא ניתן למחוק עובד שיש לו שיבוצים מפורסמים או היסטוריית שינויי שיבוץ' };
     }
 
     return { error: uniqueErrorMessage(error, 'מחיקת העובד נכשלה') };

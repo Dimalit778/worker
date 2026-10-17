@@ -38,6 +38,7 @@ export type ScheduleSlotMinAggregateOutputType = {
   id: string | null
   facilityId: string | null
   scheduleId: string | null
+  versionId: string | null
   positionId: string | null
   date: Date | null
   shiftType: $Enums.ShiftType | null
@@ -56,6 +57,7 @@ export type ScheduleSlotMaxAggregateOutputType = {
   id: string | null
   facilityId: string | null
   scheduleId: string | null
+  versionId: string | null
   positionId: string | null
   date: Date | null
   shiftType: $Enums.ShiftType | null
@@ -74,6 +76,7 @@ export type ScheduleSlotCountAggregateOutputType = {
   id: number
   facilityId: number
   scheduleId: number
+  versionId: number
   positionId: number
   date: number
   shiftType: number
@@ -102,6 +105,7 @@ export type ScheduleSlotMinAggregateInputType = {
   id?: true
   facilityId?: true
   scheduleId?: true
+  versionId?: true
   positionId?: true
   date?: true
   shiftType?: true
@@ -120,6 +124,7 @@ export type ScheduleSlotMaxAggregateInputType = {
   id?: true
   facilityId?: true
   scheduleId?: true
+  versionId?: true
   positionId?: true
   date?: true
   shiftType?: true
@@ -138,6 +143,7 @@ export type ScheduleSlotCountAggregateInputType = {
   id?: true
   facilityId?: true
   scheduleId?: true
+  versionId?: true
   positionId?: true
   date?: true
   shiftType?: true
@@ -243,6 +249,7 @@ export type ScheduleSlotGroupByOutputType = {
   id: string
   facilityId: string
   scheduleId: string
+  versionId: string
   positionId: string
   date: Date
   shiftType: $Enums.ShiftType
@@ -284,6 +291,7 @@ export type ScheduleSlotWhereInput = {
   id?: Prisma.StringFilter<"ScheduleSlot"> | string
   facilityId?: Prisma.StringFilter<"ScheduleSlot"> | string
   scheduleId?: Prisma.StringFilter<"ScheduleSlot"> | string
+  versionId?: Prisma.StringFilter<"ScheduleSlot"> | string
   positionId?: Prisma.StringFilter<"ScheduleSlot"> | string
   date?: Prisma.DateTimeFilter<"ScheduleSlot"> | Date | string
   shiftType?: Prisma.EnumShiftTypeFilter<"ScheduleSlot"> | $Enums.ShiftType
@@ -297,6 +305,7 @@ export type ScheduleSlotWhereInput = {
   createdAt?: Prisma.DateTimeFilter<"ScheduleSlot"> | Date | string
   updatedAt?: Prisma.DateTimeFilter<"ScheduleSlot"> | Date | string
   schedule?: Prisma.XOR<Prisma.ScheduleScalarRelationFilter, Prisma.ScheduleWhereInput>
+  version?: Prisma.XOR<Prisma.ScheduleVersionScalarRelationFilter, Prisma.ScheduleVersionWhereInput>
   position?: Prisma.XOR<Prisma.PositionScalarRelationFilter, Prisma.PositionWhereInput>
   user?: Prisma.XOR<Prisma.UserNullableScalarRelationFilter, Prisma.UserWhereInput> | null
 }
@@ -305,6 +314,7 @@ export type ScheduleSlotOrderByWithRelationInput = {
   id?: Prisma.SortOrder
   facilityId?: Prisma.SortOrder
   scheduleId?: Prisma.SortOrder
+  versionId?: Prisma.SortOrder
   positionId?: Prisma.SortOrder
   date?: Prisma.SortOrder
   shiftType?: Prisma.SortOrder
@@ -318,18 +328,20 @@ export type ScheduleSlotOrderByWithRelationInput = {
   createdAt?: Prisma.SortOrder
   updatedAt?: Prisma.SortOrder
   schedule?: Prisma.ScheduleOrderByWithRelationInput
+  version?: Prisma.ScheduleVersionOrderByWithRelationInput
   position?: Prisma.PositionOrderByWithRelationInput
   user?: Prisma.UserOrderByWithRelationInput
 }
 
 export type ScheduleSlotWhereUniqueInput = Prisma.AtLeast<{
   id?: string
-  scheduleId_date_shiftType_positionId_slotNumber?: Prisma.ScheduleSlotScheduleIdDateShiftTypePositionIdSlotNumberCompoundUniqueInput
+  versionId_date_shiftType_positionId_slotNumber?: Prisma.ScheduleSlotVersionIdDateShiftTypePositionIdSlotNumberCompoundUniqueInput
   AND?: Prisma.ScheduleSlotWhereInput | Prisma.ScheduleSlotWhereInput[]
   OR?: Prisma.ScheduleSlotWhereInput[]
   NOT?: Prisma.ScheduleSlotWhereInput | Prisma.ScheduleSlotWhereInput[]
   facilityId?: Prisma.StringFilter<"ScheduleSlot"> | string
   scheduleId?: Prisma.StringFilter<"ScheduleSlot"> | string
+  versionId?: Prisma.StringFilter<"ScheduleSlot"> | string
   positionId?: Prisma.StringFilter<"ScheduleSlot"> | string
   date?: Prisma.DateTimeFilter<"ScheduleSlot"> | Date | string
   shiftType?: Prisma.EnumShiftTypeFilter<"ScheduleSlot"> | $Enums.ShiftType
@@ -343,14 +355,16 @@ export type ScheduleSlotWhereUniqueInput = Prisma.AtLeast<{
   createdAt?: Prisma.DateTimeFilter<"ScheduleSlot"> | Date | string
   updatedAt?: Prisma.DateTimeFilter<"ScheduleSlot"> | Date | string
   schedule?: Prisma.XOR<Prisma.ScheduleScalarRelationFilter, Prisma.ScheduleWhereInput>
+  version?: Prisma.XOR<Prisma.ScheduleVersionScalarRelationFilter, Prisma.ScheduleVersionWhereInput>
   position?: Prisma.XOR<Prisma.PositionScalarRelationFilter, Prisma.PositionWhereInput>
   user?: Prisma.XOR<Prisma.UserNullableScalarRelationFilter, Prisma.UserWhereInput> | null
-}, "id" | "scheduleId_date_shiftType_positionId_slotNumber">
+}, "id" | "versionId_date_shiftType_positionId_slotNumber">
 
 export type ScheduleSlotOrderByWithAggregationInput = {
   id?: Prisma.SortOrder
   facilityId?: Prisma.SortOrder
   scheduleId?: Prisma.SortOrder
+  versionId?: Prisma.SortOrder
   positionId?: Prisma.SortOrder
   date?: Prisma.SortOrder
   shiftType?: Prisma.SortOrder
@@ -377,6 +391,7 @@ export type ScheduleSlotScalarWhereWithAggregatesInput = {
   id?: Prisma.StringWithAggregatesFilter<"ScheduleSlot"> | string
   facilityId?: Prisma.StringWithAggregatesFilter<"ScheduleSlot"> | string
   scheduleId?: Prisma.StringWithAggregatesFilter<"ScheduleSlot"> | string
+  versionId?: Prisma.StringWithAggregatesFilter<"ScheduleSlot"> | string
   positionId?: Prisma.StringWithAggregatesFilter<"ScheduleSlot"> | string
   date?: Prisma.DateTimeWithAggregatesFilter<"ScheduleSlot"> | Date | string
   shiftType?: Prisma.EnumShiftTypeWithAggregatesFilter<"ScheduleSlot"> | $Enums.ShiftType
@@ -404,6 +419,7 @@ export type ScheduleSlotCreateInput = {
   createdAt?: Date | string
   updatedAt?: Date | string
   schedule: Prisma.ScheduleCreateNestedOneWithoutSlotsInput
+  version: Prisma.ScheduleVersionCreateNestedOneWithoutSlotsInput
   position: Prisma.PositionCreateNestedOneWithoutSlotsInput
   user?: Prisma.UserCreateNestedOneWithoutSlotsInput
 }
@@ -412,6 +428,7 @@ export type ScheduleSlotUncheckedCreateInput = {
   id?: string
   facilityId: string
   scheduleId: string
+  versionId: string
   positionId: string
   date: Date | string
   shiftType: $Enums.ShiftType
@@ -439,6 +456,7 @@ export type ScheduleSlotUpdateInput = {
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   schedule?: Prisma.ScheduleUpdateOneRequiredWithoutSlotsNestedInput
+  version?: Prisma.ScheduleVersionUpdateOneRequiredWithoutSlotsNestedInput
   position?: Prisma.PositionUpdateOneRequiredWithoutSlotsNestedInput
   user?: Prisma.UserUpdateOneWithoutSlotsNestedInput
 }
@@ -447,6 +465,7 @@ export type ScheduleSlotUncheckedUpdateInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
   facilityId?: Prisma.StringFieldUpdateOperationsInput | string
   scheduleId?: Prisma.StringFieldUpdateOperationsInput | string
+  versionId?: Prisma.StringFieldUpdateOperationsInput | string
   positionId?: Prisma.StringFieldUpdateOperationsInput | string
   date?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   shiftType?: Prisma.EnumShiftTypeFieldUpdateOperationsInput | $Enums.ShiftType
@@ -465,6 +484,7 @@ export type ScheduleSlotCreateManyInput = {
   id?: string
   facilityId: string
   scheduleId: string
+  versionId: string
   positionId: string
   date: Date | string
   shiftType: $Enums.ShiftType
@@ -497,6 +517,7 @@ export type ScheduleSlotUncheckedUpdateManyInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
   facilityId?: Prisma.StringFieldUpdateOperationsInput | string
   scheduleId?: Prisma.StringFieldUpdateOperationsInput | string
+  versionId?: Prisma.StringFieldUpdateOperationsInput | string
   positionId?: Prisma.StringFieldUpdateOperationsInput | string
   date?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   shiftType?: Prisma.EnumShiftTypeFieldUpdateOperationsInput | $Enums.ShiftType
@@ -521,8 +542,8 @@ export type ScheduleSlotOrderByRelationAggregateInput = {
   _count?: Prisma.SortOrder
 }
 
-export type ScheduleSlotScheduleIdDateShiftTypePositionIdSlotNumberCompoundUniqueInput = {
-  scheduleId: string
+export type ScheduleSlotVersionIdDateShiftTypePositionIdSlotNumberCompoundUniqueInput = {
+  versionId: string
   date: Date | string
   shiftType: $Enums.ShiftType
   positionId: string
@@ -533,6 +554,7 @@ export type ScheduleSlotCountOrderByAggregateInput = {
   id?: Prisma.SortOrder
   facilityId?: Prisma.SortOrder
   scheduleId?: Prisma.SortOrder
+  versionId?: Prisma.SortOrder
   positionId?: Prisma.SortOrder
   date?: Prisma.SortOrder
   shiftType?: Prisma.SortOrder
@@ -555,6 +577,7 @@ export type ScheduleSlotMaxOrderByAggregateInput = {
   id?: Prisma.SortOrder
   facilityId?: Prisma.SortOrder
   scheduleId?: Prisma.SortOrder
+  versionId?: Prisma.SortOrder
   positionId?: Prisma.SortOrder
   date?: Prisma.SortOrder
   shiftType?: Prisma.SortOrder
@@ -573,6 +596,7 @@ export type ScheduleSlotMinOrderByAggregateInput = {
   id?: Prisma.SortOrder
   facilityId?: Prisma.SortOrder
   scheduleId?: Prisma.SortOrder
+  versionId?: Prisma.SortOrder
   positionId?: Prisma.SortOrder
   date?: Prisma.SortOrder
   shiftType?: Prisma.SortOrder
@@ -717,6 +741,48 @@ export type ScheduleSlotUncheckedUpdateManyWithoutScheduleNestedInput = {
   deleteMany?: Prisma.ScheduleSlotScalarWhereInput | Prisma.ScheduleSlotScalarWhereInput[]
 }
 
+export type ScheduleSlotCreateNestedManyWithoutVersionInput = {
+  create?: Prisma.XOR<Prisma.ScheduleSlotCreateWithoutVersionInput, Prisma.ScheduleSlotUncheckedCreateWithoutVersionInput> | Prisma.ScheduleSlotCreateWithoutVersionInput[] | Prisma.ScheduleSlotUncheckedCreateWithoutVersionInput[]
+  connectOrCreate?: Prisma.ScheduleSlotCreateOrConnectWithoutVersionInput | Prisma.ScheduleSlotCreateOrConnectWithoutVersionInput[]
+  createMany?: Prisma.ScheduleSlotCreateManyVersionInputEnvelope
+  connect?: Prisma.ScheduleSlotWhereUniqueInput | Prisma.ScheduleSlotWhereUniqueInput[]
+}
+
+export type ScheduleSlotUncheckedCreateNestedManyWithoutVersionInput = {
+  create?: Prisma.XOR<Prisma.ScheduleSlotCreateWithoutVersionInput, Prisma.ScheduleSlotUncheckedCreateWithoutVersionInput> | Prisma.ScheduleSlotCreateWithoutVersionInput[] | Prisma.ScheduleSlotUncheckedCreateWithoutVersionInput[]
+  connectOrCreate?: Prisma.ScheduleSlotCreateOrConnectWithoutVersionInput | Prisma.ScheduleSlotCreateOrConnectWithoutVersionInput[]
+  createMany?: Prisma.ScheduleSlotCreateManyVersionInputEnvelope
+  connect?: Prisma.ScheduleSlotWhereUniqueInput | Prisma.ScheduleSlotWhereUniqueInput[]
+}
+
+export type ScheduleSlotUpdateManyWithoutVersionNestedInput = {
+  create?: Prisma.XOR<Prisma.ScheduleSlotCreateWithoutVersionInput, Prisma.ScheduleSlotUncheckedCreateWithoutVersionInput> | Prisma.ScheduleSlotCreateWithoutVersionInput[] | Prisma.ScheduleSlotUncheckedCreateWithoutVersionInput[]
+  connectOrCreate?: Prisma.ScheduleSlotCreateOrConnectWithoutVersionInput | Prisma.ScheduleSlotCreateOrConnectWithoutVersionInput[]
+  upsert?: Prisma.ScheduleSlotUpsertWithWhereUniqueWithoutVersionInput | Prisma.ScheduleSlotUpsertWithWhereUniqueWithoutVersionInput[]
+  createMany?: Prisma.ScheduleSlotCreateManyVersionInputEnvelope
+  set?: Prisma.ScheduleSlotWhereUniqueInput | Prisma.ScheduleSlotWhereUniqueInput[]
+  disconnect?: Prisma.ScheduleSlotWhereUniqueInput | Prisma.ScheduleSlotWhereUniqueInput[]
+  delete?: Prisma.ScheduleSlotWhereUniqueInput | Prisma.ScheduleSlotWhereUniqueInput[]
+  connect?: Prisma.ScheduleSlotWhereUniqueInput | Prisma.ScheduleSlotWhereUniqueInput[]
+  update?: Prisma.ScheduleSlotUpdateWithWhereUniqueWithoutVersionInput | Prisma.ScheduleSlotUpdateWithWhereUniqueWithoutVersionInput[]
+  updateMany?: Prisma.ScheduleSlotUpdateManyWithWhereWithoutVersionInput | Prisma.ScheduleSlotUpdateManyWithWhereWithoutVersionInput[]
+  deleteMany?: Prisma.ScheduleSlotScalarWhereInput | Prisma.ScheduleSlotScalarWhereInput[]
+}
+
+export type ScheduleSlotUncheckedUpdateManyWithoutVersionNestedInput = {
+  create?: Prisma.XOR<Prisma.ScheduleSlotCreateWithoutVersionInput, Prisma.ScheduleSlotUncheckedCreateWithoutVersionInput> | Prisma.ScheduleSlotCreateWithoutVersionInput[] | Prisma.ScheduleSlotUncheckedCreateWithoutVersionInput[]
+  connectOrCreate?: Prisma.ScheduleSlotCreateOrConnectWithoutVersionInput | Prisma.ScheduleSlotCreateOrConnectWithoutVersionInput[]
+  upsert?: Prisma.ScheduleSlotUpsertWithWhereUniqueWithoutVersionInput | Prisma.ScheduleSlotUpsertWithWhereUniqueWithoutVersionInput[]
+  createMany?: Prisma.ScheduleSlotCreateManyVersionInputEnvelope
+  set?: Prisma.ScheduleSlotWhereUniqueInput | Prisma.ScheduleSlotWhereUniqueInput[]
+  disconnect?: Prisma.ScheduleSlotWhereUniqueInput | Prisma.ScheduleSlotWhereUniqueInput[]
+  delete?: Prisma.ScheduleSlotWhereUniqueInput | Prisma.ScheduleSlotWhereUniqueInput[]
+  connect?: Prisma.ScheduleSlotWhereUniqueInput | Prisma.ScheduleSlotWhereUniqueInput[]
+  update?: Prisma.ScheduleSlotUpdateWithWhereUniqueWithoutVersionInput | Prisma.ScheduleSlotUpdateWithWhereUniqueWithoutVersionInput[]
+  updateMany?: Prisma.ScheduleSlotUpdateManyWithWhereWithoutVersionInput | Prisma.ScheduleSlotUpdateManyWithWhereWithoutVersionInput[]
+  deleteMany?: Prisma.ScheduleSlotScalarWhereInput | Prisma.ScheduleSlotScalarWhereInput[]
+}
+
 export type EnumAssignmentSourceFieldUpdateOperationsInput = {
   set?: $Enums.AssignmentSource
 }
@@ -734,12 +800,14 @@ export type ScheduleSlotCreateWithoutUserInput = {
   createdAt?: Date | string
   updatedAt?: Date | string
   schedule: Prisma.ScheduleCreateNestedOneWithoutSlotsInput
+  version: Prisma.ScheduleVersionCreateNestedOneWithoutSlotsInput
   position: Prisma.PositionCreateNestedOneWithoutSlotsInput
 }
 
 export type ScheduleSlotUncheckedCreateWithoutUserInput = {
   id?: string
   scheduleId: string
+  versionId: string
   positionId: string
   date: Date | string
   shiftType: $Enums.ShiftType
@@ -786,6 +854,7 @@ export type ScheduleSlotScalarWhereInput = {
   id?: Prisma.StringFilter<"ScheduleSlot"> | string
   facilityId?: Prisma.StringFilter<"ScheduleSlot"> | string
   scheduleId?: Prisma.StringFilter<"ScheduleSlot"> | string
+  versionId?: Prisma.StringFilter<"ScheduleSlot"> | string
   positionId?: Prisma.StringFilter<"ScheduleSlot"> | string
   date?: Prisma.DateTimeFilter<"ScheduleSlot"> | Date | string
   shiftType?: Prisma.EnumShiftTypeFilter<"ScheduleSlot"> | $Enums.ShiftType
@@ -813,6 +882,7 @@ export type ScheduleSlotCreateWithoutPositionInput = {
   createdAt?: Date | string
   updatedAt?: Date | string
   schedule: Prisma.ScheduleCreateNestedOneWithoutSlotsInput
+  version: Prisma.ScheduleVersionCreateNestedOneWithoutSlotsInput
   user?: Prisma.UserCreateNestedOneWithoutSlotsInput
 }
 
@@ -820,6 +890,7 @@ export type ScheduleSlotUncheckedCreateWithoutPositionInput = {
   id?: string
   facilityId: string
   scheduleId: string
+  versionId: string
   date: Date | string
   shiftType: $Enums.ShiftType
   slotNumber: number
@@ -871,12 +942,14 @@ export type ScheduleSlotCreateWithoutScheduleInput = {
   note?: string | null
   createdAt?: Date | string
   updatedAt?: Date | string
+  version: Prisma.ScheduleVersionCreateNestedOneWithoutSlotsInput
   position: Prisma.PositionCreateNestedOneWithoutSlotsInput
   user?: Prisma.UserCreateNestedOneWithoutSlotsInput
 }
 
 export type ScheduleSlotUncheckedCreateWithoutScheduleInput = {
   id?: string
+  versionId: string
   positionId: string
   date: Date | string
   shiftType: $Enums.ShiftType
@@ -917,9 +990,69 @@ export type ScheduleSlotUpdateManyWithWhereWithoutScheduleInput = {
   data: Prisma.XOR<Prisma.ScheduleSlotUpdateManyMutationInput, Prisma.ScheduleSlotUncheckedUpdateManyWithoutScheduleInput>
 }
 
+export type ScheduleSlotCreateWithoutVersionInput = {
+  id?: string
+  date: Date | string
+  shiftType: $Enums.ShiftType
+  slotNumber: number
+  startsAt: Date | string
+  endsAt: Date | string
+  source?: $Enums.AssignmentSource
+  isLocked?: boolean
+  note?: string | null
+  createdAt?: Date | string
+  updatedAt?: Date | string
+  schedule: Prisma.ScheduleCreateNestedOneWithoutSlotsInput
+  position: Prisma.PositionCreateNestedOneWithoutSlotsInput
+  user?: Prisma.UserCreateNestedOneWithoutSlotsInput
+}
+
+export type ScheduleSlotUncheckedCreateWithoutVersionInput = {
+  id?: string
+  positionId: string
+  date: Date | string
+  shiftType: $Enums.ShiftType
+  slotNumber: number
+  startsAt: Date | string
+  endsAt: Date | string
+  userId?: string | null
+  source?: $Enums.AssignmentSource
+  isLocked?: boolean
+  note?: string | null
+  createdAt?: Date | string
+  updatedAt?: Date | string
+}
+
+export type ScheduleSlotCreateOrConnectWithoutVersionInput = {
+  where: Prisma.ScheduleSlotWhereUniqueInput
+  create: Prisma.XOR<Prisma.ScheduleSlotCreateWithoutVersionInput, Prisma.ScheduleSlotUncheckedCreateWithoutVersionInput>
+}
+
+export type ScheduleSlotCreateManyVersionInputEnvelope = {
+  data: Prisma.ScheduleSlotCreateManyVersionInput | Prisma.ScheduleSlotCreateManyVersionInput[]
+  skipDuplicates?: boolean
+}
+
+export type ScheduleSlotUpsertWithWhereUniqueWithoutVersionInput = {
+  where: Prisma.ScheduleSlotWhereUniqueInput
+  update: Prisma.XOR<Prisma.ScheduleSlotUpdateWithoutVersionInput, Prisma.ScheduleSlotUncheckedUpdateWithoutVersionInput>
+  create: Prisma.XOR<Prisma.ScheduleSlotCreateWithoutVersionInput, Prisma.ScheduleSlotUncheckedCreateWithoutVersionInput>
+}
+
+export type ScheduleSlotUpdateWithWhereUniqueWithoutVersionInput = {
+  where: Prisma.ScheduleSlotWhereUniqueInput
+  data: Prisma.XOR<Prisma.ScheduleSlotUpdateWithoutVersionInput, Prisma.ScheduleSlotUncheckedUpdateWithoutVersionInput>
+}
+
+export type ScheduleSlotUpdateManyWithWhereWithoutVersionInput = {
+  where: Prisma.ScheduleSlotScalarWhereInput
+  data: Prisma.XOR<Prisma.ScheduleSlotUpdateManyMutationInput, Prisma.ScheduleSlotUncheckedUpdateManyWithoutVersionInput>
+}
+
 export type ScheduleSlotCreateManyUserInput = {
   id?: string
   scheduleId: string
+  versionId: string
   positionId: string
   date: Date | string
   shiftType: $Enums.ShiftType
@@ -946,12 +1079,14 @@ export type ScheduleSlotUpdateWithoutUserInput = {
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   schedule?: Prisma.ScheduleUpdateOneRequiredWithoutSlotsNestedInput
+  version?: Prisma.ScheduleVersionUpdateOneRequiredWithoutSlotsNestedInput
   position?: Prisma.PositionUpdateOneRequiredWithoutSlotsNestedInput
 }
 
 export type ScheduleSlotUncheckedUpdateWithoutUserInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
   scheduleId?: Prisma.StringFieldUpdateOperationsInput | string
+  versionId?: Prisma.StringFieldUpdateOperationsInput | string
   positionId?: Prisma.StringFieldUpdateOperationsInput | string
   date?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   shiftType?: Prisma.EnumShiftTypeFieldUpdateOperationsInput | $Enums.ShiftType
@@ -968,6 +1103,7 @@ export type ScheduleSlotUncheckedUpdateWithoutUserInput = {
 export type ScheduleSlotUncheckedUpdateManyWithoutUserInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
   scheduleId?: Prisma.StringFieldUpdateOperationsInput | string
+  versionId?: Prisma.StringFieldUpdateOperationsInput | string
   positionId?: Prisma.StringFieldUpdateOperationsInput | string
   date?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   shiftType?: Prisma.EnumShiftTypeFieldUpdateOperationsInput | $Enums.ShiftType
@@ -985,6 +1121,7 @@ export type ScheduleSlotCreateManyPositionInput = {
   id?: string
   facilityId: string
   scheduleId: string
+  versionId: string
   date: Date | string
   shiftType: $Enums.ShiftType
   slotNumber: number
@@ -1011,6 +1148,7 @@ export type ScheduleSlotUpdateWithoutPositionInput = {
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   schedule?: Prisma.ScheduleUpdateOneRequiredWithoutSlotsNestedInput
+  version?: Prisma.ScheduleVersionUpdateOneRequiredWithoutSlotsNestedInput
   user?: Prisma.UserUpdateOneWithoutSlotsNestedInput
 }
 
@@ -1018,6 +1156,7 @@ export type ScheduleSlotUncheckedUpdateWithoutPositionInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
   facilityId?: Prisma.StringFieldUpdateOperationsInput | string
   scheduleId?: Prisma.StringFieldUpdateOperationsInput | string
+  versionId?: Prisma.StringFieldUpdateOperationsInput | string
   date?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   shiftType?: Prisma.EnumShiftTypeFieldUpdateOperationsInput | $Enums.ShiftType
   slotNumber?: Prisma.IntFieldUpdateOperationsInput | number
@@ -1035,6 +1174,7 @@ export type ScheduleSlotUncheckedUpdateManyWithoutPositionInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
   facilityId?: Prisma.StringFieldUpdateOperationsInput | string
   scheduleId?: Prisma.StringFieldUpdateOperationsInput | string
+  versionId?: Prisma.StringFieldUpdateOperationsInput | string
   date?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   shiftType?: Prisma.EnumShiftTypeFieldUpdateOperationsInput | $Enums.ShiftType
   slotNumber?: Prisma.IntFieldUpdateOperationsInput | number
@@ -1050,6 +1190,7 @@ export type ScheduleSlotUncheckedUpdateManyWithoutPositionInput = {
 
 export type ScheduleSlotCreateManyScheduleInput = {
   id?: string
+  versionId: string
   positionId: string
   date: Date | string
   shiftType: $Enums.ShiftType
@@ -1076,12 +1217,14 @@ export type ScheduleSlotUpdateWithoutScheduleInput = {
   note?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  version?: Prisma.ScheduleVersionUpdateOneRequiredWithoutSlotsNestedInput
   position?: Prisma.PositionUpdateOneRequiredWithoutSlotsNestedInput
   user?: Prisma.UserUpdateOneWithoutSlotsNestedInput
 }
 
 export type ScheduleSlotUncheckedUpdateWithoutScheduleInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
+  versionId?: Prisma.StringFieldUpdateOperationsInput | string
   positionId?: Prisma.StringFieldUpdateOperationsInput | string
   date?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   shiftType?: Prisma.EnumShiftTypeFieldUpdateOperationsInput | $Enums.ShiftType
@@ -1097,6 +1240,72 @@ export type ScheduleSlotUncheckedUpdateWithoutScheduleInput = {
 }
 
 export type ScheduleSlotUncheckedUpdateManyWithoutScheduleInput = {
+  id?: Prisma.StringFieldUpdateOperationsInput | string
+  versionId?: Prisma.StringFieldUpdateOperationsInput | string
+  positionId?: Prisma.StringFieldUpdateOperationsInput | string
+  date?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  shiftType?: Prisma.EnumShiftTypeFieldUpdateOperationsInput | $Enums.ShiftType
+  slotNumber?: Prisma.IntFieldUpdateOperationsInput | number
+  startsAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  endsAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  userId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  source?: Prisma.EnumAssignmentSourceFieldUpdateOperationsInput | $Enums.AssignmentSource
+  isLocked?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  note?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+}
+
+export type ScheduleSlotCreateManyVersionInput = {
+  id?: string
+  positionId: string
+  date: Date | string
+  shiftType: $Enums.ShiftType
+  slotNumber: number
+  startsAt: Date | string
+  endsAt: Date | string
+  userId?: string | null
+  source?: $Enums.AssignmentSource
+  isLocked?: boolean
+  note?: string | null
+  createdAt?: Date | string
+  updatedAt?: Date | string
+}
+
+export type ScheduleSlotUpdateWithoutVersionInput = {
+  id?: Prisma.StringFieldUpdateOperationsInput | string
+  date?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  shiftType?: Prisma.EnumShiftTypeFieldUpdateOperationsInput | $Enums.ShiftType
+  slotNumber?: Prisma.IntFieldUpdateOperationsInput | number
+  startsAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  endsAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  source?: Prisma.EnumAssignmentSourceFieldUpdateOperationsInput | $Enums.AssignmentSource
+  isLocked?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  note?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  schedule?: Prisma.ScheduleUpdateOneRequiredWithoutSlotsNestedInput
+  position?: Prisma.PositionUpdateOneRequiredWithoutSlotsNestedInput
+  user?: Prisma.UserUpdateOneWithoutSlotsNestedInput
+}
+
+export type ScheduleSlotUncheckedUpdateWithoutVersionInput = {
+  id?: Prisma.StringFieldUpdateOperationsInput | string
+  positionId?: Prisma.StringFieldUpdateOperationsInput | string
+  date?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  shiftType?: Prisma.EnumShiftTypeFieldUpdateOperationsInput | $Enums.ShiftType
+  slotNumber?: Prisma.IntFieldUpdateOperationsInput | number
+  startsAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  endsAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  userId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  source?: Prisma.EnumAssignmentSourceFieldUpdateOperationsInput | $Enums.AssignmentSource
+  isLocked?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  note?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+}
+
+export type ScheduleSlotUncheckedUpdateManyWithoutVersionInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
   positionId?: Prisma.StringFieldUpdateOperationsInput | string
   date?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
@@ -1118,6 +1327,7 @@ export type ScheduleSlotSelect<ExtArgs extends runtime.Types.Extensions.Internal
   id?: boolean
   facilityId?: boolean
   scheduleId?: boolean
+  versionId?: boolean
   positionId?: boolean
   date?: boolean
   shiftType?: boolean
@@ -1131,6 +1341,7 @@ export type ScheduleSlotSelect<ExtArgs extends runtime.Types.Extensions.Internal
   createdAt?: boolean
   updatedAt?: boolean
   schedule?: boolean | Prisma.ScheduleDefaultArgs<ExtArgs>
+  version?: boolean | Prisma.ScheduleVersionDefaultArgs<ExtArgs>
   position?: boolean | Prisma.PositionDefaultArgs<ExtArgs>
   user?: boolean | Prisma.ScheduleSlot$userArgs<ExtArgs>
 }, ExtArgs["result"]["scheduleSlot"]>
@@ -1139,6 +1350,7 @@ export type ScheduleSlotSelectCreateManyAndReturn<ExtArgs extends runtime.Types.
   id?: boolean
   facilityId?: boolean
   scheduleId?: boolean
+  versionId?: boolean
   positionId?: boolean
   date?: boolean
   shiftType?: boolean
@@ -1152,6 +1364,7 @@ export type ScheduleSlotSelectCreateManyAndReturn<ExtArgs extends runtime.Types.
   createdAt?: boolean
   updatedAt?: boolean
   schedule?: boolean | Prisma.ScheduleDefaultArgs<ExtArgs>
+  version?: boolean | Prisma.ScheduleVersionDefaultArgs<ExtArgs>
   position?: boolean | Prisma.PositionDefaultArgs<ExtArgs>
   user?: boolean | Prisma.ScheduleSlot$userArgs<ExtArgs>
 }, ExtArgs["result"]["scheduleSlot"]>
@@ -1160,6 +1373,7 @@ export type ScheduleSlotSelectUpdateManyAndReturn<ExtArgs extends runtime.Types.
   id?: boolean
   facilityId?: boolean
   scheduleId?: boolean
+  versionId?: boolean
   positionId?: boolean
   date?: boolean
   shiftType?: boolean
@@ -1173,6 +1387,7 @@ export type ScheduleSlotSelectUpdateManyAndReturn<ExtArgs extends runtime.Types.
   createdAt?: boolean
   updatedAt?: boolean
   schedule?: boolean | Prisma.ScheduleDefaultArgs<ExtArgs>
+  version?: boolean | Prisma.ScheduleVersionDefaultArgs<ExtArgs>
   position?: boolean | Prisma.PositionDefaultArgs<ExtArgs>
   user?: boolean | Prisma.ScheduleSlot$userArgs<ExtArgs>
 }, ExtArgs["result"]["scheduleSlot"]>
@@ -1181,6 +1396,7 @@ export type ScheduleSlotSelectScalar = {
   id?: boolean
   facilityId?: boolean
   scheduleId?: boolean
+  versionId?: boolean
   positionId?: boolean
   date?: boolean
   shiftType?: boolean
@@ -1195,19 +1411,22 @@ export type ScheduleSlotSelectScalar = {
   updatedAt?: boolean
 }
 
-export type ScheduleSlotOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"id" | "facilityId" | "scheduleId" | "positionId" | "date" | "shiftType" | "slotNumber" | "startsAt" | "endsAt" | "userId" | "source" | "isLocked" | "note" | "createdAt" | "updatedAt", ExtArgs["result"]["scheduleSlot"]>
+export type ScheduleSlotOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"id" | "facilityId" | "scheduleId" | "versionId" | "positionId" | "date" | "shiftType" | "slotNumber" | "startsAt" | "endsAt" | "userId" | "source" | "isLocked" | "note" | "createdAt" | "updatedAt", ExtArgs["result"]["scheduleSlot"]>
 export type ScheduleSlotInclude<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
   schedule?: boolean | Prisma.ScheduleDefaultArgs<ExtArgs>
+  version?: boolean | Prisma.ScheduleVersionDefaultArgs<ExtArgs>
   position?: boolean | Prisma.PositionDefaultArgs<ExtArgs>
   user?: boolean | Prisma.ScheduleSlot$userArgs<ExtArgs>
 }
 export type ScheduleSlotIncludeCreateManyAndReturn<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
   schedule?: boolean | Prisma.ScheduleDefaultArgs<ExtArgs>
+  version?: boolean | Prisma.ScheduleVersionDefaultArgs<ExtArgs>
   position?: boolean | Prisma.PositionDefaultArgs<ExtArgs>
   user?: boolean | Prisma.ScheduleSlot$userArgs<ExtArgs>
 }
 export type ScheduleSlotIncludeUpdateManyAndReturn<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
   schedule?: boolean | Prisma.ScheduleDefaultArgs<ExtArgs>
+  version?: boolean | Prisma.ScheduleVersionDefaultArgs<ExtArgs>
   position?: boolean | Prisma.PositionDefaultArgs<ExtArgs>
   user?: boolean | Prisma.ScheduleSlot$userArgs<ExtArgs>
 }
@@ -1216,6 +1435,7 @@ export type $ScheduleSlotPayload<ExtArgs extends runtime.Types.Extensions.Intern
   name: "ScheduleSlot"
   objects: {
     schedule: Prisma.$SchedulePayload<ExtArgs>
+    version: Prisma.$ScheduleVersionPayload<ExtArgs>
     position: Prisma.$PositionPayload<ExtArgs>
     user: Prisma.$UserPayload<ExtArgs> | null
   }
@@ -1223,6 +1443,7 @@ export type $ScheduleSlotPayload<ExtArgs extends runtime.Types.Extensions.Intern
     id: string
     facilityId: string
     scheduleId: string
+    versionId: string
     positionId: string
     date: Date
     shiftType: $Enums.ShiftType
@@ -1630,6 +1851,7 @@ readonly fields: ScheduleSlotFieldRefs;
 export interface Prisma__ScheduleSlotClient<T, Null = never, ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs, GlobalOmitOptions = {}> extends Prisma.PrismaPromise<T> {
   readonly [Symbol.toStringTag]: "PrismaPromise"
   schedule<T extends Prisma.ScheduleDefaultArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.ScheduleDefaultArgs<ExtArgs>>): Prisma.Prisma__ScheduleClient<runtime.Types.Result.GetResult<Prisma.$SchedulePayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions> | Null, Null, ExtArgs, GlobalOmitOptions>
+  version<T extends Prisma.ScheduleVersionDefaultArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.ScheduleVersionDefaultArgs<ExtArgs>>): Prisma.Prisma__ScheduleVersionClient<runtime.Types.Result.GetResult<Prisma.$ScheduleVersionPayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions> | Null, Null, ExtArgs, GlobalOmitOptions>
   position<T extends Prisma.PositionDefaultArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.PositionDefaultArgs<ExtArgs>>): Prisma.Prisma__PositionClient<runtime.Types.Result.GetResult<Prisma.$PositionPayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions> | Null, Null, ExtArgs, GlobalOmitOptions>
   user<T extends Prisma.ScheduleSlot$userArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.ScheduleSlot$userArgs<ExtArgs>>): Prisma.Prisma__UserClient<runtime.Types.Result.GetResult<Prisma.$UserPayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions> | null, null, ExtArgs, GlobalOmitOptions>
   /**
@@ -1664,6 +1886,7 @@ export interface ScheduleSlotFieldRefs {
   readonly id: Prisma.FieldRef<"ScheduleSlot", 'String'>
   readonly facilityId: Prisma.FieldRef<"ScheduleSlot", 'String'>
   readonly scheduleId: Prisma.FieldRef<"ScheduleSlot", 'String'>
+  readonly versionId: Prisma.FieldRef<"ScheduleSlot", 'String'>
   readonly positionId: Prisma.FieldRef<"ScheduleSlot", 'String'>
   readonly date: Prisma.FieldRef<"ScheduleSlot", 'DateTime'>
   readonly shiftType: Prisma.FieldRef<"ScheduleSlot", 'ShiftType'>

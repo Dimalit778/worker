@@ -52,6 +52,7 @@ export async function submitAvailability(input: {
         const employee = await tx.user.findFirst({ where: { id: employeeId, facilityId } });
         const schedule = await tx.schedule.findFirst({ where: { id: input.periodId, facilityId } });
         const now = new Date();
+        if (employee && !employee.isActive) throw new Error('החשבון מושבת');
         if (
           !employee ||
           !schedule ||
