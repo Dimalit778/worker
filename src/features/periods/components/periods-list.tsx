@@ -8,6 +8,7 @@ import { cn } from '@/lib/utils';
 import { formatDate } from '../utils';
 import { ScheduleSummary } from '@/features/schedules/types';
 import { invalidateScheduleQueries } from '@/features/schedules/hooks';
+import { DeadlineExtension } from './deadline-extension';
 
 const ScheduleRow = ({ schedule }: { schedule: ScheduleSummary }) => {
   const queryClient = useQueryClient();
@@ -43,6 +44,9 @@ const ScheduleRow = ({ schedule }: { schedule: ScheduleSummary }) => {
         <p className="text-xs text-muted-foreground mt-0.5">
           {formatDate(schedule.startDate)} – {formatDate(schedule.endDate)}
         </p>
+        <div className="mt-1.5">
+          <DeadlineExtension scheduleId={schedule.id} />
+        </div>
       </div>
 
       <div className="text-center hidden sm:block">

@@ -15,6 +15,8 @@ import {
   ruleOrderError,
 } from './submission-window';
 import { processDueSubmissionWindows } from './process-windows';
+import { canExtendDeadline, extensionError, EXTENSION_REASON_PREFIX } from './extension';
+import { sendSubmissionExtendedEmails } from './notify-submission';
 import { saveSubmissionWindowSetting } from '@/features/settings/queries';
 
 export async function getSchedulesList(): Promise<PeriodSummary[]> {
@@ -206,4 +208,135 @@ export async function updateScheduleStatus(
   } catch {
     return { error: 'שגיאה בעדכון הסטטוס' };
   }
+}
+
+class ExtensionValidationError extends Error {}
+
+export async function extendSubmissionDeadline(data: {
+  scheduleId: string;
+  newDeadline: string;
+  reason: string;
+}): Promise<{ ok: true; notified: number; emailWarning?: string } | { error: string }> {
+  const session = await requireSession(PortalRole.MANAGER);
+  const facilityId = session.user.facilityId;
+  if (!facilityId) return { error: 'למנהל אין בית משפט משויך' };
+
+  const reason = (data.reason ?? '').trim();
+  const newDeadline = parseJerusalemLocal(data.newDeadline ?? '');
+
+  let schedule: { id: string; name: string; startDate: Date; endDate: Date; submissionClosesAt: Date };
+  try {
+    schedule = await scheduleTransaction({ userId: session.user.id, facilityId }, async (tx) => {
+      const current = await tx.schedule.findFirst({ where: { id: data.scheduleId, facilityId } });
+      if (!current) throw new ExtensionValidationError('השיבוץ לא נמצא');
+      const error = extensionError({
+        status: current.status,
+        publishedVersionId: current.publishedVersionId,
+        periodStart: periodStartInstant(current.startDate.toISOString().slice(0, 10)),
+        opensAt: current.submissionOpensAt,
+        closesAt: current.submissionClosesAt,
+        newDeadline,
+        reason,
+        now: new Date(),
+      });
+      if (error || !newDeadline) throw new ExtensionValidationError(error ?? 'המועד החדש לא תקין');
+
+      const updated = await tx.schedule.update({
+        where: { id: current.id },
+        data: { submissionClosesAt: newDeadline, reminderSentAt: null },
+      });
+      await tx.scheduleChange.create({
+        data: {
+          facilityId,
+          scheduleId: current.id,
+          changedById: session.user.id,
+          changeType: 'UPDATE',
+          reason: `${EXTENSION_REASON_PREFIX}${reason}`,
+          beforeData: { submissionClosesAt: current.submissionClosesAt.toISOString() },
+          afterData: { submissionClosesAt: newDeadline.toISOString(), extension: true },
+        },
+      });
+      return updated;
+    });
+  } catch (e) {
+    if (e instanceof ExtensionValidationError) return { error: e.message };
+    if (e instanceof Error && e.message === 'אין הרשאת ניהול למתקן') return { error: e.message };
+    return { error: 'שגיאה בהארכת מועד ההגשה' };
+  }
+
+  // Notification failures must not undo the extension.
+  try {
+    const users = await prisma.user.findMany({
+      where: {
+        facilityId,
+        isActive: true,
+        systemRole: 'USER',
+        role: { rank: { not: 1 } },
+        submissions: { none: { scheduleId: schedule.id, submittedAt: { not: null } } },
+      },
+      select: { email: true },
+    });
+    const sent = await sendSubmissionExtendedEmails({
+      recipients: users.map((user) => user.email),
+      periodName: schedule.name,
+      startDate: schedule.startDate.toISOString().slice(0, 10),
+      endDate: schedule.endDate.toISOString().slice(0, 10),
+      deadline: schedule.submissionClosesAt,
+      reason,
+    });
+    if (!sent.ok) return { ok: true, notified: 0, emailWarning: `המועד הוארך, אבל האימייל לא נשלח. ${sent.error}` };
+    return { ok: true, notified: sent.sent };
+  } catch {
+    return { ok: true, notified: 0, emailWarning: 'המועד הוארך, אבל האימייל לא נשלח.' };
+  }
+}
+
+export type DeadlineExtensionEntry = {
+  id: string;
+  from: string | null;
+  to: string | null;
+  reason: string;
+  createdAt: string;
+  changedBy: string;
+};
+
+export async function getDeadlineExtensions(scheduleId: string): Promise<{
+  canExtend: boolean;
+  submissionDeadline: string;
+  extensions: DeadlineExtensionEntry[];
+} | null> {
+  const session = await requireSession(PortalRole.MANAGER);
+  const facilityId = session.user.facilityId;
+  if (!facilityId) return null;
+
+  const schedule = await prisma.schedule.findFirst({ where: { id: scheduleId, facilityId } });
+  if (!schedule) return null;
+
+  const changes = await prisma.scheduleChange.findMany({
+    where: { scheduleId, facilityId, changeType: 'UPDATE', reason: { startsWith: EXTENSION_REASON_PREFIX } },
+    orderBy: { createdAt: 'desc' },
+    include: { changedBy: { select: { displayName: true } } },
+  });
+
+  const deadlineOf = (value: Prisma.JsonValue | null) =>
+    value && typeof value === 'object' && !Array.isArray(value) && typeof value.submissionClosesAt === 'string'
+      ? value.submissionClosesAt
+      : null;
+
+  return {
+    canExtend: canExtendDeadline({
+      status: schedule.status,
+      publishedVersionId: schedule.publishedVersionId,
+      periodStart: periodStartInstant(schedule.startDate.toISOString().slice(0, 10)),
+    }),
+    submissionDeadline: schedule.submissionClosesAt.toISOString(),
+    extensions: changes.map((change) => ({
+      id: change.id,
+      from: deadlineOf(change.beforeData),
+      to: deadlineOf(change.afterData),
+      reason: (change.reason ?? '').slice(EXTENSION_REASON_PREFIX.length),
+      createdAt: change.createdAt.toISOString(),
+      changedBy: change.changedBy.displayName,
+    })),
+  };
 }
