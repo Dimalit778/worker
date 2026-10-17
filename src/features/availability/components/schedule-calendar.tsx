@@ -1,6 +1,7 @@
 'use client';
 
 import { useState } from 'react';
+import { Button } from '@/components/ui/button';
 import { useMutation, useQueryClient } from '@tanstack/react-query';
 import { cn } from '@/lib/utils';
 import { Label } from '@/components/ui/label';
@@ -47,9 +48,9 @@ export function ScheduleCalendar({
   const dates = datesInRange(period.startDate, period.endDate);
   const readonly = viewOnly || period.status === 'LOCKED' || period.status === 'ARCHIVED';
 
-  // Split into two weeks for layout
-  const week1 = dates.slice(0, 7);
-  const week2 = dates.slice(7, 14);
+  const [weekIndex, setWeekIndex] = useState(0);
+  const weekCount = Math.ceil(dates.length / 7);
+  const week = dates.slice(weekIndex * 7, (weekIndex + 1) * 7);
 
   function handleToggle(date: string, shiftType: ShiftType) {
     if (readonly) return;
@@ -73,7 +74,7 @@ export function ScheduleCalendar({
       {/* Header */}
       <div className="flex items-center justify-between">
         <div>
-          <h1 className="text-xl font-bold">{viewOnly ? 'לוח זמינות' : 'לוח משמרות'}</h1>
+          <h1 className="text-xl font-bold">{viewOnly ? 'לוח זמינות' : 'הגשת זמינות'}</h1>
           <p className="text-sm text-muted-foreground mt-0.5">{period.name}</p>
         </div>
         {viewOnly ? (
@@ -112,16 +113,16 @@ export function ScheduleCalendar({
       </div>
 
       {/* Two-week grid */}
-      {[week1, week2].map((week, wi) => (
-        <div key={wi} className="rounded-xl border border-border overflow-hidden bg-white shadow-sm">
+      {[week].map((week) => (
+        <div key={weekIndex} className="rounded-xl border border-border overflow-hidden bg-white shadow-sm">
           <div className="bg-muted/60 px-4 py-2 text-xs font-medium text-muted-foreground border-b border-border">
-            שבוע {wi + 1}
+            <div className="flex items-center justify-between gap-2"><Button variant="outline" className="min-h-11" disabled={weekIndex === 0} onClick={() => setWeekIndex(i => i - 1)}>→ הקודם</Button><span aria-live="polite">שבוע {weekIndex + 1} מתוך {weekCount}</span><Button variant="outline" className="min-h-11" disabled={weekIndex >= weekCount - 1} onClick={() => setWeekIndex(i => i + 1)}>הבא ←</Button></div>
           </div>
           <div className="overflow-x-auto">
-            <table className="w-full border-collapse text-xs">
+            <table className="w-full table-fixed border-collapse text-xs">
               <thead>
                 <tr>
-                  <th className="w-14 px-3 py-2.5 text-right font-medium border-b border-e border-border bg-muted/30 sticky right-0 z-10">
+                  <th className="w-10 px-1 py-2.5 text-right font-medium border-b border-e border-border bg-muted/30 sticky right-0 z-10">
                     משמרת
                   </th>
                   {week.map((date) => {
@@ -132,7 +133,7 @@ export function ScheduleCalendar({
                       <th
                         key={date}
                         className={cn(
-                          'px-1 py-2 text-center font-medium border-b border-e last:border-e-0 border-border min-w-[56px]',
+                          'px-1 py-2 text-center font-medium border-b border-e last:border-e-0 border-border min-w-0',
                           isWeekend && 'bg-slate-50',
                         )}
                       >
@@ -165,18 +166,20 @@ export function ScheduleCalendar({
                             type="button"
                             onClick={() => handleToggle(date, shift.key)}
                             disabled={readonly}
-                            aria-label={`${date} ${shift.label}`}
+                            aria-label={`${date} ${shift.label}: ${on ? "זמין" : "לא נבחר"}`}
                             aria-pressed={on}
                             title={readonly ? undefined : on ? 'ביטול סימון' : 'סימון משמרת'}
                             className={cn(
-                              'w-full h-9 rounded-md transition-all duration-150 flex items-center justify-center focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2',
+                              'w-full min-h-11 rounded-md transition-all duration-150 flex items-center justify-center focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2',
                               on
                                 ? `${shift.bg} ${shift.text} shadow-sm`
                                 : 'border border-dashed border-border hover:border-solid hover:bg-muted/50',
                               readonly && 'cursor-default',
                               !readonly && !on && 'hover:scale-95',
                             )}
-                          />
+                          >
+                            <span aria-hidden="true">{on ? "✓" : "−"}</span>
+                          </button>
                         </td>
                       );
                     })}
@@ -221,7 +224,7 @@ export function ScheduleCalendar({
             {pending ? 'שומר...' : submitted ? 'עדכן זמינות' : 'הגש זמינות'}
           </button>
           {submitMutation.data?.error && <p role="alert">{submitMutation.data.error}</p>}
-          {submitMutation.isError && <p role="alert">שמירת ההגשה נכשלה</p>}
+          {submitMutation.isError && <p role="alert">שמירת ההגשה נכשלה. הבחירות נשמרו במסך; אפשר לנסות להגיש שוב.</p>}
         </div>
       )}
 

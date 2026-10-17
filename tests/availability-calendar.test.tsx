@@ -13,22 +13,23 @@ function setup(initialSubmitted = false) {
 }
 it('selects a colored shift and submits the explicit period', async () => {
   setup();
-  const shift = screen.getByRole('button', { name: '2098-01-06 בוקר' });
+  const shift = screen.getByRole('button', { name: /^2098-01-06 בוקר:/ });
   expect(shift).toHaveAttribute('aria-pressed', 'false');
-  expect(shift).toBeEmptyDOMElement();
+  expect(shift).toHaveTextContent('−');
   fireEvent.click(shift);
   expect(shift).toHaveAttribute('aria-pressed', 'true');
-  expect(shift).toHaveClass('bg-amber-400');
+  expect(shift).toHaveTextContent('✓');
+  expect(shift).toHaveClass('bg-sky-100');
   fireEvent.click(screen.getByRole('button', { name: 'הגש זמינות' }));
   await waitFor(() => expect(submitAvailability).toHaveBeenCalledWith({ periodId: 'explicit-period', entries: { '2098-01-06-MORNING': 'AVAILABLE' }, note: '' }, expect.anything()));
 });
 it('clears the shift on the second click', async () => {
   setup();
-  const shift = screen.getByRole('button', { name: '2098-01-06 בוקר' });
+  const shift = screen.getByRole('button', { name: /^2098-01-06 בוקר:/ });
   fireEvent.click(shift);
   fireEvent.click(shift);
   expect(shift).toHaveAttribute('aria-pressed', 'false');
-  expect(shift).not.toHaveClass('bg-amber-400');
+  expect(shift).not.toHaveClass('bg-sky-100');
   fireEvent.click(screen.getByRole('button', { name: 'הגש זמינות' }));
   await waitFor(() => expect(submitAvailability).toHaveBeenCalledWith({ periodId: 'explicit-period', entries: { '2098-01-06-MORNING': 'UNAVAILABLE' }, note: '' }, expect.anything()));
 });
@@ -38,4 +39,17 @@ it('allows a submitted employee to update availability and submit no available s
   expect(submit).toBeEnabled();
   fireEvent.click(submit);
   await waitFor(() => expect(submitAvailability).toHaveBeenCalled());
+});
+it('preserves a selection when moving between weeks', async () => {
+  render(<QueryClientProvider client={new QueryClient()}>
+    <ScheduleCalendar period={{ id: 'two-weeks', name: 'שבועיים', startDate: '2098-01-06', endDate: '2098-01-19', status: 'OPEN' }} initialEntries={{}} initialSubmitted={false} />
+  </QueryClientProvider>);
+  fireEvent.click(screen.getByRole('button', { name: /^2098-01-06 בוקר:/ }));
+  fireEvent.click(screen.getByRole('button', { name: /הבא/ }));
+  expect(screen.queryByRole('button', { name: /^2098-01-06 בוקר:/ })).not.toBeInTheDocument();
+  expect(screen.getByRole('button', { name: /^2098-01-13 בוקר:/ })).toBeInTheDocument();
+  fireEvent.click(screen.getByRole('button', { name: /הקודם/ }));
+  expect(screen.getByRole('button', { name: /^2098-01-06 בוקר:/ })).toHaveAttribute('aria-pressed', 'true');
+  fireEvent.click(screen.getByRole('button', { name: 'הגש זמינות' }));
+  await waitFor(() => expect(submitAvailability).toHaveBeenCalledWith({ periodId: 'two-weeks', entries: { '2098-01-06-MORNING': 'AVAILABLE' }, note: '' }, expect.anything()));
 });

@@ -98,6 +98,7 @@ async function getAssignmentMap(versionId: string | null | undefined): Promise<A
       return [{
         id: a.id,
         isLocked: a.isLocked,
+        startsAt: a.startsAt,
         date: a.date,
         shiftType: a.shiftType,
         positionId: a.positionId,
