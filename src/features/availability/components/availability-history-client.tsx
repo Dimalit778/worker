@@ -1,4 +1,6 @@
 'use client';
+import { formatDate } from '@/features/periods/utils';
+import { STATUS_LABELS, STATUS_COLORS } from '@/features/schedules/constants';
 import { PeriodScheduleStatus } from '@/features/schedules/period-status';
 
 import { useMemo, useState } from 'react';
@@ -39,18 +41,19 @@ export function SubmissionsTable({ periods }: Props) {
               key={p.id}
               type="button"
               onClick={() => setSelectedId(p.id)}
+              aria-pressed={isActive}
               className={cn(
-                'rounded-xl border p-4 transition-all w-full text-start',
+                'rounded-xl border p-4 transition-all w-full text-start focus-visible:outline-2 focus-visible:outline-ring',
                 'hover:border-foreground/25 hover:bg-muted/30',
                 isActive && 'border-foreground/40 bg-muted/50 ring-2 ring-foreground/10',
               )}
             >
               <h2 className="font-semibold leading-snug">{p.name}</h2>
               <p className="text-muted-foreground text-sm mt-1">
-                {p.startDate} – {p.endDate}
+                {formatDate(p.startDate)} – {formatDate(p.endDate)}
               </p>
               <div className="mt-3 flex flex-wrap items-center gap-2 text-xs">
-                <span className="rounded-md bg-muted px-2 py-0.5 text-muted-foreground">{p.status}</span>
+                <span className={`rounded-md px-2 py-0.5 ${STATUS_COLORS[p.status]}`}>{STATUS_LABELS[p.status]}</span>
                 {p.isSubmitted ? (
                   <span className="rounded-md bg-green-100 px-2 py-0.5 text-green-800">הוגש</span>
                 ) : (

@@ -1,3 +1,4 @@
+import { SHIFT_TONES } from '@/features/schedules/constants';
 import { Moon, Sunrise, Sunset } from 'lucide-react';
 import { Card, CardContent, CardHeader } from '@/components/ui/card';
 import { cn } from '@/lib/utils';
@@ -100,8 +101,8 @@ function RoleGroup({
     <section className="space-y-2">
       <div className="flex items-center gap-2">
         <h3 className="text-xs font-semibold text-muted-foreground">{role}</h3>
-        <span className="rounded-sm bg-muted px-1.5 py-0.5 text-[11px] font-semibold text-muted-foreground ring-1 ring-border/70">
-          {assignedCount}/{requiredCount}
+        <span className={cn("rounded-sm px-1.5 py-0.5 text-xs font-semibold", assignedCount < requiredCount ? "bg-amber-100 text-amber-950" : "bg-muted text-muted-foreground")}>
+          {assignedCount < requiredCount ? `חסר ${role}${requiredCount - assignedCount > 1 ? ` (${requiredCount - assignedCount})` : ""}` : "מאויש"} · {assignedCount}/{requiredCount}
         </span>
       </div>
 
@@ -178,7 +179,7 @@ export function ShiftRoster({
     : 0;
 
   return (
-    <Card size="sm" className={cn('border shadow-sm', display.tone)}>
+    <Card size="sm" className={cn('border shadow-sm', `${SHIFT_TONES[shiftType].bg} ${SHIFT_TONES[shiftType].text} ${SHIFT_TONES[shiftType].border}`)}>
       <CardHeader className="flex flex-row items-start justify-between gap-3 ">
         <div className="flex items-center gap-2">
           <span className="flex size-8 items-center justify-center rounded-md text-current">{display.icon}</span>
@@ -188,8 +189,8 @@ export function ShiftRoster({
           </div>
         </div>
         <div className="flex shrink-0 flex-col items-end gap-1">
-          <span className="rounded-md bg-white/70 px-2 py-1 text-xs font-semibold">
-            {assignedCount}/{requiredCount}
+          <span className={cn("rounded-md px-2 py-1 text-xs font-semibold", assignedCount < requiredCount ? "bg-amber-100 text-amber-950" : "bg-white/70")}>
+            {assignedCount < requiredCount ? (requiredCount - assignedCount === 1 ? "חסר עובד אחד" : `חסרים ${requiredCount - assignedCount} עובדים`) : "מאויש"} · {assignedCount}/{requiredCount}
           </span>
           {currentAssignmentsCount > 0 ? (
             <span className="rounded-md border border-primary/20 bg-white/70 px-2 py-0.5 text-[11px] font-semibold text-primary">

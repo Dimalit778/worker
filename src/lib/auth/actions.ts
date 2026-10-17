@@ -2,7 +2,7 @@
 
 import { prisma } from '@/lib/db/client';
 import { buildAuthLink, sendResetEmail } from '@/lib/auth/emails';
-import { consumeToken, issueToken, peekToken, setPasswordAndUnlock } from '@/lib/auth/token-store';
+import { redeemPasswordToken, issueToken, peekToken } from '@/lib/auth/token-store';
 import { validateNewPassword } from '@/lib/auth/password';
 
 type Result = { ok: true } | { error: string };
@@ -17,10 +17,7 @@ export async function acceptInvite(token: string, password: string, confirm: str
   const passwordError = validateNewPassword(password, confirm);
   if (passwordError) return { error: passwordError };
 
-  const userId = await consumeToken('invite', token);
-  if (!userId) return { error: INVALID_LINK };
-
-  await setPasswordAndUnlock(userId, password);
+  if (!(await redeemPasswordToken('invite', token, password))) return { error: INVALID_LINK };
   return { ok: true };
 }
 
@@ -48,9 +45,6 @@ export async function resetPassword(token: string, password: string, confirm: st
   const passwordError = validateNewPassword(password, confirm);
   if (passwordError) return { error: passwordError };
 
-  const userId = await consumeToken('reset', token);
-  if (!userId) return { error: INVALID_LINK };
-
-  await setPasswordAndUnlock(userId, password);
+  if (!(await redeemPasswordToken('reset', token, password))) return { error: INVALID_LINK };
   return { ok: true };
 }

@@ -139,7 +139,7 @@ export function AssignmentCell({
   }
 
   if (readonly) {
-    const label = anonymousRow && assignment ? assignment.employeeDisplayName : (assignment?.employeeDisplayName ?? '');
+    const label = anonymousRow && assignment ? assignment.employeeDisplayName : (assignment?.employeeDisplayName ?? 'חסר עובד');
     return (
       <Comp
         className={cn(
