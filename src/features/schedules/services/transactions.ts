@@ -14,6 +14,7 @@ export async function scheduleTransaction<T>(actor: ScheduleActor, fn: (tx: Pris
       const editor = await tx.user.findFirst({
         where: {
           id: actor.userId,
+          isActive: true,
           OR: [{ systemRole: 'ADMIN' }, { facilityId: actor.facilityId, canEditSchedule: true }],
         },
         select: { id: true },

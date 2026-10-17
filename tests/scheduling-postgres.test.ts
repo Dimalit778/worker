@@ -21,6 +21,9 @@ import { getCurrentSchedule, getUpcomingSchedule } from '@/features/schedules/as
 import { loadSchedulingInput } from '@/features/schedules/generation/queries';
 import { reconcileDraftCapacity } from '@/features/schedules/services/reconcile-capacity';
 import { scheduleTransaction } from '@/features/schedules/services/transactions';
+import { issueToken, peekToken, redeemPasswordToken } from '@/lib/auth/token-store';
+import { hashToken } from '@/lib/auth/tokens';
+import bcrypt from 'bcryptjs';
 
 const date = (day: string) => new Date(`${day}T00:00:00Z`);
 const suite = process.env.TEST_DATABASE_URL ? describe : describe.skip;
@@ -180,6 +183,72 @@ suite('schedule versions against migrated PostgreSQL', () => {
     await prisma.user.update({ where: { id: managerId }, data: { canEditSchedule: false } });
     await expect(requireManager()).rejects.toThrow();
     await expect(add()).rejects.toThrow();
+  });
+
+  it('rechecks manager activity inside the mutation transaction', async () => {
+    // Simulate a request authenticated before the manager was deactivated.
+    await prisma.user.update({ where: { id: managerId }, data: { isActive: false } });
+    await expect(scheduleTransaction({ facilityId, userId: managerId }, async tx => {
+      await tx.schedule.update({ where: { id: scheduleId }, data: { name: 'unauthorized edit' } });
+    })).rejects.toThrow('אין הרשאת ניהול');
+    expect((await prisma.schedule.findUniqueOrThrow({ where: { id: scheduleId } })).name).toBe('test');
+  });
+
+  it('redeems a reset once under concurrency and revokes other password links', async () => {
+    const invite = await issueToken('invite', employeeId);
+    const raw = await issueToken('reset', employeeId);
+    const results = await Promise.all([
+      redeemPasswordToken('reset', raw, 'new-password-one'),
+      redeemPasswordToken('reset', raw, 'new-password-two'),
+    ]);
+    expect(results.filter(Boolean)).toHaveLength(1);
+    const user = await prisma.user.findUniqueOrThrow({ where: { id: employeeId } });
+    expect(await bcrypt.compare(results[0] ? 'new-password-one' : 'new-password-two', user.passwordHash)).toBe(true);
+    expect(await peekToken('invite', invite)).toBeNull();
+    expect(await peekToken('reset', raw)).toBeNull();
+  });
+
+  it('rolls back token deletion when the password write fails', async () => {
+    const raw = await issueToken('reset', employeeId);
+    const transaction = prisma.$transaction.bind(prisma);
+    const spy = vi.spyOn(prisma, '$transaction').mockImplementationOnce((async (callback) => {
+      return transaction(async tx => callback(new Proxy(tx, {
+        get(target, key) {
+          if (key === 'user') return new Proxy(target.user, {
+            get(model, operation) {
+              if (operation === 'update') return async () => { throw new Error('simulated password write failure'); };
+              return Reflect.get(model, operation);
+            },
+          });
+          return Reflect.get(target, key);
+        },
+      })));
+    }) as typeof prisma.$transaction);
+    try {
+      await expect(redeemPasswordToken('reset', raw, 'new-password')).rejects.toThrow('simulated password write failure');
+    } finally {
+      spy.mockRestore();
+    }
+    expect(await peekToken('reset', raw)).toBe(employeeId);
+    expect((await prisma.user.findUniqueOrThrow({ where: { id: employeeId } })).passwordHash).toBe('unused');
+    expect(await redeemPasswordToken('reset', raw, 'new-password')).toBe(true);
+  });
+
+  it('keeps exactly one valid invitation after concurrent resends', async () => {
+    const links = await Promise.all([issueToken('invite', employeeId), issueToken('invite', employeeId)]);
+    const valid = await Promise.all(links.map(raw => peekToken('invite', raw)));
+    expect(valid.filter(Boolean)).toEqual([employeeId]);
+  });
+
+  it('rejects deactivated accounts and expired links without changing their password', async () => {
+    const raw = await issueToken('reset', employeeId);
+    await prisma.user.update({ where: { id: employeeId }, data: { isActive: false } });
+    expect(await redeemPasswordToken('reset', raw, 'new-password')).toBe(false);
+    await expect(issueToken('invite', employeeId)).rejects.toThrow('אינו פעיל');
+    await prisma.user.update({ where: { id: employeeId }, data: { isActive: true } });
+    await prisma.verificationToken.update({ where: { token: hashToken(raw) }, data: { expires: new Date(0) } });
+    expect(await redeemPasswordToken('reset', raw, 'new-password')).toBe(false);
+    expect((await prisma.user.findUniqueOrThrow({ where: { id: employeeId } })).passwordHash).toBe('unused');
   });
 
   it('regenerates only the draft and preserves the published snapshot and explicit locks', async () => {
