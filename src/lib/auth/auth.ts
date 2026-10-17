@@ -42,6 +42,8 @@ export const authOptions: NextAuthOptions = {
         const reserved = await prisma.user.updateMany({
           where: {
             id: user.id,
+            isActive: true,
+            passwordHash: user.passwordHash,
             OR: [{ lockedUntil: null }, { lockedUntil: { lte: now } }],
             failedLoginCount: { lt: MAX_FAILED_LOGINS },
           },
@@ -61,10 +63,12 @@ export const authOptions: NextAuthOptions = {
           return null;
         }
 
-        await prisma.user.update({
-          where: { id: user.id },
+        // Password comparison can overlap deactivation or a password reset.
+        const authenticated = await prisma.user.updateMany({
+          where: { id: user.id, isActive: true, passwordHash: user.passwordHash },
           data: { failedLoginCount: 0, lockedUntil: null },
         });
+        if (authenticated.count !== 1) return null;
 
         const portal =
           user.systemRole === SystemRole.ADMIN
