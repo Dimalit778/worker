@@ -4,12 +4,13 @@ import { prisma } from '@/lib/db/client';
 import { syncSubmissionWindows } from '@/features/periods/process-windows';
 import { LogoutButton } from '@/components/ui/logout-button';
 import { UserNav } from './user-nav';
+import { countIncomingTransfers } from '@/features/requests/queries';
 
 export default async function UserLayout({ children }: { children: React.ReactNode }) {
   const session = await requireSession(PortalRole.EMPLOYEE);
   await syncSubmissionWindows(session.user.facilityId);
 
-  const [primaryCourt, hasOpenPeriod] = await Promise.all([
+  const [primaryCourt, hasOpenPeriod, incomingTransfers] = await Promise.all([
     session.user.facilityId ? prisma.facility.findUnique({ where: { id: session.user.facilityId } }) : null,
     (async () => {
       const now = new Date();
@@ -40,12 +41,14 @@ export default async function UserLayout({ children }: { children: React.ReactNo
       });
       return submitted?.submittedAt == null;
     })(),
+    session.user.facilityId ? countIncomingTransfers(session.user.facilityId, session.user.id) : 0,
   ]);
 
   const navItems = [
     { href: '/employee', label: 'שיבוץ', notify: false },
     { href: '/employee/availability', label: 'הגש שיבוץ', notify: false },
     { href: '/employee/submissions', label: 'ההגשות שלי', notify: hasOpenPeriod },
+    { href: '/employee/requests', label: 'הבקשות שלי', notify: incomingTransfers > 0 },
   ];
 
   return (

@@ -9,6 +9,7 @@ import {
   ChevronRight,
   ClipboardList,
   History,
+  Inbox,
   LayoutDashboard,
   LogOut,
   Menu,
@@ -23,7 +24,7 @@ import { Button } from '@/components/ui/button';
 import { cn } from '@/lib/utils';
 import { signOut } from 'next-auth/react';
 
-export type ManagerNavItem = { href: string; label: string };
+export type ManagerNavItem = { href: string; label: string; badge?: number };
 
 type ManagerAppShellProps = {
   fullName: string;
@@ -38,6 +39,7 @@ const NAV_ICONS: Record<string, LucideIcon> = {
   '/manager/schedule/changes': History,
   '/manager/schedules': ClipboardList,
   '/manager/draft': PenLine,
+  '/manager/requests': Inbox,
   '/manager/employees': Users,
   '/manager/settings': Settings,
 };
@@ -169,6 +171,17 @@ function NavLinks({
               aria-hidden
             />
             {!collapsed ? <p className="truncate">{item.label}</p> : null}
+            {item.badge ? (
+              <span
+                className={cn(
+                  'rounded-full bg-red-600 px-1.5 text-xs font-semibold text-white',
+                  collapsed ? 'absolute top-1 inset-e-1' : 'ms-auto',
+                )}
+                aria-label={`${item.badge} בקשות דחופות`}
+              >
+                {item.badge}
+              </span>
+            ) : null}
           </Link>
         );
       })}
