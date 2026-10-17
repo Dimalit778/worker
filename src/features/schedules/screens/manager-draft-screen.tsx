@@ -64,6 +64,7 @@ export function ManagerDraftScreen({ scheduleId }: { scheduleId?: string }) {
           submittedCount={submitted}
           eligibleCount={eligible}
           missingEmployees={missingEmployees}
+          readiness={{ scheduleId: data.scheduleId, versionId: data.versionId ?? null, revision: data.revision ?? 0 }}
         />
 
         {isReadonly && (

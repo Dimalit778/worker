@@ -19,6 +19,8 @@ import {
 import { generateAutoSchedule } from '@/features/schedules/generation/actions';
 import { publishSchedule } from '@/features/schedules/draft-schedule/actions';
 import { invalidateScheduleQueries } from '@/features/schedules/hooks';
+import { GenerateConfirmDialog } from '@/features/schedules/readiness/components/generate-confirm-dialog';
+import { PublishReviewDialog } from '@/features/schedules/readiness/components/publish-review-dialog';
 
 type Props = {
   scheduleId: string;
@@ -34,6 +36,8 @@ export function DraftActions({ scheduleId, scheduleStatus, hasUnpublishedDraft =
   const [message, setMessage] = useState<string | null>(null);
   const [confirmPublishOpen, setConfirmPublishOpen] = useState(false);
   const [confirmPublishMessage, setConfirmPublishMessage] = useState<string | null>(null);
+  const [generateOpen, setGenerateOpen] = useState(false);
+  const [reviewOpen, setReviewOpen] = useState(false);
 
   const invalidate = () => invalidateScheduleQueries(queryClient, scheduleId);
 
@@ -74,7 +78,11 @@ export function DraftActions({ scheduleId, scheduleStatus, hasUnpublishedDraft =
   function handleGenerate() {
     setError(null);
     setMessage(null);
-    if (!window.confirm('יצירה מחדש תחליף את כל האיושים שאינם נעולים, כולל שינויים ידניים. להמשיך?')) return;
+    setGenerateOpen(true);
+  }
+
+  function handleConfirmGenerate() {
+    setGenerateOpen(false);
     setPendingAction('generate');
     generateMutation.mutate();
   }
@@ -83,8 +91,14 @@ export function DraftActions({ scheduleId, scheduleStatus, hasUnpublishedDraft =
     if (!scheduleId) return;
     setError(null);
     setMessage(null);
+    setReviewOpen(true);
+  }
+
+  /** After the review dialog: the server still validates and may ask for confirmation. */
+  function handleReviewedPublish(confirmIssues: boolean) {
+    setReviewOpen(false);
     setPendingAction('publish');
-    publishMutation.mutate(false);
+    publishMutation.mutate(confirmIssues);
   }
 
   function handleConfirmPublish() {
@@ -129,6 +143,23 @@ export function DraftActions({ scheduleId, scheduleStatus, hasUnpublishedDraft =
           {isPublished ? 'פורסם לעובדים' : 'פרסם שיבוץ'}
         </Button>
       </div>
+
+      <GenerateConfirmDialog
+        open={generateOpen}
+        onOpenChange={setGenerateOpen}
+        scheduleId={scheduleId}
+        pending={pending}
+        onConfirm={handleConfirmGenerate}
+      />
+
+      <PublishReviewDialog
+        open={reviewOpen}
+        onOpenChange={setReviewOpen}
+        scheduleId={scheduleId}
+        expected={expected}
+        pending={pending}
+        onConfirm={handleReviewedPublish}
+      />
 
       <AlertDialog open={confirmPublishOpen} onOpenChange={setConfirmPublishOpen}>
         <AlertDialogContent dir="rtl">
