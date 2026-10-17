@@ -32,6 +32,8 @@ jobs:
       DATABASE_URL: postgresql://postgres:postgres@127.0.0.1:5432/worker_test
       NEXTAUTH_SECRET: ${{ secrets.NEXTAUTH_SECRET }}
       NEXTAUTH_URL: ${{ secrets.NEXTAUTH_URL }}
+      # The ERD generator needs headless Chrome, which cannot start on the runner; ERD.svg is generated locally.
+      DISABLE_ERD: "true"
 
     steps:
       - name: Checkout
