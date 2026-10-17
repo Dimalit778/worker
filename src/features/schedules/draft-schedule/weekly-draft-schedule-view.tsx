@@ -10,6 +10,7 @@ import {
 } from '@/components/ui/select';
 import { WeekNavigator } from './week-navigator';
 import { ShiftSection } from './shift-section';
+import { MobileDayScheduleView } from './mobile-day-schedule-view';
 import { buildWeekDays } from '../utils';
 import { SHIFT_ORDER } from '../constants';
 import type { WeeklyDraftScheduleViewProps } from '../types';
@@ -78,10 +79,28 @@ export function WeeklyDraftScheduleView({
         week1Label={weekRangeLabel(1)}
       />
 
-      {SHIFT_ORDER.map((shiftType) => (
-        <ShiftSection
-          key={shiftType}
-          shiftType={shiftType}
+      {/* Desktop/tablet: shift-first dense grid. Below md, a table is unusable at this density. */}
+      <div className="hidden md:block">
+        {SHIFT_ORDER.map((shiftType) => (
+          <ShiftSection
+            key={shiftType}
+            shiftType={shiftType}
+            weekDays={weekDays}
+            assignments={assignments}
+            overflowCandidates={overflowCandidates}
+            employees={employees}
+            capacity={capacity}
+            scheduleId={scheduleId}
+            facilityId={facilityId}
+            readonly={readonly}
+            highlightedEmployeeId={highlightedEmployeeId}
+          />
+        ))}
+      </div>
+
+      {/* Mobile: Day → Shift → Position stacked rows, same data and mutation logic. */}
+      <div className="md:hidden">
+        <MobileDayScheduleView
           weekDays={weekDays}
           assignments={assignments}
           overflowCandidates={overflowCandidates}
@@ -92,7 +111,7 @@ export function WeeklyDraftScheduleView({
           readonly={readonly}
           highlightedEmployeeId={highlightedEmployeeId}
         />
-      ))}
+      </div>
     </div>
   );
 }
