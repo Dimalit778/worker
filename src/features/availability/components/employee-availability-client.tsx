@@ -35,6 +35,11 @@ export function EmployeeAvailabilityClient() {
       initialEntries={data.entries}
       initialSubmitted={data.isSubmitted}
       initialNote={data.note}
+      submittedEntries={data.submittedEntries}
+      submittedNote={data.submittedNote}
+      status={data.status}
+      closesAt={data.closesAt}
+      lastSavedAt={data.lastSavedAt}
     />
   );
 }

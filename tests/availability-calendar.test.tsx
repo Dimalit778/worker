@@ -3,39 +3,115 @@ import { afterEach, expect, it, vi } from 'vitest';
 import { cleanup, fireEvent, render, screen, waitFor } from '@testing-library/react';
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import { ScheduleCalendar } from '@/features/availability/components/schedule-calendar';
-import { submitAvailability } from '@/features/availability/actions';
-vi.mock('@/features/availability/actions', () => ({ submitAvailability: vi.fn(async () => ({ ok: true })) }));
-afterEach(() => { cleanup(); vi.clearAllMocks(); });
-function setup(initialSubmitted = false) {
-  render(<QueryClientProvider client={new QueryClient({ defaultOptions: { queries: { retry: false } } })}>
-    <ScheduleCalendar period={{ id: 'explicit-period', name: 'test', startDate: '2098-01-06', endDate: '2098-01-06', status: 'OPEN' }} initialEntries={{}} initialSubmitted={initialSubmitted} />
-  </QueryClientProvider>);
+import { saveAvailabilityDraft, submitAvailability } from '@/features/availability/actions';
+import type { AvailabilityStatus } from '@/features/availability/utils';
+vi.mock('@/features/availability/actions', () => ({
+  submitAvailability: vi.fn(async () => ({ ok: true, savedAt: '2098-01-01T10:00:00.000Z' })),
+  saveAvailabilityDraft: vi.fn(async () => ({ ok: true, savedAt: '2098-01-01T10:00:00.000Z' })),
+  discardAvailabilityDraft: vi.fn(async () => ({ ok: true })),
+}));
+afterEach(() => {
+  cleanup();
+  vi.clearAllMocks();
+});
+
+type SetupOptions = {
+  endDate?: string;
+  entries?: Record<string, 'AVAILABLE' | 'PREFERRED' | 'UNAVAILABLE'>;
+  submitted?: boolean;
+  status?: AvailabilityStatus;
+};
+function setup({ endDate = '2098-01-06', entries = {}, submitted = false, status }: SetupOptions = {}) {
+  render(
+    <QueryClientProvider client={new QueryClient({ defaultOptions: { queries: { retry: false } } })}>
+      <ScheduleCalendar
+        period={{ id: 'explicit-period', name: 'test', startDate: '2098-01-06', endDate, status: 'OPEN' }}
+        initialEntries={entries}
+        initialSubmitted={submitted}
+        status={status}
+        closesAt="2098-01-05T10:00:00.000Z"
+      />
+    </QueryClientProvider>,
+  );
 }
-it('selects a colored shift and submits the explicit period', async () => {
+const cell = (name: string) => screen.getByRole('button', { name: new RegExp(`^${name}:`) });
+const statusText = () => screen.getByTestId('availability-status').textContent;
+
+it('cycles through explicit states, keeping empty distinct from unavailable', () => {
   setup();
-  const shift = screen.getByRole('button', { name: '2098-01-06 בוקר' });
-  expect(shift).toHaveAttribute('aria-pressed', 'false');
-  expect(shift).toBeEmptyDOMElement();
+  const shift = cell('2098-01-06 בוקר');
+  expect(shift).toHaveAttribute('data-state', 'EMPTY');
   fireEvent.click(shift);
-  expect(shift).toHaveAttribute('aria-pressed', 'true');
-  expect(shift).toHaveClass('bg-amber-400');
-  fireEvent.click(screen.getByRole('button', { name: 'הגש זמינות' }));
-  await waitFor(() => expect(submitAvailability).toHaveBeenCalledWith({ periodId: 'explicit-period', entries: { '2098-01-06-MORNING': 'AVAILABLE' }, note: '' }, expect.anything()));
+  expect(shift).toHaveAttribute('data-state', 'AVAILABLE');
+  expect(shift).toHaveAccessibleName('2098-01-06 בוקר: זמין');
+  fireEvent.click(shift);
+  expect(shift).toHaveAttribute('data-state', 'PREFERRED');
+  fireEvent.click(shift);
+  expect(shift).toHaveAttribute('data-state', 'UNAVAILABLE');
+  fireEvent.click(shift);
+  expect(shift).toHaveAttribute('data-state', 'EMPTY');
 });
-it('clears the shift on the second click', async () => {
+
+it('saves a draft without submitting', async () => {
   setup();
-  const shift = screen.getByRole('button', { name: '2098-01-06 בוקר' });
-  fireEvent.click(shift);
-  fireEvent.click(shift);
-  expect(shift).toHaveAttribute('aria-pressed', 'false');
-  expect(shift).not.toHaveClass('bg-amber-400');
-  fireEvent.click(screen.getByRole('button', { name: 'הגש זמינות' }));
-  await waitFor(() => expect(submitAvailability).toHaveBeenCalledWith({ periodId: 'explicit-period', entries: { '2098-01-06-MORNING': 'UNAVAILABLE' }, note: '' }, expect.anything()));
+  expect(statusText()).toBe('לא הוגש');
+  expect(screen.getByRole('button', { name: 'שמור טיוטה' })).toBeDisabled();
+  fireEvent.click(cell('2098-01-06 בוקר'));
+  expect(screen.getByText('יש שינויים שלא נשמרו')).toBeInTheDocument();
+  fireEvent.click(screen.getByRole('button', { name: 'שמור טיוטה' }));
+  await waitFor(() =>
+    expect(saveAvailabilityDraft).toHaveBeenCalledWith(
+      { periodId: 'explicit-period', entries: { '2098-01-06-MORNING': 'AVAILABLE' }, note: '' },
+      expect.anything(),
+    ),
+  );
+  expect(submitAvailability).not.toHaveBeenCalled();
+  await waitFor(() => expect(statusText()).toBe('טיוטה'));
+  expect(screen.queryByText('יש שינויים שלא נשמרו')).not.toBeInTheDocument();
 });
-it('allows a submitted employee to update availability and submit no available shifts', async () => {
-  setup(true);
-  const submit = screen.getByRole('button', { name: 'עדכן זמינות' });
+
+it('submits only explicit choices', async () => {
+  setup();
+  fireEvent.click(cell('2098-01-06 ערב'));
+  fireEvent.click(screen.getByRole('button', { name: 'הגש זמינות' }));
+  await waitFor(() =>
+    expect(submitAvailability).toHaveBeenCalledWith(
+      { periodId: 'explicit-period', entries: { '2098-01-06-EVENING': 'AVAILABLE' }, note: '' },
+      expect.anything(),
+    ),
+  );
+  await waitFor(() => expect(statusText()).toBe('הוגש'));
+});
+
+it('shows unsubmitted changes after editing a submitted form', async () => {
+  setup({ submitted: true, entries: { '2098-01-06-MORNING': 'AVAILABLE' } });
+  expect(statusText()).toBe('הוגש');
+  const submit = screen.getByRole('button', { name: 'הגש שינויים' });
+  expect(submit).toBeDisabled();
+  fireEvent.click(cell('2098-01-06 בוקר'));
+  expect(statusText()).toBe('שינויים שלא הוגשו');
+  fireEvent.click(screen.getByRole('button', { name: 'שמור טיוטה' }));
+  await waitFor(() => expect(saveAvailabilityDraft).toHaveBeenCalled());
+  expect(statusText()).toBe('שינויים שלא הוגשו');
   expect(submit).toBeEnabled();
   fireEvent.click(submit);
-  await waitFor(() => expect(submitAvailability).toHaveBeenCalled());
+  await waitFor(() => expect(statusText()).toBe('הוגש'));
+});
+
+it('renders a single week for a 7-day period without copy buttons', () => {
+  setup({ endDate: '2098-01-12' });
+  expect(screen.getByText('שבוע 1')).toBeInTheDocument();
+  expect(screen.queryByText('שבוע 2')).not.toBeInTheDocument();
+  expect(screen.queryByRole('button', { name: /העתק שבוע/ })).not.toBeInTheDocument();
+});
+
+it('copies week 1 to week 2 and applies bulk selection to a day', () => {
+  setup({ endDate: '2098-01-19' });
+  fireEvent.click(screen.getByRole('button', { name: 'מעדיף' }));
+  fireEvent.click(screen.getByRole('button', { name: 'החל ״מעדיף״ על יום 2098-01-06' }));
+  expect(cell('2098-01-06 בוקר')).toHaveAttribute('data-state', 'PREFERRED');
+  expect(cell('2098-01-06 לילה')).toHaveAttribute('data-state', 'PREFERRED');
+  fireEvent.click(screen.getByRole('button', { name: 'העתק שבוע 1 לשבוע 2' }));
+  expect(cell('2098-01-13 ערב')).toHaveAttribute('data-state', 'PREFERRED');
+  expect(cell('2098-01-14 ערב')).toHaveAttribute('data-state', 'EMPTY');
 });
