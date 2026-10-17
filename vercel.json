@@ -2,7 +2,7 @@
   "crons": [
     {
       "path": "/api/cron/submission-windows",
-      "schedule": "*/10 * * * *"
+      "schedule": "0 5 * * *"
     }
   ]
 }
