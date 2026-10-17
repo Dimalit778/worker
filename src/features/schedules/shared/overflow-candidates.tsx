@@ -16,13 +16,13 @@ export function OverflowCandidates({ candidates }: Props) {
 
   return (
     <div
-      className="mt-1 border-t border-dashed border-border/70 pt-1 text-right"
+      className="mt-1 border-t border-dashed border-border/70 pt-1 text-end"
       dir="rtl"
       onClick={(event) => event.stopPropagation()}
     >
       <button
         type="button"
-        className="mx-auto flex max-w-full items-center gap-0.5 text-[10px] leading-tight text-muted-foreground hover:text-foreground"
+        className="mx-auto flex max-w-full items-center gap-0.5 text-xs leading-tight text-muted-foreground hover:text-foreground"
         onClick={(event) => {
           event.stopPropagation();
           setOpen((value) => !value);
@@ -34,7 +34,7 @@ export function OverflowCandidates({ candidates }: Props) {
       </button>
 
       {open && (
-        <ul className="mt-1 space-y-0.5 text-[10px] leading-tight text-muted-foreground">
+        <ul className="mt-1 space-y-0.5 text-xs leading-tight text-muted-foreground">
           {candidates.map((candidate) => (
             <li key={candidate.employeeId} className="truncate" title={candidate.employeeName}>
               {candidate.employeeName}

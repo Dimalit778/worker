@@ -34,6 +34,7 @@ export function DraftActions({ scheduleId, scheduleStatus, hasUnpublishedDraft =
   const [message, setMessage] = useState<string | null>(null);
   const [confirmPublishOpen, setConfirmPublishOpen] = useState(false);
   const [confirmPublishMessage, setConfirmPublishMessage] = useState<string | null>(null);
+  const [confirmGenerateOpen, setConfirmGenerateOpen] = useState(false);
 
   const invalidate = () => invalidateScheduleQueries(queryClient, scheduleId);
 
@@ -72,9 +73,13 @@ export function DraftActions({ scheduleId, scheduleStatus, hasUnpublishedDraft =
   const pending = generateMutation.isPending || publishMutation.isPending;
 
   function handleGenerate() {
+    setConfirmGenerateOpen(true);
+  }
+
+  function handleConfirmGenerate() {
+    setConfirmGenerateOpen(false);
     setError(null);
     setMessage(null);
-    if (!window.confirm('יצירה מחדש תחליף את כל האיושים שאינם נעולים, כולל שינויים ידניים. להמשיך?')) return;
     setPendingAction('generate');
     generateMutation.mutate();
   }
@@ -108,8 +113,10 @@ export function DraftActions({ scheduleId, scheduleStatus, hasUnpublishedDraft =
   return (
     <>
       <div className="flex items-center gap-3 flex-wrap" dir="rtl">
-        {error && <p className="text-sm text-destructive">{error}</p>}
-        {message && <p className="text-sm text-green-700">{message}</p>}
+        <div role="status" aria-live="polite">
+          {error && <p className="text-sm text-destructive">{error}</p>}
+          {message && <p className="text-sm text-green-700">{message}</p>}
+        </div>
 
         {canGenerate && (
           <Button size="sm" variant="default" onClick={handleGenerate} disabled={pending} className="gap-1.5">
@@ -142,6 +149,23 @@ export function DraftActions({ scheduleId, scheduleStatus, hasUnpublishedDraft =
             <AlertDialogCancel disabled={pending}>לא, חזור לשיבוץ</AlertDialogCancel>
             <AlertDialogAction onClick={handleConfirmPublish} disabled={pending}>
               כן, פרסם שיבוץ
+            </AlertDialogAction>
+          </AlertDialogFooter>
+        </AlertDialogContent>
+      </AlertDialog>
+
+      <AlertDialog open={confirmGenerateOpen} onOpenChange={setConfirmGenerateOpen}>
+        <AlertDialogContent dir="rtl">
+          <AlertDialogHeader>
+            <AlertDialogTitle>ליצור שיבוץ אוטומטי מחדש?</AlertDialogTitle>
+            <AlertDialogDescription>
+              יצירה מחדש תחליף את כל האיושים שאינם נעולים, כולל שינויים ידניים שביצעתם. הפעולה אינה הפיכה.
+            </AlertDialogDescription>
+          </AlertDialogHeader>
+          <AlertDialogFooter>
+            <AlertDialogCancel disabled={pending}>ביטול</AlertDialogCancel>
+            <AlertDialogAction onClick={handleConfirmGenerate} disabled={pending} className="bg-destructive text-destructive-foreground hover:bg-destructive/90">
+              כן, החלף את השיבוץ
             </AlertDialogAction>
           </AlertDialogFooter>
         </AlertDialogContent>

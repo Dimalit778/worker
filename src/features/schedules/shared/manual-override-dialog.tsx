@@ -22,7 +22,7 @@ export function ManualOverrideDialog({ violations, onConfirm, onCancel }: {
           <DialogTitle>השיבוץ חורג מכללי השיבוץ</DialogTitle>
           <DialogDescription>ניתן לאשר את החריגה בכל זאת. הסיבה תישמר בהיסטוריית השינויים.</DialogDescription>
         </DialogHeader>
-        <ul className="list-disc space-y-1 pr-5 text-sm">
+        <ul className="list-disc space-y-1 ps-5 text-sm">
           {violations?.map((v, i) => <li key={`${v.code}-${i}`}>{v.message}</li>)}
         </ul>
         <textarea
