@@ -124,9 +124,11 @@ suite('phase 2 workflows against migrated PostgreSQL', () => {
     expect(change.reason).toContain('חג');
     expect(change.beforeData).toEqual({ submissionClosesAt: '2098-01-05T00:00:00.000Z' });
 
+    // Publication closes submissions (submissionClosesAt = publish time); a later extension is rejected and changes nothing.
     await publish();
+    const closedAt = (await prisma.schedule.findUniqueOrThrow({ where: { id: scheduleId } })).submissionClosesAt;
     expect(await extendSubmissionDeadline({ scheduleId, newDeadline: '2098-01-05T21:00', reason: 'שוב' })).toHaveProperty('error');
-    expect((await prisma.schedule.findUniqueOrThrow({ where: { id: scheduleId } })).submissionClosesAt.toISOString()).toBe('2098-01-05T18:00:00.000Z');
+    expect((await prisma.schedule.findUniqueOrThrow({ where: { id: scheduleId } })).submissionClosesAt).toEqual(closedAt);
   });
 
   it('feeds date-specific requirements into generation and freezes them on publication', async () => {
