@@ -1,6 +1,6 @@
 'use server';
 import { requireManager } from '@/lib/db/auth-helpers';
-import { scheduleTransaction, checkedVersion, type VersionExpectation } from '../services/transactions';
+import { scheduleTransaction, checkedVersion, freezePublishedVersion, type VersionExpectation } from '../services/transactions';
 import { loadSchedulingInput } from '../generation/queries';
 import { saveScheduleAnalysis } from '../generation/recalculate';
 import { validateAssignments } from '@/features/scheduling-engine/validate';
@@ -32,14 +32,7 @@ export async function publishSchedule(scheduleId: string, options: VersionExpect
       const problems = analysis.warnings.filter((warning) => warning.severity === 'ERROR');
       if (problems.length && !options.confirmIssues) return { requiresConfirmation: true as const, issueCount: problems.length, message: `קיימות ${problems.length} בעיות בשיבוץ. לפרסם בכל זאת?` };
       const now = new Date();
-      await tx.scheduleVersion.update({ where: { id: version.id }, data: {
-        status: 'PUBLISHED', publishedAt: now, revision: { increment: 1 },
-        capacitySnapshot: data.capacities.map(c => ({
-          id: c.id, positionId: c.positionId, displayName: c.position.name, color: c.position.color,
-          rank: c.position.requiredRank ?? c.position.baseRole?.rank ?? c.position.displayOrder,
-          shiftType: c.shiftType, dayCategory: c.dayCategory, amount: c.requiredCount,
-        })),
-      } });
+      await freezePublishedVersion(tx, version.id, data.capacities, now);
       await tx.schedule.update({ where: { id: scheduleId }, data: {
         status: 'PUBLISHED', publishedAt: now, publishedVersionId: version.id, draftVersionId: null, submissionClosesAt: now,
       } });
