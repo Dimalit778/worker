@@ -108,7 +108,7 @@ export function ManagerEmployeeDetailClient({ employeeId }: { employeeId: string
           <span
             className={cn(
               'inline-flex h-9 items-center rounded-md px-3 text-sm font-medium',
-              employee.isActive ? 'bg-emerald-50 text-emerald-700' : 'bg-slate-100 text-slate-600',
+              employee.isActive ? 'bg-emerald-950 text-emerald-200' : 'bg-secondary text-muted-foreground',
             )}
           >
             {employee.isActive ? 'פעיל' : 'מושבת'}
@@ -184,8 +184,8 @@ export function ManagerEmployeeDetailClient({ employeeId }: { employeeId: string
                               className={cn(
                                 'rounded-md px-2 py-1 text-xs font-medium',
                                 assignment.isManualOverride
-                                  ? 'bg-amber-50 text-amber-800'
-                                  : 'bg-emerald-50 text-emerald-700',
+                                  ? 'bg-amber-950 text-amber-200'
+                                  : 'bg-emerald-950 text-emerald-200',
                               )}
                             >
                               {assignment.isManualOverride ? 'ידני' : 'אוטומטי'}
@@ -236,14 +236,14 @@ export function ManagerEmployeeDetailClient({ employeeId }: { employeeId: string
                       <p className="text-lg font-bold tabular-nums">{record.totalShifts}</p>
                     </div>
                     <div className="mt-3 grid grid-cols-4 gap-2 text-center text-xs">
-                      <span className="rounded-md bg-amber-50 px-2 py-1 text-amber-800">
+                      <span className="rounded-md bg-amber-950 px-2 py-1 text-amber-200">
                         בוקר {record.morningShifts}
                       </span>
-                      <span className="rounded-md bg-sky-50 px-2 py-1 text-sky-800">ערב {record.eveningShifts}</span>
-                      <span className="rounded-md bg-indigo-50 px-2 py-1 text-indigo-800">
+                      <span className="rounded-md bg-sky-950 px-2 py-1 text-sky-200">ערב {record.eveningShifts}</span>
+                      <span className="rounded-md bg-indigo-950 px-2 py-1 text-indigo-200">
                         לילה {record.nightShifts}
                       </span>
-                      <span className="rounded-md bg-slate-100 px-2 py-1 text-slate-700">
+                      <span className="rounded-md bg-secondary px-2 py-1 text-foreground">
                         סופ״ש {record.weekendShifts}
                       </span>
                     </div>

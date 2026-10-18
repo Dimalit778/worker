@@ -137,7 +137,7 @@ export function CreatePeriodForm({
   return (
     <Dialog open={open} onOpenChange={handleOpenChange}>
       <DialogTrigger asChild>
-        <Button type="button" className="gap-2 rounded-lg bg-foreground text-background hover:bg-foreground/90">
+        <Button type="button" className="gap-2">
           <svg className="size-4" viewBox="0 0 16 16" fill="currentColor" aria-hidden>
             <path d="M8 2a.75.75 0 0 1 .75.75v4.5h4.5a.75.75 0 0 1 0 1.5h-4.5v4.5a.75.75 0 0 1-1.5 0v-4.5h-4.5a.75.75 0 0 1 0-1.5h4.5v-4.5A.75.75 0 0 1 8 2Z" />
           </svg>
@@ -267,7 +267,7 @@ export function CreatePeriodForm({
             </p>
           )}
           {openIsPast && (
-            <p className="text-[11px] leading-snug text-amber-700">
+            <p className="text-[11px] leading-snug text-amber-200">
               מועד השליחה המחושב כבר עבר. בחרו מועד עתידי לתקופה הזו.
             </p>
           )}
@@ -292,7 +292,7 @@ export function CreatePeriodForm({
           </div>
 
           {error && (
-            <p className="text-sm text-red-600 bg-red-50 border border-red-200 rounded-md px-3 py-2">{error}</p>
+            <p className="text-sm text-red-200 bg-red-950 border border-red-200 rounded-md px-3 py-2">{error}</p>
           )}
 
           <div className="flex gap-2 pt-1">

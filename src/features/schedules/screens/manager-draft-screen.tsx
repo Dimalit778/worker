@@ -68,7 +68,7 @@ export function ManagerDraftScreen({ scheduleId }: { scheduleId?: string }) {
 
         {isReadonly && (
           <div
-            className="flex gap-3 rounded-2xl border border-green-200/80 bg-green-50 px-4 py-3 text-sm text-green-900 shadow-sm ring-1 ring-green-100"
+            className="flex gap-3 rounded-2xl border border-green-200/80 bg-green-950 px-4 py-3 text-sm text-green-200 shadow-sm ring-1 ring-green-100"
             role="status"
           >
             <span className="select-none text-base leading-none" aria-hidden>

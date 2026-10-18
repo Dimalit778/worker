@@ -50,7 +50,7 @@ export function ManagerEmployeeSubmissionsClient({ employeeId }: { employeeId: s
         <span
           className={cn(
             'inline-flex h-9 items-center self-start rounded-md px-3 text-sm font-medium',
-            data.employee.isActive ? 'bg-emerald-50 text-emerald-700' : 'bg-slate-100 text-slate-600',
+            data.employee.isActive ? 'bg-emerald-950 text-emerald-200' : 'bg-secondary text-muted-foreground',
           )}
         >
           {data.employee.isActive ? 'פעיל' : 'מושבת'}
@@ -60,7 +60,7 @@ export function ManagerEmployeeSubmissionsClient({ employeeId }: { employeeId: s
       <div className="grid gap-3 sm:grid-cols-3">
         <Card className="shadow-sm">
           <CardContent className="flex items-center gap-3 p-4">
-            <BadgeCheck className="size-8 text-emerald-600" aria-hidden />
+            <BadgeCheck className="size-8 text-emerald-200" aria-hidden />
             <div>
               <p className="text-2xl font-bold tabular-nums">{submittedCount}</p>
               <p className="text-xs text-muted-foreground">תקופות שהוגשו</p>
@@ -69,7 +69,7 @@ export function ManagerEmployeeSubmissionsClient({ employeeId }: { employeeId: s
         </Card>
         <Card className="shadow-sm">
           <CardContent className="flex items-center gap-3 p-4">
-            <CalendarCheck2 className="size-8 text-amber-600" aria-hidden />
+            <CalendarCheck2 className="size-8 text-amber-200" aria-hidden />
             <div>
               <p className="text-2xl font-bold tabular-nums">{selectedSlotCount}</p>
               <p className="text-xs text-muted-foreground">משמרות מסומנות</p>
@@ -78,7 +78,7 @@ export function ManagerEmployeeSubmissionsClient({ employeeId }: { employeeId: s
         </Card>
         <Card className="shadow-sm">
           <CardContent className="flex items-center gap-3 p-4">
-            <UserRound className="size-8 text-sky-600" aria-hidden />
+            <UserRound className="size-8 text-sky-200" aria-hidden />
             <div>
               <p className="text-2xl font-bold tabular-nums">{openPeriods}</p>
               <p className="text-xs text-muted-foreground">תקופות פתוחות</p>

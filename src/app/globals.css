@@ -78,143 +78,59 @@
   --radius-4xl: calc(var(--radius) * 2.6);
 
   /* Fonts */
-  --font-heading: var(--font-sans);
-  --font-sans: var(--font-sans);
+  --font-heading: var(--font-hebrew);
+  --font-sans: var(--font-hebrew);
 }
 
-:root {
-  --radius: 0.625rem;
-
-  /* App */
-  --background: #f7f8fa;
-  --foreground: #111827;
-
-  /* Cards / surfaces */
-  --card: #ffffff;
-  --card-header: #dee2e6;
-  --card-foreground: #111827;
-
-  --popover: #ffffff;
-  --popover-foreground: #111827;
-
-  /* Brand - main system color */
-  --primary: #1e3a5f;
-  --primary-foreground: #ffffff;
-
-  /* Secondary */
-  --secondary: #f1f5f9;
-  --secondary-foreground: #334155;
-
-  /* Muted */
-  --muted: #f8fafc;
-  --muted-foreground: #6b7280;
-
-  /* Accent - court / gold identity */
-  --accent: #fff4d6;
-  --accent-foreground: #b77900;
-
-  /* Destructive */
-  --destructive: #dc2626;
-  --destructive-foreground: #ffffff;
-
-  /* Borders / inputs */
-  --border: #e5e7eb;
-  --input: #d1d5db;
-  --ring: #1e3a5f;
-
-  /* Charts */
-  --chart-1: #2563eb;
-  --chart-2: #0d9488;
-  --chart-3: #16a34a;
-  --chart-4: #d99a00;
-  --chart-5: #7c3aed;
-  --chart-6: #e11d48;
-  --chart-7: #64748b;
-  --chart-8: #0891b2;
-  --chart-9: #4f46e5;
-  --chart-10: #475569;
-
-  /* Sidebar */
-  --sidebar: #ffffff;
-  --sidebar-foreground: #111827;
-
-  --sidebar-primary: #1e3a5f;
-  --sidebar-primary-foreground: #ffffff;
-
-  --sidebar-accent: #eaf1f8;
-  --sidebar-accent-foreground: #1e3a5f;
-
-  --sidebar-border: #e5e7eb;
-  --sidebar-ring: #1e3a5f;
-
-  /* Dense Data Surface: shift-type identity colors (white text, contrast verified 6.7:1+) */
-  --shift-morning: #0f4c81;
-  --shift-evening: #1d4ed8;
-  --shift-night: #4c1d95;
-}
-
+:root,
 .dark {
-  /* App */
-  --background: #0f172a;
-  --foreground: #f8fafc;
-
-  /* Cards / surfaces */
-  --card: #111827;
-  --card-header: #1f2937;
-  --card-foreground: #f8fafc;
-
-  --popover: #111827;
-  --popover-foreground: #f8fafc;
-
-  /* Brand */
-  --primary: #7dd3fc;
-  --primary-foreground: #082f49;
-
-  /* Secondary */
-  --secondary: #1e293b;
-  --secondary-foreground: #f8fafc;
-
-  /* Muted */
-  --muted: #1e293b;
-  --muted-foreground: #94a3b8;
-
-  /* Accent */
-  --accent: #422006;
-  --accent-foreground: #fde68a;
-
-  /* Destructive */
-  --destructive: #ef4444;
-  --destructive-foreground: #ffffff;
-
-  /* Borders / inputs */
-  --border: rgba(255, 255, 255, 0.1);
-  --input: rgba(255, 255, 255, 0.15);
-  --ring: #38bdf8;
-
-  /* Charts */
-  --chart-1: #60a5fa;
-  --chart-2: #2dd4bf;
-  --chart-3: #4ade80;
-  --chart-4: #fbbf24;
-  --chart-5: #a78bfa;
-  --chart-6: #fb7185;
-  --chart-7: #94a3b8;
-  --chart-8: #22d3ee;
-  --chart-9: #818cf8;
-  --chart-10: #cbd5e1;
-
-  /* Sidebar */
-  --sidebar: #111827;
-  --sidebar-foreground: #f8fafc;
-
-  --sidebar-primary: #7dd3fc;
-  --sidebar-primary-foreground: #082f49;
-
-  --sidebar-accent: #1e293b;
-  --sidebar-accent-foreground: #f8fafc;
-
-  --sidebar-border: rgba(255, 255, 255, 0.1);
-  --sidebar-ring: #38bdf8;
+  color-scheme: dark;
+  --radius: 1rem;
+  --background: #05060f;
+  --foreground: #d1e4fa;
+  --card: #0c0f1a;
+  --card-header: #101522;
+  --card-foreground: #d1e4fa;
+  --popover: #10131f;
+  --popover-foreground: #d1e4fa;
+  --primary: #d1e4fa;
+  --primary-foreground: #05060f;
+  --secondary: #1a2030;
+  --secondary-foreground: #d1e4fa;
+  --muted: #141a28;
+  --muted-foreground: #9da7ba;
+  --accent: #202a3b;
+  --accent-foreground: #d8ecf8;
+  --destructive: #fda4af;
+  --destructive-foreground: #05060f;
+  --border: rgba(186, 215, 247, 0.12);
+  --input: rgba(199, 211, 234, 0.12);
+  --ring: #98c0ef;
+  --sidebar: #090c16;
+  --sidebar-foreground: #d1e4fa;
+  --sidebar-primary: #202b3e;
+  --sidebar-primary-foreground: #d8ecf8;
+  --sidebar-accent: #151d2c;
+  --sidebar-accent-foreground: #d1e4fa;
+  --sidebar-border: rgba(186, 215, 247, 0.12);
+  --sidebar-ring: #98c0ef;
+  /* Data colors remain semantic: status must survive the visual redesign. */
+  --chart-1: #98c0ef;
+  --chart-2: #71bdb4;
+  --chart-3: #99c6a4;
+  --chart-4: #dbbc83;
+  --chart-5: #bab1d9;
+  --chart-6: #dba1af;
+  --chart-7: #9da7ba;
+  --chart-8: #8ac4d1;
+  --chart-9: #a3b2d9;
+  --chart-10: #c7d3ea;
+  --shift-morning: #223f5b;
+  --shift-evening: #293751;
+  --shift-night: #38304e;
+  --glass-shadow: inset 0 1px 1px rgba(216, 236, 248, 0.2),
+    inset 0 24px 48px rgba(168, 216, 245, 0.04),
+    0 16px 32px rgba(0, 0, 0, 0.3);
 }
 
 @layer base {
@@ -243,8 +159,8 @@
 @utility schedule-slot-closed {
   background-image: repeating-linear-gradient(
     135deg,
-    rgba(0, 0, 0, 0.06) 0,
-    rgba(0, 0, 0, 0.06) 1px,
+    rgba(186, 215, 247, 0.1) 0,
+    rgba(186, 215, 247, 0.1) 1px,
     transparent 1px,
     transparent 6px
   );
@@ -257,4 +173,91 @@
   &::-webkit-scrollbar {
     display: none;
   }
+}
+
+/* Shared midnight glass language, including Radix surfaces rendered in portals. */
+@layer base {
+  body {
+    background-image: radial-gradient(ellipse at 50% 0%, rgba(124,145,182,.16), transparent 55%),
+      linear-gradient(rgba(186,215,247,.025) 1px, transparent 1px),
+      linear-gradient(90deg, rgba(186,215,247,.025) 1px, transparent 1px);
+    background-size: 100% 720px, 88px 88px, 88px 88px;
+    background-attachment: fixed;
+  }
+  h1, h2, h3 { font-weight: 500; letter-spacing: -.025em; }
+  h1 { color: #d8ecf8; }
+  ::selection { background: #324562; color: #fff; }
+  :focus-visible { outline: 2px solid var(--ring); outline-offset: 3px; }
+  select, textarea { background-color: var(--card); color: var(--foreground); }
+}
+
+[data-slot='card'],
+[data-slot='dialog-content'],
+[data-slot='alert-dialog-content'] {
+  border-radius: 16px;
+  box-shadow: var(--glass-shadow);
+}
+[data-slot='card-header'] {
+  background: linear-gradient(180deg, rgba(199,211,234,.035), transparent);
+  border-radius: 16px 16px 0 0;
+}
+[data-slot='input'], [data-slot='select-trigger'], textarea {
+  border-radius: 6px;
+  border-color: var(--border);
+  box-shadow: inset 0 1px 1px rgba(216,236,248,.06);
+}
+[data-slot='badge'] { border-radius: 6px; }
+main h1, .auth-shell [data-slot='card-title'] {
+  background-image: linear-gradient(0deg, #d8ecf8, #98c0ef);
+  background-clip: text; color: transparent; font-weight: 500;
+}
+[data-slot='table-header'] { background: rgba(199,211,234,.035); }
+[data-slot='dropdown-menu-content'], [data-slot='dropdown-menu-sub-content'], [data-slot='select-content'] {
+  border-radius: 16px;
+  background-color: var(--popover);
+  box-shadow: var(--glass-shadow);
+}
+.app-shell { background: transparent; }
+.app-shell > aside { box-shadow: inset 1px 0 rgba(186,215,247,.06); }
+.app-shell nav a, .employee-nav a { border-radius: 999px; }
+.app-shell nav a[aria-current='page'] {
+  box-shadow: inset 0 1px 1px rgba(216,236,248,.18), inset 0 0 0 1px var(--border);
+}
+.auth-shell {
+  background: radial-gradient(ellipse at 50% 15%, rgba(124,145,182,.18), transparent 60%);
+}
+.auth-shell [data-slot='card'] {
+  background: rgba(5,6,15,.97);
+  box-shadow: var(--glass-shadow), 0 0 100px rgba(152,192,239,.06);
+}
+.auth-shell [data-slot='card-header'] { padding-block: 32px 24px; }
+.auth-shell [data-slot='card-content'] { padding-bottom: 32px; }
+.auth-shell [data-slot='card-title'] { font-size: 28px; font-weight: 500; }
+.auth-shell button[type='submit'][data-slot='button'] {
+  background: #663af3;
+  color: #fff;
+  min-height: 42px;
+}
+.auth-shell button[type='submit'][data-slot='button']:hover { background: #7650f5; }
+.auth-eyebrow {
+  display: flex; align-items: center; gap: 16px; color: #9da7ba;
+  font-size: 12px; letter-spacing: .1em;
+}
+.auth-eyebrow::before, .auth-eyebrow::after {
+  content: ''; width: 64px; height: 1px;
+  background: linear-gradient(90deg, transparent, rgba(186,215,247,.24), transparent);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  *, *::before, *::after { scroll-behavior: auto !important; transition-duration: 0ms !important; animation-duration: 0ms !important; }
+}
+
+@media print {
+  :root, .dark { color-scheme: light; --background: #fff; --foreground: #111827;
+    --card: #fff; --card-header: #f1f5f9; --card-foreground: #111827;
+    --muted: #f1f5f9; --muted-foreground: #475569; --border: #cbd5e1;
+    --primary: #1e3a5f; --primary-foreground: #fff; }
+  body { background-image: none; }
+  [data-slot='card'] { box-shadow: none; }
+  main h1, .auth-shell [data-slot='card-title'] { background-image: none; color: #111827; }
 }

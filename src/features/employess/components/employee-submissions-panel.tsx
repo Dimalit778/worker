@@ -94,9 +94,9 @@ export function EmployeeSubmissionsPanel({ periods }: EmployeeSubmissionsPanelPr
                     </p>
                   </div>
                   {period.isSubmitted ? (
-                    <CheckCircle2 className="size-5 shrink-0 text-emerald-600" aria-hidden />
+                    <CheckCircle2 className="size-5 shrink-0 text-emerald-200" aria-hidden />
                   ) : (
-                    <Clock3 className="size-5 shrink-0 text-amber-600" aria-hidden />
+                    <Clock3 className="size-5 shrink-0 text-amber-200" aria-hidden />
                   )}
                 </div>
 
@@ -107,7 +107,7 @@ export function EmployeeSubmissionsPanel({ periods }: EmployeeSubmissionsPanelPr
                   <span
                     className={cn(
                       'rounded-md px-2 py-1 font-medium',
-                      period.isSubmitted ? 'bg-emerald-50 text-emerald-700' : 'bg-amber-50 text-amber-800',
+                      period.isSubmitted ? 'bg-emerald-950 text-emerald-200' : 'bg-amber-950 text-amber-200',
                     )}
                   >
                     {period.isSubmitted ? 'הוגש' : 'לא הוגש'}
@@ -136,7 +136,7 @@ export function EmployeeSubmissionsPanel({ periods }: EmployeeSubmissionsPanelPr
                 <span
                   className={cn(
                     'rounded-md px-2.5 py-1 font-medium',
-                    selected.isSubmitted ? 'bg-emerald-50 text-emerald-700' : 'bg-amber-50 text-amber-800',
+                    selected.isSubmitted ? 'bg-emerald-950 text-emerald-200' : 'bg-amber-950 text-amber-200',
                   )}
                 >
                   {selected.isSubmitted ? 'הוגש' : 'לא הוגש'}

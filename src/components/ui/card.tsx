@@ -8,7 +8,7 @@ function Card({ className, size = 'default', ...props }: React.ComponentProps<'d
       data-slot="card"
       data-size={size}
       className={cn(
-        'group/card flex flex-col overflow-hidden rounded-4xl bg-card text-sm text-card-foreground shadow-md ring-1 ring-foreground/5 dark:ring-foreground/10',
+        'group/card flex flex-col overflow-hidden rounded-2xl bg-card text-sm text-card-foreground shadow-[var(--glass-shadow)] ring-1 ring-border',
         className,
       )}
       {...props}
@@ -21,7 +21,7 @@ function CardHeader({ className, ...props }: React.ComponentProps<'div'>) {
     <div
       data-slot="card-header"
       className={cn(
-        'group/card-header @container/card-header grid auto-rows-min items-start py-4 rounded-t-4xl border-b border-border bg-card-header px-6 pb-4 group-data-[size=sm]/card:px-4 group-data-[size=sm]/card:pb-3 has-data-[slot=card-action]:grid-cols-[1fr_auto] has-data-[slot=card-description]:grid-rows-[auto_auto]',
+        'group/card-header @container/card-header grid auto-rows-min items-start py-4 rounded-t-2xl border-b border-border bg-card-header px-6 pb-4 group-data-[size=sm]/card:px-4 group-data-[size=sm]/card:pb-3 has-data-[slot=card-action]:grid-cols-[1fr_auto] has-data-[slot=card-description]:grid-rows-[auto_auto]',
         className,
       )}
       {...props}
@@ -58,7 +58,7 @@ function CardFooter({ className, ...props }: React.ComponentProps<'div'>) {
     <div
       data-slot="card-footer"
       className={cn(
-        'flex items-center rounded-b-4xl px-6 group-data-[size=sm]/card:px-4 [.border-t]:pt-6 group-data-[size=sm]/card:[.border-t]:pt-4',
+        'flex items-center rounded-b-2xl px-6 group-data-[size=sm]/card:px-4 [.border-t]:pt-6 group-data-[size=sm]/card:[.border-t]:pt-4',
         className,
       )}
       {...props}

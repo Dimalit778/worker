@@ -115,13 +115,13 @@ function StatTile({
       className={cn(
         'flex items-center justify-between gap-3 rounded-xl border px-4 py-3 text-end transition-all',
         disabled ? 'cursor-default border-border/60 bg-muted/30' : 'cursor-pointer hover:-translate-y-px hover:shadow-md active:translate-y-0',
-        !disabled && danger && (open ? 'border-red-400 bg-red-50 ring-2 ring-red-400' : 'border-red-200 bg-red-50/60'),
+        !disabled && danger && (open ? 'border-red-400 bg-red-950 ring-2 ring-red-400' : 'border-red-200 bg-red-950/60'),
         !disabled && !danger && (open ? 'border-primary bg-primary/5 ring-2 ring-primary' : 'border-border/60 bg-muted/30'),
       )}
     >
       <span className="min-w-0">
-        <span className={cn('block text-xs font-medium', danger ? 'text-red-600' : 'text-muted-foreground')}>{label}</span>
-        <span className={cn('mt-1 block tabular-nums', danger ? 'text-red-600' : 'text-foreground')}>{value}</span>
+        <span className={cn('block text-xs font-medium', danger ? 'text-red-200' : 'text-muted-foreground')}>{label}</span>
+        <span className={cn('mt-1 block tabular-nums', danger ? 'text-red-200' : 'text-foreground')}>{value}</span>
       </span>
       <ChevronDown
         className={cn('size-4 shrink-0 text-muted-foreground transition-transform', open && 'rotate-180', danger && 'text-red-500', disabled && 'opacity-40')}

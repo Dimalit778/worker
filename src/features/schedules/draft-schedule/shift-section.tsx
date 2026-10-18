@@ -170,7 +170,7 @@ export function ShiftSection(props: ShiftSectionProps) {
             {bodyRows.map(({ pos, visualRow, rowSpan, isFirstRow, assignmentsByDay }, rowIdx) => {
               const hidePositionLabel = isGuardPositionLabel(pos.positionName);
               const isGrayPosition = pos.positionRank === 2 || pos.positionRank === 3;
-              const grayStyle = isGrayPosition ? { backgroundColor: '#e5e7eb' } : undefined;
+              const grayStyle = isGrayPosition ? { backgroundColor: 'var(--muted)' } : undefined;
 
               return (
                 <tr
@@ -186,7 +186,7 @@ export function ShiftSection(props: ShiftSectionProps) {
                         narrowColCell,
                         'align-middle px-0.5 py-1 text-center border border-border/60 bg-muted/20 text-xs font-semibold leading-tight overflow-hidden',
                         hidePositionLabel && 'text-transparent',
-                        isGrayPosition && 'border-gray-300',
+                        isGrayPosition && 'border-border',
                       )}
                       title={hidePositionLabel ? undefined : pos.positionName}
                       aria-label={hidePositionLabel ? pos.positionName : undefined}

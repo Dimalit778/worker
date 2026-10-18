@@ -118,9 +118,9 @@ export function createEmployeesColumns({
         const isActive = row.original.isActive;
 
         return isActive ? (
-          <Badge className="rounded-full bg-green-100 text-green-800 hover:bg-green-100">פעיל</Badge>
+          <Badge className="rounded-full bg-green-950 text-green-200 hover:bg-green-950">פעיל</Badge>
         ) : (
-          <Badge variant="secondary" className="rounded-full bg-slate-100 text-slate-600 hover:bg-slate-100">
+          <Badge variant="secondary" className="rounded-full bg-secondary text-muted-foreground hover:bg-secondary">
             מושבת
           </Badge>
         );

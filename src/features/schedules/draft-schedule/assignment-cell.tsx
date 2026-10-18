@@ -107,9 +107,9 @@ export function AssignmentCell({
   const isHighlighted = Boolean(highlightedEmployeeId && assignment?.employeeId === highlightedEmployeeId);
   const positionStyle = (positionColor === undefined && !mutedPosition) || isHighlighted || anonymousRow
     ? undefined
-    : { backgroundColor: mutedPosition ? '#e5e7eb' : positionColor ? `${positionColor}28` : '#ffffff' };
+    : { backgroundColor: mutedPosition ? 'var(--muted)' : positionColor ? `${positionColor}28` : 'var(--card)' };
   const highlightClass =
-    'bg-amber-200/90 text-amber-950 ring-2 ring-amber-500 ring-inset shadow-[inset_0_0_0_1px_rgba(245,158,11,0.45)]';
+    'bg-amber-950/90 text-amber-200 ring-2 ring-amber-500 ring-inset shadow-[inset_0_0_0_1px_rgba(245,158,11,0.45)]';
 
   const rowLayout = as === 'row';
 
@@ -148,7 +148,7 @@ export function AssignmentCell({
             ? 'flex min-h-11 w-full items-center justify-between rounded-md px-3 py-2 text-start'
             : 'min-w-[62px] min-h-[32px] px-1 py-0.5',
           anonymousRow && 'bg-card',
-          mutedPosition && 'border-gray-300',
+          mutedPosition && 'border-border',
           isHighlighted && !anonymousRow && highlightClass,
         )}
         style={positionStyle}
@@ -202,7 +202,7 @@ export function AssignmentCell({
           ? 'flex min-h-11 w-full items-center justify-between gap-2 rounded-md px-3 py-2 text-start'
           : 'min-w-[62px] min-h-[32px] px-1 py-0.5',
         anonymousRow ? 'bg-card' : assignment ? 'hover:bg-accent/60' : 'bg-muted/40 hover:bg-accent/30',
-        mutedPosition && 'border-gray-300',
+        mutedPosition && 'border-border',
         isHighlighted && !anonymousRow && highlightClass,
         pending && 'opacity-50 pointer-events-none',
         open && 'ring-2 ring-primary ring-inset',

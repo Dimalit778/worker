@@ -79,7 +79,7 @@ export function ScheduleCalendar({
         </div>
         {viewOnly ? (
           submitted ? (
-            <span className="inline-flex items-center gap-1.5 text-sm px-3 py-1.5 bg-green-100 text-green-700 rounded-full font-medium">
+            <span className="inline-flex items-center gap-1.5 text-sm px-3 py-1.5 bg-green-950 text-green-200 rounded-full font-medium">
               <span>✓</span> זמינות הוגשה
             </span>
           ) : (
@@ -88,7 +88,7 @@ export function ScheduleCalendar({
             </span>
           )
         ) : submitted ? (
-          <span className="inline-flex items-center gap-1.5 text-sm px-3 py-1.5 bg-green-100 text-green-700 rounded-full font-medium">
+          <span className="inline-flex items-center gap-1.5 text-sm px-3 py-1.5 bg-green-950 text-green-200 rounded-full font-medium">
             <span>✓</span> זמינות הוגשה
           </span>
         ) : (
@@ -114,7 +114,7 @@ export function ScheduleCalendar({
 
       {/* Two-week grid */}
       {[week].map((week) => (
-        <div key={weekIndex} className="rounded-xl border border-border overflow-hidden bg-white shadow-sm">
+        <div key={weekIndex} className="rounded-xl border border-border overflow-hidden bg-card shadow-sm">
           <div className="bg-muted/60 px-4 py-2 text-xs font-medium text-muted-foreground border-b border-border">
             <div className="flex items-center justify-between gap-2"><Button variant="outline" className="min-h-11" disabled={weekIndex === 0} onClick={() => setWeekIndex(i => i - 1)}>→ הקודם</Button><span aria-live="polite">שבוע {weekIndex + 1} מתוך {weekCount}</span><Button variant="outline" className="min-h-11" disabled={weekIndex >= weekCount - 1} onClick={() => setWeekIndex(i => i + 1)}>הבא ←</Button></div>
           </div>
@@ -134,7 +134,7 @@ export function ScheduleCalendar({
                         key={date}
                         className={cn(
                           'px-1 py-2 text-center font-medium border-b border-e last:border-e-0 border-border min-w-0',
-                          isWeekend && 'bg-slate-50',
+                          isWeekend && 'bg-muted',
                         )}
                       >
                         <div className="text-muted-foreground font-normal">{DAY_HE[d.getUTCDay()]}</div>
@@ -160,7 +160,7 @@ export function ScheduleCalendar({
                       return (
                         <td
                           key={date}
-                          className={cn('border-e last:border-e-0 border-border p-1', isWeekend && 'bg-slate-50/60')}
+                          className={cn('border-e last:border-e-0 border-border p-1', isWeekend && 'bg-muted/60')}
                         >
                           <button
                             type="button"
@@ -219,7 +219,7 @@ export function ScheduleCalendar({
           <button
             onClick={handleSubmit}
             disabled={pending}
-            className="bg-foreground text-background text-sm px-6 py-2.5 rounded-lg font-medium hover:opacity-90 disabled:opacity-40 transition-opacity"
+            className="border border-border bg-secondary/70 text-foreground text-sm px-6 py-2.5 rounded-full font-medium hover:opacity-90 disabled:opacity-40 transition-opacity"
           >
             {pending ? 'שומר...' : submitted ? 'עדכן זמינות' : 'הגש זמינות'}
           </button>
