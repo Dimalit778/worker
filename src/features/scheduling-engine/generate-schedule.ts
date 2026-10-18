@@ -207,6 +207,7 @@ export function generateSchedule(input: EngineInput): EngineOutput {
       assignments: workingAssignments,
       fairnessSummary: fairness,
       dateOverrides: input.dateOverrides,
+      timeOff: input.timeOff,
     }),
     overflowCandidates,
     fairnessSummary: computeFairnessSummary([...input.manualAssignments, ...autoAssignments]),

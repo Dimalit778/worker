@@ -3,6 +3,8 @@ import { prisma } from '@/lib/db/client';
 import { requireManager } from '@/lib/db/auth-helpers';
 import { addDays } from '@/features/scheduling-engine/constraints';
 import type { EngineAssignment, EngineDateOverride, EngineInput } from '@/features/scheduling-engine/types';
+import { loadApprovedTimeOff } from '@/features/requests/queries';
+import { applyTimeOffToAvailability } from '@/features/requests/rules';
 
 // Inactive employees are loaded too: the engine skips them for new slots, while their existing slots stay editable.
 const staffedUser = { role: { rank: { not: 1 } } };
@@ -30,7 +32,7 @@ export function toEngineDateOverride(row: OverrideRow): EngineDateOverride {
 export async function loadSchedulingInput(tx: Prisma.TransactionClient, scheduleId: string, facilityId: string, versionId: string | null, loadedSchedule?: Schedule) {
   const schedule = loadedSchedule ?? await tx.schedule.findFirst({ where: { id: scheduleId, facilityId } });
   if (!schedule) throw new Error('השיבוץ לא נמצא');
-  const [employees, capacities, dateOverrides, forms, assignments, surrounding] = await Promise.all([
+  const [employees, capacities, dateOverrides, forms, assignments, surrounding, timeOff] = await Promise.all([
     tx.user.findMany({ where: { facilityId, ...staffedUser }, select: { id: true, displayName: true, roleId: true, isActive: true, role: { select: { id: true, name: true, rank: true } } } }),
     tx.staffingRequirement.findMany({ where: { facilityId, position: staffedPosition }, include: { position: { include: { baseRole: true } } } }),
     tx.staffingDateOverride.findMany({
@@ -52,6 +54,7 @@ export async function loadSchedulingInput(tx: Prisma.TransactionClient, schedule
         date: { gte: addDays(schedule.startDate, -56), lte: addDays(schedule.endDate, 1) },
       },
     }),
+    loadApprovedTimeOff(tx, facilityId, schedule.startDate, schedule.endDate),
   ]);
   const toEngine = (a: { userId: string | null; facilityId: string; positionId: string; date: Date; shiftType: EngineAssignment['shiftType']; slotNumber: number; isLocked: boolean; source: EngineAssignment['source'] }): EngineAssignment => ({
     employeeId: a.userId ?? '',
@@ -69,6 +72,8 @@ export async function loadSchedulingInput(tx: Prisma.TransactionClient, schedule
     availability.set(form.userId, new Set(form.availabilities.filter((s) => s.preference !== 'UNAVAILABLE').map((s) => `${s.date.toISOString().slice(0, 10)}|${s.shiftType}`)));
     preferences.set(form.userId, new Set(form.availabilities.filter((s) => s.preference === 'PREFERRED').map((s) => `${s.date.toISOString().slice(0, 10)}|${s.shiftType}`)));
   }
+  // Approved vacation days count as unavailable for auto-generation.
+  applyTimeOffToAvailability(availability, preferences, timeOff);
   const dates: Date[] = [];
   for (let d = schedule.startDate; d <= schedule.endDate; d = addDays(d, 1)) dates.push(d);
   const input: EngineInput = {
@@ -92,6 +97,7 @@ export async function loadSchedulingInput(tx: Prisma.TransactionClient, schedule
     historicalAssignments: surrounding.filter((a) => a.date < schedule.startDate && a.userId).map(toEngine),
     boundaryAssignments: surrounding.filter((a) => a.date >= addDays(schedule.startDate, -1) && a.userId).map(toEngine),
     holidayCategories: new Map(),
+    timeOff,
   };
   return { input, employees, capacities, dateOverrides, forms, assignments, allAssignments: assignments.filter((a) => a.userId).map(toEngine), schedule };
 }

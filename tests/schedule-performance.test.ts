@@ -8,6 +8,7 @@ const db = vi.hoisted(() => ({
   user: { findMany: vi.fn() },
   staffingRequirement: { findMany: vi.fn() },
   staffingDateOverride: { findMany: vi.fn().mockResolvedValue([]) },
+  employeeRequest: { findMany: vi.fn().mockResolvedValue([]) },
   availabilitySubmission: { findMany: vi.fn() },
   scheduleSlot: { findMany: vi.fn() },
 }));

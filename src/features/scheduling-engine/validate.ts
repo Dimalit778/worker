@@ -1,4 +1,4 @@
-import { buildSlots, createSlotKey, findRequiredRank } from './slots';
+import { buildSlots, createDateKey, createSlotKey, findRequiredRank } from './slots';
 import { isAvailable, isDoubleBooked, isEligibleForSlot, getSlotFillCount } from './constraints';
 import type { EngineAssignment, EngineInput } from './types';
 
@@ -32,6 +32,8 @@ export function validateAssignments(
     const slot = slotMap.get(createSlotKey(assignment));
     if (!employee || !slot || !isEligibleForSlot(employee, slot)) {
       errors.push('עובד, תפקיד, מתקן או תאריך אינם תקינים לשיבוץ');
+    } else if (input.timeOff?.get(employee.id)?.has(createDateKey(assignment.date))) {
+      errors.push('העובד בחופשה מאושרת בתאריך זה');
     } else if (!isAvailable(employee.id, assignment.date, assignment.shiftType, input.availability)) {
       errors.push('העובד לא הגיש זמינות למשמרת');
     }

@@ -82,6 +82,8 @@ export interface EngineInput {
   capacities: EngineCapacity[];
   // Holiday/event requirements; each replaces the matching day-category amount on its date.
   dateOverrides?: EngineDateOverride[];
+  // employeeId → Set of "YYYY-MM-DD" days on approved time off (already removed from availability).
+  timeOff?: Map<string, Set<string>>;
   // Explicitly locked assignments; provenance is stored separately by the application.
   manualAssignments: EngineAssignment[];
   scheduleId: string;

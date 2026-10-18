@@ -243,6 +243,26 @@ export function createFairnessWarnings(
     }));
 }
 
+// ─── Time-off warnings ────────────────────────────────────────────────────────
+
+// Existing assignments that fall on an employee's approved time off.
+export function createTimeOffWarnings(
+  assignments: EngineAssignment[],
+  timeOff: Map<string, Set<string>> = new Map()
+): EngineWarning[] {
+  return assignments
+    .filter((a) => timeOff.get(a.employeeId)?.has(createDateKey(a.date)))
+    .map((a) => ({
+      type: "CONFLICT" as const,
+      severity: "ERROR" as const,
+      employeeId: a.employeeId,
+      positionId: a.positionId,
+      date: a.date,
+      shiftType: a.shiftType,
+      message: `${createDateKey(a.date).split("-").reverse().join("/")} · ${SHIFT_LABELS[a.shiftType]} — העובד משובץ בזמן חופשה מאושרת.`,
+    }));
+}
+
 // ─── Combined entry point ─────────────────────────────────────────────────────
 
 export function createWarnings({
@@ -251,15 +271,18 @@ export function createWarnings({
   assignments,
   fairnessSummary,
   dateOverrides,
+  timeOff,
 }: {
   unmetMinimums: UnmetMinimum[];
   slots: EngineSlot[];
   assignments: EngineAssignment[];
   fairnessSummary: Map<string, FairnessSummary>;
   dateOverrides?: EngineDateOverride[];
+  timeOff?: Map<string, Set<string>>;
 }): EngineWarning[] {
   return [
     ...createMinimumWarnings(unmetMinimums),
+    ...createTimeOffWarnings(assignments, timeOff),
     ...createMandatoryStaffingWarnings(slots, assignments, dateOverrides),
     ...createCapacityWarnings(slots, assignments),
     ...createFairnessWarnings(fairnessSummary),
