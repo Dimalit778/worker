@@ -14,9 +14,9 @@ export default async function AdminLayout({ children }: { children: React.ReactN
   const session = await requireSession(SystemRole.ADMIN);
 
   return (
-    <div className="min-h-screen flex bg-background">
+    <div className="app-shell min-h-screen flex flex-col md:flex-row">
       {/* Sidebar */}
-      <aside className="w-56 border-e bg-card flex flex-col shrink-0">
+      <aside className="w-full md:w-56 border-e bg-sidebar flex flex-col shrink-0">
         <div className="p-4 border-b">
           <p className="font-bold text-sm">ניהול מערכת</p>
           <p className="text-xs text-muted-foreground mt-0.5">{session.user.name}</p>
@@ -38,7 +38,7 @@ export default async function AdminLayout({ children }: { children: React.ReactN
       </aside>
 
       {/* Main */}
-      <main className="flex-1 p-6 overflow-auto">{children}</main>
+      <main className="min-w-0 flex-1 p-4 md:p-8 overflow-auto">{children}</main>
     </div>
   );
 }

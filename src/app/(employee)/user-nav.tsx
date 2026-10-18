@@ -13,13 +13,14 @@ export function UserNav({ items }: { items: NavItem[] }) {
   const pathname = usePathname();
 
   return (
-    <nav className="max-w-lg mx-auto flex flex-wrap gap-2 justify-center border-t border-border pt-3">
+    <nav className="employee-nav max-w-lg mx-auto flex flex-wrap gap-2 justify-center">
       {items.map((item) => {
         const isActive = item.href === '/employee' ? pathname === '/employee' : pathname.startsWith(item.href);
         return (
           <Link
             key={item.href}
             href={item.href}
+            aria-current={isActive ? 'page' : undefined}
             className={`relative rounded-md px-2.5 py-1 text-sm transition-colors ${
               isActive
                 ? 'bg-accent text-accent-foreground font-medium'

@@ -23,21 +23,21 @@ const SHIFT_DISPLAYS: Record<ShiftType, ShiftDisplay> = {
     shiftType: 'MORNING',
     label: 'בוקר',
     time: '07:00-15:00',
-    tone: 'border-sky-200 bg-sky-50 text-sky-950',
+    tone: 'border-sky-200 bg-sky-950 text-sky-200',
     icon: <Sunrise className="size-4" aria-hidden />,
   },
   EVENING: {
     shiftType: 'EVENING',
     label: 'ערב',
     time: '15:00-23:00',
-    tone: 'border-indigo-200 bg-indigo-50 text-indigo-950',
+    tone: 'border-indigo-200 bg-indigo-950 text-indigo-200',
     icon: <Sunset className="size-4" aria-hidden />,
   },
   NIGHT: {
     shiftType: 'NIGHT',
     label: 'לילה',
     time: '23:00-07:00',
-    tone: 'border-violet-200 bg-violet-50 text-violet-950',
+    tone: 'border-violet-200 bg-violet-950 text-violet-200',
     icon: <Moon className="size-4" aria-hidden />,
   },
 };
@@ -101,7 +101,7 @@ function RoleGroup({
     <section className="space-y-2">
       <div className="flex items-center gap-2">
         <h3 className="text-xs font-semibold text-muted-foreground">{role}</h3>
-        <span className={cn("rounded-sm px-1.5 py-0.5 text-xs font-semibold", assignedCount < requiredCount ? "bg-amber-100 text-amber-950" : "bg-muted text-muted-foreground")}>
+        <span className={cn("rounded-sm px-1.5 py-0.5 text-xs font-semibold", assignedCount < requiredCount ? "bg-amber-950 text-amber-200" : "bg-muted text-muted-foreground")}>
           {assignedCount < requiredCount ? `חסר ${role}${requiredCount - assignedCount > 1 ? ` (${requiredCount - assignedCount})` : ""}` : "מאויש"} · {assignedCount}/{requiredCount}
         </span>
       </div>
@@ -189,11 +189,11 @@ export function ShiftRoster({
           </div>
         </div>
         <div className="flex shrink-0 flex-col items-end gap-1">
-          <span className={cn("rounded-md px-2 py-1 text-xs font-semibold", assignedCount < requiredCount ? "bg-amber-100 text-amber-950" : "bg-white/70")}>
+          <span className={cn("rounded-md px-2 py-1 text-xs font-semibold", assignedCount < requiredCount ? "bg-amber-950 text-amber-200" : "bg-secondary/70")}>
             {assignedCount < requiredCount ? (requiredCount - assignedCount === 1 ? "חסר עובד אחד" : `חסרים ${requiredCount - assignedCount} עובדים`) : "מאויש"} · {assignedCount}/{requiredCount}
           </span>
           {currentAssignmentsCount > 0 ? (
-            <span className="rounded-md border border-primary/20 bg-white/70 px-2 py-0.5 text-[11px] font-semibold text-primary">
+            <span className="rounded-md border border-primary/20 bg-secondary/70 px-2 py-0.5 text-[11px] font-semibold text-primary">
               השיבוץ שלך
             </span>
           ) : null}
@@ -202,7 +202,7 @@ export function ShiftRoster({
 
       <CardContent>
         {requiredCount === 0 ? (
-          <div className="flex min-h-24 items-center justify-center rounded-md border border-dashed border-border/70 bg-white/50 px-4 text-center text-sm text-muted-foreground">
+          <div className="flex min-h-24 items-center justify-center rounded-md border border-dashed border-border/70 bg-secondary/50 px-4 text-center text-sm text-muted-foreground">
             אין תקנים למשמרת זו
           </div>
         ) : (

@@ -55,7 +55,7 @@ export function SubmissionsTable({ periods }: Props) {
               <div className="mt-3 flex flex-wrap items-center gap-2 text-xs">
                 <span className={`rounded-md px-2 py-0.5 ${STATUS_COLORS[p.status]}`}>{STATUS_LABELS[p.status]}</span>
                 {p.isSubmitted ? (
-                  <span className="rounded-md bg-green-100 px-2 py-0.5 text-green-800">הוגש</span>
+                  <span className="rounded-md bg-green-950 px-2 py-0.5 text-green-200">הוגש</span>
                 ) : (
                   <span className="rounded-md border border-border px-2 py-0.5 text-muted-foreground">טיוטה</span>
                 )}

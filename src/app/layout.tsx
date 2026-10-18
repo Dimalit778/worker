@@ -1,10 +1,10 @@
 import type { Metadata } from 'next';
 import './globals.css';
-import { Montserrat } from 'next/font/google';
+import { Heebo } from 'next/font/google';
 import { cn } from '@/lib/utils';
 import { QueryProvider } from '@/providers/query-provider';
 
-const montserrat = Montserrat({ subsets: ['latin'], variable: '--font-sans' });
+const heebo = Heebo({ subsets: ['hebrew', 'latin'], variable: '--font-hebrew', display: 'swap' });
 
 export const metadata: Metadata = {
   title: 'שמירה בתי משפט',
@@ -13,7 +13,7 @@ export const metadata: Metadata = {
 
 export default function RootLayout({ children }: { children: React.ReactNode }) {
   return (
-    <html lang="he" dir="rtl" className={cn('font-sans', montserrat.variable)}>
+    <html lang="he" dir="rtl" className={cn('dark font-sans', heebo.variable)}>
       <body className="min-h-screen bg-background font-sans antialiased">
         <QueryProvider>{children}</QueryProvider>
       </body>

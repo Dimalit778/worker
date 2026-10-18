@@ -62,7 +62,7 @@ export function WarningBar({
               ))}
             </ul>
           ) : (
-            <p className="mt-3 rounded-md bg-green-50 px-2 py-2 text-sm text-green-800">
+            <p className="mt-3 rounded-md bg-green-950 px-2 py-2 text-sm text-green-200">
               כל העובדים הפעילים הגישו זמינות.
             </p>
           )}

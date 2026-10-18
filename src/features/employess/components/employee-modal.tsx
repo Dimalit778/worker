@@ -141,7 +141,7 @@ export function EmployeeModal({ employee, positions, facilityId, onClose }: Prop
   if (created) {
     return (
       <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50" dir="rtl">
-        <div className="bg-white rounded-xl shadow-2xl w-full max-w-md p-6 space-y-4">
+        <div className="bg-card rounded-xl shadow-2xl w-full max-w-md p-6 space-y-4">
           <h2 className="font-bold text-lg">מאבטח נוסף בהצלחה</h2>
           <InviteNotice inviteLink={createdInvite.inviteLink} emailError={createdInvite.emailError} />
           <Button onClick={onClose} className="w-full">
@@ -154,7 +154,7 @@ export function EmployeeModal({ employee, positions, facilityId, onClose }: Prop
 
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50" dir="rtl">
-      <div className="bg-white rounded-xl shadow-2xl w-full max-w-md p-6">
+      <div className="bg-card rounded-xl shadow-2xl w-full max-w-md p-6">
         <div className="flex items-center justify-between mb-4">
           <h2 className="font-bold text-lg">{isEdit ? 'עריכת עובד' : 'הוספת עובד'}</h2>
           <Button variant="ghost" onClick={onClose} className="text-muted-foreground hover:text-foreground">
@@ -233,7 +233,7 @@ export function EmployeeModal({ employee, positions, facilityId, onClose }: Prop
             <Button
               type="submit"
               disabled={pending || !positionId}
-              className="flex-1 bg-foreground text-background rounded-md py-2 text-sm font-medium hover:opacity-90 disabled:opacity-50"
+              className="flex-1 border border-border bg-secondary/70 text-foreground rounded-full py-2 text-sm font-medium hover:opacity-90 disabled:opacity-50"
             >
               {pending ? 'שומר...' : 'שמור'}
             </Button>
