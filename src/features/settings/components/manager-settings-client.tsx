@@ -1,14 +1,16 @@
 'use client';
 
-import { CalendarClock, ListOrdered, SlidersHorizontal } from 'lucide-react';
+import { CalendarClock, CalendarDays, ListOrdered, SlidersHorizontal } from 'lucide-react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { CourtCapacityRules } from '@/features/settings/components/court-capacity';
+import { DateOverridesSection } from '@/features/settings/components/date-overrides-section';
 import { PositionOrderSection } from '@/features/settings/components/position-order-section';
 import { SubmissionWindowSection } from '@/features/settings/components/submission-window-section';
 import {
   useManagerPositions,
   useManagerShiftCapacities,
   useManagerShiftStaffingPositions,
+  useStaffingDateOverrides,
   useSubmissionWindowRule,
 } from '@/features/settings/hooks';
 
@@ -20,6 +22,7 @@ export function ManagerSettingsClient({ facilityId }: ManagerSettingsClientProps
   const { data: positions = [] } = useManagerPositions(facilityId);
   const { data: capacities = [] } = useManagerShiftCapacities(facilityId);
   const { data: shiftStaffingPositions = [] } = useManagerShiftStaffingPositions(facilityId);
+  const { data: dateOverrides = [] } = useStaffingDateOverrides(facilityId);
   const { data: submissionWindow, isSuccess: submissionWindowReady } = useSubmissionWindowRule();
 
   return (
@@ -73,6 +76,33 @@ export function ManagerSettingsClient({ facilityId }: ManagerSettingsClientProps
           </CardHeader>
           <CardContent className="pt-5 sm:pt-6">
             <CourtCapacityRules facilityId={facilityId} positions={shiftStaffingPositions} initialCapacities={capacities} />
+          </CardContent>
+        </Card>
+
+        <Card className="overflow-hidden border-border/80 shadow-sm">
+          <CardHeader className="space-y-1 border-b border-border/50 bg-muted/20 pb-4 sm:pb-6">
+            <div className="flex flex-col gap-3 sm:flex-row sm:items-start sm:gap-4">
+              <span
+                className="flex h-9 w-9 shrink-0 items-center justify-center rounded-lg bg-primary/10 text-sm font-semibold text-primary"
+                aria-hidden
+              >
+                <CalendarDays className="h-4 w-4" />
+              </span>
+              <div className="min-w-0 space-y-1.5">
+                <CardTitle className="text-lg sm:text-xl">תקנים לתאריכים חריגים</CardTitle>
+                <p className="text-pretty text-sm leading-relaxed text-muted-foreground">
+                  לחגים ולאירועים מיוחדים: תקן לתאריך מסוים מחליף את תקן סוג היום עבור אותו תאריך.
+                </p>
+              </div>
+            </div>
+          </CardHeader>
+          <CardContent className="pt-5 sm:pt-6">
+            <DateOverridesSection
+              facilityId={facilityId}
+              positions={shiftStaffingPositions}
+              capacities={capacities}
+              overrides={dateOverrides}
+            />
           </CardContent>
         </Card>
 

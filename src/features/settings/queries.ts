@@ -1,6 +1,9 @@
-import type { Prisma } from '@/generated/prisma/client';
+import type { Prisma, ShiftType } from '@/generated/prisma/client';
 import { prisma } from '@/lib/db/client';
 import type { SubmissionWindowRule } from '@/features/periods/submission-window';
+import { todayUtcDateForTimeZone } from '@/features/periods/utils';
+
+const SCHEDULE_TIME_ZONE = 'Asia/Jerusalem';
 
 function submissionWindowKey(facilityId: string) {
   return `submission-window:${facilityId}`;
@@ -114,6 +117,45 @@ export async function getSubmissionWindowRule(facilityId: string): Promise<Submi
     closeWeekday: rule.closeWeekday,
     closeTime: rule.closeTime,
   };
+}
+
+export type StaffingDateOverrideRow = {
+  id: string;
+  date: string;
+  positionId: string;
+  positionName: string;
+  shiftType: ShiftType;
+  requiredCount: number;
+  label: string | null;
+};
+
+/** Upcoming (today onward) date-specific staffing overrides, ordered by date. */
+export async function getStaffingDateOverrides(facilityId: string): Promise<StaffingDateOverrideRow[]> {
+  if (!facilityId) return [];
+
+  const rows = await prisma.staffingDateOverride.findMany({
+    where: { facilityId, date: { gte: todayUtcDateForTimeZone(SCHEDULE_TIME_ZONE) } },
+    select: {
+      id: true,
+      date: true,
+      positionId: true,
+      shiftType: true,
+      requiredCount: true,
+      label: true,
+      position: { select: { name: true } },
+    },
+    orderBy: [{ date: 'asc' }, { shiftType: 'asc' }, { position: { displayOrder: 'asc' } }],
+  });
+
+  return rows.map((row) => ({
+    id: row.id,
+    date: row.date.toISOString().slice(0, 10),
+    positionId: row.positionId,
+    positionName: row.position.name,
+    shiftType: row.shiftType,
+    requiredCount: row.requiredCount,
+    label: row.label,
+  }));
 }
 
 export async function saveSubmissionWindowSetting(facilityId: string, rule: SubmissionWindowRule) {

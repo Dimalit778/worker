@@ -10,10 +10,16 @@ import {
   getPositions,
   getShiftCapacities,
   getShiftStaffingPositions,
+  getStaffingDateOverrides,
   getSubmissionWindowRule,
   saveSubmissionWindowSetting,
+  shiftStaffingPositionsWhere,
 } from '@/features/settings/queries';
 import { ruleOrderError, type SubmissionWindowRule } from '@/features/periods/submission-window';
+import { calendarDateISO } from '@/features/periods/utils';
+import { validateDateOverrideInput, type DateOverrideInput } from '@/features/settings/date-overrides';
+
+const SCHEDULE_TIME_ZONE = 'Asia/Jerusalem';
 
 export async function updatePositionColor(
   positionId: string,
@@ -85,6 +91,54 @@ export async function updateStaffingRequirement(id: string, amount: number) {
   } catch (error) {
     return { error: error instanceof Error ? error.message : 'עדכון התקן נכשל' };
   }
+}
+
+/** Replaces all date-specific staffing requirements of one date (holiday/event). */
+export async function saveStaffingDateOverride(input: DateOverrideInput) {
+  const actor = await requireManager();
+  try {
+    return await scheduleTransaction(actor, async tx => {
+      const positions = await tx.position.findMany({ where: shiftStaffingPositionsWhere(actor.facilityId), select: { id: true } });
+      const result = validateDateOverrideInput(input, calendarDateISO(new Date(), SCHEDULE_TIME_ZONE), new Set(positions.map(p => p.id)));
+      if ('error' in result) throw new Error(result.error);
+      const { value } = result;
+      const date = new Date(`${value.date}T00:00:00.000Z`);
+      await tx.staffingDateOverride.deleteMany({ where: { facilityId: actor.facilityId, date } });
+      await tx.staffingDateOverride.createMany({
+        data: value.entries.map(entry => ({
+          facilityId: actor.facilityId, date, positionId: entry.positionId, shiftType: entry.shiftType,
+          requiredCount: entry.amount, label: value.label, createdById: actor.userId,
+        })),
+      });
+      const reconciliation = await reconcileDraftCapacity(tx, actor);
+      return { ok: true as const, ...reconciliation };
+    });
+  } catch (error) {
+    return { error: error instanceof Error ? error.message : 'שמירת התקן החריג נכשלה' };
+  }
+}
+
+export async function deleteStaffingDateOverride(dateIso: string) {
+  const actor = await requireManager();
+  try {
+    if (typeof dateIso !== 'string' || !/^\d{4}-\d{2}-\d{2}$/.test(dateIso)) throw new Error('תאריך לא תקין');
+    if (dateIso < calendarDateISO(new Date(), SCHEDULE_TIME_ZONE)) throw new Error('לא ניתן למחוק תקן חריג לתאריך שעבר');
+    return await scheduleTransaction(actor, async tx => {
+      const date = new Date(`${dateIso}T00:00:00.000Z`);
+      const deleted = await tx.staffingDateOverride.deleteMany({ where: { facilityId: actor.facilityId, date } });
+      if (!deleted.count) throw new Error('התקן החריג לא נמצא');
+      const reconciliation = await reconcileDraftCapacity(tx, actor);
+      return { ok: true as const, ...reconciliation };
+    });
+  } catch (error) {
+    return { error: error instanceof Error ? error.message : 'מחיקת התקן החריג נכשלה' };
+  }
+}
+
+export async function fetchManagerDateOverrides() {
+  const session = await requireSession(PortalRole.MANAGER);
+  const facilityId = session.user.facilityId ?? '';
+  return getStaffingDateOverrides(facilityId);
 }
 
 export async function fetchManagerPositions() {

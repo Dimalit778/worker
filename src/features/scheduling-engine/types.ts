@@ -38,6 +38,17 @@ export interface EngineCapacity {
   amount: number;
 }
 
+/** Date-specific requirement: replaces the day-category amount for that date, shift and position. */
+export interface EngineDateOverride {
+  // "YYYY-MM-DD"
+  date: string;
+  positionId: string;
+  positionName?: string;
+  requiredRank: number;
+  shiftType: ShiftType;
+  amount: number;
+}
+
 export interface EngineAssignment {
   employeeId: string;
   facilityId: string;
@@ -69,6 +80,8 @@ export interface EngineInput {
   // employeeId → Set of "YYYY-MM-DD|MORNING" | "YYYY-MM-DD|EVENING" | "YYYY-MM-DD|NIGHT"
   availability: Map<string, Set<string>>;
   capacities: EngineCapacity[];
+  // Holiday/event requirements; each replaces the matching day-category amount on its date.
+  dateOverrides?: EngineDateOverride[];
   // Explicitly locked assignments; provenance is stored separately by the application.
   manualAssignments: EngineAssignment[];
   scheduleId: string;
@@ -86,6 +99,8 @@ export interface EngineSlot {
   dayCategory: DayCategory;
   // Total number of employees required for this slot.
   requiredAmount: number;
+  // True when the amount comes from a date-specific override.
+  isDateOverride?: boolean;
 }
 
 // ─── Output types ─────────────────────────────────────────────────────────────

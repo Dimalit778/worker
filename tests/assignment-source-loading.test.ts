@@ -12,6 +12,7 @@ it('carries the persisted manual source through loading so edits remain valid af
     schedule: { findFirst: vi.fn().mockResolvedValue({ id: 'schedule', startDate: date, endDate: date }) },
     user: { findMany: vi.fn().mockResolvedValue([]) },
     staffingRequirement: { findMany: vi.fn().mockResolvedValue([]) },
+    staffingDateOverride: { findMany: vi.fn().mockResolvedValue([]) },
     availabilitySubmission: { findMany: vi.fn().mockResolvedValue([]) },
     scheduleSlot: { findMany: vi.fn().mockResolvedValueOnce([slot]).mockResolvedValueOnce([]) },
   };

@@ -12,12 +12,13 @@ import type {
 import { SHIFT_STYLES } from '../constants';
 import type { ShiftType } from '@/generated/prisma/client';
 import { AssignmentCell } from './assignment-cell';
+import { Badge } from '@/components/ui/badge';
 import {
   blockedEmployeeIdsForShift,
   createAssignmentCellKey,
-  getCapacityForCell,
-  getDayCategoryForDate,
+  getDateOverrideLabel,
   getOrderedPositionsForShift,
+  getRequiredForDate,
   isGuardPositionLabel,
   maxSlotsForPositionInWeek,
 } from '../utils';
@@ -93,7 +94,7 @@ export function ShiftSection(props: ShiftSectionProps) {
   const weekendSlotsByDay = new Map(sortedDays
     .filter(day => day.dayOfWeek === 5 || day.dayOfWeek === 6)
     .map(day => [day.iso, positionsOrdered.flatMap(pos => {
-      const required = getCapacityForCell(capacity, getDayCategoryForDate(day.iso), shiftType, pos.positionId);
+      const required = getRequiredForDate(capacity, day.iso, shiftType, pos.positionId);
       return Array.from({ length: required }, (_, slotIndex) => ({ pos, slotIndex }));
     })]));
 
@@ -157,6 +158,7 @@ export function ShiftSection(props: ShiftSectionProps) {
               </th>
               {sortedDays.map((day) => {
                 const weekend = day.dayOfWeek === 5 || day.dayOfWeek === 6;
+                const overrideLabel = getDateOverrideLabel(capacity, day.iso);
                 return (
                   <th
                     key={day.iso}
@@ -168,6 +170,15 @@ export function ShiftSection(props: ShiftSectionProps) {
                   >
                     <div className="font-bold text-[13px]">{day.letter}</div>
                     <div className="text-[10px] font-normal opacity-80">{day.label}</div>
+                    {overrideLabel ? (
+                      <Badge
+                        variant="secondary"
+                        className="mt-0.5 h-auto max-w-full truncate px-1 py-0 text-[9px] font-medium"
+                        title={`תקן חריג: ${overrideLabel}`}
+                      >
+                        {overrideLabel}
+                      </Badge>
+                    ) : null}
                   </th>
                 );
               })}
@@ -221,8 +232,7 @@ export function ShiftSection(props: ShiftSectionProps) {
                     }
                     const cellPosition = weekendSlot?.pos ?? pos;
                     const cellRow = weekendSlot?.slotIndex ?? visualRow;
-                    const cat = getDayCategoryForDate(day.iso);
-                    const required = getCapacityForCell(capacity, cat, shiftType, cellPosition.positionId);
+                    const required = getRequiredForDate(capacity, day.iso, shiftType, cellPosition.positionId);
                     const cellKey = createAssignmentCellKey({ date: day.iso, shiftType, positionId: cellPosition.positionId });
                     const sortedAssignments = weekendSlot
                       ? [...(assignments[cellKey] ?? [])].sort((a, b) => a.slotIndex - b.slotIndex)

@@ -4,6 +4,7 @@ import { scheduleTransaction, checkedVersion, type VersionExpectation } from '..
 import { loadSchedulingInput } from '../generation/queries';
 import { saveScheduleAnalysis } from '../generation/recalculate';
 import { validateAssignments } from '@/features/scheduling-engine/validate';
+import { toDatedCapacityRules } from '../utils';
 
 export async function finalizeSchedule(scheduleId: string, expected: VersionExpectation) {
   const actor = await requireManager();
@@ -34,11 +35,15 @@ export async function publishSchedule(scheduleId: string, options: VersionExpect
       const now = new Date();
       await tx.scheduleVersion.update({ where: { id: version.id }, data: {
         status: 'PUBLISHED', publishedAt: now, revision: { increment: 1 },
-        capacitySnapshot: data.capacities.map(c => ({
-          id: c.id, positionId: c.positionId, displayName: c.position.name, color: c.position.color,
-          rank: c.position.requiredRank ?? c.position.baseRole?.rank ?? c.position.displayOrder,
-          shiftType: c.shiftType, dayCategory: c.dayCategory, amount: c.requiredCount,
-        })),
+        // Day-category rules plus this period's date overrides (entries with `date`), frozen with the version.
+        capacitySnapshot: [
+          ...data.capacities.map(c => ({
+            id: c.id, positionId: c.positionId, displayName: c.position.name, color: c.position.color,
+            rank: c.position.requiredRank ?? c.position.baseRole?.rank ?? c.position.displayOrder,
+            shiftType: c.shiftType, dayCategory: c.dayCategory, amount: c.requiredCount,
+          })),
+          ...toDatedCapacityRules(data.dateOverrides),
+        ],
       } });
       await tx.schedule.update({ where: { id: scheduleId }, data: {
         status: 'PUBLISHED', publishedAt: now, publishedVersionId: version.id, draftVersionId: null, submissionClosesAt: now,

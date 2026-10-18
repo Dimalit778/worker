@@ -29,7 +29,7 @@ beforeEach(() => {
     id: 'requirement', positionId: 'position', shiftType: 'MORNING', dayCategory: 'WEEKDAY', requiredCount: 1,
     position: { id: 'position', name: 'אחמ״ש', color: null, requiredRank: null, displayOrder: 2, baseRole: { rank: 2 } },
   }]);
-  mocks.loadSchedulingInput.mockResolvedValue({ input, allAssignments: [] });
+  mocks.loadSchedulingInput.mockResolvedValue({ input, allAssignments: [], dateOverrides: [] });
 });
 
 describe('getScheduleWarnings', () => {
@@ -66,7 +66,7 @@ describe('getScheduleWarnings', () => {
     const assignment: EngineAssignment = {
       employeeId: 'employee', facilityId: 'facility', positionId: 'position', date, shiftType: 'MORNING', slotIndex: 0, isManualOverride: true,
     };
-    mocks.loadSchedulingInput.mockResolvedValue({ input, allAssignments: [assignment] });
+    mocks.loadSchedulingInput.mockResolvedValue({ input, allAssignments: [assignment], dateOverrides: [] });
     const after = await getScheduleWarnings('schedule');
     expect(after.some(w => w.severity === 'WARNING' && w.positionName === 'אחמ״ש')).toBe(false);
     expect(after.some(w => w.message.includes('חסר אחמ״ש'))).toBe(false);
