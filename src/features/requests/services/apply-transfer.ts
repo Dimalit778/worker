@@ -3,7 +3,6 @@ import type { ScheduleActor } from '@/features/schedules/services/transactions';
 import { loadSchedulingInput } from '@/features/schedules/generation/queries';
 import { computeManualViolations } from '@/features/scheduling-engine/manual-violations';
 import type { EngineAssignment } from '@/features/scheduling-engine/types';
-import { loadApprovedTimeOff } from '../queries';
 import { toIsoDate, transferDecision, type TransferCheck } from '../rules';
 
 export const VERSION_CHANGED = 'הגרסה השתנתה: המשמרת כבר אינה משובצת לעובד המבקש';
@@ -50,11 +49,8 @@ export async function checkTransfer(tx: Prisma.TransactionClient, actor: Schedul
   const candidate = toEngine({ ...current, userId: request.targetUserId, source: 'MANUAL' });
   const manual = computeManualViolations(data.input, others, candidate);
   blocking.push(...manual.blocking);
+  // Includes TIME_OFF: loadSchedulingInput carries approved vacations into the engine input.
   violations.push(...manual.violations.map(v => ({ code: v.code, message: v.message })));
-  const timeOff = await loadApprovedTimeOff(tx, actor.facilityId, current.date, current.date);
-  if (timeOff.get(request.targetUserId)?.has(toIsoDate(current.date))) {
-    violations.push({ code: 'TIME_OFF', message: 'לעובד המקבל אושרה חופשה בתאריך זה' });
-  }
   return result({ current, schedule });
 }
 
