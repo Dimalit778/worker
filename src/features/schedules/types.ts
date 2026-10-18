@@ -36,6 +36,7 @@ export type ScheduleCapacityRule = {
 };
 
 export type AssignmentSummary = {
+  startsAt?: string;
   isLocked?: boolean;
   id: string;
   employeeId: string;

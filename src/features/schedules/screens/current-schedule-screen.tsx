@@ -1,12 +1,19 @@
 'use client';
 
-import { useState } from 'react';
+import { useSyncExternalStore, useState } from 'react';
 import { CalendarDays, CalendarRange } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { CurrentScheduleView } from '@/features/schedules/current-schedule';
 import { WeeklyDraftScheduleView } from '../draft-schedule/weekly-draft-schedule-view';
 import { VersionProvider } from '../shared/version-context';
 import type { CurrentScheduleData } from '../types';
+
+const mobileQuery = '(max-width: 639px)';
+const subscribeMobile = (notify: () => void) => {
+  const query = window.matchMedia(mobileQuery);
+  query.addEventListener('change', notify);
+  return () => query.removeEventListener('change', notify);
+};
 
 type ScheduleViewMode = 'weekly' | 'daily';
 
@@ -33,7 +40,9 @@ export function CurrentScheduleScreen({
   defaultView = 'daily',
   emptyStateTitle = 'אין שיבוץ נוכחי',
 }: CurrentScheduleScreenProps) {
-  const [viewMode, setViewMode] = useState<ScheduleViewMode>(defaultView);
+  const isMobile = useSyncExternalStore(subscribeMobile, () => window.matchMedia(mobileQuery).matches, () => false);
+  const [selectedView, setViewMode] = useState<ScheduleViewMode | null>(null);
+  const viewMode = selectedView ?? (isMobile ? 'daily' : defaultView);
 
   if (isLoading) {
     return (
@@ -45,9 +54,10 @@ export function CurrentScheduleScreen({
 
   if (isError) {
     return (
-      <p className="text-sm text-destructive" dir="rtl">
-        {errorMessage}
-      </p>
+      <div role="alert" dir="rtl" className="space-y-3">
+        <p>{errorMessage}</p>
+        <Button variant="outline" onClick={() => window.location.reload()}>ניסיון טעינה מחדש</Button>
+      </div>
     );
   }
 
@@ -55,6 +65,7 @@ export function CurrentScheduleScreen({
     return (
       <div className="flex h-full flex-col items-center justify-center" dir="rtl">
         <h1 className="text-2xl font-bold">{emptyStateTitle}</h1>
+        <p className="mt-2 text-sm text-muted-foreground">הסידור יופיע כאן לאחר פרסום הקצין.</p>
       </div>
     );
   }

@@ -1,0 +1,113 @@
+{
+  "schemaVersion": 2,
+  "generatedAt": "2026-10-17T15:09:17Z",
+  "title": "Design System: Court Guard Scheduler",
+  "extensions": {
+    "colorMeta": {
+      "deep-navy": {
+        "role": "primary",
+        "displayName": "Deep Navy",
+        "canonical": "#1e3a5f",
+        "tonalRamp": ["#060b11", "#0f1f31", "#1e3a5f", "#2b5386", "#3c6ca8", "#6d93c4", "#a3bedc", "#d8e4f0"]
+      },
+      "court-gold-foreground": {
+        "role": "tertiary",
+        "displayName": "Court Gold",
+        "canonical": "#b77900",
+        "tonalRamp": ["#4a3000", "#7a5000", "#b77900", "#d99700", "#f0b833", "#f7cc66", "#fbe0a3", "#fff4d6"]
+      },
+      "pale-slate": {
+        "role": "secondary",
+        "displayName": "Pale Slate",
+        "canonical": "#f1f5f9"
+      },
+      "alert-red": {
+        "role": "destructive",
+        "displayName": "Alert Red",
+        "canonical": "#dc2626"
+      }
+    },
+    "typographyMeta": {
+      "body": { "displayName": "Body", "purpose": "Default text size for inputs, buttons, card content." },
+      "label": { "displayName": "Label", "purpose": "Badges and small UI labels; bolder weight at smaller size." }
+    },
+    "shadows": [
+      { "name": "resting-surface", "value": "shadow-md + ring-1 ring-foreground/5", "purpose": "Cards and default containers at rest." },
+      { "name": "overlay-surface", "value": "shadow-xl + ring-1 ring-foreground/5", "purpose": "Dialogs and modals lifting off the page." }
+    ],
+    "motion": [
+      { "name": "dialog-in", "value": "fade-in-0 zoom-in-95, 100ms", "purpose": "Dialog open transition." },
+      { "name": "dialog-out", "value": "fade-out-0 zoom-out-95, 100ms", "purpose": "Dialog close transition." }
+    ],
+    "breakpoints": []
+  },
+  "components": [
+    {
+      "name": "Primary Button",
+      "kind": "button",
+      "refersTo": "button-primary",
+      "description": "Default call-to-action button: Deep Navy fill, white text.",
+      "html": "<button class=\"ds-btn-primary\">שמור שינויים</button>",
+      "css": ".ds-btn-primary { display: inline-flex; align-items: center; justify-content: center; height: 36px; padding: 0 12px; gap: 6px; background: #1e3a5f; color: #ffffff; font-size: 0.875rem; font-weight: 500; border: 1px solid transparent; border-radius: 8px; white-space: nowrap; transition: background-color 0.15s, transform 0.1s; } .ds-btn-primary:hover { background: rgba(30,58,95,0.8); } .ds-btn-primary:focus-visible { border-color: #1e3a5f; box-shadow: 0 0 0 3px rgba(30,58,95,0.3); } .ds-btn-primary:active { transform: translateY(1px); }"
+    },
+    {
+      "name": "Outline Button",
+      "kind": "button",
+      "refersTo": "button-outline",
+      "description": "Secondary-emphasis action with a visible border.",
+      "html": "<button class=\"ds-btn-outline\">ביטול</button>",
+      "css": ".ds-btn-outline { display: inline-flex; align-items: center; justify-content: center; height: 36px; padding: 0 12px; background: #f7f8fa; color: #111827; font-size: 0.875rem; font-weight: 500; border: 1px solid #e5e7eb; border-radius: 8px; transition: background-color 0.15s; } .ds-btn-outline:hover { background: #f8fafc; }"
+    },
+    {
+      "name": "Default Badge",
+      "kind": "chip",
+      "refersTo": "badge-default",
+      "description": "Deep Navy status/identity marker pill.",
+      "html": "<span class=\"ds-badge-default\">פעיל</span>",
+      "css": ".ds-badge-default { display: inline-flex; align-items: center; justify-content: center; height: 20px; padding: 2px 8px; background: #1e3a5f; color: #ffffff; font-size: 0.75rem; font-weight: 500; border-radius: 22px; white-space: nowrap; }"
+    },
+    {
+      "name": "Card",
+      "kind": "card",
+      "refersTo": "card",
+      "description": "Default content container with a tonally distinct header band.",
+      "html": "<div class=\"ds-card\"><div class=\"ds-card-header\">כותרת</div><div class=\"ds-card-content\">תוכן הכרטיס</div></div>",
+      "css": ".ds-card { display: flex; flex-direction: column; overflow: hidden; border-radius: 26px; background: #ffffff; box-shadow: 0 4px 12px rgba(0,0,0,0.08); outline: 1px solid rgba(17,24,39,0.05); } .ds-card-header { padding: 16px 24px; border-bottom: 1px solid #e5e7eb; background: #dee2e6; border-radius: 26px 26px 0 0; font-weight: 500; font-size: 1rem; } .ds-card-content { padding: 16px 24px; font-size: 0.875rem; }"
+    },
+    {
+      "name": "Input",
+      "kind": "input",
+      "refersTo": "input-default",
+      "description": "Default text field, tinted fill at rest, border+ring on focus.",
+      "html": "<input class=\"ds-input\" placeholder=\"חפש עובד...\" />",
+      "css": ".ds-input { height: 36px; width: 100%; padding: 4px 12px; background: rgba(209,213,219,0.5); color: #111827; font-size: 0.875rem; border: 1px solid transparent; border-radius: 8px; outline: none; transition: border-color 0.15s, box-shadow 0.15s; } .ds-input::placeholder { color: #6b7280; } .ds-input:focus-visible { border-color: #1e3a5f; box-shadow: 0 0 0 3px rgba(30,58,95,0.3); }"
+    }
+  ],
+  "narrative": {
+    "northStar": "The Quiet Registry",
+    "overview": "This is an operate-mode internal tool, not a persuade-mode product: a deep navy anchors authority and officialdom (court, security, institution), a narrow gold accent is reserved for a single \"court/gold identity\" role, and everything else is quiet cool-gray paper and white surfaces. Containers are unusually soft — cards and dialogs round to a 26px radius, almost pill-like at small sizes — while interactive controls (buttons, inputs) stay tight at 8px. That contrast is the system's one real visual signature: big soft containers holding small crisp controls. The whole UI is Hebrew RTL-first, and that is load-bearing in the component code itself, not just a stylesheet flip.",
+    "keyCharacteristics": [
+      "Deep navy authority color, used sparingly and deliberately",
+      "A single reserved gold accent — never a general-purpose color",
+      "Large soft container radii paired with tight crisp control radii",
+      "Flat-leaning elevation: soft shadow plus hairline ring, never a hard drop shadow",
+      "RTL is structural, built with logical CSS properties, not an afterthought"
+    ],
+    "rules": [
+      { "name": "The Reserved Accent Rule", "body": "Court Gold is not a general-purpose accent color — it exists for one semantic role. Don't reach for it to add visual interest elsewhere.", "section": "colors" },
+      { "name": "The Hairline-Over-Border Rule", "body": "Containers get definition from a 1px ring at 5-10% opacity, not a visible border color.", "section": "elevation" }
+    ],
+    "dos": [
+      "Do use logical CSS properties (ps-/pe-, inset-s-) for any directional spacing or positioning",
+      "Do keep the container/control radius contrast intentional: large rounded-4xl for cards/dialogs, tight rounded-md for buttons/inputs",
+      "Do define a surface's edge with the hairline ring, not a solid border",
+      "Do reserve Court Gold for the specific court/gold identity marker role"
+    ],
+    "donts": [
+      "Don't hardcode left/right positioning or pl-/pr- spacing; this breaks RTL mirroring",
+      "Don't introduce a second typeface for display/heading text",
+      "Don't add drop shadows beyond shadow-md (resting) / shadow-xl (overlay)",
+      "Don't use Court Gold or chart colors as general UI accents outside their established roles"
+    ]
+  }
+}

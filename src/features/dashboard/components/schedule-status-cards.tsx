@@ -1,4 +1,3 @@
-import { PeriodScheduleStatus } from '@/features/schedules/period-status';
 import type { ReactNode } from 'react';
 import Link from 'next/link';
 import { ChevronLeft } from 'lucide-react';
@@ -8,7 +7,6 @@ import { PERIOD_STATUS_HE, STATUS_BADGE } from '@/features/periods/constants';
 import { formatDate } from '@/features/periods/utils';
 import type { ScheduleWarningSummary } from '@/features/schedules/types';
 import { cn } from '@/lib/utils';
-import { AlertsSection } from './alerts-section';
 import type { MissingEmployee, ScheduleSnapshot } from '../types';
 
 type ScheduleOverviewCardProps = {
@@ -90,14 +88,7 @@ type ScheduleStatusCardsProps = {
 export function ScheduleStatusCards({
   activeSchedule,
   draftSchedule,
-  warnings,
-  submissionSummary,
 }: ScheduleStatusCardsProps) {
-  const draftAlerts =
-    draftSchedule && (submissionSummary || warnings.length > 0) ? (
-      <AlertsSection embedded warnings={warnings} submissionSummary={submissionSummary} />
-    ) : null;
-
   return (
     <section className="space-y-3">
       <div>
@@ -119,7 +110,7 @@ export function ScheduleStatusCards({
           href="/manager/draft"
           emptyText="צור שיבוץ חדש"
           emptyAction={<CreatePeriodForm triggerLabel="צור שיבוץ חדש" />}
-          footer={draftAlerts}
+
         />
       </div>
     </section>

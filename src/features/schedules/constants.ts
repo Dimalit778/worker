@@ -11,6 +11,12 @@ export const SHIFT_LABELS: Record<ShiftType, string> = {
   NIGHT: 'לילה',
 };
 
+export const SHIFT_TONES: Record<ShiftType, { bg: string; text: string; border: string }> = {
+  MORNING: { bg: 'bg-sky-100', text: 'text-sky-950', border: 'border-sky-200' },
+  EVENING: { bg: 'bg-indigo-100', text: 'text-indigo-950', border: 'border-indigo-200' },
+  NIGHT: { bg: 'bg-violet-100', text: 'text-violet-950', border: 'border-violet-200' },
+};
+
 export const DAY_ORDER = ['WEEKDAY', 'FRIDAY', 'SATURDAY', 'HOLIDAY'] as const satisfies readonly StaffingDayCategory[];
 
 export const DAY_LABELS: Record<StaffingDayCategory, string> = {
@@ -42,19 +48,20 @@ export const NIGHT_SLOT_LABELS: Record<number, string> = {
 /** Hebrew weekday letters for column headers (Sun–Sat) */
 export const WEEKDAY_HEADER_LETTERS = ['א', 'ב', 'ג', 'ד', 'ה', 'ו', 'ש'] as const;
 
+/** Dense Data Surface: dedicated shift-identity tokens (see DESIGN.md), not the generic chart palette. */
 export const SHIFT_STYLES: Record<ShiftType, { header: string; label: string; emoji: string }> = {
   MORNING: {
-    header: 'bg-[#0f4c81]',
+    header: 'bg-shift-morning',
     label: 'בוקר',
     emoji: '☀️',
   },
   EVENING: {
-    header: 'bg-[#1d4ed8]',
+    header: 'bg-shift-evening',
     label: 'ערב',
     emoji: '🌆',
   },
   NIGHT: {
-    header: 'bg-[#4c1d95]',
+    header: 'bg-shift-night',
     label: 'לילה',
     emoji: '🌙',
   },

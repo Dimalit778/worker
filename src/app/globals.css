@@ -63,6 +63,11 @@
   --color-chart-9: var(--chart-9);
   --color-chart-10: var(--chart-10);
 
+  /* Dense data surfaces (shift-grid headers) */
+  --color-shift-morning: var(--shift-morning);
+  --color-shift-evening: var(--shift-evening);
+  --color-shift-night: var(--shift-night);
+
   /* Radius */
   --radius-lg: var(--radius);
   --radius-md: calc(var(--radius) - 2px);
@@ -141,6 +146,11 @@
 
   --sidebar-border: #e5e7eb;
   --sidebar-ring: #1e3a5f;
+
+  /* Dense Data Surface: shift-type identity colors (white text, contrast verified 6.7:1+) */
+  --shift-morning: #0f4c81;
+  --shift-evening: #1d4ed8;
+  --shift-night: #4c1d95;
 }
 
 .dark {
@@ -227,6 +237,17 @@
   [role='button']:not(:disabled) {
     cursor: pointer;
   }
+}
+
+/* Dense Data Surface: non-color cue for a closed/unavailable slot in the schedule grid */
+@utility schedule-slot-closed {
+  background-image: repeating-linear-gradient(
+    135deg,
+    rgba(0, 0, 0, 0.06) 0,
+    rgba(0, 0, 0, 0.06) 1px,
+    transparent 1px,
+    transparent 6px
+  );
 }
 
 @utility scrollbar-hide {
