@@ -15,7 +15,7 @@ export function analyzeSchedule(input: EngineInput, assignments: EngineAssignmen
     }
   }
   const fairnessSummary = computeFairnessSummary(assignments);
-  const warnings = createWarnings({ unmetMinimums, slots: buildSlots(input), assignments, fairnessSummary });
+  const warnings = createWarnings({ unmetMinimums, slots: buildSlots(input), assignments, fairnessSummary, dateOverrides: input.dateOverrides });
   return { fairnessSummary, warnings };
 }
 

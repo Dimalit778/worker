@@ -6,8 +6,10 @@ import {
   getPositions,
   getShiftCapacities,
   getShiftStaffingPositions,
+  getStaffingDateOverrides,
   getSubmissionWindowRule,
 } from '@/features/settings/queries';
+import { dateOverridesQueryKey } from '@/features/settings/date-overrides';
 import { dehydrateOptions, getQueryClient } from '@/lib/react-query/get-query-client';
 import { queryKeys } from '@/lib/react-query/query-keys';
 
@@ -28,6 +30,10 @@ export default async function ManagerSettingsPage() {
     queryClient.prefetchQuery({
       queryKey: queryKeys.settings.shiftStaffingPositions(facilityId),
       queryFn: () => getShiftStaffingPositions(facilityId),
+    }),
+    queryClient.prefetchQuery({
+      queryKey: dateOverridesQueryKey(facilityId),
+      queryFn: () => getStaffingDateOverrides(facilityId),
     }),
     queryClient.prefetchQuery({
       queryKey: queryKeys.settings.submissionWindow(),

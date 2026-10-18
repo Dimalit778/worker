@@ -1,4 +1,4 @@
-import { buildSlots, createSlotKey } from './slots';
+import { buildSlots, createSlotKey, findRequiredRank } from './slots';
 import { getSlotFillCount, hasShiftConflict, isAvailable, isSameDate } from './constraints';
 import { canEmployeeFillPosition } from './role-eligibility';
 import type { EngineAssignment, EngineInput } from './types';
@@ -37,7 +37,7 @@ export function computeManualViolations(
   if (!employee || employee.facilityId !== input.period.facilityId || candidate.facilityId !== input.period.facilityId) blocking.push('העובד אינו שייך למתקן');
   else if (!employee.isActive) blocking.push('העובד אינו פעיל');
   if (!Number.isFinite(candidate.date.getTime()) || candidate.date < input.period.startDate || candidate.date > input.period.endDate ||
-      !input.capacities.some(c => c.positionId === candidate.positionId)) blocking.push('תפקיד או תאריך אינם תקינים לשיבוץ');
+      findRequiredRank(input, candidate.positionId) === undefined) blocking.push('תפקיד או תאריך אינם תקינים לשיבוץ');
   if (blocking.length || !employee) return { blocking, violations: [] };
 
   const found = new Set<ManualViolationCode>();
@@ -48,7 +48,7 @@ export function computeManualViolations(
     if (other.employeeId !== candidate.employeeId || !hasShiftConflict(other.date, other.shiftType, candidate.date, candidate.shiftType)) continue;
     found.add(other.shiftType === candidate.shiftType && isSameDate(other.date, candidate.date) ? 'DOUBLE_BOOKED' : 'REST_GAP');
   }
-  const requiredRank = input.capacities.find(c => c.positionId === candidate.positionId)?.requiredRank;
+  const requiredRank = findRequiredRank(input, candidate.positionId);
   if (!canEmployeeFillPosition(employee.rank, requiredRank)) found.add('RANK_MISMATCH');
   const slot = buildSlots(input).find(s => createSlotKey(s) === createSlotKey(candidate));
   if (slot && getSlotFillCount(slot, [...others, candidate]) > slot.requiredAmount) found.add('OVER_CAPACITY');

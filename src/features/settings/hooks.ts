@@ -2,7 +2,9 @@
 
 import { useQuery, useQueryClient } from '@tanstack/react-query';
 import { queryKeys } from '@/lib/react-query/query-keys';
+import { dateOverridesQueryKey } from '@/features/settings/date-overrides';
 import {
+  fetchManagerDateOverrides,
   fetchManagerPositions,
   fetchManagerShiftCapacities,
   fetchManagerShiftStaffingPositions,
@@ -18,6 +20,7 @@ export function invalidateSettingsQueries(
     queryClient.invalidateQueries({ queryKey: queryKeys.settings.capacities(facilityId) }),
     queryClient.invalidateQueries({ queryKey: queryKeys.settings.shiftStaffingPositions(facilityId) }),
     queryClient.invalidateQueries({ queryKey: queryKeys.settings.submissionWindow() }),
+    queryClient.invalidateQueries({ queryKey: dateOverridesQueryKey(facilityId) }),
   ]);
 }
 
@@ -39,6 +42,13 @@ export function useManagerShiftStaffingPositions(facilityId: string) {
   return useQuery({
     queryKey: queryKeys.settings.shiftStaffingPositions(facilityId),
     queryFn: fetchManagerShiftStaffingPositions,
+  });
+}
+
+export function useStaffingDateOverrides(facilityId: string) {
+  return useQuery({
+    queryKey: dateOverridesQueryKey(facilityId),
+    queryFn: fetchManagerDateOverrides,
   });
 }
 

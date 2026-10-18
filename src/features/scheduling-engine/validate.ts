@@ -1,4 +1,4 @@
-import { buildSlots, createSlotKey } from './slots';
+import { buildSlots, createSlotKey, findRequiredRank } from './slots';
 import { isAvailable, isDoubleBooked, isEligibleForSlot, getSlotFillCount } from './constraints';
 import type { EngineAssignment, EngineInput } from './types';
 
@@ -23,7 +23,7 @@ export function validateAssignments(
           assignment.facilityId !== input.period.facilityId ||
           assignment.date < input.period.startDate || assignment.date > input.period.endDate ||
           !Number.isFinite(assignment.date.getTime()) ||
-          !input.capacities.some(capacity => capacity.positionId === assignment.positionId) ||
+          findRequiredRank(input, assignment.positionId) === undefined ||
           !['MORNING', 'EVENING', 'NIGHT'].includes(assignment.shiftType)) {
         errors.push('עובד, תפקיד, מתקן או תאריך אינם תקינים לשיבוץ');
       }

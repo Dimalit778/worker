@@ -18,7 +18,7 @@ const expected = { versionId: 'schedule', revision: 1 };
 beforeEach(() => {
   vi.clearAllMocks();
   mocks.checkedVersion.mockResolvedValue({ version: { id: 'schedule', status: 'DRAFT', revision: 1 } });
-  mocks.loadSchedulingInput.mockResolvedValue({ input: {}, allAssignments: [], capacities: [] });
+  mocks.loadSchedulingInput.mockResolvedValue({ input: {}, allAssignments: [], capacities: [], dateOverrides: [] });
   mocks.validateAssignments.mockReturnValue([]);
   mocks.saveScheduleAnalysis.mockResolvedValue({ warnings: [] });
 });
@@ -38,4 +38,14 @@ it('still requests confirmation for critical problems before publication', async
   expect(await publishSchedule('schedule', expected)).toEqual(expect.objectContaining({ requiresConfirmation: true, issueCount: 1 }));
   expect(mocks.tx.schedule.update).not.toHaveBeenCalled();
   expect(await publishSchedule('schedule', { ...expected, confirmIssues: true })).toEqual({ ok: true });
+});
+it('freezes date overrides into the published capacity snapshot', async () => {
+  const position = { name: 'מאבטח', color: null, requiredRank: 4, displayOrder: 4, baseRole: null };
+  mocks.loadSchedulingInput.mockResolvedValue({
+    input: {}, allAssignments: [], capacities: [],
+    dateOverrides: [{ id: 'o1', date: new Date('2026-10-20T00:00:00.000Z'), positionId: 'guard', shiftType: 'MORNING', requiredCount: 5, label: 'חג', position }],
+  });
+  expect(await publishSchedule('schedule', expected)).toEqual({ ok: true });
+  const snapshot = mocks.tx.scheduleVersion.update.mock.calls[0][0].data.capacitySnapshot;
+  expect(snapshot).toEqual([expect.objectContaining({ date: '2026-10-20', positionId: 'guard', shiftType: 'MORNING', amount: 5, label: 'חג' })]);
 });
