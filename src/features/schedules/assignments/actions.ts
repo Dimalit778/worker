@@ -3,7 +3,7 @@
 import { requireManager, requireSession } from '@/lib/db/auth-helpers';
 import type { AssignEmployeeToSlotParams } from '../types';
 import { getCurrentSchedule, getDraftScheduleData } from './queries';
-import { scheduleTransaction, checkedVersion, editableDraft, type VersionExpectation } from '../services/transactions';
+import { scheduleTransaction, checkedVersion, editableDraft, freezePublishedVersion, type VersionExpectation } from '../services/transactions';
 import { loadSchedulingInput } from '../generation/queries';
 import { saveScheduleAnalysis } from '../generation/recalculate';
 import { validateAssignments } from '@/features/scheduling-engine/validate';
@@ -40,12 +40,28 @@ async function editSchedule(scheduleId: string, expected: VersionExpectation, ed
   }
 }
 
-async function applyEdit(scheduleId: string, expected: VersionExpectation, edit: Edit, override?: ManualOverride) {
+async function applyEdit(scheduleId: string, expected: VersionExpectation, requested: Edit, override?: ManualOverride) {
   const reason = override?.reason?.trim();
   if (override && (!reason || reason.length < 3)) throw new Error('יש לציין סיבה לחריגה');
   const actor = await requireManager();
   return scheduleTransaction(actor, async tx => {
-    const { version } = await checkedVersion(tx, actor, scheduleId, expected);
+    const direct = expected?.publish === true;
+    let edit = requested;
+    const checked = await checkedVersion(tx, actor, scheduleId, expected);
+    let version = checked.version;
+    if (direct) {
+      // Published slots are immutable: copy them into a new version, edit it, then publish it below.
+      if (checked.schedule.draftVersionId) throw new Error('קיימת טיוטת תיקון פתוחה לשיבוץ זה. יש לפרסם אותה במסך הטיוטה');
+      if (!version || version.status !== 'PUBLISHED') throw new Error('השיבוץ אינו מפורסם');
+      const published = await tx.scheduleSlot.findMany({ where: { versionId: version.id } });
+      version = (await editableDraft(tx, actor, scheduleId, expected, 'עריכה ישירה של שיבוץ מפורסם')).version;
+      const copies = await tx.scheduleSlot.findMany({ where: { versionId: version.id } });
+      const key = (a: { date: Date; shiftType: string; positionId: string; slotNumber: number }) => `${a.date.toISOString()}|${a.shiftType}|${a.positionId}|${a.slotNumber}`;
+      const copyIds = new Map(copies.map(a => [key(a), a.id]));
+      const mapId = (id: string) => { const slot = published.find(a => a.id === id); return (slot && copyIds.get(key(slot))) ?? id; };
+      if (requested.kind === 'swap') edit = { ...requested, assignmentId: mapId(requested.assignmentId), otherId: mapId(requested.otherId) };
+      else if (requested.kind !== 'create') edit = { ...requested, assignmentId: mapId(requested.assignmentId) };
+    }
     if (!version || version.status !== 'DRAFT') throw new Error('יש לפתוח טיוטת תיקון לפני עריכה');
     const before = await tx.scheduleSlot.findMany({ where: { scheduleId, versionId: version.id } });
     const existing = edit.kind === 'create' ? null : before.find(a => a.id === edit.assignmentId);
@@ -93,7 +109,12 @@ async function applyEdit(scheduleId: string, expected: VersionExpectation, edit:
     const details = loadedScheduleDetails(data);
     await tx.scheduleVersion.update({ where: { id: version.id }, data: { revision: { increment: 1 } } });
     await tx.scheduleChange.create({ data: { facilityId: actor.facilityId, scheduleId, versionId: version.id, changedById: actor.userId, changeType: violations.length ? 'MANUAL_OVERRIDE' : edit.kind === 'create' ? 'CREATE' : edit.kind === 'remove' ? 'DELETE' : 'UPDATE', reason: violations.length ? reason : `עדכון טיוטה: ${edit.kind}`, beforeData: JSON.parse(JSON.stringify(before)), afterData: JSON.parse(JSON.stringify(violations.length ? { violations, approvedById: actor.userId, approvedAt: new Date().toISOString(), assignments: data.assignments } : data.assignments)) } });
-    return { ok: true as const, scheduleId, revision: version.revision + 1, versionId: version.id,
+    if (direct) {
+      await saveScheduleAnalysis(tx, version.id, data.input, data.allAssignments);
+      await freezePublishedVersion(tx, version.id, data.capacities, new Date());
+      await tx.schedule.update({ where: { id: scheduleId }, data: { publishedVersionId: version.id, draftVersionId: null } });
+    }
+    return { ok: true as const, scheduleId, revision: version.revision + (direct ? 2 : 1), versionId: version.id, published: direct,
       assignments: details.assignments, warnings: details.warnings, fairness: details.fairness };
   });
 }

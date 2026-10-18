@@ -1,11 +1,11 @@
 'use client';
 
-import { CorrectionButton } from '../shared/correction-button';
 import { useState } from 'react';
 import { CalendarDays, CalendarRange } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { CurrentScheduleView } from '@/features/schedules/current-schedule';
 import { WeeklyDraftScheduleView } from '../draft-schedule/weekly-draft-schedule-view';
+import { VersionProvider } from '../shared/version-context';
 import type { CurrentScheduleData } from '../types';
 
 type ScheduleViewMode = 'weekly' | 'daily';
@@ -60,9 +60,9 @@ export function CurrentScheduleScreen({
   }
 
   return (
+    <VersionProvider value={{ versionId: data.versionId ?? null, revision: data.revision ?? 0, publish: !isReadOnly }}>
     <div className="space-y-4" dir="rtl">
       <div className="flex flex-wrap items-center gap-2">
-        {!isReadOnly && <CorrectionButton data={data} />}
         <Button
           type="button"
           variant={viewMode === 'weekly' ? 'default' : 'outline'}
@@ -95,7 +95,7 @@ export function CurrentScheduleScreen({
           facilityId={data.facilityId}
           overflowCandidates={data.overflowCandidates}
           highlightedEmployeeId={currentEmployeeId}
-          readonly={true}
+          readonly={isReadOnly}
         />
       ) : (
         <CurrentScheduleView
@@ -109,9 +109,10 @@ export function CurrentScheduleScreen({
           facilityId={data.facilityId}
           overflowCandidates={data.overflowCandidates}
           currentEmployeeId={currentEmployeeId}
-          readonly={true}
+          readonly={isReadOnly}
         />
       )}
     </div>
+    </VersionProvider>
   );
 }
