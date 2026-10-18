@@ -75,7 +75,7 @@ const ScheduleRow = ({ schedule }: { schedule: ScheduleSummary }) => {
         onClick={handleDelete}
         disabled={pending}
         title="מחק תקופה"
-        className="p-1.5 rounded-md text-muted-foreground hover:text-red-600 hover:bg-red-50 transition-colors shrink-0 disabled:opacity-40"
+        className="p-1.5 rounded-md text-muted-foreground hover:text-red-200 hover:bg-red-950 transition-colors shrink-0 disabled:opacity-40"
       >
         <svg className="w-4 h-4" viewBox="0 0 16 16" fill="currentColor">
           <path d="M6.5 1.75a.25.25 0 0 1 .25-.25h2.5a.25.25 0 0 1 .25.25V3h-3V1.75Zm4.5 0V3h2.25a.75.75 0 0 1 0 1.5H2.75a.75.75 0 0 1 0-1.5H5V1.75C5 .784 5.784 0 6.75 0h2.5C10.216 0 11 .784 11 1.75ZM4.496 6.559a.75.75 0 1 0-1.492.141l.675 7.17A1.75 1.75 0 0 0 5.423 15.5h5.154a1.75 1.75 0 0 0 1.744-1.63l.675-7.17a.75.75 0 1 0-1.492-.141l-.675 7.17a.25.25 0 0 1-.249.232H5.423a.25.25 0 0 1-.249-.233L4.496 6.56Z" />

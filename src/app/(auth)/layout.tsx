@@ -1,7 +1,16 @@
+import { Scale } from 'lucide-react';
+
 export default function AuthLayout({ children }: { children: React.ReactNode }) {
   return (
-    <div className="min-h-screen flex items-center justify-center bg-muted/50 p-4">
+    <main className="auth-shell min-h-screen flex flex-col items-center justify-center gap-8 px-4 py-12">
+      <div className="flex flex-col items-center gap-4">
+        <div className="flex size-14 items-center justify-center rounded-full border border-border bg-secondary/50 shadow-[var(--glass-shadow)]">
+          <Scale className="size-6 text-foreground" aria-hidden />
+        </div>
+        <p className="auth-eyebrow">מערכת ניהול ושיבוץ</p>
+      </div>
       {children}
-    </div>
-  )
+      <p className="text-xs text-muted-foreground">שמירה בתי משפט · סביבת העבודה שלך</p>
+    </main>
+  );
 }

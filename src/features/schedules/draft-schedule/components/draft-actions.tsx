@@ -124,7 +124,7 @@ export function DraftActions({ scheduleId, scheduleStatus, hasUnpublishedDraft =
       <div className="flex items-center gap-3 flex-wrap" dir="rtl">
         <div role="status" aria-live="polite">
           {error && <p className="text-sm text-destructive">{error}</p>}
-          {message && <p className="text-sm text-green-700">{message}</p>}
+          {message && <p className="text-sm text-green-200">{message}</p>}
         </div>
 
         {canGenerate && (

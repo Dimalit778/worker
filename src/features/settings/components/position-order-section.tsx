@@ -65,7 +65,7 @@ function ColorPicker({
         ? createPortal(
             <div
               ref={panelRef}
-              className="fixed z-50 flex flex-wrap gap-1.5 overflow-visible rounded-lg border border-border bg-white p-2 shadow-lg"
+              className="fixed z-50 flex flex-wrap gap-1.5 overflow-visible rounded-lg border border-border bg-card p-2 shadow-lg"
               style={{ top: coords.top, left: coords.left, width: 148 }}
             >
               {POSITION_COLORS.map((c) => (
@@ -90,7 +90,7 @@ function ColorPicker({
                     onChange('');
                     setOpen(false);
                   }}
-                  className="h-6 w-6 rounded border-2 border-dashed border-gray-300 text-[10px] text-gray-400 hover:border-gray-500"
+                  className="h-6 w-6 rounded border-2 border-dashed border-border text-[10px] text-muted-foreground hover:border-ring"
                   title="הסר צבע"
                 >
                   ✕

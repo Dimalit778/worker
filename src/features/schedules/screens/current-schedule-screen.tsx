@@ -1,12 +1,12 @@
 'use client';
 
-import { CorrectionButton } from '../shared/correction-button';
 import { useSyncExternalStore, useState } from 'react';
-
 import { CalendarDays, CalendarRange } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { CurrentScheduleView } from '@/features/schedules/current-schedule';
 import { WeeklyDraftScheduleView } from '../draft-schedule/weekly-draft-schedule-view';
+import { PendingEditsProvider, usePendingEdits } from '../shared/pending-edits';
+import { VersionProvider } from '../shared/version-context';
 import type { CurrentScheduleData } from '../types';
 
 const mobileQuery = '(max-width: 639px)';
@@ -41,10 +41,6 @@ export function CurrentScheduleScreen({
   defaultView = 'daily',
   emptyStateTitle = 'אין שיבוץ נוכחי',
 }: CurrentScheduleScreenProps) {
-  const isMobile = useSyncExternalStore(subscribeMobile, () => window.matchMedia(mobileQuery).matches, () => false);
-  const [selectedView, setViewMode] = useState<ScheduleViewMode | null>(null);
-  const viewMode = selectedView ?? (isMobile ? 'daily' : defaultView);
-
   if (isLoading) {
     return (
       <p className="text-sm text-muted-foreground" dir="rtl">
@@ -72,9 +68,28 @@ export function CurrentScheduleScreen({
   }
 
   return (
+    <VersionProvider value={{ versionId: data.versionId ?? null, revision: data.revision ?? 0, publish: !isReadOnly }}>
+      <PendingEditsProvider data={data}>
+        <ScheduleContent data={data} currentEmployeeId={currentEmployeeId} isReadOnly={isReadOnly} defaultView={defaultView} />
+      </PendingEditsProvider>
+    </VersionProvider>
+  );
+}
+
+function ScheduleContent({ data, currentEmployeeId, isReadOnly, defaultView }: {
+  data: CurrentScheduleData;
+  currentEmployeeId: string | null;
+  isReadOnly: boolean;
+  defaultView: ScheduleViewMode;
+}) {
+  const isMobile = useSyncExternalStore(subscribeMobile, () => window.matchMedia(mobileQuery).matches, () => false);
+  const [selectedView, setViewMode] = useState<ScheduleViewMode | null>(null);
+  const viewMode = selectedView ?? (isMobile ? 'daily' : defaultView);
+  const assignments = usePendingEdits()?.assignments ?? data.assignments;
+
+  return (
     <div className="space-y-4" dir="rtl">
       <div className="flex flex-wrap items-center gap-2">
-        {!isReadOnly && <CorrectionButton data={data} />}
         <Button
           type="button"
           variant={viewMode === 'weekly' ? 'default' : 'outline'}
@@ -101,13 +116,13 @@ export function CurrentScheduleScreen({
           scheduleName={data.scheduleName}
           startDate={data.startDate}
           endDate={data.endDate}
-          assignments={data.assignments}
+          assignments={assignments}
           employees={data.employees}
           capacity={data.capacity}
           facilityId={data.facilityId}
           overflowCandidates={data.overflowCandidates}
           highlightedEmployeeId={currentEmployeeId}
-          readonly={true}
+          readonly={isReadOnly}
         />
       ) : (
         <CurrentScheduleView
@@ -115,13 +130,13 @@ export function CurrentScheduleScreen({
           scheduleName={data.scheduleName}
           startDate={data.startDate}
           endDate={data.endDate}
-          assignments={data.assignments}
+          assignments={assignments}
           employees={data.employees}
           capacity={data.capacity}
           facilityId={data.facilityId}
           overflowCandidates={data.overflowCandidates}
           currentEmployeeId={currentEmployeeId}
-          readonly={true}
+          readonly={isReadOnly}
         />
       )}
     </div>

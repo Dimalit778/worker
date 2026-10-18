@@ -63,9 +63,9 @@ const EMPTY_STYLE = 'border border-dashed border-border bg-background hover:bord
 
 const STATUS_STYLE: Record<AvailabilityStatus, string> = {
   NOT_SUBMITTED: 'bg-muted text-muted-foreground',
-  DRAFT: 'bg-sky-100 text-sky-800',
-  SUBMITTED: 'bg-green-100 text-green-800',
-  UNSUBMITTED_CHANGES: 'bg-amber-100 text-amber-900',
+  DRAFT: 'bg-sky-950 text-sky-200',
+  SUBMITTED: 'bg-green-950 text-green-200',
+  UNSUBMITTED_CHANGES: 'bg-amber-950 text-amber-200',
 };
 
 function StateIcon({ preference }: { preference: Preference | undefined }) {
@@ -210,7 +210,7 @@ export function ScheduleCalendar({
           </Badge>
           {!viewOnly && closesAt && <span>מועד סגירה: {formatInstant(closesAt)}</span>}
           {!viewOnly && lastSavedAt && <span>נשמר לאחרונה: {formatInstant(lastSavedAt)}</span>}
-          {editable && dirty && <span className="font-medium text-amber-700">יש שינויים שלא נשמרו</span>}
+          {editable && dirty && <span className="font-medium text-amber-300">יש שינויים שלא נשמרו</span>}
         </div>
       </div>
 
@@ -289,7 +289,7 @@ export function ScheduleCalendar({
 
       {/* Current week */}
       {week.length > 0 && (
-        <div key={wi} className="rounded-xl border border-border overflow-hidden bg-white shadow-sm">
+        <div key={wi} className="rounded-xl border border-border overflow-hidden bg-card shadow-sm">
           <div className="flex flex-wrap items-center justify-between gap-2 bg-muted/60 px-4 py-2 text-xs font-medium text-muted-foreground border-b border-border">
             <Button type="button" variant="outline" className="min-h-11" disabled={wi === 0} onClick={() => setWeekIndex(wi - 1)}>→ הקודם</Button>
             <span aria-live="polite">שבוע {wi + 1} מתוך {weekCount}</span>
@@ -330,7 +330,7 @@ export function ScheduleCalendar({
                         key={date}
                         className={cn(
                           'px-1 py-2 text-center font-medium border-b border-e last:border-e-0 border-border min-w-0',
-                          isWeekend && 'bg-slate-50',
+                          isWeekend && 'bg-muted',
                         )}
                       >
                         {editable ? (
@@ -375,7 +375,7 @@ export function ScheduleCalendar({
                       return (
                         <td
                           key={date}
-                          className={cn('border-e last:border-e-0 border-border p-1', isWeekend && 'bg-slate-50/60')}
+                          className={cn('border-e last:border-e-0 border-border p-1', isWeekend && 'bg-muted/60')}
                         >
                           <button
                             type="button"

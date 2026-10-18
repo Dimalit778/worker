@@ -35,7 +35,7 @@ export function WeekCoverageCard({ coverage }: WeekCoverageCardProps) {
                 </div>
                 <div>
                   <p className="text-xs text-muted-foreground">חוסרים</p>
-                  <p className="text-2xl font-bold tabular-nums text-amber-600">{coverage.unfilledSlots}</p>
+                  <p className="text-2xl font-bold tabular-nums text-amber-200">{coverage.unfilledSlots}</p>
                 </div>
                 <div className="col-span-2 sm:col-span-1">
                   <p className="text-xs text-muted-foreground">כיסוי משוער</p>

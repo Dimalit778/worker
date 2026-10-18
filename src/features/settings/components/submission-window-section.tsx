@@ -78,8 +78,8 @@ export function SubmissionWindowSection({
         />
       </div>
 
-      {error && <p className="rounded-md border border-red-200 bg-red-50 px-3 py-2 text-sm text-red-600">{error}</p>}
-      {saved && <p className="text-sm text-emerald-700">הכלל הקבוע נשמר</p>}
+      {error && <p className="rounded-md border border-red-200 bg-red-950 px-3 py-2 text-sm text-red-200">{error}</p>}
+      {saved && <p className="text-sm text-emerald-200">הכלל הקבוע נשמר</p>}
 
       <Button type="submit" disabled={saveMutation.isPending}>
         {saveMutation.isPending ? 'שומר...' : 'שמור כלל קבוע'}

@@ -52,15 +52,15 @@ export default async function UserLayout({ children }: { children: React.ReactNo
   ];
 
   return (
-    <div className="min-h-screen flex flex-col bg-background">
-      <header className="sticky top-0 z-50 border-b bg-card px-4 py-3">
-        <div className="flex items-center justify-between ">
+    <div className="app-shell min-h-screen flex flex-col">
+      <header className="sticky top-0 z-50 border-b bg-sidebar/95 px-4 py-4 backdrop-blur-md">
+        <div className="flex flex-wrap items-center justify-between gap-3 ">
           <div className="text-sm text-muted-foreground">{primaryCourt?.name ?? '—'}</div>
           <UserNav items={navItems} />
           <LogoutButton />
         </div>
       </header>
-      <main className="flex-1  px-4 py-4">{children}</main>
+      <main className="mx-auto w-full max-w-[1440px] flex-1 px-4 py-6 md:px-8">{children}</main>
     </div>
   );
 }

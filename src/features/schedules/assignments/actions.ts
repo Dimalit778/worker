@@ -1,9 +1,10 @@
 'use server';
 
 import { requireManager, requireSession } from '@/lib/db/auth-helpers';
+import type { ShiftType } from '@/generated/prisma/client';
 import type { AssignEmployeeToSlotParams } from '../types';
 import { getCurrentSchedule, getDraftScheduleData } from './queries';
-import { scheduleTransaction, checkedVersion, editableDraft, type VersionExpectation } from '../services/transactions';
+import { scheduleTransaction, checkedVersion, editableDraft, freezePublishedVersion, type VersionExpectation } from '../services/transactions';
 import { loadSchedulingInput } from '../generation/queries';
 import { saveScheduleAnalysis } from '../generation/recalculate';
 import { validateAssignments } from '@/features/scheduling-engine/validate';
@@ -18,7 +19,11 @@ type Edit = { kind: 'create'; params: AssignEmployeeToSlotParams } |
   { kind: 'update'; assignmentId: string; employeeId: string } |
   { kind: 'remove'; assignmentId: string } |
   { kind: 'swap'; assignmentId: string; otherId: string } |
-  { kind: 'lock'; assignmentId: string; isLocked: boolean };
+  { kind: 'lock'; assignmentId: string; isLocked: boolean } |
+  { kind: 'batch'; changes: SlotChange[] };
+
+/** One slot's target state in a batch save: an employee, or null to clear the slot. */
+export type SlotChange = { date: string; shiftType: ShiftType; positionId: string; slotIndex: number; employeeId: string | null };
 
 export type ManualOverride = { reason: string };
 export type OverrideRequired = { ok: false; requiresOverride: true; violations: ManualViolation[] };
@@ -40,16 +45,33 @@ async function editSchedule(scheduleId: string, expected: VersionExpectation, ed
   }
 }
 
-async function applyEdit(scheduleId: string, expected: VersionExpectation, edit: Edit, override?: ManualOverride) {
+async function applyEdit(scheduleId: string, expected: VersionExpectation, requested: Edit, override?: ManualOverride) {
   const reason = override?.reason?.trim();
   if (override && (!reason || reason.length < 3)) throw new Error('יש לציין סיבה לחריגה');
   const actor = await requireManager();
   return scheduleTransaction(actor, async tx => {
-    const { version } = await checkedVersion(tx, actor, scheduleId, expected);
+    const direct = expected?.publish === true;
+    let edit = requested;
+    const checked = await checkedVersion(tx, actor, scheduleId, expected);
+    let version = checked.version;
+    if (direct) {
+      // Published slots are immutable: copy them into a new version, edit it, then publish it below.
+      if (checked.schedule.draftVersionId) throw new Error('קיימת טיוטת תיקון פתוחה לשיבוץ זה. יש לפרסם אותה במסך הטיוטה');
+      if (!version || version.status !== 'PUBLISHED') throw new Error('השיבוץ אינו מפורסם');
+      const published = await tx.scheduleSlot.findMany({ where: { versionId: version.id } });
+      version = (await editableDraft(tx, actor, scheduleId, expected, 'עריכה ישירה של שיבוץ מפורסם')).version;
+      const copies = await tx.scheduleSlot.findMany({ where: { versionId: version.id } });
+      const key = (a: { date: Date; shiftType: string; positionId: string; slotNumber: number }) => `${a.date.toISOString()}|${a.shiftType}|${a.positionId}|${a.slotNumber}`;
+      const copyIds = new Map(copies.map(a => [key(a), a.id]));
+      const mapId = (id: string) => { const slot = published.find(a => a.id === id); return (slot && copyIds.get(key(slot))) ?? id; };
+      if (requested.kind === 'batch') edit = requested;
+      else if (requested.kind === 'swap') edit = { ...requested, assignmentId: mapId(requested.assignmentId), otherId: mapId(requested.otherId) };
+      else if (requested.kind !== 'create') edit = { ...requested, assignmentId: mapId(requested.assignmentId) };
+    }
     if (!version || version.status !== 'DRAFT') throw new Error('יש לפתוח טיוטת תיקון לפני עריכה');
     const before = await tx.scheduleSlot.findMany({ where: { scheduleId, versionId: version.id } });
-    const existing = edit.kind === 'create' ? null : before.find(a => a.id === edit.assignmentId);
-    if (edit.kind !== 'create' && !existing) throw new Error('השיבוץ לא נמצא בגרסה הנוכחית');
+    const existing = edit.kind === 'create' || edit.kind === 'batch' ? null : before.find(a => a.id === edit.assignmentId);
+    if (edit.kind !== 'create' && edit.kind !== 'batch' && !existing) throw new Error('השיבוץ לא נמצא בגרסה הנוכחית');
     const changedIds: string[] = [];
     if (edit.kind === 'create') {
       const p = edit.params;
@@ -64,6 +86,26 @@ async function applyEdit(scheduleId: string, expected: VersionExpectation, edit:
       const last = await tx.scheduleSlot.aggregate({ where: { scheduleId, versionId: version.id, date, shiftType: p.shiftType, positionId: p.positionId }, _max: { slotNumber: true } });
       const created = await tx.scheduleSlot.create({ data: { scheduleId, versionId: version.id, facilityId: actor.facilityId, userId: p.employeeId, positionId: p.positionId, date, shiftType: p.shiftType, slotNumber: (last._max.slotNumber ?? 0) + 1, ...bounds, source: 'MANUAL', isLocked: false } });
       changedIds.push(created.id);
+    } else if (edit.kind === 'batch') {
+      if (!edit.changes.length) throw new Error('אין שינויים לשמירה');
+      for (const change of edit.changes) {
+        const date = parseISODateToUtcMidnight(change.date);
+        if (!Number.isFinite(date.getTime()) || date.toISOString().slice(0,10) !== change.date) throw new Error('תאריך לא תקין');
+        const slotNumber = change.slotIndex + 1;
+        const slot = await tx.scheduleSlot.findFirst({ where: { scheduleId, versionId: version.id, date, shiftType: change.shiftType, positionId: change.positionId, slotNumber } });
+        if (change.employeeId === null) {
+          if (slot) await tx.scheduleSlot.delete({ where: { id: slot.id } });
+        } else if (slot) {
+          await tx.scheduleSlot.update({ where: { id: slot.id }, data: { userId: change.employeeId, source: 'MANUAL' } });
+          changedIds.push(slot.id);
+        } else {
+          const position = await tx.position.findFirst({ where: { id: change.positionId, OR: [{ facilityId: actor.facilityId }, { facilityId: null }] }, select: { id: true } });
+          if (!position) throw new Error('התפקיד אינו שייך למתקן');
+          const defaults = defaultShiftTimes(change.shiftType);
+          const created = await tx.scheduleSlot.create({ data: { scheduleId, versionId: version.id, facilityId: actor.facilityId, userId: change.employeeId, positionId: change.positionId, date, shiftType: change.shiftType, slotNumber, ...shiftBounds(date, defaults.startTime, defaults.endTime), source: 'MANUAL', isLocked: false } });
+          changedIds.push(created.id);
+        }
+      }
     } else if (edit.kind === 'remove') {
       await tx.scheduleSlot.delete({ where: { id: existing!.id } });
     } else if (edit.kind === 'lock') {
@@ -80,7 +122,8 @@ async function applyEdit(scheduleId: string, expected: VersionExpectation, edit:
     }
     const data = await loadSchedulingInput(tx, scheduleId, actor.facilityId, version.id);
     const failures = validateAssignments(data.input, data.allAssignments);
-    if (failures.length && edit.kind !== 'remove' && edit.kind !== 'lock') throw new Error(failures.join('; '));
+    const clearsOnly = edit.kind === 'batch' && edit.changes.every(c => c.employeeId === null);
+    if (failures.length && edit.kind !== 'remove' && edit.kind !== 'lock' && !clearsOnly) throw new Error(failures.join('; '));
     // Manual placements: hard integrity rules block; business rules need an explicit manager approval.
     const violations: ManualViolation[] = [];
     for (const row of data.assignments.filter(a => changedIds.includes(a.id))) {
@@ -89,11 +132,17 @@ async function applyEdit(scheduleId: string, expected: VersionExpectation, edit:
       const prefix = changedIds.length > 1 ? `${row.user?.displayName ?? ''}: ` : '';
       violations.push(...result.violations.map(v => ({ ...v, message: prefix + v.message })));
     }
-    if (violations.length && !reason) throw new OverrideRequiredError(violations);
+    // A batch save needs no typed reason: rule violations are saved and recorded in the change log.
+    if (violations.length && !reason && edit.kind !== 'batch') throw new OverrideRequiredError(violations);
     const details = loadedScheduleDetails(data);
     await tx.scheduleVersion.update({ where: { id: version.id }, data: { revision: { increment: 1 } } });
-    await tx.scheduleChange.create({ data: { facilityId: actor.facilityId, scheduleId, versionId: version.id, changedById: actor.userId, changeType: violations.length ? 'MANUAL_OVERRIDE' : edit.kind === 'create' ? 'CREATE' : edit.kind === 'remove' ? 'DELETE' : 'UPDATE', reason: violations.length ? reason : `עדכון טיוטה: ${edit.kind}`, beforeData: JSON.parse(JSON.stringify(before)), afterData: JSON.parse(JSON.stringify(violations.length ? { violations, approvedById: actor.userId, approvedAt: new Date().toISOString(), assignments: data.assignments } : data.assignments)) } });
-    return { ok: true as const, scheduleId, revision: version.revision + 1, versionId: version.id,
+    await tx.scheduleChange.create({ data: { facilityId: actor.facilityId, scheduleId, versionId: version.id, changedById: actor.userId, changeType: violations.length ? 'MANUAL_OVERRIDE' : edit.kind === 'create' ? 'CREATE' : edit.kind === 'remove' ? 'DELETE' : 'UPDATE', reason: violations.length ? (reason ?? 'נשמר עם חריגות') : edit.kind === 'batch' ? `שמירת ${edit.changes.length} שינויים` : `עדכון טיוטה: ${edit.kind}`, beforeData: JSON.parse(JSON.stringify(before)), afterData: JSON.parse(JSON.stringify(violations.length ? { violations, approvedById: actor.userId, approvedAt: new Date().toISOString(), assignments: data.assignments } : data.assignments)) } });
+    if (direct) {
+      await saveScheduleAnalysis(tx, version.id, data.input, data.allAssignments);
+      await freezePublishedVersion(tx, version.id, data.capacities, data.dateOverrides, new Date());
+      await tx.schedule.update({ where: { id: scheduleId }, data: { publishedVersionId: version.id, draftVersionId: null } });
+    }
+    return { ok: true as const, scheduleId, revision: version.revision + (direct ? 2 : 1), versionId: version.id, published: direct,
       assignments: details.assignments, warnings: details.warnings, fairness: details.fairness };
   });
 }
@@ -121,6 +170,11 @@ export async function swapAssignments(assignmentId: string, otherId: string, exp
 }
 export async function setAssignmentLocked(assignmentId: string, isLocked: boolean, expected: VersionExpectation) {
   return editSchedule(await scheduleForAssignment(assignmentId), expected, { kind: 'lock', assignmentId, isLocked });
+}
+/** Save several unsaved slot changes at once; all are applied (and validated) together or none are. */
+export async function saveScheduleChanges(scheduleId: string, expected: VersionExpectation, changes: SlotChange[]) {
+  const result = await applyEdit(scheduleId, expected, { kind: 'batch', changes });
+  return result;
 }
 export async function startScheduleCorrection(scheduleId: string, expected: VersionExpectation) {
   const actor = await requireManager();

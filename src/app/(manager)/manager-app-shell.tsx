@@ -313,7 +313,7 @@ export function ManagerAppShell({ fullName, courtName, navItems, children }: Man
   }, [desktopCollapsed, desktopPreferenceLoaded]);
 
   return (
-    <div className="flex h-screen bg-background">
+    <div className="app-shell flex h-screen">
       <aside
         className={cn(
           'hidden shrink-0 flex-col overflow-hidden border-s border-sidebar-border bg-sidebar text-sidebar-foreground shadow-sm transition-[width] duration-200 ease-out md:flex',
@@ -396,7 +396,7 @@ export function ManagerAppShell({ fullName, courtName, navItems, children }: Man
       </div>
 
       <main className="min-w-0 flex-1 overflow-auto pt-14 md:pt-0">
-        <div className="min-h-full p-4 md:p-6">{children}</div>
+        <div className="mx-auto min-h-full max-w-[1440px] p-4 md:p-8">{children}</div>
       </main>
     </div>
   );

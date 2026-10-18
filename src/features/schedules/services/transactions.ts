@@ -1,8 +1,11 @@
 import { Prisma } from '@/generated/prisma/client';
 import { prisma } from '@/lib/db/client';
 import { todayUtcDateForTimeZone } from '@/features/periods/utils';
+import type { loadSchedulingInput } from '../generation/queries';
+import { toDatedCapacityRules } from '../utils';
 
-export type VersionExpectation = { versionId: string | null; revision: number };
+/** `publish`: edit a published schedule directly (new version, published in the same transaction). */
+export type VersionExpectation = { versionId: string | null; revision: number; publish?: boolean };
 export type ScheduleActor = { facilityId: string; userId: string };
 export const STALE_VERSION = 'השיבוץ השתנה. יש לרענן ולנסות שוב';
 
@@ -40,7 +43,7 @@ export async function checkedVersion(tx: Prisma.TransactionClient, actor: Schedu
   return { schedule, version };
 }
 
-export async function editableDraft(tx: Prisma.TransactionClient, actor: ScheduleActor, scheduleId: string, expected: VersionExpectation) {
+export async function editableDraft(tx: Prisma.TransactionClient, actor: ScheduleActor, scheduleId: string, expected: VersionExpectation, reason?: string) {
   const { schedule, version } = await checkedVersion(tx, actor, scheduleId, expected);
   if (version?.status === 'DRAFT') return { schedule, version };
   const draft = await tx.scheduleVersion.create({ data: {
@@ -59,8 +62,26 @@ export async function editableDraft(tx: Prisma.TransactionClient, actor: Schedul
   await tx.scheduleChange.create({ data: {
     facilityId: actor.facilityId, scheduleId, versionId: draft.id,
     changedById: actor.userId, changeType: 'CREATE',
-    reason: version ? 'נפתחה טיוטת תיקון' : 'נפתחה טיוטה',
+    reason: reason ?? (version ? 'נפתחה טיוטת תיקון' : 'נפתחה טיוטה'),
     afterData: { copiedFromVersionId: version?.id ?? null },
   } });
   return { schedule, version: draft };
+}
+
+/** Freeze a draft version as published, snapshotting its staffing requirements. */
+type LoadedInput = Awaited<ReturnType<typeof loadSchedulingInput>>;
+
+/** Day-category rules plus this period's date overrides (entries with `date`), frozen with the version. */
+export async function freezePublishedVersion(tx: Prisma.TransactionClient, versionId: string, capacities: LoadedInput['capacities'], dateOverrides: LoadedInput['dateOverrides'], publishedAt: Date) {
+  await tx.scheduleVersion.update({ where: { id: versionId }, data: {
+    status: 'PUBLISHED', publishedAt, revision: { increment: 1 },
+    capacitySnapshot: [
+      ...capacities.map(c => ({
+        id: c.id, positionId: c.positionId, displayName: c.position.name, color: c.position.color,
+        rank: c.position.requiredRank ?? c.position.baseRole?.rank ?? c.position.displayOrder,
+        shiftType: c.shiftType, dayCategory: c.dayCategory, amount: c.requiredCount,
+      })),
+      ...toDatedCapacityRules(dateOverrides),
+    ],
+  } });
 }

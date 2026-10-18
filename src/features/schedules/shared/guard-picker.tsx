@@ -69,7 +69,7 @@ export function GuardPicker({
   const panel = (
     <div
       ref={panelRef}
-      className="fixed z-9999 bg-white border border-border rounded-lg shadow-lg w-full max-w-36 py-1"
+      className="fixed z-9999 bg-card border border-border rounded-lg shadow-lg w-full max-w-36 py-1"
       style={{ top: anchorRect.bottom + 4, left: anchorRect.left }}
       dir="rtl"
     >

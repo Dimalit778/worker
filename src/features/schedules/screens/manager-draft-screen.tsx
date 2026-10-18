@@ -2,7 +2,9 @@
 
 import { useSearchParams } from 'next/navigation';
 import { CorrectionButton } from '../shared/correction-button';
+import { PendingEditsProvider, usePendingEdits } from '../shared/pending-edits';
 import { VersionProvider } from '../shared/version-context';
+import type { CurrentScheduleData } from '../types';
 import { Card, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { CreatePeriodForm } from '@/features/periods/components/create-period-form';
 import { DeadlineExtension } from '@/features/periods/components/deadline-extension';
@@ -71,7 +73,7 @@ export function ManagerDraftScreen({ scheduleId }: { scheduleId?: string }) {
 
         {isReadonly && (
           <div
-            className="flex gap-3 rounded-2xl border border-green-200/80 bg-green-50 px-4 py-3 text-sm text-green-900 shadow-sm ring-1 ring-green-100"
+            className="flex gap-3 rounded-2xl border border-green-200/80 bg-green-950 px-4 py-3 text-sm text-green-200 shadow-sm ring-1 ring-green-100"
             role="status"
           >
             <span className="select-none text-base leading-none" aria-hidden>
@@ -83,19 +85,28 @@ export function ManagerDraftScreen({ scheduleId }: { scheduleId?: string }) {
 
         {isReadonly && <CorrectionButton data={data} />}
 
-        <WeeklyDraftScheduleView
-          scheduleId={data.scheduleId}
-          scheduleName={data.scheduleName}
-          startDate={data.startDate}
-          endDate={data.endDate}
-          assignments={data.assignments}
-          employees={data.employees}
-          capacity={data.capacity}
-          facilityId={data.facilityId}
-          overflowCandidates={data.overflowCandidates}
-          readonly={isReadonly || data.scheduleStatus === 'ARCHIVED' || !data.versionId}
-        />
+        <PendingEditsProvider data={data}>
+          <DraftSchedule data={data} readonly={isReadonly || data.scheduleStatus === 'ARCHIVED' || !data.versionId} />
+        </PendingEditsProvider>
       </div>
     </VersionProvider>
+  );
+}
+
+function DraftSchedule({ data, readonly }: { data: CurrentScheduleData; readonly: boolean }) {
+  const assignments = usePendingEdits()?.assignments ?? data.assignments;
+  return (
+    <WeeklyDraftScheduleView
+      scheduleId={data.scheduleId}
+      scheduleName={data.scheduleName}
+      startDate={data.startDate}
+      endDate={data.endDate}
+      assignments={assignments}
+      employees={data.employees}
+      capacity={data.capacity}
+      facilityId={data.facilityId}
+      overflowCandidates={data.overflowCandidates}
+      readonly={readonly}
+    />
   );
 }

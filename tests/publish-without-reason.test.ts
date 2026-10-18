@@ -5,9 +5,10 @@ const mocks = vi.hoisted(() => ({
   checkedVersion: vi.fn(), loadSchedulingInput: vi.fn(), validateAssignments: vi.fn(), saveScheduleAnalysis: vi.fn(),
 }));
 vi.mock('@/lib/db/auth-helpers', () => ({ requireManager: async () => ({ facilityId: 'facility', userId: 'manager' }) }));
-vi.mock('@/features/schedules/services/transactions', () => ({
+vi.mock('@/features/schedules/services/transactions', async importOriginal => ({
   scheduleTransaction: async (_actor: unknown, fn: (tx: unknown) => unknown) => fn(mocks.tx),
   checkedVersion: mocks.checkedVersion,
+  freezePublishedVersion: (await importOriginal<typeof import('@/features/schedules/services/transactions')>()).freezePublishedVersion,
 }));
 vi.mock('@/features/schedules/generation/queries', () => ({ loadSchedulingInput: mocks.loadSchedulingInput }));
 vi.mock('@/features/schedules/generation/recalculate', () => ({ saveScheduleAnalysis: mocks.saveScheduleAnalysis }));

@@ -31,21 +31,21 @@ const SEVERITY_LABELS: Record<WarningSeverity, string> = {
 
 const GROUP_STYLES: Record<WarningSeverity, { wrap: string; header: string; tag: string; bullet: string }> = {
   ERROR: {
-    wrap: 'border-red-200 bg-red-50/60',
-    header: 'text-red-700',
-    tag: 'bg-red-100 text-red-700 border-red-200',
+    wrap: 'border-red-200 bg-red-950/60',
+    header: 'text-red-200',
+    tag: 'bg-red-950 text-red-200 border-red-200',
     bullet: 'text-red-300',
   },
   WARNING: {
-    wrap: 'border-amber-200 bg-amber-50/60',
-    header: 'text-amber-700',
-    tag: 'bg-amber-100 text-amber-700 border-amber-200',
+    wrap: 'border-amber-200 bg-amber-950/60',
+    header: 'text-amber-200',
+    tag: 'bg-amber-950 text-amber-200 border-amber-200',
     bullet: 'text-amber-300',
   },
   INFO: {
-    wrap: 'border-blue-200 bg-blue-50/60',
-    header: 'text-blue-700',
-    tag: 'bg-blue-100 text-blue-700 border-blue-200',
+    wrap: 'border-blue-200 bg-blue-950/60',
+    header: 'text-blue-200',
+    tag: 'bg-blue-950 text-blue-200 border-blue-200',
     bullet: 'text-blue-300',
   },
 };

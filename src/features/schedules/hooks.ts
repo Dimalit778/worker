@@ -29,6 +29,8 @@ export async function applyScheduleEdit(
   update: Awaited<ReturnType<typeof createAssignment>> | undefined,
 ) {
   if (!update || 'requiresOverride' in update) return;
+  // A direct edit published a new version; refetch so the next edit targets it.
+  if (update.published) return invalidateScheduleQueries(queryClient, update.scheduleId);
   await queryClient.cancelQueries({
     queryKey: queryKeys.schedules.draft(),
     predicate: query => (query.state.data as CurrentScheduleData | null)?.scheduleId === update.scheduleId,

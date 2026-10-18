@@ -91,7 +91,7 @@ export function PeriodRangePicker({ periodDays, startDate, onPickStart }: Props)
                   className={cn(
                     'pb-1.5 font-medium text-muted-foreground',
                     i === 6 && 'text-blue-500',
-                    i === 5 && 'text-amber-600',
+                    i === 5 && 'text-amber-200',
                   )}
                   title={DAY_NAMES_FULL[i]}
                 >
