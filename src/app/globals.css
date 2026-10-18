@@ -180,6 +180,7 @@
   body {
     background-image: radial-gradient(ellipse at 50% 0%, rgba(124,145,182,.16), transparent 55%);
     background-size: 100% 720px;
+    background-repeat: no-repeat;
     background-attachment: fixed;
   }
   h1, h2, h3 { font-weight: 500; letter-spacing: -.025em; }
