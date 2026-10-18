@@ -18,7 +18,7 @@ export default async function LoginPage() {
   if (token?.systemRole) redirect('/');
 
   return (
-    <Card className="w-full max-w-sm">
+    <Card className="auth-login-card w-full max-w-sm">
       <CardHeader className="text-center">
         <CardTitle className="text-xl">שמירה בתי משפט</CardTitle>
         <p className="text-sm text-muted-foreground">כניסה למערכת</p>

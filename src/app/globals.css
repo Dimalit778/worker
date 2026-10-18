@@ -178,10 +178,8 @@
 /* Shared midnight glass language, including Radix surfaces rendered in portals. */
 @layer base {
   body {
-    background-image: radial-gradient(ellipse at 50% 0%, rgba(124,145,182,.16), transparent 55%),
-      linear-gradient(rgba(186,215,247,.025) 1px, transparent 1px),
-      linear-gradient(90deg, rgba(186,215,247,.025) 1px, transparent 1px);
-    background-size: 100% 720px, 88px 88px, 88px 88px;
+    background-image: radial-gradient(ellipse at 50% 0%, rgba(124,145,182,.16), transparent 55%);
+    background-size: 100% 720px;
     background-attachment: fixed;
   }
   h1, h2, h3 { font-weight: 500; letter-spacing: -.025em; }
@@ -226,6 +224,12 @@ main h1, .auth-shell [data-slot='card-title'] {
 .auth-shell {
   background: radial-gradient(ellipse at 50% 15%, rgba(124,145,182,.18), transparent 60%);
 }
+.auth-shell:has(.auth-login-card) {
+  background-image: radial-gradient(ellipse at 50% 15%, rgba(124,145,182,.18), transparent 60%),
+    linear-gradient(rgba(186,215,247,.025) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(186,215,247,.025) 1px, transparent 1px);
+  background-size: 100% 100%, 88px 88px, 88px 88px;
+}
 .auth-shell [data-slot='card'] {
   background: rgba(5,6,15,.97);
   box-shadow: var(--glass-shadow), 0 0 100px rgba(152,192,239,.06);
@@ -257,7 +261,7 @@ main h1, .auth-shell [data-slot='card-title'] {
     --card: #fff; --card-header: #f1f5f9; --card-foreground: #111827;
     --muted: #f1f5f9; --muted-foreground: #475569; --border: #cbd5e1;
     --primary: #1e3a5f; --primary-foreground: #fff; }
-  body { background-image: none; }
+  body, .auth-shell, .auth-shell:has(.auth-login-card) { background-image: none; }
   [data-slot='card'] { box-shadow: none; }
   main h1, .auth-shell [data-slot='card-title'] { background-image: none; color: #111827; }
 }
