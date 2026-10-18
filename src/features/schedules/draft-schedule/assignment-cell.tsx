@@ -1,14 +1,9 @@
 'use client';
 
-import { useVersionExpectation } from '@/features/schedules/shared/version-context';
 import { useRef, useState } from 'react';
-import { useMutation, useQueryClient } from '@tanstack/react-query';
 import { cn } from '@/lib/utils';
 import { GuardPicker, type SwapCandidate } from '@/features/schedules/shared/guard-picker';
-import { createAssignment, removeAssignment, swapAssignments, updateAssignment } from '@/features/schedules/assignments/actions';
-import { applyScheduleEdit } from '@/features/schedules/hooks';
-import { ManualOverrideDialog } from '@/features/schedules/shared/manual-override-dialog';
-import type { ManualViolation } from '@/features/scheduling-engine/manual-violations';
+import { usePendingEdits } from '@/features/schedules/shared/pending-edits';
 import { OverflowCandidates } from '../shared/overflow-candidates';
 import type { AssignmentSummary, OverflowCandidateSummary, ScheduleEmployeeOption } from '@/features/schedules/types';
 import type { ShiftType } from '@/generated/prisma/client';
@@ -41,8 +36,6 @@ export function AssignmentCell({
   assignment,
   employees,
   assignedEmployeeIds,
-  scheduleId,
-  facilityId,
   date,
   shiftType,
   positionId,
@@ -56,54 +49,15 @@ export function AssignmentCell({
   swapCandidates = [],
   as = 'td',
 }: Props) {
-  const queryClient = useQueryClient();
-  const expected = useVersionExpectation();
+  const edits = usePendingEdits();
   const [open, setOpen] = useState(false);
   const [anchorRect, setAnchorRect] = useState<DOMRect | null>(null);
-  const [error, setError] = useState<string | null>(null);
-  const [overrideRequest, setOverrideRequest] = useState<{ violations: ManualViolation[]; input: { type: 'select'; employeeId: string } | { type: 'swap'; assignmentId: string } } | null>(null);
   // Shared between the <td> (desktop grid) and <div> (mobile row) render paths.
   const tdRef = useRef<HTMLTableCellElement | HTMLDivElement>(null);
   const Comp = as === 'row' ? 'div' : 'td';
+  const slotRef = { date, shiftType, positionId, slotIndex };
+  const unsaved = edits?.isDirty(slotRef) ?? false;
 
-  const assignmentMutation = useMutation({
-    mutationFn: async (
-      input:
-        | { type: 'select'; employeeId: string; override?: { reason: string } }
-        | { type: 'remove'; assignmentId: string }
-        | { type: 'swap'; assignmentId: string; override?: { reason: string } },
-    ) => {
-      if (input.type === 'remove') {
-        return removeAssignment(input.assignmentId, expected);
-      }
-      if (input.type === 'swap') {
-        if (!assignment) return;
-        return swapAssignments(assignment.id, input.assignmentId, expected, input.override);
-      }
-      if (assignment) {
-        return updateAssignment(assignment.id, input.employeeId, expected, input.override);
-      }
-      return createAssignment({
-        scheduleId,
-        employeeId: input.employeeId,
-        facilityId,
-        positionId,
-        shiftType,
-        date,
-        slotIndex,
-      }, expected, input.override);
-    },
-    onSuccess: (update, input) => {
-      if (update && 'requiresOverride' in update) {
-        setOverrideRequest({ violations: update.violations, input: input as Extract<typeof input, { type: 'select' | 'swap' }> });
-        return;
-      }
-      return applyScheduleEdit(queryClient, update);
-    },
-    onError: (e: Error) => setError(e.message || 'שגיאה בשיבוץ'),
-  });
-
-  const pending = assignmentMutation.isPending;
   const isHighlighted = Boolean(highlightedEmployeeId && assignment?.employeeId === highlightedEmployeeId);
   const positionStyle = (positionColor === undefined && !mutedPosition) || isHighlighted || anonymousRow
     ? undefined
@@ -162,21 +116,18 @@ export function AssignmentCell({
 
   function handleSelect(employeeId: string) {
     setOpen(false);
-    setError(null);
-    assignmentMutation.mutate({ type: 'select', employeeId });
+    edits?.setSlot(slotRef, employeeId);
   }
 
   function handleRemove() {
     if (!assignment) return;
     setOpen(false);
-    setError(null);
-    assignmentMutation.mutate({ type: 'remove', assignmentId: assignment.id });
+    edits?.setSlot(slotRef, null);
   }
 
   function handleSwap(candidateAssignmentId: string) {
     setOpen(false);
-    setError(null);
-    assignmentMutation.mutate({ type: 'swap', assignmentId: candidateAssignmentId });
+    edits?.swapWith(slotRef, candidateAssignmentId);
   }
 
   function openPicker() {
@@ -204,7 +155,7 @@ export function AssignmentCell({
         anonymousRow ? 'bg-card' : assignment ? 'hover:bg-accent/60' : 'bg-muted/40 hover:bg-accent/30',
         mutedPosition && 'border-gray-300',
         isHighlighted && !anonymousRow && highlightClass,
-        pending && 'opacity-50 pointer-events-none',
+        unsaved && 'outline outline-2 -outline-offset-2 outline-dashed outline-primary',
         open && 'ring-2 ring-primary ring-inset',
       )}
       onClick={(e: React.MouseEvent) => {
@@ -223,16 +174,6 @@ export function AssignmentCell({
       <span className={cn('truncate block', rowLayout ? 'max-w-[70%]' : 'max-w-[58px] mx-auto')}>
         {assignment?.employeeDisplayName ?? (rowLayout ? 'הקצה עובד' : '')}
       </span>
-      {error && (
-        <span
-          className={cn(
-            'flex items-center justify-center bg-destructive/10 text-destructive text-xs leading-tight px-0.5 z-10',
-            rowLayout ? 'rounded-md px-2 py-1' : 'absolute inset-0',
-          )}
-        >
-          {error}
-        </span>
-      )}
       <OverflowCandidates candidates={overflowCandidates} />
 
       {open && anchorRect && (
@@ -248,14 +189,6 @@ export function AssignmentCell({
           onSwap={assignment ? handleSwap : undefined}
         />
       )}
-      <ManualOverrideDialog
-        violations={overrideRequest?.violations ?? null}
-        onCancel={() => setOverrideRequest(null)}
-        onConfirm={reason => {
-          if (overrideRequest) assignmentMutation.mutate({ ...overrideRequest.input, override: { reason } });
-          setOverrideRequest(null);
-        }}
-      />
     </Comp>
   );
 }

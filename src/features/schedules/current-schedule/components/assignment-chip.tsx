@@ -1,14 +1,9 @@
 'use client';
 
-import { useVersionExpectation } from '@/features/schedules/shared/version-context';
 import { useRef, useState, type ReactNode } from 'react';
-import { useMutation, useQueryClient } from '@tanstack/react-query';
 import { Plus, UserCheck } from 'lucide-react';
 import { cn } from '@/lib/utils';
-import { createAssignment, removeAssignment, swapAssignments, updateAssignment } from '@/features/schedules/assignments/actions';
-import { applyScheduleEdit } from '@/features/schedules/hooks';
-import { ManualOverrideDialog } from '@/features/schedules/shared/manual-override-dialog';
-import type { ManualViolation } from '@/features/scheduling-engine/manual-violations';
+import { usePendingEdits } from '@/features/schedules/shared/pending-edits';
 import type { ScheduleEmployeeOption } from '@/features/schedules/types';
 import type { ShiftType } from '@/generated/prisma/client';
 import { GuardPicker, type SwapCandidate } from '@/features/schedules/shared/guard-picker';
@@ -43,8 +38,6 @@ function AssignmentPicker({
   slot,
   shiftType,
   date,
-  scheduleId,
-  facilityId,
   employees,
   assignedEmployeeIds,
   readonly,
@@ -54,76 +47,32 @@ function AssignmentPicker({
   ariaLabel,
   swapCandidates = [],
 }: AssignmentPickerProps) {
-  const queryClient = useQueryClient();
-  const expected = useVersionExpectation();
+  const edits = usePendingEdits();
   const anchorRef = useRef<HTMLButtonElement>(null);
   const [open, setOpen] = useState(false);
   const [anchorRect, setAnchorRect] = useState<DOMRect | null>(null);
-  const [error, setError] = useState<string | null>(null);
-  const [overrideRequest, setOverrideRequest] = useState<{ violations: ManualViolation[]; input: { type: 'select'; employeeId: string } | { type: 'swap'; assignmentId: string } } | null>(null);
-
-  const assignmentMutation = useMutation({
-    mutationFn: async (
-      input:
-        | { type: 'select'; employeeId: string; override?: { reason: string } }
-        | { type: 'remove'; assignmentId: string }
-        | { type: 'swap'; assignmentId: string; override?: { reason: string } },
-    ) => {
-      if (input.type === 'remove') {
-        return removeAssignment(input.assignmentId, expected);
-      }
-      if (input.type === 'swap') {
-        if (!slot.assignment) return;
-        return swapAssignments(slot.assignment.id, input.assignmentId, expected, input.override);
-      }
-      if (mode === 'edit' && slot.assignment) {
-        return updateAssignment(slot.assignment.id, input.employeeId, expected, input.override);
-      }
-      return createAssignment({
-        scheduleId,
-        employeeId: input.employeeId,
-        facilityId,
-        positionId: slot.positionId,
-        shiftType,
-        date,
-        slotIndex: slot.slotIndex,
-      }, expected, input.override);
-    },
-    onSuccess: (update, input) => {
-      if (update && 'requiresOverride' in update) {
-        setOverrideRequest({ violations: update.violations, input: input as Extract<typeof input, { type: 'select' | 'swap' }> });
-        return;
-      }
-      return applyScheduleEdit(queryClient, update);
-    },
-    onError: (e: Error) => setError(e.message || 'שגיאה בשיבוץ'),
-  });
-
-  const pending = assignmentMutation.isPending;
+  const slotRef = { date, shiftType, positionId: slot.positionId, slotIndex: slot.slotIndex };
 
   function openPicker() {
-    if (readonly || pending) return;
+    if (readonly) return;
     if (anchorRef.current) setAnchorRect(anchorRef.current.getBoundingClientRect());
     setOpen(true);
   }
 
   function handleSelect(employeeId: string) {
     setOpen(false);
-    setError(null);
-    assignmentMutation.mutate({ type: 'select', employeeId });
+    edits?.setSlot(slotRef, employeeId);
   }
 
   function handleRemove() {
     if (!slot.assignment) return;
     setOpen(false);
-    setError(null);
-    assignmentMutation.mutate({ type: 'remove', assignmentId: slot.assignment.id });
+    edits?.setSlot(slotRef, null);
   }
 
   function handleSwap(candidateAssignmentId: string) {
     setOpen(false);
-    setError(null);
-    assignmentMutation.mutate({ type: 'swap', assignmentId: candidateAssignmentId });
+    edits?.swapWith(slotRef, candidateAssignmentId);
   }
 
   return (
@@ -131,19 +80,13 @@ function AssignmentPicker({
       <button
         ref={anchorRef}
         type="button"
-        className={className}
+        className={cn(className, edits?.isDirty(slotRef) && 'outline outline-2 -outline-offset-2 outline-dashed outline-primary')}
         onClick={readonly ? undefined : openPicker}
         aria-disabled={readonly || undefined}
         aria-label={ariaLabel}
       >
         {children}
       </button>
-
-      {error ? (
-        <p className="mt-1 rounded-md bg-destructive/10 px-2 py-1 text-[11px] text-destructive" role="alert">
-          {error}
-        </p>
-      ) : null}
 
       {open && anchorRect ? (
         <GuardPicker
@@ -158,14 +101,6 @@ function AssignmentPicker({
           onSwap={mode === 'edit' ? handleSwap : undefined}
         />
       ) : null}
-      <ManualOverrideDialog
-        violations={overrideRequest?.violations ?? null}
-        onCancel={() => setOverrideRequest(null)}
-        onConfirm={reason => {
-          if (overrideRequest) assignmentMutation.mutate({ ...overrideRequest.input, override: { reason } });
-          setOverrideRequest(null);
-        }}
-      />
     </div>
   );
 }
