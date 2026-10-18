@@ -183,7 +183,7 @@ function StatTile({
       disabled={disabled}
       aria-expanded={!disabled && open}
       className={cn(
-        'flex items-center justify-between gap-3 rounded-xl border px-4 py-3 text-right transition-all',
+        'flex items-center justify-between gap-3 rounded-xl border px-4 py-3 text-end transition-all',
         disabled ? 'cursor-default border-border/60 bg-muted/30' : 'cursor-pointer hover:-translate-y-px hover:shadow-md active:translate-y-0',
         !disabled && danger && (open ? 'border-red-400 bg-red-50 ring-2 ring-red-400' : 'border-red-200 bg-red-50/60'),
         !disabled && !danger && (open ? 'border-primary bg-primary/5 ring-2 ring-primary' : 'border-border/60 bg-muted/30'),

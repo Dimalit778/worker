@@ -13,12 +13,12 @@ export function WeekNavigator({ weekIndex, onWeekChange, week0Label, week1Label 
 
   return (
     <div className="flex justify-center mb-5" dir="rtl">
-      <div className="flex items-center gap-3 bg-white border border-border rounded-xl px-4 py-2 shadow-sm">
+      <div className="flex items-center gap-3 bg-card border border-border rounded-xl px-4 py-2 shadow-sm">
         <button
           onClick={() => onWeekChange(0)}
           disabled={weekIndex === 0}
           className={cn(
-            'flex items-center justify-center w-8 h-8 rounded-md border border-border bg-muted text-muted-foreground transition-colors',
+            'flex items-center justify-center size-9 rounded-md border border-border bg-muted text-muted-foreground transition-colors',
             weekIndex === 0 ? 'opacity-30 cursor-default' : 'hover:bg-accent',
           )}
           aria-label="שבוע א׳"
@@ -38,7 +38,7 @@ export function WeekNavigator({ weekIndex, onWeekChange, week0Label, week1Label 
           onClick={() => onWeekChange(1)}
           disabled={weekIndex === 1}
           className={cn(
-            'flex items-center justify-center w-8 h-8 rounded-md border border-border bg-muted text-muted-foreground transition-colors',
+            'flex items-center justify-center size-9 rounded-md border border-border bg-muted text-muted-foreground transition-colors',
             weekIndex === 1 ? 'opacity-30 cursor-default' : 'hover:bg-accent',
           )}
           aria-label="שבוע ב׳"

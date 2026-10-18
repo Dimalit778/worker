@@ -148,7 +148,7 @@ export function ScheduleCalendar({
   const pending = draftMutation.isPending || submitMutation.isPending || discardMutation.isPending;
   const error =
     [draftMutation, submitMutation, discardMutation].map((m) => m.data?.error).find(Boolean) ??
-    ([draftMutation, submitMutation, discardMutation].some((m) => m.isError) ? 'השמירה נכשלה' : null);
+    ([draftMutation, submitMutation, discardMutation].some((m) => m.isError) ? 'השמירה נכשלה. הבחירות נשמרו במסך; אפשר לנסות שוב.' : null);
 
   const weeks = chunkWeeks(datesInRange(period.startDate, period.endDate));
   const readonly = viewOnly || period.status === 'LOCKED' || period.status === 'ARCHIVED';
@@ -162,6 +162,12 @@ export function ScheduleCalendar({
   const brushLabel = brush === 'CLEAR' ? 'נקה' : PREFERENCE_LABEL[brush];
   const paint = (dates: string[], shifts: ShiftType[]) =>
     setEntries((prev) => applyPreference(prev, dates, shifts, brushPreference));
+
+  // One week at a time on screen; bulk actions and week copy still cover the whole period.
+  const [weekIndex, setWeekIndex] = useState(0);
+  const weekCount = weeks.length;
+  const wi = Math.min(weekIndex, Math.max(weekCount - 1, 0));
+  const week = weeks[wi] ?? [];
 
   function handleCycle(date: string, shiftType: ShiftType) {
     if (!editable) return;
@@ -195,7 +201,7 @@ export function ScheduleCalendar({
       {/* Header */}
       <div className="flex flex-wrap items-start justify-between gap-3">
         <div>
-          <h1 className="text-xl font-bold">{viewOnly ? 'לוח זמינות' : 'לוח משמרות'}</h1>
+          <h1 className="text-xl font-bold">{viewOnly ? 'לוח זמינות' : 'הגשת זמינות'}</h1>
           <p className="text-sm text-muted-foreground mt-0.5">{period.name}</p>
         </div>
         <div className="flex flex-col items-end gap-1 text-xs text-muted-foreground">
@@ -281,11 +287,12 @@ export function ScheduleCalendar({
         </div>
       )}
 
-      {/* Weeks */}
-      {weeks.map((week, wi) => (
+      {/* Current week */}
+      {week.length > 0 && (
         <div key={wi} className="rounded-xl border border-border overflow-hidden bg-white shadow-sm">
-          <div className="flex items-center justify-between bg-muted/60 px-4 py-2 text-xs font-medium text-muted-foreground border-b border-border">
-            <span>שבוע {wi + 1}</span>
+          <div className="flex flex-wrap items-center justify-between gap-2 bg-muted/60 px-4 py-2 text-xs font-medium text-muted-foreground border-b border-border">
+            <Button type="button" variant="outline" className="min-h-11" disabled={wi === 0} onClick={() => setWeekIndex(wi - 1)}>→ הקודם</Button>
+            <span aria-live="polite">שבוע {wi + 1} מתוך {weekCount}</span>
             {editable && (
               <Button
                 type="button"
@@ -297,12 +304,13 @@ export function ScheduleCalendar({
                 כל השבוע
               </Button>
             )}
+            <Button type="button" variant="outline" className="min-h-11" disabled={wi >= weekCount - 1} onClick={() => setWeekIndex(wi + 1)}>הבא ←</Button>
           </div>
           <div className="overflow-x-auto">
-            <table className="w-full border-collapse text-xs">
+            <table className="w-full table-fixed border-collapse text-xs">
               <thead>
                 <tr>
-                  <th className="w-14 px-3 py-2.5 text-right font-medium border-b border-e border-border bg-muted/30 sticky right-0 z-10">
+                  <th className="w-10 px-1 py-2.5 text-right font-medium border-b border-e border-border bg-muted/30 sticky right-0 z-10">
                     משמרת
                   </th>
                   {week.map((date) => {
@@ -321,7 +329,7 @@ export function ScheduleCalendar({
                       <th
                         key={date}
                         className={cn(
-                          'px-1 py-2 text-center font-medium border-b border-e last:border-e-0 border-border min-w-[56px]',
+                          'px-1 py-2 text-center font-medium border-b border-e last:border-e-0 border-border min-w-0',
                           isWeekend && 'bg-slate-50',
                         )}
                       >
@@ -377,7 +385,7 @@ export function ScheduleCalendar({
                             aria-label={`${date} ${shift.label}: ${value ? PREFERENCE_LABEL[value] : NO_CHOICE_LABEL}`}
                             title={value ? PREFERENCE_LABEL[value] : NO_CHOICE_LABEL}
                             className={cn(
-                              'w-full h-9 rounded-md transition-all duration-150 flex items-center justify-center focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2',
+                              'w-full min-h-11 rounded-md transition-all duration-150 flex items-center justify-center focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2',
                               value ? STATE_STYLE[value] : EMPTY_STYLE,
                               !editable && 'cursor-default',
                             )}
@@ -393,7 +401,7 @@ export function ScheduleCalendar({
             </table>
           </div>
         </div>
-      ))}
+      )}
 
       <div className="space-y-2">
         <Label htmlFor="availability-note">בקשות</Label>

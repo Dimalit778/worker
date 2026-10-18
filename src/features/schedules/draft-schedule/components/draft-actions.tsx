@@ -122,8 +122,10 @@ export function DraftActions({ scheduleId, scheduleStatus, hasUnpublishedDraft =
   return (
     <>
       <div className="flex items-center gap-3 flex-wrap" dir="rtl">
-        {error && <p className="text-sm text-destructive">{error}</p>}
-        {message && <p className="text-sm text-green-700">{message}</p>}
+        <div role="status" aria-live="polite">
+          {error && <p className="text-sm text-destructive">{error}</p>}
+          {message && <p className="text-sm text-green-700">{message}</p>}
+        </div>
 
         {canGenerate && (
           <Button size="sm" variant="default" onClick={handleGenerate} disabled={pending} className="gap-1.5">

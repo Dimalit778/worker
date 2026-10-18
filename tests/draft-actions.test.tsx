@@ -90,3 +90,12 @@ it('shows submission status before auto-generation and generates on confirm', as
   fireEvent.click(screen.getByRole('button', { name: 'צור שיבוץ' }));
   await waitFor(() => expect(generateAutoSchedule).toHaveBeenCalledWith('schedule', { versionId: 'schedule', revision: 1 }));
 });
+
+it('does not generate when the confirmation dialog is cancelled', async () => {
+  renderActions();
+  fireEvent.click(screen.getByRole('button', { name: 'צור שיבוץ אוטומטי' }));
+  expect(await screen.findByText('ליצור שיבוץ אוטומטי?')).toBeInTheDocument();
+  fireEvent.click(screen.getByRole('button', { name: 'ביטול' }));
+  await waitFor(() => expect(screen.queryByText('ליצור שיבוץ אוטומטי?')).not.toBeInTheDocument());
+  expect(generateAutoSchedule).not.toHaveBeenCalled();
+});

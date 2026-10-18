@@ -24,7 +24,6 @@ import {
 } from '../utils';
 
 /** table-fixed reads width from <col>, not only from cells */
-const ROW_NUM_COL_PX = '2rem';
 const POSITION_COL_PX = '3.5rem';
 const narrowColCell = 'w-14 min-w-0 max-w-14';
 
@@ -103,7 +102,7 @@ export function ShiftSection(props: ShiftSectionProps) {
       <div className="mb-5" dir="rtl">
         <div
           className={cn(
-            'flex items-center justify-between gap-2 px-3 py-2 rounded-lg text-white font-bold text-[13px]',
+            'flex items-center justify-between gap-2 px-3 py-2 rounded-t-xl text-white font-bold text-sm',
             style.header,
           )}
         >
@@ -111,7 +110,7 @@ export function ShiftSection(props: ShiftSectionProps) {
             <span>{style.emoji}</span>
             <span>{style.label}</span>
           </div>
-          <span className="text-[11px] font-normal opacity-80">אין תקנים למשמרת זו</span>
+          <span className="text-xs font-normal opacity-80">אין תקנים למשמרת זו</span>
         </div>
       </div>
     );
@@ -121,7 +120,7 @@ export function ShiftSection(props: ShiftSectionProps) {
     <div className="mb-5" dir="rtl">
       <div
         className={cn(
-          'flex items-center justify-between gap-2 px-3 py-2 rounded-t-lg text-white font-bold text-[13px]',
+          'flex items-center justify-between gap-2 px-3 py-2 rounded-t-xl text-white font-bold text-sm',
           style.header,
         )}
       >
@@ -131,10 +130,9 @@ export function ShiftSection(props: ShiftSectionProps) {
         </div>
       </div>
 
-      <div className="overflow-x-auto rounded-b-lg border border-border border-t-0 bg-white">
+      <div className="overflow-x-auto rounded-b-xl border border-border/60 border-t-0 bg-card">
         <table className="w-full table-fixed border-collapse text-xs" dir="rtl">
           <colgroup>
-            <col style={{ width: ROW_NUM_COL_PX }} />
             <col style={{ width: POSITION_COL_PX }} />
             {sortedDays.map((day) => (
               <col key={day.iso} />
@@ -143,13 +141,8 @@ export function ShiftSection(props: ShiftSectionProps) {
           <thead>
             <tr>
               <th
-                className={cn('px-0.5 py-1.5 border border-border text-white font-semibold text-center', style.header)}
-              >
-                #
-              </th>
-              <th
                 className={cn(
-                  'px-0.5 py-1.5 border border-border text-white font-semibold text-center text-[10px] leading-tight overflow-hidden text-ellipsis whitespace-nowrap',
+                  'px-0.5 py-1.5 border border-border/60 text-white font-semibold text-center text-xs leading-tight overflow-hidden text-ellipsis whitespace-nowrap',
                   style.header,
                 )}
                 title="תפקיד"
@@ -163,13 +156,13 @@ export function ShiftSection(props: ShiftSectionProps) {
                   <th
                     key={day.iso}
                     className={cn(
-                      'min-w-0 px-1 py-1.5 border border-border text-white text-center',
+                      'min-w-0 px-1 py-1.5 border border-border/60 text-white text-center',
                       style.header,
                       weekend && 'brightness-110',
                     )}
                   >
-                    <div className="font-bold text-[13px]">{day.letter}</div>
-                    <div className="text-[10px] font-normal opacity-80">{day.label}</div>
+                    <div className="font-bold text-sm">{day.letter}</div>
+                    <div className="text-xs font-normal opacity-80">{day.label}</div>
                     {overrideLabel ? (
                       <Badge
                         variant="secondary"
@@ -193,32 +186,30 @@ export function ShiftSection(props: ShiftSectionProps) {
               return (
                 <tr
                   key={`${pos.positionId}-${visualRow}`}
-                  className="bg-white"
+                  className="bg-card"
                   style={grayStyle ?? (pos.positionColor ? { backgroundColor: pos.positionColor + '28' } : undefined)}
                 >
-                  <td
-                    style={grayStyle}
-                    className={cn(
-                      'px-0.5 py-1 text-center border border-border text-muted-foreground font-semibold bg-muted/30',
-                      isGrayPosition && 'border-gray-300',
-                    )}
-                  >
-                    {rowIdx + 1}
-                  </td>
                   {isFirstRow ? (
                     <td
                       rowSpan={rowSpan}
                       style={grayStyle}
                       className={cn(
                         narrowColCell,
-                        'align-middle px-0.5 py-1 text-center border border-border bg-muted/20 text-[10px] font-semibold leading-tight overflow-hidden',
+                        'align-middle px-0.5 py-1 text-center border border-border/60 bg-muted/20 text-xs font-semibold leading-tight overflow-hidden',
                         hidePositionLabel && 'text-transparent',
                         isGrayPosition && 'border-gray-300',
                       )}
                       title={hidePositionLabel ? undefined : pos.positionName}
                       aria-label={hidePositionLabel ? pos.positionName : undefined}
                     >
-                      <div className="truncate">{hidePositionLabel ? '' : pos.positionName}</div>
+                      <div className="truncate">
+                        {hidePositionLabel ? '' : pos.positionName}
+                        {isGrayPosition && !hidePositionLabel && (
+                          <span className="mr-1 text-[0.65rem] font-normal text-muted-foreground" aria-hidden>
+                            (מחליף)
+                          </span>
+                        )}
+                      </div>
                     </td>
                   ) : null}
                   {sortedDays.map((day) => {
@@ -227,7 +218,7 @@ export function ShiftSection(props: ShiftSectionProps) {
                     if (weekendSlots && !weekendSlot) {
                       // A single blank area below the configured slots, without phantom role cells.
                       return rowIdx === weekendSlots.length ? (
-                        <td key={day.iso} rowSpan={bodyRows.length - rowIdx} className="border border-border bg-white" aria-label="אין תקנים נוספים" />
+                        <td key={day.iso} rowSpan={bodyRows.length - rowIdx} className="border border-border/60 bg-card schedule-slot-closed" aria-label="אין תקנים נוספים" />
                       ) : null;
                     }
                     const cellPosition = weekendSlot?.pos ?? pos;

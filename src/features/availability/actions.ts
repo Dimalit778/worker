@@ -38,6 +38,11 @@ export async function getScheduleData(): Promise<CurrentAvailability> {
     orderBy: { startDate: 'asc' },
   });
   if (!schedule) {
+    const next = await prisma.schedule.findFirst({
+      where: { facilityId, status: 'DRAFT', submissionOpensAt: { gt: now } },
+      orderBy: { submissionOpensAt: 'asc' },
+      select: { submissionOpensAt: true },
+    });
     return {
       period: null,
       entries: {},
@@ -49,6 +54,7 @@ export async function getScheduleData(): Promise<CurrentAvailability> {
       closesAt: null,
       lastSavedAt: null,
       submittedAt: null,
+      nextOpeningAt: next?.submissionOpensAt.toISOString() ?? null,
     };
   }
   const form = await prisma.availabilitySubmission.findUnique({
@@ -60,6 +66,7 @@ export async function getScheduleData(): Promise<CurrentAvailability> {
   const submittedNote = form?.submittedAt ? (form.note ?? '') : '';
   const lastSaved = form ? (form.draftSavedAt ?? form.submittedAt ?? form.updatedAt) : null;
   return {
+    nextOpeningAt: null,
     period: {
       id: schedule.id,
       name: schedule.name,

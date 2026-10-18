@@ -1,23 +1,12 @@
-import { PeriodScheduleStatus, type PeriodScheduleStatus as PeriodScheduleStatusValue } from '@/features/schedules/period-status';
+import { STATUS_LABELS, STATUS_COLORS } from '@/features/schedules/constants';
+import { type PeriodScheduleStatus as PeriodScheduleStatusValue } from '@/features/schedules/period-status';
 import { PeriodType } from './types';
 
 const DEFAULT_TZ = 'Asia/Jerusalem';
 const TZ = DEFAULT_TZ;
 
-const PERIOD_STATUS_HE: Record<PeriodScheduleStatusValue, string> = {
-  DRAFT: 'טיוטה',
-  OPEN: 'פתוח להגשות',
-  LOCKED: 'נעול',
-  PUBLISHED: 'פעיל',
-  ARCHIVED: 'בארכיון',
-};
-const STATUS_BADGE: Record<PeriodScheduleStatusValue, string> = {
-  DRAFT: 'bg-zinc-100 text-zinc-600',
-  OPEN: 'bg-green-100 text-green-700',
-  LOCKED: 'bg-amber-100 text-amber-700',
-  PUBLISHED: 'bg-blue-100 text-blue-700',
-  ARCHIVED: 'bg-zinc-100 text-zinc-400',
-};
+const PERIOD_STATUS_HE = STATUS_LABELS;
+const STATUS_BADGE = STATUS_COLORS;
 
 const NEXT_STATUS: Partial<Record<PeriodScheduleStatusValue, { status: PeriodScheduleStatusValue; label: string }>> = {
   DRAFT: { status: 'OPEN', label: 'פתח להגשות' },

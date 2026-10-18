@@ -100,8 +100,8 @@ it('shows unsubmitted changes after editing a submitted form', async () => {
 
 it('renders a single week for a 7-day period without copy buttons', () => {
   setup({ endDate: '2098-01-12' });
-  expect(screen.getByText('שבוע 1')).toBeInTheDocument();
-  expect(screen.queryByText('שבוע 2')).not.toBeInTheDocument();
+  expect(screen.getByText('שבוע 1 מתוך 1')).toBeInTheDocument();
+  expect(screen.getByRole('button', { name: /הבא/ })).toBeDisabled();
   expect(screen.queryByRole('button', { name: /העתק שבוע/ })).not.toBeInTheDocument();
 });
 
@@ -112,6 +112,20 @@ it('copies week 1 to week 2 and applies bulk selection to a day', () => {
   expect(cell('2098-01-06 בוקר')).toHaveAttribute('data-state', 'PREFERRED');
   expect(cell('2098-01-06 לילה')).toHaveAttribute('data-state', 'PREFERRED');
   fireEvent.click(screen.getByRole('button', { name: 'העתק שבוע 1 לשבוע 2' }));
+  fireEvent.click(screen.getByRole('button', { name: /הבא/ }));
   expect(cell('2098-01-13 ערב')).toHaveAttribute('data-state', 'PREFERRED');
   expect(cell('2098-01-14 ערב')).toHaveAttribute('data-state', 'EMPTY');
+});
+it('preserves a selection when moving between weeks', async () => {
+  render(<QueryClientProvider client={new QueryClient()}>
+    <ScheduleCalendar period={{ id: 'two-weeks', name: 'שבועיים', startDate: '2098-01-06', endDate: '2098-01-19', status: 'OPEN' }} initialEntries={{}} initialSubmitted={false} />
+  </QueryClientProvider>);
+  fireEvent.click(screen.getByRole('button', { name: /^2098-01-06 בוקר:/ }));
+  fireEvent.click(screen.getByRole('button', { name: /הבא/ }));
+  expect(screen.queryByRole('button', { name: /^2098-01-06 בוקר:/ })).not.toBeInTheDocument();
+  expect(screen.getByRole('button', { name: /^2098-01-13 בוקר:/ })).toBeInTheDocument();
+  fireEvent.click(screen.getByRole('button', { name: /הקודם/ }));
+  expect(screen.getByRole('button', { name: /^2098-01-06 בוקר:/ })).toHaveAttribute('data-state', 'AVAILABLE');
+  fireEvent.click(screen.getByRole('button', { name: 'הגש זמינות' }));
+  await waitFor(() => expect(submitAvailability).toHaveBeenCalledWith({ periodId: 'two-weeks', entries: { '2098-01-06-MORNING': 'AVAILABLE' }, note: '' }, expect.anything()));
 });

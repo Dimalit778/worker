@@ -30,6 +30,7 @@ export function buildAssignmentMap(
     employeeDisplayName: string;
     slotIndex: number;
     isLocked?: boolean;
+    startsAt?: Date;
   }>,
 ): AssignmentMap {
   const map: AssignmentMap = {};
@@ -42,6 +43,7 @@ export function buildAssignmentMap(
     const list = (map[key] ??= []);
     list.push({
       id: row.id,
+      startsAt: row.startsAt?.toISOString(),
       isLocked: row.isLocked,
       employeeId: row.employeeId,
       employeeDisplayName: row.employeeDisplayName,
