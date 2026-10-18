@@ -63,6 +63,18 @@ export function getDayCategoryForDate(isoDate: string, holidayIsoSet?: ReadonlyS
   return 'WEEKDAY';
 }
 
+/**
+ * A capacity rule list may also carry date-specific overrides (holidays/events): entries with `date`
+ * replace the day-category amount for that date, shift and position. Published versions store both
+ * kinds in `ScheduleVersion.capacitySnapshot`; older snapshots contain only day-category rules.
+ */
+export type DatedCapacityRule = ScheduleCapacityRule & { date?: string; label?: string | null };
+
+function overrideDate(rule: ScheduleCapacityRule): string | undefined {
+  return (rule as DatedCapacityRule).date;
+}
+
+/** Day-category amount only; date overrides are ignored. Prefer `getRequiredForDate`. */
 export function getCapacityForCell(
   rules: ScheduleCapacityRule[],
   dayCategory: StaffingDayCategory,
@@ -70,9 +82,61 @@ export function getCapacityForCell(
   positionId: string,
 ): number {
   const row = rules.find(
-    (r) => r.dayCategory === dayCategory && r.shiftType === shiftType && r.positionId === positionId,
+    (r) => !overrideDate(r) && r.dayCategory === dayCategory && r.shiftType === shiftType && r.positionId === positionId,
   );
   return row?.amount ?? 0;
+}
+
+/** Required headcount for one cell: the date override when present, otherwise the day-category rule. */
+export function getRequiredForDate(
+  rules: ScheduleCapacityRule[],
+  isoDate: string,
+  shiftType: ShiftType,
+  positionId: string,
+  holidayIsoSet?: ReadonlySet<string>,
+): number {
+  const override = rules.find(
+    (r) => overrideDate(r) === isoDate && r.shiftType === shiftType && r.positionId === positionId,
+  );
+  if (override) return override.amount;
+  return getCapacityForCell(rules, getDayCategoryForDate(isoDate, holidayIsoSet), shiftType, positionId);
+}
+
+/** Label of the date overrides on this date (any shift), or null when the date has none. */
+export function getDateOverrideLabel(rules: ScheduleCapacityRule[], isoDate: string): string | null {
+  const overrides = (rules as DatedCapacityRule[]).filter((r) => r.date === isoDate);
+  if (!overrides.length) return null;
+  return overrides.find((r) => r.label)?.label ?? 'תקן חריג';
+}
+
+/** Converts StaffingDateOverride rows into capacity entries (used for snapshots and draft views). */
+export function toDatedCapacityRules(
+  rows: Array<{
+    id: string;
+    date: Date;
+    positionId: string;
+    shiftType: ShiftType;
+    requiredCount: number;
+    label: string | null;
+    position: { name: string; color: string | null; requiredRank: number | null; displayOrder: number; baseRole: { rank: number } | null };
+  }>,
+): DatedCapacityRule[] {
+  return rows.map((row) => {
+    const date = toDateOnly(row.date);
+    const category = getDayCategoryForDate(date);
+    return {
+      id: row.id,
+      positionId: row.positionId,
+      displayName: row.position.name,
+      rank: row.position.requiredRank ?? row.position.baseRole?.rank ?? row.position.displayOrder,
+      color: row.position.color,
+      shiftType: row.shiftType,
+      dayCategory: category === 'HOLIDAY' ? 'WEEKDAY' : category,
+      amount: row.requiredCount,
+      date,
+      label: row.label,
+    };
+  });
 }
 
 /** Unique positions that have capacity for this shift, sorted by `Position.displayOrder` then name */
@@ -145,8 +209,7 @@ export function maxSlotsForPositionInWeek(
 ): number {
   let max = 0;
   for (const iso of weekIsoDates) {
-    const cat = getDayCategoryForDate(iso, holidayIsoSet);
-    max = Math.max(max, getCapacityForCell(rules, cat, shiftType, positionId));
+    max = Math.max(max, getRequiredForDate(rules, iso, shiftType, positionId, holidayIsoSet));
   }
   return max;
 }

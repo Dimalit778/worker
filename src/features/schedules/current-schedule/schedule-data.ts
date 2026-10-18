@@ -7,8 +7,7 @@ import {
   buildWeekDays,
   blockedEmployeeIdsForShift,
   createAssignmentCellKey,
-  getCapacityForCell,
-  getDayCategoryForDate,
+  getRequiredForDate,
   getOrderedPositionsForShift,
 } from '@/features/schedules/utils';
 import type { DayOption, ShiftSlot } from './types';
@@ -82,9 +81,8 @@ export function assignedEmployeeIdsForShift(
 }
 
 export function getShiftRequiredCount(date: string, shiftType: ShiftType, capacity: ScheduleCapacityRule[]): number {
-  const dayCategory = getDayCategoryForDate(date);
   return getOrderedPositionsForShift(capacity, shiftType).reduce(
-    (sum, position) => sum + getCapacityForCell(capacity, dayCategory, shiftType, position.positionId),
+    (sum, position) => sum + getRequiredForDate(capacity, date, shiftType, position.positionId),
     0,
   );
 }
@@ -97,7 +95,6 @@ export function buildShiftSlots(params: {
   capacity: ScheduleCapacityRule[];
 }): ShiftSlot[] {
   const { date, shiftType, assignments, overflowCandidates, capacity } = params;
-  const dayCategory = getDayCategoryForDate(date);
   const slots: ShiftSlot[] = [];
   const knownPositionIds = new Set<string>();
 
@@ -107,7 +104,7 @@ export function buildShiftSlots(params: {
     const cellKey = createAssignmentCellKey({ date, shiftType, positionId: position.positionId });
     const assigned = [...(assignments[cellKey] ?? [])].sort((a, b) => a.slotIndex - b.slotIndex);
     const assignedBySlot = new Map(assigned.map((assignment) => [assignment.slotIndex, assignment]));
-    const required = getCapacityForCell(capacity, dayCategory, shiftType, position.positionId);
+    const required = getRequiredForDate(capacity, date, shiftType, position.positionId);
     const maxSlotCount = Math.max(required, assigned.length ? Math.max(...assigned.map((a) => a.slotIndex)) + 1 : 0);
 
     for (let slotIndex = 0; slotIndex < maxSlotCount; slotIndex += 1) {

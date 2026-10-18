@@ -32,7 +32,7 @@ export async function publishSchedule(scheduleId: string, options: VersionExpect
       const problems = analysis.warnings.filter((warning) => warning.severity === 'ERROR');
       if (problems.length && !options.confirmIssues) return { requiresConfirmation: true as const, issueCount: problems.length, message: `קיימות ${problems.length} בעיות בשיבוץ. לפרסם בכל זאת?` };
       const now = new Date();
-      await freezePublishedVersion(tx, version.id, data.capacities, now);
+      await freezePublishedVersion(tx, version.id, data.capacities, data.dateOverrides, now);
       await tx.schedule.update({ where: { id: scheduleId }, data: {
         status: 'PUBLISHED', publishedAt: now, publishedVersionId: version.id, draftVersionId: null, submissionClosesAt: now,
       } });

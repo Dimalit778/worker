@@ -1,5 +1,5 @@
-import type { EngineCapacity, ShiftType } from '@/features/scheduling-engine/types';
-import { getDayCategory } from '@/features/scheduling-engine/slots';
+import type { EngineCapacity, EngineDateOverride, ShiftType } from '@/features/scheduling-engine/types';
+import { resolveRequirementsForDate } from '@/features/scheduling-engine/slots';
 import { canEmployeeFillPosition } from '@/features/scheduling-engine/role-eligibility';
 
 type AssignedSlot = {
@@ -14,7 +14,7 @@ type AssignedSlot = {
 };
 
 /** Keep the configured headcount and move excess staff to the closest eligible lower role. */
-export function planCapacityMoves(rows: AssignedSlot[], capacities: EngineCapacity[]) {
+export function planCapacityMoves(rows: AssignedSlot[], capacities: EngineCapacity[], dateOverrides: EngineDateOverride[] = []) {
   const moves: Array<{ id: string; positionId: string }> = [];
   const unplaced: string[] = [];
   const shifts = new Map<string, AssignedSlot[]>();
@@ -25,7 +25,7 @@ export function planCapacityMoves(rows: AssignedSlot[], capacities: EngineCapaci
 
   for (const shiftRows of shifts.values()) {
     const first = shiftRows[0];
-    const rules = capacities.filter(rule => rule.shiftType === first.shiftType && rule.dayCategory === getDayCategory(first.date));
+    const rules = resolveRequirementsForDate(capacities, dateOverrides, first.date).filter(rule => rule.shiftType === first.shiftType);
     const counts = new Map<string, number>();
     const extra: AssignedSlot[] = [];
     const ordered = [...shiftRows].sort((a, b) => Number(b.isLocked) - Number(a.isLocked) || a.slotNumber - b.slotNumber || a.id.localeCompare(b.id));

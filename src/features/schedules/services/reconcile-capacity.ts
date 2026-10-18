@@ -1,6 +1,7 @@
 import type { Prisma } from '@/generated/prisma/client';
 import type { ScheduleActor } from './transactions';
 import { planCapacityMoves } from './capacity-plan';
+import { toEngineDateOverride } from '../generation/queries';
 
 /** Call inside the facility's schedule transaction so settings and drafts change together. */
 export async function reconcileDraftCapacity(tx: Prisma.TransactionClient, actor: ScheduleActor) {
@@ -12,7 +13,14 @@ export async function reconcileDraftCapacity(tx: Prisma.TransactionClient, actor
     positionId: rule.positionId, shiftType: rule.shiftType, dayCategory: rule.dayCategory, amount: rule.requiredCount,
     requiredRank: rule.position.requiredRank ?? rule.position.baseRole?.rank ?? rule.position.displayOrder,
   }));
-  const drafts = await tx.scheduleVersion.findMany({ where: { facilityId: actor.facilityId, status: 'DRAFT', draftFor: { is: { status: { not: 'ARCHIVED' } } } } });
+  const drafts = await tx.scheduleVersion.findMany({ where: { facilityId: actor.facilityId, status: 'DRAFT', draftFor: { is: { status: { not: 'ARCHIVED' } } } }, include: { schedule: { select: { startDate: true } } } });
+  if (!drafts.length) return { movedCount: 0 };
+  const earliest = drafts.reduce((min, draft) => draft.schedule.startDate < min ? draft.schedule.startDate : min, drafts[0].schedule.startDate);
+  const overrideRows = await tx.staffingDateOverride.findMany({
+    where: { facilityId: actor.facilityId, date: { gte: earliest }, position: { isActive: true } },
+    include: { position: { include: { baseRole: true } } },
+  });
+  const dateOverrides = overrideRows.map(toEngineDateOverride);
   let movedCount = 0;
   for (const draft of drafts) {
     const slots = await tx.scheduleSlot.findMany({
@@ -23,7 +31,7 @@ export async function reconcileDraftCapacity(tx: Prisma.TransactionClient, actor
       id: slot.id, date: slot.date, shiftType: slot.shiftType, positionId: slot.positionId,
       slotNumber: slot.slotNumber, isLocked: slot.isLocked, employeeRank: slot.user.role.rank,
       positionRank: slot.position.requiredRank ?? slot.position.baseRole?.rank ?? slot.position.displayOrder,
-    }] : []), capacities);
+    }] : []), capacities, dateOverrides);
     if (unplaced.length) throw new Error('אין מספיק תקנים פנויים לבקר או למאבטח להעברת האיושים העודפים. יש לפנות איושים או ליצור שיבוץ מחדש לפני הקטנת התקן');
     if (!moves.length) continue;
     const changes = [];

@@ -1,5 +1,6 @@
 import { PeriodScheduleStatus } from '@/features/schedules/period-status';
 import type { ShiftType } from '@/generated/prisma/client';
+import type { AvailabilityStatus, PreferenceMap } from './utils';
 
 export type PeriodInfo = {
   id: string;
@@ -23,7 +24,28 @@ export type EmployeeAvailabilityForPeriod = {
   startDate: string;
   endDate: string;
   status: PeriodScheduleStatus;
+  submissionStatus: AvailabilityStatus;
+  closesAt: string;
+  submittedAt: string | null;
+  isSubmitted: boolean;
+  /** Submitted note only. */
+  note: string;
+  /** Submitted entries only (never the draft). */
+  entries: AvailabilitySlotInfo[];
+};
+
+export type CurrentAvailability = {
+  period: PeriodInfo | null;
+  /** Entries to edit: the saved draft if any, otherwise the submitted entries. */
+  entries: PreferenceMap;
+  submittedEntries: PreferenceMap;
   isSubmitted: boolean;
   note: string;
-  entries: AvailabilitySlotInfo[];
+  submittedNote: string;
+  status: AvailabilityStatus;
+  closesAt: string | null;
+  lastSavedAt: string | null;
+  submittedAt: string | null;
+  /** When no period is open: the next scheduled opening, if any. */
+  nextOpeningAt: string | null;
 };

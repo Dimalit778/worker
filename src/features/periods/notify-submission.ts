@@ -35,9 +35,18 @@ export async function sendSubmissionReminderEmails(input: EmailInput): Promise<E
   });
 }
 
+export async function sendSubmissionExtendedEmails(input: EmailInput & { reason: string }): Promise<EmailResult> {
+  return sendEmails(input, {
+    subject: `הוארך מועד הגשת הזמינות — ${input.periodName}`,
+    intro: 'הוארך מועד הגשת הזמינות לתקופה',
+    deadlineLine: 'המועד החדש להגשה:',
+    note: `סיבת ההארכה: ${input.reason}`,
+  });
+}
+
 async function sendEmails(
   input: EmailInput,
-  text: { subject: string; intro: string; deadlineLine: string },
+  text: { subject: string; intro: string; deadlineLine: string; note?: string },
 ): Promise<EmailResult> {
   const apiKey = process.env.RESEND_API_KEY;
   const from = process.env.RESEND_FROM_EMAIL;
@@ -57,6 +66,7 @@ async function sendEmails(
     <div dir="rtl" style="font-family: Arial, sans-serif; line-height: 1.5">
       <p>${text.intro} <strong>${escapeHtml(input.periodName)}</strong> (${escapeHtml(range)}).</p>
       <p>${text.deadlineLine} ${escapeHtml(deadlineLabel)}.</p>
+      ${text.note ? `<p>${escapeHtml(text.note)}</p>` : ''}
       ${link ? `<p><a href="${escapeHtml(link)}">להגשת הזמינות</a></p>` : ''}
     </div>
   `.trim();

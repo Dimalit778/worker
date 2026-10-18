@@ -14,6 +14,8 @@ import {
 } from '../types';
 import type { Schedule, ScheduleVersion } from '@/generated/prisma/client';
 import { buildAssignmentMap, toScheduleData } from './utils';
+import { toDatedCapacityRules, type DatedCapacityRule } from '../utils';
+import type { EngineInput } from '@/features/scheduling-engine/types';
 import { todayUtcDateForTimeZone } from '@/features/periods/utils';
 
 const SCHEDULE_TIME_ZONE = 'Asia/Jerusalem';
@@ -113,6 +115,27 @@ async function getAssignmentMap(versionId: string | null | undefined): Promise<A
 
 type ScheduleRow = Schedule & { publishedVersion: ScheduleVersion | null };
 
+/** Published capacity is frozen in the version; older snapshots contain only day-category rules. */
+function snapshotCapacity(version: ScheduleVersion | null | undefined): DatedCapacityRule[] | null {
+  const snapshot = version?.capacitySnapshot;
+  return Array.isArray(snapshot) ? (snapshot as unknown as DatedCapacityRule[]) : null;
+}
+
+/** Analyze a published version against its own snapshot instead of today's settings. */
+function withSnapshotRequirements(input: EngineInput, rules: DatedCapacityRule[]): EngineInput {
+  return {
+    ...input,
+    capacities: rules.filter((rule) => !rule.date).map((rule) => ({
+      positionId: rule.positionId, positionName: rule.displayName, requiredRank: rule.rank,
+      shiftType: rule.shiftType, dayCategory: rule.dayCategory, amount: rule.amount,
+    })),
+    dateOverrides: rules.flatMap((rule) => rule.date ? [{
+      date: rule.date, positionId: rule.positionId, positionName: rule.displayName, requiredRank: rule.rank,
+      shiftType: rule.shiftType, amount: rule.amount,
+    }] : []),
+  };
+}
+
 function toPeriodRow(schedule: { id: string; name: string; startDate: Date; endDate: Date; status: PeriodScheduleStatus }) {
   return {
     id: schedule.id,
@@ -131,7 +154,7 @@ async function buildPublishedScheduleData(
   if (!publishedVersionId) return null;
   const [assignments, capacity, employees] = await Promise.all([
     getAssignmentMap(publishedVersionId),
-    Promise.resolve((scheduleRow.publishedVersion?.capacitySnapshot ?? []) as unknown as ScheduleCapacityRule[]),
+    Promise.resolve(snapshotCapacity(scheduleRow.publishedVersion) ?? []),
     getScheduleEmployees(facilityId),
   ]);
 
@@ -191,8 +214,13 @@ export async function getDraftScheduleData(facilityId: string, scheduleId?: stri
 
   const version = schedule.draftVersion ?? schedule.publishedVersion;
   const editingVersionId = version?.id ?? null;
-  const analysisInput = await loadSchedulingInput(prisma, schedule.id, facilityId, editingVersionId, schedule);
-  const { employees, capacity, assignments, warnings, fairness } = loadedScheduleDetails(analysisInput);
+  const loaded = await loadSchedulingInput(prisma, schedule.id, facilityId, editingVersionId, schedule);
+  // Draft → live requirements + live date overrides; published version (no draft) → its frozen snapshot.
+  const snapshot = version?.status === 'PUBLISHED' ? snapshotCapacity(version) : null;
+  const analysisInput = snapshot ? { ...loaded, input: withSnapshotRequirements(loaded.input, snapshot) } : loaded;
+  const details = loadedScheduleDetails(analysisInput);
+  const { employees, assignments, warnings, fairness } = details;
+  const capacity: ScheduleCapacityRule[] = snapshot ?? [...details.capacity, ...toDatedCapacityRules(loaded.dateOverrides)];
   const submittedSubmissions = analysisInput.forms;
   const submittedEmployeeIds = new Set(submittedSubmissions.map((submission) => submission.userId));
   const missingEmployees = employees
@@ -232,18 +260,21 @@ export async function getScheduleWarnings(scheduleId: string | null | undefined)
   if (!scheduleId) return [];
   const schedule = await prisma.schedule.findUnique({
     where: { id: scheduleId },
-    select: { facilityId: true, draftVersionId: true, publishedVersionId: true },
+    select: { facilityId: true, draftVersionId: true, publishedVersionId: true, publishedVersion: true },
   });
   if (!schedule) return [];
 
-  const [data, employees, capacity] = await Promise.all([
+  const [data, employees, liveCapacity] = await Promise.all([
     loadSchedulingInput(prisma, scheduleId, schedule.facilityId, schedule.draftVersionId ?? schedule.publishedVersionId),
     getScheduleEmployees(schedule.facilityId),
     getScheduleCapacity(schedule.facilityId),
   ]);
+  const snapshot = schedule.draftVersionId ? null : snapshotCapacity(schedule.publishedVersion);
+  const input = snapshot ? withSnapshotRequirements(data.input, snapshot) : data.input;
+  const capacity = snapshot ?? [...liveCapacity, ...toDatedCapacityRules(data.dateOverrides)];
   return toWarningSummaries(
     scheduleId,
-    analyzeSchedule(data.input, data.allAssignments).warnings,
+    analyzeSchedule(input, data.allAssignments).warnings,
     employees,
     capacity,
   );

@@ -61,6 +61,26 @@ export const AssignmentSource = {
 export type AssignmentSource = (typeof AssignmentSource)[keyof typeof AssignmentSource]
 
 
+export const EmployeeRequestType = {
+  TIME_OFF: 'TIME_OFF',
+  SHIFT_SWAP: 'SHIFT_SWAP',
+  URGENT_ABSENCE: 'URGENT_ABSENCE'
+} as const
+
+export type EmployeeRequestType = (typeof EmployeeRequestType)[keyof typeof EmployeeRequestType]
+
+
+export const EmployeeRequestStatus = {
+  PENDING_PEER: 'PENDING_PEER',
+  PENDING_MANAGER: 'PENDING_MANAGER',
+  APPROVED: 'APPROVED',
+  REJECTED: 'REJECTED',
+  CANCELLED: 'CANCELLED'
+} as const
+
+export type EmployeeRequestStatus = (typeof EmployeeRequestStatus)[keyof typeof EmployeeRequestStatus]
+
+
 export const ScheduleChangeType = {
   CREATE: 'CREATE',
   UPDATE: 'UPDATE',

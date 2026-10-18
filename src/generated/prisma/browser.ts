@@ -69,6 +69,11 @@ export type Position = Prisma.PositionModel
  */
 export type StaffingRequirement = Prisma.StaffingRequirementModel
 /**
+ * Model StaffingDateOverride
+ * תקן חריג לתאריך מסוים (חג/אירוע). מחליף את תקן סוג היום עבור אותו תאריך, משמרת ועמדה.
+ */
+export type StaffingDateOverride = Prisma.StaffingDateOverrideModel
+/**
  * Model Schedule
  * 
  */
@@ -98,6 +103,11 @@ export type ShiftAvailability = Prisma.ShiftAvailabilityModel
  * היסטוריה שנכתבת באותה טרנזקציה עם השינוי. אין למחוק או לערוך אירועים.
  */
 export type ScheduleChange = Prisma.ScheduleChangeModel
+/**
+ * Model EmployeeRequest
+ * בקשת עובד: חופשה, העברת משמרת או היעדרות דחופה. עד אישור סופי האחריות נשארת אצל המבקש.
+ */
+export type EmployeeRequest = Prisma.EmployeeRequestModel
 /**
  * Model SystemSetting
  * הגדרות מערכת קיימות שאינן חלק ממבנה הסידור.

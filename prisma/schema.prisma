@@ -46,6 +46,20 @@ enum AssignmentSource {
   AUTOMATIC
 }
 
+enum EmployeeRequestType {
+  TIME_OFF
+  SHIFT_SWAP
+  URGENT_ABSENCE
+}
+
+enum EmployeeRequestStatus {
+  PENDING_PEER
+  PENDING_MANAGER
+  APPROVED
+  REJECTED
+  CANCELLED
+}
+
 enum ScheduleChangeType {
   CREATE
   UPDATE
@@ -122,6 +136,11 @@ model User {
   accounts    Account[]
   sessions    Session[]
 
+  staffingOverrides StaffingDateOverride[]
+  requests          EmployeeRequest[]      @relation("RequestRequester")
+  incomingRequests  EmployeeRequest[]      @relation("RequestTarget")
+  decidedRequests   EmployeeRequest[]      @relation("RequestDecider")
+
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
 
@@ -164,7 +183,9 @@ model Facility {
 
   positions            Position[]
   staffingRequirements StaffingRequirement[]
+  staffingOverrides    StaffingDateOverride[]
   schedules            Schedule[]
+  requests             EmployeeRequest[]
 
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
@@ -201,8 +222,9 @@ model Position {
   displayOrder Int     @default(0)
   color        String?
 
-  facility     Facility?             @relation(fields: [facilityId], references: [id], onDelete: Restrict)
+  facility     Facility?              @relation(fields: [facilityId], references: [id], onDelete: Restrict)
   requirements StaffingRequirement[]
+  overrides    StaffingDateOverride[]
   slots        ScheduleSlot[]
 
   createdAt DateTime @default(now())
@@ -226,6 +248,29 @@ model StaffingRequirement {
   position Position @relation(fields: [positionId], references: [id], onDelete: Restrict)
 
   @@unique([facilityId, positionId, shiftType, dayCategory])
+  @@index([positionId])
+}
+
+/// תקן חריג לתאריך מסוים (חג/אירוע). מחליף את תקן סוג היום עבור אותו תאריך, משמרת ועמדה.
+model StaffingDateOverride {
+  id            String    @id @default(cuid())
+  facilityId    String
+  date          DateTime  @db.Date
+  positionId    String
+  shiftType     ShiftType
+  requiredCount Int
+  label         String?
+  createdById   String
+
+  facility  Facility @relation(fields: [facilityId], references: [id], onDelete: Restrict)
+  position  Position @relation(fields: [positionId], references: [id], onDelete: Restrict)
+  createdBy User     @relation(fields: [createdById], references: [id], onDelete: Restrict)
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@unique([facilityId, date, positionId, shiftType])
+  @@index([facilityId, date])
   @@index([positionId])
 }
 
@@ -299,11 +344,12 @@ model ScheduleSlot {
   isLocked   Boolean          @default(false)
   note       String?
 
-  schedule Schedule        @relation(fields: [scheduleId, facilityId], references: [id, facilityId], onDelete: Restrict)
-  version  ScheduleVersion @relation(fields: [versionId, scheduleId, facilityId], references: [id, scheduleId, facilityId], onDelete: Restrict)
+  schedule Schedule          @relation(fields: [scheduleId, facilityId], references: [id, facilityId], onDelete: Restrict)
+  version  ScheduleVersion   @relation(fields: [versionId, scheduleId, facilityId], references: [id, scheduleId, facilityId], onDelete: Restrict)
   // Position must be global or belong to facilityId; validate on writes.
-  position Position        @relation(fields: [positionId], references: [id], onDelete: Restrict)
-  user     User?           @relation(fields: [userId, facilityId], references: [id, facilityId], onDelete: Restrict)
+  position Position          @relation(fields: [positionId], references: [id], onDelete: Restrict)
+  user     User?             @relation(fields: [userId, facilityId], references: [id, facilityId], onDelete: Restrict)
+  requests EmployeeRequest[]
 
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
@@ -315,12 +361,16 @@ model ScheduleSlot {
 
 /// הגשה אחת לעובד ולסידור. submittedAt ריק = טיוטה.
 model AvailabilitySubmission {
-  id          String    @id @default(cuid())
-  facilityId  String
-  scheduleId  String
-  userId      String
-  submittedAt DateTime? @db.Timestamptz(3)
-  note        String?
+  id           String    @id @default(cuid())
+  facilityId   String
+  scheduleId   String
+  userId       String
+  submittedAt  DateTime? @db.Timestamptz(3)
+  note         String?
+  /// שינויים שנשמרו ולא הוגשו; ShiftAvailability מכיל רק את מה שהוגש.
+  draftEntries Json?
+  draftNote    String?
+  draftSavedAt DateTime? @db.Timestamptz(3)
 
   schedule       Schedule            @relation(fields: [scheduleId, facilityId], references: [id, facilityId], onDelete: Restrict)
   user           User                @relation(fields: [userId, facilityId], references: [id, facilityId], onDelete: Restrict)
@@ -365,6 +415,40 @@ model ScheduleChange {
 
   @@index([scheduleId, createdAt])
   @@index([changedById, facilityId])
+}
+
+/// בקשת עובד: חופשה, העברת משמרת או היעדרות דחופה. עד אישור סופי האחריות נשארת אצל המבקש.
+model EmployeeRequest {
+  id              String                @id @default(cuid())
+  facilityId      String
+  type            EmployeeRequestType
+  status          EmployeeRequestStatus
+  requesterId     String
+  startDate       DateTime?             @db.Date
+  endDate         DateTime?             @db.Date
+  /// העברת משמרת: משבצת בגרסה מפורסמת (אינה משתנה).
+  slotId          String?
+  targetUserId    String?
+  reason          String?
+  peerRespondedAt DateTime?             @db.Timestamptz(3)
+  decidedById     String?
+  decidedAt       DateTime?             @db.Timestamptz(3)
+  decisionNote    String?
+  overrideReason  String?
+
+  facility  Facility      @relation(fields: [facilityId], references: [id], onDelete: Restrict)
+  requester User          @relation("RequestRequester", fields: [requesterId, facilityId], references: [id, facilityId], onDelete: Restrict)
+  target    User?         @relation("RequestTarget", fields: [targetUserId, facilityId], references: [id, facilityId], onDelete: Restrict)
+  decidedBy User?         @relation("RequestDecider", fields: [decidedById], references: [id], onDelete: Restrict)
+  slot      ScheduleSlot? @relation(fields: [slotId], references: [id], onDelete: Restrict)
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@index([facilityId, status])
+  @@index([requesterId, facilityId])
+  @@index([targetUserId, facilityId])
+  @@index([slotId])
 }
 
 /// הגדרות מערכת קיימות שאינן חלק ממבנה הסידור.

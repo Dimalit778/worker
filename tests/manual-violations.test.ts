@@ -19,6 +19,10 @@ const candidate: EngineAssignment = { employeeId: 'e', facilityId: 'f', position
 const codes = (r: ReturnType<typeof computeManualViolations>) => r.violations.map(v => v.code);
 
 describe('computeManualViolations', () => {
+  it('reports approved time off as its own overridable violation', () => {
+    const vacation = input(); vacation.timeOff = new Map([['e', new Set(['2026-10-05'])]]); vacation.availability = new Map([['e', new Set()]]);
+    expect(codes(computeManualViolations(vacation, [], candidate))).toEqual(['TIME_OFF']);
+  });
   it('returns nothing for a valid placement', () => {
     expect(computeManualViolations(input(), [], candidate)).toEqual({ blocking: [], violations: [] });
   });

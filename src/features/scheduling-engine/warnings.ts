@@ -1,5 +1,6 @@
 import {
   EngineAssignment,
+  EngineDateOverride,
   EngineSlot,
   EngineWarning,
   FairnessSummary,
@@ -132,16 +133,25 @@ function createMandatoryWarning(slot: EngineSlot, message: string): EngineWarnin
   };
 }
 
+function guardsMessage(required: number): string {
+  return required === 1 ? "חסר מאבטח" : `חסרים ${required} מאבטחים`;
+}
+
+// Fixed business minimums per day category. On a date/shift with a date override,
+// the manager's explicit requirement caps each minimum (0 = not required that day).
 export function createMandatoryStaffingWarnings(
   slots: EngineSlot[],
-  assignments: EngineAssignment[]
+  assignments: EngineAssignment[],
+  dateOverrides: EngineDateOverride[] = []
 ): EngineWarning[] {
   const warnings: EngineWarning[] = [];
-  const representativeSlots = new Map<string, EngineSlot>();
+  const shiftSlots = new Map<string, EngineSlot[]>();
   const positionNamesById = new Map<string, string | undefined>();
+  const overriddenShifts = new Set(dateOverrides.map((o) => `${o.date}|${o.shiftType}`));
 
   for (const slot of slots) {
-    representativeSlots.set(`${slot.facilityId}|${createDateKey(slot.date)}|${slot.shiftType}`, slot);
+    const key = `${slot.facilityId}|${createDateKey(slot.date)}|${slot.shiftType}`;
+    shiftSlots.set(key, [...(shiftSlots.get(key) ?? []), slot]);
     positionNamesById.set(slot.positionId, slot.positionName);
   }
 
@@ -151,8 +161,15 @@ export function createMandatoryStaffingWarnings(
     }
   }
 
-  for (const slot of representativeSlots.values()) {
+  for (const group of shiftSlots.values()) {
+    const slot = group[0];
     const dayCategory = getDayCategory(slot.date);
+    const overridden = overriddenShifts.has(`${createDateKey(slot.date)}|${slot.shiftType}`);
+    const configured = (predicate: (positionName: string | undefined) => boolean) =>
+      group.filter((s) => predicate(s.positionName)).reduce((sum, s) => sum + s.requiredAmount, 0);
+    const need = (hard: number, predicate: (positionName: string | undefined) => boolean) =>
+      overridden ? Math.min(hard, configured(predicate)) : hard;
+    const needAhmashOrBakar = !overridden || configured(isAhmash) + configured(isBakar) > 0;
     const hasAhmash = hasRoleCount(assignments, slot, positionNamesById, isAhmash, 1);
     const hasBakar = hasRoleCount(assignments, slot, positionNamesById, isBakar, 1);
     const hasGuard = (required: number) =>
@@ -160,17 +177,19 @@ export function createMandatoryStaffingWarnings(
     const hasAny = countAnyAssignmentsForSlot(assignments, slot) > 0;
 
     if (dayCategory === "WEEKDAY" && slot.shiftType === "MORNING") {
-      if (!hasAhmash) warnings.push(createMandatoryWarning(slot, "חסר אחמ״ש"));
-      if (!hasBakar) warnings.push(createMandatoryWarning(slot, "חסר בקר"));
-      if (!hasGuard(3)) warnings.push(createMandatoryWarning(slot, "חסרים 3 מאבטחים"));
+      if (need(1, isAhmash) > 0 && !hasAhmash) warnings.push(createMandatoryWarning(slot, "חסר אחמ״ש"));
+      if (need(1, isBakar) > 0 && !hasBakar) warnings.push(createMandatoryWarning(slot, "חסר בקר"));
+      const guards = need(3, isGuard);
+      if (guards > 0 && !hasGuard(guards)) warnings.push(createMandatoryWarning(slot, guardsMessage(guards)));
       continue;
     }
 
     if (dayCategory === "WEEKDAY" && slot.shiftType === "EVENING") {
-      if (!hasAhmash && !hasBakar) {
+      if (needAhmashOrBakar && !hasAhmash && !hasBakar) {
         warnings.push(createMandatoryWarning(slot, "חסר אחמ״ש או בקר"));
       }
-      if (!hasGuard(2)) warnings.push(createMandatoryWarning(slot, "חסרים 2 מאבטחים"));
+      const guards = need(2, isGuard);
+      if (guards > 0 && !hasGuard(guards)) warnings.push(createMandatoryWarning(slot, guardsMessage(guards)));
       continue;
     }
 
@@ -180,10 +199,11 @@ export function createMandatoryStaffingWarnings(
     }
 
     if (dayCategory === "FRIDAY" && slot.shiftType === "MORNING") {
-      if (!hasAhmash && !hasBakar) {
+      if (needAhmashOrBakar && !hasAhmash && !hasBakar) {
         warnings.push(createMandatoryWarning(slot, "חסר אחמ״ש או בקר"));
       }
-      if (!hasGuard(1)) warnings.push(createMandatoryWarning(slot, "חסר מאבטח"));
+      const guards = need(1, isGuard);
+      if (guards > 0 && !hasGuard(guards)) warnings.push(createMandatoryWarning(slot, guardsMessage(guards)));
       continue;
     }
 
@@ -223,6 +243,26 @@ export function createFairnessWarnings(
     }));
 }
 
+// ─── Time-off warnings ────────────────────────────────────────────────────────
+
+// Existing assignments that fall on an employee's approved time off.
+export function createTimeOffWarnings(
+  assignments: EngineAssignment[],
+  timeOff: Map<string, Set<string>> = new Map()
+): EngineWarning[] {
+  return assignments
+    .filter((a) => timeOff.get(a.employeeId)?.has(createDateKey(a.date)))
+    .map((a) => ({
+      type: "CONFLICT" as const,
+      severity: "ERROR" as const,
+      employeeId: a.employeeId,
+      positionId: a.positionId,
+      date: a.date,
+      shiftType: a.shiftType,
+      message: `${createDateKey(a.date).split("-").reverse().join("/")} · ${SHIFT_LABELS[a.shiftType]} — העובד משובץ בזמן חופשה מאושרת.`,
+    }));
+}
+
 // ─── Combined entry point ─────────────────────────────────────────────────────
 
 export function createWarnings({
@@ -230,15 +270,20 @@ export function createWarnings({
   slots,
   assignments,
   fairnessSummary,
+  dateOverrides,
+  timeOff,
 }: {
   unmetMinimums: UnmetMinimum[];
   slots: EngineSlot[];
   assignments: EngineAssignment[];
   fairnessSummary: Map<string, FairnessSummary>;
+  dateOverrides?: EngineDateOverride[];
+  timeOff?: Map<string, Set<string>>;
 }): EngineWarning[] {
   return [
     ...createMinimumWarnings(unmetMinimums),
-    ...createMandatoryStaffingWarnings(slots, assignments),
+    ...createTimeOffWarnings(assignments, timeOff),
+    ...createMandatoryStaffingWarnings(slots, assignments, dateOverrides),
     ...createCapacityWarnings(slots, assignments),
     ...createFairnessWarnings(fairnessSummary),
   ];

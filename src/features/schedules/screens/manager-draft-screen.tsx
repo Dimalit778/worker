@@ -7,6 +7,7 @@ import { VersionProvider } from '../shared/version-context';
 import type { CurrentScheduleData } from '../types';
 import { Card, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { CreatePeriodForm } from '@/features/periods/components/create-period-form';
+import { DeadlineExtension } from '@/features/periods/components/deadline-extension';
 import { WeeklyDraftScheduleView } from '@/features/schedules/draft-schedule/weekly-draft-schedule-view';
 import { TopBar } from '@/features/schedules/draft-schedule/topbar';
 import { ScheduleStats } from '@/features/schedules/draft-schedule/schedule-stats';
@@ -61,11 +62,13 @@ export function ManagerDraftScreen({ scheduleId }: { scheduleId?: string }) {
     <VersionProvider value={{ versionId: data.versionId ?? null, revision: data.revision ?? 0 }}>
       <div className="space-y-6" dir="rtl">
         <TopBar data={data} showCreateButton={canCreateNewSchedule} />
+        <DeadlineExtension scheduleId={data.scheduleId} />
         <ScheduleStats
           warnings={data.warnings}
           submittedCount={submitted}
           eligibleCount={eligible}
           missingEmployees={missingEmployees}
+          readiness={{ scheduleId: data.scheduleId, versionId: data.versionId ?? null, revision: data.revision ?? 0 }}
         />
 
         {isReadonly && (

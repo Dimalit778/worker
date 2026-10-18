@@ -19,6 +19,8 @@ import {
 import { generateAutoSchedule } from '@/features/schedules/generation/actions';
 import { publishSchedule } from '@/features/schedules/draft-schedule/actions';
 import { invalidateScheduleQueries } from '@/features/schedules/hooks';
+import { GenerateConfirmDialog } from '@/features/schedules/readiness/components/generate-confirm-dialog';
+import { PublishReviewDialog } from '@/features/schedules/readiness/components/publish-review-dialog';
 
 type Props = {
   scheduleId: string;
@@ -34,7 +36,8 @@ export function DraftActions({ scheduleId, scheduleStatus, hasUnpublishedDraft =
   const [message, setMessage] = useState<string | null>(null);
   const [confirmPublishOpen, setConfirmPublishOpen] = useState(false);
   const [confirmPublishMessage, setConfirmPublishMessage] = useState<string | null>(null);
-  const [confirmGenerateOpen, setConfirmGenerateOpen] = useState(false);
+  const [generateOpen, setGenerateOpen] = useState(false);
+  const [reviewOpen, setReviewOpen] = useState(false);
 
   const invalidate = () => invalidateScheduleQueries(queryClient, scheduleId);
 
@@ -73,13 +76,13 @@ export function DraftActions({ scheduleId, scheduleStatus, hasUnpublishedDraft =
   const pending = generateMutation.isPending || publishMutation.isPending;
 
   function handleGenerate() {
-    setConfirmGenerateOpen(true);
+    setError(null);
+    setMessage(null);
+    setGenerateOpen(true);
   }
 
   function handleConfirmGenerate() {
-    setConfirmGenerateOpen(false);
-    setError(null);
-    setMessage(null);
+    setGenerateOpen(false);
     setPendingAction('generate');
     generateMutation.mutate();
   }
@@ -88,8 +91,14 @@ export function DraftActions({ scheduleId, scheduleStatus, hasUnpublishedDraft =
     if (!scheduleId) return;
     setError(null);
     setMessage(null);
+    setReviewOpen(true);
+  }
+
+  /** After the review dialog: the server still validates and may ask for confirmation. */
+  function handleReviewedPublish(confirmIssues: boolean) {
+    setReviewOpen(false);
     setPendingAction('publish');
-    publishMutation.mutate(false);
+    publishMutation.mutate(confirmIssues);
   }
 
   function handleConfirmPublish() {
@@ -137,6 +146,23 @@ export function DraftActions({ scheduleId, scheduleStatus, hasUnpublishedDraft =
         </Button>
       </div>
 
+      <GenerateConfirmDialog
+        open={generateOpen}
+        onOpenChange={setGenerateOpen}
+        scheduleId={scheduleId}
+        pending={pending}
+        onConfirm={handleConfirmGenerate}
+      />
+
+      <PublishReviewDialog
+        open={reviewOpen}
+        onOpenChange={setReviewOpen}
+        scheduleId={scheduleId}
+        expected={expected}
+        pending={pending}
+        onConfirm={handleReviewedPublish}
+      />
+
       <AlertDialog open={confirmPublishOpen} onOpenChange={setConfirmPublishOpen}>
         <AlertDialogContent dir="rtl">
           <AlertDialogHeader>
@@ -149,23 +175,6 @@ export function DraftActions({ scheduleId, scheduleStatus, hasUnpublishedDraft =
             <AlertDialogCancel disabled={pending}>לא, חזור לשיבוץ</AlertDialogCancel>
             <AlertDialogAction onClick={handleConfirmPublish} disabled={pending}>
               כן, פרסם שיבוץ
-            </AlertDialogAction>
-          </AlertDialogFooter>
-        </AlertDialogContent>
-      </AlertDialog>
-
-      <AlertDialog open={confirmGenerateOpen} onOpenChange={setConfirmGenerateOpen}>
-        <AlertDialogContent dir="rtl">
-          <AlertDialogHeader>
-            <AlertDialogTitle>ליצור שיבוץ אוטומטי מחדש?</AlertDialogTitle>
-            <AlertDialogDescription>
-              יצירה מחדש תחליף את כל האיושים שאינם נעולים, כולל שינויים ידניים שביצעתם. הפעולה אינה הפיכה.
-            </AlertDialogDescription>
-          </AlertDialogHeader>
-          <AlertDialogFooter>
-            <AlertDialogCancel disabled={pending}>ביטול</AlertDialogCancel>
-            <AlertDialogAction onClick={handleConfirmGenerate} disabled={pending} className="bg-destructive text-destructive-foreground hover:bg-destructive/90">
-              כן, החלף את השיבוץ
             </AlertDialogAction>
           </AlertDialogFooter>
         </AlertDialogContent>

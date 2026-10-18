@@ -222,6 +222,7 @@ export async function deleteAdminCourt(facilityId: string): Promise<AdminActionR
       await tx.schedule.updateMany({ where: { facilityId: id }, data: { draftVersionId: null, publishedVersionId: null } });
       await tx.scheduleVersion.deleteMany({ where: { facilityId: id } });
       await tx.schedule.deleteMany({ where: { facilityId: id } });
+      await tx.staffingDateOverride.deleteMany({ where: { facilityId: id } });
       await tx.staffingRequirement.deleteMany({ where: { facilityId: id } });
       await tx.facilityShift.deleteMany({ where: { facilityId: id } });
       await tx.position.deleteMany({ where: { facilityId: id } });
@@ -412,7 +413,8 @@ export async function deleteAdminEmployee(employeeId: string): Promise<AdminActi
 
       const changes = await tx.scheduleChange.count({ where: { changedById: id } });
       const publishedAssignments = await tx.scheduleSlot.count({ where: { userId: id, version: { status: { not: 'DRAFT' } } } });
-      if (changes > 0 || publishedAssignments > 0) throw new Error('EMPLOYEE_HAS_HISTORY');
+      const createdOverrides = await tx.staffingDateOverride.count({ where: { createdById: id } });
+      if (changes > 0 || publishedAssignments > 0 || createdOverrides > 0) throw new Error('EMPLOYEE_HAS_HISTORY');
       await tx.scheduleSlot.updateMany({ where: { userId: id }, data: { userId: null } });
       await tx.availabilitySubmission.deleteMany({ where: { userId: id } });
       await tx.user.delete({ where: { id } });

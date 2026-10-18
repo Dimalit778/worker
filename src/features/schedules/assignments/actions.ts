@@ -139,7 +139,7 @@ async function applyEdit(scheduleId: string, expected: VersionExpectation, reque
     await tx.scheduleChange.create({ data: { facilityId: actor.facilityId, scheduleId, versionId: version.id, changedById: actor.userId, changeType: violations.length ? 'MANUAL_OVERRIDE' : edit.kind === 'create' ? 'CREATE' : edit.kind === 'remove' ? 'DELETE' : 'UPDATE', reason: violations.length ? (reason ?? 'נשמר עם חריגות') : edit.kind === 'batch' ? `שמירת ${edit.changes.length} שינויים` : `עדכון טיוטה: ${edit.kind}`, beforeData: JSON.parse(JSON.stringify(before)), afterData: JSON.parse(JSON.stringify(violations.length ? { violations, approvedById: actor.userId, approvedAt: new Date().toISOString(), assignments: data.assignments } : data.assignments)) } });
     if (direct) {
       await saveScheduleAnalysis(tx, version.id, data.input, data.allAssignments);
-      await freezePublishedVersion(tx, version.id, data.capacities, new Date());
+      await freezePublishedVersion(tx, version.id, data.capacities, data.dateOverrides, new Date());
       await tx.schedule.update({ where: { id: scheduleId }, data: { publishedVersionId: version.id, draftVersionId: null } });
     }
     return { ok: true as const, scheduleId, revision: version.revision + (direct ? 2 : 1), versionId: version.id, published: direct,

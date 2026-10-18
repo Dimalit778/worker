@@ -394,12 +394,14 @@ export const ModelName = {
   FacilityShift: 'FacilityShift',
   Position: 'Position',
   StaffingRequirement: 'StaffingRequirement',
+  StaffingDateOverride: 'StaffingDateOverride',
   Schedule: 'Schedule',
   ScheduleVersion: 'ScheduleVersion',
   ScheduleSlot: 'ScheduleSlot',
   AvailabilitySubmission: 'AvailabilitySubmission',
   ShiftAvailability: 'ShiftAvailability',
   ScheduleChange: 'ScheduleChange',
+  EmployeeRequest: 'EmployeeRequest',
   SystemSetting: 'SystemSetting'
 } as const
 
@@ -416,7 +418,7 @@ export type TypeMap<ExtArgs extends runtime.Types.Extensions.InternalArgs = runt
     omit: GlobalOmitOptions
   }
   meta: {
-    modelProps: "account" | "session" | "verificationToken" | "user" | "role" | "district" | "facility" | "facilityShift" | "position" | "staffingRequirement" | "schedule" | "scheduleVersion" | "scheduleSlot" | "availabilitySubmission" | "shiftAvailability" | "scheduleChange" | "systemSetting"
+    modelProps: "account" | "session" | "verificationToken" | "user" | "role" | "district" | "facility" | "facilityShift" | "position" | "staffingRequirement" | "staffingDateOverride" | "schedule" | "scheduleVersion" | "scheduleSlot" | "availabilitySubmission" | "shiftAvailability" | "scheduleChange" | "employeeRequest" | "systemSetting"
     txIsolationLevel: TransactionIsolationLevel
   }
   model: {
@@ -1160,6 +1162,80 @@ export type TypeMap<ExtArgs extends runtime.Types.Extensions.InternalArgs = runt
         }
       }
     }
+    StaffingDateOverride: {
+      payload: Prisma.$StaffingDateOverridePayload<ExtArgs>
+      fields: Prisma.StaffingDateOverrideFieldRefs
+      operations: {
+        findUnique: {
+          args: Prisma.StaffingDateOverrideFindUniqueArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$StaffingDateOverridePayload> | null
+        }
+        findUniqueOrThrow: {
+          args: Prisma.StaffingDateOverrideFindUniqueOrThrowArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$StaffingDateOverridePayload>
+        }
+        findFirst: {
+          args: Prisma.StaffingDateOverrideFindFirstArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$StaffingDateOverridePayload> | null
+        }
+        findFirstOrThrow: {
+          args: Prisma.StaffingDateOverrideFindFirstOrThrowArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$StaffingDateOverridePayload>
+        }
+        findMany: {
+          args: Prisma.StaffingDateOverrideFindManyArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$StaffingDateOverridePayload>[]
+        }
+        create: {
+          args: Prisma.StaffingDateOverrideCreateArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$StaffingDateOverridePayload>
+        }
+        createMany: {
+          args: Prisma.StaffingDateOverrideCreateManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        createManyAndReturn: {
+          args: Prisma.StaffingDateOverrideCreateManyAndReturnArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$StaffingDateOverridePayload>[]
+        }
+        delete: {
+          args: Prisma.StaffingDateOverrideDeleteArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$StaffingDateOverridePayload>
+        }
+        update: {
+          args: Prisma.StaffingDateOverrideUpdateArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$StaffingDateOverridePayload>
+        }
+        deleteMany: {
+          args: Prisma.StaffingDateOverrideDeleteManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        updateMany: {
+          args: Prisma.StaffingDateOverrideUpdateManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        updateManyAndReturn: {
+          args: Prisma.StaffingDateOverrideUpdateManyAndReturnArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$StaffingDateOverridePayload>[]
+        }
+        upsert: {
+          args: Prisma.StaffingDateOverrideUpsertArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$StaffingDateOverridePayload>
+        }
+        aggregate: {
+          args: Prisma.StaffingDateOverrideAggregateArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.AggregateStaffingDateOverride>
+        }
+        groupBy: {
+          args: Prisma.StaffingDateOverrideGroupByArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.StaffingDateOverrideGroupByOutputType>[]
+        }
+        count: {
+          args: Prisma.StaffingDateOverrideCountArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.StaffingDateOverrideCountAggregateOutputType> | number
+        }
+      }
+    }
     Schedule: {
       payload: Prisma.$SchedulePayload<ExtArgs>
       fields: Prisma.ScheduleFieldRefs
@@ -1604,6 +1680,80 @@ export type TypeMap<ExtArgs extends runtime.Types.Extensions.InternalArgs = runt
         }
       }
     }
+    EmployeeRequest: {
+      payload: Prisma.$EmployeeRequestPayload<ExtArgs>
+      fields: Prisma.EmployeeRequestFieldRefs
+      operations: {
+        findUnique: {
+          args: Prisma.EmployeeRequestFindUniqueArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$EmployeeRequestPayload> | null
+        }
+        findUniqueOrThrow: {
+          args: Prisma.EmployeeRequestFindUniqueOrThrowArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$EmployeeRequestPayload>
+        }
+        findFirst: {
+          args: Prisma.EmployeeRequestFindFirstArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$EmployeeRequestPayload> | null
+        }
+        findFirstOrThrow: {
+          args: Prisma.EmployeeRequestFindFirstOrThrowArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$EmployeeRequestPayload>
+        }
+        findMany: {
+          args: Prisma.EmployeeRequestFindManyArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$EmployeeRequestPayload>[]
+        }
+        create: {
+          args: Prisma.EmployeeRequestCreateArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$EmployeeRequestPayload>
+        }
+        createMany: {
+          args: Prisma.EmployeeRequestCreateManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        createManyAndReturn: {
+          args: Prisma.EmployeeRequestCreateManyAndReturnArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$EmployeeRequestPayload>[]
+        }
+        delete: {
+          args: Prisma.EmployeeRequestDeleteArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$EmployeeRequestPayload>
+        }
+        update: {
+          args: Prisma.EmployeeRequestUpdateArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$EmployeeRequestPayload>
+        }
+        deleteMany: {
+          args: Prisma.EmployeeRequestDeleteManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        updateMany: {
+          args: Prisma.EmployeeRequestUpdateManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        updateManyAndReturn: {
+          args: Prisma.EmployeeRequestUpdateManyAndReturnArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$EmployeeRequestPayload>[]
+        }
+        upsert: {
+          args: Prisma.EmployeeRequestUpsertArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$EmployeeRequestPayload>
+        }
+        aggregate: {
+          args: Prisma.EmployeeRequestAggregateArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.AggregateEmployeeRequest>
+        }
+        groupBy: {
+          args: Prisma.EmployeeRequestGroupByArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.EmployeeRequestGroupByOutputType>[]
+        }
+        count: {
+          args: Prisma.EmployeeRequestCountArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.EmployeeRequestCountAggregateOutputType> | number
+        }
+      }
+    }
     SystemSetting: {
       payload: Prisma.$SystemSettingPayload<ExtArgs>
       fields: Prisma.SystemSettingFieldRefs
@@ -1851,6 +2001,22 @@ export const StaffingRequirementScalarFieldEnum = {
 export type StaffingRequirementScalarFieldEnum = (typeof StaffingRequirementScalarFieldEnum)[keyof typeof StaffingRequirementScalarFieldEnum]
 
 
+export const StaffingDateOverrideScalarFieldEnum = {
+  id: 'id',
+  facilityId: 'facilityId',
+  date: 'date',
+  positionId: 'positionId',
+  shiftType: 'shiftType',
+  requiredCount: 'requiredCount',
+  label: 'label',
+  createdById: 'createdById',
+  createdAt: 'createdAt',
+  updatedAt: 'updatedAt'
+} as const
+
+export type StaffingDateOverrideScalarFieldEnum = (typeof StaffingDateOverrideScalarFieldEnum)[keyof typeof StaffingDateOverrideScalarFieldEnum]
+
+
 export const ScheduleScalarFieldEnum = {
   id: 'id',
   facilityId: 'facilityId',
@@ -1916,6 +2082,9 @@ export const AvailabilitySubmissionScalarFieldEnum = {
   userId: 'userId',
   submittedAt: 'submittedAt',
   note: 'note',
+  draftEntries: 'draftEntries',
+  draftNote: 'draftNote',
+  draftSavedAt: 'draftSavedAt',
   createdAt: 'createdAt',
   updatedAt: 'updatedAt'
 } as const
@@ -1948,6 +2117,29 @@ export const ScheduleChangeScalarFieldEnum = {
 } as const
 
 export type ScheduleChangeScalarFieldEnum = (typeof ScheduleChangeScalarFieldEnum)[keyof typeof ScheduleChangeScalarFieldEnum]
+
+
+export const EmployeeRequestScalarFieldEnum = {
+  id: 'id',
+  facilityId: 'facilityId',
+  type: 'type',
+  status: 'status',
+  requesterId: 'requesterId',
+  startDate: 'startDate',
+  endDate: 'endDate',
+  slotId: 'slotId',
+  targetUserId: 'targetUserId',
+  reason: 'reason',
+  peerRespondedAt: 'peerRespondedAt',
+  decidedById: 'decidedById',
+  decidedAt: 'decidedAt',
+  decisionNote: 'decisionNote',
+  overrideReason: 'overrideReason',
+  createdAt: 'createdAt',
+  updatedAt: 'updatedAt'
+} as const
+
+export type EmployeeRequestScalarFieldEnum = (typeof EmployeeRequestScalarFieldEnum)[keyof typeof EmployeeRequestScalarFieldEnum]
 
 
 export const SystemSettingScalarFieldEnum = {
@@ -2176,6 +2368,34 @@ export type ListEnumScheduleChangeTypeFieldRefInput<$PrismaModel> = FieldRefInpu
 
 
 /**
+ * Reference to a field of type 'EmployeeRequestType'
+ */
+export type EnumEmployeeRequestTypeFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'EmployeeRequestType'>
+    
+
+
+/**
+ * Reference to a field of type 'EmployeeRequestType[]'
+ */
+export type ListEnumEmployeeRequestTypeFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'EmployeeRequestType[]'>
+    
+
+
+/**
+ * Reference to a field of type 'EmployeeRequestStatus'
+ */
+export type EnumEmployeeRequestStatusFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'EmployeeRequestStatus'>
+    
+
+
+/**
+ * Reference to a field of type 'EmployeeRequestStatus[]'
+ */
+export type ListEnumEmployeeRequestStatusFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'EmployeeRequestStatus[]'>
+    
+
+
+/**
  * Reference to a field of type 'Float'
  */
 export type FloatFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'Float'>
@@ -2308,12 +2528,14 @@ export type GlobalOmitConfig = {
   facilityShift?: Prisma.FacilityShiftOmit
   position?: Prisma.PositionOmit
   staffingRequirement?: Prisma.StaffingRequirementOmit
+  staffingDateOverride?: Prisma.StaffingDateOverrideOmit
   schedule?: Prisma.ScheduleOmit
   scheduleVersion?: Prisma.ScheduleVersionOmit
   scheduleSlot?: Prisma.ScheduleSlotOmit
   availabilitySubmission?: Prisma.AvailabilitySubmissionOmit
   shiftAvailability?: Prisma.ShiftAvailabilityOmit
   scheduleChange?: Prisma.ScheduleChangeOmit
+  employeeRequest?: Prisma.EmployeeRequestOmit
   systemSetting?: Prisma.SystemSettingOmit
 }
 
