@@ -3,11 +3,11 @@ import { PortalRole } from '@/lib/auth/portal';
 import { prisma } from '@/lib/db/client';
 import type { PeriodSummary } from '@/features/periods/types';
 import { getScheduleWarnings } from '@/features/schedules/assignments/queries';
-import { parseISODateToUtcMidnight, todayUtcDateForTimeZone } from '@/features/periods/utils';
+import { parseISODateToUtcMidnight } from '@/features/periods/utils';
 import type { ManagerDashboardData, ScheduleSnapshot } from './types';
 import { requireSession } from '@/lib/db/auth-helpers';
+import { currentScheduleWhere, preparationScheduleWhere } from '@/features/schedules/selection';
 
-const SCHEDULE_TIME_ZONE = 'Asia/Jerusalem';
 const staffedUser = { isActive: true, role: { rank: { not: 1 } } };
 
 export type StaffPositionCount = {
@@ -156,25 +156,18 @@ export async function getManagerDashboardData(year: number): Promise<ManagerDash
 
   if (!facilityId) return empty;
 
-  const today = todayUtcDateForTimeZone(SCHEDULE_TIME_ZONE);
+  const now = new Date();
 
   const [byPosition, totalActive, yearSchedules, activeRow, draftRow] = await Promise.all([
     getStaffCountsByPosition(facilityId),
     prisma.user.count({ where: { facilityId } }),
     getSchedulesForYear(facilityId, year),
     prisma.schedule.findFirst({
-      where: {
-        facilityId,
-        status: 'PUBLISHED',
-        endDate: { gte: today },
-      },
+      where: currentScheduleWhere(facilityId, now),
       orderBy: { startDate: 'desc' },
     }),
     prisma.schedule.findFirst({
-      where: {
-        facilityId,
-        status: 'DRAFT',
-      },
+      where: preparationScheduleWhere(facilityId, now),
       orderBy: { startDate: 'desc' },
     }),
   ]);
