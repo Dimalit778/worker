@@ -15,32 +15,41 @@ function WeekDayStrip({
   onSelectDate: (iso: string) => void;
 }) {
   return (
-    <div className="grid w-full grid-cols-7 gap-1 sm:gap-2 lg:gap-3">
+    <div className="grid w-full grid-cols-7 gap-1">
       {days.map((day, index) =>
         day ? (
           <button
             key={day.iso}
             type="button"
             className={cn(
-              'flex h-11 min-w-0 flex-col items-center justify-center rounded-md border px-1 text-center text-[10px] transition-colors focus-visible:outline-none focus-visible:ring-3 focus-visible:ring-ring sm:h-12 sm:px-2 sm:text-xs lg:h-16 lg:text-sm',
+              'flex h-9 min-w-0 flex-col items-center justify-center gap-0.5 rounded-md px-0.5 text-center transition-colors focus-visible:outline-none focus-visible:ring-3 focus-visible:ring-ring sm:h-10 sm:px-1',
               day.iso === selectedDate
-                ? 'border-primary bg-primary text-primary-foreground shadow-sm'
+                ? 'bg-primary text-primary-foreground shadow-sm'
                 : day.isToday
-                  ? 'border-primary bg-primary/15 text-card-foreground shadow-sm ring-2 ring-primary/30'
-                  : 'border-border bg-card text-card-foreground hover:bg-muted',
+                  ? 'bg-primary/12 text-card-foreground ring-1 ring-primary/40'
+                  : 'bg-muted/50 text-card-foreground ring-1 ring-foreground/5 hover:bg-muted',
             )}
             onClick={() => onSelectDate(day.iso)}
             aria-label={`${day.dayName}, ${day.dateLabel}`}
             aria-pressed={day.iso === selectedDate}
             aria-current={day.isToday ? 'date' : undefined}
           >
-            <span className="text-sm leading-none sm:text-lg lg:text-2xl">{dayLetter(day.iso)}</span>
-            <span className="mt-0.5 font-bold sm:mt-1">{day.dateLabel}</span>
+            <span
+              className={cn(
+                'text-[10px] leading-none font-medium tracking-wide sm:text-xs',
+                day.iso === selectedDate ? 'text-primary-foreground/80' : 'text-muted-foreground',
+              )}
+            >
+              {dayLetter(day.iso)}
+            </span>
+            <span className="text-xs leading-none font-semibold tabular-nums sm:text-sm">
+              {day.dateLabel}
+            </span>
           </button>
         ) : (
           <div
             key={`empty-${index}`}
-            className="h-10 min-w-0 rounded-md border border-dashed border-border/60 bg-muted/20 sm:h-12 lg:h-16 lg:w-16"
+            className="h-9 min-w-0 rounded-md bg-muted/20 ring-1 ring-dashed ring-foreground/10 sm:h-10"
             aria-hidden
           />
         ),
@@ -66,11 +75,29 @@ export function DateStrip({
     if (day) onSelectDate(day.iso);
   }
   return (
-    <nav aria-label="בחירת תאריך" className="space-y-3">
+    <nav aria-label="בחירת תאריך" className="space-y-2">
       <div className="flex items-center justify-between gap-2">
-        <Button aria-label="השבוע הקודם" variant="outline" className="min-h-11" disabled={index === 0} onClick={() => move(-1)}>→ הקודם</Button>
-        <span className="text-sm" aria-live="polite">שבוע {index + 1} מתוך {weeks.length}</span>
-        <Button aria-label="השבוע הבא" variant="outline" className="min-h-11" disabled={index === weeks.length - 1} onClick={() => move(1)}>הבא ←</Button>
+        <Button
+          aria-label="השבוע הקודם"
+          variant="ghost"
+          size="sm"
+          disabled={index === 0}
+          onClick={() => move(-1)}
+        >
+          → הקודם
+        </Button>
+        <span className="text-muted-foreground text-xs font-medium" aria-live="polite">
+          שבוע {index + 1} מתוך {weeks.length}
+        </span>
+        <Button
+          aria-label="השבוע הבא"
+          variant="ghost"
+          size="sm"
+          disabled={index === weeks.length - 1}
+          onClick={() => move(1)}
+        >
+          הבא ←
+        </Button>
       </div>
       <WeekDayStrip days={week.days} selectedDate={selectedDate} onSelectDate={onSelectDate} />
     </nav>

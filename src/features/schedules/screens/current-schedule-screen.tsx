@@ -89,7 +89,7 @@ function ScheduleContent({ data, currentEmployeeId, isReadOnly, defaultView }: {
 
   return (
     <div className="space-y-4" dir="rtl">
-      <div className="flex flex-wrap items-center gap-2">
+      <div className="flex flex-wrap items-center justify-center gap-2">
         <Button
           type="button"
           variant={viewMode === 'weekly' ? 'default' : 'outline'}
@@ -122,6 +122,7 @@ function ScheduleContent({ data, currentEmployeeId, isReadOnly, defaultView }: {
           facilityId={data.facilityId}
           overflowCandidates={data.overflowCandidates}
           highlightedEmployeeId={currentEmployeeId}
+          showHighlightPicker={!currentEmployeeId}
           readonly={isReadOnly}
         />
       ) : (

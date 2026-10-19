@@ -25,7 +25,7 @@ export function StaffSummary({ byPosition, totalActive }: StaffSummaryProps) {
               <div className="flex min-w-0 items-center gap-2">
                 <span
                   className="size-3 shrink-0 rounded-sm"
-                  style={{ backgroundColor: CHART_COLORS[index % CHART_COLORS.length] }}
+                  style={{ backgroundColor: item.color ?? CHART_COLORS[index % CHART_COLORS.length] }}
                   aria-hidden
                 />
                 <span className="truncate text-sm text-muted-foreground">{item.name}</span>

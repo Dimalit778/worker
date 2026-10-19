@@ -205,7 +205,7 @@ export async function getDraftScheduleData(facilityId: string, scheduleId?: stri
   const schedule = await prisma.schedule.findFirst({
     where: {
       facilityId,
-      ...(scheduleId ? { id: scheduleId } : { draftVersionId: { not: null }, status: { not: 'ARCHIVED' } }),
+      ...(scheduleId ? { id: scheduleId } : { draftVersionId: { not: null }, status: 'DRAFT', submissionClosesAt: { lte: new Date() } }),
     },
     include: { draftVersion: true, publishedVersion: true },
     orderBy: { startDate: 'desc' },

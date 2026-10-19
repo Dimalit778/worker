@@ -1,12 +1,16 @@
 'use client';
 
-import { useRef, useState } from 'react';
+import { useRef, useState, type ReactNode } from 'react';
 import { cn } from '@/lib/utils';
 import { GuardPicker, type SwapCandidate } from '@/features/schedules/shared/guard-picker';
 import { usePendingEdits } from '@/features/schedules/shared/pending-edits';
 import { OverflowCandidates } from '../shared/overflow-candidates';
 import type { AssignmentSummary, OverflowCandidateSummary, ScheduleEmployeeOption } from '@/features/schedules/types';
 import type { ShiftType } from '@/generated/prisma/client';
+
+/** Table cells ignore min-height; keep vacant rows as tall as filled ones via an inner box. */
+const TD_SLOT_INNER = 'flex min-h-6 w-full flex-col items-center justify-center';
+const TD_CELL_PAD = 'px-0.5 py-0.5';
 
 type Props = {
   closed?: boolean;
@@ -30,6 +34,10 @@ type Props = {
    *  mobile list row with the same interaction/mutation logic, for the Day → Shift → Position layout. */
   as?: 'td' | 'row';
 };
+
+function TdSlotContent({ children }: { children?: ReactNode }) {
+  return <div className={TD_SLOT_INNER}>{children}</div>;
+}
 
 export function AssignmentCell({
   closed = false,
@@ -73,34 +81,42 @@ export function AssignmentCell({
         <Comp
           className={cn(
             'schedule-slot-closed border border-border/60 bg-card',
-            rowLayout ? 'flex min-h-11 w-full items-center rounded-md px-3 py-2' : 'min-w-[62px] min-h-[32px] px-1 py-0.5',
+            rowLayout ? 'flex min-h-11 w-full items-center rounded-md px-3 py-2' : TD_CELL_PAD,
           )}
           aria-hidden
-        />
+        >
+          {rowLayout ? null : <TdSlotContent />}
+        </Comp>
       );
     }
     return (
       <Comp
         className={cn(
           'schedule-slot-closed border border-border/60 bg-muted/50',
-          rowLayout && 'flex min-h-11 w-full items-center rounded-md px-3 py-2 text-xs text-muted-foreground',
+          rowLayout
+            ? 'flex min-h-11 w-full items-center rounded-md px-3 py-2 text-xs text-muted-foreground'
+            : TD_CELL_PAD,
         )}
         aria-label="תקן סגור ביום זה"
       >
-        {rowLayout ? 'תקן סגור' : null}
+        {rowLayout ? 'תקן סגור' : <TdSlotContent />}
       </Comp>
     );
   }
 
   if (readonly) {
-    const label = anonymousRow && assignment ? assignment.employeeDisplayName : (assignment?.employeeDisplayName ?? 'חסר עובד');
+    const label = anonymousRow && assignment ? assignment.employeeDisplayName : (assignment?.employeeDisplayName ?? '');
+    const labelSpan = !anonymousRow ? (
+      <span className={cn('truncate block', rowLayout ? 'max-w-[70%]' : 'mx-auto max-w-full text-[11px] leading-tight')}>{label}</span>
+    ) : null;
+    const overflow = !anonymousRow ? <OverflowCandidates candidates={overflowCandidates} /> : null;
     return (
       <Comp
         className={cn(
           'relative border border-border/60 text-center text-xs',
           rowLayout
             ? 'flex min-h-11 w-full items-center justify-between rounded-md px-3 py-2 text-start'
-            : 'min-w-[62px] min-h-[32px] px-1 py-0.5',
+            : TD_CELL_PAD,
           anonymousRow && 'bg-card',
           mutedPosition && 'border-border',
           isHighlighted && !anonymousRow && highlightClass,
@@ -108,8 +124,17 @@ export function AssignmentCell({
         style={positionStyle}
         aria-label={anonymousRow && assignment ? assignment.employeeDisplayName : undefined}
       >
-        {!anonymousRow && <span className={cn('truncate block', rowLayout ? 'max-w-[70%]' : 'max-w-[58px] mx-auto')}>{label}</span>}
-        {!anonymousRow && <OverflowCandidates candidates={overflowCandidates} />}
+        {rowLayout ? (
+          <>
+            {labelSpan}
+            {overflow}
+          </>
+        ) : (
+          <TdSlotContent>
+            {labelSpan}
+            {overflow}
+          </TdSlotContent>
+        )}
       </Comp>
     );
   }
@@ -139,6 +164,12 @@ export function AssignmentCell({
 
   const cellLabel = `${date} ${shiftType} — ${assignment?.employeeDisplayName ?? 'תקן פנוי'}`;
 
+  const nameSpan = (
+    <span className={cn('truncate block', rowLayout ? 'max-w-[70%]' : 'mx-auto max-w-full text-[11px] leading-tight')}>
+      {assignment?.employeeDisplayName ?? (rowLayout ? 'הקצה עובד' : '')}
+    </span>
+  );
+
   return (
     <Comp
       ref={tdRef as never}
@@ -151,7 +182,7 @@ export function AssignmentCell({
         'focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-inset',
         rowLayout
           ? 'flex min-h-11 w-full items-center justify-between gap-2 rounded-md px-3 py-2 text-start'
-          : 'min-w-[62px] min-h-[32px] px-1 py-0.5',
+          : TD_CELL_PAD,
         anonymousRow ? 'bg-card' : assignment ? 'hover:bg-accent/60' : 'bg-muted/40 hover:bg-accent/30',
         mutedPosition && 'border-border',
         isHighlighted && !anonymousRow && highlightClass,
@@ -171,10 +202,17 @@ export function AssignmentCell({
         }
       }}
     >
-      <span className={cn('truncate block', rowLayout ? 'max-w-[70%]' : 'max-w-[58px] mx-auto')}>
-        {assignment?.employeeDisplayName ?? (rowLayout ? 'הקצה עובד' : '')}
-      </span>
-      <OverflowCandidates candidates={overflowCandidates} />
+      {rowLayout ? (
+        <>
+          {nameSpan}
+          <OverflowCandidates candidates={overflowCandidates} />
+        </>
+      ) : (
+        <TdSlotContent>
+          {nameSpan}
+          <OverflowCandidates candidates={overflowCandidates} />
+        </TdSlotContent>
+      )}
 
       {open && anchorRect && (
         <GuardPicker

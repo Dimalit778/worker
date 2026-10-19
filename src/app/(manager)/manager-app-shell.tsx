@@ -67,32 +67,32 @@ function BrandHeader({
     return (
       <button
         type="button"
-        className="grid py-4 min-h-16 w-full shrink-0 grid-cols-3 items-center border-b border-sidebar-border"
+        className="grid min-h-12 w-full shrink-0 grid-cols-3 items-center border-b border-sidebar-border py-2.5"
         aria-label={toggleLabel}
         title={toggleLabel}
         aria-expanded={false}
         onClick={onToggleCollapsed}
       >
         <span aria-hidden />
-        <div className="flex size-10 shrink-0 items-center justify-center justify-self-center rounded-md bg-sidebar-primary text-sidebar-primary-foreground shadow-sm">
-          <Scale className="size-6" aria-hidden />
+        <div className="flex size-9 shrink-0 items-center justify-center justify-self-center rounded-md bg-sidebar-primary text-sidebar-primary-foreground shadow-sm">
+          <Scale className="size-5" aria-hidden />
         </div>
-        <ChevronLeft className="size-6 justify-self-end" aria-hidden />
+        <ChevronLeft className="size-5 justify-self-end" aria-hidden />
       </button>
     );
   }
 
   return (
     <div
-      className={cn('relative flex min-h-16 min-w-0 shrink-0 items-center gap-3 border-b border-sidebar-border p-3')}
+      className={cn('relative flex min-h-12 min-w-0 shrink-0 items-center gap-2 border-b border-sidebar-border p-2')}
     >
-      <div className="flex min-w-0 flex-1 items-center gap-3 pe-10">
-        <div className="flex size-11 shrink-0 items-center justify-center rounded-md bg-sidebar-primary text-sidebar-primary-foreground shadow-sm">
-          <Scale className="size-6" aria-hidden />
+      <div className="flex min-w-0 flex-1 items-center gap-2 pe-8">
+        <div className="flex size-9 shrink-0 items-center justify-center rounded-md bg-sidebar-primary text-sidebar-primary-foreground shadow-sm">
+          <Scale className="size-5" aria-hidden />
         </div>
 
         <div className="min-w-0 flex-1">
-          <p className="line-clamp-2 text-base font-semibold leading-tight text-sidebar-foreground" title={title}>
+          <p className="line-clamp-2 text-sm font-semibold leading-tight text-sidebar-foreground" title={title}>
             {title}
           </p>
         </div>
@@ -101,13 +101,13 @@ function BrandHeader({
       {onToggleCollapsed ? (
         <button
           type="button"
-          className="absolute inset-e-0.5 top-1/2 inline-flex size-7 shrink-0 -translate-y-1/2 items-center justify-center rounded-md text-sidebar-foreground/70 transition-colors hover:text-sidebar-accent-foreground focus-visible:outline-none focus-visible:ring-3 focus-visible:ring-sidebar-ring/25"
+          className="absolute inset-e-0.5 top-1/2 inline-flex size-6 shrink-0 -translate-y-1/2 items-center justify-center rounded-md text-sidebar-foreground/70 transition-colors hover:text-sidebar-accent-foreground focus-visible:outline-none focus-visible:ring-3 focus-visible:ring-sidebar-ring/25"
           aria-label={toggleLabel}
           title={toggleLabel}
           aria-expanded={!collapsed}
           onClick={onToggleCollapsed}
         >
-          <ChevronRight className="size-6" aria-hidden />
+          <ChevronRight className="size-5" aria-hidden />
         </button>
       ) : null}
     </div>
@@ -129,7 +129,7 @@ function NavLinks({
 }) {
   return (
     <nav
-      className={cn('flex-1 space-y-1 overflow-y-auto py-4', collapsed ? 'px-2' : 'px-3', className)}
+      className={cn('flex-1 space-y-0.5 overflow-y-auto py-2', collapsed ? 'px-1.5' : 'px-2', className)}
       aria-label="ניווט מנהל"
     >
       {items.map((item) => {
@@ -147,23 +147,16 @@ function NavLinks({
             aria-label={collapsed ? item.label : undefined}
             title={item.label}
             className={cn(
-              'group relative flex min-h-11 min-w-0 items-center gap-3 rounded-md px-3 py-2.5 text-sm font-medium transition-all focus-visible:outline-none focus-visible:ring-3 focus-visible:ring-sidebar-ring/25',
+              'group relative flex min-h-9 min-w-0 items-center gap-2 rounded-sm px-2.5 py-2 text-sm font-medium transition-all focus-visible:outline-none focus-visible:ring-3 focus-visible:ring-sidebar-ring/25',
               collapsed && 'justify-center gap-0 px-0',
               active
                 ? 'bg-sidebar-primary text-sidebar-primary-foreground shadow-sm'
                 : 'text-sidebar-foreground/72 hover:bg-sidebar-accent hover:text-sidebar-accent-foreground',
             )}
           >
-            <span
-              className={cn(
-                'absolute inset-y-2 inset-s-0 w-1 rounded-e-full transition-opacity',
-                active ? 'bg-sidebar-primary-foreground/70 opacity-100' : 'opacity-0',
-              )}
-              aria-hidden
-            />
             <Icon
               className={cn(
-                'size-5 shrink-0 transition-colors',
+                'size-4 shrink-0 transition-colors',
                 active
                   ? 'text-sidebar-primary-foreground'
                   : 'text-muted-foreground group-hover:text-sidebar-accent-foreground',
@@ -175,7 +168,7 @@ function NavLinks({
               <span
                 className={cn(
                   'rounded-full bg-red-600 px-1.5 text-xs font-semibold text-white',
-                  collapsed ? 'absolute top-1 inset-e-1' : 'ms-auto',
+                  collapsed ? 'absolute top-0.5 inset-e-0.5' : 'ms-auto',
                 )}
                 aria-label={`${item.badge} בקשות דחופות`}
               >
@@ -194,15 +187,15 @@ function SidebarFooter({ fullName, collapsed = false }: { fullName: string; coll
   const initial = displayName.trim().charAt(0) || 'מ';
 
   return (
-    <div className={cn('shrink-0 border-t border-sidebar-border p-3', collapsed && 'px-2')}>
+    <div className={cn('shrink-0 border-t border-sidebar-border p-2', collapsed && 'px-1.5')}>
       <div
         className={cn(
-          'mb-3 flex min-w-0 items-center gap-3 rounded-md bg-sidebar-accent/65 px-3 py-2.5',
-          collapsed && 'justify-center px-2',
+          'mb-2 flex min-w-0 items-center gap-2 rounded-md bg-sidebar-accent/65 px-2.5 py-2',
+          collapsed && 'justify-center px-1.5',
         )}
         title={collapsed ? displayName : undefined}
       >
-        <div className="flex size-9 shrink-0 items-center justify-center rounded-md bg-card text-sm font-semibold text-sidebar-accent-foreground shadow-sm">
+        <div className="flex size-8 shrink-0 items-center justify-center rounded-md bg-card text-sm font-semibold text-sidebar-accent-foreground shadow-sm">
           {initial}
         </div>
         {!collapsed ? (
@@ -218,7 +211,7 @@ function SidebarFooter({ fullName, collapsed = false }: { fullName: string; coll
         variant="ghost"
         size="sm"
         className={cn(
-          'h-9 w-full gap-2 px-3 text-destructive hover:bg-destructive/10 hover:text-destructive',
+          'h-8 w-full gap-2 px-2.5 text-destructive hover:bg-destructive/10 hover:text-destructive',
           collapsed ? 'justify-center px-0' : 'justify-start',
         )}
         onClick={() => signOut({ callbackUrl: '/login' })}

@@ -28,18 +28,10 @@ export function CurrentScheduleView({
   );
   const initialSelectedDate = days.find((day) => day.isToday)?.iso ?? days[0]?.iso ?? startDate;
   const [selectedDate, setSelectedDate] = useState(initialSelectedDate);
-  const selectedDay = days.find((day) => day.iso === selectedDate) ?? days[0];
 
   return (
-    <div className="space-y-5" dir="rtl">
-      <div className="flex flex-col gap-1">
-        <h1 className="text-2xl font-bold text-foreground">{scheduleName}</h1>
-        {selectedDay ? (
-          <p className="text-sm text-muted-foreground">
-            {selectedDay.dayName}, {selectedDay.dateLabel}
-          </p>
-        ) : null}
-      </div>
+    <div className="mx-auto w-full max-w-5xl space-y-5" dir="rtl">
+      <h1 className="text-center text-2xl font-bold text-foreground">{scheduleName}</h1>
 
       <DateStrip weeks={periodWeekGrids} selectedDate={selectedDate} onSelectDate={setSelectedDate} />
 
@@ -82,8 +74,8 @@ export function CurrentScheduleView({
         />
       </div>
 
-      <div className="rounded-md border border-border bg-card p-3 text-sm text-muted-foreground">
-        <div className="flex items-center gap-2 text-foreground">
+      <div className="rounded-md border border-border bg-card p-3 text-center text-sm text-muted-foreground">
+        <div className="flex items-center justify-center gap-2 text-foreground">
           <Shield className="size-4" aria-hidden />
           <span className="font-semibold">תצוגת שיבוץ מרוכזת</span>
         </div>

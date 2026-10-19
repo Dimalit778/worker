@@ -8,7 +8,7 @@ export const BAT_YAM_EMPLOYEES = [
     roleCode: 'MANAGER',
     facilityCode: 'BAT_YAM',
     email: 'tomerlevy@gmail.com',
-    password: 'tomer',
+    password: '12345',
   },
   {
     firstName: 'דימה',
@@ -18,7 +18,7 @@ export const BAT_YAM_EMPLOYEES = [
     roleCode: 'SHIFT_MANAGER',
     facilityCode: 'BAT_YAM',
     email: 'dimalitvinov@gmail.com',
-    password: 'dima',
+    password: '12345',
   },
   {
     firstName: 'דימה',
@@ -28,7 +28,7 @@ export const BAT_YAM_EMPLOYEES = [
     roleCode: 'SHIFT_MANAGER',
     facilityCode: 'BAT_YAM',
     email: 'dimagofman@gmail.com',
-    password: 'dima',
+    password: '12345',
   },
   {
     firstName: 'איב',
@@ -38,7 +38,7 @@ export const BAT_YAM_EMPLOYEES = [
     roleCode: 'SHIFT_MANAGER',
     facilityCode: 'BAT_YAM',
     email: 'evelevy@gmail.com',
-    password: 'eve',
+    password: '12345',
   },
   {
     firstName: 'שיר',
@@ -48,7 +48,7 @@ export const BAT_YAM_EMPLOYEES = [
     roleCode: 'SHIFT_MANAGER',
     facilityCode: 'BAT_YAM',
     email: 'shirberliner@gmail.com',
-    password: 'shir',
+    password: '12345',
   },
 
   {
@@ -59,7 +59,7 @@ export const BAT_YAM_EMPLOYEES = [
     roleCode: 'BAKAR',
     facilityCode: 'BAT_YAM',
     email: 'osheramar@gmail.com',
-    password: 'osher',
+    password: '12345',
   },
   {
     firstName: 'בן',
@@ -69,7 +69,7 @@ export const BAT_YAM_EMPLOYEES = [
     roleCode: 'BAKAR',
     facilityCode: 'BAT_YAM',
     email: 'benharges@gmail.com',
-    password: 'ben',
+    password: '12345',
   },
   {
     firstName: 'יוחאי',
@@ -79,7 +79,7 @@ export const BAT_YAM_EMPLOYEES = [
     roleCode: 'BAKAR',
     facilityCode: 'BAT_YAM',
     email: 'yochaiohayon@gmail.com',
-    password: 'yochai',
+    password: '12345',
   },
   {
     firstName: 'אילה',
@@ -89,7 +89,7 @@ export const BAT_YAM_EMPLOYEES = [
     roleCode: 'GUARD',
     facilityCode: 'BAT_YAM',
     email: 'ayalagil@gmail.com',
-    password: 'ayala',
+    password: '12345',
   },
   {
     firstName: 'ניק',
@@ -99,7 +99,7 @@ export const BAT_YAM_EMPLOYEES = [
     roleCode: 'GUARD',
     facilityCode: 'BAT_YAM',
     email: 'nickshabadash@gmail.com',
-    password: 'nick',
+    password: '12345',
   },
   {
     firstName: 'שני',
@@ -109,7 +109,7 @@ export const BAT_YAM_EMPLOYEES = [
     roleCode: 'GUARD',
     facilityCode: 'BAT_YAM',
     email: 'shanipenhas@gmail.com',
-    password: 'shani',
+    password: '12345',
   },
   {
     firstName: 'אלירן',
@@ -119,7 +119,7 @@ export const BAT_YAM_EMPLOYEES = [
     roleCode: 'GUARD',
     facilityCode: 'BAT_YAM',
     email: 'eliranmahagran@gmail.com',
-    password: 'eliran',
+    password: '12345',
   },
   {
     firstName: 'עומרי',
@@ -129,7 +129,7 @@ export const BAT_YAM_EMPLOYEES = [
     facilityCode: 'BAT_YAM',
     roleCode: 'GUARD',
     email: 'omriamara@gmail.com',
-    password: 'amara',
+    password: '12345',
   },
   {
     firstName: 'אריאל',
@@ -139,7 +139,7 @@ export const BAT_YAM_EMPLOYEES = [
     roleCode: 'GUARD',
     facilityCode: 'BAT_YAM',
     email: 'arielrotenberg@gmail.com',
-    password: 'ariel',
+    password: '12345',
   },
   {
     firstName: 'בני',
@@ -149,7 +149,7 @@ export const BAT_YAM_EMPLOYEES = [
     roleCode: 'GUARD',
     facilityCode: 'BAT_YAM',
     email: 'benilandau@gmail.com',
-    password: 'beni',
+    password: '12345',
   },
   {
     firstName: 'יובל',
@@ -159,7 +159,7 @@ export const BAT_YAM_EMPLOYEES = [
     roleCode: 'GUARD',
     facilityCode: 'BAT_YAM',
     email: 'yuvalamir@gmail.com',
-    password: 'yuval',
+    password: '12345',
   },
 
   {
@@ -170,7 +170,7 @@ export const BAT_YAM_EMPLOYEES = [
     roleCode: 'GUARD',
     facilityCode: 'BAT_YAM',
     email: 'salemgalau@gmail.com',
-    password: 'salem',
+    password: '12345',
   },
   {
     firstName: 'עומרי',
@@ -180,7 +180,7 @@ export const BAT_YAM_EMPLOYEES = [
     roleCode: 'GUARD',
     facilityCode: 'BAT_YAM',
     email: 'omerigil@gmail.com',
-    password: 'omeri',
+    password: '12345',
   },
   {
     firstName: 'רפאל',
@@ -190,7 +190,7 @@ export const BAT_YAM_EMPLOYEES = [
     roleCode: 'GUARD',
     facilityCode: 'BAT_YAM',
     email: 'refalcohen@gmail.com',
-    password: 'refal',
+    password: '12345',
   },
   {
     firstName: 'שחר',
@@ -200,7 +200,7 @@ export const BAT_YAM_EMPLOYEES = [
     roleCode: 'GUARD',
     facilityCode: 'BAT_YAM',
     email: 'shaharaf@gmail.com',
-    password: 'shahar',
+    password: '12345',
   },
   {
     firstName: 'אורי',
@@ -210,7 +210,7 @@ export const BAT_YAM_EMPLOYEES = [
     roleCode: 'GUARD',
     facilityCode: 'BAT_YAM',
     email: 'orishaar@gmail.com',
-    password: 'ori',
+    password: '12345',
   },
 ];
 // 25 employees
@@ -223,7 +223,7 @@ export const VAITZMAN_EMPLOYEES = [
     positionRank: 1,
     facilityCode: 'VAITZMAN',
     email: 'ran.cohen@gmail.com',
-    password: 'ran',
+    password: '12345',
     isManager: true,
   },
   {
@@ -234,7 +234,7 @@ export const VAITZMAN_EMPLOYEES = [
     positionRank: 2,
     facilityCode: 'VAITZMAN',
     email: 'mayaabraham@gmail.com',
-    password: 'maya',
+    password: '12345',
   },
   {
     firstName: 'איתי',
@@ -244,7 +244,7 @@ export const VAITZMAN_EMPLOYEES = [
     positionRank: 2,
     facilityCode: 'VAITZMAN',
     email: 'itaihalom@gmail.com',
-    password: 'itai',
+    password: '12345',
   },
   {
     firstName: 'ליאור',
@@ -254,7 +254,7 @@ export const VAITZMAN_EMPLOYEES = [
     positionRank: 2,
     facilityCode: 'VAITZMAN',
     email: 'liormizrahi@gmail.com',
-    password: 'lior',
+    password: '12345',
   },
   {
     firstName: 'דניאל',
@@ -264,7 +264,7 @@ export const VAITZMAN_EMPLOYEES = [
     positionRank: 2,
     facilityCode: 'VAITZMAN',
     email: 'danielperetz@gmail.com',
-    password: 'daniel',
+    password: '12345',
   },
   {
     firstName: 'טל',
@@ -274,7 +274,7 @@ export const VAITZMAN_EMPLOYEES = [
     positionRank: 2,
     facilityCode: 'VAITZMAN',
     email: 'talbiton@gmail.com',
-    password: 'tal',
+    password: '12345',
   },
   {
     firstName: 'אור',
@@ -284,7 +284,7 @@ export const VAITZMAN_EMPLOYEES = [
     positionRank: 3,
     facilityCode: 'VAITZMAN',
     email: 'orshimoni@gmail.com',
-    password: 'or',
+    password: '12345',
   },
   {
     firstName: 'גל',
@@ -294,7 +294,7 @@ export const VAITZMAN_EMPLOYEES = [
     positionRank: 3,
     facilityCode: 'VAITZMAN',
     email: 'galbarak@gmail.com',
-    password: 'gal',
+    password: '12345',
   },
   {
     firstName: 'שקד',
@@ -304,7 +304,7 @@ export const VAITZMAN_EMPLOYEES = [
     positionRank: 3,
     facilityCode: 'VAITZMAN',
     email: 'shakeddavid@gmail.com',
-    password: 'shaked',
+    password: '12345',
   },
   {
     firstName: 'רוני',
@@ -314,7 +314,7 @@ export const VAITZMAN_EMPLOYEES = [
     positionRank: 4,
     facilityCode: 'VAITZMAN',
     email: 'ronialon@gmail.com',
-    password: 'roni',
+    password: '12345',
   },
   {
     firstName: 'נועה',
@@ -324,7 +324,7 @@ export const VAITZMAN_EMPLOYEES = [
     positionRank: 4,
     facilityCode: 'VAITZMAN',
     email: 'noabar@gmail.com',
-    password: 'noa',
+    password: '12345',
   },
   {
     firstName: 'יובל',
@@ -334,7 +334,7 @@ export const VAITZMAN_EMPLOYEES = [
     positionRank: 4,
     facilityCode: 'VAITZMAN',
     email: 'yuvalsegal@gmail.com',
-    password: 'yuval',
+    password: '12345',
   },
   {
     firstName: 'אורן',
@@ -344,7 +344,7 @@ export const VAITZMAN_EMPLOYEES = [
     positionRank: 4,
     facilityCode: 'VAITZMAN',
     email: 'orenlevi@gmail.com',
-    password: 'oren',
+    password: '12345',
   },
   {
     firstName: 'שירה',
@@ -354,7 +354,7 @@ export const VAITZMAN_EMPLOYEES = [
     positionRank: 4,
     facilityCode: 'VAITZMAN',
     email: 'shiramalka@gmail.com',
-    password: 'shira',
+    password: '12345',
   },
   {
     firstName: 'עמית',
@@ -364,7 +364,7 @@ export const VAITZMAN_EMPLOYEES = [
     positionRank: 4,
     facilityCode: 'VAITZMAN',
     email: 'amitrozen@gmail.com',
-    password: 'amit',
+    password: '12345',
   },
   {
     firstName: 'אלמוג',
@@ -374,7 +374,7 @@ export const VAITZMAN_EMPLOYEES = [
     positionRank: 4,
     facilityCode: 'VAITZMAN',
     email: 'almoghazan@gmail.com',
-    password: 'almog',
+    password: '12345',
   },
   {
     firstName: 'מיכל',
@@ -384,7 +384,7 @@ export const VAITZMAN_EMPLOYEES = [
     positionRank: 4,
     facilityCode: 'VAITZMAN',
     email: 'michalraviv@gmail.com',
-    password: 'michal',
+    password: '12345',
   },
   {
     firstName: 'עידן',
@@ -394,7 +394,7 @@ export const VAITZMAN_EMPLOYEES = [
     positionRank: 4,
     facilityCode: 'VAITZMAN',
     email: 'idanashkenazi@gmail.com',
-    password: 'idan',
+    password: '12345',
   },
   {
     firstName: 'הילה',
@@ -404,7 +404,7 @@ export const VAITZMAN_EMPLOYEES = [
     positionRank: 4,
     facilityCode: 'VAITZMAN',
     email: 'hilaavital@gmail.com',
-    password: 'hila',
+    password: '12345',
   },
   {
     firstName: 'בר',
@@ -414,7 +414,7 @@ export const VAITZMAN_EMPLOYEES = [
     positionRank: 4,
     facilityCode: 'VAITZMAN',
     email: 'barnahum@gmail.com',
-    password: 'bar',
+    password: '12345',
   },
   {
     firstName: 'אופיר',
@@ -424,7 +424,7 @@ export const VAITZMAN_EMPLOYEES = [
     positionRank: 4,
     facilityCode: 'VAITZMAN',
     email: 'ofirgolan@gmail.com',
-    password: 'ofir',
+    password: '12345',
   },
   {
     firstName: 'תמר',
@@ -434,7 +434,7 @@ export const VAITZMAN_EMPLOYEES = [
     positionRank: 4,
     facilityCode: 'VAITZMAN',
     email: 'tamarshahar@gmail.com',
-    password: 'tamar',
+    password: '12345',
   },
   {
     firstName: 'עומר',
@@ -444,7 +444,7 @@ export const VAITZMAN_EMPLOYEES = [
     positionRank: 4,
     facilityCode: 'VAITZMAN',
     email: 'omerbendavid@gmail.com',
-    password: 'omer',
+    password: '12345',
   },
   {
     firstName: 'כרמל',
@@ -454,7 +454,7 @@ export const VAITZMAN_EMPLOYEES = [
     positionRank: 4,
     facilityCode: 'VAITZMAN',
     email: 'carmelisraeli@gmail.com',
-    password: 'carmel',
+    password: '12345',
   },
   {
     firstName: 'יעקב',
@@ -464,7 +464,7 @@ export const VAITZMAN_EMPLOYEES = [
     positionRank: 4,
     facilityCode: 'VAITZMAN',
     email: 'yaakovcohen@gmail.com',
-    password: 'yaakov',
+    password: '12345',
   },
 ];
 // 10 employees
@@ -477,7 +477,7 @@ export const SHOKEN_EMPLOYEES = [
     positionRank: 2,
     facilityCode: 'SHOKEN',
     email: 'noamlevy@gmail.com',
-    password: 'noam',
+    password: '12345',
   },
   {
     firstName: 'ליטל',
@@ -487,7 +487,7 @@ export const SHOKEN_EMPLOYEES = [
     positionRank: 2,
     facilityCode: 'SHOKEN',
     email: 'litalkaren@gmail.com',
-    password: 'lital',
+    password: '12345',
   },
   {
     firstName: 'טל',
@@ -497,7 +497,7 @@ export const SHOKEN_EMPLOYEES = [
     positionRank: 2,
     facilityCode: 'SHOKEN',
     email: 'talbiton@gmail.com',
-    password: 'tal',
+    password: '12345',
   },
   {
     firstName: 'אור',
@@ -507,7 +507,7 @@ export const SHOKEN_EMPLOYEES = [
     positionRank: 2,
     facilityCode: 'VAITZMAN',
     email: 'orshimoni@gmail.com',
-    password: 'or',
+    password: '12345',
   },
   {
     firstName: 'גל',
@@ -517,7 +517,7 @@ export const SHOKEN_EMPLOYEES = [
     positionRank: 2,
     facilityCode: 'SHOKEN',
     email: 'galbarak@gmail.com',
-    password: 'gal',
+    password: '12345',
   },
   {
     firstName: 'שקד',
@@ -527,7 +527,7 @@ export const SHOKEN_EMPLOYEES = [
     positionRank: 2,
     facilityCode: 'SHOKEN',
     email: 'shakeddavid@gmail.com',
-    password: 'shaked',
+    password: '12345',
   },
   {
     firstName: 'אלמוג',
@@ -537,7 +537,7 @@ export const SHOKEN_EMPLOYEES = [
     positionRank: 2,
     facilityCode: 'SHOKEN',
     email: 'almoghazan@gmail.com',
-    password: 'almog',
+    password: '12345',
   },
   {
     firstName: 'דניאל',
@@ -547,7 +547,7 @@ export const SHOKEN_EMPLOYEES = [
     positionRank: 2,
     facilityCode: 'SHOKEN',
     email: 'dannygalau@gmail.com',
-    password: 'danny',
+    password: '12345',
   },
   {
     firstName: 'מור',
@@ -557,7 +557,7 @@ export const SHOKEN_EMPLOYEES = [
     positionRank: 2,
     facilityCode: 'SHOKEN',
     email: 'morbenjosef@gmail.com',
-    password: 'mor',
+    password: '12345',
   },
   {
     firstName: 'שובל',
@@ -567,7 +567,7 @@ export const SHOKEN_EMPLOYEES = [
     positionRank: 2,
     facilityCode: 'SHOKEN',
     email: 'shovalaviram@gmail.com',
-    password: 'shoval',
+    password: '12345',
   },
 ];
 // 10 employees
@@ -580,7 +580,7 @@ export const RISHON_LEZION_EMPLOYEES = [
     positionRank: 1,
     facilityCode: 'RISHON_LEZION',
     email: 'roaygoldstein@gmail.com',
-    password: 'roay',
+    password: '12345',
   },
   {
     firstName: 'איתי',
@@ -590,7 +590,7 @@ export const RISHON_LEZION_EMPLOYEES = [
     positionRank: 2,
     facilityCode: 'RISHON_LEZION',
     email: 'itaihalom@gmail.com',
-    password: 'itai',
+    password: '12345',
   },
   {
     firstName: 'טל',
@@ -600,7 +600,7 @@ export const RISHON_LEZION_EMPLOYEES = [
     positionRank: 2,
     facilityCode: 'RISHON_LEZION',
     email: 'talycohen@gmail.com',
-    password: 'taly',
+    password: '12345',
   },
   {
     firstName: 'אור',
@@ -610,7 +610,7 @@ export const RISHON_LEZION_EMPLOYEES = [
     positionRank: 2,
     facilityCode: 'RISHON_LEZION',
     email: 'orlevi@gmail.com',
-    password: 'or',
+    password: '12345',
   },
   {
     firstName: 'ג לית',
@@ -620,7 +620,7 @@ export const RISHON_LEZION_EMPLOYEES = [
     positionRank: 2,
     facilityCode: 'RISHON_LEZION',
     email: 'galitfriedman@gmail.com',
-    password: 'galit',
+    password: '12345',
   },
   {
     firstName: 'אוריאל',
@@ -630,7 +630,7 @@ export const RISHON_LEZION_EMPLOYEES = [
     positionRank: 2,
     facilityCode: 'RISHON_LEZION',
     email: 'orielyaqir@gmail.com',
-    password: 'ori',
+    password: '12345',
   },
   {
     firstName: 'ניר',
@@ -640,7 +640,7 @@ export const RISHON_LEZION_EMPLOYEES = [
     positionRank: 2,
     facilityCode: 'RISHON_LEZION',
     email: 'nirgrinberg@gmail.com',
-    password: 'nir',
+    password: '12345',
   },
   {
     firstName: 'אורי',
@@ -650,7 +650,7 @@ export const RISHON_LEZION_EMPLOYEES = [
     positionRank: 2,
     facilityCode: 'RISHON_LEZION',
     email: 'orishemtov@gmail.com',
-    password: 'ori',
+    password: '12345',
   },
   {
     firstName: 'משה',
@@ -660,7 +660,7 @@ export const RISHON_LEZION_EMPLOYEES = [
     positionRank: 2,
     facilityCode: 'RISHON_LEZION',
     email: 'moshagoldstein@gmail.com',
-    password: 'mosh',
+    password: '12345',
   },
   {
     firstName: 'בר',
@@ -670,6 +670,6 @@ export const RISHON_LEZION_EMPLOYEES = [
     positionRank: 2,
     facilityCode: 'RISHON_LEZION',
     email: 'barnahum@gmail.com',
-    password: 'bar',
+    password: '12345',
   },
 ];

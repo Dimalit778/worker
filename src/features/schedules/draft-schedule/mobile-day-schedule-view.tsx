@@ -93,7 +93,6 @@ export function MobileDayScheduleView(props: Props) {
                         <div key={`${pos.positionId}-${slotIndex}`} className="flex items-center gap-2">
                           <span className="w-20 shrink-0 truncate text-xs font-medium text-muted-foreground">
                             {pos.positionName}
-                            {isGrayPosition && <span className="mr-1 text-[0.65rem]" aria-hidden>(מחליף)</span>}
                           </span>
                           <AssignmentCell
                             as="row"
