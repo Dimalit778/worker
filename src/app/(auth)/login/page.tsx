@@ -5,7 +5,8 @@ import { redirect } from 'next/navigation';
 import { Card, CardHeader, CardTitle, CardContent } from '@/components/ui/card';
 import { LoginForm } from './LoginForm';
 
-export default async function LoginPage() {
+export default async function LoginPage({ searchParams }: { searchParams: Promise<{ passwordSet?: string }> }) {
+  const { passwordSet } = await searchParams;
   const cookieStore = await cookies();
   const token = await getToken({
     req: {
@@ -24,6 +25,7 @@ export default async function LoginPage() {
         <p className="text-sm text-muted-foreground">כניסה למערכת</p>
       </CardHeader>
       <CardContent>
+        {passwordSet && <p className="mb-4 text-sm text-center">הסיסמה נשמרה. אפשר להתחבר עם הסיסמה החדשה.</p>}
         <LoginForm />
       </CardContent>
     </Card>
