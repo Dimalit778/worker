@@ -27,7 +27,7 @@ it('lets the manager recover from overlap by choosing a later period and recalcu
   fireEvent.click(screen.getByRole('button', { name: 'צור תקופה' }));
   await screen.findByText('התקופה חופפת');
   fireEvent.change(screen.getByLabelText('תאריך התחלה'), { target: { value: '2098-11-02' } });
-  expect(screen.getByText('2098-11-15')).toBeInTheDocument();
+  expect(screen.getByText('15/11/2098')).toBeInTheDocument();
   expect(screen.getByLabelText('שליחה לעובדים')).toHaveValue('2098-10-29T10:00');
   expect(screen.getByLabelText('סגירת ההגשה')).toHaveValue('2098-10-31T17:00');
   fireEvent.click(screen.getByRole('button', { name: 'צור תקופה' }));
@@ -40,7 +40,7 @@ it('keeps the chosen start when switching to a seven-day period', async () => {
   fireEvent.change(screen.getByLabelText('תאריך התחלה'), { target: { value: '2098-11-02' } });
   fireEvent.click(screen.getByRole('radio', { name: /^שבועי / }));
   expect(screen.getByLabelText('תאריך התחלה')).toHaveValue('2098-11-02');
-  expect(screen.getByText('2098-11-08')).toBeInTheDocument();
+  expect(screen.getByText('08/11/2098')).toBeInTheDocument();
   fireEvent.click(screen.getByRole('button', { name: 'צור תקופה' }));
   await waitFor(() => expect(mocks.createSchedule).toHaveBeenCalledWith(expect.objectContaining({ startDate: '2098-11-02', endDate: '2098-11-08' })));
 });

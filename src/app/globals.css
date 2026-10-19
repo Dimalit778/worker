@@ -238,12 +238,7 @@ main h1, .auth-shell [data-slot='card-title'] {
 .auth-shell [data-slot='card-header'] { padding-block: 32px 24px; }
 .auth-shell [data-slot='card-content'] { padding-bottom: 32px; }
 .auth-shell [data-slot='card-title'] { font-size: 28px; font-weight: 500; }
-.auth-shell button[type='submit'][data-slot='button'] {
-  background: #663af3;
-  color: #fff;
-  min-height: 42px;
-}
-.auth-shell button[type='submit'][data-slot='button']:hover { background: #7650f5; }
+.auth-shell button[type='submit'][data-slot='button'] { min-height: 42px; }
 .auth-eyebrow {
   display: flex; align-items: center; gap: 16px; color: #9da7ba;
   font-size: 12px; letter-spacing: .1em;

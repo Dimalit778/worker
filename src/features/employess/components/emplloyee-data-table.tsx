@@ -13,9 +13,13 @@ import {
   useReactTable,
 } from '@tanstack/react-table';
 
+import { cn } from '@/lib/utils';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
+
+// Phone and email push the name, role and actions off-screen on narrow viewports.
+const HIDDEN_ON_MOBILE = new Set(['phone', 'email']);
 
 type EmployeesDataTableProps<TData, TValue> = {
   columns: ColumnDef<TData, TValue>[];
@@ -60,7 +64,7 @@ export function EmployeesDataTable<TData, TValue>({ columns, data }: EmployeesDa
             {table.getHeaderGroups().map((headerGroup) => (
               <TableRow key={headerGroup.id} className="bg-muted/40">
                 {headerGroup.headers.map((header) => (
-                  <TableHead key={header.id} className="text-right">
+                  <TableHead key={header.id} className={cn('text-right', HIDDEN_ON_MOBILE.has(header.column.id) && 'hidden md:table-cell')}>
                     {header.isPlaceholder ? null : flexRender(header.column.columnDef.header, header.getContext())}
                   </TableHead>
                 ))}
@@ -73,7 +77,7 @@ export function EmployeesDataTable<TData, TValue>({ columns, data }: EmployeesDa
               table.getRowModel().rows.map((row) => (
                 <TableRow key={row.id} data-state={row.getIsSelected() && 'selected'} className="hover:bg-muted/30">
                   {row.getVisibleCells().map((cell) => (
-                    <TableCell key={cell.id} className="text-right">
+                    <TableCell key={cell.id} className={cn('text-right', HIDDEN_ON_MOBILE.has(cell.column.id) && 'hidden md:table-cell')}>
                       {flexRender(cell.column.columnDef.cell, cell.getContext())}
                     </TableCell>
                   ))}

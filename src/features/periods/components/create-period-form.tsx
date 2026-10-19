@@ -234,7 +234,7 @@ export function CreatePeriodForm({
           <div className="rounded-lg bg-muted/40 px-3 py-2.5 text-xs">
             <p className="text-muted-foreground">תאריך סיום</p>
             <p className="mt-0.5 font-medium" dir="ltr">
-              {endDate}
+              {endDate.split('-').reverse().join('/')}
             </p>
           </div>
 
