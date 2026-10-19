@@ -4,6 +4,7 @@ import {
   parseISODateToUtcMidnight,
   todayUtcDateForTimeZone,
   utcNoonFromCalendarISO,
+  upcomingSundayISO,
 } from '@/features/periods/utils'
 
 describe('parseISODateToUtcMidnight', () => {
@@ -43,3 +44,12 @@ describe('utcNoonFromCalendarISO', () => {
     expect(d.getUTCDate()).toBe(14)
   })
 })
+
+describe('upcomingSundayISO', () => {
+  it('uses Jerusalem today at the UTC date boundary', () => {
+    expect(upcomingSundayISO(new Date('2026-10-24T22:00Z'))).toBe('2026-11-01');
+  });
+  it('uses the nearest Sunday before Jerusalem has crossed into Sunday', () => {
+    expect(upcomingSundayISO(new Date('2026-10-24T18:00Z'))).toBe('2026-10-25');
+  });
+});

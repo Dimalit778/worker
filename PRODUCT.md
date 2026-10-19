@@ -10,8 +10,8 @@ web
 
 [Inferred from route groups `(employee)`, `(manager)`, `(admin)` and the Prisma schema — not confirmed with the user; the interview was declined, see note below.]
 
-- **Employees (security guards at a court/facility):** log in per facility (`User.facilityId`), hold a `Role` with a `rank` and an `EmployeeCapability`/`Capability` level (GUARD / CONTROLLER / SHIFT_MANAGER by rank), submit biweekly availability (`AvailabilitySubmission`) before a period locks, and view their own published shifts.
-- **Managers / schedulers (`canEditSchedule: true` users, rank-gated via `Role`):** generate, review, and publish the 14-day schedule for their facility, resolve `ScheduleWarning`s, and make manual overrides (`ScheduleSlot.isManualOverride`).
+- **Employees (security guards at a court/facility):** log in per facility (`User.facilityId`), hold a `Role` with a `rank` and an `EmployeeCapability`/`Capability` level (GUARD / CONTROLLER / SHIFT_MANAGER by rank), submit weekly or biweekly availability (`AvailabilitySubmission`) before a period locks, and view their own published shifts.
+- **Managers / schedulers (`canEditSchedule: true` users, rank-gated via `Role`):** generate, review, and publish the 7- or 14-day schedule for their facility, resolve `ScheduleWarning`s, and make manual overrides (`ScheduleSlot.isManualOverride`).
 - **Admins (`SystemRole.ADMIN`):** configure districts, facilities, positions, capabilities, and system settings across the org.
 
 Note: `ARCHITECTURE_PROPOSAL.md` describes a richer four-tier role hierarchy (District Security Officer, Facility Officer, Shift Manager, Controller, Guard) that is explicitly flagged in that file as historical and not what's implemented. The real schema uses a flat `SystemRole` (`USER`/`ADMIN`) plus a per-facility `Role` with `rank`, and capability level is tracked separately via `Capability`/`EmployeeCapability`.
@@ -20,7 +20,7 @@ Note: `ARCHITECTURE_PROPOSAL.md` describes a richer four-tier role hierarchy (Di
 
 [Inferred from `prisma/schema.prisma` and `CLAUDE.md`'s "Scheduling domain rules" — not confirmed with the user.]
 
-Generates and manages shift schedules for security guards across court facilities, replacing manual/ad-hoc scheduling. The system enforces hard constraints (no double-booking, valid consecutive shifts, per-court/day/shift-type/position capacity) before applying fairness scoring (total shifts, weekend shifts, opening duties) across employees. Scheduling periods are 14 days; employees submit availability before a period locks, and managers generate, review, and publish the resulting schedule.
+Generates and manages shift schedules for security guards across court facilities, replacing manual/ad-hoc scheduling. The system enforces hard constraints (no double-booking, valid consecutive shifts, per-court/day/shift-type/position capacity) before applying fairness scoring (total shifts, weekend shifts, opening duties) across employees. Scheduling periods are 7 or 14 days; employees submit availability before a period locks, and managers generate, review, and publish the resulting schedule.
 
 ## Positioning
 
@@ -29,7 +29,7 @@ Generates and manages shift schedules for security guards across court facilitie
 ## Operating Context
 
 - Organized as District → Facility (court) → Position/Shift structure.
-- Scheduling periods run 14 days, with submission-open and submission-deadline windows (`SchedulePeriod` / period lifecycle in `src/features/periods`).
+- Scheduling periods run 7 or 14 days, with submission-open and submission-deadline windows (`SchedulePeriod` / period lifecycle in `src/features/periods`).
 - Schedule generation logic lives in `src/features/scheduling-engine` (constraints, fairness, scoring, weekly minimums, role eligibility, warnings, validation).
 - A cron job runs daily (`src/app/api/cron`) to manage the submission window — noted in recent commit history ("Run submission-window cron daily to fit the Vercel Hobby plan"), implying deployment on Vercel's Hobby tier.
 - UI is Hebrew RTL throughout (per `CLAUDE.md` project instructions and inline Hebrew comments in the schema, e.g. on `User.isActive`).
@@ -54,7 +54,7 @@ Generates and manages shift schedules for security guards across court facilitie
 
 1. Hard scheduling constraints are non-negotiable and always evaluated before fairness/soft scoring.
 2. Fairness is a tracked, auditable property of the system (shift counts, weekend shifts, opening duties), not an informal judgment call.
-3. The 14-day period and its submission-deadline/lock mechanic is the fixed rhythm the whole workflow (employee submission → manager generation/review/publish) is built around.
+3. The 7- or 14-day period and its submission-deadline/lock mechanic is the fixed rhythm the whole workflow (employee submission → manager generation/review/publish) is built around.
 4. Role and capability are modeled separately (`Role.rank` for scheduling authority, `Capability` for position eligibility) — don't conflate the two in UI or logic.
 
 ## Accessibility & Inclusion

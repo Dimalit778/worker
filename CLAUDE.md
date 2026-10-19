@@ -50,7 +50,7 @@
 
 ## Scheduling domain rules
 
-- Scheduling periods are 14 days.
+- Scheduling periods are 7 or 14 days.
 - Employees submit availability before a period is locked.
 - Managers generate, review, and publish schedules.
 - Hard constraints must be respected before fairness scoring.

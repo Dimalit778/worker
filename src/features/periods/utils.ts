@@ -19,10 +19,11 @@ function calendarDateISO(instant: Date, timeZone: string): string {
 /** UTC midnight for a civil YYYY-MM-DD (matches PostgreSQL `date` semantics for comparisons). */
 function parseISODateToUtcMidnight(iso: string): Date {
   const [y, m, d] = iso.split('-').map(Number);
-  if (!y || !m || !d) {
+  const date = new Date(Date.UTC(y, m - 1, d));
+  if (!/^\d{4}-\d{2}-\d{2}$/.test(iso) || !Number.isFinite(date.getTime()) || date.toISOString().slice(0, 10) !== iso) {
     throw new Error(`parseISODateToUtcMidnight: invalid ISO date "${iso}"`);
   }
-  return new Date(Date.UTC(y, m - 1, d));
+  return date;
 }
 
 function utcNoonFromCalendarISO(iso: string): Date {
@@ -100,15 +101,10 @@ function buildWeeks(startDate: string, endDate: string): string[][] {
 }
 
 function upcomingSundayISO(from: Date = new Date()): string {
-  const d = new Date(from.getFullYear(), from.getMonth(), from.getDate());
-  const day = d.getDay();
-  // Exclude "today" when it's already Sunday — periods start on the next Sunday.
-  const daysUntilSunday = day === 0 ? 7 : (7 - day) % 7;
-  d.setDate(d.getDate() + daysUntilSunday);
-  const y = d.getFullYear();
-  const m = String(d.getMonth() + 1).padStart(2, '0');
-  const num = String(d.getDate()).padStart(2, '0');
-  return `${y}-${m}-${num}`;
+  const today = calendarDateISO(from, 'Asia/Jerusalem');
+  const day = parseISODateToUtcMidnight(today).getUTCDay();
+  // Exclude today when it is already Sunday in Jerusalem.
+  return addDays(today, day === 0 ? 7 : 7 - day);
 }
 
 function suggestName(start: string, days: number): string {

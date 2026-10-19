@@ -11,7 +11,7 @@ export async function generateAutoSchedule(scheduleId: string, expected: Version
   const actor = await requireManager();
   try {
     return await scheduleTransaction(actor, async (tx) => {
-      const { version, schedule } = await editableDraft(tx, actor, scheduleId, expected);
+      const { version } = await editableDraft(tx, actor, scheduleId, expected);
       const { input, assignments: before } = await loadSchedulingInput(tx, scheduleId, actor.facilityId, version.id);
       const output = generateSchedule(input);
       const all = [...input.manualAssignments, ...output.assignments];
@@ -51,7 +51,6 @@ export async function generateAutoSchedule(scheduleId: string, expected: Version
       }
       const analysis = await saveScheduleAnalysis(tx, version.id, input, all);
       await tx.scheduleVersion.update({ where: { id: version.id }, data: { revision: { increment: 1 } } });
-      await tx.schedule.update({ where: { id: schedule.id }, data: { submissionClosesAt: new Date() } });
       await tx.scheduleChange.create({
         data: {
           facilityId: actor.facilityId,

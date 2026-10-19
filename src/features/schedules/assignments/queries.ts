@@ -17,6 +17,7 @@ import { buildAssignmentMap, toScheduleData } from './utils';
 import { toDatedCapacityRules, type DatedCapacityRule } from '../utils';
 import type { EngineInput } from '@/features/scheduling-engine/types';
 import { todayUtcDateForTimeZone } from '@/features/periods/utils';
+import { currentScheduleWhere, preparationScheduleWhere } from '../selection';
 
 const SCHEDULE_TIME_ZONE = 'Asia/Jerusalem';
 const staffedUser = { isActive: true, role: { rank: { not: 1 } } };
@@ -163,15 +164,8 @@ async function buildPublishedScheduleData(
 }
 
 export async function getCurrentSchedule(facilityId: string): Promise<CurrentScheduleData | null> {
-  const today = todayUtcDateForTimeZone(SCHEDULE_TIME_ZONE);
-
   const schedule = await prisma.schedule.findFirst({
-    where: {
-      status: 'PUBLISHED',
-      facilityId,
-      startDate: { lte: today },
-      endDate: { gte: today },
-    },
+    where: currentScheduleWhere(facilityId),
     include: { publishedVersion: true },
     orderBy: { startDate: 'desc' },
   });
@@ -205,7 +199,7 @@ export async function getDraftScheduleData(facilityId: string, scheduleId?: stri
   const schedule = await prisma.schedule.findFirst({
     where: {
       facilityId,
-      ...(scheduleId ? { id: scheduleId } : { draftVersionId: { not: null }, status: { not: 'ARCHIVED' } }),
+      ...(scheduleId ? { id: scheduleId } : preparationScheduleWhere(facilityId)),
     },
     include: { draftVersion: true, publishedVersion: true },
     orderBy: { startDate: 'desc' },

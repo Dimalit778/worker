@@ -107,8 +107,8 @@ export function ScheduleStatusCards({
         <ScheduleOverviewCard
           label="שיבוץ בהכנה"
           schedule={draftSchedule}
-          href="/manager/draft"
-          emptyText="צור שיבוץ חדש"
+          href={draftSchedule ? `/manager/draft?scheduleId=${encodeURIComponent(draftSchedule.id)}` : '/manager/draft'}
+          emptyText="אין שיבוץ שההגשות עבורו נסגרו."
           emptyAction={<CreatePeriodForm triggerLabel="צור שיבוץ חדש" />}
 
         />

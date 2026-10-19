@@ -30,14 +30,14 @@ export async function getSchedulesList(): Promise<PeriodSummary[]> {
     include: {
       _count: {
         select: {
-          submissions: { where: { submittedAt: { not: null }, user: { role: { rank: { not: 1 } } } } },
+          submissions: { where: { submittedAt: { not: null }, user: { isActive: true, role: { rank: { not: 1 } } } } },
         },
       },
     },
   });
 
   const totalEmployees = await prisma.user.count({
-    where: { facilityId: session.user.facilityId ?? '', role: { rank: { not: 1 } } },
+    where: { facilityId: session.user.facilityId ?? '', isActive: true, role: { rank: { not: 1 } } },
   });
 
   return periods.map((p) => ({
@@ -69,9 +69,16 @@ export async function createSchedule(data: {
   if (!session.user.facilityId) return { error: 'למנהל אין בית משפט משויך' };
   if (!session.user.id) return { error: 'למנהל אין משתמש משויך' };
 
-  const start = parseISODateToUtcMidnight(data.startDate);
-  const end = parseISODateToUtcMidnight(data.endDate);
-  if (end <= start) return { error: 'תאריך סיום חייב להיות אחרי תאריך התחלה' };
+  let start: Date;
+  let end: Date;
+  try {
+    start = parseISODateToUtcMidnight(data.startDate);
+    end = parseISODateToUtcMidnight(data.endDate);
+  } catch {
+    return { error: 'תאריכי התקופה לא תקינים' };
+  }
+  const days = (end.getTime() - start.getTime()) / 86_400_000 + 1;
+  if (days !== 7 && days !== 14) return { error: 'תקופת שיבוץ חייבת להיות 7 או 14 ימים' };
 
   const opensAt = parseJerusalemLocal(data.submissionOpensAt);
   const deadline = parseJerusalemLocal(data.submissionDeadline);
