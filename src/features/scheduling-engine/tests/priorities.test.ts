@@ -108,6 +108,46 @@ describe('minimums before extra assignments', () => {
     expect(output.unmetMinimums).toContainEqual({ employeeId: 'e0', weekNumber: 2, shiftType: 'MORNING', required: 2, actual: 0 });
   });
 
+  it('completes all 20 employees minimums on the 250-offer regression before adding extras', () => {
+    const input = fixture(14, 20);
+    input.employees.forEach((employee, i) => { employee.id = `e${String(i + 1).padStart(2, '0')}`; employee.rank = 2; });
+    input.capacities = input.capacities.flatMap(c => [
+      { ...c, positionId: 'senior', requiredRank: 2, amount: 2 }, { ...c, amount: 4 },
+    ]);
+    input.preferences = new Map();
+    input.availability = new Map();
+    const dates = [...input.week1Dates, ...input.week2Dates];
+    input.employees.forEach((employee, i) => {
+      const preferred = new Set<string>();
+      for (const week of [0, 7]) {
+        preferred.add(key(dates[week + i % 7], 'MORNING'));
+        preferred.add(key(dates[week + (i + 3) % 7], 'MORNING'));
+        preferred.add(key(dates[week + (i + 5) % 7], 'EVENING'));
+      }
+      input.preferences!.set(employee.id, preferred);
+      input.availability.set(employee.id, new Set(preferred));
+    });
+    let seed = 42;
+    const random = () => ((seed = (Math.imul(seed, 1664525) + 1013904223) >>> 0) / 4294967296);
+    const extraOffers = input.employees.flatMap(employee => dates.flatMap(date =>
+      (['MORNING', 'EVENING', 'NIGHT'] as const).map(shift => ({ id: employee.id, key: key(date, shift) }))))
+      .filter(offer => !input.availability.get(offer.id)!.has(offer.key));
+    for (let i = extraOffers.length - 1; i > 0; i--) {
+      const j = Math.floor(random() * (i + 1));
+      [extraOffers[i], extraOffers[j]] = [extraOffers[j], extraOffers[i]];
+    }
+    extraOffers.slice(0, 130).forEach(offer => input.availability.get(offer.id)!.add(offer.key));
+    expect([...input.availability.values()].reduce((sum, offers) => sum + offers.size, 0)).toBe(250);
+
+    const output = generateSchedule(input);
+    expect(collectUnmetMinimums(input, output.assignments.slice(0, 120))).toEqual([]);
+    expect(output.unmetMinimums).toEqual([]);
+    expect(output.assignments.length).toBeGreaterThanOrEqual(178);
+    const preferredAssigned = output.assignments.filter(a => input.preferences!.get(a.employeeId)!.has(key(a.date, a.shiftType))).length;
+    expect(preferredAssigned).toBeGreaterThanOrEqual(113);
+    expect(validateAssignments(input, output.assignments, { allowManualOverrides: false })).toEqual([]);
+  });
+
   it('reports minimum counts from the final assignments', () => {
     const input = fixture(14, 8);
     const output = generateSchedule(input);

@@ -161,7 +161,8 @@ export function assignWeeklyMinimums(
           other.id !== employee.id && count(other.id) < target &&
           canAssignEmployeeToSlot(other, slot, working, input.availability)).length }));
         const preferred = (slot: EngineSlot) => Number(input.preferences?.get(employee.id)?.has(`${slot.date.toISOString().slice(0, 10)}|${slot.shiftType}`) ?? false);
-        ranked.sort((a, b) => a.slot.requiredRank - b.slot.requiredRank || a.competition - b.competition || preferred(b.slot) - preferred(a.slot));
+        // Preserve scarce roles first, then honor submitted preferences before competition ties.
+        ranked.sort((a, b) => a.slot.requiredRank - b.slot.requiredRank || preferred(b.slot) - preferred(a.slot) || a.competition - b.competition);
         const slot = ranked[0]?.slot;
         if (!slot) continue;
         const assignment: EngineAssignment = {
