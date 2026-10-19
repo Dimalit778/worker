@@ -1,5 +1,0 @@
----
-description: Isolated worktree development and schema approval
-alwaysApply: true
----
-Read and follow AGENTS.md, especially the Worktree development policy. Run `node scripts/worktree.mjs prepare` on entry to a worktree. At task completion provide the absolute-path `cd ... && pnpm worktree:dev` command and verified URL. Never approve schema changes without the user's explicit approval for that worktree and schema fingerprint.

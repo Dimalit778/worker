@@ -11,13 +11,20 @@ export function ForgotPasswordForm() {
   const [email, setEmail] = useState('');
   const [loading, setLoading] = useState(false);
   const [done, setDone] = useState(false);
+  const [error, setError] = useState<string | null>(null);
 
   const handleSubmit = async (e: SyntheticEvent<HTMLFormElement>) => {
     e.preventDefault();
     setLoading(true);
-    await requestPasswordReset(email);
-    setLoading(false);
-    setDone(true);
+    setError(null);
+    try {
+      await requestPasswordReset(email);
+      setDone(true);
+    } catch {
+      setError('אירעה שגיאה, נסה שוב');
+    } finally {
+      setLoading(false);
+    }
   };
 
   if (done) {
@@ -46,6 +53,7 @@ export function ForgotPasswordForm() {
           dir="ltr"
         />
       </div>
+      {error && <p className="text-sm text-destructive text-center">{error}</p>}
       <Button type="submit" className="w-full" disabled={loading}>
         {loading ? 'שולח...' : 'שלח קישור לאיפוס'}
       </Button>

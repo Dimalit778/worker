@@ -42,7 +42,6 @@ export function EmployeeAvailabilityClient() {
       submittedNote={data.submittedNote}
       status={data.status}
       closesAt={data.closesAt}
-      lastSavedAt={data.lastSavedAt}
     />
   );
 }

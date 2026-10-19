@@ -3,11 +3,13 @@
 import { prisma } from '@/lib/db/client';
 import { buildAuthLink, sendResetEmail } from '@/lib/auth/emails';
 import { redeemPasswordToken, issueToken, peekToken } from '@/lib/auth/token-store';
+import { RESET_TTL_MS, tokenIdentifier } from '@/lib/auth/tokens';
 import { validateNewPassword } from '@/lib/auth/password';
 
 type Result = { ok: true } | { error: string };
 
 const INVALID_LINK = 'הקישור אינו תקף או שפג תוקפו';
+const RESET_COOLDOWN_MS = 60 * 1000;
 
 export async function isAuthTokenValid(kind: 'invite' | 'reset', token: string): Promise<boolean> {
   return (await peekToken(kind, token)) !== null;
@@ -31,8 +33,19 @@ export async function requestPasswordReset(email: string): Promise<{ ok: true }>
         select: { id: true, email: true, isActive: true },
       });
       if (user?.isActive) {
-        const raw = await issueToken('reset', user.id);
-        await sendResetEmail(user.email, buildAuthLink(`/reset-password/${raw}`));
+        // A link issued in the last minute is still live: don't resend or invalidate it.
+        const recent = await prisma.verificationToken.findFirst({
+          where: {
+            identifier: tokenIdentifier('reset', user.id),
+            expires: { gt: new Date(Date.now() + RESET_TTL_MS - RESET_COOLDOWN_MS) },
+          },
+          select: { identifier: true },
+        });
+        if (!recent) {
+          const raw = await issueToken('reset', user.id);
+          const sent = await sendResetEmail(user.email, buildAuthLink(`/reset-password/${raw}`));
+          if (!sent.ok) console.error('requestPasswordReset email failed', sent.error);
+        }
       }
     } catch (error) {
       console.error('requestPasswordReset failed', error);

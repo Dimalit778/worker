@@ -12,10 +12,11 @@ import type { MissingEmployee, ScheduleSnapshot } from '../types';
 type ScheduleOverviewCardProps = {
   label: string;
   schedule: ScheduleSnapshot | null;
-  href: string;
+  href?: string;
   emptyText: string;
   emptyAction?: ReactNode;
   footer?: ReactNode;
+  aside?: ReactNode;
 };
 
 function ScheduleOverviewCard({
@@ -25,6 +26,7 @@ function ScheduleOverviewCard({
   emptyText,
   emptyAction,
   footer,
+  aside,
 }: ScheduleOverviewCardProps) {
   if (!schedule) {
     return (
@@ -40,34 +42,45 @@ function ScheduleOverviewCard({
     );
   }
 
-  return (
-    <Card size="sm" className="overflow-hidden">
-      <Link
-        href={href}
-        className="group flex items-start gap-4 border-b border-border/60 px-5 py-4 transition-colors hover:bg-muted/30"
-      >
-        <div className="min-w-0 flex-1 space-y-2 text-right">
-          <div className="flex flex-wrap items-center gap-2">
-            <p className="text-xs font-medium text-muted-foreground">{label}</p>
-            <span className={cn('rounded-full px-2 py-0.5 text-[11px] font-medium', STATUS_BADGE[schedule.status])}>
-              {PERIOD_STATUS_HE[schedule.status]}
-            </span>
-          </div>
-
-          <p className="truncate text-base font-semibold leading-snug">{schedule.name}</p>
-
-          <p className="text-sm text-muted-foreground">
-            {formatDate(schedule.startDate)} – {formatDate(schedule.endDate)}
-          </p>
+  const content = (
+    <>
+      <div className="min-w-0 flex-1 space-y-2 text-right">
+        <div className="flex flex-wrap items-center gap-2">
+          <p className="text-xs font-medium text-muted-foreground">{label}</p>
+          <span className={cn('rounded-full px-2 py-0.5 text-[11px] font-medium', STATUS_BADGE[schedule.status])}>
+            {PERIOD_STATUS_HE[schedule.status]}
+          </span>
         </div>
 
+        <p className="truncate text-base font-semibold leading-snug">{schedule.name}</p>
+
+        <p className="text-sm text-muted-foreground">
+          {formatDate(schedule.startDate)} – {formatDate(schedule.endDate)}
+        </p>
+      </div>
+
+      {aside ?? (
         <span
           className="mt-0.5 flex size-10 shrink-0 items-center justify-center rounded-full border border-border/80 bg-muted/40 text-muted-foreground transition-colors group-hover:bg-muted group-hover:text-foreground"
           aria-hidden
         >
           <ChevronLeft className="size-5" />
         </span>
-      </Link>
+      )}
+    </>
+  );
+  const rowClassName = 'group flex items-start gap-4 border-b border-border/60 px-5 py-4';
+
+  return (
+    <Card size="sm" className="overflow-hidden">
+      {/* Without a link target the card is informational only (e.g. draft still open for submissions). */}
+      {href ? (
+        <Link href={href} className={cn(rowClassName, 'transition-colors hover:bg-muted/30')}>
+          {content}
+        </Link>
+      ) : (
+        <div className={rowClassName}>{content}</div>
+      )}
 
       {footer && <div className="px-5 py-4">{footer}</div>}
     </Card>
@@ -88,7 +101,12 @@ type ScheduleStatusCardsProps = {
 export function ScheduleStatusCards({
   activeSchedule,
   draftSchedule,
+  submissionSummary,
 }: ScheduleStatusCardsProps) {
+  // The draft screen is reachable only once the submission deadline has passed.
+  const draftDeadlinePassed =
+    !draftSchedule?.submissionDeadline || new Date(draftSchedule.submissionDeadline) <= new Date();
+
   return (
     <section className="space-y-3">
       <div>
@@ -107,10 +125,20 @@ export function ScheduleStatusCards({
         <ScheduleOverviewCard
           label="שיבוץ בהכנה"
           schedule={draftSchedule}
-          href={draftSchedule ? `/manager/draft?scheduleId=${encodeURIComponent(draftSchedule.id)}` : '/manager/draft'}
+          href={draftDeadlinePassed && draftSchedule ? `/manager/draft?scheduleId=${encodeURIComponent(draftSchedule.id)}` : undefined}
           emptyText="אין שיבוץ שההגשות עבורו נסגרו."
           emptyAction={<CreatePeriodForm triggerLabel="צור שיבוץ חדש" />}
-
+          aside={
+            submissionSummary ? (
+              <span className="shrink-0 text-end">
+                <span className="block text-xs font-medium text-muted-foreground">הגשות</span>
+                <span className="mt-1 block tabular-nums text-foreground">
+                  <span className="text-2xl font-bold tracking-tight">{submissionSummary.submittedCount}</span>
+                  <span className="text-sm text-muted-foreground"> / {submissionSummary.eligibleCount}</span>
+                </span>
+              </span>
+            ) : undefined
+          }
         />
       </div>
     </section>
