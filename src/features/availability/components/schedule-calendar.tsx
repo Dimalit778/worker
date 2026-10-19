@@ -8,6 +8,7 @@ import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import { Label } from '@/components/ui/label';
 import { formatJerusalemDateTime } from '@/features/periods/submission-window';
+import { formatDate } from '@/features/periods/utils';
 import { discardAvailabilityDraft, saveAvailabilityDraft, submitAvailability } from '../actions';
 import { invalidateAvailabilityCurrent, invalidateMySubmissions } from '../hooks';
 import type { ShiftType } from '@/generated/prisma/client';
@@ -16,16 +17,13 @@ import {
   applyPreference,
   AVAILABILITY_STATUS_LABEL,
   chunkWeeks,
-  copyWeek,
   datesInRange,
   DAY_HE,
   displayAvailabilityStatus,
   hasSubmitted,
   NO_CHOICE_LABEL,
-  nextPreference,
   normalizeEntries,
   PREFERENCE_LABEL,
-  PREFERENCES,
   sameEntries,
   SHIFTS,
   type AvailabilityStatus,
@@ -46,11 +44,8 @@ type Props = {
   submittedNote?: string;
   status?: AvailabilityStatus;
   closesAt?: string | null;
-  lastSavedAt?: string | null;
   viewOnly?: boolean;
 };
-
-type Brush = Preference | 'CLEAR';
 
 const SHIFT_KEYS = SHIFTS.map((s) => s.key);
 
@@ -86,7 +81,6 @@ export function ScheduleCalendar({
   submittedNote,
   status: initialStatus,
   closesAt,
-  lastSavedAt: initialLastSavedAt = null,
   viewOnly = false,
 }: Props) {
   const [entries, setEntries] = useState<PreferenceMap>(() => normalizeEntries(initialEntries));
@@ -100,8 +94,6 @@ export function ScheduleCalendar({
   const [status, setStatus] = useState<AvailabilityStatus>(
     initialStatus ?? (initialSubmitted ? 'SUBMITTED' : 'NOT_SUBMITTED'),
   );
-  const [lastSavedAt, setLastSavedAt] = useState<string | null>(initialLastSavedAt);
-  const [brush, setBrush] = useState<Brush>('AVAILABLE');
   const queryClient = useQueryClient();
 
   const invalidate = () => {
@@ -115,7 +107,6 @@ export function ScheduleCalendar({
       if (!res.ok) return;
       setSaved({ entries: normalizeEntries(input.entries), note: input.note ?? '' });
       setStatus((prev) => (hasSubmitted(prev) ? 'UNSUBMITTED_CHANGES' : 'DRAFT'));
-      setLastSavedAt(res.savedAt ?? new Date().toISOString());
       invalidate();
     },
   });
@@ -128,7 +119,6 @@ export function ScheduleCalendar({
       setSaved(next);
       setSubmittedBaseline(next);
       setStatus('SUBMITTED');
-      setLastSavedAt(res.savedAt ?? new Date().toISOString());
       invalidate();
     },
   });
@@ -158,160 +148,56 @@ export function ScheduleCalendar({
   const submittedOnce = hasSubmitted(status);
   const hasServerDraft = status === 'DRAFT' || status === 'UNSUBMITTED_CHANGES';
 
-  const brushPreference = brush === 'CLEAR' ? undefined : brush;
-  const brushLabel = brush === 'CLEAR' ? 'נקה' : PREFERENCE_LABEL[brush];
+  // Day/shift/week headers mark every slot they cover as available.
+  const brushPreference: Preference = 'AVAILABLE';
+  const brushLabel = PREFERENCE_LABEL[brushPreference];
   const paint = (dates: string[], shifts: ShiftType[]) =>
     setEntries((prev) => applyPreference(prev, dates, shifts, brushPreference));
 
-  // One week at a time on screen; bulk actions and week copy still cover the whole period.
-  const [weekIndex, setWeekIndex] = useState(0);
-  const weekCount = weeks.length;
-  const wi = Math.min(weekIndex, Math.max(weekCount - 1, 0));
-  const week = weeks[wi] ?? [];
 
   function handleCycle(date: string, shiftType: ShiftType) {
     if (!editable) return;
     const key = `${date}-${shiftType}`;
     setEntries((prev) => {
       const next = { ...prev };
-      const value = nextPreference(prev[key]);
+      // A shift is either marked available or left empty.
+      const value: Preference | undefined = prev[key] ? undefined : 'AVAILABLE';
       if (value) next[key] = value;
       else delete next[key];
       return next;
     });
   }
 
-  const counts = {
-    AVAILABLE: 0,
-    PREFERRED: 0,
-    UNAVAILABLE: 0,
-    empty: weeks.flat().length * SHIFTS.length,
-  };
-  for (const date of weeks.flat())
-    for (const shift of SHIFT_KEYS) {
-      const value = entries[`${date}-${shift}`];
-      if (value) {
-        counts[value]++;
-        counts.empty--;
-      }
-    }
-
   return (
     <div className="space-y-5" dir="rtl">
       {/* Header */}
-      <div className="flex flex-wrap items-start justify-between gap-3">
-        <div>
-          <h1 className="text-xl font-bold">{viewOnly ? 'לוח זמינות' : 'הגשת זמינות'}</h1>
-          <p className="text-sm text-muted-foreground mt-0.5">{period.name}</p>
-        </div>
-        <div className="flex flex-col items-end gap-1 text-xs text-muted-foreground">
+      <div className="grid grid-cols-[1fr_auto_1fr] items-center gap-2 text-sm">
+        <span className="font-semibold">
+          {formatDate(period.startDate)} – {formatDate(period.endDate)}
+        </span>
+        <div className="flex flex-col items-center gap-1">
           <Badge className={cn('h-6 px-3 text-sm', STATUS_STYLE[shownStatus])} data-testid="availability-status">
             {AVAILABILITY_STATUS_LABEL[shownStatus]}
           </Badge>
-          {!viewOnly && closesAt && <span>מועד סגירה: {formatInstant(closesAt)}</span>}
-          {!viewOnly && lastSavedAt && <span>נשמר לאחרונה: {formatInstant(lastSavedAt)}</span>}
-          {editable && dirty && <span className="font-medium text-amber-300">יש שינויים שלא נשמרו</span>}
+          {editable && dirty && <span className="text-xs font-medium text-amber-300">יש שינויים שלא נשמרו</span>}
         </div>
-      </div>
-
-      {editable && (
-        <p className="text-sm text-muted-foreground">
-          לחצו על משמרת כדי לעבור בין המצבים: לא נבחר ← זמין ← מעדיף ← לא זמין. משמרת ללא בחירה לא תיחשב כזמינות.
-        </p>
-      )}
-
-      {/* Legend */}
-      <div className="flex flex-wrap items-center gap-3 text-xs">
-        {PREFERENCES.map((pref) => (
-          <div key={pref} className="flex items-center gap-1.5">
-            <span className={cn('inline-flex size-6 items-center justify-center rounded-md', STATE_STYLE[pref])}>
-              <StateIcon preference={pref} />
-            </span>
-            <span>{PREFERENCE_LABEL[pref]}</span>
-          </div>
-        ))}
-        <div className="flex items-center gap-1.5">
-          <span className={cn('inline-block size-6 rounded-md', EMPTY_STYLE)} />
-          <span>{NO_CHOICE_LABEL}</span>
-        </div>
-        <span className="text-muted-foreground">
-          · זמין {counts.AVAILABLE} · מעדיף {counts.PREFERRED} · לא זמין {counts.UNAVAILABLE} · ללא בחירה {counts.empty}
+        <span className="text-end text-xs text-muted-foreground">
+          {!viewOnly && closesAt ? <>מועד סגירה: {formatInstant(closesAt)}</> : null}
         </span>
       </div>
 
-      {/* Bulk selection + copy week */}
-      {editable && (
-        <div className="space-y-2 rounded-xl border border-border bg-muted/30 p-3">
-          <div className="flex flex-wrap items-center gap-2" role="group" aria-label="בחירה מרוכזת">
-            <span className="text-sm font-medium">בחירה מרוכזת:</span>
-            {([...PREFERENCES, 'CLEAR'] as Brush[]).map((value) => (
-              <Button
-                key={value}
-                type="button"
-                size="sm"
-                variant={brush === value ? 'default' : 'outline'}
-                aria-pressed={brush === value}
-                onClick={() => setBrush(value)}
-              >
-                {value === 'CLEAR' ? 'נקה' : PREFERENCE_LABEL[value]}
-              </Button>
-            ))}
-          </div>
-          <p className="text-xs text-muted-foreground">
-            בחרו מצב ולחצו על כותרת יום, על שם משמרת או על ״כל השבוע״ כדי להחיל אותו על כל המשבצות.
-          </p>
-          {weeks.length > 1 && (
-            <div className="flex flex-wrap gap-2">
-              {weeks.slice(1).map((_, i) => (
-                <span key={i} className="contents">
-                  <Button
-                    type="button"
-                    size="sm"
-                    variant="outline"
-                    onClick={() => setEntries((prev) => copyWeek(prev, weeks[i], weeks[i + 1], SHIFT_KEYS))}
-                  >
-                    העתק שבוע {i + 1} לשבוע {i + 2}
-                  </Button>
-                  <Button
-                    type="button"
-                    size="sm"
-                    variant="outline"
-                    onClick={() => setEntries((prev) => copyWeek(prev, weeks[i + 1], weeks[i], SHIFT_KEYS))}
-                  >
-                    העתק שבוע {i + 2} לשבוע {i + 1}
-                  </Button>
-                </span>
-              ))}
-            </div>
-          )}
-        </div>
-      )}
-
-      {/* Current week */}
-      {week.length > 0 && (
+      {/* All weeks, stacked */}
+      {weeks.map((week, wi) => week.length > 0 && (
         <div key={wi} className="rounded-xl border border-border overflow-hidden bg-card shadow-sm">
-          <div className="flex flex-wrap items-center justify-between gap-2 bg-muted/60 px-4 py-2 text-xs font-medium text-muted-foreground border-b border-border">
-            <Button type="button" variant="outline" className="min-h-11" disabled={wi === 0} onClick={() => setWeekIndex(wi - 1)}>→ הקודם</Button>
-            <span aria-live="polite">שבוע {wi + 1} מתוך {weekCount}</span>
-            {editable && (
-              <Button
-                type="button"
-                size="xs"
-                variant="ghost"
-                aria-label={`החל ״${brushLabel}״ על כל שבוע ${wi + 1}`}
-                onClick={() => paint(week, SHIFT_KEYS)}
-              >
-                כל השבוע
-              </Button>
-            )}
-            <Button type="button" variant="outline" className="min-h-11" disabled={wi >= weekCount - 1} onClick={() => setWeekIndex(wi + 1)}>הבא ←</Button>
+          <div className="text-center bg-muted/60 px-4 py-2 text-xs font-medium text-muted-foreground border-b border-border">
+            <span>שבוע {wi + 1}</span>
           </div>
           <div className="overflow-x-auto">
             <table className="w-full table-fixed border-collapse text-xs">
               <thead>
                 <tr>
-                  <th className="w-10 px-1 py-2.5 text-right font-medium border-b border-e border-border bg-muted/30 sticky right-0 z-10">
-                    משמרת
+                  <th className="w-10 px-0 py-2.5 border-b border-e border-border bg-muted/30 sticky right-0 z-10">
+                    <span className="sr-only">משמרת</span>
                   </th>
                   {week.map((date) => {
                     const d = new Date(`${date}T12:00:00Z`);
@@ -353,18 +239,18 @@ export function ScheduleCalendar({
               <tbody>
                 {SHIFTS.map((shift) => (
                   <tr key={shift.key} className="border-b last:border-b-0 border-border">
-                    <td className="px-3 py-2 font-medium text-right border-e border-border bg-muted/20 sticky right-0 z-10">
+                    <td className="px-0 py-1 font-medium text-center align-middle border-e border-border bg-muted/20 sticky right-0 z-10">
                       {editable ? (
                         <button
                           type="button"
                           onClick={() => paint(week, [shift.key])}
                           aria-label={`החל ״${brushLabel}״ על משמרת ${shift.label} בשבוע ${wi + 1}`}
-                          className="rounded-md px-1 hover:bg-muted focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
+                          className="mx-auto block -rotate-10 rounded-md hover:bg-muted focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
                         >
                           {shift.label}
                         </button>
                       ) : (
-                        shift.label
+                        <span className="block -rotate-10">{shift.label}</span>
                       )}
                     </td>
                     {week.map((date) => {
@@ -401,7 +287,7 @@ export function ScheduleCalendar({
             </table>
           </div>
         </div>
-      )}
+      ))}
 
       <div className="space-y-2">
         <Label htmlFor="availability-note">בקשות</Label>

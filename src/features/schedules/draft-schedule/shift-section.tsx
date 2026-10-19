@@ -24,8 +24,11 @@ import {
 } from '../utils';
 
 /** table-fixed reads width from <col>, not only from cells */
-const POSITION_COL_PX = '3.5rem';
-const narrowColCell = 'w-14 min-w-0 max-w-14';
+const POSITION_COL_PX = '3rem';
+const narrowColCell = 'w-12 min-w-0 max-w-12';
+/** Shared header/body padding so day + position cells share one rhythm */
+const headerCellPad = 'px-0.5 py-1';
+const gridBorder = 'border border-border/60';
 
 type ShiftSectionProps = {
   shiftType: ShiftType;
@@ -59,6 +62,8 @@ export function ShiftSection(props: ShiftSectionProps) {
   const weekIsos = sortedDays.map((d) => d.iso);
 
   const positionsOrdered = getOrderedPositionsForShift(capacity, shiftType);
+  const overrideByDay = new Map(sortedDays.map((day) => [day.iso, getDateOverrideLabel(capacity, day.iso)]));
+  const showOverrideRow = [...overrideByDay.values()].some(Boolean);
 
   const allAssignedEntries = Object.values(assignments).flat();
 
@@ -71,6 +76,12 @@ export function ShiftSection(props: ShiftSectionProps) {
   };
 
   const bodyRows: VisualRow[] = [];
+  const isWeekendDay = (day: WeekDay) => day.dayOfWeek === 5 || day.dayOfWeek === 6;
+  const weekdayIsos = sortedDays.filter((day) => !isWeekendDay(day)).map((day) => day.iso);
+  const assignedCount = (iso: string, positionId: string) =>
+    assignments[createAssignmentCellKey({ date: iso, shiftType, positionId })]?.length ?? 0;
+  // Rows follow who is actually assigned; an empty shift falls back to capacity so slots stay assignable.
+  const sizeByAssignments = sortedDays.some((day) => positionsOrdered.some((pos) => assignedCount(day.iso, pos.positionId) > 0));
 
   for (const pos of positionsOrdered) {
     const assignmentsByDay = new Map<string, AssignmentSummary[]>();
@@ -81,7 +92,9 @@ export function ShiftSection(props: ShiftSectionProps) {
       assignmentsByDay.set(day.iso, sorted);
     }
 
-    const maxSlotsInWeek = maxSlotsForPositionInWeek(capacity, shiftType, pos.positionId, weekIsos);
+    const maxSlotsInWeek = sizeByAssignments
+      ? Math.max(0, ...weekdayIsos.map((iso) => assignedCount(iso, pos.positionId)))
+      : maxSlotsForPositionInWeek(capacity, shiftType, pos.positionId, weekIsos);
     if (maxSlotsInWeek <= 0) continue;
 
     Array.from({ length: maxSlotsInWeek }, (_, vr) => vr).forEach((vr, i) => {
@@ -91,18 +104,21 @@ export function ShiftSection(props: ShiftSectionProps) {
 
   // Weekend columns have their own ordered slots, independent of weekday role rows.
   const weekendSlotsByDay = new Map(sortedDays
-    .filter(day => day.dayOfWeek === 5 || day.dayOfWeek === 6)
+    .filter(isWeekendDay)
     .map(day => [day.iso, positionsOrdered.flatMap(pos => {
-      const required = getRequiredForDate(capacity, day.iso, shiftType, pos.positionId);
-      return Array.from({ length: required }, (_, slotIndex) => ({ pos, slotIndex }));
+      const count = sizeByAssignments
+        ? assignedCount(day.iso, pos.positionId)
+        : getRequiredForDate(capacity, day.iso, shiftType, pos.positionId);
+      return Array.from({ length: count }, (_, slotIndex) => ({ pos, slotIndex }));
     })]));
+  const weekendRows = Math.max(0, ...[...weekendSlotsByDay.values()].map((slots) => slots.length));
 
-  if (bodyRows.length === 0) {
+  if (bodyRows.length === 0 && weekendRows === 0) {
     return (
-      <div className="mb-5" dir="rtl">
+      <div className="mb-4" dir="rtl">
         <div
           className={cn(
-            'flex items-center justify-between gap-2 px-3 py-2 rounded-t-xl text-white font-bold text-sm',
+            'flex items-center justify-between gap-2 rounded-xl px-3 py-1.5 text-sm font-bold text-white',
             style.header,
           )}
         >
@@ -116,22 +132,23 @@ export function ShiftSection(props: ShiftSectionProps) {
     );
   }
 
-  return (
-    <div className="mb-5" dir="rtl">
-      <div
-        className={cn(
-          'flex items-center justify-between gap-2 px-3 py-2 rounded-t-xl text-white font-bold text-sm',
-          style.header,
-        )}
-      >
-        <div className="flex items-center gap-2">
-          <span>{style.emoji}</span>
-          <span>{style.label}</span>
-        </div>
-      </div>
+  const colCount = 1 + sortedDays.length;
+  const totalRows = Math.max(bodyRows.length, weekendRows);
 
-      <div className="overflow-x-auto rounded-b-xl border border-border/60 border-t-0 bg-card">
-        <table className="w-full table-fixed border-collapse text-xs" dir="rtl">
+  const dayTotals = new Map(sortedDays.map((day) => {
+    let assigned = 0;
+    let required = 0;
+    for (const pos of positionsOrdered) {
+      assigned += assignedCount(day.iso, pos.positionId);
+      required += getRequiredForDate(capacity, day.iso, shiftType, pos.positionId);
+    }
+    return [day.iso, { assigned, required }];
+  }));
+
+  return (
+    <div className="mb-3" dir="rtl">
+      <div className={cn('overflow-x-auto rounded-lg bg-card', gridBorder)}>
+        <table className="w-full table-fixed border-collapse text-[11px]" dir="rtl">
           <colgroup>
             <col style={{ width: POSITION_COL_PX }} />
             {sortedDays.map((day) => (
@@ -141,8 +158,24 @@ export function ShiftSection(props: ShiftSectionProps) {
           <thead>
             <tr>
               <th
+                colSpan={colCount}
                 className={cn(
-                  'px-0.5 py-1.5 border border-border/60 text-white font-semibold text-center text-xs leading-tight overflow-hidden text-ellipsis whitespace-nowrap',
+                  'border-b border-border/60 px-2 py-1 text-start text-xs font-bold text-white',
+                  style.header,
+                )}
+              >
+                <span className="inline-flex items-center gap-1.5">
+                  <span>{style.emoji}</span>
+                  <span>{style.label}</span>
+                </span>
+              </th>
+            </tr>
+            <tr>
+              <th
+                className={cn(
+                  headerCellPad,
+                  gridBorder,
+                  'align-middle text-center text-[10px] font-semibold leading-none text-white',
                   style.header,
                 )}
                 title="תפקיד"
@@ -151,65 +184,74 @@ export function ShiftSection(props: ShiftSectionProps) {
               </th>
               {sortedDays.map((day) => {
                 const weekend = day.dayOfWeek === 5 || day.dayOfWeek === 6;
-                const overrideLabel = getDateOverrideLabel(capacity, day.iso);
+                const overrideLabel = overrideByDay.get(day.iso);
                 return (
                   <th
                     key={day.iso}
                     className={cn(
-                      'min-w-0 px-1 py-1.5 border border-border/60 text-white text-center',
+                      headerCellPad,
+                      gridBorder,
+                      'min-w-0 align-middle text-center text-white',
                       style.header,
-                      weekend && 'brightness-110',
+                      // Soft inset wash — marks weekend without filter (which skewed borders/gaps)
+                      weekend && 'shadow-[inset_0_0_0_9999px_rgba(255,255,255,0.1)]',
                     )}
                   >
-                    <div className="font-bold text-sm">{day.letter}</div>
-                    <div className="text-xs font-normal opacity-80">{day.label}</div>
-                    {overrideLabel ? (
-                      <Badge
-                        variant="secondary"
-                        className="mt-0.5 h-auto max-w-full truncate px-1 py-0 text-[9px] font-medium"
-                        title={`תקן חריג: ${overrideLabel}`}
-                      >
-                        {overrideLabel}
-                      </Badge>
-                    ) : null}
+                    <div className="flex flex-col items-center gap-0.5">
+                      <span className="text-xs font-bold leading-none">{day.letter}</span>
+                      <span className="text-[10px] font-normal leading-none opacity-80">{day.label}</span>
+                      {showOverrideRow ? (
+                        <span className="flex h-3.5 w-full items-center justify-center">
+                          {overrideLabel ? (
+                            <Badge
+                              variant="secondary"
+                              className="h-auto max-w-full truncate px-1 py-0 text-[9px] font-medium leading-none"
+                              title={`תקן חריג: ${overrideLabel}`}
+                            >
+                              {overrideLabel}
+                            </Badge>
+                          ) : null}
+                        </span>
+                      ) : null}
+                    </div>
                   </th>
                 );
               })}
             </tr>
           </thead>
           <tbody>
-            {bodyRows.map(({ pos, visualRow, rowSpan, isFirstRow, assignmentsByDay }, rowIdx) => {
-              const hidePositionLabel = isGuardPositionLabel(pos.positionName);
-              const isGrayPosition = pos.positionRank === 2 || pos.positionRank === 3;
+            {Array.from({ length: totalRows }, (_, rowIdx) => {
+              // Rows past the role rows pad the grid up to the longest weekend column.
+              const row = bodyRows[rowIdx] as VisualRow | undefined;
+              const pos = row?.pos;
+              const hidePositionLabel = pos ? isGuardPositionLabel(pos.positionName) : true;
+              const isGrayPosition = pos?.positionRank === 2 || pos?.positionRank === 3;
               const grayStyle = isGrayPosition ? { backgroundColor: 'var(--muted)' } : undefined;
 
               return (
                 <tr
-                  key={`${pos.positionId}-${visualRow}`}
+                  key={pos ? `${pos.positionId}-${row.visualRow}` : `filler-${rowIdx}`}
                   className="bg-card"
-                  style={grayStyle ?? (pos.positionColor ? { backgroundColor: pos.positionColor + '28' } : undefined)}
+                  style={grayStyle ?? (pos?.positionColor ? { backgroundColor: pos.positionColor + '28' } : undefined)}
                 >
-                  {isFirstRow ? (
+                  {!row && rowIdx === bodyRows.length ? (
+                    <td rowSpan={totalRows - rowIdx} className={cn(narrowColCell, gridBorder, 'bg-muted/20')} />
+                  ) : null}
+                  {row?.isFirstRow ? (
                     <td
-                      rowSpan={rowSpan}
+                      rowSpan={row.rowSpan}
                       style={grayStyle}
                       className={cn(
                         narrowColCell,
-                        'align-middle px-0.5 py-1 text-center border border-border/60 bg-muted/20 text-xs font-semibold leading-tight overflow-hidden',
+                        gridBorder,
+                        'align-middle px-0.5 py-0.5 text-center text-[10px] font-semibold leading-tight overflow-hidden bg-muted/20',
                         hidePositionLabel && 'text-transparent',
                         isGrayPosition && 'border-border',
                       )}
-                      title={hidePositionLabel ? undefined : pos.positionName}
-                      aria-label={hidePositionLabel ? pos.positionName : undefined}
+                      title={hidePositionLabel ? undefined : row.pos.positionName}
+                      aria-label={hidePositionLabel ? row.pos.positionName : undefined}
                     >
-                      <div className="truncate">
-                        {hidePositionLabel ? '' : pos.positionName}
-                        {isGrayPosition && !hidePositionLabel && (
-                          <span className="mr-1 text-[0.65rem] font-normal text-muted-foreground" aria-hidden>
-                            (מחליף)
-                          </span>
-                        )}
-                      </div>
+                      <div className="truncate">{hidePositionLabel ? '' : row.pos.positionName}</div>
                     </td>
                   ) : null}
                   {sortedDays.map((day) => {
@@ -218,16 +260,23 @@ export function ShiftSection(props: ShiftSectionProps) {
                     if (weekendSlots && !weekendSlot) {
                       // A single blank area below the configured slots, without phantom role cells.
                       return rowIdx === weekendSlots.length ? (
-                        <td key={day.iso} rowSpan={bodyRows.length - rowIdx} className="border border-border/60 bg-card schedule-slot-closed" aria-label="אין תקנים נוספים" />
+                        <td key={day.iso} rowSpan={totalRows - rowIdx} className={cn(gridBorder, 'bg-card schedule-slot-closed')} aria-label="אין תקנים נוספים" />
                       ) : null;
                     }
-                    const cellPosition = weekendSlot?.pos ?? pos;
-                    const cellRow = weekendSlot?.slotIndex ?? visualRow;
+                    if (!weekendSlot && !row) {
+                      return (
+                        <td key={day.iso} className={cn(gridBorder, 'bg-card schedule-slot-closed px-0.5 py-0.5')} aria-hidden>
+                          <div className="min-h-6" />
+                        </td>
+                      );
+                    }
+                    const cellPosition = weekendSlot?.pos ?? row!.pos;
+                    const cellRow = weekendSlot?.slotIndex ?? row!.visualRow;
                     const required = getRequiredForDate(capacity, day.iso, shiftType, cellPosition.positionId);
                     const cellKey = createAssignmentCellKey({ date: day.iso, shiftType, positionId: cellPosition.positionId });
                     const sortedAssignments = weekendSlot
                       ? [...(assignments[cellKey] ?? [])].sort((a, b) => a.slotIndex - b.slotIndex)
-                      : assignmentsByDay.get(day.iso)!;
+                      : row!.assignmentsByDay.get(day.iso)!;
                     const assignment = sortedAssignments[cellRow] ?? null;
                     const closed = cellRow >= required;
                     const targetSlotIndex = assignment?.slotIndex ?? cellRow;
@@ -274,6 +323,35 @@ export function ShiftSection(props: ShiftSectionProps) {
               );
             })}
           </tbody>
+          <tfoot>
+            <tr className="bg-transparent">
+              <td
+                className={cn(narrowColCell, gridBorder, 'bg-muted/20')}
+                aria-label="סיכום תקנים"
+              />
+              {sortedDays.map((day) => {
+                const { assigned, required } = dayTotals.get(day.iso)!;
+                return (
+                  <td
+                    key={day.iso}
+                    className={cn(gridBorder, 'bg-muted/15 px-0.5 py-1.5 text-center align-middle')}
+                    title={`${assigned} עובדים מתוך ${required} בתקן`}
+                  >
+                    <span
+                      className="inline-flex h-5 min-w-[2.25rem] items-center justify-center gap-0.5 rounded-md bg-muted px-1.5 text-[10px] leading-none text-muted-foreground tabular-nums ring-1 ring-inset ring-foreground/10"
+                      aria-label={`${assigned} מתוך ${required}`}
+                    >
+                      <span className="font-semibold text-foreground/80">{assigned}</span>
+                      <span className="opacity-45" aria-hidden>
+                        /
+                      </span>
+                      <span className="opacity-80">{required}</span>
+                    </span>
+                  </td>
+                );
+              })}
+            </tr>
+          </tfoot>
         </table>
       </div>
 
