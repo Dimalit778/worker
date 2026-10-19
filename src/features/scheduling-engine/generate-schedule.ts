@@ -1,222 +1,119 @@
-import {
-  EngineAssignment,
-  EngineInput,
-  EngineOutput,
-  EngineSlot,
-  FairnessSummary,
-  OverflowCandidate,
-  OverflowCandidateReason,
-} from "./types";
+import type { EngineAssignment, EngineInput, EngineOutput, EngineSlot, FairnessSummary, OverflowCandidate } from "./types";
 import { buildSlots, createSlotKey, getDayCategory, sortSlotsByPriority } from "./slots";
-import {
-  canAssignEmployeeToSlot,
-  hasAdjacentAvailableSlotWithLowerFill,
-  getSlotFillCount,
-  isAvailable,
-  isDoubleBooked,
-  isEligibleForSlot,
-  isSameDate,
-  slotHasCapacity,
-  violatesRestRule,
-} from "./constraints";
-import { assignWeeklyMinimums } from "./weekly-minimums";
+import { canAssignEmployeeToSlot, getSlotFillCount, isAvailable, isDoubleBooked, isEligibleForSlot } from "./constraints";
+import { assignWeeklyMinimums, collectUnmetMinimums, getWeekNumberForDate, MORNING_MINIMUM, EVENING_MINIMUM } from "./weekly-minimums";
 import { sortCandidatesByScore } from "./scoring";
-import { computeFairnessSummary } from "./fairness";
+import { computeFairnessSummary, createEmptyFairnessSummary, incrementFairnessForAssignment } from "./fairness";
 import { createWarnings } from "./warnings";
-
-// ─── Private helpers ──────────────────────────────────────────────────────────
-
-// Builds a fairness map from an initial set of assignments (typically manuals).
-function initFairness(assignments: EngineAssignment[]): Map<string, FairnessSummary> {
-  const map = new Map<string, FairnessSummary>();
-  for (const a of assignments) {
-    applyToFairness(map, a);
-  }
-  return map;
-}
-
-// Increments fairness counters for one assignment. Mutates the map in place;
-// the map is always a locally-owned variable, never the caller's input.
-function applyToFairness(
-  fairness: Map<string, FairnessSummary>,
-  a: EngineAssignment
-): void {
-  if (!fairness.has(a.employeeId)) {
-    fairness.set(a.employeeId, {
-      employeeId: a.employeeId,
-      totalShifts: 0,
-      morningShifts: 0,
-      eveningShifts: 0,
-      nightShifts: 0,
-      weekendShifts: 0,
-    });
-  }
-
-  const s = fairness.get(a.employeeId)!;
-  s.totalShifts++;
-  if (a.shiftType === "MORNING") s.morningShifts++;
-  else if (a.shiftType === "EVENING") s.eveningShifts++;
-  else if (a.shiftType === "NIGHT") s.nightShifts++;
-
-  const cat = getDayCategory(a.date);
-  if (cat === "FRIDAY" || cat === "SATURDAY" || cat === "HOLIDAY") {
-    s.weekendShifts++;
-  }
-}
-
-// ─── Main export ──────────────────────────────────────────────────────────────
 
 export function generateSchedule(input: EngineInput): EngineOutput {
   const startTime = Date.now();
+  const slots = sortSlotsByPriority(buildSlots(input));
+  const working = [...(input.boundaryAssignments ?? []), ...input.manualAssignments];
 
-  // ─── Phase 0 — Initialize ─────────────────────────────────────────────────
+  // Phase 1 is complete for every employee/week before any extra is considered.
+  const { newAssignments: minimumAssignments } = assignWeeklyMinimums(input, slots, new Map(), working);
+  const nextIndexes = new Map<string, number>();
+  for (const a of input.manualAssignments) {
+    const key = createSlotKey(a);
+    nextIndexes.set(key, Math.max(nextIndexes.get(key) ?? 0, a.slotIndex + 1));
+  }
+  const nextIndex = (slot: Parameters<typeof createSlotKey>[0]) => {
+    const key = createSlotKey(slot);
+    const index = nextIndexes.get(key) ?? 0;
+    nextIndexes.set(key, index + 1);
+    return index;
+  };
+  const newAssignments = minimumAssignments.map(a => ({ ...a, slotIndex: nextIndex(a) }));
+  const automatic = [...newAssignments];
+  working.push(...newAssignments);
+  const current = [...input.manualAssignments, ...newAssignments];
+  const fairness = computeFairnessSummary([...(input.historicalAssignments ?? []), ...current], input.holidayCategories);
+  const extras = new Map<string, FairnessSummary>();
+  const weeklyCounts = new Map<string, number>();
+  const category = (a: EngineAssignment) => input.holidayCategories?.get(a.date.toISOString().slice(0, 10)) ?? getDayCategory(a.date);
+  const recordExtra = (a: EngineAssignment) => {
+    const week = getWeekNumberForDate(a.date, input);
+    if (week === null) return;
+    const key = `${a.employeeId}|${week}|${a.shiftType}`;
+    const count = (weeklyCounts.get(key) ?? 0) + 1;
+    weeklyCounts.set(key, count);
+    const minimum = a.shiftType === "MORNING" ? MORNING_MINIMUM : a.shiftType === "EVENING" ? EVENING_MINIMUM : 0;
+    if (count > minimum) extras.set(a.employeeId, incrementFairnessForAssignment(
+      extras.get(a.employeeId) ?? createEmptyFairnessSummary(a.employeeId), a, category(a)));
+  };
+  current.forEach(recordExtra);
 
-  const allSlots = sortSlotsByPriority(buildSlots(input));
+  // Index live state so each eligibility check only scans this employee's shifts.
+  const byEmployee = new Map<string, EngineAssignment[]>();
+  for (const a of working) {
+    if (!byEmployee.has(a.employeeId)) byEmployee.set(a.employeeId, []);
+    byEmployee.get(a.employeeId)!.push(a);
+  }
+  const fills = new Map(slots.map(s => [createSlotKey(s), getSlotFillCount(s, working)]));
+  const employees = input.employees.filter(e => e.isActive);
 
-  // workingAssignments grows throughout both phases. Never mutates input.
-  const workingAssignments: EngineAssignment[] = [...(input.boundaryAssignments ?? []), ...input.manualAssignments];
-  const fairness = initFairness([...(input.historicalAssignments ?? []), ...input.manualAssignments]);
-
-  // Slot fill counts seeded from manual assignments; passed to Phase 1 for
-  // interface compatibility (weekly-minimums derives live counts internally).
-  const slotFillCounts = new Map<string, number>();
-  for (const slot of allSlots) {
-    slotFillCounts.set(createSlotKey(slot), getSlotFillCount(slot, workingAssignments));
+  // Phase 2: select scarce, under-covered requirements one person at a time.
+  // Re-evaluate all remaining requirements after each placement; none are skipped forever.
+  while (true) {
+    const opportunities = new Map<string, number>();
+    const choices: Array<{ slot: EngineSlot; candidates: typeof employees; fill: number }> = [];
+    for (const slot of slots) {
+      const fill = fills.get(createSlotKey(slot)) ?? 0;
+      if (fill >= slot.requiredAmount) continue;
+      // Global capacity was checked above; rest checks only need this employee's rows.
+      const candidates = employees.filter(e => canAssignEmployeeToSlot(
+        e, slot, byEmployee.get(e.id) ?? [], input.availability));
+      if (!candidates.length) continue;
+      choices.push({ slot, candidates, fill });
+      for (const e of candidates) opportunities.set(e.id, (opportunities.get(e.id) ?? 0) + 1);
+    }
+    if (!choices.length) break;
+    choices.sort((a, b) =>
+      a.candidates.length / (a.slot.requiredAmount - a.fill) - b.candidates.length / (b.slot.requiredAmount - b.fill) ||
+      a.fill / a.slot.requiredAmount - b.fill / b.slot.requiredAmount);
+    const { slot, candidates, fill } = choices[0];
+    const [employee] = sortCandidatesByScore(candidates, slot, fairness, input.preferences, { extras, opportunities });
+    const assignment: EngineAssignment = {
+      employeeId: employee.id, facilityId: slot.facilityId, positionId: slot.positionId,
+      positionName: slot.positionName, date: slot.date, shiftType: slot.shiftType,
+      slotIndex: nextIndex(slot), isManualOverride: false,
+    };
+    automatic.push(assignment);
+    current.push(assignment);
+    working.push(assignment);
+    if (!byEmployee.has(employee.id)) byEmployee.set(employee.id, []);
+    byEmployee.get(employee.id)!.push(assignment);
+    fills.set(createSlotKey(slot), fill + 1);
+    fairness.set(employee.id, incrementFairnessForAssignment(
+      fairness.get(employee.id) ?? createEmptyFairnessSummary(employee.id), assignment, category(assignment)));
+    recordExtra(assignment);
   }
 
-  // ─── Phase 1 — Weekly minimums ────────────────────────────────────────────
-
-  const { newAssignments: phase1Assignments, unmetMinimums } = assignWeeklyMinimums(
-    input,
-    allSlots,
-    slotFillCounts,
-    workingAssignments
-  );
-
-  for (const a of phase1Assignments) {
-    workingAssignments.push(a);
-    applyToFairness(fairness, a);
-  }
-
-  // autoAssignments collects everything the engine generates (Phase 1 + Phase 2).
-  // Manual assignments are excluded from this list.
-  const autoAssignments: EngineAssignment[] = [...phase1Assignments];
-
-  // ─── Phase 2 — Fill remaining capacity ───────────────────────────────────
-
-  const unfilledSlots: EngineSlot[] = [];
+  const unfilledSlots = slots.filter(s => (fills.get(createSlotKey(s)) ?? 0) === 0);
   const overflowCandidates: OverflowCandidate[] = [];
-
-  for (const slot of allSlots) {
-    // Fill one employee at a time until capacity is reached or candidates run out.
-    while (slotHasCapacity(slot, workingAssignments)) {
-      const eligible = input.employees.filter((e) =>
-        canAssignEmployeeToSlot(e, slot, workingAssignments, input.availability, allSlots)
-      );
-
-      if (eligible.length === 0) break;
-
-      const [best] = sortCandidatesByScore(eligible, slot, fairness, input.preferences);
-
-      const assignment: EngineAssignment = {
-        employeeId: best.id,
-        facilityId: slot.facilityId,
-        positionId: slot.positionId,
-        positionName: slot.positionName,
-        date: slot.date,
-        shiftType: slot.shiftType,
-        slotIndex: getSlotFillCount(slot, workingAssignments),
-        isManualOverride: false,
-      };
-
-      workingAssignments.push(assignment);
-      autoAssignments.push(assignment);
-      applyToFairness(fairness, assignment);
-    }
-
-    // ─── Overflow candidates and unfilled tracking ────────────────────────
-
-    const fillCount = getSlotFillCount(slot, workingAssignments);
-
-    if (fillCount === 0) {
-      unfilledSlots.push(slot);
-    }
-
-    // Employees assigned to this slot (excluded from overflow).
-    const assignedIds = new Set(
-      workingAssignments
-        .filter(
-          (a) =>
-            a.facilityId === slot.facilityId &&
-            a.positionId === slot.positionId &&
-            a.shiftType === slot.shiftType &&
-            isSameDate(a.date, slot.date)
-        )
-        .map((a) => a.employeeId)
-    );
-
-    // CAPACITY_FULL when the slot is at capacity; LOWER_SCORE when the slot
-    // ended short but no remaining candidates existed (rare in practice — if
-    // candidates remained they would have been assigned above).
-    const reason: OverflowCandidateReason =
-      fillCount >= slot.requiredAmount ? "CAPACITY_FULL" : "LOWER_SCORE";
-
-    for (const employee of input.employees) {
-      if (assignedIds.has(employee.id)) continue;
-
-      // Check all constraints except capacity: these employees were blocked
-      // by lack of space, not by eligibility issues.
-      if (
-        isEligibleForSlot(employee, slot) &&
-        isAvailable(employee.id, slot.date, slot.shiftType, input.availability) &&
-        !isDoubleBooked(employee.id, slot.date, slot.shiftType, workingAssignments) &&
-        !violatesRestRule(employee.id, slot.date, slot.shiftType, workingAssignments) &&
-        !hasAdjacentAvailableSlotWithLowerFill(
-          employee,
-          slot,
-          allSlots,
-          workingAssignments,
-          input.availability
-        )
-      ) {
-        overflowCandidates.push({
-          employeeId: employee.id,
-          facilityId: slot.facilityId,
-          positionId: slot.positionId,
-          date: slot.date,
-          shiftType: slot.shiftType,
-          reason,
-        });
+  // Report alternatives from the final state, not an intermediate pass.
+  for (const slot of slots) {
+    if ((fills.get(createSlotKey(slot)) ?? 0) < slot.requiredAmount) continue;
+    for (const employee of employees) {
+      if (isEligibleForSlot(employee, slot) && isAvailable(employee.id, slot.date, slot.shiftType, input.availability) &&
+          !isDoubleBooked(employee.id, slot.date, slot.shiftType, byEmployee.get(employee.id) ?? [])) {
+        overflowCandidates.push({ employeeId: employee.id, facilityId: slot.facilityId, positionId: slot.positionId,
+          date: slot.date, shiftType: slot.shiftType, reason: "CAPACITY_FULL" });
       }
     }
   }
-
-  // ─── Assemble output ──────────────────────────────────────────────────────
-
-  const filledSlotCount = allSlots.filter(
-    (s) => getSlotFillCount(s, workingAssignments) >= s.requiredAmount
-  ).length;
-
+  const unmetMinimums = collectUnmetMinimums(input, current);
+  const fairnessSummary = computeFairnessSummary(current, input.holidayCategories);
   return {
-    assignments: autoAssignments,
-    unfilledSlots,
-    unmetMinimums,
-    warnings: createWarnings({
-      unmetMinimums,
-      slots: allSlots,
-      assignments: workingAssignments,
-      fairnessSummary: fairness,
-      dateOverrides: input.dateOverrides,
-      timeOff: input.timeOff,
-    }),
-    overflowCandidates,
-    fairnessSummary: computeFairnessSummary([...input.manualAssignments, ...autoAssignments]),
+    assignments: automatic, unfilledSlots, unmetMinimums, overflowCandidates, fairnessSummary,
+    warnings: createWarnings({ unmetMinimums, slots, assignments: current, fairnessSummary,
+      dateOverrides: input.dateOverrides, timeOff: input.timeOff }),
     stats: {
-      totalSlots: allSlots.length,
-      filledSlots: filledSlotCount,
-      unfilledSlots: unfilledSlots.length,
-      totalAssignments: input.manualAssignments.length + autoAssignments.length,
-      employeesWithUnmetMinimums: new Set(unmetMinimums.map((u) => u.employeeId)).size,
+      totalSlots: slots.length,
+      filledSlots: slots.filter(s => (fills.get(createSlotKey(s)) ?? 0) >= s.requiredAmount).length,
+      unfilledSlots: unfilledSlots.length, totalAssignments: current.length,
+      employeesWithUnmetMinimums: new Set(unmetMinimums.map(u => u.employeeId)).size,
       durationMs: Date.now() - startTime,
     },
   };

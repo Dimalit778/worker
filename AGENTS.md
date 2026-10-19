@@ -68,6 +68,11 @@ Single source of truth for all AI tools (Claude Code, Codex, Cursor, Copilot). `
 - Avoid double-booking employees.
 - Avoid invalid consecutive shifts.
 - Fairness should consider total shifts, weekend shifts, and opening duties.
+- Complete weekly minimums (2 MORNING + 1 EVENING per active employee) before assigning extras, across all weeks present in the period.
+- Minimum completion takes priority over balancing adjacent shifts; preserve locked assignments and all hard constraints.
+- Balance extra assignments separately by shift type and total extras, subject to availability and staffing needs.
+- Evaluate only existing weeks (one for 7 days, two independently for 14 days), and calculate warnings from final assignments.
+- Follow [docs/scheduling-priorities.md](docs/scheduling-priorities.md) for the detailed automatic scheduling priorities.
 
 ## Workflow
 
