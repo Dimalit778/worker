@@ -1,3 +1,4 @@
+import { cache } from 'react';
 import { getServerSession } from 'next-auth';
 import { redirect } from 'next/navigation';
 import type { Session } from 'next-auth';
@@ -36,7 +37,8 @@ function portalFor(user: {
   return PortalRole.EMPLOYEE;
 }
 
-export async function requireSession(requiredRole?: PortalRoleValue): Promise<Session> {
+// Deduplicated per request: layout, page and prefetch queries share one session + user lookup.
+const loadSession = cache(async (): Promise<Session> => {
   const session = await getServerSession(authOptions);
 
   if (!session) redirect('/login');
@@ -54,7 +56,13 @@ export async function requireSession(requiredRole?: PortalRoleValue): Promise<Se
     employeeId: user.id,
     mustChangePassword: false,
   };
-  if (requiredRole && portal !== requiredRole) redirect('/login');
+
+  return session;
+});
+
+export async function requireSession(requiredRole?: PortalRoleValue): Promise<Session> {
+  const session = await loadSession();
+  if (requiredRole && session.user.portal !== requiredRole) redirect('/login');
 
   return session;
 }
