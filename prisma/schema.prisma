@@ -356,6 +356,7 @@ model ScheduleSlot {
 
   @@unique([versionId, date, shiftType, positionId, slotNumber])
   @@index([userId, startsAt])
+  @@index([facilityId, date])
   @@index([positionId, facilityId])
 }
 
