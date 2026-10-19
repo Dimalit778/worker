@@ -13,6 +13,7 @@ const staffedUser = { isActive: true, role: { rank: { not: 1 } } };
 export type StaffPositionCount = {
   name: string;
   count: number;
+  color: string | null;
 };
 
 function yearDateRange(year: number) {
@@ -94,6 +95,7 @@ export async function getStaffCountsByPosition(facilityId: string): Promise<Staf
     select: {
       name: true,
       rank: true,
+      basePosition: { select: { color: true } },
       _count: { select: { users: { where: { facilityId } } } },
     },
     orderBy: { rank: 'asc' },
@@ -102,6 +104,7 @@ export async function getStaffCountsByPosition(facilityId: string): Promise<Staf
   return roles.map((role) => ({
     name: role.name,
     count: role._count.users,
+    color: role.basePosition?.color ?? null,
   }));
 }
 

@@ -45,7 +45,7 @@ type StaffPositionChartProps = {
 
 export function StaffPositionChart({ byPosition, totalActive }: StaffPositionChartProps) {
   const segments = byPosition
-    .map((item, index) => ({ ...item, color: CHART_COLORS[index % CHART_COLORS.length] }))
+    .map((item, index) => ({ ...item, color: item.color ?? CHART_COLORS[index % CHART_COLORS.length] }))
     .filter((item) => item.count > 0);
 
   let currentAngle = 0;

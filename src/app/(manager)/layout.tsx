@@ -19,10 +19,19 @@ export default async function ManagerLayout({ children }: { children: React.Reac
   const session = await requireSession(PortalRole.MANAGER);
   await syncSubmissionWindows(session.user.facilityId);
 
-  const [court, urgentCount] = session.user.facilityId
-    ? await Promise.all([prisma.facility.findUnique({ where: { id: session.user.facilityId } }), countOpenUrgent(session.user.facilityId)])
-    : [null, 0];
-  const items = navItems.map(item => (item.href === '/manager/requests' ? { ...item, badge: urgentCount } : item));
+  const [court, urgentCount, hasClosedDraft] = session.user.facilityId
+    ? await Promise.all([
+        prisma.facility.findUnique({ where: { id: session.user.facilityId } }),
+        countOpenUrgent(session.user.facilityId),
+        // The draft tab appears only once the submission deadline has passed and the schedule is not yet published.
+        prisma.schedule.count({
+          where: { facilityId: session.user.facilityId, status: 'DRAFT', draftVersionId: { not: null }, submissionClosesAt: { lte: new Date() } },
+        }).then(count => count > 0),
+      ])
+    : [null, 0, false];
+  const items = navItems
+    .filter(item => item.href !== '/manager/draft' || hasClosedDraft)
+    .map(item => (item.href === '/manager/requests' ? { ...item, badge: urgentCount } : item));
 
   return (
     <ManagerAppShell fullName={session.user.fullName ?? session.user.email ?? ''} courtName={court?.name ?? null} navItems={items}>

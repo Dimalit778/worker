@@ -2,7 +2,7 @@
 
 import Link from 'next/link';
 import type { ColumnDef } from '@tanstack/react-table';
-import { ArrowUpDown, Eye, MailPlus, MoreHorizontal, Pencil, Trash2, UserCheck, UserX } from 'lucide-react';
+import { Eye, MailPlus, MoreHorizontal, Pencil, Trash2, UserCheck, UserX } from 'lucide-react';
 
 import { cn } from '@/lib/utils';
 import { EmployeeListItem } from '@/features/employess/types';
@@ -47,16 +47,7 @@ export function createEmployeesColumns({
     {
       id: 'name',
       accessorFn: (employee) => `${employee.firstName} ${employee.lastName}`.trim(),
-      header: ({ column }) => (
-        <Button
-          variant="ghost"
-          className="px-0 font-medium"
-          onClick={() => column.toggleSorting(column.getIsSorted() === 'asc')}
-        >
-          שם
-          <ArrowUpDown className="mr-2 h-4 w-4" />
-        </Button>
-      ),
+      header: 'שם',
       cell: ({ row }) => {
         const employee = row.original;
         const name = `${employee.firstName} ${employee.lastName}`.trim();
@@ -78,16 +69,7 @@ export function createEmployeesColumns({
     {
       id: 'position',
       accessorFn: (employee) => employee.position.name,
-      header: ({ column }) => (
-        <Button
-          variant="ghost"
-          className="px-0 font-medium"
-          onClick={() => column.toggleSorting(column.getIsSorted() === 'asc')}
-        >
-          תפקיד
-          <ArrowUpDown className="mr-2 h-4 w-4" />
-        </Button>
-      ),
+      header: 'תפקיד',
       cell: ({ row }) => {
         const employee = row.original;
 

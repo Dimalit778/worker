@@ -116,6 +116,8 @@ export type WeeklyDraftScheduleViewProps = {
   overflowCandidates?: OverflowCandidateMap;
   readonly?: boolean;
   highlightedEmployeeId?: string | null;
+  /** Manager-only filter bar; keep false for employees who still get self-highlight. */
+  showHighlightPicker?: boolean;
 };
 
 export type WeekDay = {

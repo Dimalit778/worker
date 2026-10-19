@@ -104,7 +104,7 @@ async function prepare() {
     const password = randomBytes(24).toString('hex');
     state = { root, id, dataDir: join(dir, 'postgres'), dbPort, appPort: await freePort(3000, [dbPort]),
       databaseUrl: `postgresql://${id}:${password}@127.0.0.1:${dbPort}/${id}_dev`,
-      authSecret: randomBytes(32).toString('hex'), demoPassword: randomBytes(12).toString('hex') };
+      authSecret: randomBytes(32).toString('hex'), demoPassword: '12345' };
     save();
   }
   assertManagedDatabase(state, { DATABASE_URL: state.databaseUrl, DIRECT_URL: state.databaseUrl }, root);

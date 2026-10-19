@@ -12,9 +12,9 @@ export const SHIFT_LABELS: Record<ShiftType, string> = {
 };
 
 export const SHIFT_TONES: Record<ShiftType, { bg: string; text: string; border: string }> = {
-  MORNING: { bg: 'bg-sky-100', text: 'text-sky-950', border: 'border-sky-200' },
-  EVENING: { bg: 'bg-indigo-100', text: 'text-indigo-950', border: 'border-indigo-200' },
-  NIGHT: { bg: 'bg-violet-100', text: 'text-violet-950', border: 'border-violet-200' },
+  MORNING: { bg: 'bg-shift-morning', text: 'text-white', border: 'border-border/60' },
+  EVENING: { bg: 'bg-shift-evening', text: 'text-white', border: 'border-border/60' },
+  NIGHT: { bg: 'bg-shift-night', text: 'text-white', border: 'border-border/60' },
 };
 
 export const DAY_ORDER = ['WEEKDAY', 'FRIDAY', 'SATURDAY', 'HOLIDAY'] as const satisfies readonly StaffingDayCategory[];
