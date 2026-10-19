@@ -34,7 +34,7 @@ export async function publishSchedule(scheduleId: string, options: VersionExpect
       const now = new Date();
       await freezePublishedVersion(tx, version.id, data.capacities, data.dateOverrides, now);
       await tx.schedule.update({ where: { id: scheduleId }, data: {
-        status: 'PUBLISHED', publishedAt: now, publishedVersionId: version.id, draftVersionId: null, submissionClosesAt: now,
+        status: 'PUBLISHED', publishedAt: now, publishedVersionId: version.id, draftVersionId: null,
       } });
       await tx.scheduleChange.create({ data: { facilityId: actor.facilityId, scheduleId, versionId: version.id, changedById: actor.userId, changeType: 'PUBLISH', reason: options.reason?.trim() || 'פרסום שיבוץ', afterData: { revision: version.revision + 1, note: options.confirmIssues ? 'פורסם עם אישור בעיות' : 'פורסם', confirmedWarnings: options.confirmIssues ? problems.map(w => w.message) : [] } } });
       return { ok: true as const };

@@ -50,3 +50,10 @@ it('freezes date overrides into the published capacity snapshot', async () => {
   const snapshot = mocks.tx.scheduleVersion.update.mock.calls[0][0].data.capacitySnapshot;
   expect(snapshot).toEqual([expect.objectContaining({ date: '2026-10-20', positionId: 'guard', shiftType: 'MORNING', amount: 5, label: 'חג' })]);
 });
+
+it('preserves the submission deadline when publishing, including during the period', async () => {
+  expect(await publishSchedule('schedule', expected)).toEqual({ ok: true });
+  const update = mocks.tx.schedule.update.mock.calls[0][0].data;
+  expect(update).not.toHaveProperty('submissionClosesAt');
+  expect(update.publishedAt).toBeInstanceOf(Date);
+});

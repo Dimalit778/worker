@@ -10,11 +10,12 @@ vi.mock('@/features/schedules/draft-schedule/assignment-cell', () => ({
 afterEach(cleanup);
 const rule: ScheduleCapacityRule = { id: 'rule', positionId: 'manager', displayName: 'אחמ״ש', rank: 2, color: null, shiftType: 'MORNING', dayCategory: 'WEEKDAY', amount: 1 };
 
-it('renders exactly one manager row even if legacy assignments contain an extra manager', () => {
+it('keeps legacy assignment rows and marks slots beyond configured capacity closed', () => {
   const assignment = { id: 'first', employeeId: 'first', employeeDisplayName: 'ראשון', positionId: 'manager', positionName: 'אחמ״ש', shiftType: 'MORNING' as const, slotIndex: 0 };
   const assignments: AssignmentMap = { '2026-10-05-MORNING-manager': [assignment, { ...assignment, id: 'second', employeeId: 'second', employeeDisplayName: 'שני', slotIndex: 1 }] };
   render(<ShiftSection shiftType="MORNING" weekDays={[{ iso: '2026-10-05', dayOfWeek: 1, letter: 'ב', label: '05/10' }]} assignments={assignments} employees={[]} capacity={[rule]} scheduleId="schedule" facilityId="facility" readonly />);
-  expect(screen.getAllByRole('row')).toHaveLength(2); // header + one configured row
+  expect(document.querySelectorAll('tbody tr')).toHaveLength(2); // rows follow legacy assignments
+  expect(screen.getByText('סגור')).toBeInTheDocument();
   expect(screen.getByText('ראשון')).toBeInTheDocument();
 });
 
@@ -36,19 +37,19 @@ it('packs Friday and Saturday guard slots at the top without changing weekday ro
     { ...baseRules[2], id: 'saturday-guard', dayCategory: 'SATURDAY', amount: 1 },
   ];
   render(<ShiftSection shiftType="MORNING" weekDays={weekendDays} assignments={{}} employees={[]} capacity={capacity} scheduleId="schedule" facilityId="facility" />);
-  const rows = screen.getAllByRole('row');
-  const first = rows[1].querySelectorAll('td');
+  const rows = document.querySelectorAll('tbody tr');
+  const first = rows[0].querySelectorAll('td');
   expect(first[1]).toHaveAttribute('data-position', 'manager'); // Thursday retains the manager row
   expect(first[2]).toHaveAttribute('data-position', 'guard');
   expect(first[2]).toHaveAttribute('data-slot', '0');
   expect(first[2]).toHaveAttribute('data-color', '#00ff00');
   expect(first[3]).toHaveAttribute('data-position', 'guard');
-  const second = rows[2].querySelectorAll('td');
+  const second = rows[1].querySelectorAll('td');
   expect(second[1]).toHaveAttribute('data-position', 'controller');
   expect(second[2]).toHaveAttribute('data-position', 'guard');
   expect(second[2]).toHaveAttribute('data-slot', '1');
   expect(second[3]).toHaveAttribute('rowspan', '4'); // one blank area below Saturday's only slot
-  expect(rows[3].querySelector('td[rowspan="3"]')).toBeInTheDocument(); // same for Friday after two slots
+  expect(rows[2].querySelector('td[rowspan="3"]')).toBeInTheDocument(); // same for Friday after two slots
   expect(screen.queryByText('מאבטח')).not.toBeInTheDocument();
 });
 
@@ -59,12 +60,12 @@ it('keeps configured role colors and order for a weekend with controller and gua
     { ...baseRules[2], id: 'friday-guard', dayCategory: 'FRIDAY', amount: 1 },
   ];
   render(<ShiftSection shiftType="MORNING" weekDays={weekendDays} assignments={{}} employees={[]} capacity={capacity} scheduleId="schedule" facilityId="facility" />);
-  const rows = screen.getAllByRole('row');
-  const first = rows[1].querySelectorAll('td');
+  const rows = document.querySelectorAll('tbody tr');
+  const first = rows[0].querySelectorAll('td');
   expect(first[2]).toHaveAttribute('data-position', 'controller');
   expect(first[2]).toHaveAttribute('data-color', '#0000ff');
   expect(first[3]).toHaveAttribute('rowspan', '5'); // Saturday has no requirements
-  const second = rows[2].querySelectorAll('td');
+  const second = rows[1].querySelectorAll('td');
   expect(second[2]).toHaveAttribute('data-position', 'guard');
   expect(second[2]).toHaveAttribute('data-slot', '0');
 });
@@ -97,7 +98,7 @@ it('holds up at realistic density (10 morning guards, 6 evening guards, multiple
     <ShiftSection shiftType="MORNING" weekDays={[day]} assignments={morningAssignments} employees={[]} capacity={capacity} scheduleId="schedule" facilityId="facility" readonly />,
   );
   // 1 manager row + 2 controller rows + 10 guard rows = 13 body rows, every slot filled, none closed.
-  expect(screen.getAllByRole('row')).toHaveLength(1 + 13);
+  expect(document.querySelectorAll('tbody tr')).toHaveLength(13);
   for (let i = 0; i < 10; i++) expect(screen.getByText(`MORNING-guard-${i}`)).toBeInTheDocument();
   expect(screen.getByText('MORNING-manager-0')).toBeInTheDocument();
   expect(screen.getByText('MORNING-controller-0')).toBeInTheDocument();
@@ -109,7 +110,7 @@ it('holds up at realistic density (10 morning guards, 6 evening guards, multiple
   const { unmount: unmountEvening } = render(
     <ShiftSection shiftType="EVENING" weekDays={[day]} assignments={eveningAssignments} employees={[]} capacity={capacity} scheduleId="schedule" facilityId="facility" readonly />,
   );
-  expect(screen.getAllByRole('row')).toHaveLength(1 + 6); // manager/controller have no EVENING rule -> 6 guard rows only
+  expect(document.querySelectorAll('tbody tr')).toHaveLength(6); // manager/controller have no EVENING rule -> 6 guard rows only
   for (let i = 0; i < 6; i++) expect(screen.getByText(`EVENING-guard-${i}`)).toBeInTheDocument();
   unmountEvening();
 
@@ -117,7 +118,7 @@ it('holds up at realistic density (10 morning guards, 6 evening guards, multiple
   render(
     <ShiftSection shiftType="NIGHT" weekDays={[day]} assignments={nightAssignments} employees={[]} capacity={capacity} scheduleId="schedule" facilityId="facility" />,
   );
-  expect(screen.getAllByRole('row')).toHaveLength(1 + 2);
+  expect(document.querySelectorAll('tbody tr')).toHaveLength(1);
   expect(screen.getByText('NIGHT-guard-0')).toBeInTheDocument();
-  expect(screen.getByText('פנוי')).toBeInTheDocument(); // the second night slot is open, not hidden
+  expect(screen.queryByText('פנוי')).not.toBeInTheDocument(); // assigned shifts size their rows by actual assignments
 });

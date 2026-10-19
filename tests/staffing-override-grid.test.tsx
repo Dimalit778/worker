@@ -21,9 +21,9 @@ it('opens extra override slots on the holiday date and shows its label', () => {
   const capacity: DatedCapacityRule[] = [guard, { ...guard, id: 'o', amount: 2, date: '2026-10-05', label: 'סוכות' }];
   render(<ShiftSection shiftType="MORNING" weekDays={days} assignments={{}} employees={[]} capacity={capacity} scheduleId="s" facilityId="f" readonly />);
   expect(screen.getByText('סוכות')).toBeInTheDocument();
-  const rows = screen.getAllByRole('row');
-  expect(rows).toHaveLength(3); // header + two guard rows (max of 2 on the holiday)
-  const second = rows[2].querySelectorAll('td[data-date]');
+  const rows = document.querySelectorAll('tbody tr');
+  expect(rows).toHaveLength(2); // two guard rows (max of 2 on the holiday)
+  const second = rows[1].querySelectorAll('td[data-date]');
   expect(second[0]).toHaveTextContent('פנוי'); // holiday: second slot open
   expect(second[1]).toHaveTextContent('סגור'); // regular day: only one slot
 });

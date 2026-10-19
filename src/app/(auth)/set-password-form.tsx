@@ -33,7 +33,7 @@ export function SetPasswordForm({
       setError(result.error);
       return;
     }
-    router.push('/login');
+    router.push('/login?passwordSet=1');
   };
 
   return (

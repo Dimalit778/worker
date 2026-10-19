@@ -37,6 +37,8 @@ export function CreatePeriodForm({
 }) {
   const queryClient = useQueryClient();
   const [open, setOpen] = useState(false);
+  const [startDate, setStartDate] = useState(upcomingSundayISO);
+  const [submissionRule, setSubmissionRule] = useState<SubmissionWindowRule | null>(null);
   const [periodType, setPeriodType] = useState<PeriodType>('biweekly');
   const [name, setName] = useState(() => suggestName(upcomingSundayISO(), 14));
   const [opensAt, setOpensAt] = useState('');
@@ -73,39 +75,39 @@ export function CreatePeriodForm({
     }
     const sun = upcomingSundayISO();
     const d = PERIOD_OPTIONS.find((o) => o.value === periodType)!.days;
+    setStartDate(sun);
     setName(suggestName(sun, d));
     setSaveRule(false);
     setError(null);
     try {
       const rule = await fetchSubmissionWindowRule();
+      setSubmissionRule(rule);
       applyRule(rule, sun);
     } catch {
+      setSubmissionRule(null);
       applyRule(null, sun);
       setError('לא ניתן לטעון את הכלל הקבוע');
     }
   }
 
   const days = PERIOD_OPTIONS.find((o) => o.value === periodType)!.days;
-  const startSunday = upcomingSundayISO();
-  const endDate = addDays(startSunday, days - 1);
+  const endDate = startDate ? addDays(startDate, days - 1) : '';
 
   function handleTypeChange(t: PeriodType) {
     setPeriodType(t);
     if (open) {
-      const sun = upcomingSundayISO();
       const d = PERIOD_OPTIONS.find((o) => o.value === t)!.days;
-      setName(suggestName(sun, d));
+      if (startDate) setName(suggestName(startDate, d));
     }
   }
 
   const createMutation = useMutation({
     mutationFn: () => {
-      const sun = upcomingSundayISO();
       const d = PERIOD_OPTIONS.find((o) => o.value === periodType)!.days;
       return createSchedule({
         name,
-        startDate: sun,
-        endDate: addDays(sun, d - 1),
+        startDate,
+        endDate: addDays(startDate, d - 1),
         submissionOpensAt: opensAt,
         submissionDeadline: closesAt,
         saveAsStandingRule: saveRule,
@@ -206,19 +208,26 @@ export function CreatePeriodForm({
 
           <div className="space-y-1.5">
             <label htmlFor="period-start" className="text-xs font-medium text-muted-foreground block">
-              תאריך התחלה — ראשון הבא
+              תאריך התחלה
             </label>
             <Input
               id="period-start"
               type="date"
-              value={startSunday}
-              readOnly
-              aria-readonly="true"
-              className="w-full border border-border rounded-md px-3 py-2 text-sm bg-muted/40 cursor-default focus:outline-none focus:ring-2 focus:ring-foreground/20"
+              value={startDate}
+              min={upcomingSundayISO()}
+              required
+              onChange={(event) => {
+                const value = event.target.value;
+                setStartDate(value);
+                if (value) {
+                  setName(suggestName(value, days));
+                  if (submissionRule) applyRule(submissionRule, value);
+                }
+              }}
+              className="w-full border border-border rounded-md px-3 py-2 text-sm bg-background focus:outline-none focus:ring-2 focus:ring-foreground/20"
             />
             <p className="text-[11px] text-muted-foreground mt-1 leading-snug">
-              מחליפים שבועי / דו-שבועי או פותחים את החלון — תאריך ההתחלה מתעדכן לראשון הבא. יצירת התקופה משתמשת בתאריך
-              זה.
+              אפשר לבחור תקופה מאוחרת יותר אם קיימת חפיפה. תאריך הסיום מחושב לפי משך השיבוץ שנבחר.
             </p>
           </div>
 
