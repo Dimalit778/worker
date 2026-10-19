@@ -203,7 +203,7 @@ function SidebarFooter({ fullName, collapsed = false }: { fullName: string; coll
             <p className="truncate text-sm font-semibold text-sidebar-foreground" title={displayName}>
               {displayName}
             </p>
-            <p className="truncate text-xs text-muted-foreground">מנהל מערכת</p>
+            <p className="truncate text-xs text-muted-foreground">מנהל</p>
           </div>
         ) : null}
       </div>
