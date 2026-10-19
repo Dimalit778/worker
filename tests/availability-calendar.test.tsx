@@ -37,17 +37,13 @@ function setup({ endDate = '2098-01-06', entries = {}, submitted = false, status
 const cell = (name: string) => screen.getByRole('button', { name: new RegExp(`^${name}:`) });
 const statusText = () => screen.getByTestId('availability-status').textContent;
 
-it('cycles through explicit states, keeping empty distinct from unavailable', () => {
+it('toggles a shift between empty and available', () => {
   setup();
   const shift = cell('2098-01-06 בוקר');
   expect(shift).toHaveAttribute('data-state', 'EMPTY');
   fireEvent.click(shift);
   expect(shift).toHaveAttribute('data-state', 'AVAILABLE');
   expect(shift).toHaveAccessibleName('2098-01-06 בוקר: זמין');
-  fireEvent.click(shift);
-  expect(shift).toHaveAttribute('data-state', 'PREFERRED');
-  fireEvent.click(shift);
-  expect(shift).toHaveAttribute('data-state', 'UNAVAILABLE');
   fireEvent.click(shift);
   expect(shift).toHaveAttribute('data-state', 'EMPTY');
 });
@@ -98,34 +94,27 @@ it('shows unsubmitted changes after editing a submitted form', async () => {
   await waitFor(() => expect(statusText()).toBe('הוגש'));
 });
 
-it('renders a single week for a 7-day period without copy buttons', () => {
+it('renders a single week for a 7-day period', () => {
   setup({ endDate: '2098-01-12' });
-  expect(screen.getByText('שבוע 1 מתוך 1')).toBeInTheDocument();
-  expect(screen.getByRole('button', { name: /הבא/ })).toBeDisabled();
-  expect(screen.queryByRole('button', { name: /העתק שבוע/ })).not.toBeInTheDocument();
+  expect(screen.getByText('שבוע 1')).toBeInTheDocument();
+  expect(screen.queryByText('שבוע 2')).not.toBeInTheDocument();
 });
 
-it('copies week 1 to week 2 and applies bulk selection to a day', () => {
+it('marks a whole day available from its header', () => {
   setup({ endDate: '2098-01-19' });
-  fireEvent.click(screen.getByRole('button', { name: 'מעדיף' }));
-  fireEvent.click(screen.getByRole('button', { name: 'החל ״מעדיף״ על יום 2098-01-06' }));
-  expect(cell('2098-01-06 בוקר')).toHaveAttribute('data-state', 'PREFERRED');
-  expect(cell('2098-01-06 לילה')).toHaveAttribute('data-state', 'PREFERRED');
-  fireEvent.click(screen.getByRole('button', { name: 'העתק שבוע 1 לשבוע 2' }));
-  fireEvent.click(screen.getByRole('button', { name: /הבא/ }));
-  expect(cell('2098-01-13 ערב')).toHaveAttribute('data-state', 'PREFERRED');
-  expect(cell('2098-01-14 ערב')).toHaveAttribute('data-state', 'EMPTY');
+  fireEvent.click(screen.getByRole('button', { name: 'החל ״זמין״ על יום 2098-01-06' }));
+  expect(cell('2098-01-06 בוקר')).toHaveAttribute('data-state', 'AVAILABLE');
+  expect(cell('2098-01-06 לילה')).toHaveAttribute('data-state', 'AVAILABLE');
+  expect(cell('2098-01-07 ערב')).toHaveAttribute('data-state', 'EMPTY');
 });
-it('preserves a selection when moving between weeks', async () => {
+it('shows both weeks at once and submits selections from each', async () => {
   render(<QueryClientProvider client={new QueryClient()}>
     <ScheduleCalendar period={{ id: 'two-weeks', name: 'שבועיים', startDate: '2098-01-06', endDate: '2098-01-19', status: 'OPEN' }} initialEntries={{}} initialSubmitted={false} />
   </QueryClientProvider>);
   fireEvent.click(screen.getByRole('button', { name: /^2098-01-06 בוקר:/ }));
-  fireEvent.click(screen.getByRole('button', { name: /הבא/ }));
-  expect(screen.queryByRole('button', { name: /^2098-01-06 בוקר:/ })).not.toBeInTheDocument();
-  expect(screen.getByRole('button', { name: /^2098-01-13 בוקר:/ })).toBeInTheDocument();
-  fireEvent.click(screen.getByRole('button', { name: /הקודם/ }));
-  expect(screen.getByRole('button', { name: /^2098-01-06 בוקר:/ })).toHaveAttribute('data-state', 'AVAILABLE');
+  fireEvent.click(screen.getByRole('button', { name: /^2098-01-13 בוקר:/ }));
+  expect(screen.getByText('שבוע 1')).toBeInTheDocument();
+  expect(screen.getByText('שבוע 2')).toBeInTheDocument();
   fireEvent.click(screen.getByRole('button', { name: 'הגש זמינות' }));
-  await waitFor(() => expect(submitAvailability).toHaveBeenCalledWith({ periodId: 'two-weeks', entries: { '2098-01-06-MORNING': 'AVAILABLE' }, note: '' }, expect.anything()));
+  await waitFor(() => expect(submitAvailability).toHaveBeenCalledWith({ periodId: 'two-weeks', entries: { '2098-01-06-MORNING': 'AVAILABLE', '2098-01-13-MORNING': 'AVAILABLE' }, note: '' }, expect.anything()));
 });
