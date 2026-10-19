@@ -145,6 +145,7 @@ model User {
   updatedAt DateTime @updatedAt
 
   @@unique([id, facilityId])
+  @@index([facilityId])
   @@index([systemRole])
   @@index([roleId])
 }
