@@ -8,6 +8,8 @@ The application remains a Next.js modular monolith using Prisma/PostgreSQL and a
 
 ## Invariants
 
+Automatic generation follows the [minimum-first scheduling priorities](scheduling-priorities.md): weekly minimums across the whole period precede extras, and extras are balanced by shift type before historical workload and preferences break ties.
+
 - `Employee.capability` and `Position.requiredCapability` use GUARD < CONTROLLER < SHIFT_MANAGER. Display labels do not grant qualification. The employee's existing position remains a personnel designation; it is not a management permission.
 - `SchedulePeriod.submissionState` controls submissions. Every save checks opening and deadline timestamps regardless of cron or the legacy `Roster.status` display projection. Only submitted forms participate. Missing/UNAVAILABLE slots block assignment; PREFERRED is a soft preference. Empty availability is a valid submission.
 - One DRAFT version and one active PUBLISHED version per schedule are enforced by partial unique indexes. `isActive` means the current publication, not that today's date is within its period.

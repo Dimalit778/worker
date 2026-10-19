@@ -248,7 +248,7 @@ describe("generateSchedule", () => {
         w.type === "MIN_NOT_MET" &&
         w.employeeId === "emp1" &&
         w.shiftType === "MORNING" &&
-        w.message.startsWith("Week 1:")
+        w.message.startsWith("שבוע 1:")
     );
     // Cannot have MIN_NOT_MET for MORNING in week 1 since manual + 1 auto satisfies it
     const autoWeek1Mornings = output.assignments.filter(
@@ -299,7 +299,7 @@ describe("generateSchedule", () => {
     expect(sameDayAssignments).toHaveLength(1);
   });
 
-  it("chooses the less-filled shift when an employee is available for MORNING and EVENING", () => {
+  it("prioritizes the morning minimum over a less-filled evening", () => {
     const target = emp("target");
     const filler = emp("filler");
     const manualMorning: EngineAssignment = {
@@ -334,10 +334,10 @@ describe("generateSchedule", () => {
     );
 
     expect(targetAssignments).toHaveLength(1);
-    expect(targetAssignments[0].shiftType).toBe("EVENING");
+    expect(targetAssignments[0].shiftType).toBe("MORNING");
   });
 
-  it("chooses the less-filled shift when an employee is available for EVENING and NIGHT", () => {
+  it("prioritizes the evening minimum over a less-filled night", () => {
     const target = emp("target");
     const filler = emp("filler");
     const manualEvening: EngineAssignment = {
@@ -372,7 +372,7 @@ describe("generateSchedule", () => {
     );
 
     expect(targetAssignments).toHaveLength(1);
-    expect(targetAssignments[0].shiftType).toBe("NIGHT");
+    expect(targetAssignments[0].shiftType).toBe("EVENING");
   });
 
   it("chooses the less-filled shift when an employee is available for NIGHT and next-day MORNING", () => {

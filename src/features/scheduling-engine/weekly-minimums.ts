@@ -2,17 +2,17 @@ import {
   EngineAssignment,
   EngineInput,
   EngineSlot,
-  ShiftType,
   UnmetMinimum,
 } from "./types";
+import { repairMinimum } from './minimum-repair';
 import { computeFairnessSummary } from './fairness';
 import { sortCandidatesByScore } from './scoring';
 import { canAssignEmployeeToSlot, getSlotFillCount, isSameDate } from "./constraints";
 
 // ─── Constants ────────────────────────────────────────────────────────────────
 
-const MORNING_MINIMUM = 2;
-const EVENING_MINIMUM = 1;
+export const MORNING_MINIMUM = 2;
+export const EVENING_MINIMUM = 1;
 
 // ─── Local types ──────────────────────────────────────────────────────────────
 
@@ -96,129 +96,104 @@ export function getWeeklyMinimumStatus(
   };
 }
 
-// ─── Private helpers ──────────────────────────────────────────────────────────
-
-// Counts how many shifts of shiftType an employee has within the given date
-// set. Uses timestamp lookup (O(1)) since all engine dates are midnight UTC.
-function countShiftsInDates(
-  employeeId: string,
-  shiftType: ShiftType,
-  dateTimes: Set<number>,
-  assignments: EngineAssignment[]
-): number {
-  return assignments.filter(
-    (a) =>
-      a.employeeId === employeeId &&
-      a.shiftType === shiftType &&
-      dateTimes.has(a.date.getTime())
-  ).length;
+/** Only weeks actually present in the period participate in minimums and warnings. */
+export function getPeriodWeeks(input: EngineInput): Array<1 | 2> {
+  return ([1, 2] as const).filter(week =>
+    (week === 1 ? input.week1Dates : input.week2Dates).length > 0);
 }
 
-// ─── Phase 1 — Main assignment function ──────────────────────────────────────
+export function collectUnmetMinimums(input: EngineInput, assignments: EngineAssignment[]): UnmetMinimum[] {
+  const counts = countWeeklyShifts(assignments, input);
+  const unmet: UnmetMinimum[] = [];
+  for (const weekNumber of getPeriodWeeks(input)) {
+    for (const employee of input.employees.filter(e => e.isActive && e.facilityId === input.period.facilityId)) {
+      const week = weekNumber === 1 ? counts.get(employee.id)?.week1 : counts.get(employee.id)?.week2;
+      for (const [shiftType, required] of [["MORNING", MORNING_MINIMUM], ["EVENING", EVENING_MINIMUM]] as const) {
+        const actual = week?.[shiftType] ?? 0;
+        if (actual < required) unmet.push({ employeeId: employee.id, weekNumber, shiftType, required, actual });
+      }
+    }
+  }
+  return unmet;
+}
 
-// Attempts to satisfy the weekly minimums for every active employee using a
-// round-based approach so no single employee gets their second shift before
-// every employee has had a chance at their first.
-//
-// Round order per week:
-//   1. First  MORNING (targetCount = 1)
-//   2. Second MORNING (targetCount = 2)
-//   3. First  EVENING (targetCount = 1)
-//
-// Within each round employees are sorted by fewest total assignments so far.
-// Hard constraints are always enforced. If a slot cannot be found the
-// employee is left unmet and included in unmetMinimums — no exception thrown.
-//
-// slotFillCounts is accepted for interface compatibility with the engine
-// orchestrator; fill counts are derived live from workingAssignments instead.
+/**
+ * Complete minimums before any extras. Each round gives everyone a chance at
+ * one morning, then a second morning, then an evening. Limited availability
+ * goes first; shift balancing must never veto a minimum placement.
+ */
 export function assignWeeklyMinimums(
   input: EngineInput,
   slots: EngineSlot[],
   _slotFillCounts: Map<string, number>,
   assignments: EngineAssignment[]
 ): { newAssignments: EngineAssignment[]; unmetMinimums: UnmetMinimum[] } {
-  // Working copy grows as we assign; never mutates the caller's array.
-  const workingAssignments = [...assignments];
-  const newAssignments: EngineAssignment[] = [];
+  const working = [...assignments];
+  const original = new Set(assignments);
+  const employees = input.employees.filter(e => e.isActive && e.facilityId === input.period.facilityId);
+  const rounds = [
+    { shiftType: "MORNING", target: 1 },
+    { shiftType: "MORNING", target: MORNING_MINIMUM },
+    { shiftType: "EVENING", target: EVENING_MINIMUM },
+  ] as const;
 
-  const activeEmployees = input.employees.filter((e) => e.isActive);
+  for (const { shiftType, target } of rounds) {
+    for (const weekNumber of getPeriodWeeks(input)) {
+      const dates = new Set((weekNumber === 1 ? input.week1Dates : input.week2Dates).map(d => d.toISOString().slice(0, 10)));
+      const weekSlots = slots.filter(s => dates.has(s.date.toISOString().slice(0, 10)));
+      const count = (id: string) => working.filter(a => a.employeeId === id && a.shiftType === shiftType && dates.has(a.date.toISOString().slice(0, 10))).length;
+      const options = (employee: EngineInput["employees"][number], onlyRound: boolean) => weekSlots.filter(slot =>
+        (onlyRound ? slot.shiftType === shiftType : slot.shiftType !== "NIGHT") &&
+        canAssignEmployeeToSlot(employee, slot, working, input.availability));
+      const fairness = computeFairnessSummary([...(input.historicalAssignments ?? []), ...working.filter(a =>
+        a.date >= input.period.startDate && a.date <= input.period.endDate)], input.holidayCategories);
+      const representative = weekSlots.find(s => s.shiftType === shiftType);
+      const fairOrder = representative ? sortCandidatesByScore(employees, representative, fairness, input.preferences) : employees;
+      const order = fairOrder.filter(e => count(e.id) < target).map(employee => ({
+        employee, choices: options(employee, true).length, alternatives: options(employee, false).length,
+      })).sort((a, b) => a.choices - b.choices || a.alternatives - b.alternatives);
 
-  for (const weekNumber of [1, 2] as const) {
-    const weekDates = weekNumber === 1 ? input.week1Dates : input.week2Dates;
-    const dateTimes = new Set(weekDates.map((d) => d.getTime()));
-
-    const rounds: Array<{ shiftType: "MORNING" | "EVENING"; targetCount: number }> = [
-      { shiftType: "MORNING", targetCount: 1 },
-      { shiftType: "MORNING", targetCount: 2 },
-      { shiftType: "EVENING", targetCount: 1 },
-    ];
-
-    for (const { shiftType, targetCount } of rounds) {
-      for (const slot of slots) {
-        if (slot.shiftType !== shiftType || !dateTimes.has(slot.date.getTime())) continue;
-        while (getSlotFillCount(slot, workingAssignments) < slot.requiredAmount) {
-          const candidates = activeEmployees.filter(e =>
-            countShiftsInDates(e.id, shiftType, dateTimes, workingAssignments) < targetCount &&
-            canAssignEmployeeToSlot(e, slot, workingAssignments, input.availability, slots));
-          if (!candidates.length) break;
-          const local = workingAssignments.filter(a => a.date >= input.period.startDate && a.date <= input.period.endDate);
-          const fairness = computeFairnessSummary([...(input.historicalAssignments ?? []), ...local]);
-          const [employee] = sortCandidatesByScore(candidates, slot, fairness, input.preferences);
-          const assignment: EngineAssignment = {
-            employeeId: employee.id, facilityId: slot.facilityId, positionId: slot.positionId,
-            positionName: slot.positionName, date: slot.date, shiftType: slot.shiftType,
-            slotIndex: getSlotFillCount(slot, workingAssignments), isManualOverride: false,
-          };
-          workingAssignments.push(assignment);
-          newAssignments.push(assignment);
-        }
+      for (const { employee } of order) {
+        if (count(employee.id) >= target) continue;
+        const choices = options(employee, true);
+        // Preserve scarce roles and leave other employees their few available dates.
+        const ranked = choices.map(slot => ({ slot, competition: employees.filter(other =>
+          other.id !== employee.id && count(other.id) < target &&
+          canAssignEmployeeToSlot(other, slot, working, input.availability)).length }));
+        const preferred = (slot: EngineSlot) => Number(input.preferences?.get(employee.id)?.has(`${slot.date.toISOString().slice(0, 10)}|${slot.shiftType}`) ?? false);
+        // Preserve scarce roles first, then honor submitted preferences before competition ties.
+        ranked.sort((a, b) => a.slot.requiredRank - b.slot.requiredRank || preferred(b.slot) - preferred(a.slot) || a.competition - b.competition);
+        const slot = ranked[0]?.slot;
+        if (!slot) continue;
+        const assignment: EngineAssignment = {
+          employeeId: employee.id, facilityId: slot.facilityId, positionId: slot.positionId,
+          positionName: slot.positionName, date: slot.date, shiftType: slot.shiftType,
+          slotIndex: getSlotFillCount(slot, working), isManualOverride: false,
+        };
+        working.push(assignment);
+      }
+      // Repair earlier choices before moving to the next minimum round or to extras.
+      for (const { employee } of order) {
+        if (count(employee.id) >= target) continue;
+        const repaired = repairMinimum(input, slots, working, employee, weekSlots.filter(s => s.shiftType === shiftType));
+        if (repaired) working.splice(0, working.length, ...repaired);
       }
     }
   }
-
-  // ─── Collect unmet minimums ───────────────────────────────────────────────
-
-  const unmetMinimums: UnmetMinimum[] = [];
-
-  for (const weekNumber of [1, 2] as const) {
-    const weekDates = weekNumber === 1 ? input.week1Dates : input.week2Dates;
-    const dateTimes = new Set(weekDates.map((d) => d.getTime()));
-
-    for (const employee of activeEmployees) {
-      const morningCount = countShiftsInDates(
-        employee.id,
-        "MORNING",
-        dateTimes,
-        workingAssignments
-      );
-      const eveningCount = countShiftsInDates(
-        employee.id,
-        "EVENING",
-        dateTimes,
-        workingAssignments
-      );
-
-      if (morningCount < MORNING_MINIMUM) {
-        unmetMinimums.push({
-          employeeId: employee.id,
-          weekNumber,
-          shiftType: "MORNING",
-          required: MORNING_MINIMUM,
-          actual: morningCount,
-        });
-      }
-
-      if (eveningCount < EVENING_MINIMUM) {
-        unmetMinimums.push({
-          employeeId: employee.id,
-          weekNumber,
-          shiftType: "EVENING",
-          required: EVENING_MINIMUM,
-          actual: eveningCount,
-        });
+  // An exchange for a later round may open an earlier minimum opportunity.
+  // Every successful pass adds a minimum, so this loop is bounded by the total deficit.
+  while (true) {
+    let improved = false;
+    for (const unmet of collectUnmetMinimums(input, working)) {
+      const employee = employees.find(e => e.id === unmet.employeeId)!;
+      const targetSlots = slots.filter(s => s.shiftType === unmet.shiftType && getWeekNumberForDate(s.date, input) === unmet.weekNumber);
+      const repaired = repairMinimum(input, slots, working, employee, targetSlots);
+      if (repaired) {
+        working.splice(0, working.length, ...repaired);
+        improved = true;
       }
     }
+    if (!improved) break;
   }
-
-  return { newAssignments, unmetMinimums };
+  return { newAssignments: working.filter(a => !original.has(a)), unmetMinimums: collectUnmetMinimums(input, working) };
 }

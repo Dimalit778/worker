@@ -39,12 +39,13 @@ export function incrementFairnessForAssignment(
 // Builds the complete fairness map from all assignments (manual + generated).
 // Employees with no assignments do not appear in the map.
 export function computeFairnessSummary(
-  assignments: EngineAssignment[]
+  assignments: EngineAssignment[],
+  holidayCategories?: Map<string, DayCategory>,
 ): Map<string, FairnessSummary> {
   const result = new Map<string, FairnessSummary>();
 
   for (const a of assignments) {
-    const dayCategory = getDayCategory(a.date);
+    const dayCategory = holidayCategories?.get(a.date.toISOString().slice(0, 10)) ?? getDayCategory(a.date);
     const current = result.get(a.employeeId) ?? createEmptyFairnessSummary(a.employeeId);
     result.set(a.employeeId, incrementFairnessForAssignment(current, a, dayCategory));
   }
