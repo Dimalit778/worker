@@ -5,6 +5,7 @@ import { assignWeeklyMinimums, collectUnmetMinimums, getWeekNumberForDate, MORNI
 import { sortCandidatesByScore } from "./scoring";
 import { computeFairnessSummary, createEmptyFairnessSummary, incrementFairnessForAssignment } from "./fairness";
 import { createWarnings } from "./warnings";
+import { improveSchedule } from './improve-schedule';
 
 export function generateSchedule(input: EngineInput): EngineOutput {
   const startTime = Date.now();
@@ -25,9 +26,9 @@ export function generateSchedule(input: EngineInput): EngineOutput {
     return index;
   };
   const newAssignments = minimumAssignments.map(a => ({ ...a, slotIndex: nextIndex(a) }));
-  const automatic = [...newAssignments];
+  let automatic = [...newAssignments];
   working.push(...newAssignments);
-  const current = [...input.manualAssignments, ...newAssignments];
+  let current = [...input.manualAssignments, ...newAssignments];
   const fairness = computeFairnessSummary([...(input.historicalAssignments ?? []), ...current], input.holidayCategories);
   const extras = new Map<string, FairnessSummary>();
   const weeklyCounts = new Map<string, number>();
@@ -90,6 +91,34 @@ export function generateSchedule(input: EngineInput): EngineOutput {
     recordExtra(assignment);
   }
 
+  automatic = improveSchedule(input, slots, automatic);
+  // Keep the output's minimum prefix useful for inspection after exchanges.
+  const finalCounts = new Map<string, number>();
+  for (const a of input.manualAssignments) {
+    const key = `${a.employeeId}|${getWeekNumberForDate(a.date, input)}|${a.shiftType}`;
+    finalCounts.set(key, (finalCounts.get(key) ?? 0) + 1);
+  }
+  const minimums: EngineAssignment[] = [], remaining: EngineAssignment[] = [];
+  for (const a of automatic) {
+    const key = `${a.employeeId}|${getWeekNumberForDate(a.date, input)}|${a.shiftType}`;
+    const count = finalCounts.get(key) ?? 0;
+    const minimum = a.shiftType === 'MORNING' ? MORNING_MINIMUM : a.shiftType === 'EVENING' ? EVENING_MINIMUM : 0;
+    (count < minimum ? minimums : remaining).push(a);
+    finalCounts.set(key, count + 1);
+  }
+  nextIndexes.clear();
+  for (const a of input.manualAssignments) {
+    const key = createSlotKey(a);
+    nextIndexes.set(key, Math.max(nextIndexes.get(key) ?? 0, a.slotIndex + 1));
+  }
+  automatic = [...minimums, ...remaining].map(a => ({ ...a, slotIndex: nextIndex(a) }));
+  current = [...input.manualAssignments, ...automatic];
+  for (const slot of slots) fills.set(createSlotKey(slot), getSlotFillCount(slot, current));
+  byEmployee.clear();
+  for (const a of [...(input.boundaryAssignments ?? []), ...current]) {
+    if (!byEmployee.has(a.employeeId)) byEmployee.set(a.employeeId, []);
+    byEmployee.get(a.employeeId)!.push(a);
+  }
   const unfilledSlots = slots.filter(s => (fills.get(createSlotKey(s)) ?? 0) === 0);
   const overflowCandidates: OverflowCandidate[] = [];
   // Report alternatives from the final state, not an intermediate pass.

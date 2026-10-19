@@ -20,7 +20,8 @@ export function sortCandidatesByScore(
       slot.shiftType === 'EVENING' ? f?.eveningShifts ?? 0 : f?.nightShifts ?? 0;
     const extraA = additional?.extras.get(a.id);
     const extraB = additional?.extras.get(b.id);
-    return (additional ? shiftCount(extraA) - shiftCount(extraB) : 0) ||
+    return (weekend ? (x?.weekendShifts ?? 0) - (y?.weekendShifts ?? 0) : 0) ||
+      (additional ? shiftCount(extraA) - shiftCount(extraB) : 0) ||
       (additional ? (extraA?.totalShifts ?? 0) - (extraB?.totalShifts ?? 0) : 0) ||
       burden(x) - burden(y) ||
       (x?.totalShifts ?? 0) - (y?.totalShifts ?? 0) ||
