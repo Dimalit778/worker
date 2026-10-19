@@ -17,6 +17,7 @@ export function repairMinimum(
   assignments: EngineAssignment[],
   employee: EngineEmployee,
   targetSlots: EngineSlot[],
+  limits: { displacements?: number; attempts?: number } = {},
 ): EngineAssignment[] | null {
   // Exchanges preserve existing weekly counts, so an additional minimum needs
   // at least one free place somewhere in its week and shift type.
@@ -53,7 +54,7 @@ export function repairMinimum(
 
     for (const { slot, blockers } of plans) {
       if (blockers.length > remainingMoves) continue;
-      if (++attempts > MAX_ATTEMPTS) return null;
+      if (++attempts > (limits.attempts ?? MAX_ATTEMPTS)) return null;
       const withoutBlockers = state.filter(a => !blockers.includes(a));
       if (!canAssignEmployeeToSlot(owner, slot, withoutBlockers, input.availability)) continue;
       const replacements: Placement[] = [];
@@ -78,5 +79,5 @@ export function repairMinimum(
     }
     return null;
   }
-  return search(assignments, [{ employee, slots: targetSlots }], MAX_DISPLACEMENTS);
+  return search(assignments, [{ employee, slots: targetSlots }], limits.displacements ?? MAX_DISPLACEMENTS);
 }

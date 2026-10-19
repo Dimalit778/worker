@@ -7,7 +7,7 @@ import {
 import { repairMinimum } from './minimum-repair';
 import { computeFairnessSummary } from './fairness';
 import { sortCandidatesByScore } from './scoring';
-import { canAssignEmployeeToSlot, getSlotFillCount, isSameDate } from "./constraints";
+import { canAssignEmployeeToSlot, getSlotFillCount, hasShiftConflict, isSameDate } from "./constraints";
 
 // ─── Constants ────────────────────────────────────────────────────────────────
 
@@ -161,8 +161,14 @@ export function assignWeeklyMinimums(
           other.id !== employee.id && count(other.id) < target &&
           canAssignEmployeeToSlot(other, slot, working, input.availability)).length }));
         const preferred = (slot: EngineSlot) => Number(input.preferences?.get(employee.id)?.has(`${slot.date.toISOString().slice(0, 10)}|${slot.shiftType}`) ?? false);
+        // Avoid consuming a rare weekend opportunity with an adjacent weekday
+        // minimum when another legal minimum placement exists.
+        const lostWeekendOptions = (slot: EngineSlot) => slot.dayCategory !== 'WEEKDAY' ? 0 : slots.filter(other =>
+          other.dayCategory !== 'WEEKDAY' && hasShiftConflict(slot.date, slot.shiftType, other.date, other.shiftType) &&
+          canAssignEmployeeToSlot(employee, other, working, input.availability)).length;
         // Preserve scarce roles first, then honor submitted preferences before competition ties.
-        ranked.sort((a, b) => a.slot.requiredRank - b.slot.requiredRank || preferred(b.slot) - preferred(a.slot) || a.competition - b.competition);
+        ranked.sort((a, b) => a.slot.requiredRank - b.slot.requiredRank || preferred(b.slot) - preferred(a.slot) ||
+          lostWeekendOptions(a.slot) - lostWeekendOptions(b.slot) || a.competition - b.competition);
         const slot = ranked[0]?.slot;
         if (!slot) continue;
         const assignment: EngineAssignment = {

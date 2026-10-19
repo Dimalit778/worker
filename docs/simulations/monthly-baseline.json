@@ -1,0 +1,1344 @@
+[
+  {
+    "mode": "full",
+    "seed": 1,
+    "periods": [
+      {
+        "periodIndex": 0,
+        "missing": 0,
+        "unmet": 0,
+        "errors": [],
+        "ranges": {
+          "totalShifts": [
+            9,
+            11
+          ],
+          "morningShifts": [
+            5,
+            7
+          ],
+          "eveningShifts": [
+            2,
+            3
+          ],
+          "nightShifts": [
+            1,
+            2
+          ],
+          "weekendShifts": [
+            0,
+            3
+          ]
+        },
+        "durationMs": 135
+      },
+      {
+        "periodIndex": 1,
+        "missing": 0,
+        "unmet": 0,
+        "errors": [],
+        "ranges": {
+          "totalShifts": [
+            19,
+            21
+          ],
+          "morningShifts": [
+            10,
+            14
+          ],
+          "eveningShifts": [
+            4,
+            6
+          ],
+          "nightShifts": [
+            2,
+            4
+          ],
+          "weekendShifts": [
+            0,
+            5
+          ]
+        },
+        "durationMs": 129
+      },
+      {
+        "periodIndex": 2,
+        "missing": 0,
+        "unmet": 0,
+        "errors": [],
+        "ranges": {
+          "totalShifts": [
+            29,
+            31
+          ],
+          "morningShifts": [
+            15,
+            20
+          ],
+          "eveningShifts": [
+            6,
+            9
+          ],
+          "nightShifts": [
+            3,
+            6
+          ],
+          "weekendShifts": [
+            0,
+            6
+          ]
+        },
+        "durationMs": 130
+      },
+      {
+        "periodIndex": 3,
+        "missing": 0,
+        "unmet": 0,
+        "errors": [],
+        "ranges": {
+          "totalShifts": [
+            39,
+            41
+          ],
+          "morningShifts": [
+            20,
+            27
+          ],
+          "eveningShifts": [
+            8,
+            12
+          ],
+          "nightShifts": [
+            4,
+            8
+          ],
+          "weekendShifts": [
+            0,
+            8
+          ]
+        },
+        "durationMs": 127
+      }
+    ]
+  },
+  {
+    "mode": "mixed",
+    "seed": 1,
+    "periods": [
+      {
+        "periodIndex": 0,
+        "missing": 0,
+        "unmet": 0,
+        "errors": [],
+        "ranges": {
+          "totalShifts": [
+            9,
+            11
+          ],
+          "morningShifts": [
+            5,
+            7
+          ],
+          "eveningShifts": [
+            2,
+            3
+          ],
+          "nightShifts": [
+            1,
+            2
+          ],
+          "weekendShifts": [
+            0,
+            3
+          ]
+        },
+        "durationMs": 107
+      },
+      {
+        "periodIndex": 1,
+        "missing": 1,
+        "unmet": 0,
+        "errors": [],
+        "ranges": {
+          "totalShifts": [
+            19,
+            21
+          ],
+          "morningShifts": [
+            10,
+            13
+          ],
+          "eveningShifts": [
+            4,
+            6
+          ],
+          "nightShifts": [
+            2,
+            4
+          ],
+          "weekendShifts": [
+            0,
+            5
+          ]
+        },
+        "durationMs": 110
+      },
+      {
+        "periodIndex": 2,
+        "missing": 0,
+        "unmet": 0,
+        "errors": [],
+        "ranges": {
+          "totalShifts": [
+            29,
+            31
+          ],
+          "morningShifts": [
+            15,
+            20
+          ],
+          "eveningShifts": [
+            6,
+            9
+          ],
+          "nightShifts": [
+            3,
+            6
+          ],
+          "weekendShifts": [
+            0,
+            7
+          ]
+        },
+        "durationMs": 109
+      },
+      {
+        "periodIndex": 3,
+        "missing": 1,
+        "unmet": 0,
+        "errors": [],
+        "ranges": {
+          "totalShifts": [
+            39,
+            41
+          ],
+          "morningShifts": [
+            20,
+            26
+          ],
+          "eveningShifts": [
+            8,
+            12
+          ],
+          "nightShifts": [
+            4,
+            8
+          ],
+          "weekendShifts": [
+            0,
+            8
+          ]
+        },
+        "durationMs": 105
+      }
+    ]
+  },
+  {
+    "mode": "mixed",
+    "seed": 2,
+    "periods": [
+      {
+        "periodIndex": 0,
+        "missing": 1,
+        "unmet": 0,
+        "errors": [],
+        "ranges": {
+          "totalShifts": [
+            9,
+            11
+          ],
+          "morningShifts": [
+            5,
+            7
+          ],
+          "eveningShifts": [
+            2,
+            3
+          ],
+          "nightShifts": [
+            1,
+            2
+          ],
+          "weekendShifts": [
+            0,
+            3
+          ]
+        },
+        "durationMs": 107
+      },
+      {
+        "periodIndex": 1,
+        "missing": 1,
+        "unmet": 0,
+        "errors": [],
+        "ranges": {
+          "totalShifts": [
+            19,
+            21
+          ],
+          "morningShifts": [
+            10,
+            14
+          ],
+          "eveningShifts": [
+            4,
+            7
+          ],
+          "nightShifts": [
+            2,
+            4
+          ],
+          "weekendShifts": [
+            0,
+            6
+          ]
+        },
+        "durationMs": 107
+      },
+      {
+        "periodIndex": 2,
+        "missing": 0,
+        "unmet": 0,
+        "errors": [],
+        "ranges": {
+          "totalShifts": [
+            29,
+            31
+          ],
+          "morningShifts": [
+            16,
+            20
+          ],
+          "eveningShifts": [
+            6,
+            9
+          ],
+          "nightShifts": [
+            3,
+            6
+          ],
+          "weekendShifts": [
+            0,
+            8
+          ]
+        },
+        "durationMs": 110
+      },
+      {
+        "periodIndex": 3,
+        "missing": 2,
+        "unmet": 0,
+        "errors": [],
+        "ranges": {
+          "totalShifts": [
+            39,
+            41
+          ],
+          "morningShifts": [
+            20,
+            26
+          ],
+          "eveningShifts": [
+            9,
+            12
+          ],
+          "nightShifts": [
+            4,
+            8
+          ],
+          "weekendShifts": [
+            0,
+            10
+          ]
+        },
+        "durationMs": 107
+      }
+    ]
+  },
+  {
+    "mode": "mixed",
+    "seed": 3,
+    "periods": [
+      {
+        "periodIndex": 0,
+        "missing": 1,
+        "unmet": 0,
+        "errors": [],
+        "ranges": {
+          "totalShifts": [
+            9,
+            10
+          ],
+          "morningShifts": [
+            5,
+            7
+          ],
+          "eveningShifts": [
+            2,
+            3
+          ],
+          "nightShifts": [
+            1,
+            2
+          ],
+          "weekendShifts": [
+            0,
+            3
+          ]
+        },
+        "durationMs": 106
+      },
+      {
+        "periodIndex": 1,
+        "missing": 1,
+        "unmet": 0,
+        "errors": [],
+        "ranges": {
+          "totalShifts": [
+            19,
+            21
+          ],
+          "morningShifts": [
+            10,
+            13
+          ],
+          "eveningShifts": [
+            4,
+            6
+          ],
+          "nightShifts": [
+            2,
+            4
+          ],
+          "weekendShifts": [
+            0,
+            5
+          ]
+        },
+        "durationMs": 106
+      },
+      {
+        "periodIndex": 2,
+        "missing": 0,
+        "unmet": 0,
+        "errors": [],
+        "ranges": {
+          "totalShifts": [
+            29,
+            31
+          ],
+          "morningShifts": [
+            15,
+            20
+          ],
+          "eveningShifts": [
+            6,
+            9
+          ],
+          "nightShifts": [
+            3,
+            6
+          ],
+          "weekendShifts": [
+            0,
+            6
+          ]
+        },
+        "durationMs": 109
+      },
+      {
+        "periodIndex": 3,
+        "missing": 0,
+        "unmet": 0,
+        "errors": [],
+        "ranges": {
+          "totalShifts": [
+            39,
+            41
+          ],
+          "morningShifts": [
+            20,
+            27
+          ],
+          "eveningShifts": [
+            8,
+            12
+          ],
+          "nightShifts": [
+            4,
+            8
+          ],
+          "weekendShifts": [
+            0,
+            9
+          ]
+        },
+        "durationMs": 111
+      }
+    ]
+  },
+  {
+    "mode": "mixed",
+    "seed": 4,
+    "periods": [
+      {
+        "periodIndex": 0,
+        "missing": 0,
+        "unmet": 0,
+        "errors": [],
+        "ranges": {
+          "totalShifts": [
+            9,
+            11
+          ],
+          "morningShifts": [
+            4,
+            7
+          ],
+          "eveningShifts": [
+            2,
+            3
+          ],
+          "nightShifts": [
+            1,
+            2
+          ],
+          "weekendShifts": [
+            0,
+            3
+          ]
+        },
+        "durationMs": 108
+      },
+      {
+        "periodIndex": 1,
+        "missing": 0,
+        "unmet": 0,
+        "errors": [],
+        "ranges": {
+          "totalShifts": [
+            19,
+            21
+          ],
+          "morningShifts": [
+            10,
+            14
+          ],
+          "eveningShifts": [
+            4,
+            7
+          ],
+          "nightShifts": [
+            2,
+            4
+          ],
+          "weekendShifts": [
+            0,
+            5
+          ]
+        },
+        "durationMs": 110
+      },
+      {
+        "periodIndex": 2,
+        "missing": 1,
+        "unmet": 0,
+        "errors": [],
+        "ranges": {
+          "totalShifts": [
+            29,
+            31
+          ],
+          "morningShifts": [
+            15,
+            20
+          ],
+          "eveningShifts": [
+            6,
+            10
+          ],
+          "nightShifts": [
+            3,
+            6
+          ],
+          "weekendShifts": [
+            0,
+            7
+          ]
+        },
+        "durationMs": 109
+      },
+      {
+        "periodIndex": 3,
+        "missing": 0,
+        "unmet": 0,
+        "errors": [],
+        "ranges": {
+          "totalShifts": [
+            39,
+            41
+          ],
+          "morningShifts": [
+            20,
+            27
+          ],
+          "eveningShifts": [
+            8,
+            13
+          ],
+          "nightShifts": [
+            4,
+            8
+          ],
+          "weekendShifts": [
+            0,
+            9
+          ]
+        },
+        "durationMs": 108
+      }
+    ]
+  },
+  {
+    "mode": "mixed",
+    "seed": 5,
+    "periods": [
+      {
+        "periodIndex": 0,
+        "missing": 2,
+        "unmet": 0,
+        "errors": [],
+        "ranges": {
+          "totalShifts": [
+            9,
+            10
+          ],
+          "morningShifts": [
+            5,
+            7
+          ],
+          "eveningShifts": [
+            2,
+            3
+          ],
+          "nightShifts": [
+            0,
+            2
+          ],
+          "weekendShifts": [
+            0,
+            3
+          ]
+        },
+        "durationMs": 101
+      },
+      {
+        "periodIndex": 1,
+        "missing": 1,
+        "unmet": 0,
+        "errors": [],
+        "ranges": {
+          "totalShifts": [
+            19,
+            21
+          ],
+          "morningShifts": [
+            10,
+            13
+          ],
+          "eveningShifts": [
+            4,
+            6
+          ],
+          "nightShifts": [
+            2,
+            4
+          ],
+          "weekendShifts": [
+            0,
+            4
+          ]
+        },
+        "durationMs": 105
+      },
+      {
+        "periodIndex": 2,
+        "missing": 3,
+        "unmet": 0,
+        "errors": [],
+        "ranges": {
+          "totalShifts": [
+            29,
+            31
+          ],
+          "morningShifts": [
+            16,
+            20
+          ],
+          "eveningShifts": [
+            6,
+            9
+          ],
+          "nightShifts": [
+            3,
+            6
+          ],
+          "weekendShifts": [
+            0,
+            6
+          ]
+        },
+        "durationMs": 107
+      },
+      {
+        "periodIndex": 3,
+        "missing": 0,
+        "unmet": 0,
+        "errors": [],
+        "ranges": {
+          "totalShifts": [
+            39,
+            41
+          ],
+          "morningShifts": [
+            21,
+            27
+          ],
+          "eveningShifts": [
+            8,
+            12
+          ],
+          "nightShifts": [
+            4,
+            8
+          ],
+          "weekendShifts": [
+            0,
+            8
+          ]
+        },
+        "durationMs": 112
+      }
+    ]
+  },
+  {
+    "mode": "mixed",
+    "seed": 6,
+    "periods": [
+      {
+        "periodIndex": 0,
+        "missing": 0,
+        "unmet": 0,
+        "errors": [],
+        "ranges": {
+          "totalShifts": [
+            9,
+            11
+          ],
+          "morningShifts": [
+            5,
+            7
+          ],
+          "eveningShifts": [
+            2,
+            3
+          ],
+          "nightShifts": [
+            1,
+            2
+          ],
+          "weekendShifts": [
+            0,
+            3
+          ]
+        },
+        "durationMs": 107
+      },
+      {
+        "periodIndex": 1,
+        "missing": 2,
+        "unmet": 0,
+        "errors": [],
+        "ranges": {
+          "totalShifts": [
+            18,
+            21
+          ],
+          "morningShifts": [
+            10,
+            14
+          ],
+          "eveningShifts": [
+            4,
+            6
+          ],
+          "nightShifts": [
+            2,
+            4
+          ],
+          "weekendShifts": [
+            0,
+            6
+          ]
+        },
+        "durationMs": 110
+      },
+      {
+        "periodIndex": 2,
+        "missing": 0,
+        "unmet": 0,
+        "errors": [],
+        "ranges": {
+          "totalShifts": [
+            28,
+            31
+          ],
+          "morningShifts": [
+            14,
+            20
+          ],
+          "eveningShifts": [
+            6,
+            9
+          ],
+          "nightShifts": [
+            3,
+            6
+          ],
+          "weekendShifts": [
+            0,
+            8
+          ]
+        },
+        "durationMs": 109
+      },
+      {
+        "periodIndex": 3,
+        "missing": 0,
+        "unmet": 0,
+        "errors": [],
+        "ranges": {
+          "totalShifts": [
+            38,
+            41
+          ],
+          "morningShifts": [
+            19,
+            26
+          ],
+          "eveningShifts": [
+            8,
+            12
+          ],
+          "nightShifts": [
+            4,
+            8
+          ],
+          "weekendShifts": [
+            0,
+            12
+          ]
+        },
+        "durationMs": 110
+      }
+    ]
+  },
+  {
+    "mode": "mixed",
+    "seed": 7,
+    "periods": [
+      {
+        "periodIndex": 0,
+        "missing": 0,
+        "unmet": 0,
+        "errors": [],
+        "ranges": {
+          "totalShifts": [
+            9,
+            11
+          ],
+          "morningShifts": [
+            5,
+            7
+          ],
+          "eveningShifts": [
+            2,
+            3
+          ],
+          "nightShifts": [
+            1,
+            2
+          ],
+          "weekendShifts": [
+            0,
+            3
+          ]
+        },
+        "durationMs": 108
+      },
+      {
+        "periodIndex": 1,
+        "missing": 0,
+        "unmet": 0,
+        "errors": [],
+        "ranges": {
+          "totalShifts": [
+            19,
+            21
+          ],
+          "morningShifts": [
+            10,
+            14
+          ],
+          "eveningShifts": [
+            4,
+            6
+          ],
+          "nightShifts": [
+            2,
+            4
+          ],
+          "weekendShifts": [
+            0,
+            6
+          ]
+        },
+        "durationMs": 107
+      },
+      {
+        "periodIndex": 2,
+        "missing": 1,
+        "unmet": 0,
+        "errors": [],
+        "ranges": {
+          "totalShifts": [
+            29,
+            31
+          ],
+          "morningShifts": [
+            16,
+            20
+          ],
+          "eveningShifts": [
+            6,
+            9
+          ],
+          "nightShifts": [
+            3,
+            6
+          ],
+          "weekendShifts": [
+            0,
+            8
+          ]
+        },
+        "durationMs": 106
+      },
+      {
+        "periodIndex": 3,
+        "missing": 0,
+        "unmet": 0,
+        "errors": [],
+        "ranges": {
+          "totalShifts": [
+            39,
+            41
+          ],
+          "morningShifts": [
+            21,
+            27
+          ],
+          "eveningShifts": [
+            8,
+            12
+          ],
+          "nightShifts": [
+            4,
+            8
+          ],
+          "weekendShifts": [
+            0,
+            11
+          ]
+        },
+        "durationMs": 106
+      }
+    ]
+  },
+  {
+    "mode": "mixed",
+    "seed": 8,
+    "periods": [
+      {
+        "periodIndex": 0,
+        "missing": 0,
+        "unmet": 0,
+        "errors": [],
+        "ranges": {
+          "totalShifts": [
+            9,
+            11
+          ],
+          "morningShifts": [
+            5,
+            7
+          ],
+          "eveningShifts": [
+            2,
+            3
+          ],
+          "nightShifts": [
+            1,
+            2
+          ],
+          "weekendShifts": [
+            0,
+            3
+          ]
+        },
+        "durationMs": 103
+      },
+      {
+        "periodIndex": 1,
+        "missing": 1,
+        "unmet": 0,
+        "errors": [],
+        "ranges": {
+          "totalShifts": [
+            19,
+            21
+          ],
+          "morningShifts": [
+            10,
+            14
+          ],
+          "eveningShifts": [
+            4,
+            6
+          ],
+          "nightShifts": [
+            1,
+            4
+          ],
+          "weekendShifts": [
+            0,
+            6
+          ]
+        },
+        "durationMs": 109
+      },
+      {
+        "periodIndex": 2,
+        "missing": 0,
+        "unmet": 0,
+        "errors": [],
+        "ranges": {
+          "totalShifts": [
+            29,
+            31
+          ],
+          "morningShifts": [
+            16,
+            20
+          ],
+          "eveningShifts": [
+            6,
+            9
+          ],
+          "nightShifts": [
+            3,
+            6
+          ],
+          "weekendShifts": [
+            0,
+            8
+          ]
+        },
+        "durationMs": 112
+      },
+      {
+        "periodIndex": 3,
+        "missing": 0,
+        "unmet": 0,
+        "errors": [],
+        "ranges": {
+          "totalShifts": [
+            39,
+            41
+          ],
+          "morningShifts": [
+            21,
+            26
+          ],
+          "eveningShifts": [
+            8,
+            12
+          ],
+          "nightShifts": [
+            4,
+            8
+          ],
+          "weekendShifts": [
+            0,
+            10
+          ]
+        },
+        "durationMs": 110
+      }
+    ]
+  },
+  {
+    "mode": "mixed",
+    "seed": 9,
+    "periods": [
+      {
+        "periodIndex": 0,
+        "missing": 1,
+        "unmet": 0,
+        "errors": [],
+        "ranges": {
+          "totalShifts": [
+            9,
+            11
+          ],
+          "morningShifts": [
+            5,
+            7
+          ],
+          "eveningShifts": [
+            2,
+            4
+          ],
+          "nightShifts": [
+            1,
+            2
+          ],
+          "weekendShifts": [
+            0,
+            3
+          ]
+        },
+        "durationMs": 99
+      },
+      {
+        "periodIndex": 1,
+        "missing": 0,
+        "unmet": 0,
+        "errors": [],
+        "ranges": {
+          "totalShifts": [
+            19,
+            21
+          ],
+          "morningShifts": [
+            10,
+            13
+          ],
+          "eveningShifts": [
+            4,
+            7
+          ],
+          "nightShifts": [
+            2,
+            4
+          ],
+          "weekendShifts": [
+            0,
+            7
+          ]
+        },
+        "durationMs": 104
+      },
+      {
+        "periodIndex": 2,
+        "missing": 1,
+        "unmet": 0,
+        "errors": [],
+        "ranges": {
+          "totalShifts": [
+            29,
+            30
+          ],
+          "morningShifts": [
+            16,
+            20
+          ],
+          "eveningShifts": [
+            6,
+            10
+          ],
+          "nightShifts": [
+            3,
+            6
+          ],
+          "weekendShifts": [
+            0,
+            8
+          ]
+        },
+        "durationMs": 107
+      },
+      {
+        "periodIndex": 3,
+        "missing": 0,
+        "unmet": 0,
+        "errors": [],
+        "ranges": {
+          "totalShifts": [
+            39,
+            41
+          ],
+          "morningShifts": [
+            20,
+            26
+          ],
+          "eveningShifts": [
+            8,
+            13
+          ],
+          "nightShifts": [
+            4,
+            8
+          ],
+          "weekendShifts": [
+            0,
+            10
+          ]
+        },
+        "durationMs": 104
+      }
+    ]
+  },
+  {
+    "mode": "mixed",
+    "seed": 10,
+    "periods": [
+      {
+        "periodIndex": 0,
+        "missing": 0,
+        "unmet": 0,
+        "errors": [],
+        "ranges": {
+          "totalShifts": [
+            9,
+            11
+          ],
+          "morningShifts": [
+            5,
+            7
+          ],
+          "eveningShifts": [
+            2,
+            3
+          ],
+          "nightShifts": [
+            1,
+            2
+          ],
+          "weekendShifts": [
+            0,
+            3
+          ]
+        },
+        "durationMs": 97
+      },
+      {
+        "periodIndex": 1,
+        "missing": 0,
+        "unmet": 0,
+        "errors": [],
+        "ranges": {
+          "totalShifts": [
+            19,
+            21
+          ],
+          "morningShifts": [
+            10,
+            14
+          ],
+          "eveningShifts": [
+            4,
+            6
+          ],
+          "nightShifts": [
+            2,
+            4
+          ],
+          "weekendShifts": [
+            0,
+            5
+          ]
+        },
+        "durationMs": 110
+      },
+      {
+        "periodIndex": 2,
+        "missing": 0,
+        "unmet": 0,
+        "errors": [],
+        "ranges": {
+          "totalShifts": [
+            29,
+            31
+          ],
+          "morningShifts": [
+            16,
+            20
+          ],
+          "eveningShifts": [
+            6,
+            9
+          ],
+          "nightShifts": [
+            3,
+            6
+          ],
+          "weekendShifts": [
+            0,
+            7
+          ]
+        },
+        "durationMs": 108
+      },
+      {
+        "periodIndex": 3,
+        "missing": 1,
+        "unmet": 0,
+        "errors": [],
+        "ranges": {
+          "totalShifts": [
+            38,
+            41
+          ],
+          "morningShifts": [
+            21,
+            27
+          ],
+          "eveningShifts": [
+            8,
+            12
+          ],
+          "nightShifts": [
+            4,
+            8
+          ],
+          "weekendShifts": [
+            0,
+            8
+          ]
+        },
+        "durationMs": 104
+      }
+    ]
+  }
+]
