@@ -107,7 +107,7 @@ export function AssignmentCell({
   if (readonly) {
     const label = anonymousRow && assignment ? assignment.employeeDisplayName : (assignment?.employeeDisplayName ?? '');
     const labelSpan = !anonymousRow ? (
-      <span className={cn('truncate block', rowLayout ? 'max-w-[70%]' : 'mx-auto max-w-full text-[11px] leading-tight')}>{label}</span>
+      <span className={cn('truncate block', rowLayout ? 'max-w-[70%]' : 'mx-auto max-w-full text-xs leading-tight')}>{label}</span>
     ) : null;
     const overflow = !anonymousRow ? <OverflowCandidates candidates={overflowCandidates} /> : null;
     return (
@@ -165,7 +165,7 @@ export function AssignmentCell({
   const cellLabel = `${date} ${shiftType} — ${assignment?.employeeDisplayName ?? 'תקן פנוי'}`;
 
   const nameSpan = (
-    <span className={cn('truncate block', rowLayout ? 'max-w-[70%]' : 'mx-auto max-w-full text-[11px] leading-tight')}>
+    <span className={cn('truncate block', rowLayout ? 'max-w-[70%]' : 'mx-auto max-w-full text-xs leading-tight')}>
       {assignment?.employeeDisplayName ?? (rowLayout ? 'הקצה עובד' : '')}
     </span>
   );

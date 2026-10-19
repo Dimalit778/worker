@@ -148,7 +148,7 @@ export function ShiftSection(props: ShiftSectionProps) {
   return (
     <div className="mb-3" dir="rtl">
       <div className={cn('overflow-x-auto rounded-lg bg-card', gridBorder)}>
-        <table className="w-full table-fixed border-collapse text-[11px]" dir="rtl">
+        <table className="w-full table-fixed border-collapse text-xs" dir="rtl">
           <colgroup>
             <col style={{ width: POSITION_COL_PX }} />
             {sortedDays.map((day) => (
@@ -175,7 +175,7 @@ export function ShiftSection(props: ShiftSectionProps) {
                 className={cn(
                   headerCellPad,
                   gridBorder,
-                  'align-middle text-center text-[10px] font-semibold leading-none text-white',
+                  'align-middle text-center text-xs font-semibold leading-none text-white',
                   style.header,
                 )}
                 title="תפקיד"
@@ -199,13 +199,13 @@ export function ShiftSection(props: ShiftSectionProps) {
                   >
                     <div className="flex flex-col items-center gap-0.5">
                       <span className="text-xs font-bold leading-none">{day.letter}</span>
-                      <span className="text-[10px] font-normal leading-none opacity-80">{day.label}</span>
+                      <span className="text-xs font-normal leading-none opacity-80">{day.label}</span>
                       {showOverrideRow ? (
                         <span className="flex h-3.5 w-full items-center justify-center">
                           {overrideLabel ? (
                             <Badge
                               variant="secondary"
-                              className="h-auto max-w-full truncate px-1 py-0 text-[9px] font-medium leading-none"
+                              className="h-auto max-w-full truncate px-1 py-0 text-xs font-medium leading-none"
                               title={`תקן חריג: ${overrideLabel}`}
                             >
                               {overrideLabel}
@@ -244,7 +244,7 @@ export function ShiftSection(props: ShiftSectionProps) {
                       className={cn(
                         narrowColCell,
                         gridBorder,
-                        'align-middle px-0.5 py-0.5 text-center text-[10px] font-semibold leading-tight overflow-hidden bg-muted/20',
+                        'align-middle px-0.5 py-0.5 text-center text-xs font-semibold leading-tight overflow-hidden bg-muted/20',
                         hidePositionLabel && 'text-transparent',
                         isGrayPosition && 'border-border',
                       )}
@@ -338,7 +338,7 @@ export function ShiftSection(props: ShiftSectionProps) {
                     title={`${assigned} עובדים מתוך ${required} בתקן`}
                   >
                     <span
-                      className="inline-flex h-5 min-w-[2.25rem] items-center justify-center gap-0.5 rounded-md bg-muted px-1.5 text-[10px] leading-none text-muted-foreground tabular-nums ring-1 ring-inset ring-foreground/10"
+                      className="inline-flex h-5 min-w-[2.25rem] items-center justify-center gap-0.5 rounded-md bg-muted px-1.5 text-xs leading-none text-muted-foreground tabular-nums ring-1 ring-inset ring-foreground/10"
                       aria-label={`${assigned} מתוך ${required}`}
                     >
                       <span className="font-semibold text-foreground/80">{assigned}</span>

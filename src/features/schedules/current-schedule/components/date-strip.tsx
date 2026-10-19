@@ -36,7 +36,7 @@ function WeekDayStrip({
           >
             <span
               className={cn(
-                'text-[10px] leading-none font-medium tracking-wide sm:text-xs',
+                'text-xs leading-none font-medium tracking-wide',
                 day.iso === selectedDate ? 'text-primary-foreground/80' : 'text-muted-foreground',
               )}
             >

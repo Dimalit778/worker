@@ -186,7 +186,7 @@ export function ShiftRoster({
         </div>
         <div className="flex shrink-0 flex-col items-end gap-1">
           {currentAssignmentsCount > 0 ? (
-            <span className="rounded-md border border-primary/20 bg-secondary/70 px-2 py-0.5 text-[11px] font-semibold text-primary">
+            <span className="rounded-md border border-primary/20 bg-secondary/70 px-2 py-0.5 text-xs font-semibold text-primary">
               השיבוץ שלך
             </span>
           ) : null}

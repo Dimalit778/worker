@@ -143,7 +143,7 @@ function DayPickerButton({
       aria-pressed={selected}
       aria-current={day.isToday ? 'date' : undefined}
     >
-      <span className="w-full truncate text-[10px] leading-tight font-medium opacity-80">
+      <span className="w-full truncate text-xs leading-tight font-medium opacity-80">
         {day.isToday ? 'היום' : day.dayName}
       </span>
 
@@ -377,18 +377,18 @@ function AssignmentSlotCard({
             {employeeName ?? emptyLabel}
           </p>
           {showPosition ? (
-            <p className="truncate text-[11px] leading-tight text-muted-foreground" title={slot.positionName}>
+            <p className="truncate text-xs leading-tight text-muted-foreground" title={slot.positionName}>
               {slot.positionName}
             </p>
           ) : null}
         </div>
-        <span className="shrink-0 rounded-sm bg-muted px-1.5 py-0.5 text-[11px] font-medium text-muted-foreground">
+        <span className="shrink-0 rounded-sm bg-muted px-1.5 py-0.5 text-xs font-medium text-muted-foreground">
           {slot.slotIndex + 1}
         </span>
       </button>
 
       {error ? (
-        <p className="mt-1 rounded-md bg-destructive/10 px-2 py-1 text-[11px] text-destructive" role="alert">
+        <p className="mt-1 rounded-md bg-destructive/10 px-2 py-1 text-xs text-destructive" role="alert">
           {error}
         </p>
       ) : null}
@@ -454,12 +454,12 @@ function ShiftCard({
       <div className="flex items-start justify-between gap-2 border-b border-border px-3 py-2">
         <div>
           <h2 className="text-base font-semibold text-card-foreground">{SHIFT_LABELS[shiftType]}</h2>
-          <p className="text-[11px] text-muted-foreground">
+          <p className="text-xs text-muted-foreground">
             {assignedCount}/{shiftSlots.length} עובדים משובצים
           </p>
         </div>
         {currentAssignmentsCount > 0 ? (
-          <span className="rounded-md border border-primary/20 bg-primary/10 px-1.5 py-0.5 text-[11px] font-semibold text-primary">
+          <span className="rounded-md border border-primary/20 bg-primary/10 px-1.5 py-0.5 text-xs font-semibold text-primary">
             השיבוץ שלך
           </span>
         ) : null}
