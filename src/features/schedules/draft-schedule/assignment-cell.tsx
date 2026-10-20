@@ -71,7 +71,7 @@ export function AssignmentCell({
     ? undefined
     : { backgroundColor: mutedPosition ? 'var(--muted)' : positionColor ? `${positionColor}28` : 'var(--card)' };
   const highlightClass =
-    'bg-amber-950/90 text-amber-200 ring-2 ring-amber-500 ring-inset shadow-[inset_0_0_0_1px_rgba(245,158,11,0.45)]';
+    'bg-amber-950/60 text-amber-200 ring-1 ring-amber-500/50 ring-inset';
 
   const rowLayout = as === 'row';
 

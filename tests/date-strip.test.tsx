@@ -18,12 +18,12 @@ it('shows one week, navigates by keyboard and returns to the previous week', asy
   render(<TestStrip />);
   expect(screen.getAllByRole('button', { pressed: false })).toHaveLength(6);
   expect(screen.getByRole('button', { name: 'שבוע א׳' })).toBeDisabled();
-  expect(screen.getByText('18/10 - 24/10')).toBeInTheDocument();
+  expect(screen.getByRole('button', { name: 'יום א, 18/10' })).toBeInTheDocument();
   const next = screen.getByRole('button', { name: 'שבוע ב׳' });
   next.focus();
   await userEvent.keyboard('{Enter}');
-  expect(screen.getByText('25/10 - 31/10')).toBeInTheDocument();
+  expect(screen.getByRole('button', { name: 'יום א, 25/10' })).toBeInTheDocument();
   expect(next).toBeDisabled();
   await userEvent.click(screen.getByRole('button', { name: 'שבוע א׳' }));
-  expect(screen.getByText('18/10 - 24/10')).toBeInTheDocument();
+  expect(screen.getByRole('button', { name: 'יום א, 18/10' })).toBeInTheDocument();
 });

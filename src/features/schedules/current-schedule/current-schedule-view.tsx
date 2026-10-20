@@ -33,6 +33,7 @@ export function CurrentScheduleView({
 
       <div className="grid gap-4 lg:grid-cols-[minmax(0,4fr)_minmax(0,3fr)_minmax(0,3fr)]">
         <ShiftRoster
+          key={`MORNING-${selectedDate}`}
           shiftType="MORNING"
           date={selectedDate}
           scheduleId={scheduleId}
@@ -45,6 +46,7 @@ export function CurrentScheduleView({
           readonly={readonly}
         />
         <ShiftRoster
+          key={`EVENING-${selectedDate}`}
           shiftType="EVENING"
           date={selectedDate}
           scheduleId={scheduleId}
@@ -57,6 +59,7 @@ export function CurrentScheduleView({
           readonly={readonly}
         />
         <ShiftRoster
+          key={`NIGHT-${selectedDate}`}
           shiftType="NIGHT"
           date={selectedDate}
           scheduleId={scheduleId}

@@ -17,7 +17,6 @@ export function EmployeeScheduleScreen({ employeeId }: { employeeId: string }) {
         emptyStateTitle="אין שיבוץ פעיל"
         currentEmployeeId={employeeId}
         isReadOnly={true}
-        defaultView="daily"
       />
     </div>
   );

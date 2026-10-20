@@ -16,7 +16,6 @@ export function ManagerScheduleScreen() {
         errorMessage="לא ניתן לטעון השיבוץ הנוכחי."
         emptyStateTitle="אין שיבוץ פעיל"
         isReadOnly={false}
-        defaultView="weekly"
       />
 
 

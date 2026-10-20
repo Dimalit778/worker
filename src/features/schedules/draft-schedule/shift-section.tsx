@@ -20,7 +20,6 @@ import {
   getOrderedPositionsForShift,
   getRequiredForDate,
   isGuardPositionLabel,
-  maxSlotsForPositionInWeek,
 } from '../utils';
 
 /** table-fixed reads width from <col>, not only from cells */
@@ -59,7 +58,6 @@ export function ShiftSection(props: ShiftSectionProps) {
   } = props;
   const style = SHIFT_STYLES[shiftType];
   const sortedDays = [...weekDays].sort((a, b) => a.dayOfWeek - b.dayOfWeek);
-  const weekIsos = sortedDays.map((d) => d.iso);
 
   const positionsOrdered = getOrderedPositionsForShift(capacity, shiftType);
   const overrideByDay = new Map(sortedDays.map((day) => [day.iso, getDateOverrideLabel(capacity, day.iso)]));
@@ -80,8 +78,9 @@ export function ShiftSection(props: ShiftSectionProps) {
   const weekdayIsos = sortedDays.filter((day) => !isWeekendDay(day)).map((day) => day.iso);
   const assignedCount = (iso: string, positionId: string) =>
     assignments[createAssignmentCellKey({ date: iso, shiftType, positionId })]?.length ?? 0;
-  // Rows follow who is actually assigned; an empty shift falls back to capacity so slots stay assignable.
-  const sizeByAssignments = sortedDays.some((day) => positionsOrdered.some((pos) => assignedCount(day.iso, pos.positionId) > 0));
+  // A day shows every required slot (open ones stay empty), plus any extra assignments beyond the requirement.
+  const slotCount = (iso: string, positionId: string) =>
+    Math.max(assignedCount(iso, positionId), getRequiredForDate(capacity, iso, shiftType, positionId));
 
   for (const pos of positionsOrdered) {
     const assignmentsByDay = new Map<string, AssignmentSummary[]>();
@@ -92,9 +91,7 @@ export function ShiftSection(props: ShiftSectionProps) {
       assignmentsByDay.set(day.iso, sorted);
     }
 
-    const maxSlotsInWeek = sizeByAssignments
-      ? Math.max(0, ...weekdayIsos.map((iso) => assignedCount(iso, pos.positionId)))
-      : maxSlotsForPositionInWeek(capacity, shiftType, pos.positionId, weekIsos);
+    const maxSlotsInWeek = Math.max(0, ...weekdayIsos.map((iso) => slotCount(iso, pos.positionId)));
     if (maxSlotsInWeek <= 0) continue;
 
     Array.from({ length: maxSlotsInWeek }, (_, vr) => vr).forEach((vr, i) => {
@@ -106,9 +103,7 @@ export function ShiftSection(props: ShiftSectionProps) {
   const weekendSlotsByDay = new Map(sortedDays
     .filter(isWeekendDay)
     .map(day => [day.iso, positionsOrdered.flatMap(pos => {
-      const count = sizeByAssignments
-        ? assignedCount(day.iso, pos.positionId)
-        : getRequiredForDate(capacity, day.iso, shiftType, pos.positionId);
+      const count = slotCount(day.iso, pos.positionId);
       return Array.from({ length: count }, (_, slotIndex) => ({ pos, slotIndex }));
     })]));
   const weekendRows = Math.max(0, ...[...weekendSlotsByDay.values()].map((slots) => slots.length));
@@ -160,7 +155,7 @@ export function ShiftSection(props: ShiftSectionProps) {
               <th
                 colSpan={colCount}
                 className={cn(
-                  'border-b border-border/60 px-2 py-1 text-start text-xs font-bold text-white',
+                  'border-b border-border/60 px-2 py-1.5 text-center text-sm font-bold text-white',
                   style.header,
                 )}
               >
@@ -183,7 +178,6 @@ export function ShiftSection(props: ShiftSectionProps) {
                 תפקיד
               </th>
               {sortedDays.map((day) => {
-                const weekend = day.dayOfWeek === 5 || day.dayOfWeek === 6;
                 const overrideLabel = overrideByDay.get(day.iso);
                 return (
                   <th
@@ -193,8 +187,6 @@ export function ShiftSection(props: ShiftSectionProps) {
                       gridBorder,
                       'min-w-0 align-middle text-center text-white',
                       style.header,
-                      // Soft inset wash — marks weekend without filter (which skewed borders/gaps)
-                      weekend && 'shadow-[inset_0_0_0_9999px_rgba(255,255,255,0.1)]',
                     )}
                   >
                     <div className="flex flex-col items-center gap-0.5">
@@ -244,7 +236,7 @@ export function ShiftSection(props: ShiftSectionProps) {
                       className={cn(
                         narrowColCell,
                         gridBorder,
-                        'align-middle px-0.5 py-0.5 text-center text-xs font-semibold leading-tight overflow-hidden bg-muted/20',
+                        'align-middle px-0.5 py-0.5 text-center text-[11px] font-medium leading-tight text-muted-foreground overflow-hidden bg-muted/20',
                         hidePositionLabel && 'text-transparent',
                         isGrayPosition && 'border-border',
                       )}
@@ -326,26 +318,26 @@ export function ShiftSection(props: ShiftSectionProps) {
           <tfoot>
             <tr className="bg-transparent">
               <td
-                className={cn(narrowColCell, gridBorder, 'bg-muted/20')}
+                className={cn(narrowColCell, gridBorder, 'bg-muted text-center align-middle text-[11px] font-medium text-muted-foreground')}
                 aria-label="סיכום תקנים"
-              />
+              >
+                תקן
+              </td>
               {sortedDays.map((day) => {
                 const { assigned, required } = dayTotals.get(day.iso)!;
                 return (
                   <td
                     key={day.iso}
-                    className={cn(gridBorder, 'bg-muted/15 px-0.5 py-1.5 text-center align-middle')}
+                    className={cn(gridBorder, 'bg-muted px-0.5 py-1.5 text-center align-middle')}
                     title={`${assigned} עובדים מתוך ${required} בתקן`}
                   >
                     <span
-                      className="inline-flex h-5 min-w-[2.25rem] items-center justify-center gap-0.5 rounded-md bg-muted px-1.5 text-xs leading-none text-muted-foreground tabular-nums ring-1 ring-inset ring-foreground/10"
+                      className="inline-flex items-center justify-center gap-1 text-xs leading-none text-muted-foreground tabular-nums"
                       aria-label={`${assigned} מתוך ${required}`}
                     >
-                      <span className="font-semibold text-foreground/80">{assigned}</span>
-                      <span className="opacity-45" aria-hidden>
-                        /
-                      </span>
-                      <span className="opacity-80">{required}</span>
+                      <span>{required}</span>
+                      <span aria-hidden>/</span>
+                      <span>{assigned}</span>
                     </span>
                   </td>
                 );
