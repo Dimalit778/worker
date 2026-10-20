@@ -16,6 +16,7 @@ import type {
 import { availabilityPreferencesToRecord, countAvailableEntries } from '@/features/availability/utils';
 import { toFutureAssignments } from './utils';
 import { sendInvite, unusablePasswordHash, type InviteResult } from '@/lib/auth/invite';
+import { expireEmployeeData } from '@/lib/cache/data-cache';
 
 export type CreateEmployeeResult = ({ ok: true } & Partial<InviteResult>) | { error: string };
 
@@ -74,6 +75,7 @@ export async function createEmployee(params: CreateEmployeeParams): Promise<Crea
       return created.id;
     });
 
+    expireEmployeeData(facilityId);
     return { ok: true, ...(await sendInvite(userId, email)) };
   } catch (error) {
     if (error instanceof Error && error.message === 'USER_EMAIL_EXISTS') {
@@ -99,6 +101,7 @@ export async function updateEmployee(params: UpdateEmployeeParams): Promise<{ ok
     where: { id: employeeId },
     data: { firstName, lastName, phoneNumber: phone, displayName, isReligious, roleId: positionId },
   });
+  expireEmployeeData(employee.facilityId!);
 
   return { ok: true };
 }
@@ -139,6 +142,7 @@ export async function setEmployeeActive(employeeId: string, isActive: boolean): 
     where: { id: employeeId },
     data: { isActive, deactivatedAt: isActive ? null : new Date() },
   });
+  expireEmployeeData(facilityId);
 
   if (isActive) return { ok: true, isActive, futureAssignments: [] };
 

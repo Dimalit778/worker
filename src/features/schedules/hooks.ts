@@ -13,6 +13,7 @@ export function invalidateScheduleQueries(queryClient: ReturnType<typeof useQuer
     queryClient.invalidateQueries({ queryKey: queryKeys.schedules.upcoming() }),
     queryClient.invalidateQueries({ queryKey: queryKeys.schedules.employeeCurrent() }),
     queryClient.invalidateQueries({ queryKey: queryKeys.schedules.draft() }),
+    queryClient.invalidateQueries({ queryKey: [...queryKeys.schedules.all(), 'readiness'] }),
     queryClient.invalidateQueries({ queryKey: queryKeys.dashboard.all() }),
   ];
 
@@ -51,6 +52,8 @@ export function useCurrentSchedule() {
   return useQuery({
     queryKey: queryKeys.schedules.current(),
     queryFn: fetchCurrentSchedule,
+    // This view is editable: retain its revision while unsaved edits are staged.
+    refetchOnWindowFocus: false,
   });
 }
 
@@ -58,6 +61,7 @@ export function useDraftSchedule(scheduleId?: string) {
   return useQuery({
     queryKey: [...queryKeys.schedules.draft(), scheduleId ?? 'latest'],
     queryFn: () => fetchDraftSchedule(scheduleId),
+    refetchOnWindowFocus: false,
   });
 }
 
@@ -65,6 +69,7 @@ export function useEmployeeCurrentSchedule() {
   return useQuery({
     queryKey: queryKeys.schedules.employeeCurrent(),
     queryFn: fetchCurrentSchedule,
+    refetchInterval: 30_000,
   });
 }
 
@@ -72,5 +77,6 @@ export function useUpcomingSchedule() {
   return useQuery({
     queryKey: queryKeys.schedules.upcoming(),
     queryFn: fetchUpcomingSchedule,
+    refetchInterval: 30_000,
   });
 }

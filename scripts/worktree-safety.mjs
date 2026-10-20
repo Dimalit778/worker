@@ -4,6 +4,8 @@ import { readFileSync, readdirSync, existsSync, realpathSync } from 'node:fs';
 import { resolve, join } from 'node:path';
 import { createServer } from 'node:net';
 
+export const DEFAULT_WORKTREE_APP_PORT = 3001;
+
 export function gitContext(cwd) {
   const git = (...args) => execFileSync('git', ['-C', cwd, ...args], { encoding: 'utf8', stdio: ['ignore', 'pipe', 'pipe'] }).trim();
   const root = realpathSync(git('rev-parse', '--show-toplevel'));
@@ -58,4 +60,13 @@ export async function freePort(preferred = 3000, excluded = []) {
     if (!excluded.includes(port) && await portIsFree(port)) return port;
   }
   throw new Error('No available local port in the requested range.');
+}
+
+/** The app uses an exact port; PostgreSQL still selects its own free port. */
+export async function worktreeAppPort(port = DEFAULT_WORKTREE_APP_PORT, excluded = []) {
+  if (!Number.isInteger(port) || port < 1024 || port > 65335) throw new Error('Port must be between 1024 and 65335.');
+  if (excluded.includes(port) || !await portIsFree(port)) {
+    throw new Error(`Application port ${port} is unavailable. Free it or choose an explicit --port; no alternative port was selected.`);
+  }
+  return port;
 }

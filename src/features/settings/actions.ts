@@ -18,6 +18,7 @@ import {
 import { ruleOrderError, type SubmissionWindowRule } from '@/features/periods/submission-window';
 import { calendarDateISO } from '@/features/periods/utils';
 import { validateDateOverrideInput, type DateOverrideInput } from '@/features/settings/date-overrides';
+import { expireAllFacilityData } from '@/lib/cache/data-cache';
 
 const SCHEDULE_TIME_ZONE = 'Asia/Jerusalem';
 
@@ -40,6 +41,7 @@ export async function updatePositionColor(
       where: { id: position.id },
       data: { color },
     });
+    expireAllFacilityData();
     return { ok: true };
   } catch {
     return { error: 'עדכון הצבע נכשל' };

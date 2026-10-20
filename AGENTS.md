@@ -104,7 +104,8 @@ After editing:
 - Never modify main directly.
 - After implementation, run relevant tests and review the diff.
 - Commit changes with clear commit messages.
-- Push the branch and create a GitHub Pull Request targeting main, if GitHub access is available.
+- Keep changes local by default. Push a branch only when the user explicitly requests a push or a Pull Request.
+- Create a GitHub Pull Request only when the user explicitly requests one; task completion and GitHub access are not authorization to create a PR.
 - Never merge Pull Requests automatically.
 - Wait for explicit user confirmation before starting the next task.
 - After the previous PR is merged, synchronize main before creating the next branch.
@@ -114,7 +115,7 @@ After editing:
 
 - Every linked Git worktree must get its own ready-to-review development environment. This applies to Codex, Claude Code, Cursor and manually created worktrees.
 - On entry/creation run `node scripts/worktree.mjs prepare`. This is pre-authorized for dependency installation, local environment files and Prisma client generation; setup hooks must never apply migrations.
-- Run the project launcher (`pnpm worktree:dev`, also used by `pnpm dev` in a worktree). It provisions a dedicated local PostgreSQL cluster per worktree, owns its data directory and credentials, selects free application/database ports, and creates synthetic demo accounts. Never copy the main `.env` or reuse a main/production database.
+- Run the project launcher (`pnpm worktree:dev`, also used by `pnpm dev` in a worktree). It provisions a dedicated local PostgreSQL cluster per worktree, owns its data directory and credentials, uses application port 3001 by default (or an explicit `--port`), selects a free database port, and creates synthetic demo accounts. If the requested application port is busy, stop with an error instead of selecting another port. Never copy the main `.env` or reuse a main/production database.
 - Applying the worktree's EXISTING migrations to its own isolated database is pre-approved for agents (human approval given 2026-10-19), so agents can run and open the app for verification. Run `pnpm worktree:dev`; if it stops for schema approval, rerun it with `--approve-schema=<fingerprint>` using the fingerprint it prints for this exact checkout. This applies only when the schema/migration files are unchanged by the agent. Setup hooks must still never apply migrations.
 - Ask the human BEFORE editing schema or migration files, or running any other schema mutation (including `db:push`, reset, or new migrations), even on the isolated database. Explain the concrete changes and target worktree and wait for explicit approval.
 - Never run `db:push`, reset, migrations or schema-changing SQL against the main/production database. Do not bypass the Prisma guard or pass external database URLs. Keep `.worktree-dev` and environment files out of Git.

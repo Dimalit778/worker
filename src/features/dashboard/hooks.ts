@@ -12,5 +12,6 @@ export function useManagerDashboard(year: number) {
   return useQuery({
     queryKey: queryKeys.dashboard.manager(year),
     queryFn: () => fetchManagerDashboardData(year),
+    refetchInterval: 30_000,
   });
 }
