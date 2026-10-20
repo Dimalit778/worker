@@ -1,3 +1,4 @@
+import { cache } from 'react';
 import type { Prisma, ShiftType } from '@/generated/prisma/client';
 import { prisma } from '@/lib/db/client';
 import type { SubmissionWindowRule } from '@/features/periods/submission-window';
@@ -64,14 +65,15 @@ async function listPositions(where: Prisma.PositionWhereInput) {
   }));
 }
 
-export async function getPositions(facilityId: string) {
+// Both settings grids use the same positions. Deduplicate by facility for this
+// render only, so later requests still see updated colors, order and active roles.
+export const getPositions = cache(async (facilityId: string) => {
   if (!facilityId) return [];
   return listPositions(managerCourtPositionsWhere(facilityId));
-}
+});
 
 export async function getShiftStaffingPositions(facilityId: string) {
-  if (!facilityId) return [];
-  return listPositions(shiftStaffingPositionsWhere(facilityId));
+  return getPositions(facilityId);
 }
 
 export async function getShiftCapacities(facilityId: string) {
