@@ -1,3 +1,4 @@
+import { cache } from 'react';
 import {
   QueryClient,
   defaultShouldDehydrateQuery,
@@ -17,11 +18,14 @@ function makeQueryClient() {
   });
 }
 
+// Share prefetches during one server render without sharing data between requests.
+const getServerQueryClient = cache(makeQueryClient);
+
 let browserQueryClient: QueryClient | undefined;
 
 export function getQueryClient() {
   if (isServer) {
-    return makeQueryClient();
+    return getServerQueryClient();
   }
 
   if (!browserQueryClient) {
