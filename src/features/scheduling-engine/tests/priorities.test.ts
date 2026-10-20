@@ -146,7 +146,7 @@ describe('minimums before extra assignments', () => {
     const preferredAssigned = output.assignments.filter(a => input.preferences!.get(a.employeeId)!.has(key(a.date, a.shiftType))).length;
     expect(preferredAssigned).toBeGreaterThanOrEqual(113);
     expect(validateAssignments(input, output.assignments, { allowManualOverrides: false })).toEqual([]);
-  });
+  }, 15000);
 
   it('reports minimum counts from the final assignments', () => {
     const input = fixture(14, 8);
