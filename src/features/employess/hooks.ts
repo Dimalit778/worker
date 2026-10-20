@@ -9,7 +9,11 @@ import {
 } from '@/features/employess/actions';
 
 export function invalidateEmployeesList(queryClient: ReturnType<typeof useQueryClient>, facilityId?: string) {
-  return queryClient.invalidateQueries({ queryKey: queryKeys.employees.list(facilityId) });
+  return Promise.all([
+    queryClient.invalidateQueries({ queryKey: facilityId ? queryKeys.employees.list(facilityId) : queryKeys.employees.all() }),
+    queryClient.invalidateQueries({ queryKey: queryKeys.schedules.all() }),
+    queryClient.invalidateQueries({ queryKey: queryKeys.dashboard.all() }),
+  ]);
 }
 
 export function invalidateEmployeeDetail(

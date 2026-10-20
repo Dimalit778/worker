@@ -3,6 +3,7 @@
 import type { EmployeeRequestStatus } from '@/generated/prisma/client';
 import { prisma } from '@/lib/db/client';
 import { requireEmployee, requireManager } from '@/lib/db/auth-helpers';
+import { expireFacilityData } from '@/lib/cache/data-cache';
 import { todayUtcDateForTimeZone } from '@/features/periods/utils';
 import { scheduleTransaction } from '@/features/schedules/services/transactions';
 import { canEmployeeFillPosition } from '@/features/scheduling-engine/role-eligibility';
@@ -87,6 +88,7 @@ async function employeeTransition(requestId: string, action: Extract<RequestActi
     where: { id: requestId, facilityId, ...owner, status: request.status },
     data: { status: next, ...(action === 'CANCEL' ? {} : { peerRespondedAt: new Date() }) },
   });
+  if (updated.count === 1) expireFacilityData(facilityId);
   return updated.count === 1 ? { ok: true } : { ok: false, error: 'הבקשה עודכנה בינתיים. יש לרענן' };
 }
 

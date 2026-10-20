@@ -6,6 +6,12 @@ From any linked worktree, run one command:
 pnpm worktree:dev
 ```
 
+The application uses port **3001** by default, including worktrees that previously
+used 3000. If 3001 is occupied, startup fails instead of selecting a different
+port. To choose another port explicitly, run `pnpm worktree:dev --port 3002`.
+An already-running server is reused only when its port matches the requested port;
+stop an older server before switching ports. PostgreSQL port selection is unchanged.
+
 `pnpm dev` also uses this launcher when Git detects a linked worktree. In the main checkout it preserves the original Next.js development command and does not provision or migrate a database. No application schema or migration files are edited by setup.
 
 Requirements: Node.js 22.12+, pnpm, and local PostgreSQL binaries (`initdb`, `pg_ctl`, `psql`, `createdb`). On macOS install PostgreSQL once with `brew install postgresql@16`; no global PostgreSQL service is needed. On Linux use your distribution's PostgreSQL package. Set `WORKTREE_PG_BIN` if the binaries are elsewhere. Native Windows is not supported; use WSL with PostgreSQL installed there.
@@ -18,7 +24,7 @@ Requirements: Node.js 22.12+, pnpm, and local PostgreSQL binaries (`initdb`, `pg
 4. Generate the Prisma client. Setup hooks stop here, report pending schema approval, and never mutate database schema.
 5. When you run the launcher, it asks you to type `APPLY` before applying migrations. Consent is bound to this checkout and a hash of schema/migration contents. Changed schema or migrations require a new approval. In unattended execution, it fails closed. Agents may use `--approve-schema=<full fingerprint>` (the fingerprint the launcher prints for their own checkout) to apply the checkout's existing migrations to its isolated database; this is pre-approved so agents can run and open the app. If the agent changed schema or migration files, it must first get explicit human approval for that worktree and fingerprint.
 6. After approval, initialize a dedicated password-protected PostgreSQL cluster in `.worktree-dev/postgres`, bind it only to loopback, and create its dedicated database. This does not use a shared local PostgreSQL service or any external database URL. Apply existing migrations, detect missing migrations with a read-only diff, and create synthetic demo data. No `db push`, reset or production clone is performed.
-7. Find a free app port, update auth configuration and launch Next.js. Database data persists across restarts; stop the app with Ctrl+C. Run `pnpm worktree:stop` to stop its PostgreSQL process before archiving/deleting a worktree. Deleting `.worktree-dev` deletes only this worktree's local data and loses its demo credentials/consent.
+7. Verify that application port 3001 (or an explicit `--port`) is free, update auth configuration and launch Next.js. Database data persists across restarts; stop the app with Ctrl+C. Run `pnpm worktree:stop` to stop its PostgreSQL process before archiving/deleting a worktree. Deleting `.worktree-dev` deletes only this worktree's local data and loses its demo credentials/consent.
 
 The terminal prints the URL and local-only manager/employee credentials. Demo accounts are `manager@worktree.test` and `employee@worktree.test`, with password `12345` (also stored in `.worktree-dev/state.json`). The demo includes a published upcoming roster for testing corrections in two browser sessions.
 
@@ -38,7 +44,7 @@ At the end of each task the agent must give an absolute, copyable command and th
 cd '/absolute/path/to/worktree' && pnpm worktree:dev
 ```
 
-Use `pnpm worktree:status` to inspect the URL and schema readiness. Use `pnpm worktree:setup` for preparation without schema mutation. Preparation/server locks prevent concurrent launchers in one checkout; different worktrees have independent state, credentials, clusters and ports. Re-running the launch command reuses an already-running verified server. Ports are checked immediately before use; if a different process grabs one in the remaining OS race, startup fails and a rerun chooses again. Existing servers are never killed to claim a port.
+Use `pnpm worktree:status` to inspect the URL and schema readiness. Use `pnpm worktree:setup` for preparation without schema mutation. Preparation/server locks prevent concurrent launchers in one checkout; different worktrees have independent state, credentials and clusters. Concurrent worktrees must use different explicit app ports. Re-running the launch command reuses an already-running verified server on the requested port. Ports are checked immediately before use; if a different process grabs one in the remaining OS race, startup fails. Existing servers are never killed to claim a port.
 
 ## Verification and references
 

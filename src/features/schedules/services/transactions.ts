@@ -3,6 +3,7 @@ import { prisma } from '@/lib/db/client';
 import { todayUtcDateForTimeZone } from '@/features/periods/utils';
 import type { loadSchedulingInput } from '../generation/queries';
 import { toDatedCapacityRules } from '../utils';
+import { expireFacilityData } from '@/lib/cache/data-cache';
 
 /** `publish`: edit a published schedule directly (new version, published in the same transaction). */
 export type VersionExpectation = { versionId: string | null; revision: number; publish?: boolean };
@@ -12,7 +13,7 @@ export const STALE_VERSION = 'השיבוץ השתנה. יש לרענן ולנס�
 /** Serialize schedule changes per facility, including adjacent-period rest checks. */
 export async function scheduleTransaction<T>(actor: ScheduleActor, fn: (tx: Prisma.TransactionClient) => Promise<T>): Promise<T> {
   try {
-    return await prisma.$transaction(async tx => {
+    const result = await prisma.$transaction(async tx => {
       await tx.$queryRaw`SELECT id FROM "Facility" WHERE id=${actor.facilityId} FOR UPDATE`;
       const editor = await tx.user.findFirst({
         where: {
@@ -25,6 +26,8 @@ export async function scheduleTransaction<T>(actor: ScheduleActor, fn: (tx: Pris
       if (!editor) throw new Error('אין הרשאת ניהול למתקן');
       return fn(tx);
     }, { isolationLevel: Prisma.TransactionIsolationLevel.Serializable, timeout: 20000 });
+    expireFacilityData(actor.facilityId);
+    return result;
   } catch (error) {
     if (error instanceof Prisma.PrismaClientKnownRequestError && ['P2034','P2002'].includes(error.code)) throw new Error(STALE_VERSION);
     throw error;

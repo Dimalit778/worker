@@ -4,7 +4,7 @@ import { tmpdir } from 'node:os';
 import { join } from 'node:path';
 import { execFileSync } from 'node:child_process';
 import { createServer } from 'node:net';
-import { assertManagedDatabase, freePort, gitContext, guardPrismaWorktree, schemaDigest } from '../scripts/worktree-safety.mjs';
+import { assertManagedDatabase, DEFAULT_WORKTREE_APP_PORT, freePort, gitContext, guardPrismaWorktree, schemaDigest, worktreeAppPort } from '../scripts/worktree-safety.mjs';
 
 const dir = realpathSync(mkdtempSync(join(tmpdir(), 'worktree-tooling-')));
 const primary = join(dir, 'main repo');
@@ -76,6 +76,21 @@ describe('worktree isolation and schema approval', () => {
     if (!address || typeof address === 'string') throw new Error('No listening address');
     try { expect(await freePort(address.port)).toBeGreaterThan(address.port); }
     finally { await new Promise<void>(resolve => server.close(() => resolve())); }
+  });
+  it('defaults the app to 3001 and refuses to silently substitute a busy or database port', async () => {
+    expect(DEFAULT_WORKTREE_APP_PORT).toBe(3001);
+    const server = createServer();
+    const testPort = await freePort(45000);
+    await new Promise<void>(resolve => server.listen(testPort, '127.0.0.1', resolve));
+    const address = server.address();
+    if (!address || typeof address === 'string') throw new Error('No listening address');
+    try { await expect(worktreeAppPort(address.port)).rejects.toThrow('no alternative port'); }
+    finally { await new Promise<void>(resolve => server.close(() => resolve())); }
+    expect(await worktreeAppPort(address.port)).toBe(address.port);
+    await expect(worktreeAppPort(address.port, [address.port])).rejects.toThrow('unavailable');
+    for (const invalid of [NaN, 80, 65536, 3001.5]) {
+      await expect(worktreeAppPort(invalid)).rejects.toThrow('Port must be');
+    }
   });
   it('all three tool integrations run prepare, never unattended schema changes', () => {
     const codex = readFileSync('.codex/environments/environment.toml', 'utf8');

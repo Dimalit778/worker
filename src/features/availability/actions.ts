@@ -3,6 +3,7 @@ import { periodScheduleStatus, PeriodScheduleStatus } from '@/features/schedules
 import { Prisma, type Schedule } from '@/generated/prisma/client';
 import { prisma } from '@/lib/db/client';
 import { requireEmployee } from '@/lib/db/auth-helpers';
+import { expireFacilityData } from '@/lib/cache/data-cache';
 import type { CurrentAvailability, EmployeeAvailabilityForPeriod } from './types';
 import {
   deriveAvailabilityStatus,
@@ -94,7 +95,7 @@ async function withOpenWindow(
 ): Promise<ActionResult> {
   const { facilityId, employeeId } = await requireEmployee();
   try {
-    return await prisma.$transaction(
+    const result = await prisma.$transaction(
       async (tx) => {
         await tx.$queryRaw`SELECT id FROM "Facility" WHERE id=${facilityId} FOR UPDATE`;
         const employee = await tx.user.findFirst({ where: { id: employeeId, facilityId } });
@@ -114,6 +115,8 @@ async function withOpenWindow(
       },
       { isolationLevel: Prisma.TransactionIsolationLevel.Serializable },
     );
+    expireFacilityData(facilityId);
+    return result;
   } catch (e) {
     return { ok: false, error: e instanceof Error ? e.message : fallbackError };
   }

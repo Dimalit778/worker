@@ -5,10 +5,12 @@ import { existsSync, readFileSync, writeFileSync, mkdirSync, rmSync, lstatSync, 
 import { join } from 'node:path';
 import { parseEnv } from 'node:util';
 import { createInterface } from 'node:readline/promises';
-import { gitContext, schemaDigest, assertManagedDatabase, freePort } from './worktree-safety.mjs';
+import { gitContext, schemaDigest, assertManagedDatabase, freePort, worktreeAppPort, DEFAULT_WORKTREE_APP_PORT } from './worktree-safety.mjs';
 
 const command = process.argv[2] ?? 'dev';
 const hook = process.argv.includes('--hook');
+const portIndex = process.argv.indexOf('--port');
+const requestedAppPort = portIndex >= 0 ? Number(process.argv[portIndex + 1]) : DEFAULT_WORKTREE_APP_PORT;
 const context = gitContext(process.cwd());
 const root = context.root;
 const dir = join(root, '.worktree-dev');
@@ -82,6 +84,9 @@ async function prepare() {
       state = JSON.parse(readFileSync(stateFile, 'utf8'));
       assertManagedDatabase(state, { DATABASE_URL: state.databaseUrl, DIRECT_URL: state.databaseUrl }, root);
       if (['dev', 'default-dev'].includes(command) && state.serverPid) {
+        if (state.appPort !== requestedAppPort) {
+          throw new Error(`This worktree is already running on port ${state.appPort}. Stop its development server, then rerun to use port ${requestedAppPort}.`);
+        }
         try {
           process.kill(state.serverPid, 0);
           const response = await fetch(`http://127.0.0.1:${state.appPort}/login`, { signal: AbortSignal.timeout(5000) });
@@ -102,7 +107,7 @@ async function prepare() {
     const id = 'wt_' + createHash('sha256').update(root).digest('hex').slice(0, 12);
     const dbPort = await freePort(55432);
     const password = randomBytes(24).toString('hex');
-    state = { root, id, dataDir: join(dir, 'postgres'), dbPort, appPort: await freePort(3000, [dbPort]),
+    state = { root, id, dataDir: join(dir, 'postgres'), dbPort, appPort: requestedAppPort,
       databaseUrl: `postgresql://${id}:${password}@127.0.0.1:${dbPort}/${id}_dev`,
       authSecret: randomBytes(32).toString('hex'), demoPassword: '12345' };
     save();
@@ -206,10 +211,7 @@ async function main() {
     state.seeded = true; save();
   }
   if (command === 'schema') { print('Isolated schema and demo data are ready.'); return; }
-  const index = process.argv.indexOf('--port');
-  const preferred = index >= 0 ? Number(process.argv[index + 1]) : state.appPort;
-  if (!Number.isInteger(preferred) || preferred < 1024 || preferred > 65335) throw new Error('Port must be between 1024 and 65335.');
-  state.appPort = await freePort(preferred, [state.dbPort]); save(); Object.assign(env, writeEnv());
+  state.appPort = await worktreeAppPort(requestedAppPort, [state.dbPort]); save(); Object.assign(env, writeEnv());
   print(`Open http://localhost:${state.appPort}`);
   print(`Demo manager: manager@worktree.test | employee: employee@worktree.test | password: ${state.demoPassword}`);
   // Keep the setup lock during the server lifetime to prevent duplicate launchers/state rewrites.

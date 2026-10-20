@@ -8,6 +8,7 @@ import { prisma } from '@/lib/db/client';
 import { requireSession } from '@/lib/db/auth-helpers';
 import { sendInvite, unusablePasswordHash } from '@/lib/auth/invite';
 import { DEFAULT_SHIFT_TIMES } from '@/features/schedules/shift-times';
+import { expireAllFacilityData, readAdminCache } from '@/lib/cache/data-cache';
 import type {
   AdminActionResult,
   AdminCourtsData,
@@ -44,7 +45,10 @@ async function assertAdmin() {
 
 export async function getAdminCourtsData(): Promise<AdminCourtsData> {
   await assertAdmin();
+  return readAdminCache(loadAdminCourtsData);
+}
 
+async function loadAdminCourtsData(): Promise<AdminCourtsData> {
   const globalRoles = await prisma.role.findMany({
     select: { id: true, name: true, rank: true },
     orderBy: { rank: 'asc' },
@@ -143,6 +147,7 @@ export async function createAdminCourt(params: CreateAdminCourtParams): Promise<
       },
     });
 
+    expireAllFacilityData();
     revalidatePath('/admin/courts');
     return { ok: true };
   } catch (error) {
@@ -180,6 +185,7 @@ export async function updateAdminCourt(params: UpdateAdminCourtParams): Promise<
       data: { name, code, districtId },
     });
 
+    expireAllFacilityData();
     revalidatePath('/admin/courts');
     return { ok: true };
   } catch (error) {
@@ -234,6 +240,7 @@ export async function deleteAdminCourt(facilityId: string): Promise<AdminActionR
       await tx.facility.delete({ where: { id } });
     });
 
+    expireAllFacilityData();
     revalidatePath('/admin/courts');
     return { ok: true };
   } catch (error) {
@@ -311,6 +318,7 @@ export async function createAdminEmployee(params: CreateAdminEmployeeParams): Pr
       return created.id;
     });
 
+    expireAllFacilityData();
     revalidatePath('/admin/courts');
     revalidatePath('/admin/employees');
     return { ok: true, ...(await sendInvite(userId, email)) };
@@ -377,6 +385,7 @@ export async function updateAdminEmployee(params: UpdateAdminEmployeeParams): Pr
       });
     });
 
+    expireAllFacilityData();
     revalidatePath('/admin/courts');
     revalidatePath('/admin/employees');
     return { ok: true };
@@ -420,6 +429,7 @@ export async function deleteAdminEmployee(employeeId: string): Promise<AdminActi
       await tx.user.delete({ where: { id } });
     });
 
+    expireAllFacilityData();
     revalidatePath('/admin/courts');
     revalidatePath('/admin/employees');
     return { ok: true };
