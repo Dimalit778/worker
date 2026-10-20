@@ -21,6 +21,8 @@ export function invalidateSettingsQueries(
     queryClient.invalidateQueries({ queryKey: queryKeys.settings.shiftStaffingPositions(facilityId) }),
     queryClient.invalidateQueries({ queryKey: queryKeys.settings.submissionWindow() }),
     queryClient.invalidateQueries({ queryKey: dateOverridesQueryKey(facilityId) }),
+    queryClient.invalidateQueries({ queryKey: queryKeys.schedules.all() }),
+    queryClient.invalidateQueries({ queryKey: queryKeys.dashboard.all() }),
   ]);
 }
 

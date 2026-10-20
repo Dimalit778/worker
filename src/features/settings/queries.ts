@@ -3,6 +3,7 @@ import type { Prisma, ShiftType } from '@/generated/prisma/client';
 import { prisma } from '@/lib/db/client';
 import type { SubmissionWindowRule } from '@/features/periods/submission-window';
 import { todayUtcDateForTimeZone } from '@/features/periods/utils';
+import { expireFacilityData, readFacilityCache } from '@/lib/cache/data-cache';
 
 const SCHEDULE_TIME_ZONE = 'Asia/Jerusalem';
 
@@ -65,11 +66,11 @@ async function listPositions(where: Prisma.PositionWhereInput) {
   }));
 }
 
-// Both settings grids use the same positions. Deduplicate by facility for this
-// render only, so later requests still see updated colors, order and active roles.
+// Both grids share a lookup. The persistent entry is expired after settings or
+// admin writes; React.cache also deduplicates the lookup within one render.
 export const getPositions = cache(async (facilityId: string) => {
   if (!facilityId) return [];
-  return listPositions(managerCourtPositionsWhere(facilityId));
+  return readFacilityCache(facilityId, ['positions'], () => listPositions(managerCourtPositionsWhere(facilityId)), 300);
 });
 
 export async function getShiftStaffingPositions(facilityId: string) {
@@ -79,46 +80,50 @@ export async function getShiftStaffingPositions(facilityId: string) {
 export async function getShiftCapacities(facilityId: string) {
   if (!facilityId) return [];
 
-  const rows = await prisma.staffingRequirement.findMany({
-    where: { facilityId },
-    select: {
-      id: true,
-      positionId: true,
-      shiftType: true,
-      dayCategory: true,
-      requiredCount: true,
-    },
-    orderBy: [{ position: { displayOrder: 'asc' } }, { position: { createdAt: 'asc' } }],
-  });
+  return readFacilityCache(facilityId, ['shift-capacities'], async () => {
+    const rows = await prisma.staffingRequirement.findMany({
+      where: { facilityId },
+      select: {
+        id: true,
+        positionId: true,
+        shiftType: true,
+        dayCategory: true,
+        requiredCount: true,
+      },
+      orderBy: [{ position: { displayOrder: 'asc' } }, { position: { createdAt: 'asc' } }],
+    });
 
-  return rows.map((row) => ({ ...row, positionId: row.positionId }));
+    return rows.map((row) => ({ ...row, positionId: row.positionId }));
+  }, 300);
 }
 
 export async function getSubmissionWindowRule(facilityId: string): Promise<SubmissionWindowRule | null> {
   if (!facilityId) return null;
 
-  const setting = await prisma.systemSetting.findUnique({
-    where: { key: submissionWindowKey(facilityId) },
-  });
-  const value = setting?.value;
-  if (!value || typeof value !== 'object' || Array.isArray(value)) return null;
+  return readFacilityCache(facilityId, ['submission-window'], async () => {
+    const setting = await prisma.systemSetting.findUnique({
+      where: { key: submissionWindowKey(facilityId) },
+    });
+    const value = setting?.value;
+    if (!value || typeof value !== 'object' || Array.isArray(value)) return null;
 
-  const rule = value as Partial<SubmissionWindowRule>;
-  if (
-    typeof rule.openWeekday !== 'number' ||
-    typeof rule.openTime !== 'string' ||
-    typeof rule.closeWeekday !== 'number' ||
-    typeof rule.closeTime !== 'string'
-  ) {
-    return null;
-  }
+    const rule = value as Partial<SubmissionWindowRule>;
+    if (
+      typeof rule.openWeekday !== 'number' ||
+      typeof rule.openTime !== 'string' ||
+      typeof rule.closeWeekday !== 'number' ||
+      typeof rule.closeTime !== 'string'
+    ) {
+      return null;
+    }
 
-  return {
-    openWeekday: rule.openWeekday,
-    openTime: rule.openTime,
-    closeWeekday: rule.closeWeekday,
-    closeTime: rule.closeTime,
-  };
+    return {
+      openWeekday: rule.openWeekday,
+      openTime: rule.openTime,
+      closeWeekday: rule.closeWeekday,
+      closeTime: rule.closeTime,
+    };
+  }, 300);
 }
 
 export type StaffingDateOverrideRow = {
@@ -135,29 +140,32 @@ export type StaffingDateOverrideRow = {
 export async function getStaffingDateOverrides(facilityId: string): Promise<StaffingDateOverrideRow[]> {
   if (!facilityId) return [];
 
-  const rows = await prisma.staffingDateOverride.findMany({
-    where: { facilityId, date: { gte: todayUtcDateForTimeZone(SCHEDULE_TIME_ZONE) } },
-    select: {
-      id: true,
-      date: true,
-      positionId: true,
-      shiftType: true,
-      requiredCount: true,
-      label: true,
-      position: { select: { name: true } },
-    },
-    orderBy: [{ date: 'asc' }, { shiftType: 'asc' }, { position: { displayOrder: 'asc' } }],
-  });
+  const today = todayUtcDateForTimeZone(SCHEDULE_TIME_ZONE);
+  return readFacilityCache(facilityId, ['date-overrides', today.toISOString()], async () => {
+    const rows = await prisma.staffingDateOverride.findMany({
+      where: { facilityId, date: { gte: today } },
+      select: {
+        id: true,
+        date: true,
+        positionId: true,
+        shiftType: true,
+        requiredCount: true,
+        label: true,
+        position: { select: { name: true } },
+      },
+      orderBy: [{ date: 'asc' }, { shiftType: 'asc' }, { position: { displayOrder: 'asc' } }],
+    });
 
-  return rows.map((row) => ({
-    id: row.id,
-    date: row.date.toISOString().slice(0, 10),
-    positionId: row.positionId,
-    positionName: row.position.name,
-    shiftType: row.shiftType,
-    requiredCount: row.requiredCount,
-    label: row.label,
-  }));
+    return rows.map((row) => ({
+      id: row.id,
+      date: row.date.toISOString().slice(0, 10),
+      positionId: row.positionId,
+      positionName: row.position.name,
+      shiftType: row.shiftType,
+      requiredCount: row.requiredCount,
+      label: row.label,
+    }));
+  }, 300);
 }
 
 export async function saveSubmissionWindowSetting(facilityId: string, rule: SubmissionWindowRule) {
@@ -166,4 +174,5 @@ export async function saveSubmissionWindowSetting(facilityId: string, rule: Subm
     create: { key: submissionWindowKey(facilityId), value: rule },
     update: { value: rule },
   });
+  expireFacilityData(facilityId);
 }

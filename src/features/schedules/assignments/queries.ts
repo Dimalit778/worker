@@ -18,6 +18,7 @@ import type { EngineInput } from '@/features/scheduling-engine/types';
 import { todayUtcDateForTimeZone } from '@/features/periods/utils';
 import { currentScheduleWhere, preparationScheduleWhere } from '../selection';
 import { getPublishedSlots } from './published-slots';
+import { readFacilityCache } from '@/lib/cache/data-cache';
 
 const SCHEDULE_TIME_ZONE = 'Asia/Jerusalem';
 const staffedUser = { isActive: true, role: { rank: { not: 1 } } };
@@ -197,46 +198,50 @@ export async function getDraftScheduleData(facilityId: string, scheduleId?: stri
 
   const version = schedule.draftVersion ?? schedule.publishedVersion;
   const editingVersionId = version?.id ?? null;
-  const loaded = await loadSchedulingInput(prisma, schedule.id, facilityId, editingVersionId, schedule);
-  // Draft → live requirements + live date overrides; published version (no draft) → its frozen snapshot.
-  const snapshot = version?.status === 'PUBLISHED' ? snapshotCapacity(version) : null;
-  const analysisInput = snapshot ? { ...loaded, input: withSnapshotRequirements(loaded.input, snapshot) } : loaded;
-  const details = loadedScheduleDetails(analysisInput);
-  const { employees, assignments, warnings, fairness } = details;
-  const capacity: ScheduleCapacityRule[] = snapshot ?? [...details.capacity, ...toDatedCapacityRules(loaded.dateOverrides)];
-  const submittedSubmissions = analysisInput.forms;
-  const submittedEmployeeIds = new Set(submittedSubmissions.map((submission) => submission.userId));
-  const missingEmployees = employees
-    .filter((employee) => !submittedEmployeeIds.has(employee.id))
-    .map((employee) => ({
-      id: employee.id,
-      displayName: employee.displayName,
-      positionName: employee.position?.name ?? null,
-    }));
+  return readFacilityCache(facilityId, [
+    'draft', schedule.id, editingVersionId ?? 'none', String(version?.revision ?? 0), periodScheduleStatus(schedule),
+  ], async () => {
+    const loaded = await loadSchedulingInput(prisma, schedule.id, facilityId, editingVersionId, schedule);
+    // Draft → live requirements + live date overrides; published version (no draft) → its frozen snapshot.
+    const snapshot = version?.status === 'PUBLISHED' ? snapshotCapacity(version) : null;
+    const analysisInput = snapshot ? { ...loaded, input: withSnapshotRequirements(loaded.input, snapshot) } : loaded;
+    const details = loadedScheduleDetails(analysisInput);
+    const { employees, assignments, warnings, fairness } = details;
+    const capacity: ScheduleCapacityRule[] = snapshot ?? [...details.capacity, ...toDatedCapacityRules(loaded.dateOverrides)];
+    const submittedSubmissions = analysisInput.forms;
+    const submittedEmployeeIds = new Set(submittedSubmissions.map((submission) => submission.userId));
+    const missingEmployees = employees
+      .filter((employee) => !submittedEmployeeIds.has(employee.id))
+      .map((employee) => ({
+        id: employee.id,
+        displayName: employee.displayName,
+        positionName: employee.position?.name ?? null,
+      }));
 
-  const base = toScheduleData(
-    toPeriodRow({ ...schedule, status: periodScheduleStatus(schedule) }),
-    facilityId,
-    employees,
-    capacity,
-    assignments,
-    warnings,
-    {} as OverflowCandidateMap,
-  );
-  if (!base) return null;
+    const base = toScheduleData(
+      toPeriodRow({ ...schedule, status: periodScheduleStatus(schedule) }),
+      facilityId,
+      employees,
+      capacity,
+      assignments,
+      warnings,
+      {} as OverflowCandidateMap,
+    );
+    if (!base) return null;
 
-  return {
-    ...base, fairness,
-    versionId: editingVersionId,
-    revision: version?.revision ?? 0,
-    hasUnpublishedDraft: !!schedule.draftVersionId,
-    editingVersionNumber: version?.number ?? null,
-    availabilitySubmissionSummary: {
-      submittedCount: submittedEmployeeIds.size,
-      eligibleEmployeeCount: employees.length,
-      missingEmployees,
-    },
-  };
+    return {
+      ...base, fairness,
+      versionId: editingVersionId,
+      revision: version?.revision ?? 0,
+      hasUnpublishedDraft: !!schedule.draftVersionId,
+      editingVersionNumber: version?.number ?? null,
+      availabilitySubmissionSummary: {
+        submittedCount: submittedEmployeeIds.size,
+        eligibleEmployeeCount: employees.length,
+        missingEmployees,
+      },
+    };
+  });
 }
 
 export async function getScheduleWarnings(scheduleId: string | null | undefined): Promise<ScheduleWarningSummary[]> {

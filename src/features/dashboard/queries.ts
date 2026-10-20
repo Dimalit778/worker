@@ -7,6 +7,7 @@ import { parseISODateToUtcMidnight } from '@/features/periods/utils';
 import type { ManagerDashboardData, ScheduleSnapshot } from './types';
 import { requireSession } from '@/lib/db/auth-helpers';
 import { currentScheduleWhere, preparationScheduleWhere } from '@/features/schedules/selection';
+import { readFacilityCache } from '@/lib/cache/data-cache';
 
 const staffedUser = { isActive: true, role: { rank: { not: 1 } } };
 
@@ -159,45 +160,47 @@ export async function getManagerDashboardData(year: number): Promise<ManagerDash
 
   if (!facilityId) return empty;
 
-  const now = new Date();
+  return readFacilityCache(facilityId, ['dashboard', String(year)], async () => {
+    const now = new Date();
 
-  const [byPosition, totalActive, yearSchedules, activeRow, draftRow] = await Promise.all([
-    getStaffCountsByPosition(facilityId),
-    prisma.user.count({ where: { facilityId } }),
-    getSchedulesForYear(facilityId, year),
-    prisma.schedule.findFirst({
-      where: currentScheduleWhere(facilityId, now),
-      orderBy: { startDate: 'desc' },
-    }),
-    prisma.schedule.findFirst({
-      where: preparationScheduleWhere(facilityId, now),
-      orderBy: { startDate: 'desc' },
-    }),
-  ]);
+    const [byPosition, totalActive, yearSchedules, activeRow, draftRow] = await Promise.all([
+      getStaffCountsByPosition(facilityId),
+      prisma.user.count({ where: { facilityId } }),
+      getSchedulesForYear(facilityId, year),
+      prisma.schedule.findFirst({
+        where: currentScheduleWhere(facilityId, now),
+        orderBy: { startDate: 'desc' },
+      }),
+      prisma.schedule.findFirst({
+        where: preparationScheduleWhere(facilityId, now),
+        orderBy: { startDate: 'desc' },
+      }),
+    ]);
 
-  const activeSchedule = activeRow ? toScheduleSnapshot(activeRow) : null;
+    const activeSchedule = activeRow ? toScheduleSnapshot(activeRow) : null;
 
-  let draftSchedule: ScheduleSnapshot | null = null;
-  let submissionSummary: ManagerDashboardData['submissionSummary'] = null;
+    let draftSchedule: ScheduleSnapshot | null = null;
+    let submissionSummary: ManagerDashboardData['submissionSummary'] = null;
 
-  if (draftRow) {
-    const submission = await getSubmissionData(draftRow.id, facilityId);
-    draftSchedule = toScheduleSnapshot(draftRow, submission);
-    submissionSummary = {
-      submittedCount: submission.submittedCount,
-      eligibleCount: submission.totalEmployees,
-      missingEmployees: submission.missingEmployees,
+    if (draftRow) {
+      const submission = await getSubmissionData(draftRow.id, facilityId);
+      draftSchedule = toScheduleSnapshot(draftRow, submission);
+      submissionSummary = {
+        submittedCount: submission.submittedCount,
+        eligibleCount: submission.totalEmployees,
+        missingEmployees: submission.missingEmployees,
+      };
+    }
+
+    const warnings = draftRow ? await getScheduleWarnings(draftRow.id) : [];
+
+    return {
+      staff: { byPosition, totalActive },
+      activeSchedule,
+      draftSchedule,
+      warnings,
+      submissionSummary,
+      yearSchedules,
     };
-  }
-
-  const warnings = draftRow ? await getScheduleWarnings(draftRow.id) : [];
-
-  return {
-    staff: { byPosition, totalActive },
-    activeSchedule,
-    draftSchedule,
-    warnings,
-    submissionSummary,
-    yearSchedules,
-  };
+  }, 30, true);
 }
