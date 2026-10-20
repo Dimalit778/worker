@@ -9,11 +9,10 @@ import { loadSchedulingInput } from '../generation/queries';
 import { saveScheduleAnalysis } from '../generation/recalculate';
 import { validateAssignments } from '@/features/scheduling-engine/validate';
 import { computeManualViolations, type ManualViolation } from '@/features/scheduling-engine/manual-violations';
-import type { EngineAssignment } from '@/features/scheduling-engine/types';
 import { parseISODateToUtcMidnight } from '@/features/periods/utils';
 import { prisma } from '@/lib/db/client';
 import { loadedScheduleDetails } from './loaded-details';
-import { defaultShiftTimes, isValidShiftTime, shiftBounds } from '../shift-times';
+import { defaultShiftTimes, isValidShiftTime, shiftBounds, type CustomHours } from '../shift-times';
 
 type Edit = { kind: 'create'; params: AssignEmployeeToSlotParams } |
   { kind: 'update'; assignmentId: string; employeeId: string } |
@@ -23,18 +22,17 @@ type Edit = { kind: 'create'; params: AssignEmployeeToSlotParams } |
   { kind: 'batch'; changes: SlotChange[] };
 
 /** One slot's target state in a batch save: an employee, or null to clear the slot. */
-export type SlotChange = { date: string; shiftType: ShiftType; positionId: string; slotIndex: number; employeeId: string | null };
+export type SlotChange = {
+  date: string; shiftType: ShiftType; positionId: string; slotIndex: number; employeeId: string | null;
+  /** Custom hours for this slot; null restores the shift's default hours. Omitted: keep, unless the employee changes. */
+  hours?: CustomHours | null;
+};
 
 export type ManualOverride = { reason: string };
 export type OverrideRequired = { ok: false; requiresOverride: true; violations: ManualViolation[] };
 class OverrideRequiredError extends Error {
   constructor(readonly violations: ManualViolation[]) { super('נדרש אישור חריגה'); }
 }
-
-const toEngineAssignment = (a: { userId: string | null; facilityId: string; positionId: string; date: Date; shiftType: EngineAssignment['shiftType']; slotNumber: number; isLocked: boolean; source: EngineAssignment['source'] }): EngineAssignment => ({
-  employeeId: a.userId ?? '', facilityId: a.facilityId, positionId: a.positionId, date: a.date, shiftType: a.shiftType,
-  slotIndex: Math.max(0, a.slotNumber - 1), isManualOverride: a.isLocked, source: a.source,
-});
 
 async function editSchedule(scheduleId: string, expected: VersionExpectation, edit: Edit, override?: ManualOverride) {
   try {
@@ -91,18 +89,25 @@ async function applyEdit(scheduleId: string, expected: VersionExpectation, reque
       for (const change of edit.changes) {
         const date = parseISODateToUtcMidnight(change.date);
         if (!Number.isFinite(date.getTime()) || date.toISOString().slice(0,10) !== change.date) throw new Error('תאריך לא תקין');
+        const hours = change.hours;
+        if (hours && (!isValidShiftTime(hours.startTime) || !isValidShiftTime(hours.endTime) || hours.startTime === hours.endTime)) throw new Error('שעות משמרת לא תקינות');
+        const defaults = defaultShiftTimes(change.shiftType);
+        const defaultBounds = shiftBounds(date, defaults.startTime, defaults.endTime);
+        // Custom hours are a manager decision: lock the slot so automatic scheduling keeps it; clearing them unlocks it.
+        const hoursData = hours ? { ...shiftBounds(date, hours.startTime, hours.endTime), isLocked: true } : { ...defaultBounds, isLocked: false };
         const slotNumber = change.slotIndex + 1;
         const slot = await tx.scheduleSlot.findFirst({ where: { scheduleId, versionId: version.id, date, shiftType: change.shiftType, positionId: change.positionId, slotNumber } });
         if (change.employeeId === null) {
           if (slot) await tx.scheduleSlot.delete({ where: { id: slot.id } });
         } else if (slot) {
-          await tx.scheduleSlot.update({ where: { id: slot.id }, data: { userId: change.employeeId, source: 'MANUAL' } });
+          // Custom hours belong to the person: a new employee in the slot starts from the default hours.
+          const times = hours !== undefined ? hoursData : slot.userId !== change.employeeId ? defaultBounds : {};
+          await tx.scheduleSlot.update({ where: { id: slot.id }, data: { userId: change.employeeId, source: 'MANUAL', ...times } });
           changedIds.push(slot.id);
         } else {
           const position = await tx.position.findFirst({ where: { id: change.positionId, OR: [{ facilityId: actor.facilityId }, { facilityId: null }] }, select: { id: true } });
           if (!position) throw new Error('התפקיד אינו שייך למתקן');
-          const defaults = defaultShiftTimes(change.shiftType);
-          const created = await tx.scheduleSlot.create({ data: { scheduleId, versionId: version.id, facilityId: actor.facilityId, userId: change.employeeId, positionId: change.positionId, date, shiftType: change.shiftType, slotNumber, ...shiftBounds(date, defaults.startTime, defaults.endTime), source: 'MANUAL', isLocked: false } });
+          const created = await tx.scheduleSlot.create({ data: { scheduleId, versionId: version.id, facilityId: actor.facilityId, userId: change.employeeId, positionId: change.positionId, date, shiftType: change.shiftType, slotNumber, ...hoursData, source: 'MANUAL' } });
           changedIds.push(created.id);
         }
       }
@@ -127,7 +132,7 @@ async function applyEdit(scheduleId: string, expected: VersionExpectation, reque
     // Manual placements: hard integrity rules block; business rules need an explicit manager approval.
     const violations: ManualViolation[] = [];
     for (const row of data.assignments.filter(a => changedIds.includes(a.id))) {
-      const result = computeManualViolations(data.input, data.assignments.filter(a => a.id !== row.id).map(toEngineAssignment), toEngineAssignment(row));
+      const result = computeManualViolations(data.input, data.assignments.filter(a => a.id !== row.id).map(data.toEngine), data.toEngine(row));
       if (result.blocking.length) throw new Error(result.blocking.join('; '));
       const prefix = changedIds.length > 1 ? `${row.user?.displayName ?? ''}: ` : '';
       violations.push(...result.violations.map(v => ({ ...v, message: prefix + v.message })));

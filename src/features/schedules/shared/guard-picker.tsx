@@ -5,6 +5,7 @@ import { createPortal } from 'react-dom';
 import { X } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import type { ScheduleEmployeeOption } from '@/features/schedules/types';
+import type { CustomHours } from '@/features/schedules/shift-times';
 import { Input } from '@/components/ui/input';
 import { Button } from '@/components/ui/button';
 
@@ -24,6 +25,10 @@ type Props = {
   onClose: () => void;
   swapCandidates?: SwapCandidate[];
   onSwap?: (assignmentId: string) => void;
+  /** Custom hours of the current employee; the editor shows only when onSetHours is given. */
+  currentHours?: CustomHours;
+  defaultHours?: CustomHours;
+  onSetHours?: (hours: CustomHours | null) => void;
 };
 
 export function GuardPicker({
@@ -34,8 +39,14 @@ export function GuardPicker({
   onSelect,
   onRemove,
   onClose,
+  currentHours,
+  defaultHours,
+  onSetHours,
 }: Props) {
   const [query, setQuery] = useState('');
+  const [startTime, setStartTime] = useState(currentHours?.startTime ?? defaultHours?.startTime ?? '');
+  const [endTime, setEndTime] = useState(currentHours?.endTime ?? defaultHours?.endTime ?? '');
+  const hoursValid = Boolean(startTime && endTime && startTime !== endTime);
   const inputRef = useRef<HTMLInputElement>(null);
   const panelRef = useRef<HTMLDivElement>(null);
 
@@ -69,7 +80,7 @@ export function GuardPicker({
   const panel = (
     <div
       ref={panelRef}
-      className="fixed z-9999 bg-card border border-border rounded-lg shadow-lg w-full max-w-36 py-1"
+      className="fixed z-9999 bg-card border border-border rounded-lg shadow-lg w-full max-w-44 py-1"
       style={{ top: anchorRect.bottom + 4, left: anchorRect.left }}
       dir="rtl"
     >
@@ -94,6 +105,26 @@ export function GuardPicker({
           </li>
         ))}
       </ul>
+
+      {currentUserId && onSetHours && (
+        <div className="border-t border-border mt-1 px-2 py-1.5 space-y-1">
+          <div className="text-xs font-medium">שעות מיוחדות</div>
+          <label className="flex items-center justify-between gap-1 text-xs">
+            התחלה
+            <Input type="time" dir="ltr" className="h-7 w-24 px-1 text-xs" value={startTime} onChange={(e) => setStartTime(e.target.value)} />
+          </label>
+          <label className="flex items-center justify-between gap-1 text-xs">
+            סיום
+            <Input type="time" dir="ltr" className="h-7 w-24 px-1 text-xs" value={endTime} onChange={(e) => setEndTime(e.target.value)} />
+          </label>
+          <div className="flex flex-wrap gap-1">
+            <Button type="button" size="sm" disabled={!hoursValid} onClick={() => onSetHours(startTime === defaultHours?.startTime && endTime === defaultHours?.endTime ? null : { startTime, endTime })}>עדכן שעות</Button>
+            {currentHours && (
+              <Button type="button" size="sm" variant="outline" onClick={() => onSetHours(null)}>שעות רגילות</Button>
+            )}
+          </div>
+        </div>
+      )}
 
       {currentUserId && (
         <div className="border-t border-border mt-1">

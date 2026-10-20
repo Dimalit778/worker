@@ -50,6 +50,8 @@ export function computeManualViolations(
   }
   for (const other of [...others, ...(input.boundaryAssignments ?? [])]) {
     if (other.employeeId !== candidate.employeeId || !hasShiftConflict(other.date, other.shiftType, candidate.date, candidate.shiftType)) continue;
+    // One continuous custom-hours shift spanning both slots.
+    if (candidate.customHours && other.customHours === candidate.customHours && other.shiftType !== candidate.shiftType) continue;
     found.add(other.shiftType === candidate.shiftType && isSameDate(other.date, candidate.date) ? 'DOUBLE_BOOKED' : 'REST_GAP');
   }
   const requiredRank = findRequiredRank(input, candidate.positionId);

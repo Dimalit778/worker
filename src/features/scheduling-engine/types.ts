@@ -60,6 +60,10 @@ export interface EngineAssignment {
   isManualOverride: boolean;
   /** Persisted origin: manager edits may override submitted availability. */
   source?: 'MANUAL' | 'AUTOMATIC';
+  /** Manager-set hours ("start|end" instants); slots of one employee sharing it are one continuous shift. */
+  customHours?: string;
+  /** Later shift covered by custom hours: fills the seat but counts toward neither minimums nor fairness. */
+  isExtension?: boolean;
 }
 
 export interface EngineInput {
