@@ -5,6 +5,7 @@ vi.mock('@/lib/db/client', () => ({ prisma: {} }));
 vi.mock('@/lib/db/auth-helpers', () => ({ requireManager: vi.fn() }));
 import { loadSchedulingInput } from '@/features/schedules/generation/queries';
 import { createTimeOffWarnings } from '@/features/scheduling-engine/warnings';
+import { shiftBounds } from '@/features/schedules/shift-times';
 
 it('carries the persisted manual source through loading so edits remain valid after refresh and at publication', async () => {
   const date = new Date('2026-10-05T00:00:00Z');
@@ -45,4 +46,24 @@ it('treats approved time-off days as unavailable and flags existing assignments 
   expect(data.input.preferences.get('employee')!.size).toBe(0);
   const warnings = createTimeOffWarnings(data.allAssignments, data.input.timeOff);
   expect(warnings).toEqual([expect.objectContaining({ type: 'CONFLICT', severity: 'ERROR', employeeId: 'employee', message: expect.stringContaining('חופשה מאושרת') })]);
+});
+
+it('marks the later slot of one custom-hours shift as an extension', async () => {
+  const date = new Date('2026-10-05T00:00:00Z');
+  const base = { userId: 'employee', facilityId: 'facility', positionId: 'position', versionId: 'v', date, slotNumber: 1, isLocked: true, source: 'MANUAL', ...shiftBounds(date, '07:00', '19:00') };
+  const slots = [{ ...base, id: 'evening', shiftType: 'EVENING' }, { ...base, id: 'morning', shiftType: 'MORNING' }];
+  const tx = {
+    schedule: { findFirst: vi.fn().mockResolvedValue({ id: 'schedule', startDate: date, endDate: date }) },
+    user: { findMany: vi.fn().mockResolvedValue([]) },
+    staffingRequirement: { findMany: vi.fn().mockResolvedValue([]) },
+    staffingDateOverride: { findMany: vi.fn().mockResolvedValue([]) },
+    employeeRequest: { findMany: vi.fn().mockResolvedValue([]) },
+    availabilitySubmission: { findMany: vi.fn().mockResolvedValue([]) },
+    scheduleSlot: { findMany: vi.fn().mockResolvedValueOnce(slots).mockResolvedValueOnce([]) },
+  };
+  const data = await loadSchedulingInput(tx as unknown as Prisma.TransactionClient, 'schedule', 'facility', 'v');
+  const byShift = Object.fromEntries(data.allAssignments.map(a => [a.shiftType, a]));
+  expect(byShift.MORNING.isExtension).toBeUndefined();
+  expect(byShift.EVENING.isExtension).toBe(true);
+  expect(byShift.EVENING.customHours).toBe(byShift.MORNING.customHours);
 });

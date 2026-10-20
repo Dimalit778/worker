@@ -10,6 +10,7 @@ import {
   OverflowCandidateMap,
 } from '../types';
 import { toDateOnly } from '../utils';
+import { customHoursOf } from '../shift-times';
 
 export function getAssignmentCellKey(params: {
   date: Date;
@@ -31,6 +32,7 @@ export function buildAssignmentMap(
     slotIndex: number;
     isLocked?: boolean;
     startsAt?: Date;
+    endsAt?: Date;
   }>,
 ): AssignmentMap {
   const map: AssignmentMap = {};
@@ -44,6 +46,7 @@ export function buildAssignmentMap(
     list.push({
       id: row.id,
       startsAt: row.startsAt?.toISOString(),
+      customHours: row.startsAt && row.endsAt ? customHoursOf(row.date, row.shiftType, row.startsAt, row.endsAt) : undefined,
       isLocked: row.isLocked,
       employeeId: row.employeeId,
       employeeDisplayName: row.employeeDisplayName,

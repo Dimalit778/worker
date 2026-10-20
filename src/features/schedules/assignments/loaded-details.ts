@@ -23,6 +23,7 @@ export function loadedScheduleDetails(data: Awaited<ReturnType<typeof loadSchedu
       id: a.id, date: a.date, shiftType: a.shiftType, positionId: a.positionId,
       positionName: a.position?.name ?? positions.get(a.positionId) ?? '', employeeId: a.userId,
       employeeDisplayName: a.user?.displayName ?? names.get(a.userId) ?? '', slotIndex: a.slotNumber - 1, isLocked: a.isLocked,
+      startsAt: a.startsAt, endsAt: a.endsAt,
     }] : []));
   const analysis = analyzeSchedule(data.input, data.allAssignments);
   const combined = computeFairnessSummary([...(data.input.historicalAssignments ?? []), ...data.allAssignments]);

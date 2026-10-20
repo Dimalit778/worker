@@ -28,3 +28,17 @@ export function shiftBounds(date: Date, startTime: string, endTime: string) {
 export function defaultShiftTimes(shiftType: ShiftType) {
   return DEFAULT_SHIFT_TIMES.find((shift) => shift.shiftType === shiftType) ?? DEFAULT_SHIFT_TIMES[0];
 }
+
+export type CustomHours = { startTime: string; endTime: string };
+
+function localTime(instant: Date) {
+  return new Intl.DateTimeFormat('en-GB', { timeZone: 'Asia/Jerusalem', hour: '2-digit', minute: '2-digit', hourCycle: 'h23' }).format(instant);
+}
+
+/** Manager-set hours that differ from the shift's default hours; undefined for a regular slot. */
+export function customHoursOf(date: Date, shiftType: ShiftType, startsAt: Date, endsAt: Date): CustomHours | undefined {
+  const defaults = defaultShiftTimes(shiftType);
+  const bounds = shiftBounds(date, defaults.startTime, defaults.endTime);
+  if (bounds.startsAt.getTime() === startsAt.getTime() && bounds.endsAt.getTime() === endsAt.getTime()) return undefined;
+  return { startTime: localTime(startsAt), endTime: localTime(endsAt) };
+}

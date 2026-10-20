@@ -5,6 +5,7 @@ import { addDays } from '@/features/scheduling-engine/constraints';
 import type { EngineAssignment, EngineDateOverride, EngineInput } from '@/features/scheduling-engine/types';
 import { loadApprovedTimeOff } from '@/features/requests/queries';
 import { applyTimeOffToAvailability } from '@/features/requests/rules';
+import { customHoursOf } from '../shift-times';
 
 // Inactive employees are loaded too: the engine skips them for new slots, while their existing slots stay editable.
 const staffedUser = { role: { rank: { not: 1 } } };
@@ -56,7 +57,23 @@ export async function loadSchedulingInput(tx: Prisma.TransactionClient, schedule
     }),
     loadApprovedTimeOff(tx, facilityId, schedule.startDate, schedule.endDate),
   ]);
-  const toEngine = (a: { userId: string | null; facilityId: string; positionId: string; date: Date; shiftType: EngineAssignment['shiftType']; slotNumber: number; isLocked: boolean; source: EngineAssignment['source'] }): EngineAssignment => ({
+  // Slots of one employee sharing the same custom hours form one shift: the earliest is the main one.
+  const shiftOrder = { MORNING: 0, EVENING: 1, NIGHT: 2 } as const;
+  const customHours = new Map<string, string>();
+  const extensions = new Set<string>();
+  const firstOfShift = new Map<string, { id: string; rank: number }>();
+  for (const slot of [...assignments, ...surrounding]) {
+    if (!slot.userId || !slot.endsAt || !customHoursOf(slot.date, slot.shiftType, slot.startsAt, slot.endsAt)) continue;
+    const hours = `${slot.startsAt.toISOString()}|${slot.endsAt.toISOString()}`;
+    customHours.set(slot.id, hours);
+    const key = `${slot.versionId}|${slot.userId}|${hours}`;
+    const rank = slot.date.getTime() * 3 + shiftOrder[slot.shiftType];
+    const first = firstOfShift.get(key);
+    if (!first) firstOfShift.set(key, { id: slot.id, rank });
+    else if (rank < first.rank) { extensions.add(first.id); firstOfShift.set(key, { id: slot.id, rank }); }
+    else if (rank > first.rank) extensions.add(slot.id);
+  }
+  const toEngine = (a: { id: string; userId: string | null; facilityId: string; positionId: string; date: Date; shiftType: EngineAssignment['shiftType']; slotNumber: number; isLocked: boolean; source: EngineAssignment['source'] }): EngineAssignment => ({
     employeeId: a.userId ?? '',
     facilityId: a.facilityId,
     positionId: a.positionId,
@@ -65,6 +82,8 @@ export async function loadSchedulingInput(tx: Prisma.TransactionClient, schedule
     slotIndex: Math.max(0, a.slotNumber - 1),
     isManualOverride: a.isLocked,
     source: a.source,
+    customHours: customHours.get(a.id),
+    isExtension: extensions.has(a.id) || undefined,
   });
   const availability = new Map<string, Set<string>>();
   const preferences = new Map<string, Set<string>>();
@@ -99,7 +118,7 @@ export async function loadSchedulingInput(tx: Prisma.TransactionClient, schedule
     holidayCategories: new Map(),
     timeOff,
   };
-  return { input, employees, capacities, dateOverrides, forms, assignments, allAssignments: assignments.filter((a) => a.userId).map(toEngine), schedule };
+  return { input, employees, capacities, dateOverrides, forms, assignments, allAssignments: assignments.filter((a) => a.userId).map(toEngine), toEngine, schedule };
 }
 
 export async function getAutoScheduleInputData(scheduleId: string) {

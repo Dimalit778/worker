@@ -63,3 +63,35 @@ it('drops a change that returns to the saved value, and discards on cancel', () 
   expect(screen.getByText('דנה')).toBeInTheDocument();
   expect(save).not.toHaveBeenCalled();
 });
+
+it('applies custom hours to every cell of the employee that day, and carries them into a new cell', async () => {
+  save.mockResolvedValue({ ok: true });
+  const evening = { date: '2026-10-18', shiftType: 'EVENING' as const, positionId: 'p', slotIndex: 0 };
+  function HoursProbe() {
+    const edits = usePendingEdits()!;
+    const hours = edits.assignments['2026-10-18-EVENING-p']?.[0]?.customHours;
+    return (
+      <>
+        <p>{hours ? `${hours.startTime}-${hours.endTime}` : 'רגיל'}</p>
+        <button onClick={() => edits.setHours(slot, { startTime: '07:00', endTime: '19:00' })}>שעות</button>
+        <button onClick={() => edits.setSlot(evening, 'e1')}>ערב</button>
+      </>
+    );
+  }
+  render(
+    <QueryClientProvider client={new QueryClient()}>
+      <VersionProvider value={{ versionId: 'v', revision: 3 }}>
+        <PendingEditsProvider data={data}><HoursProbe /></PendingEditsProvider>
+      </VersionProvider>
+    </QueryClientProvider>,
+  );
+  fireEvent.click(screen.getByText('שעות'));
+  fireEvent.click(screen.getByText('ערב'));
+  expect(screen.getByText('07:00-19:00')).toBeInTheDocument();
+  fireEvent.click(screen.getByRole('button', { name: 'שמירה' }));
+  const hours = { startTime: '07:00', endTime: '19:00' };
+  await waitFor(() => expect(save).toHaveBeenCalledWith('s', { versionId: 'v', revision: 3 }, [
+    { ...slot, employeeId: 'e1', hours },
+    { ...evening, employeeId: 'e1', hours },
+  ]));
+});

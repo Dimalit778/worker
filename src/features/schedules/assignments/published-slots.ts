@@ -19,6 +19,7 @@ export const getPublishedSlots = unstable_cache(
         userId: true,
         date: true,
         startsAt: true,
+        endsAt: true,
         shiftType: true,
         positionId: true,
         position: { select: { name: true } },
@@ -33,8 +34,9 @@ export const getPublishedSlots = unstable_cache(
       ...row,
       date: row.date.toISOString(),
       startsAt: row.startsAt.toISOString(),
+      endsAt: row.endsAt?.toISOString(),
     }));
   },
-  ['published-schedule-slots-v1'],
+  ['published-schedule-slots-v2'],
   { revalidate: 3600 },
 );

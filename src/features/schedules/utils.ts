@@ -187,7 +187,10 @@ export function blockedEmployeeIdsForShift(
   return new Set(
     Object.entries(assignments)
       .filter(([key]) => prefixes.some((prefix) => key.startsWith(prefix)))
-      .flatMap(([, list]) => list.map((assignment) => assignment.employeeId)),
+      // Custom hours on another shift that day may extend into this one: the manager decides.
+      .flatMap(([key, list]) => list
+        .filter((assignment) => !(assignment.customHours && key.startsWith(`${date}-`) && !key.startsWith(`${date}-${shiftType}-`)))
+        .map((assignment) => assignment.employeeId)),
   );
 }
 
