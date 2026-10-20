@@ -22,6 +22,12 @@ function isNavActive(pathname: string, href: string) {
   return href === '/employee' ? pathname === '/employee' : pathname.startsWith(href);
 }
 
+function mobileScreenTitle(pathname: string, navItems: NavItem[]): string {
+  if (pathname.startsWith('/employee/availability')) return 'הגשת שיבוץ';
+  const match = navItems.find((item) => isNavActive(pathname, item.href));
+  return match?.label ?? 'שיבוץ';
+}
+
 function AvailabilityLink({ status, onNavigate }: { status: 'submitted' | 'pending'; onNavigate?: () => void }) {
   return (
     <Link
@@ -43,6 +49,7 @@ export function EmployeeHeader({ fullName, courtName, navItems, availabilityStat
   const [open, setOpen] = useState(false);
   const titleId = useId();
   const close = useCallback(() => setOpen(false), []);
+  const screenTitle = mobileScreenTitle(pathname, navItems);
 
   useEffect(() => {
     if (!open) return;
@@ -83,13 +90,13 @@ export function EmployeeHeader({ fullName, courtName, navItems, availabilityStat
         </div>
       </header>
 
-      {/* Mobile: compact bar + side drawer, same pattern as the manager shell */}
-      <header className="sticky top-0 z-100 flex h-14 items-center gap-3 border-b border-border bg-card/95 px-3 shadow-sm backdrop-blur md:hidden">
+      {/* Mobile: name/facility beside menu, screen title centered */}
+      <header className="relative sticky top-0 z-100 flex h-14 items-center gap-2 border-b border-border bg-card/95 px-3 shadow-sm backdrop-blur md:hidden">
         <Button
           type="button"
           variant="ghost"
           size="icon"
-          className="shrink-0"
+          className="relative z-10 shrink-0"
           aria-expanded={open}
           aria-controls={titleId + '-nav'}
           onClick={() => setOpen((v) => !v)}
@@ -97,11 +104,16 @@ export function EmployeeHeader({ fullName, courtName, navItems, availabilityStat
           {open ? <X className="size-5" aria-hidden /> : <Menu className="size-5" aria-hidden />}
           <span className="sr-only">{open ? 'סגור תפריט' : 'פתח תפריט'}</span>
         </Button>
-        <div className="min-w-0 flex-1 overflow-hidden">
+        <div className="relative z-10 min-w-0 max-w-[28%] overflow-hidden">
           <p className="truncate text-sm font-semibold text-foreground">{fullName}</p>
           {courtName ? <p className="truncate text-xs text-muted-foreground">{courtName}</p> : null}
         </div>
-        {availabilityStatus ? <AvailabilityLink status={availabilityStatus} /> : null}
+        <p className="pointer-events-none absolute inset-x-0 text-center text-base font-semibold text-foreground">
+          {screenTitle}
+        </p>
+        <div className="relative z-10 ms-auto shrink-0">
+          {availabilityStatus ? <AvailabilityLink status={availabilityStatus} /> : null}
+        </div>
       </header>
 
       <div className="pointer-events-none fixed inset-0 z-40 md:hidden" role="presentation" aria-hidden={!open}>
@@ -128,10 +140,6 @@ export function EmployeeHeader({ fullName, courtName, navItems, availabilityStat
           <h2 id={titleId} className="sr-only">
             ניווט
           </h2>
-          <div className="shrink-0 border-b border-sidebar-border px-4 py-3">
-            <p className="truncate text-sm font-semibold">{fullName}</p>
-            <p className="truncate text-xs text-muted-foreground">{courtName ?? '—'}</p>
-          </div>
           <nav className="flex-1 space-y-1 overflow-y-auto p-2">
             {navItems.map((item) => {
               const active = isNavActive(pathname, item.href);

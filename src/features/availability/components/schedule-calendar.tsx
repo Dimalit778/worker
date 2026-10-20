@@ -45,6 +45,8 @@ type Props = {
   status?: AvailabilityStatus;
   closesAt?: string | null;
   viewOnly?: boolean;
+  /** When false, hides the submission status badge (e.g. הוגש). Defaults to true. */
+  showStatus?: boolean;
 };
 
 const SHIFT_KEYS = SHIFTS.map((s) => s.key);
@@ -64,9 +66,10 @@ const STATUS_STYLE: Record<AvailabilityStatus, string> = {
 };
 
 function StateIcon({ preference }: { preference: Preference | undefined }) {
-  if (preference === 'AVAILABLE') return <Check className="size-4" aria-hidden />;
-  if (preference === 'PREFERRED') return <Star className="size-4 fill-current" aria-hidden />;
-  if (preference === 'UNAVAILABLE') return <X className="size-4" aria-hidden />;
+  const iconClass = 'size-3.5 sm:size-4';
+  if (preference === 'AVAILABLE') return <Check className={iconClass} aria-hidden />;
+  if (preference === 'PREFERRED') return <Star className={`${iconClass} fill-current`} aria-hidden />;
+  if (preference === 'UNAVAILABLE') return <X className={iconClass} aria-hidden />;
   return null;
 }
 
@@ -82,6 +85,7 @@ export function ScheduleCalendar({
   status: initialStatus,
   closesAt,
   viewOnly = false,
+  showStatus = true,
 }: Props) {
   const [entries, setEntries] = useState<PreferenceMap>(() => normalizeEntries(initialEntries));
   const [note, setNote] = useState(initialNote);
@@ -168,23 +172,33 @@ export function ScheduleCalendar({
     });
   }
 
+  const showHeader =
+    !viewOnly || showStatus || (editable && dirty) || (!viewOnly && Boolean(closesAt));
+
   return (
     <div className="space-y-5" dir="rtl">
-      {/* Header */}
-      <div className="grid grid-cols-[1fr_auto_1fr] items-center gap-2 text-sm">
-        <span className="font-semibold">
-          {formatDate(period.startDate)} – {formatDate(period.endDate)}
-        </span>
-        <div className="flex flex-col items-center gap-1">
-          <Badge className={cn('h-6 px-3 text-sm', STATUS_STYLE[shownStatus])} data-testid="availability-status">
-            {AVAILABILITY_STATUS_LABEL[shownStatus]}
-          </Badge>
-          {editable && dirty && <span className="text-xs font-medium text-amber-300">יש שינויים שלא נשמרו</span>}
+      {showHeader ? (
+        <div className="grid grid-cols-[1fr_auto_1fr] items-center gap-2 text-sm">
+          {!viewOnly ? (
+            <span className="font-semibold">
+              {formatDate(period.startDate)} – {formatDate(period.endDate)}
+            </span>
+          ) : (
+            <span />
+          )}
+          <div className="flex flex-col items-center gap-1">
+            {showStatus ? (
+              <Badge className={cn('h-6 px-3 text-sm', STATUS_STYLE[shownStatus])} data-testid="availability-status">
+                {AVAILABILITY_STATUS_LABEL[shownStatus]}
+              </Badge>
+            ) : null}
+            {editable && dirty && <span className="text-xs font-medium text-amber-300">יש שינויים שלא נשמרו</span>}
+          </div>
+          <span className="text-end text-xs text-muted-foreground">
+            {!viewOnly && closesAt ? <>מועד סגירה: {formatInstant(closesAt)}</> : null}
+          </span>
         </div>
-        <span className="text-end text-xs text-muted-foreground">
-          {!viewOnly && closesAt ? <>מועד סגירה: {formatInstant(closesAt)}</> : null}
-        </span>
-      </div>
+      ) : null}
 
       {/* All weeks, stacked */}
       {weeks.map((week, wi) => week.length > 0 && (
@@ -261,7 +275,7 @@ export function ScheduleCalendar({
                       return (
                         <td
                           key={date}
-                          className={cn('border-e last:border-e-0 border-border p-1', isWeekend && 'bg-muted/60')}
+                          className={cn('border-e last:border-e-0 border-border p-0.5 sm:p-1', isWeekend && 'bg-muted/60')}
                         >
                           <button
                             type="button"
@@ -271,7 +285,7 @@ export function ScheduleCalendar({
                             aria-label={`${date} ${shift.label}: ${value ? PREFERENCE_LABEL[value] : NO_CHOICE_LABEL}`}
                             title={value ? PREFERENCE_LABEL[value] : NO_CHOICE_LABEL}
                             className={cn(
-                              'w-full min-h-11 rounded-md transition-all duration-150 flex items-center justify-center focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2',
+                              'flex min-h-9 w-full items-center justify-center rounded-md transition-all duration-150 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 sm:min-h-11',
                               value ? STATE_STYLE[value] : EMPTY_STYLE,
                               !editable && 'cursor-default',
                             )}

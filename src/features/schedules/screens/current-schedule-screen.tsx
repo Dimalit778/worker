@@ -128,7 +128,6 @@ function ScheduleContent({ data, currentEmployeeId, isReadOnly, defaultView }: {
       ) : (
         <CurrentScheduleView
           scheduleId={data.scheduleId}
-          scheduleName={data.scheduleName}
           startDate={data.startDate}
           endDate={data.endDate}
           assignments={assignments}
