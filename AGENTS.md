@@ -104,7 +104,8 @@ After editing:
 - Never modify main directly.
 - After implementation, run relevant tests and review the diff.
 - Commit changes with clear commit messages.
-- Push the branch and create a GitHub Pull Request targeting main, if GitHub access is available.
+- Keep changes local by default. Push a branch only when the user explicitly requests a push or a Pull Request.
+- Create a GitHub Pull Request only when the user explicitly requests one; task completion and GitHub access are not authorization to create a PR.
 - Never merge Pull Requests automatically.
 - Wait for explicit user confirmation before starting the next task.
 - After the previous PR is merged, synchronize main before creating the next branch.
