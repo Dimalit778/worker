@@ -5,7 +5,6 @@ import { analyzeSchedule } from '../generation/recalculate';
 import { toWarningSummaries } from '../warnings/summaries';
 import { prisma } from '@/lib/db/client';
 import {
-  AssignmentMap,
   OverflowCandidateMap,
   ScheduleCapacityRule,
   ScheduleEmployeeOption,
@@ -18,6 +17,7 @@ import { toDatedCapacityRules, type DatedCapacityRule } from '../utils';
 import type { EngineInput } from '@/features/scheduling-engine/types';
 import { todayUtcDateForTimeZone } from '@/features/periods/utils';
 import { currentScheduleWhere, preparationScheduleWhere } from '../selection';
+import { getPublishedSlots } from './published-slots';
 
 const SCHEDULE_TIME_ZONE = 'Asia/Jerusalem';
 const staffedUser = { isActive: true, role: { rank: { not: 1 } } };
@@ -83,37 +83,6 @@ async function getScheduleEmployees(facilityId: string): Promise<ScheduleEmploye
   }));
 }
 
-async function getAssignmentMap(versionId: string | null | undefined): Promise<AssignmentMap> {
-  if (!versionId) return {};
-
-  const rows = await prisma.scheduleSlot.findMany({
-    where: { versionId, userId: { not: null } },
-    include: {
-      user: { select: { displayName: true } },
-      position: { select: { id: true, name: true } },
-    },
-    orderBy: [{ date: 'asc' }, { shiftType: 'asc' }, { slotNumber: 'asc' }],
-  });
-
-  return buildAssignmentMap(
-    rows.flatMap((a) => {
-      if (!a.userId || !a.user) return [];
-      return [{
-        id: a.id,
-        isLocked: a.isLocked,
-        startsAt: a.startsAt,
-        date: a.date,
-        shiftType: a.shiftType,
-        positionId: a.positionId,
-        positionName: a.position.name,
-        employeeId: a.userId,
-        employeeDisplayName: a.user.displayName,
-        slotIndex: a.slotNumber - 1,
-      }];
-    }),
-  );
-}
-
 type ScheduleRow = Schedule & { publishedVersion: ScheduleVersion | null };
 
 /** Published capacity is frozen in the version; older snapshots contain only day-category rules. */
@@ -153,11 +122,31 @@ async function buildPublishedScheduleData(
 
   const publishedVersionId = scheduleRow.publishedVersionId;
   if (!publishedVersionId) return null;
-  const [assignments, capacity, employees] = await Promise.all([
-    getAssignmentMap(publishedVersionId),
-    Promise.resolve(snapshotCapacity(scheduleRow.publishedVersion) ?? []),
-    getScheduleEmployees(facilityId),
-  ]);
+  const slots = await getPublishedSlots(
+    facilityId, scheduleRow.id, publishedVersionId, scheduleRow.publishedVersion?.revision ?? 0,
+  );
+  // Include inactive assignees for their display names, while offering only
+  // active staff in the picker. Names and eligibility must not be cached.
+  const assignedIds = [...new Set(slots.flatMap(slot => slot.userId ? [slot.userId] : []))];
+  const people = await prisma.user.findMany({
+    where: { facilityId, OR: [staffedUser, { id: { in: assignedIds } }] },
+    select: { id: true, displayName: true, isActive: true, role: { select: { id: true, name: true, rank: true } } },
+    orderBy: [{ role: { rank: 'asc' } }],
+  });
+  const names = new Map(people.map(person => [person.id, person.displayName]));
+  const employees = people
+    .filter(person => person.isActive && person.role.rank !== 1)
+    .map(person => ({ id: person.id, displayName: person.displayName, position: person.role }));
+  const assignments = buildAssignmentMap(slots.flatMap(slot => {
+    const name = slot.userId ? names.get(slot.userId) : undefined;
+    if (!slot.userId || name === undefined) return [];
+    return [{
+      id: slot.id, isLocked: slot.isLocked, startsAt: new Date(slot.startsAt), date: new Date(slot.date),
+      shiftType: slot.shiftType, positionId: slot.positionId, positionName: slot.position.name,
+      employeeId: slot.userId, employeeDisplayName: name, slotIndex: slot.slotNumber - 1,
+    }];
+  }));
+  const capacity = snapshotCapacity(scheduleRow.publishedVersion) ?? [];
 
   const base = toScheduleData(toPeriodRow(scheduleRow), facilityId, employees, capacity, assignments, [], {});
   return base ? { ...base, versionId: publishedVersionId, revision: scheduleRow.publishedVersion?.revision ?? 0 } : null;
