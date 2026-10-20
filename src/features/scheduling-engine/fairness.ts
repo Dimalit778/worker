@@ -45,6 +45,7 @@ export function computeFairnessSummary(
   const result = new Map<string, FairnessSummary>();
 
   for (const a of assignments) {
+    if (a.isExtension) continue;
     const dayCategory = holidayCategories?.get(a.date.toISOString().slice(0, 10)) ?? getDayCategory(a.date);
     const current = result.get(a.employeeId) ?? createEmptyFairnessSummary(a.employeeId);
     result.set(a.employeeId, incrementFairnessForAssignment(current, a, dayCategory));

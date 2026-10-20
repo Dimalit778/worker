@@ -7,6 +7,7 @@ import { usePendingEdits } from '@/features/schedules/shared/pending-edits';
 import { OverflowCandidates } from '../shared/overflow-candidates';
 import type { AssignmentSummary, OverflowCandidateSummary, ScheduleEmployeeOption } from '@/features/schedules/types';
 import type { ShiftType } from '@/generated/prisma/client';
+import { defaultShiftTimes, type CustomHours } from '@/features/schedules/shift-times';
 
 /** Table cells ignore min-height; keep vacant rows as tall as filled ones via an inner box. */
 const TD_SLOT_INNER = 'flex min-h-6 w-full flex-col items-center justify-center';
@@ -37,6 +38,17 @@ type Props = {
 
 function TdSlotContent({ children }: { children?: ReactNode }) {
   return <div className={TD_SLOT_INNER}>{children}</div>;
+}
+
+/** Custom hours shown next to the name, e.g. 07:00–19:00. */
+function HoursLabel({ assignment }: { assignment: AssignmentSummary | null }) {
+  const hours = assignment?.customHours;
+  if (!hours) return null;
+  return (
+    <span dir="ltr" className="block text-[10px] font-medium leading-tight text-primary">
+      {hours.startTime}–{hours.endTime}
+    </span>
+  );
 }
 
 export function AssignmentCell({
@@ -110,6 +122,7 @@ export function AssignmentCell({
       <span className={cn('truncate block', rowLayout ? 'max-w-[70%]' : 'mx-auto max-w-full text-xs leading-tight')}>{label}</span>
     ) : null;
     const overflow = !anonymousRow ? <OverflowCandidates candidates={overflowCandidates} /> : null;
+    const hoursLabel = !anonymousRow ? <HoursLabel assignment={assignment} /> : null;
     return (
       <Comp
         className={cn(
@@ -127,11 +140,13 @@ export function AssignmentCell({
         {rowLayout ? (
           <>
             {labelSpan}
+            {hoursLabel}
             {overflow}
           </>
         ) : (
           <TdSlotContent>
             {labelSpan}
+            {hoursLabel}
             {overflow}
           </TdSlotContent>
         )}
@@ -148,6 +163,11 @@ export function AssignmentCell({
     if (!assignment) return;
     setOpen(false);
     edits?.setSlot(slotRef, null);
+  }
+
+  function handleSetHours(hours: CustomHours | null) {
+    setOpen(false);
+    edits?.setHours(slotRef, hours);
   }
 
   function handleSwap(candidateAssignmentId: string) {
@@ -205,11 +225,13 @@ export function AssignmentCell({
       {rowLayout ? (
         <>
           {nameSpan}
+          <HoursLabel assignment={assignment} />
           <OverflowCandidates candidates={overflowCandidates} />
         </>
       ) : (
         <TdSlotContent>
           {nameSpan}
+          <HoursLabel assignment={assignment} />
           <OverflowCandidates candidates={overflowCandidates} />
         </TdSlotContent>
       )}
@@ -222,6 +244,9 @@ export function AssignmentCell({
           anchorRect={anchorRect}
           onSelect={handleSelect}
           onRemove={handleRemove}
+          currentHours={assignment?.customHours}
+          defaultHours={defaultShiftTimes(shiftType)}
+          onSetHours={handleSetHours}
           onClose={() => setOpen(false)}
           swapCandidates={assignment ? swapCandidates : undefined}
           onSwap={assignment ? handleSwap : undefined}

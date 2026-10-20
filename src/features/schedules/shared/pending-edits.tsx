@@ -9,6 +9,7 @@ import type { AssignmentMap, AssignmentSummary, CurrentScheduleData } from '../t
 import { createAssignmentCellKey } from '../utils';
 import { useVersionExpectation } from './version-context';
 import type { ShiftType } from '@/generated/prisma/client';
+import type { CustomHours } from '../shift-times';
 
 export type SlotRef = { date: string; shiftType: ShiftType; positionId: string; slotIndex: number };
 
@@ -16,6 +17,8 @@ type PendingEdits = {
   /** Saved assignments with the unsaved changes applied; views render this. */
   assignments: AssignmentMap;
   setSlot: (slot: SlotRef, employeeId: string | null) => void;
+  /** Set (or with null, clear) custom hours for this slot's employee on all of their cells that day. */
+  setHours: (slot: SlotRef, hours: CustomHours | null) => void;
   /** Swap this slot's employee with the employee of another (effective) assignment. */
   swapWith: (slot: SlotRef, otherAssignmentId: string) => void;
   isDirty: (slot: SlotRef) => boolean;
@@ -52,11 +55,14 @@ export function PendingEditsProvider({ data, children }: { data: CurrentSchedule
         if (index >= 0) list.splice(index, 1);
       } else {
         const employeeName = names.get(change.employeeId) ?? '';
-        if (index >= 0) list[index] = { ...list[index], employeeId: change.employeeId, employeeDisplayName: employeeName };
+        const current = index >= 0 ? list[index] : undefined;
+        const customHours = change.hours !== undefined ? change.hours ?? undefined
+          : current?.employeeId === change.employeeId ? current.customHours : undefined;
+        if (current) list[index] = { ...current, employeeId: change.employeeId, employeeDisplayName: employeeName, customHours };
         else list.push({
           id: `${NEW_ID_PREFIX}${slotId(change)}`, employeeId: change.employeeId, employeeDisplayName: employeeName,
           positionId: change.positionId, positionName: positions.get(change.positionId) ?? '',
-          shiftType: change.shiftType, slotIndex: change.slotIndex,
+          shiftType: change.shiftType, slotIndex: change.slotIndex, customHours,
         } satisfies AssignmentSummary);
       }
       next[key] = list;
@@ -64,17 +70,45 @@ export function PendingEditsProvider({ data, children }: { data: CurrentSchedule
     return next;
   }, [data.assignments, data.employees, data.capacity, changes]);
 
-  const savedEmployeeAt = (slot: SlotRef) =>
-    data.assignments[createAssignmentCellKey(slot)]?.find(a => a.slotIndex === slot.slotIndex)?.employeeId ?? null;
+  const savedAt = (slot: SlotRef) =>
+    data.assignments[createAssignmentCellKey(slot)]?.find(a => a.slotIndex === slot.slotIndex);
+  const savedEmployeeAt = (slot: SlotRef) => savedAt(slot)?.employeeId ?? null;
+  const sameHours = (a?: CustomHours | null, b?: CustomHours | null) =>
+    (a?.startTime ?? '') === (b?.startTime ?? '') && (a?.endTime ?? '') === (b?.endTime ?? '');
+
+  /** Effective cells of an employee on a date, with their custom hours. */
+  const cellsOf = (employeeId: string, date: string) => Object.entries(assignments)
+    .filter(([key]) => key.startsWith(`${date}-`))
+    .flatMap(([, list]) => list.filter(a => a.employeeId === employeeId)
+      .map(a => ({ slot: { date, shiftType: a.shiftType, positionId: a.positionId, slotIndex: a.slotIndex } as SlotRef, customHours: a.customHours })));
 
   const setSlot = (slot: SlotRef, employeeId: string | null) => {
     setError(null);
+    // Joining a day on which the employee already works custom hours extends that same shift.
+    const hours = employeeId ? cellsOf(employeeId, slot.date).find(c => c.customHours)?.customHours : undefined;
     setChanges(current => {
       const next = new Map(current);
       const id = slotId(slot);
+      const saved = savedAt(slot);
       // Back to the saved value: nothing left to save for this slot.
-      if (savedEmployeeAt(slot) === employeeId) next.delete(id);
-      else next.set(id, { date: slot.date, shiftType: slot.shiftType, positionId: slot.positionId, slotIndex: slot.slotIndex, employeeId });
+      if ((saved?.employeeId ?? null) === employeeId && (!hours || sameHours(saved?.customHours, hours))) next.delete(id);
+      else next.set(id, { date: slot.date, shiftType: slot.shiftType, positionId: slot.positionId, slotIndex: slot.slotIndex, employeeId, ...(hours ? { hours } : {}) });
+      return next;
+    });
+  };
+
+  const setHours = (slot: SlotRef, hours: CustomHours | null) => {
+    const employeeId = assignments[createAssignmentCellKey(slot)]?.find(a => a.slotIndex === slot.slotIndex)?.employeeId;
+    if (!employeeId) return;
+    setError(null);
+    setChanges(current => {
+      const next = new Map(current);
+      for (const cell of cellsOf(employeeId, slot.date)) {
+        const id = slotId(cell.slot);
+        const saved = savedAt(cell.slot);
+        if (saved?.employeeId === employeeId && sameHours(saved.customHours, hours)) next.delete(id);
+        else next.set(id, { ...cell.slot, employeeId, hours });
+      }
       return next;
     });
   };
@@ -127,7 +161,7 @@ export function PendingEditsProvider({ data, children }: { data: CurrentSchedule
   }
 
   const value = useMemo<PendingEdits>(() => ({
-    assignments, setSlot, swapWith, isDirty: slot => changes.has(slotId(slot)),
+    assignments, setSlot, setHours, swapWith, isDirty: slot => changes.has(slotId(slot)),
   // eslint-disable-next-line react-hooks/exhaustive-deps
   }), [assignments, changes]);
 

@@ -57,6 +57,7 @@ export function countWeeklyShifts(
   const empty = (): WeeklyShiftCounts => ({ MORNING: 0, EVENING: 0, NIGHT: 0 });
 
   for (const a of assignments) {
+    if (a.isExtension) continue;
     const week = getWeekNumberForDate(a.date, input);
     if (week === null) continue;
 
@@ -141,7 +142,7 @@ export function assignWeeklyMinimums(
     for (const weekNumber of getPeriodWeeks(input)) {
       const dates = new Set((weekNumber === 1 ? input.week1Dates : input.week2Dates).map(d => d.toISOString().slice(0, 10)));
       const weekSlots = slots.filter(s => dates.has(s.date.toISOString().slice(0, 10)));
-      const count = (id: string) => working.filter(a => a.employeeId === id && a.shiftType === shiftType && dates.has(a.date.toISOString().slice(0, 10))).length;
+      const count = (id: string) => working.filter(a => a.employeeId === id && a.shiftType === shiftType && !a.isExtension && dates.has(a.date.toISOString().slice(0, 10))).length;
       const options = (employee: EngineInput["employees"][number], onlyRound: boolean) => weekSlots.filter(slot =>
         (onlyRound ? slot.shiftType === shiftType : slot.shiftType !== "NIGHT") &&
         canAssignEmployeeToSlot(employee, slot, working, input.availability));

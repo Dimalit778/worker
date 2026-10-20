@@ -142,7 +142,7 @@ async function buildPublishedScheduleData(
     const name = slot.userId ? names.get(slot.userId) : undefined;
     if (!slot.userId || name === undefined) return [];
     return [{
-      id: slot.id, isLocked: slot.isLocked, startsAt: new Date(slot.startsAt), date: new Date(slot.date),
+      id: slot.id, isLocked: slot.isLocked, startsAt: new Date(slot.startsAt), endsAt: slot.endsAt ? new Date(slot.endsAt) : undefined, date: new Date(slot.date),
       shiftType: slot.shiftType, positionId: slot.positionId, positionName: slot.position.name,
       employeeId: slot.userId, employeeDisplayName: name, slotIndex: slot.slotNumber - 1,
     }];

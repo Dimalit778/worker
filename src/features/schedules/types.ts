@@ -1,6 +1,7 @@
 import { PeriodScheduleStatus } from '@/features/schedules/period-status';
 import type { DayCategory, ShiftType } from '@/generated/prisma/client';
 import type { WarningSeverity, WarningType } from '@/features/scheduling-engine/types';
+import type { CustomHours } from './shift-times';
 
 export type StaffingDayCategory = DayCategory | 'HOLIDAY';
 
@@ -37,6 +38,8 @@ export type ScheduleCapacityRule = {
 
 export type AssignmentSummary = {
   startsAt?: string;
+  /** Manager-set hours that differ from the shift's regular hours. */
+  customHours?: CustomHours;
   isLocked?: boolean;
   id: string;
   employeeId: string;
