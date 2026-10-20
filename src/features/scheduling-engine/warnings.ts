@@ -7,7 +7,7 @@ import {
   UnmetMinimum,
 } from "./types";
 import { getSlotFillCount } from "./constraints";
-import { createDateKey, getDayCategory } from "./slots";
+import { createDateKey } from "./slots";
 
 const SHIFT_LABELS = {
   MORNING: "בוקר",
@@ -163,7 +163,7 @@ export function createMandatoryStaffingWarnings(
 
   for (const group of shiftSlots.values()) {
     const slot = group[0];
-    const dayCategory = getDayCategory(slot.date);
+    const dayCategory = slot.dayCategory;
     const overridden = overriddenShifts.has(`${createDateKey(slot.date)}|${slot.shiftType}`);
     const configured = (predicate: (positionName: string | undefined) => boolean) =>
       group.filter((s) => predicate(s.positionName)).reduce((sum, s) => sum + s.requiredAmount, 0);
