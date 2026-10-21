@@ -7,7 +7,7 @@ import { dehydrateOptions, getQueryClient } from '@/lib/react-query/get-query-cl
 import { queryKeys } from '@/lib/react-query/query-keys';
 
 export default async function EmployeesList() {
-  await requireSession(PortalRole.MANAGER);
+  const session = await requireSession(PortalRole.MANAGER);
   const queryClient = getQueryClient();
 
   await queryClient.prefetchQuery({
@@ -17,7 +17,7 @@ export default async function EmployeesList() {
 
   return (
     <HydrationBoundary state={dehydrate(queryClient, dehydrateOptions())}>
-      <EmployeesListScreen />
+      <EmployeesListScreen currentUserId={session.user.id} />
     </HydrationBoundary>
   );
 }

@@ -31,11 +31,13 @@ export function EmployeesTable({
   employees,
   positions,
   facilityId,
+  currentUserId,
   showHeader = true,
 }: {
   employees: EmployeeListItem[];
   positions: PositionOption[];
   facilityId?: string;
+  currentUserId?: string;
   showHeader?: boolean;
 }) {
   const queryClient = useQueryClient();
@@ -160,8 +162,9 @@ export function EmployeesTable({
         onResendInvite: handleResendInvite,
         deletePending,
         hideDetailLinks: Boolean(facilityId),
+        currentUserId,
       }),
-    [facilityId, deletePending, handleDeleteClick, handleToggleActive, handleResendInvite, openEdit],
+    [facilityId, currentUserId, deletePending, handleDeleteClick, handleToggleActive, handleResendInvite, openEdit],
   );
 
   return (
