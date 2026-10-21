@@ -190,7 +190,7 @@ suite('phase 2 workflows against migrated PostgreSQL', () => {
     // A manual placement on the vacation day is saved as an override and raises an error warning.
     const result = await createAssignment({ scheduleId, employeeId, positionId, date: '2098-01-06', shiftType: 'MORNING', slotIndex: 0 }, expected, { reason: 'אין מחליף' });
     expected = { versionId: result.versionId, revision: result.revision };
-    const warnings = await getScheduleWarnings(scheduleId);
+    const warnings = await getScheduleWarnings(scheduleId, facilityId);
     expect(warnings.some(w => w.severity === 'ERROR' && w.message.includes('חופשה מאושרת'))).toBe(true);
   });
 

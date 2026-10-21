@@ -192,7 +192,7 @@ export async function getManagerDashboardData(year: number): Promise<ManagerDash
       };
     }
 
-    const warnings = draftRow ? await getScheduleWarnings(draftRow.id) : [];
+    const warnings = draftRow ? await getScheduleWarnings(draftRow.id, facilityId) : [];
 
     return {
       staff: { byPosition, totalActive },
