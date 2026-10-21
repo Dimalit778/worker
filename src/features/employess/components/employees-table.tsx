@@ -5,7 +5,7 @@ import { useMutation, useQueryClient } from '@tanstack/react-query';
 import { Plus } from 'lucide-react';
 
 import { EmployeeListItem, FutureAssignment, PositionOption } from '@/features/employess/types';
-import { resendEmployeeInvite, setEmployeeActive } from '@/features/employess/actions';
+import { deleteEmployee, resendEmployeeInvite, setEmployeeActive } from '@/features/employess/actions';
 import { deleteAdminEmployee } from '@/features/admin/actions';
 import { invalidateEmployeesList } from '@/features/employess/hooks';
 import { SHIFT_LABELS } from '@/features/schedules/constants';
@@ -41,7 +41,8 @@ export function EmployeesTable({
   const queryClient = useQueryClient();
 
   const deleteMutation = useMutation({
-    mutationFn: (employeeId: string) => deleteAdminEmployee(employeeId),
+    mutationFn: (employeeId: string) =>
+      facilityId ? deleteAdminEmployee(employeeId) : deleteEmployee(employeeId),
     onSuccess: (result) => {
       if ('error' in result) {
         setError(result.error);
@@ -50,6 +51,7 @@ export function EmployeesTable({
       setDeleteTarget(null);
       invalidateEmployeesList(queryClient, facilityId);
     },
+    onError: () => setError('מחיקת העובד נכשלה. נסה שוב.'),
   });
 
   const activeMutation = useMutation({
@@ -153,7 +155,7 @@ export function EmployeesTable({
     () =>
       createEmployeesColumns({
         onEdit: openEdit,
-        onDelete: facilityId ? handleDeleteClick : undefined,
+        onDelete: handleDeleteClick,
         onToggleActive: facilityId ? undefined : handleToggleActive,
         onResendInvite: handleResendInvite,
         deletePending,
@@ -208,9 +210,12 @@ export function EmployeesTable({
           <AlertDialogHeader>
             <AlertDialogTitle>מחיקת עובד</AlertDialogTitle>
             <AlertDialogDescription>
-              האם אתה בטוח שברצונך למחוק את {deleteTarget?.name}? פעולה זו לא ניתנת לביטול.
+              האם אתה בטוח שברצונך למחוק את {deleteTarget?.name}? העובד יוסר מרשימת העובדים ולא יוכל להתחבר
+              או להשתבץ מחדש. שמו ושיבוציו בעבר ובסידור הנוכחי יישמרו. פעולה זו לא ניתנת לביטול.
             </AlertDialogDescription>
           </AlertDialogHeader>
+
+          {error && <p role="alert" className="text-sm text-destructive">{error}</p>}
 
           <AlertDialogFooter className="gap-2 sm:justify-start">
             <AlertDialogCancel disabled={deletePending}>ביטול</AlertDialogCancel>

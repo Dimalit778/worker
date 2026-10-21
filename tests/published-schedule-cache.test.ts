@@ -19,7 +19,7 @@ vi.mock('next/cache', () => ({
     },
 }));
 
-import { getCurrentSchedule, getUpcomingSchedule } from '@/features/schedules/assignments/queries';
+import { getCurrentSchedule, getUpcomingSchedule, getOriginalSchedule } from '@/features/schedules/assignments/queries';
 
 const date = new Date('2026-10-20T00:00:00Z');
 const startsAt = new Date('2026-10-20T04:00:00Z');
@@ -93,6 +93,15 @@ describe('published schedule Data Cache', () => {
     expect(mocks.user.findMany.mock.lastCall?.[0].where).toMatchObject({
       facilityId: 'facility', OR: expect.arrayContaining([{ id: { in: ['employee'] } }]),
     });
+  });
+
+  it('preserves a deleted employee in current and original schedules while excluding them from the picker', async () => {
+    mocks.user.findMany.mockResolvedValue([{ ...person, isActive: false, deletedAt: new Date() }]);
+    mocks.schedule.findFirst.mockResolvedValue({ ...schedule, originalVersion: schedule.publishedVersion });
+    for (const result of [await getCurrentSchedule('facility'), await getOriginalSchedule('schedule', 'facility')]) {
+      expect(result?.employees).toEqual([]);
+      expect(result?.assignments[cell][0]).toMatchObject({ employeeId: person.id, employeeDisplayName: person.displayName });
+    }
   });
 
   it('offers new active employees on a cache hit and excludes assigned managers from the picker', async () => {

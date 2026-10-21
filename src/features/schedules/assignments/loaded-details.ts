@@ -6,7 +6,7 @@ import { buildAssignmentMap } from './utils';
 
 /** Reuse the engine's loaded rows for display instead of querying them again. */
 export function loadedScheduleDetails(data: Awaited<ReturnType<typeof loadSchedulingInput>>) {
-  const employees = data.employees.map(e => ({
+  const employees = data.employees.filter(e => !e.deletedAt).map(e => ({
     id: e.id, displayName: e.displayName,
     position: { id: e.role.id, name: e.role.name, rank: e.role.rank },
   })).sort((a, b) => a.position.rank - b.position.rank);
@@ -15,7 +15,8 @@ export function loadedScheduleDetails(data: Awaited<ReturnType<typeof loadSchedu
     rank: c.position.requiredRank ?? c.position.baseRole?.rank ?? c.position.displayOrder,
     color: c.position.color, shiftType: c.shiftType, dayCategory: c.dayCategory, amount: c.requiredCount,
   }));
-  const names = new Map(employees.map(e => [e.id, e.displayName]));
+  // Deleted staff remain available for assignment names, never for new selections.
+  const names = new Map(data.employees.map(e => [e.id, e.displayName]));
   const positions = new Map(capacity.map(c => [c.positionId, c.displayName]));
   const assignments = buildAssignmentMap([...data.assignments]
     .sort((a, b) => a.slotNumber - b.slotNumber)

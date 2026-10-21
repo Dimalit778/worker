@@ -49,6 +49,7 @@ export type UserMinAggregateOutputType = {
   canEditSchedule: boolean | null
   isActive: boolean | null
   deactivatedAt: Date | null
+  deletedAt: Date | null
   failedLoginCount: number | null
   lockedUntil: Date | null
   createdAt: Date | null
@@ -70,6 +71,7 @@ export type UserMaxAggregateOutputType = {
   canEditSchedule: boolean | null
   isActive: boolean | null
   deactivatedAt: Date | null
+  deletedAt: Date | null
   failedLoginCount: number | null
   lockedUntil: Date | null
   createdAt: Date | null
@@ -91,6 +93,7 @@ export type UserCountAggregateOutputType = {
   canEditSchedule: number
   isActive: number
   deactivatedAt: number
+  deletedAt: number
   failedLoginCount: number
   lockedUntil: number
   createdAt: number
@@ -122,6 +125,7 @@ export type UserMinAggregateInputType = {
   canEditSchedule?: true
   isActive?: true
   deactivatedAt?: true
+  deletedAt?: true
   failedLoginCount?: true
   lockedUntil?: true
   createdAt?: true
@@ -143,6 +147,7 @@ export type UserMaxAggregateInputType = {
   canEditSchedule?: true
   isActive?: true
   deactivatedAt?: true
+  deletedAt?: true
   failedLoginCount?: true
   lockedUntil?: true
   createdAt?: true
@@ -164,6 +169,7 @@ export type UserCountAggregateInputType = {
   canEditSchedule?: true
   isActive?: true
   deactivatedAt?: true
+  deletedAt?: true
   failedLoginCount?: true
   lockedUntil?: true
   createdAt?: true
@@ -272,6 +278,7 @@ export type UserGroupByOutputType = {
   canEditSchedule: boolean
   isActive: boolean
   deactivatedAt: Date | null
+  deletedAt: Date | null
   failedLoginCount: number
   lockedUntil: Date | null
   createdAt: Date
@@ -316,6 +323,7 @@ export type UserWhereInput = {
   canEditSchedule?: Prisma.BoolFilter<"User"> | boolean
   isActive?: Prisma.BoolFilter<"User"> | boolean
   deactivatedAt?: Prisma.DateTimeNullableFilter<"User"> | Date | string | null
+  deletedAt?: Prisma.DateTimeNullableFilter<"User"> | Date | string | null
   failedLoginCount?: Prisma.IntFilter<"User"> | number
   lockedUntil?: Prisma.DateTimeNullableFilter<"User"> | Date | string | null
   createdAt?: Prisma.DateTimeFilter<"User"> | Date | string
@@ -348,6 +356,7 @@ export type UserOrderByWithRelationInput = {
   canEditSchedule?: Prisma.SortOrder
   isActive?: Prisma.SortOrder
   deactivatedAt?: Prisma.SortOrderInput | Prisma.SortOrder
+  deletedAt?: Prisma.SortOrderInput | Prisma.SortOrder
   failedLoginCount?: Prisma.SortOrder
   lockedUntil?: Prisma.SortOrderInput | Prisma.SortOrder
   createdAt?: Prisma.SortOrder
@@ -384,6 +393,7 @@ export type UserWhereUniqueInput = Prisma.AtLeast<{
   canEditSchedule?: Prisma.BoolFilter<"User"> | boolean
   isActive?: Prisma.BoolFilter<"User"> | boolean
   deactivatedAt?: Prisma.DateTimeNullableFilter<"User"> | Date | string | null
+  deletedAt?: Prisma.DateTimeNullableFilter<"User"> | Date | string | null
   failedLoginCount?: Prisma.IntFilter<"User"> | number
   lockedUntil?: Prisma.DateTimeNullableFilter<"User"> | Date | string | null
   createdAt?: Prisma.DateTimeFilter<"User"> | Date | string
@@ -416,6 +426,7 @@ export type UserOrderByWithAggregationInput = {
   canEditSchedule?: Prisma.SortOrder
   isActive?: Prisma.SortOrder
   deactivatedAt?: Prisma.SortOrderInput | Prisma.SortOrder
+  deletedAt?: Prisma.SortOrderInput | Prisma.SortOrder
   failedLoginCount?: Prisma.SortOrder
   lockedUntil?: Prisma.SortOrderInput | Prisma.SortOrder
   createdAt?: Prisma.SortOrder
@@ -445,6 +456,7 @@ export type UserScalarWhereWithAggregatesInput = {
   canEditSchedule?: Prisma.BoolWithAggregatesFilter<"User"> | boolean
   isActive?: Prisma.BoolWithAggregatesFilter<"User"> | boolean
   deactivatedAt?: Prisma.DateTimeNullableWithAggregatesFilter<"User"> | Date | string | null
+  deletedAt?: Prisma.DateTimeNullableWithAggregatesFilter<"User"> | Date | string | null
   failedLoginCount?: Prisma.IntWithAggregatesFilter<"User"> | number
   lockedUntil?: Prisma.DateTimeNullableWithAggregatesFilter<"User"> | Date | string | null
   createdAt?: Prisma.DateTimeWithAggregatesFilter<"User"> | Date | string
@@ -464,6 +476,7 @@ export type UserCreateInput = {
   canEditSchedule?: boolean
   isActive?: boolean
   deactivatedAt?: Date | string | null
+  deletedAt?: Date | string | null
   failedLoginCount?: number
   lockedUntil?: Date | string | null
   createdAt?: Date | string
@@ -496,6 +509,7 @@ export type UserUncheckedCreateInput = {
   canEditSchedule?: boolean
   isActive?: boolean
   deactivatedAt?: Date | string | null
+  deletedAt?: Date | string | null
   failedLoginCount?: number
   lockedUntil?: Date | string | null
   createdAt?: Date | string
@@ -524,6 +538,7 @@ export type UserUpdateInput = {
   canEditSchedule?: Prisma.BoolFieldUpdateOperationsInput | boolean
   isActive?: Prisma.BoolFieldUpdateOperationsInput | boolean
   deactivatedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  deletedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   failedLoginCount?: Prisma.IntFieldUpdateOperationsInput | number
   lockedUntil?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
@@ -556,6 +571,7 @@ export type UserUncheckedUpdateInput = {
   canEditSchedule?: Prisma.BoolFieldUpdateOperationsInput | boolean
   isActive?: Prisma.BoolFieldUpdateOperationsInput | boolean
   deactivatedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  deletedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   failedLoginCount?: Prisma.IntFieldUpdateOperationsInput | number
   lockedUntil?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
@@ -586,6 +602,7 @@ export type UserCreateManyInput = {
   canEditSchedule?: boolean
   isActive?: boolean
   deactivatedAt?: Date | string | null
+  deletedAt?: Date | string | null
   failedLoginCount?: number
   lockedUntil?: Date | string | null
   createdAt?: Date | string
@@ -605,6 +622,7 @@ export type UserUpdateManyMutationInput = {
   canEditSchedule?: Prisma.BoolFieldUpdateOperationsInput | boolean
   isActive?: Prisma.BoolFieldUpdateOperationsInput | boolean
   deactivatedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  deletedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   failedLoginCount?: Prisma.IntFieldUpdateOperationsInput | number
   lockedUntil?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
@@ -626,6 +644,7 @@ export type UserUncheckedUpdateManyInput = {
   canEditSchedule?: Prisma.BoolFieldUpdateOperationsInput | boolean
   isActive?: Prisma.BoolFieldUpdateOperationsInput | boolean
   deactivatedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  deletedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   failedLoginCount?: Prisma.IntFieldUpdateOperationsInput | number
   lockedUntil?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
@@ -657,6 +676,7 @@ export type UserCountOrderByAggregateInput = {
   canEditSchedule?: Prisma.SortOrder
   isActive?: Prisma.SortOrder
   deactivatedAt?: Prisma.SortOrder
+  deletedAt?: Prisma.SortOrder
   failedLoginCount?: Prisma.SortOrder
   lockedUntil?: Prisma.SortOrder
   createdAt?: Prisma.SortOrder
@@ -682,6 +702,7 @@ export type UserMaxOrderByAggregateInput = {
   canEditSchedule?: Prisma.SortOrder
   isActive?: Prisma.SortOrder
   deactivatedAt?: Prisma.SortOrder
+  deletedAt?: Prisma.SortOrder
   failedLoginCount?: Prisma.SortOrder
   lockedUntil?: Prisma.SortOrder
   createdAt?: Prisma.SortOrder
@@ -703,6 +724,7 @@ export type UserMinOrderByAggregateInput = {
   canEditSchedule?: Prisma.SortOrder
   isActive?: Prisma.SortOrder
   deactivatedAt?: Prisma.SortOrder
+  deletedAt?: Prisma.SortOrder
   failedLoginCount?: Prisma.SortOrder
   lockedUntil?: Prisma.SortOrder
   createdAt?: Prisma.SortOrder
@@ -977,6 +999,7 @@ export type UserCreateWithoutAccountsInput = {
   canEditSchedule?: boolean
   isActive?: boolean
   deactivatedAt?: Date | string | null
+  deletedAt?: Date | string | null
   failedLoginCount?: number
   lockedUntil?: Date | string | null
   createdAt?: Date | string
@@ -1008,6 +1031,7 @@ export type UserUncheckedCreateWithoutAccountsInput = {
   canEditSchedule?: boolean
   isActive?: boolean
   deactivatedAt?: Date | string | null
+  deletedAt?: Date | string | null
   failedLoginCount?: number
   lockedUntil?: Date | string | null
   createdAt?: Date | string
@@ -1051,6 +1075,7 @@ export type UserUpdateWithoutAccountsInput = {
   canEditSchedule?: Prisma.BoolFieldUpdateOperationsInput | boolean
   isActive?: Prisma.BoolFieldUpdateOperationsInput | boolean
   deactivatedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  deletedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   failedLoginCount?: Prisma.IntFieldUpdateOperationsInput | number
   lockedUntil?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
@@ -1082,6 +1107,7 @@ export type UserUncheckedUpdateWithoutAccountsInput = {
   canEditSchedule?: Prisma.BoolFieldUpdateOperationsInput | boolean
   isActive?: Prisma.BoolFieldUpdateOperationsInput | boolean
   deactivatedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  deletedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   failedLoginCount?: Prisma.IntFieldUpdateOperationsInput | number
   lockedUntil?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
@@ -1109,6 +1135,7 @@ export type UserCreateWithoutSessionsInput = {
   canEditSchedule?: boolean
   isActive?: boolean
   deactivatedAt?: Date | string | null
+  deletedAt?: Date | string | null
   failedLoginCount?: number
   lockedUntil?: Date | string | null
   createdAt?: Date | string
@@ -1140,6 +1167,7 @@ export type UserUncheckedCreateWithoutSessionsInput = {
   canEditSchedule?: boolean
   isActive?: boolean
   deactivatedAt?: Date | string | null
+  deletedAt?: Date | string | null
   failedLoginCount?: number
   lockedUntil?: Date | string | null
   createdAt?: Date | string
@@ -1183,6 +1211,7 @@ export type UserUpdateWithoutSessionsInput = {
   canEditSchedule?: Prisma.BoolFieldUpdateOperationsInput | boolean
   isActive?: Prisma.BoolFieldUpdateOperationsInput | boolean
   deactivatedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  deletedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   failedLoginCount?: Prisma.IntFieldUpdateOperationsInput | number
   lockedUntil?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
@@ -1214,6 +1243,7 @@ export type UserUncheckedUpdateWithoutSessionsInput = {
   canEditSchedule?: Prisma.BoolFieldUpdateOperationsInput | boolean
   isActive?: Prisma.BoolFieldUpdateOperationsInput | boolean
   deactivatedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  deletedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   failedLoginCount?: Prisma.IntFieldUpdateOperationsInput | number
   lockedUntil?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
@@ -1241,6 +1271,7 @@ export type UserCreateWithoutRoleInput = {
   canEditSchedule?: boolean
   isActive?: boolean
   deactivatedAt?: Date | string | null
+  deletedAt?: Date | string | null
   failedLoginCount?: number
   lockedUntil?: Date | string | null
   createdAt?: Date | string
@@ -1271,6 +1302,7 @@ export type UserUncheckedCreateWithoutRoleInput = {
   canEditSchedule?: boolean
   isActive?: boolean
   deactivatedAt?: Date | string | null
+  deletedAt?: Date | string | null
   failedLoginCount?: number
   lockedUntil?: Date | string | null
   createdAt?: Date | string
@@ -1330,6 +1362,7 @@ export type UserScalarWhereInput = {
   canEditSchedule?: Prisma.BoolFilter<"User"> | boolean
   isActive?: Prisma.BoolFilter<"User"> | boolean
   deactivatedAt?: Prisma.DateTimeNullableFilter<"User"> | Date | string | null
+  deletedAt?: Prisma.DateTimeNullableFilter<"User"> | Date | string | null
   failedLoginCount?: Prisma.IntFilter<"User"> | number
   lockedUntil?: Prisma.DateTimeNullableFilter<"User"> | Date | string | null
   createdAt?: Prisma.DateTimeFilter<"User"> | Date | string
@@ -1349,6 +1382,7 @@ export type UserCreateWithoutFacilityInput = {
   canEditSchedule?: boolean
   isActive?: boolean
   deactivatedAt?: Date | string | null
+  deletedAt?: Date | string | null
   failedLoginCount?: number
   lockedUntil?: Date | string | null
   createdAt?: Date | string
@@ -1379,6 +1413,7 @@ export type UserUncheckedCreateWithoutFacilityInput = {
   canEditSchedule?: boolean
   isActive?: boolean
   deactivatedAt?: Date | string | null
+  deletedAt?: Date | string | null
   failedLoginCount?: number
   lockedUntil?: Date | string | null
   createdAt?: Date | string
@@ -1433,6 +1468,7 @@ export type UserCreateWithoutStaffingOverridesInput = {
   canEditSchedule?: boolean
   isActive?: boolean
   deactivatedAt?: Date | string | null
+  deletedAt?: Date | string | null
   failedLoginCount?: number
   lockedUntil?: Date | string | null
   createdAt?: Date | string
@@ -1464,6 +1500,7 @@ export type UserUncheckedCreateWithoutStaffingOverridesInput = {
   canEditSchedule?: boolean
   isActive?: boolean
   deactivatedAt?: Date | string | null
+  deletedAt?: Date | string | null
   failedLoginCount?: number
   lockedUntil?: Date | string | null
   createdAt?: Date | string
@@ -1507,6 +1544,7 @@ export type UserUpdateWithoutStaffingOverridesInput = {
   canEditSchedule?: Prisma.BoolFieldUpdateOperationsInput | boolean
   isActive?: Prisma.BoolFieldUpdateOperationsInput | boolean
   deactivatedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  deletedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   failedLoginCount?: Prisma.IntFieldUpdateOperationsInput | number
   lockedUntil?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
@@ -1538,6 +1576,7 @@ export type UserUncheckedUpdateWithoutStaffingOverridesInput = {
   canEditSchedule?: Prisma.BoolFieldUpdateOperationsInput | boolean
   isActive?: Prisma.BoolFieldUpdateOperationsInput | boolean
   deactivatedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  deletedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   failedLoginCount?: Prisma.IntFieldUpdateOperationsInput | number
   lockedUntil?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
@@ -1565,6 +1604,7 @@ export type UserCreateWithoutSlotsInput = {
   canEditSchedule?: boolean
   isActive?: boolean
   deactivatedAt?: Date | string | null
+  deletedAt?: Date | string | null
   failedLoginCount?: number
   lockedUntil?: Date | string | null
   createdAt?: Date | string
@@ -1596,6 +1636,7 @@ export type UserUncheckedCreateWithoutSlotsInput = {
   canEditSchedule?: boolean
   isActive?: boolean
   deactivatedAt?: Date | string | null
+  deletedAt?: Date | string | null
   failedLoginCount?: number
   lockedUntil?: Date | string | null
   createdAt?: Date | string
@@ -1639,6 +1680,7 @@ export type UserUpdateWithoutSlotsInput = {
   canEditSchedule?: Prisma.BoolFieldUpdateOperationsInput | boolean
   isActive?: Prisma.BoolFieldUpdateOperationsInput | boolean
   deactivatedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  deletedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   failedLoginCount?: Prisma.IntFieldUpdateOperationsInput | number
   lockedUntil?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
@@ -1670,6 +1712,7 @@ export type UserUncheckedUpdateWithoutSlotsInput = {
   canEditSchedule?: Prisma.BoolFieldUpdateOperationsInput | boolean
   isActive?: Prisma.BoolFieldUpdateOperationsInput | boolean
   deactivatedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  deletedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   failedLoginCount?: Prisma.IntFieldUpdateOperationsInput | number
   lockedUntil?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
@@ -1697,6 +1740,7 @@ export type UserCreateWithoutSubmissionsInput = {
   canEditSchedule?: boolean
   isActive?: boolean
   deactivatedAt?: Date | string | null
+  deletedAt?: Date | string | null
   failedLoginCount?: number
   lockedUntil?: Date | string | null
   createdAt?: Date | string
@@ -1728,6 +1772,7 @@ export type UserUncheckedCreateWithoutSubmissionsInput = {
   canEditSchedule?: boolean
   isActive?: boolean
   deactivatedAt?: Date | string | null
+  deletedAt?: Date | string | null
   failedLoginCount?: number
   lockedUntil?: Date | string | null
   createdAt?: Date | string
@@ -1771,6 +1816,7 @@ export type UserUpdateWithoutSubmissionsInput = {
   canEditSchedule?: Prisma.BoolFieldUpdateOperationsInput | boolean
   isActive?: Prisma.BoolFieldUpdateOperationsInput | boolean
   deactivatedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  deletedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   failedLoginCount?: Prisma.IntFieldUpdateOperationsInput | number
   lockedUntil?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
@@ -1802,6 +1848,7 @@ export type UserUncheckedUpdateWithoutSubmissionsInput = {
   canEditSchedule?: Prisma.BoolFieldUpdateOperationsInput | boolean
   isActive?: Prisma.BoolFieldUpdateOperationsInput | boolean
   deactivatedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  deletedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   failedLoginCount?: Prisma.IntFieldUpdateOperationsInput | number
   lockedUntil?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
@@ -1829,6 +1876,7 @@ export type UserCreateWithoutChangesInput = {
   canEditSchedule?: boolean
   isActive?: boolean
   deactivatedAt?: Date | string | null
+  deletedAt?: Date | string | null
   failedLoginCount?: number
   lockedUntil?: Date | string | null
   createdAt?: Date | string
@@ -1860,6 +1908,7 @@ export type UserUncheckedCreateWithoutChangesInput = {
   canEditSchedule?: boolean
   isActive?: boolean
   deactivatedAt?: Date | string | null
+  deletedAt?: Date | string | null
   failedLoginCount?: number
   lockedUntil?: Date | string | null
   createdAt?: Date | string
@@ -1903,6 +1952,7 @@ export type UserUpdateWithoutChangesInput = {
   canEditSchedule?: Prisma.BoolFieldUpdateOperationsInput | boolean
   isActive?: Prisma.BoolFieldUpdateOperationsInput | boolean
   deactivatedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  deletedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   failedLoginCount?: Prisma.IntFieldUpdateOperationsInput | number
   lockedUntil?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
@@ -1934,6 +1984,7 @@ export type UserUncheckedUpdateWithoutChangesInput = {
   canEditSchedule?: Prisma.BoolFieldUpdateOperationsInput | boolean
   isActive?: Prisma.BoolFieldUpdateOperationsInput | boolean
   deactivatedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  deletedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   failedLoginCount?: Prisma.IntFieldUpdateOperationsInput | number
   lockedUntil?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
@@ -1961,6 +2012,7 @@ export type UserCreateWithoutRequestsInput = {
   canEditSchedule?: boolean
   isActive?: boolean
   deactivatedAt?: Date | string | null
+  deletedAt?: Date | string | null
   failedLoginCount?: number
   lockedUntil?: Date | string | null
   createdAt?: Date | string
@@ -1992,6 +2044,7 @@ export type UserUncheckedCreateWithoutRequestsInput = {
   canEditSchedule?: boolean
   isActive?: boolean
   deactivatedAt?: Date | string | null
+  deletedAt?: Date | string | null
   failedLoginCount?: number
   lockedUntil?: Date | string | null
   createdAt?: Date | string
@@ -2024,6 +2077,7 @@ export type UserCreateWithoutIncomingRequestsInput = {
   canEditSchedule?: boolean
   isActive?: boolean
   deactivatedAt?: Date | string | null
+  deletedAt?: Date | string | null
   failedLoginCount?: number
   lockedUntil?: Date | string | null
   createdAt?: Date | string
@@ -2055,6 +2109,7 @@ export type UserUncheckedCreateWithoutIncomingRequestsInput = {
   canEditSchedule?: boolean
   isActive?: boolean
   deactivatedAt?: Date | string | null
+  deletedAt?: Date | string | null
   failedLoginCount?: number
   lockedUntil?: Date | string | null
   createdAt?: Date | string
@@ -2087,6 +2142,7 @@ export type UserCreateWithoutDecidedRequestsInput = {
   canEditSchedule?: boolean
   isActive?: boolean
   deactivatedAt?: Date | string | null
+  deletedAt?: Date | string | null
   failedLoginCount?: number
   lockedUntil?: Date | string | null
   createdAt?: Date | string
@@ -2118,6 +2174,7 @@ export type UserUncheckedCreateWithoutDecidedRequestsInput = {
   canEditSchedule?: boolean
   isActive?: boolean
   deactivatedAt?: Date | string | null
+  deletedAt?: Date | string | null
   failedLoginCount?: number
   lockedUntil?: Date | string | null
   createdAt?: Date | string
@@ -2161,6 +2218,7 @@ export type UserUpdateWithoutRequestsInput = {
   canEditSchedule?: Prisma.BoolFieldUpdateOperationsInput | boolean
   isActive?: Prisma.BoolFieldUpdateOperationsInput | boolean
   deactivatedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  deletedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   failedLoginCount?: Prisma.IntFieldUpdateOperationsInput | number
   lockedUntil?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
@@ -2192,6 +2250,7 @@ export type UserUncheckedUpdateWithoutRequestsInput = {
   canEditSchedule?: Prisma.BoolFieldUpdateOperationsInput | boolean
   isActive?: Prisma.BoolFieldUpdateOperationsInput | boolean
   deactivatedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  deletedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   failedLoginCount?: Prisma.IntFieldUpdateOperationsInput | number
   lockedUntil?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
@@ -2230,6 +2289,7 @@ export type UserUpdateWithoutIncomingRequestsInput = {
   canEditSchedule?: Prisma.BoolFieldUpdateOperationsInput | boolean
   isActive?: Prisma.BoolFieldUpdateOperationsInput | boolean
   deactivatedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  deletedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   failedLoginCount?: Prisma.IntFieldUpdateOperationsInput | number
   lockedUntil?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
@@ -2261,6 +2321,7 @@ export type UserUncheckedUpdateWithoutIncomingRequestsInput = {
   canEditSchedule?: Prisma.BoolFieldUpdateOperationsInput | boolean
   isActive?: Prisma.BoolFieldUpdateOperationsInput | boolean
   deactivatedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  deletedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   failedLoginCount?: Prisma.IntFieldUpdateOperationsInput | number
   lockedUntil?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
@@ -2299,6 +2360,7 @@ export type UserUpdateWithoutDecidedRequestsInput = {
   canEditSchedule?: Prisma.BoolFieldUpdateOperationsInput | boolean
   isActive?: Prisma.BoolFieldUpdateOperationsInput | boolean
   deactivatedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  deletedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   failedLoginCount?: Prisma.IntFieldUpdateOperationsInput | number
   lockedUntil?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
@@ -2330,6 +2392,7 @@ export type UserUncheckedUpdateWithoutDecidedRequestsInput = {
   canEditSchedule?: Prisma.BoolFieldUpdateOperationsInput | boolean
   isActive?: Prisma.BoolFieldUpdateOperationsInput | boolean
   deactivatedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  deletedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   failedLoginCount?: Prisma.IntFieldUpdateOperationsInput | number
   lockedUntil?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
@@ -2358,6 +2421,7 @@ export type UserCreateManyRoleInput = {
   canEditSchedule?: boolean
   isActive?: boolean
   deactivatedAt?: Date | string | null
+  deletedAt?: Date | string | null
   failedLoginCount?: number
   lockedUntil?: Date | string | null
   createdAt?: Date | string
@@ -2377,6 +2441,7 @@ export type UserUpdateWithoutRoleInput = {
   canEditSchedule?: Prisma.BoolFieldUpdateOperationsInput | boolean
   isActive?: Prisma.BoolFieldUpdateOperationsInput | boolean
   deactivatedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  deletedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   failedLoginCount?: Prisma.IntFieldUpdateOperationsInput | number
   lockedUntil?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
@@ -2407,6 +2472,7 @@ export type UserUncheckedUpdateWithoutRoleInput = {
   canEditSchedule?: Prisma.BoolFieldUpdateOperationsInput | boolean
   isActive?: Prisma.BoolFieldUpdateOperationsInput | boolean
   deactivatedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  deletedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   failedLoginCount?: Prisma.IntFieldUpdateOperationsInput | number
   lockedUntil?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
@@ -2436,6 +2502,7 @@ export type UserUncheckedUpdateManyWithoutRoleInput = {
   canEditSchedule?: Prisma.BoolFieldUpdateOperationsInput | boolean
   isActive?: Prisma.BoolFieldUpdateOperationsInput | boolean
   deactivatedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  deletedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   failedLoginCount?: Prisma.IntFieldUpdateOperationsInput | number
   lockedUntil?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
@@ -2456,6 +2523,7 @@ export type UserCreateManyFacilityInput = {
   canEditSchedule?: boolean
   isActive?: boolean
   deactivatedAt?: Date | string | null
+  deletedAt?: Date | string | null
   failedLoginCount?: number
   lockedUntil?: Date | string | null
   createdAt?: Date | string
@@ -2475,6 +2543,7 @@ export type UserUpdateWithoutFacilityInput = {
   canEditSchedule?: Prisma.BoolFieldUpdateOperationsInput | boolean
   isActive?: Prisma.BoolFieldUpdateOperationsInput | boolean
   deactivatedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  deletedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   failedLoginCount?: Prisma.IntFieldUpdateOperationsInput | number
   lockedUntil?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
@@ -2505,6 +2574,7 @@ export type UserUncheckedUpdateWithoutFacilityInput = {
   canEditSchedule?: Prisma.BoolFieldUpdateOperationsInput | boolean
   isActive?: Prisma.BoolFieldUpdateOperationsInput | boolean
   deactivatedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  deletedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   failedLoginCount?: Prisma.IntFieldUpdateOperationsInput | number
   lockedUntil?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
@@ -2534,6 +2604,7 @@ export type UserUncheckedUpdateManyWithoutFacilityInput = {
   canEditSchedule?: Prisma.BoolFieldUpdateOperationsInput | boolean
   isActive?: Prisma.BoolFieldUpdateOperationsInput | boolean
   deactivatedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  deletedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   failedLoginCount?: Prisma.IntFieldUpdateOperationsInput | number
   lockedUntil?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
@@ -2658,6 +2729,7 @@ export type UserSelect<ExtArgs extends runtime.Types.Extensions.InternalArgs = r
   canEditSchedule?: boolean
   isActive?: boolean
   deactivatedAt?: boolean
+  deletedAt?: boolean
   failedLoginCount?: boolean
   lockedUntil?: boolean
   createdAt?: boolean
@@ -2691,6 +2763,7 @@ export type UserSelectCreateManyAndReturn<ExtArgs extends runtime.Types.Extensio
   canEditSchedule?: boolean
   isActive?: boolean
   deactivatedAt?: boolean
+  deletedAt?: boolean
   failedLoginCount?: boolean
   lockedUntil?: boolean
   createdAt?: boolean
@@ -2714,6 +2787,7 @@ export type UserSelectUpdateManyAndReturn<ExtArgs extends runtime.Types.Extensio
   canEditSchedule?: boolean
   isActive?: boolean
   deactivatedAt?: boolean
+  deletedAt?: boolean
   failedLoginCount?: boolean
   lockedUntil?: boolean
   createdAt?: boolean
@@ -2737,13 +2811,14 @@ export type UserSelectScalar = {
   canEditSchedule?: boolean
   isActive?: boolean
   deactivatedAt?: boolean
+  deletedAt?: boolean
   failedLoginCount?: boolean
   lockedUntil?: boolean
   createdAt?: boolean
   updatedAt?: boolean
 }
 
-export type UserOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"id" | "email" | "passwordHash" | "systemRole" | "firstName" | "lastName" | "displayName" | "phoneNumber" | "isReligious" | "facilityId" | "roleId" | "canEditSchedule" | "isActive" | "deactivatedAt" | "failedLoginCount" | "lockedUntil" | "createdAt" | "updatedAt", ExtArgs["result"]["user"]>
+export type UserOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"id" | "email" | "passwordHash" | "systemRole" | "firstName" | "lastName" | "displayName" | "phoneNumber" | "isReligious" | "facilityId" | "roleId" | "canEditSchedule" | "isActive" | "deactivatedAt" | "deletedAt" | "failedLoginCount" | "lockedUntil" | "createdAt" | "updatedAt", ExtArgs["result"]["user"]>
 export type UserInclude<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
   role?: boolean | Prisma.RoleDefaultArgs<ExtArgs>
   facility?: boolean | Prisma.FacilityDefaultArgs<ExtArgs>
@@ -2800,6 +2875,10 @@ export type $UserPayload<ExtArgs extends runtime.Types.Extensions.InternalArgs =
      */
     isActive: boolean
     deactivatedAt: Date | null
+    /**
+     * הוסר מניהול העובדים; הזהות והשיבוצים הקיימים נשמרים.
+     */
+    deletedAt: Date | null
     failedLoginCount: number
     lockedUntil: Date | null
     createdAt: Date
@@ -3252,6 +3331,7 @@ export interface UserFieldRefs {
   readonly canEditSchedule: Prisma.FieldRef<"User", 'Boolean'>
   readonly isActive: Prisma.FieldRef<"User", 'Boolean'>
   readonly deactivatedAt: Prisma.FieldRef<"User", 'DateTime'>
+  readonly deletedAt: Prisma.FieldRef<"User", 'DateTime'>
   readonly failedLoginCount: Prisma.FieldRef<"User", 'Int'>
   readonly lockedUntil: Prisma.FieldRef<"User", 'DateTime'>
   readonly createdAt: Prisma.FieldRef<"User", 'DateTime'>

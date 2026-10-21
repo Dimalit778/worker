@@ -18,12 +18,12 @@ import { getDraftScheduleData } from '@/features/schedules/assignments/queries';
 import { applyScheduleEdit } from '@/features/schedules/hooks';
 afterEach(() => vi.clearAllMocks());
 
-it('loads each draft dataset once and reuses it for assignments, problems and submission counts', async () => {
+it.each([false, true])('loads draft datasets once and preserves assignments when deleted=%s', async (deleted) => {
   const date = new Date('2026-10-05T00:00:00Z');
   db.schedule.findFirst.mockResolvedValue({ id: 's', facilityId: 'f', name: 'טיוטה', startDate: date, endDate: date, status: 'DRAFT', draftVersionId: 'draft', draftVersion: { id: 'draft', revision: 3, number: 2 } });
-  db.user.findMany.mockResolvedValue([{ id: 'e', displayName: 'דוד', roleId: 'r', role: { id: 'r', name: 'מאבטח', rank: 4 } }]);
+  db.user.findMany.mockResolvedValue([{ id: 'e', displayName: 'דוד', isActive: !deleted, deletedAt: deleted ? new Date() : null, roleId: 'r', role: { id: 'r', name: 'מאבטח', rank: 4 } }]);
   db.staffingRequirement.findMany.mockResolvedValue([{ id: 'c', positionId: 'p', shiftType: 'MORNING', dayCategory: 'WEEKDAY', requiredCount: 1, position: { name: 'מאבטח', color: null, requiredRank: 4, displayOrder: 4, baseRole: null } }]);
-  db.availabilitySubmission.findMany.mockResolvedValue([{ userId: 'e', availabilities: [] }]);
+  db.availabilitySubmission.findMany.mockResolvedValue(deleted ? [] : [{ userId: 'e', availabilities: [] }]);
   db.scheduleSlot.findMany.mockResolvedValueOnce([{ id: 'a', userId: 'e', facilityId: 'f', positionId: 'p', date, shiftType: 'MORNING', slotNumber: 2, source: 'MANUAL', isLocked: false }]).mockResolvedValueOnce([]);
   const data = await getDraftScheduleData('f', 's');
   expect(db.schedule.findFirst).toHaveBeenCalledTimes(1);
@@ -32,9 +32,14 @@ it('loads each draft dataset once and reuses it for assignments, problems and su
   expect(db.availabilitySubmission.findMany).toHaveBeenCalledTimes(1);
   expect(db.scheduleSlot.findMany).toHaveBeenCalledTimes(2); // current and neighboring periods
   expect(data?.assignments['2026-10-05-MORNING-p'][0]).toMatchObject({ employeeDisplayName: 'דוד', positionName: 'מאבטח', slotIndex: 0 });
-  expect(data?.availabilitySubmissionSummary?.submittedCount).toBe(1);
-  expect(data?.fairness?.[0].draftShifts).toBe(1);
-  expect(data?.warnings.length).toBeGreaterThan(0);
+  expect(data?.availabilitySubmissionSummary?.submittedCount).toBe(deleted ? 0 : 1);
+  if (deleted) {
+    expect(data?.employees).toEqual([]);
+    expect(data?.fairness).toEqual([]);
+  } else {
+    expect(data?.fairness?.[0].draftShifts).toBe(1);
+    expect(data?.warnings.length).toBeGreaterThan(0);
+  }
   expect(data?.revision).toBe(3);
 });
 

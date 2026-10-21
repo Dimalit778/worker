@@ -140,6 +140,7 @@ export const UserScalarFieldEnum = {
   canEditSchedule: 'canEditSchedule',
   isActive: 'isActive',
   deactivatedAt: 'deactivatedAt',
+  deletedAt: 'deletedAt',
   failedLoginCount: 'failedLoginCount',
   lockedUntil: 'lockedUntil',
   createdAt: 'createdAt',
