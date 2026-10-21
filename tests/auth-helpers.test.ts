@@ -1,7 +1,17 @@
 import { PortalRole } from '@/lib/auth/portal';
-import { describe, it, expect } from 'vitest';
-import { hasRole, isEmployee, isManager, isAdmin, isManagerOrAdmin } from '@/lib/db/auth-helpers';
+import { describe, it, expect, vi } from 'vitest';
 import type { Session } from 'next-auth';
+
+const mocks = vi.hoisted(() => ({ findUnique: vi.fn(), getServerSession: vi.fn() }));
+vi.mock('@/lib/db/client', () => ({ prisma: { user: { findUnique: mocks.findUnique } } }));
+vi.mock('next-auth', () => ({ getServerSession: mocks.getServerSession }));
+vi.mock('@/lib/auth/auth', () => ({ authOptions: {} }));
+vi.mock('next/navigation', () => ({
+  redirect: (path: string) => {
+    throw new Error(`REDIRECT:${path}`);
+  },
+}));
+import { hasRole, isEmployee, isManager, isAdmin, isManagerOrAdmin, requireSession } from '@/lib/db/auth-helpers';
 
 const makeSession = (portal: PortalRole): Session => ({
   user: {
@@ -95,5 +105,27 @@ describe('isManagerOrAdmin', () => {
 
   it('returns false for null session', () => {
     expect(isManagerOrAdmin(null)).toBe(false);
+  });
+});
+
+describe('requireSession user lookup', () => {
+  it('selects only the fields it uses and never the password hash', async () => {
+    mocks.getServerSession.mockResolvedValue(makeSession(PortalRole.MANAGER));
+    mocks.findUnique.mockResolvedValue({
+      id: 'user-1',
+      isActive: true,
+      systemRole: 'USER',
+      canEditSchedule: true,
+      facilityId: 'court-1',
+    });
+
+    const session = await requireSession(PortalRole.MANAGER);
+
+    expect(mocks.findUnique).toHaveBeenCalledWith({
+      where: { id: 'user-1' },
+      select: { id: true, isActive: true, systemRole: true, canEditSchedule: true, facilityId: true },
+    });
+    expect(mocks.findUnique.mock.calls[0][0].select).not.toHaveProperty('passwordHash');
+    expect(session.user).toMatchObject({ portal: PortalRole.MANAGER, facilityId: 'court-1', employeeId: 'user-1' });
   });
 });
