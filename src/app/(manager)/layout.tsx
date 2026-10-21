@@ -3,7 +3,7 @@ import { PortalRole } from '@/lib/auth/portal';
 import { requireSession } from '@/lib/db/auth-helpers';
 import { prisma } from '@/lib/db/client';
 import { syncSubmissionWindows } from '@/features/periods/process-windows';
-import { ManagerAppShell } from './manager-app-shell';
+import { AppShell } from '@/components/navigation/app-shell';
 import { countOpenUrgent } from '@/features/requests/queries';
 
 const navItems = [
@@ -36,8 +36,8 @@ export default async function ManagerLayout({ children }: { children: React.Reac
     .map(item => (item.href === '/manager/requests' ? { ...item, badge: urgentCount } : item));
 
   return (
-    <ManagerAppShell fullName={session.user.fullName ?? session.user.email ?? ''} courtName={court?.name ?? null} navItems={items}>
+    <AppShell roleLabel="מנהל" fullName={session.user.fullName ?? session.user.email ?? ''} courtName={court?.name ?? null} navItems={items}>
       {children}
-    </ManagerAppShell>
+    </AppShell>
   );
 }

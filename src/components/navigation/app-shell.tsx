@@ -5,6 +5,7 @@ import Link from 'next/link';
 import { usePathname } from 'next/navigation';
 import {
   CalendarDays,
+  Building2,
   ChevronLeft,
   ChevronRight,
   ClipboardList,
@@ -24,16 +25,33 @@ import { Button } from '@/components/ui/button';
 import { cn } from '@/lib/utils';
 import { signOut } from 'next-auth/react';
 
-export type ManagerNavItem = { href: string; label: string; badge?: number };
+export type AppNavItem = {
+  href: string;
+  label: string;
+  badge?: number;
+  badgeLabel?: string;
+  status?: 'submitted' | 'pending';
+};
 
-type ManagerAppShellProps = {
+type AppShellProps = {
   fullName: string;
   courtName: string | null;
-  navItems: readonly ManagerNavItem[];
+  roleLabel: string;
+  navItems: readonly AppNavItem[];
   children: React.ReactNode;
 };
 
 const NAV_ICONS: Record<string, LucideIcon> = {
+  '/employee': CalendarDays,
+  '/employee/submissions': ClipboardList,
+  '/employee/availability': PenLine,
+  '/employee/requests': Inbox,
+  '/employee/profile': UserRound,
+  '/admin': LayoutDashboard,
+  '/admin/courts': Building2,
+  '/admin/employees': Users,
+  '/admin/config': Settings,
+  '/admin/profile': UserRound,
   '/manager': LayoutDashboard,
   '/manager/schedule': CalendarDays,
   '/manager/schedules': ClipboardList,
@@ -44,10 +62,10 @@ const NAV_ICONS: Record<string, LucideIcon> = {
   '/manager/profile': UserRound,
 };
 
-const SIDEBAR_COLLAPSED_STORAGE_KEY = 'manager-sidebar-collapsed';
+const SIDEBAR_COLLAPSED_STORAGE_KEY = 'app-sidebar-collapsed';
 
 function isNavActive(pathname: string, href: string): boolean {
-  if (href === '/manager') return pathname === '/manager';
+  if (href.split('/').length === 2) return pathname === href;
   return pathname === href || pathname.startsWith(`${href}/`);
 }
 
@@ -121,7 +139,7 @@ function NavLinks({
   className,
   collapsed = false,
 }: {
-  items: readonly ManagerNavItem[];
+  items: readonly AppNavItem[];
   pathname: string;
   onNavigate?: () => void;
   className?: string;
@@ -130,7 +148,7 @@ function NavLinks({
   return (
     <nav
       className={cn('flex-1 space-y-0.5 overflow-y-auto py-2', collapsed ? 'px-1.5' : 'px-2', className)}
-      aria-label="ניווט מנהל"
+      aria-label="ניווט ראשי"
     >
       {items.map((item) => {
         const active = isNavActive(pathname, item.href);
@@ -164,13 +182,24 @@ function NavLinks({
               aria-hidden
             />
             {!collapsed ? <p className="truncate">{item.label}</p> : null}
+            {item.status ? (
+              <span
+                className={cn(
+                  'size-2 shrink-0 rounded-full',
+                  collapsed ? 'absolute top-1 inset-e-1' : 'ms-auto',
+                  item.status === 'submitted' ? 'bg-green-600' : 'bg-red-600',
+                )}
+              >
+                <span className="sr-only">{item.status === 'submitted' ? 'הוגש' : 'ממתין להגשה'}</span>
+              </span>
+            ) : null}
             {item.badge ? (
               <span
                 className={cn(
                   'rounded-full bg-red-600 px-1.5 text-xs font-semibold text-white',
                   collapsed ? 'absolute top-0.5 inset-e-0.5' : 'ms-auto',
                 )}
-                aria-label={`${item.badge} בקשות דחופות`}
+                aria-label={`${item.badge} ${item.badgeLabel ?? 'בקשות דחופות'}`}
               >
                 {item.badge}
               </span>
@@ -182,7 +211,7 @@ function NavLinks({
   );
 }
 
-function SidebarFooter({ fullName, collapsed = false }: { fullName: string; collapsed?: boolean }) {
+function SidebarFooter({ fullName, roleLabel, collapsed = false }: { fullName: string; roleLabel: string; collapsed?: boolean }) {
   const displayName = fullName || 'משתמש';
   const initial = displayName.trim().charAt(0) || 'מ';
 
@@ -203,7 +232,7 @@ function SidebarFooter({ fullName, collapsed = false }: { fullName: string; coll
             <p className="truncate text-sm font-semibold text-sidebar-foreground" title={displayName}>
               {displayName}
             </p>
-            <p className="truncate text-xs text-muted-foreground">מנהל</p>
+            <p className="truncate text-xs text-muted-foreground">{roleLabel}</p>
           </div>
         ) : null}
       </div>
@@ -227,6 +256,7 @@ function SidebarFooter({ fullName, collapsed = false }: { fullName: string; coll
 
 function SidebarContent({
   fullName,
+  roleLabel,
   courtName,
   navItems,
   pathname,
@@ -235,8 +265,9 @@ function SidebarContent({
   onToggleCollapsed,
 }: {
   fullName: string;
+  roleLabel: string;
   courtName: string | null;
-  navItems: readonly ManagerNavItem[];
+  navItems: readonly AppNavItem[];
   pathname: string;
   onNavigate?: () => void;
   collapsed?: boolean;
@@ -246,12 +277,12 @@ function SidebarContent({
     <>
       <BrandHeader courtName={courtName} collapsed={collapsed} onToggleCollapsed={onToggleCollapsed} />
       <NavLinks items={navItems} pathname={pathname} onNavigate={onNavigate} collapsed={collapsed} />
-      <SidebarFooter fullName={fullName} collapsed={collapsed} />
+      <SidebarFooter fullName={fullName} roleLabel={roleLabel} collapsed={collapsed} />
     </>
   );
 }
 
-export function ManagerAppShell({ fullName, courtName, navItems, children }: ManagerAppShellProps) {
+export function AppShell({ fullName, courtName, roleLabel, navItems, children }: AppShellProps) {
   const pathname = usePathname();
   const [open, setOpen] = useState(false);
   const [desktopCollapsed, setDesktopCollapsed] = useState(false);
@@ -315,6 +346,7 @@ export function ManagerAppShell({ fullName, courtName, navItems, children }: Man
       >
         <SidebarContent
           fullName={fullName}
+          roleLabel={roleLabel}
           courtName={courtName}
           navItems={navItems}
           pathname={pathname}
@@ -380,6 +412,7 @@ export function ManagerAppShell({ fullName, courtName, navItems, children }: Man
           </h2>
           <SidebarContent
             fullName={fullName}
+            roleLabel={roleLabel}
             courtName={courtName}
             navItems={navItems}
             pathname={pathname}

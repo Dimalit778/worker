@@ -1,7 +1,6 @@
 import { requireSession } from '@/lib/db/auth-helpers';
 import { SystemRole } from '@/generated/prisma/client';
-import Link from 'next/link';
-import { LogoutButton } from '@/components/ui/logout-button';
+import { AppShell } from '@/components/navigation/app-shell';
 
 const navItems = [
   { href: '/admin', label: 'לוח בקרה' },
@@ -15,31 +14,13 @@ export default async function AdminLayout({ children }: { children: React.ReactN
   const session = await requireSession(SystemRole.ADMIN);
 
   return (
-    <div className="app-shell min-h-screen flex flex-col md:flex-row">
-      {/* Sidebar */}
-      <aside className="w-full md:w-56 border-e bg-sidebar flex flex-col shrink-0">
-        <div className="p-4 border-b">
-          <p className="font-bold text-sm">ניהול מערכת</p>
-          <p className="text-xs text-muted-foreground mt-0.5">{session.user.name}</p>
-        </div>
-        <nav className="flex-1 p-2 space-y-1">
-          {navItems.map((item) => (
-            <Link
-              key={item.href}
-              href={item.href}
-              className="flex items-center gap-2 rounded-md px-3 py-2 text-sm hover:bg-accent hover:text-accent-foreground transition-colors"
-            >
-              {item.label}
-            </Link>
-          ))}
-        </nav>
-        <div className="p-2 border-t">
-          <LogoutButton className="w-full justify-start" />
-        </div>
-      </aside>
-
-      {/* Main */}
-      <main className="min-w-0 flex-1 p-4 md:p-8 overflow-auto">{children}</main>
-    </div>
+    <AppShell
+      fullName={session.user.fullName ?? session.user.name ?? session.user.email ?? ''}
+      courtName="ניהול מערכת"
+      roleLabel="מנהל מערכת"
+      navItems={navItems}
+    >
+      {children}
+    </AppShell>
   );
 }
