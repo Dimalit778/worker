@@ -86,6 +86,11 @@ async function applyEdit(scheduleId: string, expected: VersionExpectation, reque
       changedIds.push(created.id);
     } else if (edit.kind === 'batch') {
       if (!edit.changes.length) throw new Error('אין שינויים לשמירה');
+      // `before` already holds every slot of this version: look slots up here instead of querying per change,
+      // and keep the map in step with the writes below so later changes see what a fresh query would.
+      const slotKey = (date: Date, shiftType: string, positionId: string, slotNumber: number) => `${date.getTime()}|${shiftType}|${positionId}|${slotNumber}`;
+      const slots = new Map(before.map(a => [slotKey(a.date, a.shiftType, a.positionId, a.slotNumber), a]));
+      const ownedPositions = new Set<string>();
       for (const change of edit.changes) {
         const date = parseISODateToUtcMidnight(change.date);
         if (!Number.isFinite(date.getTime()) || date.toISOString().slice(0,10) !== change.date) throw new Error('תאריך לא תקין');
@@ -96,18 +101,26 @@ async function applyEdit(scheduleId: string, expected: VersionExpectation, reque
         // Custom hours are a manager decision: lock the slot so automatic scheduling keeps it; clearing them unlocks it.
         const hoursData = hours ? { ...shiftBounds(date, hours.startTime, hours.endTime), isLocked: true } : { ...defaultBounds, isLocked: false };
         const slotNumber = change.slotIndex + 1;
-        const slot = await tx.scheduleSlot.findFirst({ where: { scheduleId, versionId: version.id, date, shiftType: change.shiftType, positionId: change.positionId, slotNumber } });
+        const key = slotKey(date, change.shiftType, change.positionId, slotNumber);
+        const slot = slots.get(key);
         if (change.employeeId === null) {
-          if (slot) await tx.scheduleSlot.delete({ where: { id: slot.id } });
+          if (slot) {
+            await tx.scheduleSlot.delete({ where: { id: slot.id } });
+            slots.delete(key);
+          }
         } else if (slot) {
           // Custom hours belong to the person: a new employee in the slot starts from the default hours.
           const times = hours !== undefined ? hoursData : slot.userId !== change.employeeId ? defaultBounds : {};
-          await tx.scheduleSlot.update({ where: { id: slot.id }, data: { userId: change.employeeId, source: 'MANUAL', ...times } });
+          slots.set(key, await tx.scheduleSlot.update({ where: { id: slot.id }, data: { userId: change.employeeId, source: 'MANUAL', ...times } }));
           changedIds.push(slot.id);
         } else {
-          const position = await tx.position.findFirst({ where: { id: change.positionId, OR: [{ facilityId: actor.facilityId }, { facilityId: null }] }, select: { id: true } });
-          if (!position) throw new Error('התפקיד אינו שייך למתקן');
+          if (!ownedPositions.has(change.positionId)) {
+            const position = await tx.position.findFirst({ where: { id: change.positionId, OR: [{ facilityId: actor.facilityId }, { facilityId: null }] }, select: { id: true } });
+            if (!position) throw new Error('התפקיד אינו שייך למתקן');
+            ownedPositions.add(change.positionId);
+          }
           const created = await tx.scheduleSlot.create({ data: { scheduleId, versionId: version.id, facilityId: actor.facilityId, userId: change.employeeId, positionId: change.positionId, date, shiftType: change.shiftType, slotNumber, ...hoursData, source: 'MANUAL' } });
+          slots.set(key, created);
           changedIds.push(created.id);
         }
       }
