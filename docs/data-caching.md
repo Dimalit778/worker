@@ -12,7 +12,7 @@ tag. Cached results contain display DTOs, not Prisma clients or transaction inpu
 | Manager dashboard | Counts, submission summary, yearly schedules and display warnings | 30 seconds; a fresh clock bucket forces a miss at the next window |
 | Settings | Positions, capacities, submission-window rule and dated overrides | 5 minutes; overrides also include the Jerusalem calendar date in their key |
 | Admin screens | Shared districts/facilities/employee aggregate, after the admin permission check | 5 minutes |
-| Schedule list/change history | Facility-scoped display data; change history loads related entries together | 30 seconds |
+| Schedule list/change log | Facility-scoped display data; each schedule's change log is keyed by facility/schedule | 30 seconds |
 
 ## Committed writes and dependencies
 
@@ -67,11 +67,12 @@ statement counts), excluding authentication and shared layout work:
 | Draft display loader | 8 | 1 (live schedule/version selection) | 8 |
 | Dashboard | 6 | 0 | 6 |
 | Schedule list | 1 | 0 | 1 |
-| Grouped change history | 1 | 0 | 1 |
 
 The fixture used an existing published schedule through the draft loader's
 published-version fallback. Actual draft analysis and invalidation are also
 covered by unit tests. These local fixture results are not a production benchmark.
+The grouped change-history page measured at the time was later replaced by a
+per-schedule change log on the manager schedule screens; it was not re-measured.
 
 ## Files changed in this extension
 
