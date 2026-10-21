@@ -6,10 +6,11 @@ vi.mock('@/lib/db/auth-helpers', () => ({ requireManager: mocks.manager, require
 vi.mock('@/features/schedules/generation/queries', () => ({ loadSchedulingInput: mocks.load }));
 vi.mock('@/features/schedules/assignments/loaded-details', () => ({ loadedScheduleDetails: () => ({ assignments: {}, warnings: [], fairness: [] }) }));
 vi.mock('@/features/scheduling-engine/validate', () => ({ validateAssignments: vi.fn(() => []) }));
-vi.mock('@/features/scheduling-engine/manual-violations', () => ({ computeManualViolations: () => ({ blocking: [], violations: [] }) }));
+vi.mock('@/features/scheduling-engine/manual-violations', () => ({ computeManualViolations: vi.fn(() => ({ blocking: [], violations: [] })) }));
 import { saveScheduleChanges, type SlotChange } from '@/features/schedules/assignments/actions';
 import { shiftBounds } from '@/features/schedules/shift-times';
 import { validateAssignments } from '@/features/scheduling-engine/validate';
+import { computeManualViolations } from '@/features/scheduling-engine/manual-violations';
 import type { EngineAssignment, EngineInput } from '@/features/scheduling-engine/types';
 
 type Slot = {
@@ -216,5 +217,34 @@ describe('batch save slot lookups', () => {
     await save([change(0, 'x', { positionId: 'foreign' })]);
     expect(tx.position.findFirst).not.toHaveBeenCalled();
     expect(slots[0].userId).toBe('x');
+  });
+});
+
+describe('batch save asks for a reason before an overlapping or too-close shift', () => {
+  const violation = (code: 'REST_GAP' | 'DOUBLE_BOOKED' | 'NO_SUBMISSION', employeeId = 'x') => ({ code, message: `msg-${code}`, employeeId });
+
+  it('returns the conflicts and records nothing when no reason was given', async () => {
+    vi.mocked(computeManualViolations).mockReturnValueOnce({ blocking: [], violations: [violation('REST_GAP'), violation('NO_SUBMISSION')] });
+    const result = await save([change(0, 'x')]);
+    expect(result).toEqual({ ok: false, requiresOverride: true, violations: [violation('REST_GAP')] });
+    expect(tx.scheduleChange.createMany).not.toHaveBeenCalled();
+    expect(tx.scheduleVersion.update).not.toHaveBeenCalled();
+  });
+
+  it('asks for a double booking too', async () => {
+    vi.mocked(computeManualViolations).mockReturnValueOnce({ blocking: [], violations: [violation('DOUBLE_BOOKED')] });
+    await expect(save([change(0, 'x')])).resolves.toMatchObject({ requiresOverride: true });
+  });
+
+  it('saves with the reason in the change log once the manager approves', async () => {
+    vi.mocked(computeManualViolations).mockReturnValueOnce({ blocking: [], violations: [violation('REST_GAP')] });
+    const result = await saveScheduleChanges('sch', { versionId: 'v1', revision: 0 }, [change(0, 'x')], { reason: 'אין מחליף' });
+    expect(result).toMatchObject({ ok: true });
+    expect(tx.scheduleChange.createMany.mock.calls[0][0].data[0].reason).toContain('אין מחליף');
+  });
+
+  it('still saves other rule violations without asking', async () => {
+    vi.mocked(computeManualViolations).mockReturnValueOnce({ blocking: [], violations: [violation('NO_SUBMISSION')] });
+    await expect(save([change(0, 'x')])).resolves.toMatchObject({ ok: true });
   });
 });

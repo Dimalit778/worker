@@ -147,8 +147,10 @@ async function applyEdit(scheduleId: string, expected: VersionExpectation, reque
       const prefix = changedIds.length > 1 ? `${row.user?.displayName ?? ''}: ` : '';
       violations.push(...result.violations.map(v => ({ ...v, message: prefix + v.message })));
     }
-    // A batch save needs no typed reason: rule violations are saved and recorded in the change log.
-    if (violations.length && !reason && edit.kind !== 'batch') throw new OverrideRequiredError(violations);
+    // A batch save needs a typed reason only for an overlapping or too-close shift, including one in the neighbouring
+    // published schedule; its other rule violations are saved and recorded in the change log.
+    const needsReason = edit.kind === 'batch' ? violations.filter(v => v.code === 'DOUBLE_BOOKED' || v.code === 'REST_GAP') : violations;
+    if (needsReason.length && !reason) throw new OverrideRequiredError(needsReason);
     const details = loadedScheduleDetails(data);
     await tx.scheduleVersion.update({ where: { id: version.id }, data: { revision: { increment: 1 } } });
     await recordSlotChanges(tx, actor, scheduleId, version.id, before, data.assignments, violations, reason);
@@ -182,9 +184,8 @@ export async function setAssignmentLocked(assignmentId: string, isLocked: boolea
   return editSchedule(await scheduleForAssignment(assignmentId), expected, { kind: 'lock', assignmentId, isLocked });
 }
 /** Save several unsaved slot changes at once; all are applied (and validated) together or none are. */
-export async function saveScheduleChanges(scheduleId: string, expected: VersionExpectation, changes: SlotChange[]) {
-  const result = await applyEdit(scheduleId, expected, { kind: 'batch', changes });
-  return result;
+export async function saveScheduleChanges(scheduleId: string, expected: VersionExpectation, changes: SlotChange[], override?: ManualOverride) {
+  return editSchedule(scheduleId, expected, { kind: 'batch', changes }, override);
 }
 export async function startScheduleCorrection(scheduleId: string, expected: VersionExpectation) {
   const actor = await requireManager();
