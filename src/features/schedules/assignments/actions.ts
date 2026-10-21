@@ -3,11 +3,10 @@
 import { requireManager, requireSession } from '@/lib/db/auth-helpers';
 import type { ShiftType } from '@/generated/prisma/client';
 import type { AssignEmployeeToSlotParams } from '../types';
-import { getCurrentSchedule, getDraftScheduleData, getOriginalSchedule } from './queries';
+import { getCurrentSchedule, getDraftScheduleData, getOriginalSchedule, snapshotCapacity, withSnapshotRequirements } from './queries';
 import { scheduleTransaction, checkedVersion, editableDraft, type VersionExpectation } from '../services/transactions';
 import { loadSchedulingInput } from '../generation/queries';
 import { saveScheduleAnalysis } from '../generation/recalculate';
-import { validateScheduleEdit } from './validate-edit';
 import { computeManualViolations, type ManualViolation } from '@/features/scheduling-engine/manual-violations';
 import { parseISODateToUtcMidnight } from '@/features/periods/utils';
 import { prisma } from '@/lib/db/client';
@@ -135,10 +134,12 @@ async function applyEdit(scheduleId: string, expected: VersionExpectation, reque
       await tx.scheduleSlot.update({ where: { id: other.id }, data: { userId: existing!.userId, source: 'MANUAL' } });
       changedIds.push(existing!.id, other.id);
     }
-    const data = await loadSchedulingInput(tx, scheduleId, actor.facilityId, version.id);
-    const failures = await validateScheduleEdit(tx, data.input, data.allAssignments, before.flatMap(slot => slot.userId ? [slot.userId] : []));
-    const clearsOnly = edit.kind === 'batch' && edit.changes.every(c => c.employeeId === null);
-    if (failures.length && edit.kind !== 'remove' && edit.kind !== 'lock' && !clearsOnly) throw new Error(failures.join('; '));
+    const loaded = await loadSchedulingInput(tx, scheduleId, actor.facilityId, version.id);
+    // A published roster is checked against the requirements frozen at publication, as its screen shows them.
+    const snapshot = direct ? snapshotCapacity(version) : null;
+    const data = snapshot ? { ...loaded, input: withSnapshotRequirements(loaded.input, snapshot) } : loaded;
+    // Only the changed rows are checked: a row the edit did not touch may have stopped meeting the rules after
+    // it was placed (deactivated employee, approved vacation, changed requirements) and must not block other edits.
     // Manual placements: hard integrity rules block; business rules need an explicit manager approval.
     const violations: ManualViolation[] = [];
     for (const row of data.assignments.filter(a => changedIds.includes(a.id))) {

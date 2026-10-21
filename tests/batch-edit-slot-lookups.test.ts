@@ -6,10 +6,11 @@ vi.mock('@/lib/db/auth-helpers', () => ({ requireManager: mocks.manager, require
 vi.mock('@/features/schedules/generation/queries', () => ({ loadSchedulingInput: mocks.load }));
 vi.mock('@/features/schedules/assignments/loaded-details', () => ({ loadedScheduleDetails: () => ({ assignments: {}, warnings: [], fairness: [] }) }));
 vi.mock('@/features/scheduling-engine/validate', () => ({ validateAssignments: vi.fn(() => []) }));
-vi.mock('@/features/scheduling-engine/manual-violations', () => ({ computeManualViolations: () => ({ blocking: [], violations: [] }) }));
+vi.mock('@/features/scheduling-engine/manual-violations', () => ({ computeManualViolations: vi.fn(() => ({ blocking: [], violations: [] })) }));
 import { saveScheduleChanges, type SlotChange } from '@/features/schedules/assignments/actions';
 import { shiftBounds } from '@/features/schedules/shift-times';
 import { validateAssignments } from '@/features/scheduling-engine/validate';
+import { computeManualViolations } from '@/features/scheduling-engine/manual-violations';
 import type { EngineAssignment, EngineInput } from '@/features/scheduling-engine/types';
 
 type Slot = {
@@ -216,5 +217,58 @@ describe('batch save slot lookups', () => {
     await save([change(0, 'x', { positionId: 'foreign' })]);
     expect(tx.position.findFirst).not.toHaveBeenCalled();
     expect(slots[0].userId).toBe('x');
+  });
+});
+
+describe('published edits are checked against the published roster, not later changes', () => {
+  const realValidate = async () => (await vi.importActual<typeof import('@/features/scheduling-engine/validate')>('@/features/scheduling-engine/validate')).validateAssignments;
+  const realManual = async () => (await vi.importActual<typeof import('@/features/scheduling-engine/manual-violations')>('@/features/scheduling-engine/manual-violations')).computeManualViolations;
+  const toEngine = (s: Slot): EngineAssignment => ({
+    employeeId: s.userId!, facilityId: s.facilityId, positionId: s.positionId, date: s.date,
+    shiftType: s.shiftType as EngineAssignment['shiftType'], slotIndex: s.slotNumber - 1,
+    isManualOverride: s.isLocked, source: s.source === 'MANUAL' ? 'MANUAL' : 'AUTOMATIC',
+  });
+  const baseInput = (capacities: EngineInput['capacities']): EngineInput => ({
+    period: { id: 'sch', facilityId: 'fac', startDate: date, endDate: date },
+    week1Dates: [date], week2Dates: [],
+    employees: [
+      { id: 'gone', facilityId: 'fac', positionId: 'guard-role', rank: 4, isActive: false },
+      { id: 'staff', facilityId: 'fac', positionId: 'guard-role', rank: 4, isActive: true },
+    ],
+    capacities, availability: new Map([['staff', new Set([`${day}|MORNING`])]]), manualAssignments: [],
+  });
+  const publish = (capacitySnapshot: unknown = null) => tx.schedule.findFirst.mockResolvedValue({
+    id: 'sch', status: 'PUBLISHED', endDate: new Date('2099-01-01'), draftVersionId: null,
+    originalVersionId: 'original', publishedVersionId: 'v1',
+    publishedVersion: { id: 'v1', status: 'PUBLISHED', revision: 0, capacitySnapshot },
+  } as never);
+  const load = (input: EngineInput) => mocks.load.mockImplementation(async () => ({
+    input, allAssignments: slots.filter(s => s.userId).map(toEngine), assignments: slots.filter(s => s.userId), toEngine,
+  }));
+  const savePublished = (changes: SlotChange[]) => saveScheduleChanges('sch', { versionId: 'v1', revision: 0, publish: true }, changes);
+  const guardRule = { positionId: 'p1', requiredRank: 4, shiftType: 'MORNING' as const, dayCategory: 'WEEKDAY' as const, amount: 2 };
+
+  it('an untouched automatic row whose employee was deactivated after publishing does not block another placement', async () => {
+    vi.mocked(validateAssignments).mockImplementationOnce(await realValidate());
+    publish();
+    slots = [slot(1, 'gone', { source: 'AUTOMATIC' })];
+    load(baseInput([guardRule]));
+    await expect(savePublished([change(1, 'staff')])).resolves.toMatchObject({ ok: true });
+    expect(slots.map(s => s.userId)).toEqual(['gone', 'staff']);
+  });
+
+  it('accepts a placement in a position the published roster requires, even if it was removed from the settings later', async () => {
+    vi.mocked(computeManualViolations).mockImplementationOnce(await realManual());
+    publish([{ id: 'r1', positionId: 'p1', displayName: 'מאבטח', color: null, rank: 4, shiftType: 'MORNING', dayCategory: 'WEEKDAY', amount: 2 }]);
+    load(baseInput([]));
+    await expect(savePublished([change(0, 'staff')])).resolves.toMatchObject({ ok: true });
+    expect(slots.map(s => s.userId)).toEqual(['staff']);
+  });
+
+  it('still blocks placing an employee the schedule cannot staff', async () => {
+    vi.mocked(computeManualViolations).mockImplementationOnce(await realManual());
+    publish();
+    load(baseInput([guardRule]));
+    await expect(savePublished([change(0, 'officer')])).rejects.toThrow('העובד אינו שייך למתקן');
   });
 });
