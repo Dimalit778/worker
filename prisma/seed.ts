@@ -87,9 +87,10 @@ export function periodDates(start: string, end: string) {
 
 /** Keep weekly minimums first, then at most two extra legal assignments per employee/week. */
 export function generateDemoAssignments(input: EngineInput) {
-  const generated = generateSchedule(input).assignments;
+  const staffInput = { ...input, employees: input.employees.filter(employee => employee.rank !== 1) };
+  const generated = generateSchedule(staffInput).assignments;
   const assignments: EngineAssignment[] = [];
-  for (const employee of input.employees) {
+  for (const employee of staffInput.employees) {
     for (const dates of [input.week1Dates, input.week2Dates]) {
       if (!dates.length) continue;
       const days = new Set(dates.map(date => date.getTime()));
@@ -102,7 +103,7 @@ export function generateDemoAssignments(input: EngineInput) {
       assignments.push(...minimums, ...candidates.filter(a => !selected.has(a)).slice(0, 2));
     }
   }
-  return { assignments, ...analyzeSchedule(input, assignments) };
+  return { assignments, ...analyzeSchedule(staffInput, assignments) };
 }
 
 /** Data only: no schema reset, trigger changes, CASCADE, or migration-history deletion. */

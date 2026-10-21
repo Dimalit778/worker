@@ -81,9 +81,13 @@ it.each([7, 14])('preserves weekly minimums with up to two extras and hard const
       manualAssignments: [],
     };
     const result = generateDemoAssignments(input);
-    expect(validateAssignments(input, result.assignments, { allowManualOverrides: false })).toEqual([]);
+    const staff = employees.filter(employee => employee.rank !== 1);
+    const officers = new Set(employees.filter(employee => employee.rank === 1).map(employee => employee.id));
+    expect(result.assignments.some(assignment => officers.has(assignment.employeeId))).toBe(false);
+    // Saving loads only staff: seeded assignments must still validate with that same employee list.
+    expect(validateAssignments({ ...input, employees: staff }, result.assignments, { allowManualOverrides: false })).toEqual([]);
     expect(result.warnings.filter(w => w.type === 'MIN_NOT_MET')).toEqual([]);
-    for (const employee of employees) for (const week of [input.week1Dates, input.week2Dates]) {
+    for (const employee of staff) for (const week of [input.week1Dates, input.week2Dates]) {
       if (!week.length) continue;
       const times = new Set(week.map(d => d.getTime()));
       const assignments = result.assignments.filter(a => a.employeeId === employee.id && times.has(a.date.getTime()));
