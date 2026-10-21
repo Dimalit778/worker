@@ -84,8 +84,9 @@ export async function createSchedule(data: {
   const deadline = parseJerusalemLocal(data.submissionDeadline);
   if (!opensAt || !deadline) return { error: 'מועדי ההגשה לא תקינים' };
   if (opensAt.getTime() >= deadline.getTime()) return { error: 'מועד הפתיחה חייב להיות לפני מועד הסגירה' };
-  if (deadline.getTime() >= periodStartInstant(data.startDate).getTime()) {
-    return { error: 'מועד ההגשה חייב להיות לפני תחילת התקופה' };
+  const periodStart = periodStartInstant(data.startDate).getTime();
+  if (opensAt.getTime() >= periodStart || deadline.getTime() >= periodStart) {
+    return { error: 'השליחה וסגירת ההגשה חייבות להיות לפני תחילת התקופה' };
   }
   if (opensAt.getTime() < Date.now() - 60_000) return { error: 'מועד השליחה כבר עבר' };
   if (deadline.getTime() < Date.now()) return { error: 'מועד ההגשה כבר עבר' };

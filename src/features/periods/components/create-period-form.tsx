@@ -25,8 +25,28 @@ import {
   formatJerusalemLocal,
   instantForRule,
   parseJerusalemLocal,
+  periodStartInstant,
   type SubmissionWindowRule,
 } from '../submission-window';
+
+/** Last selectable instant before period start (datetime-local max is inclusive). */
+function submissionMaxLocal(startISO: string): string {
+  return `${addDays(startISO, -1)}T23:59`;
+}
+
+function previewSubmissionInstant(value: string): string | null {
+  const instant = parseJerusalemLocal(value);
+  if (!instant) return null;
+  return new Intl.DateTimeFormat('he-IL', {
+    timeZone: 'Asia/Jerusalem',
+    weekday: 'long',
+    day: 'numeric',
+    month: 'long',
+    year: 'numeric',
+    hour: '2-digit',
+    minute: '2-digit',
+  }).format(instant);
+}
 
 export function CreatePeriodForm({
   onCreated,
@@ -65,6 +85,18 @@ export function CreatePeriodForm({
     setOpensAt(nextOpensAt);
     setClosesAt(formatJerusalemLocal(instantForRule(start, rule.closeWeekday, rule.closeTime)));
     markOpenPast(nextOpensAt);
+  }
+
+  function validateSubmissionWindow(start: string, nextOpensAt: string, nextClosesAt: string): string | null {
+    const opens = parseJerusalemLocal(nextOpensAt);
+    const closes = parseJerusalemLocal(nextClosesAt);
+    if (!opens || !closes) return 'מועדי ההגשה לא תקינים';
+    if (opens.getTime() >= closes.getTime()) return 'מועד השליחה חייב להיות לפני סגירת ההגשה';
+    const periodStart = periodStartInstant(start).getTime();
+    if (opens.getTime() >= periodStart || closes.getTime() >= periodStart) {
+      return 'השליחה וסגירת ההגשה חייבות להיות לפני תחילת התקופה';
+    }
+    return null;
   }
 
   async function handleOpenChange(next: boolean) {
@@ -133,8 +165,17 @@ export function CreatePeriodForm({
   function handleSubmit(e: React.FormEvent) {
     e.preventDefault();
     setError(null);
+    const windowError = validateSubmissionWindow(startDate, opensAt, closesAt);
+    if (windowError) {
+      setError(windowError);
+      return;
+    }
     createMutation.mutate();
   }
+
+  const submissionMax = startDate ? submissionMaxLocal(startDate) : undefined;
+  const opensPreview = previewSubmissionInstant(opensAt);
+  const closesPreview = previewSubmissionInstant(closesAt);
 
   return (
     <Dialog open={open} onOpenChange={handleOpenChange}>
@@ -221,7 +262,13 @@ export function CreatePeriodForm({
                 setStartDate(value);
                 if (value) {
                   setName(suggestName(value, days));
-                  if (submissionRule) applyRule(submissionRule, value);
+                  if (submissionRule) {
+                    applyRule(submissionRule, value);
+                  } else {
+                    const max = submissionMaxLocal(value);
+                    if (opensAt && opensAt > max) setOpensAt(max);
+                    if (closesAt && closesAt > max) setClosesAt(max);
+                  }
                 }
               }}
               className="w-full border border-border rounded-md px-3 py-2 text-sm bg-background focus:outline-none focus:ring-2 focus:ring-foreground/20"
@@ -235,35 +282,51 @@ export function CreatePeriodForm({
             </p>
           </div>
 
-          <div className="grid gap-3 sm:grid-cols-2">
-            <div className="space-y-1.5">
-              <Label htmlFor="submission-opens" className="block text-xs font-medium text-muted-foreground">
-                שליחה לעובדים
-              </Label>
-              <Input
-                id="submission-opens"
-                type="datetime-local"
-                value={opensAt}
-                onChange={(event) => {
-                  setOpensAt(event.target.value);
-                  markOpenPast(event.target.value);
-                }}
-                required
-                className="w-full rounded-md border border-border bg-background px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-foreground/20"
-              />
-            </div>
-            <div className="space-y-1.5">
-              <Label htmlFor="submission-closes" className="block text-xs font-medium text-muted-foreground">
-                סגירת ההגשה
-              </Label>
-              <Input
-                id="submission-closes"
-                type="datetime-local"
-                value={closesAt}
-                onChange={(event) => setClosesAt(event.target.value)}
-                required
-                className="w-full rounded-md border border-border bg-background px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-foreground/20"
-              />
+          <div className="space-y-3 rounded-xl border border-border/80 bg-muted/30 p-4">
+            <p className="text-xs font-medium text-muted-foreground">חלון הגשה לעובדים</p>
+
+            <div className="grid gap-3 sm:grid-cols-2">
+              <div className="space-y-1.5 rounded-lg bg-background/70 px-3 py-3">
+                <Label htmlFor="submission-opens" className="block text-xs font-medium text-muted-foreground">
+                  שליחה לעובדים
+                </Label>
+                <Input
+                  id="submission-opens"
+                  type="datetime-local"
+                  value={opensAt}
+                  max={submissionMax}
+                  onChange={(event) => {
+                    const value = event.target.value;
+                    setOpensAt(value);
+                    markOpenPast(value);
+                    if (closesAt && value && closesAt < value) setClosesAt(value);
+                  }}
+                  required
+                  className="w-full rounded-md border border-border bg-background px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-foreground/20"
+                />
+                {opensPreview && (
+                  <p className="text-sm font-medium leading-snug text-foreground">{opensPreview}</p>
+                )}
+              </div>
+
+              <div className="space-y-1.5 rounded-lg bg-background/70 px-3 py-3">
+                <Label htmlFor="submission-closes" className="block text-xs font-medium text-muted-foreground">
+                  סגירת ההגשה
+                </Label>
+                <Input
+                  id="submission-closes"
+                  type="datetime-local"
+                  value={closesAt}
+                  min={opensAt || undefined}
+                  max={submissionMax}
+                  onChange={(event) => setClosesAt(event.target.value)}
+                  required
+                  className="w-full rounded-md border border-border bg-background px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-foreground/20"
+                />
+                {closesPreview && (
+                  <p className="text-sm font-medium leading-snug text-foreground">{closesPreview}</p>
+                )}
+              </div>
             </div>
           </div>
 
