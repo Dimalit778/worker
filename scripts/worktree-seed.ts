@@ -1,3 +1,4 @@
+import { preserveOriginalSchedule } from '../src/features/schedules/services/transactions';
 import bcrypt from 'bcryptjs';
 import { PrismaClient } from '../src/generated/prisma/client';
 import { PrismaPg } from '@prisma/adapter-pg';
@@ -12,7 +13,11 @@ if (!process.env.WORKTREE_DEMO_PASSWORD) throw new Error('Run this seed through 
 const prisma = new PrismaClient({ adapter: new PrismaPg({ connectionString: state.databaseUrl }) });
 
 async function main() {
-  if (await prisma.facility.findUnique({ where: { code: 'WORKTREE_DEMO' } })) return;
+  if (await prisma.facility.findUnique({ where: { code: 'WORKTREE_DEMO' } })) {
+    const schedules = await prisma.schedule.findMany({ where: { facility: { code: 'WORKTREE_DEMO' }, originalVersionId: null, publishedVersionId: { not: null } } });
+    for (const schedule of schedules) await prisma.$transaction(tx => preserveOriginalSchedule(tx, schedule.id, schedule.publishedVersionId!));
+    return;
+  }
   const passwordHash = await bcrypt.hash(process.env.WORKTREE_DEMO_PASSWORD!, 10);
   await prisma.$transaction(async tx => {
     const district = await tx.district.create({ data: { name: 'מחוז הדגמה', code: 'WORKTREE_DEMO' } });
@@ -58,6 +63,7 @@ async function main() {
     }
     const requirements = await tx.staffingRequirement.findMany({ where: { facilityId: facility.id }, include: { position: true } });
     await tx.scheduleVersion.update({ where: { id: version.id }, data: { status: 'PUBLISHED', publishedAt: new Date(), capacitySnapshot: requirements.map(r => ({ id: r.id, positionId: r.positionId, displayName: r.position.name, rank: r.position.displayOrder, color: r.position.color, shiftType: r.shiftType, dayCategory: r.dayCategory, amount: r.requiredCount })) } });
+    await preserveOriginalSchedule(tx, schedule.id, version.id);
     await tx.schedule.update({ where: { id: schedule.id }, data: { status: 'PUBLISHED', publishedAt: new Date(), publishedVersionId: version.id } });
     await tx.scheduleChange.create({ data: { facilityId: facility.id, scheduleId: schedule.id, versionId: version.id, changedById: manager.id, changeType: 'PUBLISH', reason: 'נתוני הדגמה מקומיים בלבד' } });
   }, { timeout: 20000 });

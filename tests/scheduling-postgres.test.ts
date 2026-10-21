@@ -14,10 +14,10 @@ vi.mock('@/lib/db/client', async () => {
 });
 import { prisma } from '@/lib/db/client';
 import { requireManager } from '@/lib/db/auth-helpers';
-import { createAssignment, removeAssignment, startScheduleCorrection } from '@/features/schedules/assignments/actions';
+import { createAssignment, removeAssignment, saveScheduleChanges, startScheduleCorrection } from '@/features/schedules/assignments/actions';
 import { generateAutoSchedule } from '@/features/schedules/generation/actions';
 import { publishSchedule } from '@/features/schedules/draft-schedule/actions';
-import { getCurrentSchedule, getUpcomingSchedule } from '@/features/schedules/assignments/queries';
+import { getCurrentSchedule, getUpcomingSchedule, getOriginalSchedule } from '@/features/schedules/assignments/queries';
 import { loadSchedulingInput } from '@/features/schedules/generation/queries';
 import { reconcileDraftCapacity } from '@/features/schedules/services/reconcile-capacity';
 import { scheduleTransaction } from '@/features/schedules/services/transactions';
@@ -68,41 +68,44 @@ suite('schedule versions against migrated PostgreSQL', () => {
     expected = { versionId: version.id, revision: version.revision };
   };
 
-  it('keeps published assignments visible until republication and counts history only once', async () => {
+  it('keeps exactly an original and a current roster through repeated saves and counts history once', async () => {
     await add(); await publish();
-    const original = await prisma.scheduleSlot.findFirstOrThrow({ where: { versionId: expected.versionId! } });
+    const initial = await prisma.schedule.findUniqueOrThrow({ where: { id: scheduleId } });
+    const originalRows = await prisma.scheduleSlot.findMany({ where: { versionId: initial.originalVersionId! } });
     const oldId = expected.versionId!;
-    expected = await startScheduleCorrection(scheduleId, expected);
-    expect(expected.versionId).not.toBe(oldId);
-    const copy = await prisma.scheduleSlot.findFirstOrThrow({ where: { versionId: expected.versionId! } });
-    expect(copy).toMatchObject({ userId: original.userId, source: original.source, startsAt: original.startsAt, endsAt: original.endsAt, isLocked: original.isLocked });
-    expect(copy.id).not.toBe(original.id);
-    const result = await createAssignment({ scheduleId, employeeId, positionId, date: '2098-01-07', shiftType: 'NIGHT', slotIndex: 0 }, expected);
-    expected.revision = result.revision;
-    const visible = await getUpcomingSchedule(facilityId);
-    expect(visible?.versionId).toBe(oldId);
-    expect(Object.values(visible!.assignments).flat()).toHaveLength(1);
-    expect(await prisma.schedule.findUniqueOrThrow({ where: { id: scheduleId } })).toMatchObject({ status: 'PUBLISHED', publishedVersionId: oldId, draftVersionId: expected.versionId });
-    await publish();
+    const result = await saveScheduleChanges(scheduleId, { ...expected, publish: true }, [
+      { employeeId, positionId, date: '2098-01-07', shiftType: 'NIGHT', slotIndex: 0 },
+    ]);
+    expected = { versionId: result.versionId, revision: result.revision };
+    expect(expected.versionId).toBe(oldId);
     expect(Object.values((await getUpcomingSchedule(facilityId))!.assignments).flat()).toHaveLength(2);
-    expect(await prisma.scheduleSlot.count({ where: { scheduleId } })).toBe(3);
+    expect(await prisma.scheduleVersion.count({ where: { scheduleId } })).toBe(2);
+    expect(await prisma.scheduleSlot.findMany({ where: { versionId: initial.originalVersionId! } })).toEqual(originalRows);
+    expect(Object.values((await getOriginalSchedule(scheduleId, facilityId))!.assignments).flat()).toHaveLength(1);
     const next = await prisma.schedule.create({ data: { facilityId, name: 'next', startDate: date('2098-01-20'), endDate: date('2098-02-02'), submissionOpensAt: date('2098-01-01'), submissionClosesAt: date('2098-01-19') } });
     const input = await loadSchedulingInput(prisma, next.id, facilityId, null);
     expect(input.input.historicalAssignments).toHaveLength(2);
     expect(await prisma.availabilitySubmission.count({ where: { scheduleId, userId: employeeId } })).toBe(1);
-    expect(await prisma.scheduleChange.count({ where: { scheduleId, versionId: oldId, changeType: 'PUBLISH' } })).toBe(1);
+    const change = await prisma.scheduleChange.findFirstOrThrow({ where: { scheduleId, reason: { contains: '07/01/2098' } } });
+    expect(change.reason).toContain('Test Employee');
+    expect(change.beforeData).toMatchObject({ assignment: null });
+    expect(change.afterData).toMatchObject({ assignment: { userId: employeeId } });
+    await saveScheduleChanges(scheduleId, { ...expected, publish: true }, [
+      { employeeId: null, positionId, date: '2098-01-07', shiftType: 'NIGHT', slotIndex: 0 },
+    ]);
+    expect(await prisma.scheduleVersion.count({ where: { scheduleId } })).toBe(2);
   });
 
-  it('retains the current published roster while its correction is edited', async () => {
+  it('clears a live assignment in place while preserving the original and slot identity', async () => {
     await add(); await publish();
     const publishedId = expected.versionId;
-    // Put this fixture in the current period without changing its version or assignments.
+    const live = await prisma.scheduleSlot.findFirstOrThrow({ where: { versionId: publishedId! } });
     await prisma.schedule.update({ where: { id: scheduleId }, data: { startDate: date('2020-01-01'), endDate: date('2098-01-19') } });
-    expected = await startScheduleCorrection(scheduleId, expected);
-    const copy = await prisma.scheduleSlot.findFirstOrThrow({ where: { versionId: expected.versionId! } });
-    const removed = await removeAssignment(copy.id, expected); expected.revision = removed.revision;
+    await removeAssignment(live.id, { ...expected, publish: true });
     expect((await getCurrentSchedule(facilityId))?.versionId).toBe(publishedId);
-    expect(Object.values((await getCurrentSchedule(facilityId))!.assignments).flat()).toHaveLength(1);
+    expect(Object.values((await getCurrentSchedule(facilityId))!.assignments).flat()).toHaveLength(0);
+    expect(await prisma.scheduleSlot.findUniqueOrThrow({ where: { id: live.id } })).toMatchObject({ userId: null });
+    expect(Object.values((await getOriginalSchedule(scheduleId, facilityId))!.assignments).flat()).toHaveLength(1);
   });
 
   it('does not expose an initial draft before first publication', async () => {
@@ -119,14 +122,16 @@ suite('schedule versions against migrated PostgreSQL', () => {
     await expect(add(token)).rejects.toThrow('לרענן');
   });
 
-  it('allows exactly one concurrent correction and rejects edits using published slot IDs', async () => {
+  it('rejects new correction copies and serializes edits of the current published roster', async () => {
     await add(); await publish();
-    const published = await prisma.scheduleSlot.findFirstOrThrow({ where: { versionId: expected.versionId! } });
-    const results = await Promise.allSettled([startScheduleCorrection(scheduleId, expected), startScheduleCorrection(scheduleId, expected)]);
+    await expect(startScheduleCorrection(scheduleId, expected)).rejects.toThrow('השיבוץ הנוכחי');
+    const change = { employeeId: null, positionId, date: '2098-01-06', shiftType: 'MORNING' as const, slotIndex: 0 };
+    const results = await Promise.allSettled([
+      saveScheduleChanges(scheduleId, { ...expected, publish: true }, [change]),
+      saveScheduleChanges(scheduleId, { ...expected, publish: true }, [change]),
+    ]);
     expect(results.filter(r => r.status === 'fulfilled')).toHaveLength(1);
-    const draft = await prisma.scheduleVersion.findFirstOrThrow({ where: { scheduleId, status: 'DRAFT' } });
-    expected = { versionId: draft.id, revision: draft.revision };
-    await expect(removeAssignment(published.id, expected)).rejects.toThrow('בגרסה הנוכחית');
+    expect(await prisma.scheduleVersion.count({ where: { scheduleId } })).toBe(2);
   });
 
   it('allows exactly one concurrent publication', async () => {
@@ -134,20 +139,24 @@ suite('schedule versions against migrated PostgreSQL', () => {
     const options = { ...expected, confirmIssues: true };
     const results = await Promise.all([publishSchedule(scheduleId, options), publishSchedule(scheduleId, options)]);
     expect(results.filter(r => 'ok' in r)).toHaveLength(1);
-    expect(await prisma.scheduleVersion.count({ where: { scheduleId, status: 'PUBLISHED' } })).toBe(1);
+    expect(await prisma.scheduleVersion.count({ where: { scheduleId, status: 'PUBLISHED' } })).toBe(2);
   });
 
-  it('protects published slots, metadata, deletion, and moves into a published version in SQL', async () => {
+  it('protects original slots and metadata, current identity and historical records in SQL', async () => {
     await add(); await publish();
-    const publishedId = expected.versionId!;
-    const assignment = await prisma.scheduleSlot.findFirstOrThrow({ where: { versionId: publishedId } });
-    await expect(prisma.scheduleSlot.update({ where: { id: assignment.id }, data: { isLocked: true } })).rejects.toThrow('immutable');
-    await expect(prisma.scheduleSlot.delete({ where: { id: assignment.id } })).rejects.toThrow('immutable');
-    await expect(prisma.scheduleVersion.update({ where: { id: publishedId }, data: { status: 'DRAFT', publishedAt: null } })).rejects.toThrow('immutable');
-    await expect(prisma.scheduleVersion.delete({ where: { id: publishedId } })).rejects.toThrow();
-    expected = await startScheduleCorrection(scheduleId, expected);
-    const copy = await prisma.scheduleSlot.findFirstOrThrow({ where: { versionId: expected.versionId! } });
-    await expect(prisma.scheduleSlot.update({ where: { id: copy.id }, data: { versionId: publishedId } })).rejects.toThrow('immutable');
+    const schedule = await prisma.schedule.findUniqueOrThrow({ where: { id: scheduleId } });
+    const original = await prisma.scheduleSlot.findFirstOrThrow({ where: { versionId: schedule.originalVersionId! } });
+    const live = await prisma.scheduleSlot.findFirstOrThrow({ where: { versionId: expected.versionId! } });
+    await expect(prisma.scheduleSlot.update({ where: { id: original.id }, data: { isLocked: true } })).rejects.toThrow();
+    await expect(prisma.scheduleSlot.delete({ where: { id: original.id } })).rejects.toThrow();
+    await expect(prisma.scheduleVersion.update({ where: { id: schedule.originalVersionId! }, data: { revision: { increment: 1 } } })).rejects.toThrow();
+    await expect(prisma.scheduleVersion.delete({ where: { id: expected.versionId! } })).rejects.toThrow();
+    await expect(prisma.scheduleSlot.delete({ where: { id: live.id } })).rejects.toThrow();
+    await expect(prisma.scheduleSlot.update({ where: { id: live.id }, data: { date: date('2098-01-07') } })).rejects.toThrow();
+    await expect(prisma.scheduleSlot.update({ where: { id: original.id }, data: { versionId: expected.versionId! } })).rejects.toThrow();
+    await expect(prisma.scheduleVersion.update({ where: { id: expected.versionId! }, data: { status: 'DRAFT', publishedAt: null } })).rejects.toThrow();
+    await expect(prisma.schedule.update({ where: { id: scheduleId }, data: { originalVersionId: null } })).rejects.toThrow();
+    await expect(prisma.schedule.update({ where: { id: scheduleId }, data: { publishedVersionId: schedule.originalVersionId } })).rejects.toThrow();
   });
 
   it('rejects version references belonging to another schedule or facility', async () => {
@@ -157,17 +166,17 @@ suite('schedule versions against migrated PostgreSQL', () => {
     await expect(prisma.scheduleSlot.create({ data: assignment })).rejects.toThrow();
   });
 
-  it('leaves the live pointer unchanged when correction publication fails validation', async () => {
+  it('rolls back every slot and audit write when a batch contains an invalid employee', async () => {
     await add(); await publish();
-    const publishedId = expected.versionId!;
-    expected = await startScheduleCorrection(scheduleId, expected);
-    const copy = await prisma.scheduleSlot.findFirstOrThrow({ where: { versionId: expected.versionId! } });
-    await prisma.scheduleSlot.update({ where: { id: copy.id }, data: { date: date('2099-01-01') } });
-    const result = await publishSchedule(scheduleId, { ...expected, confirmIssues: true });
-    expect('error' in result).toBe(true);
-    const schedule = await prisma.schedule.findUniqueOrThrow({ where: { id: scheduleId } });
-    expect(schedule).toMatchObject({ status: 'PUBLISHED', publishedVersionId: publishedId, draftVersionId: expected.versionId });
-    expect((await getUpcomingSchedule(facilityId))?.versionId).toBe(publishedId);
+    const before = await prisma.scheduleSlot.findMany({ where: { versionId: expected.versionId! } });
+    const auditCount = await prisma.scheduleChange.count({ where: { scheduleId } });
+    await expect(saveScheduleChanges(scheduleId, { ...expected, publish: true }, [
+      { employeeId: null, positionId, date: '2098-01-06', shiftType: 'MORNING', slotIndex: 0 },
+      { employeeId: 'missing-employee', positionId, date: '2098-01-07', shiftType: 'NIGHT', slotIndex: 0 },
+    ])).rejects.toThrow();
+    expect(await prisma.scheduleSlot.findMany({ where: { versionId: expected.versionId! } })).toEqual(before);
+    expect(await prisma.scheduleChange.count({ where: { scheduleId } })).toBe(auditCount);
+    expect((await prisma.scheduleVersion.findUniqueOrThrow({ where: { id: expected.versionId! } })).revision).toBe(expected.revision);
   });
 
   it('rejects a manager belonging to a different facility', async () => {
@@ -251,25 +260,24 @@ suite('schedule versions against migrated PostgreSQL', () => {
     expect((await prisma.user.findUniqueOrThrow({ where: { id: employeeId } })).passwordHash).toBe('unused');
   });
 
-  it('regenerates only the draft and preserves the published snapshot and explicit locks', async () => {
-    await add(); await publish();
-    const publishedId = expected.versionId!;
-    const before = await prisma.scheduleSlot.findMany({ where: { versionId: publishedId } });
-    expected = await startScheduleCorrection(scheduleId, expected);
+  it('regenerates the initial draft with explicit locks and blocks regeneration after publication', async () => {
+    await add();
     const row = await prisma.scheduleSlot.findFirstOrThrow({ where: { versionId: expected.versionId! } });
     await prisma.scheduleSlot.update({ where: { id: row.id }, data: { isLocked: true } });
     const result = await generateAutoSchedule(scheduleId, expected);
     expect('ok' in result).toBe(true);
     expect(await prisma.scheduleSlot.findUnique({ where: { id: row.id } })).not.toBeNull();
-    expect(await prisma.scheduleSlot.findMany({ where: { versionId: publishedId } })).toEqual(before);
-    expect(await prisma.scheduleSlot.count({ where: { versionId: expected.versionId!, source: 'AUTOMATIC' } })).toBeGreaterThan(0);
+    const draft = await prisma.scheduleVersion.findUniqueOrThrow({ where: { id: expected.versionId! } });
+    expected.revision = draft.revision;
+    await publish();
+    expect(await generateAutoSchedule(scheduleId, expected)).toHaveProperty('error');
+    expect(await prisma.scheduleVersion.count({ where: { scheduleId } })).toBe(2);
   });
 
-  it('keeps published capacity unchanged and reconciles only correction drafts', async () => {
+  it('keeps original and current published capacity unchanged when staffing requirements change', async () => {
     await add(); await publish();
     const publishedId = expected.versionId!;
     const visible = await getUpcomingSchedule(facilityId);
-    expected = await startScheduleCorrection(scheduleId, expected);
     await scheduleTransaction({ facilityId, userId: managerId }, async tx => {
       await tx.staffingRequirement.updateMany({ where: { facilityId }, data: { requiredCount: 2 } });
       await reconcileDraftCapacity(tx, { facilityId, userId: managerId });

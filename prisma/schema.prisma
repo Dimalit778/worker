@@ -288,6 +288,8 @@ model Schedule {
   openNotifiedAt     DateTime?         @db.Timestamptz(3)
   reminderSentAt     DateTime?         @db.Timestamptz(3)
   draftVersionId     String?           @unique
+  originalVersionId  String?           @unique
+  originalVersion    ScheduleVersion?  @relation("OriginalVersion", fields: [originalVersionId, id, facilityId], references: [id, scheduleId, facilityId], onDelete: Restrict)
   publishedVersionId String?           @unique
   draftVersion       ScheduleVersion?  @relation("DraftVersion", fields: [draftVersionId, id, facilityId], references: [id, scheduleId, facilityId], onDelete: Restrict)
   publishedVersion   ScheduleVersion?  @relation("PublishedVersion", fields: [publishedVersionId, id, facilityId], references: [id, scheduleId, facilityId], onDelete: Restrict)
@@ -303,11 +305,12 @@ model Schedule {
 
   @@unique([id, facilityId])
   // Dates are unique per facility only for non-archived periods: a partial index in SQL (not representable here), like ScheduleVersion_one_draft.
+  @@unique([originalVersionId, id, facilityId])
   @@unique([draftVersionId, id, facilityId])
   @@unique([publishedVersionId, id, facilityId])
 }
 
-/// Published versions and their slots are immutable; Schedule pointers select the live/editing version.
+/// The original snapshot is immutable; the current published version is edited in place.
 model ScheduleVersion {
   id               String         @id @default(cuid())
   scheduleId       String
@@ -322,6 +325,7 @@ model ScheduleVersion {
   schedule     Schedule         @relation("ScheduleVersions", fields: [scheduleId, facilityId], references: [id, facilityId], onDelete: Restrict)
   draftFor     Schedule?        @relation("DraftVersion")
   publishedFor Schedule?        @relation("PublishedVersion")
+  originalFor  Schedule?        @relation("OriginalVersion")
   slots        ScheduleSlot[]
   changes      ScheduleChange[]
 
@@ -428,7 +432,7 @@ model EmployeeRequest {
   requesterId     String
   startDate       DateTime?             @db.Date
   endDate         DateTime?             @db.Date
-  /// העברת משמרת: משבצת בגרסה מפורסמת (אינה משתנה).
+  /// העברת משמרת: מזהה משבצת יציב בשיבוץ הנוכחי; האיוש נבדק שוב באישור.
   slotId          String?
   targetUserId    String?
   reason          String?

@@ -33,11 +33,11 @@ const matches = (s: Slot, where: Partial<Slot>) => Object.entries(where).every((
 function makeTx(ownedPositions: string[]) {
   return {
     $queryRaw: vi.fn(),
-    user: { findFirst: vi.fn().mockResolvedValue({ id: 'manager' }) },
+    user: { findFirst: vi.fn().mockResolvedValue({ id: 'manager' }), findMany: vi.fn(async ({ where }: { where: { id: { in: string[] } } }) => where.id.in.map((id: string) => ({ id, displayName: id }))) },
     schedule: { findFirst: vi.fn().mockResolvedValue({ id: 'sch', status: 'DRAFT', endDate: new Date('2099-01-01'), draftVersionId: 'v1', draftVersion: { id: 'v1', status: 'DRAFT', revision: 0 }, publishedVersion: null }) },
     scheduleVersion: { update: vi.fn() },
-    scheduleChange: { create: vi.fn() },
-    position: { findFirst: vi.fn(async ({ where }: { where: { id: string } }) => ownedPositions.includes(where.id) ? { id: where.id } : null) },
+    scheduleChange: { create: vi.fn(), createMany: vi.fn() },
+    position: { findMany: vi.fn(async () => ownedPositions.map(id => ({ id, name: id }))), findFirst: vi.fn(async ({ where }: { where: { id: string } }) => ownedPositions.includes(where.id) ? { id: where.id } : null) },
     scheduleSlot: {
       findMany: vi.fn(async ({ where }: { where: Partial<Slot> }) => slots.filter(s => matches(s, where)).map(s => ({ ...s }))),
       findFirst: vi.fn(async ({ where }: { where: Partial<Slot> }) => { const found = slots.find(s => matches(s, where)); return found ? { ...found } : null; }),
@@ -68,7 +68,7 @@ beforeEach(() => {
   tx = makeTx(['p1', 'p2']);
   mocks.manager.mockResolvedValue({ facilityId: 'fac', userId: 'manager' });
   mocks.transaction.mockImplementation(async fn => fn(tx));
-  mocks.load.mockImplementation(async () => ({ input: {}, allAssignments: [], assignments: [], toEngine: (a: unknown) => a }));
+  mocks.load.mockImplementation(async () => ({ input: {}, allAssignments: [], assignments: slots.filter(s => s.userId).map(s => ({ ...s })), toEngine: (a: unknown) => a }));
 });
 
 describe('batch save slot lookups', () => {
@@ -100,9 +100,12 @@ describe('batch save slot lookups', () => {
   it('logs the slots as they were before the batch', async () => {
     slots = [slot(1, 'a')];
     await save([change(0, 'x'), change(1, 'y')]);
-    const logged = tx.scheduleChange.create.mock.calls[0][0].data.beforeData;
-    expect(logged).toHaveLength(1);
-    expect(logged[0]).toMatchObject({ slotNumber: 1, userId: 'a', source: 'AUTO' });
+    const logged = tx.scheduleChange.createMany.mock.calls[0][0].data;
+    expect(logged).toHaveLength(2);
+    expect(logged[0].beforeData).toMatchObject({ slotNumber: 1, assignment: { userId: 'a' } });
+    expect(logged[0].afterData).toMatchObject({ slotNumber: 1, assignment: { userId: 'x' } });
+    expect(logged[1].beforeData).toMatchObject({ assignment: null });
+    expect(logged[1].afterData).toMatchObject({ assignment: { userId: 'y' } });
   });
 
   it('applies the same cell twice in order, each change seeing the previous result', async () => {

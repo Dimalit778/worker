@@ -2030,6 +2030,7 @@ export const ScheduleScalarFieldEnum = {
   openNotifiedAt: 'openNotifiedAt',
   reminderSentAt: 'reminderSentAt',
   draftVersionId: 'draftVersionId',
+  originalVersionId: 'originalVersionId',
   publishedVersionId: 'publishedVersionId',
   createdAt: 'createdAt',
   updatedAt: 'updatedAt'

@@ -1,9 +1,10 @@
-import { Prisma, type Schedule, type ScheduleSlot } from '@/generated/prisma/client';
+import type { Prisma, Schedule, ScheduleSlot } from '@/generated/prisma/client';
 import type { ScheduleActor } from '@/features/schedules/services/transactions';
+import { recordSlotChanges } from '@/features/schedules/change-log/record';
 import { loadSchedulingInput } from '@/features/schedules/generation/queries';
 import { computeManualViolations } from '@/features/scheduling-engine/manual-violations';
 import type { EngineAssignment } from '@/features/scheduling-engine/types';
-import { toIsoDate, transferDecision, type TransferCheck } from '../rules';
+import { transferDecision, type TransferCheck } from '../rules';
 
 export const VERSION_CHANGED = 'הגרסה השתנתה: המשמרת כבר אינה משובצת לעובד המבקש';
 
@@ -58,13 +59,7 @@ export class TransferOverrideRequired extends Error {
   constructor(readonly violations: TransferCheck['violations']) { super('נדרש נימוק לאישור חריגה'); }
 }
 
-/**
- * Approves a one-way shift transfer: copies the published version into a new version with the slot
- * reassigned, publishes it (same capacity snapshot) and marks the request APPROVED.
- * Write order respects the SQL triggers: slots are inserted while the new version is still DRAFT,
- * then the version is flipped to PUBLISHED and the schedule pointer switched. The previous published
- * version stays untouched as history.
- */
+/** Approve a transfer in place, preserving the original and stable request/slot IDs. */
 export async function applyTransfer(tx: Prisma.TransactionClient, actor: ScheduleActor, requestId: string, overrideReason?: string) {
   const reason = overrideReason?.trim() || undefined;
   const { request, check, current, schedule } = await checkTransfer(tx, actor, requestId);
@@ -72,42 +67,19 @@ export async function applyTransfer(tx: Prisma.TransactionClient, actor: Schedul
   if (decision === 'BLOCKED') throw new Error(check.blocking.join('; '));
   if (decision === 'NEEDS_OVERRIDE') throw new TransferOverrideRequired(check.violations);
   if (!current || !schedule?.publishedVersionId || !request.targetUserId) throw new Error(VERSION_CHANGED);
-  const previous = await tx.scheduleVersion.findUniqueOrThrow({ where: { id: schedule.publishedVersionId } });
-  const max = await tx.scheduleVersion.aggregate({ where: { scheduleId: schedule.id }, _max: { number: true } });
-  const version = await tx.scheduleVersion.create({ data: {
-    scheduleId: schedule.id, facilityId: actor.facilityId, number: (max._max.number ?? 0) + 1,
-  } });
-  const slots = await tx.scheduleSlot.findMany({ where: { versionId: previous.id } });
+  const before = [current];
   const note = `הועבר מ${request.requester.displayName} ל${request.target?.displayName ?? ''} (בקשת העברה)`;
-  await tx.scheduleSlot.createMany({ data: slots.map(slot => {
-    const moved = slot.id === current.id;
-    return {
-      scheduleId: schedule.id, facilityId: actor.facilityId, versionId: version.id,
-      positionId: slot.positionId, date: slot.date, shiftType: slot.shiftType, slotNumber: slot.slotNumber,
-      startsAt: slot.startsAt, endsAt: slot.endsAt, isLocked: slot.isLocked,
-      userId: moved ? request.targetUserId : slot.userId,
-      source: moved ? 'MANUAL' as const : slot.source,
-      note: moved ? note : slot.note,
-    };
-  }) });
+  const moved = await tx.scheduleSlot.update({ where: { id: current.id }, data: {
+    userId: request.targetUserId, source: 'MANUAL', note,
+  } });
+  await tx.scheduleVersion.update({ where: { id: schedule.publishedVersionId }, data: { revision: { increment: 1 } } });
+  await recordSlotChanges(tx, actor, schedule.id, schedule.publishedVersionId, before, [moved],
+    check.violations.map(v => ({ ...v, employeeId: request.targetUserId! })), `אושרה העברת משמרת${reason ? ` · ${reason}` : ''}`, request.id);
   const now = new Date();
-  await tx.scheduleVersion.update({ where: { id: version.id }, data: {
-    status: 'PUBLISHED', publishedAt: now, revision: previous.revision + 1,
-    capacitySnapshot: previous.capacitySnapshot ?? Prisma.JsonNull,
-  } });
-  await tx.schedule.update({ where: { id: schedule.id }, data: { publishedVersionId: version.id } });
-  const slotKey = { date: toIsoDate(current.date), shiftType: current.shiftType, positionId: current.positionId, slotNumber: current.slotNumber };
-  await tx.scheduleChange.create({ data: {
-    facilityId: actor.facilityId, scheduleId: schedule.id, versionId: version.id, changedById: actor.userId,
-    changeType: check.violations.length ? 'MANUAL_OVERRIDE' : 'UPDATE',
-    reason: reason ?? 'אושרה העברת משמרת',
-    beforeData: { ...slotKey, userId: request.requesterId, versionId: previous.id },
-    afterData: { ...slotKey, userId: request.targetUserId, versionId: version.id, requestId: request.id, violations: check.violations },
-  } });
   const updated = await tx.employeeRequest.updateMany({
     where: { id: request.id, facilityId: actor.facilityId, status: 'PENDING_MANAGER' },
     data: { status: 'APPROVED', decidedById: actor.userId, decidedAt: now, overrideReason: check.violations.length ? reason : null },
   });
   if (updated.count !== 1) throw new Error('הבקשה כבר טופלה');
-  return { versionId: version.id, scheduleId: schedule.id };
+  return { versionId: schedule.publishedVersionId, scheduleId: schedule.id };
 }

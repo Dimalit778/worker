@@ -1,6 +1,6 @@
 'use server';
 import { requireManager } from '@/lib/db/auth-helpers';
-import { scheduleTransaction, checkedVersion, freezePublishedVersion, type VersionExpectation } from '../services/transactions';
+import { scheduleTransaction, checkedVersion, freezePublishedVersion, preserveOriginalSchedule, type VersionExpectation } from '../services/transactions';
 import { loadSchedulingInput } from '../generation/queries';
 import { saveScheduleAnalysis } from '../generation/recalculate';
 import { validateAssignments } from '@/features/scheduling-engine/validate';
@@ -33,6 +33,7 @@ export async function publishSchedule(scheduleId: string, options: VersionExpect
       if (problems.length && !options.confirmIssues) return { requiresConfirmation: true as const, issueCount: problems.length, message: `קיימות ${problems.length} בעיות בשיבוץ. לפרסם בכל זאת?` };
       const now = new Date();
       await freezePublishedVersion(tx, version.id, data.capacities, data.dateOverrides, now);
+      await preserveOriginalSchedule(tx, scheduleId, version.id);
       await tx.schedule.update({ where: { id: scheduleId }, data: {
         status: 'PUBLISHED', publishedAt: now, publishedVersionId: version.id, draftVersionId: null,
       } });

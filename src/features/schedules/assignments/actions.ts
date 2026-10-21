@@ -3,8 +3,8 @@
 import { requireManager, requireSession } from '@/lib/db/auth-helpers';
 import type { ShiftType } from '@/generated/prisma/client';
 import type { AssignEmployeeToSlotParams } from '../types';
-import { getCurrentSchedule, getDraftScheduleData } from './queries';
-import { scheduleTransaction, checkedVersion, editableDraft, freezePublishedVersion, type VersionExpectation } from '../services/transactions';
+import { getCurrentSchedule, getDraftScheduleData, getOriginalSchedule } from './queries';
+import { scheduleTransaction, checkedVersion, editableDraft, type VersionExpectation } from '../services/transactions';
 import { loadSchedulingInput } from '../generation/queries';
 import { saveScheduleAnalysis } from '../generation/recalculate';
 import { validateAssignments } from '@/features/scheduling-engine/validate';
@@ -12,6 +12,7 @@ import { computeManualViolations, type ManualViolation } from '@/features/schedu
 import { parseISODateToUtcMidnight } from '@/features/periods/utils';
 import { prisma } from '@/lib/db/client';
 import { loadedScheduleDetails } from './loaded-details';
+import { recordSlotChanges } from '../change-log/record';
 import { defaultShiftTimes, isValidShiftTime, shiftBounds, type CustomHours } from '../shift-times';
 
 type Edit = { kind: 'create'; params: AssignEmployeeToSlotParams } |
@@ -49,24 +50,16 @@ async function applyEdit(scheduleId: string, expected: VersionExpectation, reque
   const actor = await requireManager();
   return scheduleTransaction(actor, async tx => {
     const direct = expected?.publish === true;
-    let edit = requested;
+    const edit = requested;
     const checked = await checkedVersion(tx, actor, scheduleId, expected);
-    let version = checked.version;
+    const version = checked.version;
     if (direct) {
-      // Published slots are immutable: copy them into a new version, edit it, then publish it below.
       if (checked.schedule.draftVersionId) throw new Error('קיימת טיוטת תיקון פתוחה לשיבוץ זה. יש לפרסם אותה במסך הטיוטה');
       if (!version || version.status !== 'PUBLISHED') throw new Error('השיבוץ אינו מפורסם');
-      const published = await tx.scheduleSlot.findMany({ where: { versionId: version.id } });
-      version = (await editableDraft(tx, actor, scheduleId, expected, 'עריכה ישירה של שיבוץ מפורסם')).version;
-      const copies = await tx.scheduleSlot.findMany({ where: { versionId: version.id } });
-      const key = (a: { date: Date; shiftType: string; positionId: string; slotNumber: number }) => `${a.date.toISOString()}|${a.shiftType}|${a.positionId}|${a.slotNumber}`;
-      const copyIds = new Map(copies.map(a => [key(a), a.id]));
-      const mapId = (id: string) => { const slot = published.find(a => a.id === id); return (slot && copyIds.get(key(slot))) ?? id; };
-      if (requested.kind === 'batch') edit = requested;
-      else if (requested.kind === 'swap') edit = { ...requested, assignmentId: mapId(requested.assignmentId), otherId: mapId(requested.otherId) };
-      else if (requested.kind !== 'create') edit = { ...requested, assignmentId: mapId(requested.assignmentId) };
+      if (!checked.schedule.originalVersionId) throw new Error('לא נשמר עותק מקור לשיבוץ');
+    } else if (!version || version.status !== 'DRAFT') {
+      throw new Error('יש לערוך את השיבוץ הנוכחי במסך השיבוץ');
     }
-    if (!version || version.status !== 'DRAFT') throw new Error('יש לפתוח טיוטת תיקון לפני עריכה');
     const before = await tx.scheduleSlot.findMany({ where: { scheduleId, versionId: version.id } });
     const existing = edit.kind === 'create' || edit.kind === 'batch' ? null : before.find(a => a.id === edit.assignmentId);
     if (edit.kind !== 'create' && edit.kind !== 'batch' && !existing) throw new Error('השיבוץ לא נמצא בגרסה הנוכחית');
@@ -105,8 +98,11 @@ async function applyEdit(scheduleId: string, expected: VersionExpectation, reque
         const slot = slots.get(key);
         if (change.employeeId === null) {
           if (slot) {
-            await tx.scheduleSlot.delete({ where: { id: slot.id } });
-            slots.delete(key);
+            if (direct) slots.set(key, await tx.scheduleSlot.update({ where: { id: slot.id }, data: { userId: null, source: 'MANUAL', isLocked: false } }));
+            else {
+              await tx.scheduleSlot.delete({ where: { id: slot.id } });
+              slots.delete(key);
+            }
           }
         } else if (slot) {
           // Custom hours belong to the person: a new employee in the slot starts from the default hours.
@@ -125,7 +121,8 @@ async function applyEdit(scheduleId: string, expected: VersionExpectation, reque
         }
       }
     } else if (edit.kind === 'remove') {
-      await tx.scheduleSlot.delete({ where: { id: existing!.id } });
+      if (direct) await tx.scheduleSlot.update({ where: { id: existing!.id }, data: { userId: null, source: 'MANUAL', isLocked: false } });
+      else await tx.scheduleSlot.delete({ where: { id: existing!.id } });
     } else if (edit.kind === 'lock') {
       await tx.scheduleSlot.update({ where: { id: existing!.id }, data: { isLocked: edit.isLocked } });
     } else if (edit.kind === 'update') {
@@ -154,13 +151,8 @@ async function applyEdit(scheduleId: string, expected: VersionExpectation, reque
     if (violations.length && !reason && edit.kind !== 'batch') throw new OverrideRequiredError(violations);
     const details = loadedScheduleDetails(data);
     await tx.scheduleVersion.update({ where: { id: version.id }, data: { revision: { increment: 1 } } });
-    await tx.scheduleChange.create({ data: { facilityId: actor.facilityId, scheduleId, versionId: version.id, changedById: actor.userId, changeType: violations.length ? 'MANUAL_OVERRIDE' : edit.kind === 'create' ? 'CREATE' : edit.kind === 'remove' ? 'DELETE' : 'UPDATE', reason: violations.length ? (reason ?? 'נשמר עם חריגות') : edit.kind === 'batch' ? `שמירת ${edit.changes.length} שינויים` : `עדכון טיוטה: ${edit.kind}`, beforeData: JSON.parse(JSON.stringify(before)), afterData: JSON.parse(JSON.stringify(violations.length ? { violations, approvedById: actor.userId, approvedAt: new Date().toISOString(), assignments: data.assignments } : data.assignments)) } });
-    if (direct) {
-      await saveScheduleAnalysis(tx, version.id, data.input, data.allAssignments);
-      await freezePublishedVersion(tx, version.id, data.capacities, data.dateOverrides, new Date());
-      await tx.schedule.update({ where: { id: scheduleId }, data: { publishedVersionId: version.id, draftVersionId: null } });
-    }
-    return { ok: true as const, scheduleId, revision: version.revision + (direct ? 2 : 1), versionId: version.id, published: direct,
+    await recordSlotChanges(tx, actor, scheduleId, version.id, before, data.assignments, violations, reason);
+    return { ok: true as const, scheduleId, revision: version.revision + 1, versionId: version.id, published: direct,
       assignments: details.assignments, warnings: details.warnings, fairness: details.fairness };
   });
 }
@@ -211,4 +203,9 @@ export async function fetchCurrentSchedule() {
 export async function fetchDraftSchedule(scheduleId?: string) {
   const { facilityId } = await requireManager();
   return getDraftScheduleData(facilityId, scheduleId);
+}
+
+export async function fetchOriginalSchedule(scheduleId: string) {
+  const { facilityId } = await requireManager();
+  return getOriginalSchedule(scheduleId, facilityId);
 }

@@ -5,7 +5,7 @@ import type { loadSchedulingInput } from '../generation/queries';
 import { toDatedCapacityRules } from '../utils';
 import { expireFacilityData } from '@/lib/cache/data-cache';
 
-/** `publish`: edit a published schedule directly (new version, published in the same transaction). */
+/** `publish`: edit the current published schedule in place. */
 export type VersionExpectation = { versionId: string | null; revision: number; publish?: boolean };
 export type ScheduleActor = { facilityId: string; userId: string };
 export const STALE_VERSION = 'השיבוץ השתנה. יש לרענן ולנסות שוב';
@@ -71,24 +71,16 @@ export async function checkedVersion(tx: Prisma.TransactionClient, actor: Schedu
 export async function editableDraft(tx: Prisma.TransactionClient, actor: ScheduleActor, scheduleId: string, expected: VersionExpectation, reason?: string) {
   const { schedule, version } = await checkedVersion(tx, actor, scheduleId, expected);
   if (version?.status === 'DRAFT') return { schedule, version };
+  if (schedule.publishedVersionId || version) throw new Error('יש לערוך את השיבוץ הנוכחי במסך השיבוץ');
   const draft = await tx.scheduleVersion.create({ data: {
-    scheduleId, facilityId: actor.facilityId, number: (version?.number ?? 0) + 1,
+    scheduleId, facilityId: actor.facilityId, number: 1,
   } });
-  if (version) {
-    const slots = await tx.scheduleSlot.findMany({ where: { versionId: version.id } });
-    if (slots.length) await tx.scheduleSlot.createMany({ data: slots.map(slot => ({
-      scheduleId, facilityId: actor.facilityId, versionId: draft.id,
-      positionId: slot.positionId, date: slot.date, shiftType: slot.shiftType,
-      slotNumber: slot.slotNumber, startsAt: slot.startsAt, endsAt: slot.endsAt,
-      userId: slot.userId, source: slot.source, isLocked: slot.isLocked, note: slot.note,
-    })) });
-  }
   await tx.schedule.update({ where: { id: scheduleId }, data: { draftVersionId: draft.id } });
   await tx.scheduleChange.create({ data: {
     facilityId: actor.facilityId, scheduleId, versionId: draft.id,
     changedById: actor.userId, changeType: 'CREATE',
-    reason: reason ?? (version ? 'נפתחה טיוטת תיקון' : 'נפתחה טיוטה'),
-    afterData: { copiedFromVersionId: version?.id ?? null },
+    reason: reason ?? 'נפתחה טיוטה',
+    afterData: { revision: 0 },
   } });
   return { schedule, version: draft };
 }
@@ -109,4 +101,27 @@ export async function freezePublishedVersion(tx: Prisma.TransactionClient, versi
       ...toDatedCapacityRules(dateOverrides),
     ],
   } });
+}
+
+/** One immutable snapshot at first publication; live slot IDs remain stable. */
+export async function preserveOriginalSchedule(tx: Prisma.TransactionClient, scheduleId: string, versionId: string) {
+  const schedule = await tx.schedule.findUniqueOrThrow({ where: { id: scheduleId } });
+  if (schedule.originalVersionId) return schedule.originalVersionId;
+  const live = await tx.scheduleVersion.findUniqueOrThrow({ where: { id: versionId } });
+  const original = await tx.scheduleVersion.create({ data: {
+    scheduleId, facilityId: live.facilityId, number: 0,
+    capacitySnapshot: live.capacitySnapshot ?? Prisma.JsonNull,
+  } });
+  const slots = await tx.scheduleSlot.findMany({ where: { versionId } });
+  if (slots.length) await tx.scheduleSlot.createMany({ data: slots.map(slot => ({
+    scheduleId, facilityId: slot.facilityId, versionId: original.id,
+    positionId: slot.positionId, date: slot.date, shiftType: slot.shiftType,
+    slotNumber: slot.slotNumber, startsAt: slot.startsAt, endsAt: slot.endsAt,
+    userId: slot.userId, source: slot.source, isLocked: slot.isLocked, note: slot.note,
+  })) });
+  await tx.scheduleVersion.update({ where: { id: original.id }, data: {
+    status: 'PUBLISHED', publishedAt: live.publishedAt, revision: live.revision,
+  } });
+  await tx.schedule.update({ where: { id: scheduleId }, data: { originalVersionId: original.id } });
+  return original.id;
 }
