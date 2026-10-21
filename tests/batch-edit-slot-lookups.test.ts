@@ -39,6 +39,7 @@ function makeTx(ownedPositions: string[]) {
     schedule: { findFirst: vi.fn().mockResolvedValue({ id: 'sch', status: 'DRAFT', endDate: new Date('2099-01-01'), draftVersionId: 'v1', draftVersion: { id: 'v1', status: 'DRAFT', revision: 0 }, publishedVersion: null }) },
     scheduleVersion: { update: vi.fn() },
     scheduleChange: { create: vi.fn(), createMany: vi.fn() },
+    employeeRequest: { updateMany: vi.fn().mockResolvedValue({ count: 0 }) },
     position: { findMany: vi.fn(async () => ownedPositions.map(id => ({ id, name: id }))), findFirst: vi.fn(async ({ where }: { where: { id: string } }) => ownedPositions.includes(where.id) ? { id: where.id } : null) },
     scheduleSlot: {
       findMany: vi.fn(async ({ where }: { where: Partial<Slot> }) => slots.filter(s => matches(s, where)).map(s => ({ ...s }))),
@@ -216,5 +217,35 @@ describe('batch save slot lookups', () => {
     await save([change(0, 'x', { positionId: 'foreign' })]);
     expect(tx.position.findFirst).not.toHaveBeenCalled();
     expect(slots[0].userId).toBe('x');
+  });
+});
+
+describe('batch save closes transfer requests the edit made moot', () => {
+  const publish = () => {
+    tx.schedule.findFirst.mockResolvedValue({
+      id: 'sch', status: 'PUBLISHED', endDate: new Date('2099-01-01'), draftVersionId: null,
+      originalVersionId: 'original', publishedVersionId: 'v1',
+      publishedVersion: { id: 'v1', status: 'PUBLISHED', revision: 0 },
+    } as never);
+    return (changes: SlotChange[]) => saveScheduleChanges('sch', { versionId: 'v1', revision: 0, publish: true }, changes);
+  };
+
+  it('cancels open transfer requests of a slot whose employee was removed or replaced', async () => {
+    const savePublished = publish();
+    slots = [slot(1, 'a'), slot(1, 'b', { shiftType: 'EVENING' }), slot(1, 'c', { shiftType: 'NIGHT' })];
+    const [removed, replaced] = slots.map(s => s.id);
+    await savePublished([change(0, null), change(0, 'x', { shiftType: 'EVENING' })]);
+    expect(tx.employeeRequest.updateMany).toHaveBeenCalledTimes(1);
+    const { where, data } = tx.employeeRequest.updateMany.mock.calls[0][0];
+    expect(where).toEqual({ facilityId: 'fac', type: 'SHIFT_SWAP', status: { in: ['PENDING_PEER', 'PENDING_MANAGER'] }, slotId: { in: [removed, replaced] } });
+    expect(data).toMatchObject({ status: 'CANCELLED', decidedById: 'manager', decisionNote: expect.any(String) });
+    expect(data.decidedAt).toBeInstanceOf(Date);
+  });
+
+  it('keeps the requests when the slot keeps its employee', async () => {
+    const savePublished = publish();
+    slots = [slot(1, 'a')];
+    await savePublished([change(0, 'a', { hours: long })]);
+    expect(tx.employeeRequest.updateMany).not.toHaveBeenCalled();
   });
 });
