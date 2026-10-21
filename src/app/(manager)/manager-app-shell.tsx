@@ -16,6 +16,7 @@ import {
   Scale,
   Settings,
   Users,
+  UserRound,
   X,
   type LucideIcon,
 } from 'lucide-react';
@@ -40,6 +41,7 @@ const NAV_ICONS: Record<string, LucideIcon> = {
   '/manager/requests': Inbox,
   '/manager/employees': Users,
   '/manager/settings': Settings,
+  '/manager/profile': UserRound,
 };
 
 const SIDEBAR_COLLAPSED_STORAGE_KEY = 'manager-sidebar-collapsed';

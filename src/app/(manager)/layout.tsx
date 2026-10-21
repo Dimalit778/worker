@@ -13,6 +13,7 @@ const navItems = [
   { href: '/manager/requests', label: 'בקשות' },
   { href: '/manager/employees', label: 'עובדים' },
   { href: '/manager/settings', label: 'הגדרות' },
+  { href: '/manager/profile', label: 'הפרופיל שלי' },
 ] as const;
 
 export default async function ManagerLayout({ children }: { children: React.ReactNode }) {

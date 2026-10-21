@@ -8,6 +8,7 @@ const navItems = [
   { href: '/admin/courts', label: 'בתי משפט' },
   { href: '/admin/employees', label: 'עובדים' },
   { href: '/admin/config', label: 'הגדרות מערכת' },
+  { href: '/admin/profile', label: 'הפרופיל שלי' },
 ];
 
 export default async function AdminLayout({ children }: { children: React.ReactNode }) {

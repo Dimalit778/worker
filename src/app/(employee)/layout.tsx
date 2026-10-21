@@ -49,6 +49,7 @@ export default async function UserLayout({ children }: { children: React.ReactNo
     { href: '/employee', label: 'שיבוץ', notify: false },
     { href: '/employee/submissions', label: 'ההגשות שלי', notify: false },
     { href: '/employee/requests', label: 'הבקשות שלי', notify: incomingTransfers > 0 },
+    { href: '/employee/profile', label: 'הפרופיל שלי', notify: false },
   ];
 
   return (
