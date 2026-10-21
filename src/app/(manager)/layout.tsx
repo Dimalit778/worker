@@ -1,3 +1,4 @@
+import { after } from 'next/server';
 import { PortalRole } from '@/lib/auth/portal';
 import { requireSession } from '@/lib/db/auth-helpers';
 import { prisma } from '@/lib/db/client';
@@ -16,7 +17,8 @@ const navItems = [
 
 export default async function ManagerLayout({ children }: { children: React.ReactNode }) {
   const session = await requireSession(PortalRole.MANAGER);
-  await syncSubmissionWindows(session.user.facilityId);
+  // Send due open/reminder emails after the response so the page does not wait for them.
+  after(() => syncSubmissionWindows(session.user.facilityId));
 
   const [court, urgentCount, hasClosedDraft] = session.user.facilityId
     ? await Promise.all([

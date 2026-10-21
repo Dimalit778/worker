@@ -1,3 +1,4 @@
+import { after } from 'next/server';
 import { PortalRole } from '@/lib/auth/portal';
 import { requireSession } from '@/lib/db/auth-helpers';
 import { prisma } from '@/lib/db/client';
@@ -7,7 +8,8 @@ import { countIncomingTransfers } from '@/features/requests/queries';
 
 export default async function UserLayout({ children }: { children: React.ReactNode }) {
   const session = await requireSession(PortalRole.EMPLOYEE);
-  await syncSubmissionWindows(session.user.facilityId);
+  // Send due open/reminder emails after the response so the page does not wait for them.
+  after(() => syncSubmissionWindows(session.user.facilityId));
 
   const [primaryCourt, availabilityStatus, incomingTransfers] = await Promise.all([
     session.user.facilityId ? prisma.facility.findUnique({ where: { id: session.user.facilityId } }) : null,
