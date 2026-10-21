@@ -104,7 +104,7 @@ export type StaffingDateOverride = Prisma.StaffingDateOverrideModel
 export type Schedule = Prisma.ScheduleModel
 /**
  * Model ScheduleVersion
- * Published versions and their slots are immutable; Schedule pointers select the live/editing version.
+ * The original snapshot is immutable; the current published version is edited in place.
  */
 export type ScheduleVersion = Prisma.ScheduleVersionModel
 /**

@@ -8,6 +8,7 @@ vi.mock('@/lib/db/auth-helpers', () => ({ requireManager: async () => ({ facilit
 vi.mock('@/features/schedules/services/transactions', async importOriginal => ({
   scheduleTransaction: async (_actor: unknown, fn: (tx: unknown) => unknown) => fn(mocks.tx),
   checkedVersion: mocks.checkedVersion,
+  preserveOriginalSchedule: vi.fn(),
   freezePublishedVersion: (await importOriginal<typeof import('@/features/schedules/services/transactions')>()).freezePublishedVersion,
 }));
 vi.mock('@/features/schedules/generation/queries', () => ({ loadSchedulingInput: mocks.loadSchedulingInput }));

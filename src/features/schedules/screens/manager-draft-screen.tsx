@@ -80,11 +80,11 @@ export function ManagerDraftScreen({ scheduleId }: { scheduleId?: string }) {
             <span className="select-none text-base leading-none" aria-hidden>
               ✓
             </span>
-            <p className="leading-snug">השיבוץ פורסם ומוצג לעובדים. תיקונים יופיעו רק לאחר פרסום הטיוטה.</p>
+            <p className="leading-snug">השיבוץ פורסם ומוצג לעובדים. שינויים נשמרים במסך השיבוץ הנוכחי ומתועדים בהיסטוריה.</p>
           </div>
         )}
 
-        {isReadonly && <CorrectionButton data={data} />}
+        {isReadonly && <CorrectionButton />}
 
         <PendingEditsProvider data={data}>
           <DraftSchedule data={data} readonly={isReadonly || data.scheduleStatus === 'ARCHIVED' || !data.versionId} />

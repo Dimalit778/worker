@@ -1,6 +1,6 @@
 // @vitest-environment jsdom
 import { afterEach, beforeEach, expect, it, vi } from 'vitest';
-import { cleanup, render, screen, waitFor, within } from '@testing-library/react';
+import { cleanup, fireEvent, render, screen, waitFor, within } from '@testing-library/react';
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import type { ScheduleChangeLogEntry } from '@/features/schedules/change-log/queries';
 import type { CurrentScheduleData } from '@/features/schedules/types';
@@ -9,11 +9,13 @@ const actions = vi.hoisted(() => ({
   fetchScheduleChangeLog: vi.fn(),
   fetchDraftSchedule: vi.fn(),
   fetchCurrentSchedule: vi.fn(),
+  fetchOriginalSchedule: vi.fn(),
 }));
 vi.mock('@/features/schedules/change-log/actions', () => ({ fetchScheduleChangeLog: actions.fetchScheduleChangeLog }));
 vi.mock('@/features/schedules/assignments/actions', () => ({
   fetchDraftSchedule: actions.fetchDraftSchedule,
   fetchCurrentSchedule: actions.fetchCurrentSchedule,
+  fetchOriginalSchedule: actions.fetchOriginalSchedule,
   saveScheduleChanges: vi.fn(),
 }));
 vi.mock('@/features/schedules/assignments/upcoming-actions', () => ({ fetchUpcomingSchedule: vi.fn() }));
@@ -24,7 +26,7 @@ vi.mock('@/features/periods/components/deadline-extension', () => ({ DeadlineExt
 vi.mock('@/features/schedules/draft-schedule/topbar', () => ({ TopBar: () => null }));
 vi.mock('@/features/schedules/draft-schedule/schedule-stats', () => ({ ScheduleStats: () => null }));
 vi.mock('@/features/schedules/current-schedule', () => ({ CurrentScheduleView: () => <p>לוח יומי לבדיקה</p> }));
-vi.mock('@/features/schedules/draft-schedule/weekly-draft-schedule-view', () => ({ WeeklyDraftScheduleView: () => <p>לוח שבועי לבדיקה</p> }));
+vi.mock('@/features/schedules/draft-schedule/weekly-draft-schedule-view', () => ({ WeeklyDraftScheduleView: (props: { readonly?: boolean }) => <p data-readonly={String(props.readonly)}>לוח שבועי לבדיקה</p> }));
 
 import { ChangeLogList } from '@/features/schedules/change-log/change-log-list';
 import { CurrentScheduleScreen } from '@/features/schedules/screens/current-schedule-screen';
@@ -67,7 +69,7 @@ it('lists one schedule\'s changes newest first and shows each reason once', asyn
   const rows = screen.getAllByRole('row').slice(1);
   expect(rows).toHaveLength(2);
   expect(within(rows[0]).getByText('דנה')).toBeInTheDocument();
-  expect(within(rows[0]).getByText(/גרסה 3/)).toBeInTheDocument();
+  expect(screen.queryByText(/גרסה 3/)).not.toBeInTheDocument();
   expect(within(rows[1]).getByText('מנהל ראשי')).toBeInTheDocument();
   expect(screen.getAllByText(/הוחלף עובד במשמרת בוקר/)).toHaveLength(1);
   expect(screen.queryByText(/סיבה:/)).not.toBeInTheDocument();
@@ -132,7 +134,19 @@ it('manager current-schedule screen shows the section only when a schedule exist
 
 it('the shared current-schedule screen used by employees does not show the section', () => {
   wrap(<CurrentScheduleScreen data={data} isLoading={false} isError={false} loadingMessage="" errorMessage="" />);
-  expect(screen.getByText('לוח יומי לבדיקה')).toBeInTheDocument();
+  expect(screen.getByText('לוח שבועי לבדיקה')).toBeInTheDocument();
   expect(screen.queryByText('שינויים בשיבוץ')).not.toBeInTheDocument();
   expect(actions.fetchScheduleChangeLog).not.toHaveBeenCalled();
+});
+
+it('opens the original on demand in read-only mode beside the editable current roster', async () => {
+  actions.fetchCurrentSchedule.mockResolvedValue({ ...data, scheduleStatus: 'PUBLISHED' });
+  actions.fetchOriginalSchedule.mockResolvedValue({ ...data, versionId: 'original' });
+  wrap(<ManagerScheduleScreen />);
+  const summary = await screen.findByText('השיבוץ המקורי כפי שפורסם לראשונה');
+  expect(actions.fetchOriginalSchedule).not.toHaveBeenCalled();
+  fireEvent.click(summary);
+  await waitFor(() => expect(actions.fetchOriginalSchedule).toHaveBeenCalledWith('s1'));
+  await waitFor(() => expect(screen.getAllByText('לוח שבועי לבדיקה')).toHaveLength(2));
+  expect(screen.getAllByText('לוח שבועי לבדיקה').map(node => node.dataset.readonly)).toEqual(['false', 'true']);
 });

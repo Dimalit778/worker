@@ -153,6 +153,18 @@ async function buildPublishedScheduleData(
   return base ? { ...base, versionId: publishedVersionId, revision: scheduleRow.publishedVersion?.revision ?? 0 } : null;
 }
 
+/** Read the immutable first publication using the same roster presentation. */
+export async function getOriginalSchedule(scheduleId: string, facilityId: string): Promise<CurrentScheduleData | null> {
+  const schedule = await prisma.schedule.findFirst({
+    where: { id: scheduleId, facilityId }, include: { originalVersion: true },
+  });
+  if (!schedule?.originalVersion) return null;
+  return buildPublishedScheduleData({
+    ...schedule, status: PeriodScheduleStatus.PUBLISHED,
+    publishedVersionId: schedule.originalVersion.id, publishedVersion: schedule.originalVersion,
+  }, facilityId);
+}
+
 export async function getCurrentSchedule(facilityId: string): Promise<CurrentScheduleData | null> {
   const schedule = await prisma.schedule.findFirst({
     where: currentScheduleWhere(facilityId),

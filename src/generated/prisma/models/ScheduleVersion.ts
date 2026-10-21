@@ -14,7 +14,7 @@ import type * as Prisma from "../internal/prismaNamespace"
 
 /**
  * Model ScheduleVersion
- * Published versions and their slots are immutable; Schedule pointers select the live/editing version.
+ * The original snapshot is immutable; the current published version is edited in place.
  */
 export type ScheduleVersionModel = runtime.Types.Result.DefaultSelection<Prisma.$ScheduleVersionPayload>
 
@@ -251,6 +251,7 @@ export type ScheduleVersionWhereInput = {
   schedule?: Prisma.XOR<Prisma.ScheduleScalarRelationFilter, Prisma.ScheduleWhereInput>
   draftFor?: Prisma.XOR<Prisma.ScheduleNullableScalarRelationFilter, Prisma.ScheduleWhereInput> | null
   publishedFor?: Prisma.XOR<Prisma.ScheduleNullableScalarRelationFilter, Prisma.ScheduleWhereInput> | null
+  originalFor?: Prisma.XOR<Prisma.ScheduleNullableScalarRelationFilter, Prisma.ScheduleWhereInput> | null
   slots?: Prisma.ScheduleSlotListRelationFilter
   changes?: Prisma.ScheduleChangeListRelationFilter
 }
@@ -268,6 +269,7 @@ export type ScheduleVersionOrderByWithRelationInput = {
   schedule?: Prisma.ScheduleOrderByWithRelationInput
   draftFor?: Prisma.ScheduleOrderByWithRelationInput
   publishedFor?: Prisma.ScheduleOrderByWithRelationInput
+  originalFor?: Prisma.ScheduleOrderByWithRelationInput
   slots?: Prisma.ScheduleSlotOrderByRelationAggregateInput
   changes?: Prisma.ScheduleChangeOrderByRelationAggregateInput
 }
@@ -290,6 +292,7 @@ export type ScheduleVersionWhereUniqueInput = Prisma.AtLeast<{
   schedule?: Prisma.XOR<Prisma.ScheduleScalarRelationFilter, Prisma.ScheduleWhereInput>
   draftFor?: Prisma.XOR<Prisma.ScheduleNullableScalarRelationFilter, Prisma.ScheduleWhereInput> | null
   publishedFor?: Prisma.XOR<Prisma.ScheduleNullableScalarRelationFilter, Prisma.ScheduleWhereInput> | null
+  originalFor?: Prisma.XOR<Prisma.ScheduleNullableScalarRelationFilter, Prisma.ScheduleWhereInput> | null
   slots?: Prisma.ScheduleSlotListRelationFilter
   changes?: Prisma.ScheduleChangeListRelationFilter
 }, "id" | "id_scheduleId_facilityId" | "scheduleId_number">
@@ -337,6 +340,7 @@ export type ScheduleVersionCreateInput = {
   schedule: Prisma.ScheduleCreateNestedOneWithoutVersionsInput
   draftFor?: Prisma.ScheduleCreateNestedOneWithoutDraftVersionInput
   publishedFor?: Prisma.ScheduleCreateNestedOneWithoutPublishedVersionInput
+  originalFor?: Prisma.ScheduleCreateNestedOneWithoutOriginalVersionInput
   slots?: Prisma.ScheduleSlotCreateNestedManyWithoutVersionInput
   changes?: Prisma.ScheduleChangeCreateNestedManyWithoutVersionInput
 }
@@ -353,6 +357,7 @@ export type ScheduleVersionUncheckedCreateInput = {
   capacitySnapshot?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
   draftFor?: Prisma.ScheduleUncheckedCreateNestedOneWithoutDraftVersionInput
   publishedFor?: Prisma.ScheduleUncheckedCreateNestedOneWithoutPublishedVersionInput
+  originalFor?: Prisma.ScheduleUncheckedCreateNestedOneWithoutOriginalVersionInput
   slots?: Prisma.ScheduleSlotUncheckedCreateNestedManyWithoutVersionInput
   changes?: Prisma.ScheduleChangeUncheckedCreateNestedManyWithoutVersionInput
 }
@@ -368,6 +373,7 @@ export type ScheduleVersionUpdateInput = {
   schedule?: Prisma.ScheduleUpdateOneRequiredWithoutVersionsNestedInput
   draftFor?: Prisma.ScheduleUpdateOneWithoutDraftVersionNestedInput
   publishedFor?: Prisma.ScheduleUpdateOneWithoutPublishedVersionNestedInput
+  originalFor?: Prisma.ScheduleUpdateOneWithoutOriginalVersionNestedInput
   slots?: Prisma.ScheduleSlotUpdateManyWithoutVersionNestedInput
   changes?: Prisma.ScheduleChangeUpdateManyWithoutVersionNestedInput
 }
@@ -384,6 +390,7 @@ export type ScheduleVersionUncheckedUpdateInput = {
   capacitySnapshot?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
   draftFor?: Prisma.ScheduleUncheckedUpdateOneWithoutDraftVersionNestedInput
   publishedFor?: Prisma.ScheduleUncheckedUpdateOneWithoutPublishedVersionNestedInput
+  originalFor?: Prisma.ScheduleUncheckedUpdateOneWithoutOriginalVersionNestedInput
   slots?: Prisma.ScheduleSlotUncheckedUpdateManyWithoutVersionNestedInput
   changes?: Prisma.ScheduleChangeUncheckedUpdateManyWithoutVersionNestedInput
 }
@@ -497,6 +504,12 @@ export type ScheduleVersionScalarRelationFilter = {
   isNot?: Prisma.ScheduleVersionWhereInput
 }
 
+export type ScheduleVersionCreateNestedOneWithoutOriginalForInput = {
+  create?: Prisma.XOR<Prisma.ScheduleVersionCreateWithoutOriginalForInput, Prisma.ScheduleVersionUncheckedCreateWithoutOriginalForInput>
+  connectOrCreate?: Prisma.ScheduleVersionCreateOrConnectWithoutOriginalForInput
+  connect?: Prisma.ScheduleVersionWhereUniqueInput
+}
+
 export type ScheduleVersionCreateNestedOneWithoutDraftForInput = {
   create?: Prisma.XOR<Prisma.ScheduleVersionCreateWithoutDraftForInput, Prisma.ScheduleVersionUncheckedCreateWithoutDraftForInput>
   connectOrCreate?: Prisma.ScheduleVersionCreateOrConnectWithoutDraftForInput
@@ -521,6 +534,16 @@ export type ScheduleVersionUncheckedCreateNestedManyWithoutScheduleInput = {
   connectOrCreate?: Prisma.ScheduleVersionCreateOrConnectWithoutScheduleInput | Prisma.ScheduleVersionCreateOrConnectWithoutScheduleInput[]
   createMany?: Prisma.ScheduleVersionCreateManyScheduleInputEnvelope
   connect?: Prisma.ScheduleVersionWhereUniqueInput | Prisma.ScheduleVersionWhereUniqueInput[]
+}
+
+export type ScheduleVersionUpdateOneWithoutOriginalForNestedInput = {
+  create?: Prisma.XOR<Prisma.ScheduleVersionCreateWithoutOriginalForInput, Prisma.ScheduleVersionUncheckedCreateWithoutOriginalForInput>
+  connectOrCreate?: Prisma.ScheduleVersionCreateOrConnectWithoutOriginalForInput
+  upsert?: Prisma.ScheduleVersionUpsertWithoutOriginalForInput
+  disconnect?: Prisma.ScheduleVersionWhereInput | boolean
+  delete?: Prisma.ScheduleVersionWhereInput | boolean
+  connect?: Prisma.ScheduleVersionWhereUniqueInput
+  update?: Prisma.XOR<Prisma.XOR<Prisma.ScheduleVersionUpdateToOneWithWhereWithoutOriginalForInput, Prisma.ScheduleVersionUpdateWithoutOriginalForInput>, Prisma.ScheduleVersionUncheckedUpdateWithoutOriginalForInput>
 }
 
 export type ScheduleVersionUpdateOneWithoutDraftForNestedInput = {
@@ -601,6 +624,42 @@ export type ScheduleVersionUpdateOneWithoutChangesNestedInput = {
   update?: Prisma.XOR<Prisma.XOR<Prisma.ScheduleVersionUpdateToOneWithWhereWithoutChangesInput, Prisma.ScheduleVersionUpdateWithoutChangesInput>, Prisma.ScheduleVersionUncheckedUpdateWithoutChangesInput>
 }
 
+export type ScheduleVersionCreateWithoutOriginalForInput = {
+  id?: string
+  number: number
+  revision?: number
+  status?: $Enums.ScheduleStatus
+  publishedAt?: Date | string | null
+  createdAt?: Date | string
+  capacitySnapshot?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
+  schedule: Prisma.ScheduleCreateNestedOneWithoutVersionsInput
+  draftFor?: Prisma.ScheduleCreateNestedOneWithoutDraftVersionInput
+  publishedFor?: Prisma.ScheduleCreateNestedOneWithoutPublishedVersionInput
+  slots?: Prisma.ScheduleSlotCreateNestedManyWithoutVersionInput
+  changes?: Prisma.ScheduleChangeCreateNestedManyWithoutVersionInput
+}
+
+export type ScheduleVersionUncheckedCreateWithoutOriginalForInput = {
+  id?: string
+  scheduleId: string
+  facilityId: string
+  number: number
+  revision?: number
+  status?: $Enums.ScheduleStatus
+  publishedAt?: Date | string | null
+  createdAt?: Date | string
+  capacitySnapshot?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
+  draftFor?: Prisma.ScheduleUncheckedCreateNestedOneWithoutDraftVersionInput
+  publishedFor?: Prisma.ScheduleUncheckedCreateNestedOneWithoutPublishedVersionInput
+  slots?: Prisma.ScheduleSlotUncheckedCreateNestedManyWithoutVersionInput
+  changes?: Prisma.ScheduleChangeUncheckedCreateNestedManyWithoutVersionInput
+}
+
+export type ScheduleVersionCreateOrConnectWithoutOriginalForInput = {
+  where: Prisma.ScheduleVersionWhereUniqueInput
+  create: Prisma.XOR<Prisma.ScheduleVersionCreateWithoutOriginalForInput, Prisma.ScheduleVersionUncheckedCreateWithoutOriginalForInput>
+}
+
 export type ScheduleVersionCreateWithoutDraftForInput = {
   id?: string
   number: number
@@ -611,6 +670,7 @@ export type ScheduleVersionCreateWithoutDraftForInput = {
   capacitySnapshot?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
   schedule: Prisma.ScheduleCreateNestedOneWithoutVersionsInput
   publishedFor?: Prisma.ScheduleCreateNestedOneWithoutPublishedVersionInput
+  originalFor?: Prisma.ScheduleCreateNestedOneWithoutOriginalVersionInput
   slots?: Prisma.ScheduleSlotCreateNestedManyWithoutVersionInput
   changes?: Prisma.ScheduleChangeCreateNestedManyWithoutVersionInput
 }
@@ -626,6 +686,7 @@ export type ScheduleVersionUncheckedCreateWithoutDraftForInput = {
   createdAt?: Date | string
   capacitySnapshot?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
   publishedFor?: Prisma.ScheduleUncheckedCreateNestedOneWithoutPublishedVersionInput
+  originalFor?: Prisma.ScheduleUncheckedCreateNestedOneWithoutOriginalVersionInput
   slots?: Prisma.ScheduleSlotUncheckedCreateNestedManyWithoutVersionInput
   changes?: Prisma.ScheduleChangeUncheckedCreateNestedManyWithoutVersionInput
 }
@@ -645,6 +706,7 @@ export type ScheduleVersionCreateWithoutPublishedForInput = {
   capacitySnapshot?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
   schedule: Prisma.ScheduleCreateNestedOneWithoutVersionsInput
   draftFor?: Prisma.ScheduleCreateNestedOneWithoutDraftVersionInput
+  originalFor?: Prisma.ScheduleCreateNestedOneWithoutOriginalVersionInput
   slots?: Prisma.ScheduleSlotCreateNestedManyWithoutVersionInput
   changes?: Prisma.ScheduleChangeCreateNestedManyWithoutVersionInput
 }
@@ -660,6 +722,7 @@ export type ScheduleVersionUncheckedCreateWithoutPublishedForInput = {
   createdAt?: Date | string
   capacitySnapshot?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
   draftFor?: Prisma.ScheduleUncheckedCreateNestedOneWithoutDraftVersionInput
+  originalFor?: Prisma.ScheduleUncheckedCreateNestedOneWithoutOriginalVersionInput
   slots?: Prisma.ScheduleSlotUncheckedCreateNestedManyWithoutVersionInput
   changes?: Prisma.ScheduleChangeUncheckedCreateNestedManyWithoutVersionInput
 }
@@ -679,6 +742,7 @@ export type ScheduleVersionCreateWithoutScheduleInput = {
   capacitySnapshot?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
   draftFor?: Prisma.ScheduleCreateNestedOneWithoutDraftVersionInput
   publishedFor?: Prisma.ScheduleCreateNestedOneWithoutPublishedVersionInput
+  originalFor?: Prisma.ScheduleCreateNestedOneWithoutOriginalVersionInput
   slots?: Prisma.ScheduleSlotCreateNestedManyWithoutVersionInput
   changes?: Prisma.ScheduleChangeCreateNestedManyWithoutVersionInput
 }
@@ -693,6 +757,7 @@ export type ScheduleVersionUncheckedCreateWithoutScheduleInput = {
   capacitySnapshot?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
   draftFor?: Prisma.ScheduleUncheckedCreateNestedOneWithoutDraftVersionInput
   publishedFor?: Prisma.ScheduleUncheckedCreateNestedOneWithoutPublishedVersionInput
+  originalFor?: Prisma.ScheduleUncheckedCreateNestedOneWithoutOriginalVersionInput
   slots?: Prisma.ScheduleSlotUncheckedCreateNestedManyWithoutVersionInput
   changes?: Prisma.ScheduleChangeUncheckedCreateNestedManyWithoutVersionInput
 }
@@ -705,6 +770,48 @@ export type ScheduleVersionCreateOrConnectWithoutScheduleInput = {
 export type ScheduleVersionCreateManyScheduleInputEnvelope = {
   data: Prisma.ScheduleVersionCreateManyScheduleInput | Prisma.ScheduleVersionCreateManyScheduleInput[]
   skipDuplicates?: boolean
+}
+
+export type ScheduleVersionUpsertWithoutOriginalForInput = {
+  update: Prisma.XOR<Prisma.ScheduleVersionUpdateWithoutOriginalForInput, Prisma.ScheduleVersionUncheckedUpdateWithoutOriginalForInput>
+  create: Prisma.XOR<Prisma.ScheduleVersionCreateWithoutOriginalForInput, Prisma.ScheduleVersionUncheckedCreateWithoutOriginalForInput>
+  where?: Prisma.ScheduleVersionWhereInput
+}
+
+export type ScheduleVersionUpdateToOneWithWhereWithoutOriginalForInput = {
+  where?: Prisma.ScheduleVersionWhereInput
+  data: Prisma.XOR<Prisma.ScheduleVersionUpdateWithoutOriginalForInput, Prisma.ScheduleVersionUncheckedUpdateWithoutOriginalForInput>
+}
+
+export type ScheduleVersionUpdateWithoutOriginalForInput = {
+  id?: Prisma.StringFieldUpdateOperationsInput | string
+  number?: Prisma.IntFieldUpdateOperationsInput | number
+  revision?: Prisma.IntFieldUpdateOperationsInput | number
+  status?: Prisma.EnumScheduleStatusFieldUpdateOperationsInput | $Enums.ScheduleStatus
+  publishedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  capacitySnapshot?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
+  schedule?: Prisma.ScheduleUpdateOneRequiredWithoutVersionsNestedInput
+  draftFor?: Prisma.ScheduleUpdateOneWithoutDraftVersionNestedInput
+  publishedFor?: Prisma.ScheduleUpdateOneWithoutPublishedVersionNestedInput
+  slots?: Prisma.ScheduleSlotUpdateManyWithoutVersionNestedInput
+  changes?: Prisma.ScheduleChangeUpdateManyWithoutVersionNestedInput
+}
+
+export type ScheduleVersionUncheckedUpdateWithoutOriginalForInput = {
+  id?: Prisma.StringFieldUpdateOperationsInput | string
+  scheduleId?: Prisma.StringFieldUpdateOperationsInput | string
+  facilityId?: Prisma.StringFieldUpdateOperationsInput | string
+  number?: Prisma.IntFieldUpdateOperationsInput | number
+  revision?: Prisma.IntFieldUpdateOperationsInput | number
+  status?: Prisma.EnumScheduleStatusFieldUpdateOperationsInput | $Enums.ScheduleStatus
+  publishedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  capacitySnapshot?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
+  draftFor?: Prisma.ScheduleUncheckedUpdateOneWithoutDraftVersionNestedInput
+  publishedFor?: Prisma.ScheduleUncheckedUpdateOneWithoutPublishedVersionNestedInput
+  slots?: Prisma.ScheduleSlotUncheckedUpdateManyWithoutVersionNestedInput
+  changes?: Prisma.ScheduleChangeUncheckedUpdateManyWithoutVersionNestedInput
 }
 
 export type ScheduleVersionUpsertWithoutDraftForInput = {
@@ -728,6 +835,7 @@ export type ScheduleVersionUpdateWithoutDraftForInput = {
   capacitySnapshot?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
   schedule?: Prisma.ScheduleUpdateOneRequiredWithoutVersionsNestedInput
   publishedFor?: Prisma.ScheduleUpdateOneWithoutPublishedVersionNestedInput
+  originalFor?: Prisma.ScheduleUpdateOneWithoutOriginalVersionNestedInput
   slots?: Prisma.ScheduleSlotUpdateManyWithoutVersionNestedInput
   changes?: Prisma.ScheduleChangeUpdateManyWithoutVersionNestedInput
 }
@@ -743,6 +851,7 @@ export type ScheduleVersionUncheckedUpdateWithoutDraftForInput = {
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   capacitySnapshot?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
   publishedFor?: Prisma.ScheduleUncheckedUpdateOneWithoutPublishedVersionNestedInput
+  originalFor?: Prisma.ScheduleUncheckedUpdateOneWithoutOriginalVersionNestedInput
   slots?: Prisma.ScheduleSlotUncheckedUpdateManyWithoutVersionNestedInput
   changes?: Prisma.ScheduleChangeUncheckedUpdateManyWithoutVersionNestedInput
 }
@@ -768,6 +877,7 @@ export type ScheduleVersionUpdateWithoutPublishedForInput = {
   capacitySnapshot?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
   schedule?: Prisma.ScheduleUpdateOneRequiredWithoutVersionsNestedInput
   draftFor?: Prisma.ScheduleUpdateOneWithoutDraftVersionNestedInput
+  originalFor?: Prisma.ScheduleUpdateOneWithoutOriginalVersionNestedInput
   slots?: Prisma.ScheduleSlotUpdateManyWithoutVersionNestedInput
   changes?: Prisma.ScheduleChangeUpdateManyWithoutVersionNestedInput
 }
@@ -783,6 +893,7 @@ export type ScheduleVersionUncheckedUpdateWithoutPublishedForInput = {
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   capacitySnapshot?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
   draftFor?: Prisma.ScheduleUncheckedUpdateOneWithoutDraftVersionNestedInput
+  originalFor?: Prisma.ScheduleUncheckedUpdateOneWithoutOriginalVersionNestedInput
   slots?: Prisma.ScheduleSlotUncheckedUpdateManyWithoutVersionNestedInput
   changes?: Prisma.ScheduleChangeUncheckedUpdateManyWithoutVersionNestedInput
 }
@@ -829,6 +940,7 @@ export type ScheduleVersionCreateWithoutSlotsInput = {
   schedule: Prisma.ScheduleCreateNestedOneWithoutVersionsInput
   draftFor?: Prisma.ScheduleCreateNestedOneWithoutDraftVersionInput
   publishedFor?: Prisma.ScheduleCreateNestedOneWithoutPublishedVersionInput
+  originalFor?: Prisma.ScheduleCreateNestedOneWithoutOriginalVersionInput
   changes?: Prisma.ScheduleChangeCreateNestedManyWithoutVersionInput
 }
 
@@ -844,6 +956,7 @@ export type ScheduleVersionUncheckedCreateWithoutSlotsInput = {
   capacitySnapshot?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
   draftFor?: Prisma.ScheduleUncheckedCreateNestedOneWithoutDraftVersionInput
   publishedFor?: Prisma.ScheduleUncheckedCreateNestedOneWithoutPublishedVersionInput
+  originalFor?: Prisma.ScheduleUncheckedCreateNestedOneWithoutOriginalVersionInput
   changes?: Prisma.ScheduleChangeUncheckedCreateNestedManyWithoutVersionInput
 }
 
@@ -874,6 +987,7 @@ export type ScheduleVersionUpdateWithoutSlotsInput = {
   schedule?: Prisma.ScheduleUpdateOneRequiredWithoutVersionsNestedInput
   draftFor?: Prisma.ScheduleUpdateOneWithoutDraftVersionNestedInput
   publishedFor?: Prisma.ScheduleUpdateOneWithoutPublishedVersionNestedInput
+  originalFor?: Prisma.ScheduleUpdateOneWithoutOriginalVersionNestedInput
   changes?: Prisma.ScheduleChangeUpdateManyWithoutVersionNestedInput
 }
 
@@ -889,6 +1003,7 @@ export type ScheduleVersionUncheckedUpdateWithoutSlotsInput = {
   capacitySnapshot?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
   draftFor?: Prisma.ScheduleUncheckedUpdateOneWithoutDraftVersionNestedInput
   publishedFor?: Prisma.ScheduleUncheckedUpdateOneWithoutPublishedVersionNestedInput
+  originalFor?: Prisma.ScheduleUncheckedUpdateOneWithoutOriginalVersionNestedInput
   changes?: Prisma.ScheduleChangeUncheckedUpdateManyWithoutVersionNestedInput
 }
 
@@ -903,6 +1018,7 @@ export type ScheduleVersionCreateWithoutChangesInput = {
   schedule: Prisma.ScheduleCreateNestedOneWithoutVersionsInput
   draftFor?: Prisma.ScheduleCreateNestedOneWithoutDraftVersionInput
   publishedFor?: Prisma.ScheduleCreateNestedOneWithoutPublishedVersionInput
+  originalFor?: Prisma.ScheduleCreateNestedOneWithoutOriginalVersionInput
   slots?: Prisma.ScheduleSlotCreateNestedManyWithoutVersionInput
 }
 
@@ -918,6 +1034,7 @@ export type ScheduleVersionUncheckedCreateWithoutChangesInput = {
   capacitySnapshot?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
   draftFor?: Prisma.ScheduleUncheckedCreateNestedOneWithoutDraftVersionInput
   publishedFor?: Prisma.ScheduleUncheckedCreateNestedOneWithoutPublishedVersionInput
+  originalFor?: Prisma.ScheduleUncheckedCreateNestedOneWithoutOriginalVersionInput
   slots?: Prisma.ScheduleSlotUncheckedCreateNestedManyWithoutVersionInput
 }
 
@@ -948,6 +1065,7 @@ export type ScheduleVersionUpdateWithoutChangesInput = {
   schedule?: Prisma.ScheduleUpdateOneRequiredWithoutVersionsNestedInput
   draftFor?: Prisma.ScheduleUpdateOneWithoutDraftVersionNestedInput
   publishedFor?: Prisma.ScheduleUpdateOneWithoutPublishedVersionNestedInput
+  originalFor?: Prisma.ScheduleUpdateOneWithoutOriginalVersionNestedInput
   slots?: Prisma.ScheduleSlotUpdateManyWithoutVersionNestedInput
 }
 
@@ -963,6 +1081,7 @@ export type ScheduleVersionUncheckedUpdateWithoutChangesInput = {
   capacitySnapshot?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
   draftFor?: Prisma.ScheduleUncheckedUpdateOneWithoutDraftVersionNestedInput
   publishedFor?: Prisma.ScheduleUncheckedUpdateOneWithoutPublishedVersionNestedInput
+  originalFor?: Prisma.ScheduleUncheckedUpdateOneWithoutOriginalVersionNestedInput
   slots?: Prisma.ScheduleSlotUncheckedUpdateManyWithoutVersionNestedInput
 }
 
@@ -986,6 +1105,7 @@ export type ScheduleVersionUpdateWithoutScheduleInput = {
   capacitySnapshot?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
   draftFor?: Prisma.ScheduleUpdateOneWithoutDraftVersionNestedInput
   publishedFor?: Prisma.ScheduleUpdateOneWithoutPublishedVersionNestedInput
+  originalFor?: Prisma.ScheduleUpdateOneWithoutOriginalVersionNestedInput
   slots?: Prisma.ScheduleSlotUpdateManyWithoutVersionNestedInput
   changes?: Prisma.ScheduleChangeUpdateManyWithoutVersionNestedInput
 }
@@ -1000,6 +1120,7 @@ export type ScheduleVersionUncheckedUpdateWithoutScheduleInput = {
   capacitySnapshot?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
   draftFor?: Prisma.ScheduleUncheckedUpdateOneWithoutDraftVersionNestedInput
   publishedFor?: Prisma.ScheduleUncheckedUpdateOneWithoutPublishedVersionNestedInput
+  originalFor?: Prisma.ScheduleUncheckedUpdateOneWithoutOriginalVersionNestedInput
   slots?: Prisma.ScheduleSlotUncheckedUpdateManyWithoutVersionNestedInput
   changes?: Prisma.ScheduleChangeUncheckedUpdateManyWithoutVersionNestedInput
 }
@@ -1067,6 +1188,7 @@ export type ScheduleVersionSelect<ExtArgs extends runtime.Types.Extensions.Inter
   schedule?: boolean | Prisma.ScheduleDefaultArgs<ExtArgs>
   draftFor?: boolean | Prisma.ScheduleVersion$draftForArgs<ExtArgs>
   publishedFor?: boolean | Prisma.ScheduleVersion$publishedForArgs<ExtArgs>
+  originalFor?: boolean | Prisma.ScheduleVersion$originalForArgs<ExtArgs>
   slots?: boolean | Prisma.ScheduleVersion$slotsArgs<ExtArgs>
   changes?: boolean | Prisma.ScheduleVersion$changesArgs<ExtArgs>
   _count?: boolean | Prisma.ScheduleVersionCountOutputTypeDefaultArgs<ExtArgs>
@@ -1115,6 +1237,7 @@ export type ScheduleVersionInclude<ExtArgs extends runtime.Types.Extensions.Inte
   schedule?: boolean | Prisma.ScheduleDefaultArgs<ExtArgs>
   draftFor?: boolean | Prisma.ScheduleVersion$draftForArgs<ExtArgs>
   publishedFor?: boolean | Prisma.ScheduleVersion$publishedForArgs<ExtArgs>
+  originalFor?: boolean | Prisma.ScheduleVersion$originalForArgs<ExtArgs>
   slots?: boolean | Prisma.ScheduleVersion$slotsArgs<ExtArgs>
   changes?: boolean | Prisma.ScheduleVersion$changesArgs<ExtArgs>
   _count?: boolean | Prisma.ScheduleVersionCountOutputTypeDefaultArgs<ExtArgs>
@@ -1132,6 +1255,7 @@ export type $ScheduleVersionPayload<ExtArgs extends runtime.Types.Extensions.Int
     schedule: Prisma.$SchedulePayload<ExtArgs>
     draftFor: Prisma.$SchedulePayload<ExtArgs> | null
     publishedFor: Prisma.$SchedulePayload<ExtArgs> | null
+    originalFor: Prisma.$SchedulePayload<ExtArgs> | null
     slots: Prisma.$ScheduleSlotPayload<ExtArgs>[]
     changes: Prisma.$ScheduleChangePayload<ExtArgs>[]
   }
@@ -1542,6 +1666,7 @@ export interface Prisma__ScheduleVersionClient<T, Null = never, ExtArgs extends 
   schedule<T extends Prisma.ScheduleDefaultArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.ScheduleDefaultArgs<ExtArgs>>): Prisma.Prisma__ScheduleClient<runtime.Types.Result.GetResult<Prisma.$SchedulePayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions> | Null, Null, ExtArgs, GlobalOmitOptions>
   draftFor<T extends Prisma.ScheduleVersion$draftForArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.ScheduleVersion$draftForArgs<ExtArgs>>): Prisma.Prisma__ScheduleClient<runtime.Types.Result.GetResult<Prisma.$SchedulePayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions> | null, null, ExtArgs, GlobalOmitOptions>
   publishedFor<T extends Prisma.ScheduleVersion$publishedForArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.ScheduleVersion$publishedForArgs<ExtArgs>>): Prisma.Prisma__ScheduleClient<runtime.Types.Result.GetResult<Prisma.$SchedulePayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions> | null, null, ExtArgs, GlobalOmitOptions>
+  originalFor<T extends Prisma.ScheduleVersion$originalForArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.ScheduleVersion$originalForArgs<ExtArgs>>): Prisma.Prisma__ScheduleClient<runtime.Types.Result.GetResult<Prisma.$SchedulePayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions> | null, null, ExtArgs, GlobalOmitOptions>
   slots<T extends Prisma.ScheduleVersion$slotsArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.ScheduleVersion$slotsArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$ScheduleSlotPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
   changes<T extends Prisma.ScheduleVersion$changesArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.ScheduleVersion$changesArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$ScheduleChangePayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
   /**
@@ -2005,6 +2130,25 @@ export type ScheduleVersion$draftForArgs<ExtArgs extends runtime.Types.Extension
  * ScheduleVersion.publishedFor
  */
 export type ScheduleVersion$publishedForArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+  /**
+   * Select specific fields to fetch from the Schedule
+   */
+  select?: Prisma.ScheduleSelect<ExtArgs> | null
+  /**
+   * Omit specific fields from the Schedule
+   */
+  omit?: Prisma.ScheduleOmit<ExtArgs> | null
+  /**
+   * Choose, which related nodes to fetch as well
+   */
+  include?: Prisma.ScheduleInclude<ExtArgs> | null
+  where?: Prisma.ScheduleWhereInput
+}
+
+/**
+ * ScheduleVersion.originalFor
+ */
+export type ScheduleVersion$originalForArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
   /**
    * Select specific fields to fetch from the Schedule
    */

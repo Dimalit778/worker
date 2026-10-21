@@ -49,7 +49,6 @@ export function ChangeLogList({ scheduleId, versionId, revision }: ChangeLogList
                   <TableCell className="text-xs font-medium">{entry.changedByName}</TableCell>
                   <TableCell className="text-xs">
                     {entry.message ?? '—'}
-                    {entry.versionNumber && <span> · גרסה {entry.versionNumber}</span>}
                   </TableCell>
                 </TableRow>
               ))}

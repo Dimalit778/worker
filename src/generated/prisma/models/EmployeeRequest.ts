@@ -1660,7 +1660,7 @@ export type $EmployeeRequestPayload<ExtArgs extends runtime.Types.Extensions.Int
     startDate: Date | null
     endDate: Date | null
     /**
-     * העברת משמרת: משבצת בגרסה מפורסמת (אינה משתנה).
+     * העברת משמרת: מזהה משבצת יציב בשיבוץ הנוכחי; האיוש נבדק שוב באישור.
      */
     slotId: string | null
     targetUserId: string | null

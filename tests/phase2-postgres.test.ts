@@ -18,7 +18,7 @@ vi.mock('@/lib/db/client', async () => {
   return { prisma: new PrismaClient({ adapter: new PrismaPg({ connectionString: process.env.TEST_DATABASE_URL }) }) };
 });
 import { prisma } from '@/lib/db/client';
-import { createAssignment, startScheduleCorrection } from '@/features/schedules/assignments/actions';
+import { createAssignment, saveScheduleChanges, startScheduleCorrection } from '@/features/schedules/assignments/actions';
 import { generateAutoSchedule } from '@/features/schedules/generation/actions';
 import { publishSchedule } from '@/features/schedules/draft-schedule/actions';
 import { getScheduleWarnings, getUpcomingSchedule } from '@/features/schedules/assignments/queries';
@@ -205,7 +205,7 @@ suite('phase 2 workflows against migrated PostgreSQL', () => {
     expect((await prisma.scheduleSlot.findUniqueOrThrow({ where: { id: published.id } })).userId).toBe(employeeId);
   });
 
-  it('approves a shift transfer as a new published version, with an override reason when rules are broken', async () => {
+  it('approves a shift transfer in place and preserves the original publication', async () => {
     const published = await publishEmployeeOnMorning();
     const publishedVersionId = expected.versionId!;
     as(employeeId);
@@ -220,14 +220,18 @@ suite('phase 2 workflows against migrated PostgreSQL', () => {
     expect(await approveRequest(request.id, { overrideReason: 'סוכם טלפונית' })).toMatchObject({ ok: true });
 
     const schedule = await prisma.schedule.findUniqueOrThrow({ where: { id: scheduleId } });
-    expect(schedule.publishedVersionId).not.toBe(publishedVersionId);
+    expect(schedule.publishedVersionId).toBe(publishedVersionId);
+    expect(await prisma.scheduleVersion.count({ where: { scheduleId } })).toBe(2);
+    expect(await prisma.scheduleSlot.findFirstOrThrow({ where: { versionId: schedule.originalVersionId!, date: date('2098-01-06'), shiftType: 'MORNING' } })).toMatchObject({ userId: employeeId });
     const moved = await prisma.scheduleSlot.findFirstOrThrow({ where: { versionId: schedule.publishedVersionId!, date: date('2098-01-06'), shiftType: 'MORNING' } });
     expect(moved.userId).toBe(colleagueId);
-    expect((await prisma.scheduleSlot.findUniqueOrThrow({ where: { id: published.id } })).userId).toBe(employeeId);
+    const audit = await prisma.scheduleChange.findFirstOrThrow({ where: { scheduleId, reason: { contains: 'אושרה העברת משמרת' } } });
+    expect(audit.afterData).toMatchObject({ requestId: request.id, assignment: { userId: colleagueId } });
+    expect((await prisma.scheduleSlot.findUniqueOrThrow({ where: { id: published.id } })).userId).toBe(colleagueId);
     expect(await prisma.employeeRequest.findUniqueOrThrow({ where: { id: request.id } })).toMatchObject({ status: 'APPROVED', overrideReason: 'סוכם טלפונית' });
   });
 
-  it('blocks transfer approval while a correction draft is open', async () => {
+  it('rejects a stale transfer after the manager clears its live slot', async () => {
     const published = await publishEmployeeOnMorning();
     as(employeeId);
     expect(await createTransferRequest({ slotId: published.id, targetUserId: colleagueId })).toEqual({ ok: true });
@@ -235,13 +239,13 @@ suite('phase 2 workflows against migrated PostgreSQL', () => {
     as(colleagueId);
     expect(await respondToTransfer(request.id, true)).toEqual({ ok: true });
     as(managerId);
-    expected = await startScheduleCorrection(scheduleId, expected);
+    await saveScheduleChanges(scheduleId, { ...expected, publish: true }, [{ employeeId: null, positionId, date: '2098-01-06', shiftType: 'MORNING', slotIndex: 0 }]);
 
     const result = await approveRequest(request.id, { overrideReason: 'test' });
     expect(result).toMatchObject({ ok: false });
-    expect('error' in result && result.error).toContain('טיוטת תיקון');
+    expect('error' in result && result.error).toContain('המשמרת כבר אינה משובצת');
     expect((await prisma.employeeRequest.findUniqueOrThrow({ where: { id: request.id } })).status).toBe('PENDING_MANAGER');
-    expect((await prisma.scheduleSlot.findUniqueOrThrow({ where: { id: published.id } })).userId).toBe(employeeId);
+    expect((await prisma.scheduleSlot.findUniqueOrThrow({ where: { id: published.id } })).userId).toBeNull();
   });
 
   it('approves an urgent absence with a handling note and leaves the assignment in place', async () => {

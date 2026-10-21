@@ -55,7 +55,7 @@ describe('published schedule Data Cache', () => {
       id: 'slot', employeeDisplayName: 'דוד', startsAt: startsAt.toISOString(), slotIndex: 0,
     });
     expect(mocks.scheduleSlot.findMany).toHaveBeenCalledWith(expect.objectContaining({
-      where: { facilityId: 'facility', scheduleId: 'schedule', versionId: 'published-1', userId: { not: null }, version: { status: 'PUBLISHED', revision: 2 } },
+      where: { facilityId: 'facility', scheduleId: 'schedule', versionId: 'published-1', userId: { not: null }, version: { status: 'PUBLISHED' } },
     }));
   });
 
