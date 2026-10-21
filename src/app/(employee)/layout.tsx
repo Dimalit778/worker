@@ -46,6 +46,7 @@ export default async function UserLayout({ children }: { children: React.ReactNo
   ]);
 
   const navItems: AppNavItem[] = [
+    { href: '/employee/home', label: 'בית' },
     { href: '/employee', label: 'שיבוץ' },
     { href: '/employee/submissions', label: 'ההגשות שלי' },
     { href: '/employee/requests', label: 'הבקשות שלי', badge: incomingTransfers, badgeLabel: 'בקשות להעברה' },
@@ -53,7 +54,7 @@ export default async function UserLayout({ children }: { children: React.ReactNo
   ];
 
   if (availabilityStatus) {
-    navItems.splice(1, 0, { href: '/employee/availability', label: 'הגשת שיבוץ', status: availabilityStatus });
+    navItems.splice(2, 0, { href: '/employee/availability', label: 'הגשת שיבוץ', status: availabilityStatus });
   }
 
   return (
