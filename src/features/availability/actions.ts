@@ -4,8 +4,10 @@ import { Prisma, type Schedule } from '@/generated/prisma/client';
 import { prisma } from '@/lib/db/client';
 import { requireEmployee } from '@/lib/db/auth-helpers';
 import { expireFacilityData } from '@/lib/cache/data-cache';
+import { loadApprovedTimeOff } from '@/features/requests/queries';
 import type { CurrentAvailability, EmployeeAvailabilityForPeriod } from './types';
 import {
+  assertWeeklyMinimums,
   deriveAvailabilityStatus,
   parseDraftEntries,
   validateAvailabilityEntries,
@@ -146,6 +148,8 @@ export async function submitAvailability(input: AvailabilityInput): Promise<Acti
     input.periodId,
     async (tx, { schedule, employeeId, facilityId, now }) => {
       const rows = validateAvailabilityEntries(input.entries, isoDate(schedule.startDate), isoDate(schedule.endDate));
+      const timeOff = await loadApprovedTimeOff(tx, facilityId, schedule.startDate, schedule.endDate);
+      assertWeeklyMinimums(rows, isoDate(schedule.startDate), isoDate(schedule.endDate), timeOff.get(employeeId));
       const note = input.note?.trim() || null;
       const cleared = { draftEntries: Prisma.DbNull, draftNote: null, draftSavedAt: now };
       const form = await tx.availabilitySubmission.upsert({
