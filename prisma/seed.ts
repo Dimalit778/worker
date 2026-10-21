@@ -10,23 +10,29 @@ import { guardPrismaWorktree } from '../scripts/worktree-safety.mjs';
 import { generateSchedule } from '../src/features/scheduling-engine/generate-schedule';
 import { validateAssignments } from '../src/features/scheduling-engine/validate';
 import { buildSlots } from '../src/features/scheduling-engine/slots';
-import type { EngineInput } from '../src/features/scheduling-engine/types';
+import type { EngineAssignment, EngineInput } from '../src/features/scheduling-engine/types';
+import { analyzeSchedule } from '../src/features/schedules/generation/recalculate';
 import { DEFAULT_SHIFT_TIMES, shiftBounds } from '../src/features/schedules/shift-times';
 import { addDays, parseISODateToUtcMidnight, todayUtcDateForTimeZone } from '../src/features/periods/utils';
 
 const DISTRICTS = [
   { code: 'TEL_AVIV', name: 'מחוז תל אביב', facilities: [
     { code: 'SHOKEN', name: 'שוקן' }, { code: 'BAT_YAM', name: 'בת ים' },
-    { code: 'VAITZMAN', name: 'ויצמן' }, { code: 'HERZLIYA', name: 'הרצליה' },
-  ] },
-  { code: 'CENTER', name: 'מחוז מרכז', facilities: [
-    { code: 'RISHON', name: 'ראשון לציון' }, { code: 'KFAR_SABA', name: 'כפר סבא' },
-    { code: 'PETAH_TIKVA', name: 'פתח תקווה' },
-  ] },
-  { code: 'NORTH', name: 'מחוז צפון', facilities: [
-    { code: 'HAIFA', name: 'חיפה' }, { code: 'NAZARETH', name: 'נצרת' },
   ] },
 ];
+// Each tuple is [shift manager, controller, guards]. Unspecified roles have zero capacity.
+export const DEMO_STAFFING = {
+  BAT_YAM: {
+    WEEKDAY: { MORNING: [1, 1, 13], EVENING: [1, 1, 4], NIGHT: [1, 0, 2] },
+    FRIDAY: { MORNING: [1, 0, 3], EVENING: [0, 0, 2], NIGHT: [0, 0, 3] },
+    SATURDAY: { MORNING: [0, 0, 2], EVENING: [0, 0, 2], NIGHT: [0, 0, 3] },
+  },
+  SHOKEN: {
+    WEEKDAY: { MORNING: [1, 0, 8], EVENING: [1, 0, 3], NIGHT: [0, 0, 2] },
+    FRIDAY: { MORNING: [1, 0, 3], EVENING: [0, 0, 2], NIGHT: [0, 0, 2] },
+    SATURDAY: { MORNING: [0, 0, 2], EVENING: [0, 0, 2], NIGHT: [0, 0, 2] },
+  },
+} as const;
 const ROLES = [
   { code: 'MANAGER', name: 'קצין מתקן', rank: 1 },
   { code: 'SHIFT_MANAGER', name: 'אחמ״ש', rank: 2 },
@@ -43,12 +49,14 @@ type EmployeeSeed = {
   isManager?: boolean; canEditSchedule?: boolean; isReligious?: boolean;
 };
 
-/** Keep every data.ts row; duplicate logins get a deterministic demo-only alias. */
+/** Import only employees whose own facilityCode is included in this demo. */
 export function prepareEmployees(groups: Record<string, EmployeeSeed[]> = employeeGroups) {
   const usedEmails = new Set<string>();
-  return Object.values(groups).flat().map(employee => {
+  return Object.values(groups).flat().filter(employee =>
+    DISTRICTS.some(d => d.facilities.some(f => f.code === employee.facilityCode)),
+  ).map(employee => {
     const role = ROLES.find(role => employee.roleCode ? role.code === employee.roleCode : role.rank === employee.positionRank);
-    const facilityCode = employee.facilityCode === 'RISHON_LEZION' ? 'RISHON' : employee.facilityCode;
+    const facilityCode = employee.facilityCode;
     if (!role || !DISTRICTS.some(d => d.facilities.some(f => f.code === facilityCode))) {
       throw new Error(`תפקיד או מתקן לא מוכר עבור ${employee.email}`);
     }
@@ -75,6 +83,26 @@ export function periodDates(start: string, end: string) {
   const days = (endDate.getTime() - startDate.getTime()) / 86400000 + 1;
   if (days !== 7 && days !== 14) throw new Error('הטווח חייב לכלול 7 או 14 ימים, כולל תאריך הסיום.');
   return Array.from({ length: days }, (_, i) => parseISODateToUtcMidnight(addDays(start, i)));
+}
+
+/** Keep weekly minimums first, then at most two extra legal assignments per employee/week. */
+export function generateDemoAssignments(input: EngineInput) {
+  const generated = generateSchedule(input).assignments;
+  const assignments: EngineAssignment[] = [];
+  for (const employee of input.employees) {
+    for (const dates of [input.week1Dates, input.week2Dates]) {
+      if (!dates.length) continue;
+      const days = new Set(dates.map(date => date.getTime()));
+      const candidates = generated.filter(a => a.employeeId === employee.id && days.has(a.date.getTime()));
+      const minimums = [
+        ...candidates.filter(a => a.shiftType === 'MORNING').slice(0, 2),
+        ...candidates.filter(a => a.shiftType === 'EVENING').slice(0, 1),
+      ];
+      const selected = new Set(minimums);
+      assignments.push(...minimums, ...candidates.filter(a => !selected.has(a)).slice(0, 2));
+    }
+  }
+  return { assignments, ...analyzeSchedule(input, assignments) };
 }
 
 /** Data only: no schema reset, trigger changes, CASCADE, or migration-history deletion. */
@@ -123,11 +151,10 @@ export async function seedDemo(prisma: PrismaClient, start: string, end: string)
     const summaries = [];
     for (const facility of facilities) {
       const users = await tx.user.findMany({ where: { facilityId: facility.id }, include: { role: true } });
-      // Demo capacity scales with the facility's imported headcount, not production requirements.
+      const staffing = DEMO_STAFFING[facility.code as keyof typeof DEMO_STAFFING];
       for (const position of positions.filter(p => p.requiredRank !== 1)) {
         for (const dayCategory of DAY_CATEGORIES) for (const shiftType of SHIFT_TYPES) {
-          const total = shiftType === 'MORNING' ? Math.ceil(users.length * 2 / 7) : Math.ceil(users.length / 7);
-          const requiredCount = users.length === 0 ? 0 : position.requiredRank === 4 ? Math.max(1, total - 2) : 1;
+          const requiredCount = staffing[dayCategory][shiftType][position.requiredRank! - 2];
           await tx.staffingRequirement.create({ data: { facilityId: facility.id, positionId: position.id, shiftType, dayCategory, requiredCount } });
         }
       }
@@ -158,7 +185,7 @@ export async function seedDemo(prisma: PrismaClient, start: string, end: string)
         capacities: requirements.map(r => ({ positionId: r.positionId, positionName: r.position.name,
           requiredRank: r.position.requiredRank!, shiftType: r.shiftType, dayCategory: r.dayCategory, amount: r.requiredCount })),
       };
-      const result = generateSchedule(input);
+      const result = generateDemoAssignments(input);
       const errors = validateAssignments(input, result.assignments, { allowManualOverrides: false });
       if (errors.length) throw new Error(errors.join('; '));
       const capacitySnapshot = requirements.map(r => ({ id: r.id, positionId: r.positionId,
