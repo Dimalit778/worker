@@ -163,7 +163,7 @@ export async function getManagerDashboardData(year: number): Promise<ManagerDash
   return readFacilityCache(facilityId, ['dashboard', String(year)], async () => {
     const now = new Date();
 
-    const [byPosition, totalActive, yearSchedules, activeRow, draftRow] = await Promise.all([
+    const [byPosition, totalActive, yearSchedules, activeRow, closedDraftRow, openDraftRow] = await Promise.all([
       getStaffCountsByPosition(facilityId),
       prisma.user.count({ where: { facilityId, isActive: true } }),
       getSchedulesForYear(facilityId, year),
@@ -175,9 +175,15 @@ export async function getManagerDashboardData(year: number): Promise<ManagerDash
         where: preparationScheduleWhere(facilityId, now),
         orderBy: { startDate: 'desc' },
       }),
+      // Draft still open for submissions: shown (without a link) until one is ready to schedule.
+      prisma.schedule.findFirst({
+        where: { ...preparationScheduleWhere(facilityId, now), submissionClosesAt: { gt: now } },
+        orderBy: { startDate: 'asc' },
+      }),
     ]);
 
     const activeSchedule = activeRow ? toScheduleSnapshot(activeRow) : null;
+    const draftRow = closedDraftRow ?? openDraftRow;
 
     let draftSchedule: ScheduleSnapshot | null = null;
     let submissionSummary: ManagerDashboardData['submissionSummary'] = null;
