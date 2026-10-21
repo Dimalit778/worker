@@ -6,6 +6,7 @@ import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 const save = vi.hoisted(() => vi.fn());
 vi.mock('@/features/schedules/assignments/actions', () => ({ saveScheduleChanges: save }));
 vi.mock('@/features/schedules/hooks', () => ({ applyScheduleEdit: vi.fn() }));
+vi.mock('next/navigation', () => ({ useRouter: () => ({ push: vi.fn() }) }));
 
 import { PendingEditsProvider, usePendingEdits } from '@/features/schedules/shared/pending-edits';
 import { VersionProvider } from '@/features/schedules/shared/version-context';

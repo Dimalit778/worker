@@ -101,7 +101,10 @@ it('refreshes the schedule list after a schedule mutation expires its facility',
 });
 
 it('reads one schedule\'s history once and preserves Date values after cache serialization', async () => {
-  const change = { id: 'change', createdAt: date, changeType: 'UPDATE', reason: 'עדכון', version: { number: 2 }, changedBy: { displayName: 'מנהל' } };
+  const change = {
+    id: 'change', createdAt: date, changeType: 'UPDATE', reason: 'עדכון',
+    beforeData: null, afterData: null, version: { number: 2 }, changedBy: { displayName: 'מנהל' },
+  };
   mocks.db.scheduleChange.findMany.mockResolvedValue([change]);
   const first = await getScheduleChangeLog('s', 'facility');
   const second = await getScheduleChangeLog('s', 'facility');

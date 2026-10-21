@@ -34,7 +34,8 @@ import { ManagerDraftScreen } from '@/features/schedules/screens/manager-draft-s
 import { ManagerScheduleScreen } from '@/features/schedules/screens/manager-chedule-screen';
 
 const entry = (over: Partial<ScheduleChangeLogEntry>): ScheduleChangeLogEntry => ({
-  id: 'c1', createdAt: new Date('2026-10-20T08:30:00Z'), changeType: 'UPDATE', message: 'הוחלף עובד במשמרת בוקר',
+  id: 'c1', createdAt: new Date('2026-10-20T08:30:00Z'), changeType: 'UPDATE',
+  message: 'הוחלף עובד במשמרת בוקר', summary: null, shiftDateLabel: null, actionKind: null,
   versionNumber: 2, changedByName: 'מנהל ראשי', ...over,
 });
 const data: CurrentScheduleData = {
@@ -64,7 +65,9 @@ it('lists one schedule\'s changes newest first and shows each reason once', asyn
   expect(await screen.findByText('שינויים בשיבוץ')).toBeInTheDocument();
   expect(await screen.findByText('פורסמה גרסה חדשה')).toBeInTheDocument();
   expect(actions.fetchScheduleChangeLog).toHaveBeenCalledWith('s1');
-  for (const header of ['מתי', 'מי', 'שינוי']) expect(screen.getByRole('columnheader', { name: header })).toBeInTheDocument();
+  for (const header of ['מתי', 'שונה על ידי', 'שינוי']) {
+    expect(screen.getByRole('columnheader', { name: header })).toBeInTheDocument();
+  }
 
   const rows = screen.getAllByRole('row').slice(1);
   expect(rows).toHaveLength(2);

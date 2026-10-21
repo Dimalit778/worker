@@ -1,7 +1,18 @@
 'use client';
 
 import { createContext, useContext, useEffect, useMemo, useState, type ReactNode } from 'react';
+import { useRouter } from 'next/navigation';
 import { useQueryClient } from '@tanstack/react-query';
+import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+} from '@/components/ui/alert-dialog';
 import { Button } from '@/components/ui/button';
 import { saveScheduleChanges, type SlotChange } from '../assignments/actions';
 import { applyScheduleEdit } from '../hooks';
@@ -35,11 +46,13 @@ const slotId = (s: SlotRef) => `${createAssignmentCellKey(s)}#${s.slotIndex}`;
 const NEW_ID_PREFIX = 'new:';
 
 export function PendingEditsProvider({ data, children }: { data: CurrentScheduleData; children: ReactNode }) {
+  const router = useRouter();
   const queryClient = useQueryClient();
   const expected = useVersionExpectation();
   const [changes, setChanges] = useState<Map<string, SlotChange>>(new Map());
   const [saving, setSaving] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  const [leaveHref, setLeaveHref] = useState<string | null>(null);
 
   const assignments = useMemo(() => {
     if (changes.size === 0) return data.assignments;
@@ -132,14 +145,21 @@ export function PendingEditsProvider({ data, children }: { data: CurrentSchedule
 
   const dirty = changes.size > 0;
 
-  // Warn before leaving with unsaved changes: closing the tab, and in-app link clicks.
+  // Warn before leaving with unsaved changes: tab close (browser-native), and in-app links (app dialog).
   useEffect(() => {
     if (!dirty) return;
     const beforeUnload = (e: BeforeUnloadEvent) => { e.preventDefault(); };
     const onClick = (e: MouseEvent) => {
+      if (e.defaultPrevented || e.button !== 0 || e.metaKey || e.ctrlKey || e.shiftKey || e.altKey) return;
       const link = (e.target as Element | null)?.closest?.('a[href]') as HTMLAnchorElement | null;
-      if (!link || link.target === '_blank' || link.origin !== window.location.origin) return;
-      if (!window.confirm('יש שינויים שלא נשמרו. לצאת בלי לשמור?')) { e.preventDefault(); e.stopPropagation(); }
+      if (!link || link.target === '_blank' || link.hasAttribute('download')) return;
+      if (link.origin !== window.location.origin) return;
+      const next = `${link.pathname}${link.search}${link.hash}`;
+      const current = `${window.location.pathname}${window.location.search}${window.location.hash}`;
+      if (next === current) return;
+      e.preventDefault();
+      e.stopPropagation();
+      setLeaveHref(next);
     };
     window.addEventListener('beforeunload', beforeUnload);
     document.addEventListener('click', onClick, true);
@@ -147,6 +167,10 @@ export function PendingEditsProvider({ data, children }: { data: CurrentSchedule
       window.removeEventListener('beforeunload', beforeUnload);
       document.removeEventListener('click', onClick, true);
     };
+  }, [dirty]);
+
+  useEffect(() => {
+    if (!dirty) setLeaveHref(null);
   }, [dirty]);
 
   async function save() {
@@ -178,6 +202,35 @@ export function PendingEditsProvider({ data, children }: { data: CurrentSchedule
           </div>
         </div>
       )}
+
+      <AlertDialog
+        open={leaveHref != null}
+        onOpenChange={(open) => {
+          if (!open) setLeaveHref(null);
+        }}
+      >
+        <AlertDialogContent dir="rtl">
+          <AlertDialogHeader>
+            <AlertDialogTitle>שינויים שלא נשמרו</AlertDialogTitle>
+            <AlertDialogDescription>
+              יש שינויים שלא נשמרו. לצאת בלי לשמור?
+            </AlertDialogDescription>
+          </AlertDialogHeader>
+          <AlertDialogFooter className="gap-2 sm:justify-start">
+            <AlertDialogCancel>הישאר בעמוד</AlertDialogCancel>
+            <AlertDialogAction
+              onClick={() => {
+                if (!leaveHref) return;
+                const href = leaveHref;
+                setLeaveHref(null);
+                router.push(href);
+              }}
+            >
+              צא בלי לשמור
+            </AlertDialogAction>
+          </AlertDialogFooter>
+        </AlertDialogContent>
+      </AlertDialog>
     </PendingEditsContext.Provider>
   );
 }

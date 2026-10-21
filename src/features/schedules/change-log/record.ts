@@ -1,9 +1,9 @@
 import type { Prisma, ScheduleSlot } from '@/generated/prisma/client';
 import type { ScheduleActor } from '../services/transactions';
+import { formatAssignmentChangeSummary } from './format';
 
 const timeFormat = new Intl.DateTimeFormat('he-IL', { timeZone: 'Asia/Jerusalem', hour: '2-digit', minute: '2-digit', hourCycle: 'h23' });
 const hoursLabel = (slot: ScheduleSlot) => `${timeFormat.format(slot.startsAt)}–${timeFormat.format(slot.endsAt)}`;
-const shiftLabels = { MORNING: 'בוקר', EVENING: 'ערב', NIGHT: 'לילה' };
 const key = (slot: ScheduleSlot) => `${slot.date.toISOString()}|${slot.shiftType}|${slot.positionId}|${slot.slotNumber}`;
 const state = (slot?: ScheduleSlot) => slot?.userId ? {
   userId: slot.userId, startsAt: slot.startsAt.toISOString(), endsAt: slot.endsAt.toISOString(), isLocked: slot.isLocked,
@@ -38,19 +38,28 @@ export async function recordSlotChanges(
     const newUser = newSlot?.userId;
     const oldName = oldUser ? names.get(oldUser) ?? oldUser : '';
     const newName = newUser ? names.get(newUser) ?? newUser : '';
-    const [year, month, day] = cell.date.toISOString().slice(0, 10).split('-');
-    const context = `${day}/${month}/${year} · ${shiftLabels[cell.shiftType]} · ${positionNames.get(cell.positionId) ?? ''}`;
+    const dateIso = cell.date.toISOString().slice(0, 10);
     const sameEmployeeChanges = oldSlot && newSlot ? [
       oldSlot.startsAt.getTime() !== newSlot.startsAt.getTime() || oldSlot.endsAt.getTime() !== newSlot.endsAt.getTime()
         ? `שונו שעות ${newName} מ־${hoursLabel(oldSlot)} ל־${hoursLabel(newSlot)}` : '',
       oldSlot.isLocked !== newSlot.isLocked ? `${newSlot.isLocked ? 'ננעל השיבוץ של' : 'בוטלה נעילת השיבוץ של'} ${newName}` : '',
     ].filter(Boolean).join('; ') : '';
-    const description = !oldUser ? `נוסף ${newName}` : !newUser ? `הוסר ${oldName}` : oldUser !== newUser ? `הוחלף ${oldName} ב${newName}` : sameEmployeeChanges;
+    const { summary, shiftDateLabel } = formatAssignmentChangeSummary({
+      oldName,
+      newName,
+      dateIso,
+      shiftType: cell.shiftType,
+      sameEmployeeChanges,
+    });
     const issues = violations.filter(v => v.employeeId === newUser);
+    const extras = [
+      reason,
+      issues.length ? `חריגות: ${issues.map(v => v.message).join('; ')}` : '',
+    ].filter(Boolean);
     return {
       facilityId: actor.facilityId, scheduleId, versionId, changedById: actor.userId,
       changeType: issues.length ? 'MANUAL_OVERRIDE' as const : !oldUser ? 'CREATE' as const : !newUser ? 'DELETE' as const : 'UPDATE' as const,
-      reason: `${description} · ${context}${reason ? ` · ${reason}` : ''}${issues.length ? ` · חריגות: ${issues.map(v => v.message).join('; ')}` : ''}`,
+      reason: [summary, shiftDateLabel, ...extras].filter(Boolean).join(' · '),
       beforeData: payload(oldSlot, cell), afterData: { ...payload(newSlot, cell), violations: issues, ...(requestId ? { requestId } : {}) },
     };
   }) });
