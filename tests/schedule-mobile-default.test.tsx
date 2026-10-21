@@ -4,6 +4,7 @@ import { cleanup, render, screen } from '@testing-library/react';
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import { CurrentScheduleScreen } from '@/features/schedules/screens/current-schedule-screen';
 import type { CurrentScheduleData } from '@/features/schedules/types';
+vi.mock('next/navigation', () => ({ useRouter: () => ({ push: vi.fn() }) }));
 vi.mock('@/features/schedules/shared/correction-button', () => ({ CorrectionButton: () => null }));
 vi.mock('@/features/schedules/current-schedule', () => ({ CurrentScheduleView: () => <p>לוח יומי לבדיקה</p> }));
 vi.mock('@/features/schedules/draft-schedule/weekly-draft-schedule-view', () => ({ WeeklyDraftScheduleView: () => <p>לוח שבועי לבדיקה</p> }));

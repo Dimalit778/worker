@@ -19,7 +19,7 @@ vi.mock('@/features/schedules/assignments/actions', () => ({
   saveScheduleChanges: vi.fn(),
 }));
 vi.mock('@/features/schedules/assignments/upcoming-actions', () => ({ fetchUpcomingSchedule: vi.fn() }));
-vi.mock('next/navigation', () => ({ useSearchParams: () => new URLSearchParams() }));
+vi.mock('next/navigation', () => ({ useSearchParams: () => new URLSearchParams(), useRouter: () => ({ push: vi.fn() }) }));
 vi.mock('@/features/schedules/shared/correction-button', () => ({ CorrectionButton: () => null }));
 vi.mock('@/features/periods/components/create-period-form', () => ({ CreatePeriodForm: () => null }));
 vi.mock('@/features/periods/components/deadline-extension', () => ({ DeadlineExtension: () => null }));
