@@ -5,9 +5,10 @@ import { useEmployeesList } from '@/features/employess/hooks';
 
 type Props = {
   facilityId?: string;
+  currentUserId?: string;
 };
 
-export function EmployeesListScreen({ facilityId }: Props) {
+export function EmployeesListScreen({ facilityId, currentUserId }: Props) {
   const { data, isLoading, isError } = useEmployeesList(facilityId);
 
   if (isLoading) {
@@ -29,6 +30,7 @@ export function EmployeesListScreen({ facilityId }: Props) {
       employees={data.employees}
       positions={data.positions}
       facilityId={facilityId}
+      currentUserId={currentUserId}
       showHeader={!facilityId}
     />
   );

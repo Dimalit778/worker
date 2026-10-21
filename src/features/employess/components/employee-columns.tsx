@@ -18,6 +18,7 @@ type EmployeesColumnsProps = {
   onResendInvite: (employee: EmployeeListItem) => void;
   deletePending?: boolean;
   hideDetailLinks?: boolean;
+  currentUserId?: string;
 };
 
 export function createEmployeesColumns({
@@ -27,6 +28,7 @@ export function createEmployeesColumns({
   onResendInvite,
   deletePending,
   hideDetailLinks = false,
+  currentUserId,
 }: EmployeesColumnsProps): ColumnDef<EmployeeListItem>[] {
   return [
     {
@@ -136,7 +138,7 @@ export function createEmployeesColumns({
                 {employee.isActive ? <UserX className="h-4 w-4" /> : <UserCheck className="h-4 w-4" />}
               </Button>
             )}
-            {onDelete && (
+            {onDelete && employee.id !== currentUserId && (
               <Button
                 type="button"
                 variant="ghost"

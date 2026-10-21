@@ -36,6 +36,14 @@ beforeEach(() => {
 });
 
 describe('employee deletion', () => {
+  it('blocks self-deletion before any database write, including whitespace around the id', async () => {
+    for (const id of ['manager', ' manager ']) {
+      expect(await deleteEmployee(id)).toEqual({ error: 'לא ניתן למחוק את המשתמש שלך' });
+    }
+    expect(db.user.updateMany).not.toHaveBeenCalled();
+    expect(expireEmployeeData).not.toHaveBeenCalled();
+  });
+
   it('removes only the manager’s own employee while leaving all assignments and availability intact', async () => {
     expect(await deleteEmployee('employee-0')).toEqual({ ok: true });
     expect(state.users[0]).toMatchObject({ isActive: false, deletedAt: expect.any(Date) });
