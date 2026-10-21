@@ -29,6 +29,8 @@ export const queryKeys = {
     employeeCurrent: () => [...queryKeys.schedules.all(), 'employeeCurrent'] as const,
     draft: () => [...queryKeys.schedules.all(), 'draft'] as const,
     assignments: (scheduleId: string) => [...queryKeys.schedules.all(), 'assignments', scheduleId] as const,
+    changeLog: (scheduleId: string, versionId: string | null, revision: number) =>
+      [...queryKeys.schedules.all(), 'changeLog', scheduleId, versionId ?? 'none', revision] as const,
   },
 
   availability: {

@@ -1,6 +1,7 @@
 'use client';
 
 import { useCurrentSchedule } from '@/features/schedules/hooks';
+import { ChangeLogList } from '@/features/schedules/change-log/change-log-list';
 import { CurrentScheduleScreen } from './current-schedule-screen';
 
 export function ManagerScheduleScreen() {
@@ -19,7 +20,7 @@ export function ManagerScheduleScreen() {
         defaultView="weekly"
       />
 
-
+      {data && <ChangeLogList scheduleId={data.scheduleId} versionId={data.versionId ?? null} revision={data.revision ?? 0} />}
     </div>
   );
 }

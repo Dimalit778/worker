@@ -8,7 +8,6 @@ import {
   ChevronLeft,
   ChevronRight,
   ClipboardList,
-  History,
   Inbox,
   LayoutDashboard,
   LogOut,
@@ -36,7 +35,6 @@ type ManagerAppShellProps = {
 const NAV_ICONS: Record<string, LucideIcon> = {
   '/manager': LayoutDashboard,
   '/manager/schedule': CalendarDays,
-  '/manager/schedule/changes': History,
   '/manager/schedules': ClipboardList,
   '/manager/draft': PenLine,
   '/manager/requests': Inbox,

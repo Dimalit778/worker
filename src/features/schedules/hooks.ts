@@ -6,6 +6,7 @@ import type { createAssignment } from '@/features/schedules/assignments/actions'
 import type { CurrentScheduleData } from './types';
 import { fetchCurrentSchedule, fetchDraftSchedule } from '@/features/schedules/assignments/actions';
 import { fetchUpcomingSchedule } from '@/features/schedules/assignments/upcoming-actions';
+import { fetchScheduleChangeLog } from '@/features/schedules/change-log/actions';
 
 export function invalidateScheduleQueries(queryClient: ReturnType<typeof useQueryClient>, scheduleId?: string) {
   const tasks = [
@@ -78,5 +79,15 @@ export function useUpcomingSchedule() {
     queryKey: queryKeys.schedules.upcoming(),
     queryFn: fetchUpcomingSchedule,
     refetchInterval: 30_000,
+  });
+}
+
+/** A new version or revision changes the key, so the log refetches after every edit. */
+export function useScheduleChangeLog(scheduleId: string, versionId: string | null, revision: number) {
+  return useQuery({
+    queryKey: queryKeys.schedules.changeLog(scheduleId, versionId, revision),
+    queryFn: () => fetchScheduleChangeLog(scheduleId),
+    // Keep this schedule's rows on screen while the next revision loads; never another schedule's.
+    placeholderData: (previous, previousQuery) => (previousQuery?.queryKey.includes(scheduleId) ? previous : undefined),
   });
 }

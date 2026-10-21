@@ -7,15 +7,8 @@ export type ScheduleChangeLogEntry = {
   createdAt: Date;
   changeType: ScheduleChangeType;
   message: string | null;
-  reason: string | null;
   versionNumber: number | null;
   changedByName: string;
-};
-
-export type ScheduleChangeLogGroup = {
-  scheduleId: string;
-  scheduleName: string;
-  entries: ScheduleChangeLogEntry[];
 };
 
 const changeSelect = {
@@ -33,7 +26,6 @@ function serializeEntry(row: Prisma.ScheduleChangeGetPayload<{ select: typeof ch
     createdAt: row.createdAt.toISOString(),
     changeType: row.changeType,
     message: row.reason,
-    reason: row.reason,
     versionNumber: row.version?.number ?? null,
     changedByName: row.changedBy.displayName,
   };
@@ -53,22 +45,4 @@ export async function getScheduleChangeLog(scheduleId: string, facilityId: strin
     return rows.map(serializeEntry);
   });
   return entries.map(restoreEntry);
-}
-
-export async function getActiveAndUpcomingScheduleChangeLogs(facilityId: string): Promise<ScheduleChangeLogGroup[]> {
-  const groups = await readFacilityCache(facilityId, ['change-log-groups'], async () => {
-    // Load the related entries together instead of one query per schedule.
-    const schedules = await prisma.schedule.findMany({
-      where: { facilityId, changes: { some: { facilityId } } },
-      select: {
-        id: true, name: true,
-        changes: { where: { facilityId }, select: changeSelect, orderBy: { createdAt: 'desc' } },
-      },
-      orderBy: { startDate: 'asc' },
-    });
-    return schedules.map(schedule => ({
-      scheduleId: schedule.id, scheduleName: schedule.name, entries: schedule.changes.map(serializeEntry),
-    }));
-  });
-  return groups.map(group => ({ ...group, entries: group.entries.map(restoreEntry) }));
 }

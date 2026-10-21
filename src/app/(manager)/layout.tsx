@@ -8,7 +8,6 @@ import { countOpenUrgent } from '@/features/requests/queries';
 const navItems = [
   { href: '/manager', label: 'ראשי' },
   { href: '/manager/schedule', label: 'שיבוץ ' },
-  { href: '/manager/schedule/changes', label: 'היסטוריית שינויים' },
   { href: '/manager/draft', label: 'שיבוץ בהכנה' },
   { href: '/manager/requests', label: 'בקשות' },
   { href: '/manager/employees', label: 'עובדים' },
