@@ -2,6 +2,7 @@
 
 import Link from 'next/link';
 import { useEffect, useState } from 'react';
+import { CalendarDays } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader } from '@/components/ui/card';
 import { useEmployeeCurrentSchedule } from '../hooks';
@@ -39,7 +40,15 @@ export function EmployeeHomeScreen({ employeeId, initialNow }: { employeeId: str
 
   return (
     <div className="space-y-6" dir="rtl">
-      <h1 className="text-2xl font-bold">בית</h1>
+      <div className="flex flex-wrap items-center justify-between gap-3">
+        <h1 className="text-2xl font-bold">בית</h1>
+        <Button asChild variant="outline">
+          <Link href="/employee/schedules">
+            <CalendarDays className="size-4" aria-hidden="true" />
+            כל השיבוצים
+          </Link>
+        </Button>
+      </div>
       {isLoading ? <p role="status" className="text-muted-foreground">טוען את המשמרות שלך...</p> : isError ? (
         <div role="alert" className="space-y-3">
           <p>לא ניתן לטעון את המשמרות.</p>

@@ -1,10 +1,13 @@
 import { prisma } from '@/lib/db/client';
 import { readFacilityCache } from '@/lib/cache/data-cache';
 
-export async function getFacilitySchedules(facilityId: string) {
-  return readFacilityCache(facilityId, ['schedule-list'], async () => {
+export async function getFacilitySchedules(facilityId: string, visibility: 'all' | 'published' = 'all') {
+  return readFacilityCache(facilityId, ['schedule-list', visibility], async () => {
     const schedules = await prisma.schedule.findMany({
-      where: { facilityId },
+      where: { facilityId, ...(visibility === 'published' ? {
+        status: { in: ['PUBLISHED', 'ARCHIVED'] as ('PUBLISHED' | 'ARCHIVED')[] },
+        publishedVersionId: { not: null },
+      } : {}) },
       orderBy: { startDate: 'desc' },
       select: { id: true, name: true, startDate: true, endDate: true, status: true, publishedAt: true },
     });

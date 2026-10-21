@@ -13,7 +13,10 @@ const STATUS_HE: Record<ScheduleRow['status'], string> = {
   ARCHIVED: 'בארכיון',
 };
 
-export function SchedulesList({ schedules }: { schedules: ScheduleRow[] }) {
+export function SchedulesList({ schedules, basePath = '/manager/schedules' }: {
+  schedules: ScheduleRow[];
+  basePath?: '/manager/schedules' | '/employee/schedules';
+}) {
   if (schedules.length === 0) {
     return (
       <Card className="border-dashed">
@@ -32,7 +35,7 @@ export function SchedulesList({ schedules }: { schedules: ScheduleRow[] }) {
           {schedules.map((schedule) => (
             <li key={schedule.id}>
               <Link
-                href={`/manager/schedules/${schedule.id}`}
+                href={`${basePath}/${schedule.id}`}
                 className="flex flex-wrap items-center gap-x-4 gap-y-1 px-5 py-4 transition-colors hover:bg-muted/30"
               >
                 <p className="font-semibold">{schedule.name}</p>

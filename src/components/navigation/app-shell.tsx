@@ -45,6 +45,7 @@ type AppShellProps = {
 const NAV_ICONS: Record<string, LucideIcon> = {
   '/employee/home': House,
   '/employee': CalendarDays,
+  '/employee/schedules': ClipboardList,
   '/employee/submissions': ClipboardList,
   '/employee/availability': PenLine,
   '/employee/requests': Inbox,

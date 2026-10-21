@@ -48,6 +48,7 @@ export default async function UserLayout({ children }: { children: React.ReactNo
   const navItems: AppNavItem[] = [
     { href: '/employee/home', label: 'בית' },
     { href: '/employee', label: 'שיבוץ' },
+    { href: '/employee/schedules', label: 'כל השיבוצים' },
     { href: '/employee/submissions', label: 'ההגשות שלי' },
     { href: '/employee/requests', label: 'הבקשות שלי', badge: incomingTransfers, badgeLabel: 'בקשות להעברה' },
     { href: '/employee/profile', label: 'הפרופיל שלי' },

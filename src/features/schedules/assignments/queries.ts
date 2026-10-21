@@ -165,6 +165,19 @@ export async function getOriginalSchedule(scheduleId: string, facilityId: string
   }, facilityId);
 }
 
+/** Employee history uses only the live published version, scoped to the session's facility. */
+export async function getPublishedScheduleById(scheduleId: string, facilityId: string): Promise<CurrentScheduleData | null> {
+  const schedule = await prisma.schedule.findFirst({
+    where: {
+      id: scheduleId, facilityId,
+      status: { in: ['PUBLISHED', 'ARCHIVED'] },
+      publishedVersionId: { not: null },
+    },
+    include: { publishedVersion: true },
+  });
+  return buildPublishedScheduleData(schedule, facilityId);
+}
+
 export async function getCurrentSchedule(facilityId: string): Promise<CurrentScheduleData | null> {
   const schedule = await prisma.schedule.findFirst({
     where: currentScheduleWhere(facilityId),
