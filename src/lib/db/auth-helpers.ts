@@ -44,6 +44,7 @@ const loadSession = cache(async (): Promise<Session> => {
   if (!session) redirect('/login');
   const user = await prisma.user.findUnique({
     where: { id: session.user.id },
+    select: { id: true, isActive: true, systemRole: true, canEditSchedule: true, facilityId: true },
   });
   if (!user || !user.isActive) redirect('/login');
   const portal = portalFor(user);
