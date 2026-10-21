@@ -48,3 +48,11 @@ it('links the preparation card to the exact displayed period', () => {
   render(<QueryClientProvider client={new QueryClient()}><ScheduleStatusCards activeSchedule={null} draftSchedule={{ id: 'selected', name: 'השיבוץ הנבחר', startDate: '2026-10-25', endDate: '2026-11-07', status: PeriodScheduleStatus.LOCKED }} warnings={[]} submissionSummary={null} /></QueryClientProvider>);
   expect(screen.getByRole('link', { name: /השיבוץ הנבחר/ })).toHaveAttribute('href', '/manager/draft?scheduleId=selected');
 });
+it.each([
+  [PeriodScheduleStatus.DRAFT, 'ממתין לשליחה'],
+  [PeriodScheduleStatus.OPEN, 'נשלח'],
+  [PeriodScheduleStatus.LOCKED, 'נסגר'],
+])('labels the preparation card %s submission window as %s', (status, label) => {
+  render(<QueryClientProvider client={new QueryClient()}><ScheduleStatusCards activeSchedule={null} draftSchedule={{ id: 'selected', name: 'השיבוץ הנבחר', startDate: '2026-10-25', endDate: '2026-11-07', status }} warnings={[]} submissionSummary={null} /></QueryClientProvider>);
+  expect(screen.getByText(label)).toBeInTheDocument();
+});

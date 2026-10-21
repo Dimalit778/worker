@@ -9,6 +9,13 @@ import type { ScheduleWarningSummary } from '@/features/schedules/types';
 import { cn } from '@/lib/utils';
 import type { MissingEmployee, ScheduleSnapshot } from '../types';
 
+// Dashboard wording for the submission window of a schedule in preparation.
+const CARD_STATUS_HE: Partial<Record<ScheduleSnapshot['status'], string>> = {
+  DRAFT: 'ממתין לשליחה',
+  OPEN: 'נשלח',
+  LOCKED: 'נסגר',
+};
+
 type ScheduleOverviewCardProps = {
   label: string;
   schedule: ScheduleSnapshot | null;
@@ -62,7 +69,7 @@ function ScheduleOverviewCard({
           </p>
           {showStatus && (
             <span className={cn('rounded-full px-2 py-0.5 text-[11px] font-medium', STATUS_BADGE[schedule.status])}>
-              {PERIOD_STATUS_HE[schedule.status]}
+              {CARD_STATUS_HE[schedule.status] ?? PERIOD_STATUS_HE[schedule.status]}
             </span>
           )}
         </div>
