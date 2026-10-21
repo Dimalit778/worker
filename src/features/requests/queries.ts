@@ -15,23 +15,29 @@ export async function loadApprovedTimeOff(tx: Prisma.TransactionClient, facility
   return expandTimeOff(rows.map(r => ({ userId: r.requesterId, startDate: r.startDate, endDate: r.endDate })), startDate, endDate);
 }
 
-/** Requester's slots in any schedule's published or open draft version within the range. Never modified. */
-export async function findAffectedSlots(db: Db, facilityId: string, userId: string, start: Date, end: Date): Promise<AffectedSlotDto[]> {
-  const rows = await db.scheduleSlot.findMany({
-    where: {
-      facilityId, userId, date: { gte: start, lte: end },
-      OR: [{ version: { publishedFor: { is: { facilityId } } } }, { version: { draftFor: { is: { facilityId } } } }],
-    },
-    include: { position: { select: { name: true } }, schedule: { select: { name: true, draftVersionId: true } } },
-  });
-  const slots: AffectedSlot[] = rows.map(r => ({
-    id: r.id, userId: r.userId, date: r.date, shiftType: r.shiftType, positionName: r.position.name,
-    scheduleName: r.schedule.name, versionKind: r.schedule.draftVersionId === r.versionId ? 'DRAFT' : 'PUBLISHED',
-  }));
-  return filterAffectedSlots(slots, userId, start, end).map(s => ({
+const affectedSlotInclude = { position: { select: { name: true } }, schedule: { select: { name: true, draftVersionId: true } } } satisfies Prisma.ScheduleSlotInclude;
+const inPublishedOrDraft = (facilityId: string): Prisma.ScheduleSlotWhereInput => ({
+  OR: [{ version: { publishedFor: { is: { facilityId } } } }, { version: { draftFor: { is: { facilityId } } } }],
+});
+
+const toAffectedSlot = (r: Prisma.ScheduleSlotGetPayload<{ include: typeof affectedSlotInclude }>): AffectedSlot => ({
+  id: r.id, userId: r.userId, date: r.date, shiftType: r.shiftType, positionName: r.position.name,
+  scheduleName: r.schedule.name, versionKind: r.schedule.draftVersionId === r.versionId ? 'DRAFT' : 'PUBLISHED',
+});
+
+const toAffectedSlotDtos = (slots: AffectedSlot[], userId: string, start: Date, end: Date): AffectedSlotDto[] =>
+  filterAffectedSlots(slots, userId, start, end).map(s => ({
     id: s.id, date: toIsoDate(s.date), shiftType: s.shiftType, positionName: s.positionName,
     scheduleName: s.scheduleName, versionKind: s.versionKind,
   }));
+
+/** Requester's slots in any schedule's published or open draft version within the range. Never modified. */
+export async function findAffectedSlots(db: Db, facilityId: string, userId: string, start: Date, end: Date): Promise<AffectedSlotDto[]> {
+  const rows = await db.scheduleSlot.findMany({
+    where: { facilityId, userId, date: { gte: start, lte: end }, ...inPublishedOrDraft(facilityId) },
+    include: affectedSlotInclude,
+  });
+  return toAffectedSlotDtos(rows.map(toAffectedSlot), userId, start, end);
 }
 
 const requestInclude = {
@@ -78,13 +84,20 @@ export async function getManagerQueue(facilityId: string, filter: QueueFilter) {
   const rows = await prisma.employeeRequest.findMany({
     where: { facilityId, status }, include: requestInclude, orderBy: { createdAt: 'desc' }, take: 200,
   });
-  return Promise.all(rows.map(async r => {
-    const open = (OPEN_STATUSES as readonly EmployeeRequestStatus[]).includes(r.status);
-    const affected = open && r.type !== 'SHIFT_SWAP' && r.startDate && r.endDate
-      ? await findAffectedSlots(prisma, facilityId, r.requesterId, r.startDate, r.endDate)
-      : [];
-    return toDto(r, affected);
-  }));
+  const ranged = rows.flatMap(r =>
+    (OPEN_STATUSES as readonly EmployeeRequestStatus[]).includes(r.status) && r.type !== 'SHIFT_SWAP' && r.startDate && r.endDate
+      ? [{ id: r.id, userId: r.requesterId, start: r.startDate, end: r.endDate }]
+      : []);
+  const slots = ranged.length ? (await prisma.scheduleSlot.findMany({
+    where: {
+      facilityId, userId: { in: [...new Set(ranged.map(q => q.userId))] },
+      date: { gte: new Date(Math.min(...ranged.map(q => q.start.getTime()))), lte: new Date(Math.max(...ranged.map(q => q.end.getTime()))) },
+      ...inPublishedOrDraft(facilityId),
+    },
+    include: affectedSlotInclude,
+  })).map(toAffectedSlot) : [];
+  const affected = new Map(ranged.map(q => [q.id, toAffectedSlotDtos(slots, q.userId, q.start, q.end)]));
+  return rows.map(r => toDto(r, affected.get(r.id)));
 }
 
 export function countOpenUrgent(facilityId: string) {
