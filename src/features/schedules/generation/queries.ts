@@ -46,15 +46,23 @@ export async function loadSchedulingInput(tx: Prisma.TransactionClient, schedule
       include: { availabilities: true },
     }),
     versionId ? tx.scheduleSlot.findMany({ where: { scheduleId, versionId, facilityId, userId: { not: null } }, include: { user: { select: { displayName: true } }, position: { select: { name: true } } } }) : Promise.resolve([]),
-    tx.scheduleSlot.findMany({
-      where: {
-        facilityId,
-        scheduleId: { not: scheduleId },
-        userId: { not: null },
-        version: { publishedFor: { is: { status: 'PUBLISHED' } } },
-        date: { gte: addDays(schedule.startDate, -56), lte: addDays(schedule.endDate, 1) },
-      },
-    }),
+    (async () => {
+      // Read slots by the live published version ids, so old versions and drafts are never scanned.
+      const published = await tx.schedule.findMany({
+        where: { facilityId, id: { not: scheduleId }, status: 'PUBLISHED', publishedVersionId: { not: null } },
+        select: { publishedVersionId: true },
+      });
+      const versionIds = published.flatMap((s) => s.publishedVersionId ?? []);
+      if (!versionIds.length) return [];
+      return tx.scheduleSlot.findMany({
+        where: {
+          facilityId,
+          versionId: { in: versionIds },
+          userId: { not: null },
+          date: { gte: addDays(schedule.startDate, -56), lte: addDays(schedule.endDate, 1) },
+        },
+      });
+    })(),
     loadApprovedTimeOff(tx, facilityId, schedule.startDate, schedule.endDate),
   ]);
   // Slots of one employee sharing the same custom hours form one shift: the earliest is the main one.
