@@ -10,6 +10,7 @@ import {
   ChevronRight,
   ClipboardList,
   Inbox,
+  House,
   LayoutDashboard,
   LogOut,
   Menu,
@@ -42,6 +43,7 @@ type AppShellProps = {
 };
 
 const NAV_ICONS: Record<string, LucideIcon> = {
+  '/employee/home': House,
   '/employee': CalendarDays,
   '/employee/submissions': ClipboardList,
   '/employee/availability': PenLine,
