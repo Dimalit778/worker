@@ -244,18 +244,18 @@ export async function getDraftScheduleData(facilityId: string, scheduleId?: stri
   });
 }
 
-export async function getScheduleWarnings(scheduleId: string | null | undefined): Promise<ScheduleWarningSummary[]> {
+export async function getScheduleWarnings(scheduleId: string | null | undefined, facilityId: string): Promise<ScheduleWarningSummary[]> {
   if (!scheduleId) return [];
-  const schedule = await prisma.schedule.findUnique({
-    where: { id: scheduleId },
-    select: { facilityId: true, draftVersionId: true, publishedVersionId: true, publishedVersion: true },
+  const schedule = await prisma.schedule.findFirst({
+    where: { id: scheduleId, facilityId },
+    select: { draftVersionId: true, publishedVersionId: true, publishedVersion: true },
   });
   if (!schedule) return [];
 
   const [data, employees, liveCapacity] = await Promise.all([
-    loadSchedulingInput(prisma, scheduleId, schedule.facilityId, schedule.draftVersionId ?? schedule.publishedVersionId),
-    getScheduleEmployees(schedule.facilityId),
-    getScheduleCapacity(schedule.facilityId),
+    loadSchedulingInput(prisma, scheduleId, facilityId, schedule.draftVersionId ?? schedule.publishedVersionId),
+    getScheduleEmployees(facilityId),
+    getScheduleCapacity(facilityId),
   ]);
   const snapshot = schedule.draftVersionId ? null : snapshotCapacity(schedule.publishedVersion);
   const input = snapshot ? withSnapshotRequirements(data.input, snapshot) : data.input;

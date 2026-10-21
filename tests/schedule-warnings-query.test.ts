@@ -2,7 +2,7 @@ import { beforeEach, describe, expect, it, vi } from 'vitest';
 import type { EngineAssignment, EngineInput } from '@/features/scheduling-engine/types';
 
 const mocks = vi.hoisted(() => ({
-  schedule: { findUnique: vi.fn() },
+  schedule: { findFirst: vi.fn() },
   user: { findMany: vi.fn() },
   staffingRequirement: { findMany: vi.fn() },
   loadSchedulingInput: vi.fn(),
@@ -23,7 +23,7 @@ const input: EngineInput = {
 
 beforeEach(() => {
   vi.clearAllMocks();
-  mocks.schedule.findUnique.mockResolvedValue({ facilityId: 'facility', draftVersionId: 'draft', publishedVersionId: 'published' });
+  mocks.schedule.findFirst.mockResolvedValue({ draftVersionId: 'draft', publishedVersionId: 'published' });
   mocks.user.findMany.mockResolvedValue([{ id: 'employee', displayName: 'דוד לוי', role: { id: 'role', name: 'אחמ״ש', rank: 2 } }]);
   mocks.staffingRequirement.findMany.mockResolvedValue([{
     id: 'requirement', positionId: 'position', shiftType: 'MORNING', dayCategory: 'WEEKDAY', requiredCount: 1,
@@ -34,18 +34,26 @@ beforeEach(() => {
 
 describe('getScheduleWarnings', () => {
   it('returns no warnings without a schedule and does not query the database', async () => {
-    expect(await getScheduleWarnings(null)).toEqual([]);
-    expect(mocks.schedule.findUnique).not.toHaveBeenCalled();
+    expect(await getScheduleWarnings(null, 'facility')).toEqual([]);
+    expect(mocks.schedule.findFirst).not.toHaveBeenCalled();
   });
 
   it('returns no warnings for a deleted schedule', async () => {
-    mocks.schedule.findUnique.mockResolvedValue(null);
-    expect(await getScheduleWarnings('missing')).toEqual([]);
+    mocks.schedule.findFirst.mockResolvedValue(null);
+    expect(await getScheduleWarnings('missing', 'facility')).toEqual([]);
+    expect(mocks.loadSchedulingInput).not.toHaveBeenCalled();
+  });
+
+  it('returns no warnings for a schedule of another facility and does not load scheduling input', async () => {
+    mocks.schedule.findFirst.mockImplementation(async ({ where }) =>
+      where.facilityId === 'facility' ? { draftVersionId: 'draft', publishedVersionId: 'published' } : null);
+    expect(await getScheduleWarnings('schedule', 'other-facility')).toEqual([]);
+    expect(mocks.schedule.findFirst).toHaveBeenCalledWith(expect.objectContaining({ where: { id: 'schedule', facilityId: 'other-facility' } }));
     expect(mocks.loadSchedulingInput).not.toHaveBeenCalled();
   });
 
   it('returns critical shortages and capacity warnings with serializable dates and names', async () => {
-    const warnings = await getScheduleWarnings('schedule');
+    const warnings = await getScheduleWarnings('schedule', 'facility');
     expect(warnings).toEqual(expect.arrayContaining([
       expect.objectContaining({ severity: 'ERROR', message: expect.stringContaining('חסר אחמ״ש'), date: '2026-10-05', shiftType: 'MORNING' }),
       expect.objectContaining({ severity: 'WARNING', type: 'UNFILLED', positionName: 'אחמ״ש', date: '2026-10-05' }),
@@ -61,13 +69,13 @@ describe('getScheduleWarnings', () => {
   });
 
   it('recalculates after an assignment is saved and removes the resolved shortage', async () => {
-    const before = await getScheduleWarnings('schedule');
+    const before = await getScheduleWarnings('schedule', 'facility');
     expect(before.some(w => w.severity === 'WARNING' && w.positionName === 'אחמ״ש')).toBe(true);
     const assignment: EngineAssignment = {
       employeeId: 'employee', facilityId: 'facility', positionId: 'position', date, shiftType: 'MORNING', slotIndex: 0, isManualOverride: true,
     };
     mocks.loadSchedulingInput.mockResolvedValue({ input, allAssignments: [assignment], dateOverrides: [] });
-    const after = await getScheduleWarnings('schedule');
+    const after = await getScheduleWarnings('schedule', 'facility');
     expect(after.some(w => w.severity === 'WARNING' && w.positionName === 'אחמ״ש')).toBe(false);
     expect(after.some(w => w.message.includes('חסר אחמ״ש'))).toBe(false);
     expect(after.some(w => w.message.includes('חסר בקר'))).toBe(true);
