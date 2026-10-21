@@ -91,6 +91,7 @@ async function notify(
         facilityId: schedule.facilityId,
         isActive: true,
         systemRole: 'USER',
+        role: { rank: { not: 1 } },
         ...(kind === 'remind'
           ? { submissions: { none: { scheduleId: schedule.id, submittedAt: { not: null } } } }
           : {}),
