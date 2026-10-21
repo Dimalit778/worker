@@ -16,6 +16,7 @@ import { Badge } from '@/components/ui/badge';
 import {
   blockedEmployeeIdsForShift,
   createAssignmentCellKey,
+  emptySlotIndex,
   getDateOverrideLabel,
   getOrderedPositionsForShift,
   getRequiredForDate,
@@ -271,7 +272,7 @@ export function ShiftSection(props: ShiftSectionProps) {
                       : row!.assignmentsByDay.get(day.iso)!;
                     const assignment = sortedAssignments[cellRow] ?? null;
                     const closed = cellRow >= required;
-                    const targetSlotIndex = assignment?.slotIndex ?? cellRow;
+                    const targetSlotIndex = assignment?.slotIndex ?? emptySlotIndex(sortedAssignments, cellRow - sortedAssignments.length);
                     const overflowKey = `${cellKey}-${targetSlotIndex}` as keyof OverflowCandidateMap;
 
                     const blockedOnShift = blockedEmployeeIdsForShift(assignments, day.iso, shiftType);
