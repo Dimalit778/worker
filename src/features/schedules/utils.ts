@@ -1,6 +1,9 @@
+import { calendarDateISO } from '@/features/periods/utils';
 import type { ShiftType } from '@/generated/prisma/client';
 import type { AssignmentCellKey, AssignmentMap, ScheduleCapacityRule, StaffingDayCategory, WeekDay } from './types';
 import { EVENING_SLOT_LABELS, MORNING_SLOT_LABELS, NIGHT_SLOT_LABELS, WEEKDAY_HEADER_LETTERS } from './constants';
+
+const SCHEDULE_TIME_ZONE = 'Asia/Jerusalem';
 
 export function toDateOnly(date: Date): string {
   return date.toISOString().slice(0, 10);
@@ -28,6 +31,30 @@ export function buildWeekDays(startDateISO: string, weekIndex: number): WeekDay[
     const mm = String(date.getUTCMonth() + 1).padStart(2, '0');
     return { iso, dayOfWeek, letter, label: `${dd}/${mm}` };
   });
+}
+
+/**
+ * Week pager index (0-based) that contains `dateISO` within a multi-week period
+ * starting at `startDateISO`. Clamps outside the period to the nearest week.
+ */
+export function weekIndexContainingDate(
+  startDateISO: string,
+  dateISO: string,
+  weekCount = 2,
+): number {
+  const lastIndex = Math.max(0, weekCount - 1);
+  const [ys, ms, ds] = startDateISO.split('-').map(Number);
+  const [yd, md, dd] = dateISO.split('-').map(Number);
+  const start = Date.UTC(ys, ms - 1, ds);
+  const date = Date.UTC(yd, md - 1, dd);
+  const dayOffset = Math.floor((date - start) / 86_400_000);
+  if (dayOffset < 0) return 0;
+  return Math.min(lastIndex, Math.floor(dayOffset / 7));
+}
+
+/** Initial week pager index for "today" in the schedule timezone (Asia/Jerusalem). */
+export function initialWeekIndexForToday(startDateISO: string, weekCount = 2, now = new Date()): number {
+  return weekIndexContainingDate(startDateISO, calendarDateISO(now, SCHEDULE_TIME_ZONE), weekCount);
 }
 
 /** Inclusive list of calendar dates from start through end (UTC date-only). */

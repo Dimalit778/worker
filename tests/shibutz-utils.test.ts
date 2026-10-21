@@ -5,6 +5,7 @@ import {
   getDayCategoryForDate,
   getShiftSlotLabel,
   isGuardPositionLabel,
+  weekIndexContainingDate,
 } from '@/features/schedules/utils';
 
 describe('buildWeekDays', () => {
@@ -26,6 +27,25 @@ describe('buildWeekDays', () => {
     expect(days[0].dayOfWeek).toBe(0);
     expect(days[0].letter).toBe('א');
     expect(days[6].letter).toBe('ש');
+  });
+});
+
+describe('weekIndexContainingDate', () => {
+  it('returns week 1 when today falls in the second week of a 14-day period', () => {
+    // Period 11/10–24/10; today 21/10 → week 18/10–24/10
+    expect(weekIndexContainingDate('2026-10-11', '2026-10-21', 2)).toBe(1);
+  });
+
+  it('returns week 0 when today falls in the first week', () => {
+    expect(weekIndexContainingDate('2026-10-11', '2026-10-15', 2)).toBe(0);
+  });
+
+  it('clamps to the first week when today is before the period', () => {
+    expect(weekIndexContainingDate('2026-10-11', '2026-10-01', 2)).toBe(0);
+  });
+
+  it('clamps to the last week when today is after the period', () => {
+    expect(weekIndexContainingDate('2026-10-11', '2026-11-01', 2)).toBe(1);
   });
 });
 

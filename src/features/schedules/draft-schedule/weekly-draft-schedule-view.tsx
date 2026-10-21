@@ -11,7 +11,7 @@ import {
 import { WeekNavigator } from './week-navigator';
 import { ShiftSection } from './shift-section';
 import { MobileDayScheduleView } from './mobile-day-schedule-view';
-import { buildWeekDays } from '../utils';
+import { buildWeekDays, initialWeekIndexForToday } from '../utils';
 import { SHIFT_ORDER } from '../constants';
 import type { WeeklyDraftScheduleViewProps } from '../types';
 
@@ -29,7 +29,7 @@ export function WeeklyDraftScheduleView({
   highlightedEmployeeId: initialHighlightedEmployeeId = null,
   showHighlightPicker = true,
 }: WeeklyDraftScheduleViewProps) {
-  const [weekIndex, setWeekIndex] = useState(0);
+  const [weekIndex, setWeekIndex] = useState(() => initialWeekIndexForToday(startDate));
   const [highlightedEmployeeId, setHighlightedEmployeeId] = useState<string | null>(initialHighlightedEmployeeId);
   const weekDays = buildWeekDays(startDate, weekIndex);
   const highlightedAssignmentsCount = useMemo(() => {
