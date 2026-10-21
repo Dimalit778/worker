@@ -66,6 +66,7 @@ async function loadAdminCourtsData(): Promise<AdminCourtsData> {
           code: true,
           districtId: true,
           users: {
+            where: { deletedAt: null },
             select: {
               id: true,
               firstName: true,
@@ -353,7 +354,7 @@ export async function updateAdminEmployee(params: UpdateAdminEmployeeParams): Pr
   try {
     await prisma.$transaction(async (tx) => {
       const employee = await tx.user.findUnique({
-        where: { id: employeeId },
+        where: { id: employeeId, deletedAt: null },
         select: { id: true, facilityId: true },
       });
 
@@ -371,7 +372,7 @@ export async function updateAdminEmployee(params: UpdateAdminEmployeeParams): Pr
       }
 
       await tx.user.update({
-        where: { id: employeeId },
+        where: { id: employeeId, deletedAt: null },
         data: {
           email,
           firstName,
@@ -410,37 +411,18 @@ export async function deleteAdminEmployee(employeeId: string): Promise<AdminActi
   }
 
   try {
-    await prisma.$transaction(async (tx) => {
-      const employee = await tx.user.findUnique({
-        where: { id },
-        select: { id: true },
-      });
-
-      if (!employee) {
-        throw new Error('EMPLOYEE_NOT_FOUND');
-      }
-
-      const changes = await tx.scheduleChange.count({ where: { changedById: id } });
-      const publishedAssignments = await tx.scheduleSlot.count({ where: { userId: id, version: { status: { not: 'DRAFT' } } } });
-      const createdOverrides = await tx.staffingDateOverride.count({ where: { createdById: id } });
-      if (changes > 0 || publishedAssignments > 0 || createdOverrides > 0) throw new Error('EMPLOYEE_HAS_HISTORY');
-      await tx.scheduleSlot.updateMany({ where: { userId: id }, data: { userId: null } });
-      await tx.availabilitySubmission.deleteMany({ where: { userId: id } });
-      await tx.user.delete({ where: { id } });
+    const deletedAt = new Date();
+    const result = await prisma.user.updateMany({
+      where: { id, systemRole: SystemRole.USER, deletedAt: null },
+      data: { deletedAt, isActive: false, deactivatedAt: deletedAt },
     });
+    if (result.count === 0) return { error: 'עובד לא נמצא' };
 
     expireAllFacilityData();
     revalidatePath('/admin/courts');
     revalidatePath('/admin/employees');
     return { ok: true };
   } catch (error) {
-    if (error instanceof Error && error.message === 'EMPLOYEE_NOT_FOUND') {
-      return { error: 'עובד לא נמצא' };
-    }
-    if (error instanceof Error && error.message === 'EMPLOYEE_HAS_HISTORY') {
-      return { error: 'לא ניתן למחוק עובד שיש לו שיבוצים מפורסמים או היסטוריית שינויי שיבוץ' };
-    }
-
     return { error: uniqueErrorMessage(error, 'מחיקת העובד נכשלה') };
   }
 }

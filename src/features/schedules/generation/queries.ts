@@ -34,7 +34,7 @@ export async function loadSchedulingInput(tx: Prisma.TransactionClient, schedule
   const schedule = loadedSchedule ?? await tx.schedule.findFirst({ where: { id: scheduleId, facilityId } });
   if (!schedule) throw new Error('השיבוץ לא נמצא');
   const [employees, capacities, dateOverrides, forms, assignments, surrounding, timeOff] = await Promise.all([
-    tx.user.findMany({ where: { facilityId, ...staffedUser }, select: { id: true, displayName: true, roleId: true, isActive: true, role: { select: { id: true, name: true, rank: true } } } }),
+    tx.user.findMany({ where: { facilityId, ...staffedUser }, select: { id: true, displayName: true, roleId: true, isActive: true, deletedAt: true, role: { select: { id: true, name: true, rank: true } } } }),
     tx.staffingRequirement.findMany({ where: { facilityId, position: staffedPosition }, include: { position: { include: { baseRole: true } } } }),
     tx.staffingDateOverride.findMany({
       where: { facilityId, date: { gte: schedule.startDate, lte: schedule.endDate }, position: { ...staffedPosition, OR: [{ facilityId }, { facilityId: null }] } },
@@ -42,7 +42,7 @@ export async function loadSchedulingInput(tx: Prisma.TransactionClient, schedule
       orderBy: [{ date: 'asc' }, { shiftType: 'asc' }, { position: { displayOrder: 'asc' } }],
     }),
     tx.availabilitySubmission.findMany({
-      where: { scheduleId, submittedAt: { not: null }, user: { facilityId } },
+      where: { scheduleId, submittedAt: { not: null }, user: { facilityId, deletedAt: null } },
       include: { availabilities: true },
     }),
     versionId ? tx.scheduleSlot.findMany({ where: { scheduleId, versionId, facilityId, userId: { not: null } }, include: { user: { select: { displayName: true } }, position: { select: { name: true } } } }) : Promise.resolve([]),

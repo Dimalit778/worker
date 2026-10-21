@@ -20,6 +20,29 @@ import { expireEmployeeData } from '@/lib/cache/data-cache';
 
 export type CreateEmployeeResult = ({ ok: true } & Partial<InviteResult>) | { error: string };
 
+export async function deleteEmployee(employeeId: string): Promise<{ ok: true } | { error: string }> {
+  const session = await requireSession(PortalRole.MANAGER);
+  const facilityId = session.user.facilityId;
+  if (!facilityId) return { error: 'למנהל אין בית משפט משויך' };
+  const id = employeeId.trim();
+  if (!id) return { error: 'עובד לא תקין' };
+  if (id === session.user.id) return { error: 'לא ניתן למחוק את המשתמש שלך' };
+
+  try {
+    const deletedAt = new Date();
+    const result = await prisma.user.updateMany({
+      where: { id, facilityId, systemRole: SystemRole.USER, canEditSchedule: false, deletedAt: null },
+      data: { deletedAt, isActive: false, deactivatedAt: deletedAt },
+    });
+    if (result.count === 0) return { error: 'עובד לא נמצא' };
+
+    expireEmployeeData(facilityId);
+    return { ok: true };
+  } catch {
+    return { error: 'מחיקת העובד נכשלה. נסה שוב.' };
+  }
+}
+
 export async function createEmployee(params: CreateEmployeeParams): Promise<CreateEmployeeResult> {
   const session = await requireSession(PortalRole.MANAGER);
 
@@ -90,15 +113,15 @@ export async function updateEmployee(params: UpdateEmployeeParams): Promise<{ ok
   const session = await requireSession(PortalRole.MANAGER);
   const facilityId = session.user.facilityId;
 
-  const { employeeId, firstName, lastName, phone, displayName, isReligious, positionId, isActive } = params;
+  const { employeeId, firstName, lastName, phone, displayName, isReligious, positionId } = params;
 
   const employee = await prisma.user.findFirst({
-    where: { id: employeeId, facilityId: facilityId ?? '' },
+    where: { id: employeeId, facilityId: facilityId ?? '', deletedAt: null },
   });
   if (!employee) return { error: 'מאבטח לא נמצא' };
 
   await prisma.user.update({
-    where: { id: employeeId },
+    where: { id: employeeId, facilityId: facilityId ?? '', deletedAt: null },
     data: { firstName, lastName, phoneNumber: phone, displayName, isReligious, roleId: positionId },
   });
   expireEmployeeData(employee.facilityId!);
@@ -115,6 +138,7 @@ export async function resendEmployeeInvite(employeeId: string): Promise<CreateEm
     // Managers may only re-invite regular employees, never other managers or admins.
     where: {
       id: employeeId,
+      deletedAt: null,
       ...(isAdmin ? {} : { facilityId: session.user.facilityId ?? '', systemRole: SystemRole.USER, canEditSchedule: false }),
     },
     select: { id: true, email: true },
@@ -132,14 +156,14 @@ export async function setEmployeeActive(employeeId: string, isActive: boolean): 
   if (!facilityId) return { error: 'למנהל אין בית משפט משויך' };
 
   const employee = await prisma.user.findFirst({
-    where: { id: employeeId, facilityId },
+    where: { id: employeeId, facilityId, deletedAt: null },
     select: { id: true, isActive: true, systemRole: true },
   });
   if (!employee || employee.systemRole === SystemRole.ADMIN) return { error: 'עובד לא נמצא' };
   if (employee.id === session.user.id && !isActive) return { error: 'לא ניתן להשבית את המשתמש שלך' };
 
   await prisma.user.update({
-    where: { id: employeeId },
+    where: { id: employeeId, facilityId, deletedAt: null },
     data: { isActive, deactivatedAt: isActive ? null : new Date() },
   });
   expireEmployeeData(facilityId);
@@ -194,7 +218,7 @@ export async function getEmployeesPageData(facilityId?: string): Promise<Employe
 
   const [employees, positions] = await Promise.all([
     prisma.user.findMany({
-      where: { facilityId: targetCourtId },
+      where: { facilityId: targetCourtId, deletedAt: null },
       select: {
         id: true,
         firstName: true,
@@ -247,7 +271,7 @@ export async function getManagerEmployeeDetail(employeeId: string): Promise<Empl
   if (!facilityId) return { error: 'למנהל אין בית משפט משויך' };
 
   const employee = await prisma.user.findFirst({
-    where: { id: employeeId, facilityId },
+    where: { id: employeeId, facilityId, deletedAt: null },
     select: {
       id: true,
       firstName: true,
@@ -366,7 +390,7 @@ export async function getManagerEmployeeSubmissions(employeeId: string): Promise
   if (!facilityId) return { error: 'למנהל אין בית משפט משויך' };
 
   const employee = await prisma.user.findFirst({
-    where: { id: employeeId, facilityId },
+    where: { id: employeeId, facilityId, deletedAt: null },
     select: {
       id: true,
       firstName: true,

@@ -2,20 +2,12 @@
 
 import Link from 'next/link';
 import type { ColumnDef } from '@tanstack/react-table';
-import { Eye, MailPlus, MoreHorizontal, Pencil, Trash2, UserCheck, UserX } from 'lucide-react';
+import { Eye, MailPlus, Pencil, Trash2, UserCheck, UserX } from 'lucide-react';
 
 import { cn } from '@/lib/utils';
 import { EmployeeListItem } from '@/features/employess/types';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
-import {
-  DropdownMenu,
-  DropdownMenuContent,
-  DropdownMenuItem,
-  DropdownMenuLabel,
-  DropdownMenuSeparator,
-  DropdownMenuTrigger,
-} from '@/components/ui/dropdown-menu';
 
 import { POSITION_STYLE } from '../utils';
 
@@ -94,90 +86,70 @@ export function createEmployeesColumns({
       cell: ({ row }) => row.original.email || '-',
     },
     {
-      accessorKey: 'isActive',
-      header: 'סטטוס',
-      cell: ({ row }) => {
-        const isActive = row.original.isActive;
-
-        return isActive ? (
-          <Badge className="rounded-full bg-green-950 text-green-200 hover:bg-green-950">פעיל</Badge>
-        ) : (
-          <Badge variant="secondary" className="rounded-full bg-secondary text-muted-foreground hover:bg-secondary">
-            מושבת
-          </Badge>
-        );
-      },
-    },
-    {
       id: 'actions',
       enableHiding: false,
       cell: ({ row }) => {
         const employee = row.original;
 
         return (
-          <div className="flex justify-end">
-            <DropdownMenu>
-              <DropdownMenuTrigger asChild>
-                <Button variant="ghost" size="icon" className="h-8 w-8">
-                  <span className="sr-only">פתח תפריט פעולות</span>
-                  <MoreHorizontal className="h-4 w-4" />
-                </Button>
-              </DropdownMenuTrigger>
-
-              <DropdownMenuContent align="end" className="w-48">
-                <DropdownMenuLabel>פעולות</DropdownMenuLabel>
-
-                {!hideDetailLinks && (
-                  <DropdownMenuItem asChild>
-                    <Link href={`/manager/employees/${employee.id}`}>
-                      <Eye className="ml-2 h-4 w-4" />
-                      צפייה
-                    </Link>
-                  </DropdownMenuItem>
-                )}
-
-                <DropdownMenuItem onClick={() => onEdit(employee)}>
-                  <Pencil className="ml-2 h-4 w-4" />
-                  עריכה
-                </DropdownMenuItem>
-
-                <DropdownMenuItem onClick={() => onResendInvite(employee)}>
-                  <MailPlus className="ml-2 h-4 w-4" />
-                  שליחת הזמנה מחדש
-                </DropdownMenuItem>
-                {onToggleActive && (
-                  <>
-                    <DropdownMenuSeparator />
-                    <DropdownMenuItem
-                      disabled={deletePending}
-                      onClick={() => onToggleActive(employee)}
-                      className={employee.isActive ? 'text-destructive focus:text-destructive' : undefined}
-                    >
-                      {employee.isActive ? (
-                        <UserX className="ml-2 h-4 w-4" />
-                      ) : (
-                        <UserCheck className="ml-2 h-4 w-4" />
-                      )}
-                      {employee.isActive ? 'השבתה' : 'הפעלה מחדש'}
-                    </DropdownMenuItem>
-                  </>
-                )}
-
-                {onDelete && (
-                  <>
-                    <DropdownMenuSeparator />
-                    <DropdownMenuItem
-                      disabled={deletePending}
-                      onClick={() => onDelete(employee)}
-                      className="text-destructive focus:text-destructive"
-                    >
-                      <Trash2 className="ml-2 h-4 w-4" />
-                      מחיקה
-                    </DropdownMenuItem>
-                  </>
-                )}
-              </DropdownMenuContent>
-            </DropdownMenu>
+          <div className="flex items-center justify-end gap-1">
+            {!hideDetailLinks && (
+              <Button asChild variant="ghost" size="icon" className="h-8 w-8" title="צפייה">
+                <Link href={`/manager/employees/${employee.id}`} aria-label="צפייה">
+                  <Eye className="h-4 w-4" />
+                </Link>
+              </Button>
+            )}
+            <Button
+              type="button"
+              variant="ghost"
+              size="icon"
+              className="h-8 w-8"
+              title="עריכה"
+              aria-label="עריכה"
+              onClick={() => onEdit(employee)}
+            >
+              <Pencil className="h-4 w-4" />
+            </Button>
+            <Button
+              type="button"
+              variant="ghost"
+              size="icon"
+              className="h-8 w-8"
+              title="שליחת הזמנה מחדש"
+              aria-label="שליחת הזמנה מחדש"
+              onClick={() => onResendInvite(employee)}
+            >
+              <MailPlus className="h-4 w-4" />
+            </Button>
+            {onToggleActive && (
+              <Button
+                type="button"
+                variant="ghost"
+                size="icon"
+                className="h-8 w-8"
+                disabled={deletePending}
+                title={employee.isActive ? 'השבתה' : 'הפעלה מחדש'}
+                aria-label={employee.isActive ? 'השבתה' : 'הפעלה מחדש'}
+                onClick={() => onToggleActive(employee)}
+              >
+                {employee.isActive ? <UserX className="h-4 w-4" /> : <UserCheck className="h-4 w-4" />}
+              </Button>
+            )}
+            {onDelete && (
+              <Button
+                type="button"
+                variant="ghost"
+                size="icon"
+                className="h-8 w-8 text-destructive hover:text-destructive"
+                disabled={deletePending}
+                title="מחיקת עובד לצמיתות"
+                aria-label="מחיקת עובד לצמיתות"
+                onClick={() => onDelete(employee)}
+              >
+                <Trash2 className="h-4 w-4" />
+              </Button>
+            )}
           </div>
         );
       },
