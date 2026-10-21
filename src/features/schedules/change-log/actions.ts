@@ -2,12 +2,7 @@
 
 import { requireManager } from '@/lib/db/auth-helpers';
 import { prisma } from '@/lib/db/client';
-import {
-  getActiveAndUpcomingScheduleChangeLogs,
-  getScheduleChangeLog,
-  type ScheduleChangeLogGroup,
-  type ScheduleChangeLogEntry,
-} from './queries';
+import { getScheduleChangeLog, type ScheduleChangeLogEntry } from './queries';
 
 export async function fetchScheduleChangeLog(scheduleId: string): Promise<ScheduleChangeLogEntry[]> {
   const { facilityId } = await requireManager();
@@ -19,9 +14,4 @@ export async function fetchScheduleChangeLog(scheduleId: string): Promise<Schedu
   if (!schedule) throw new Error('השיבוץ לא נמצא');
 
   return getScheduleChangeLog(scheduleId, facilityId);
-}
-
-export async function fetchActiveAndUpcomingScheduleChangeLogs(): Promise<ScheduleChangeLogGroup[]> {
-  const { facilityId } = await requireManager();
-  return getActiveAndUpcomingScheduleChangeLogs(facilityId);
 }

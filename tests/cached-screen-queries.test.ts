@@ -22,7 +22,7 @@ import { getManagerDashboardData } from '@/features/dashboard/queries';
 import { getAdminCourtsData } from '@/features/admin/actions';
 import { getPositions, getShiftStaffingPositions, getSubmissionWindowRule, saveSubmissionWindowSetting } from '@/features/settings/queries';
 import { getFacilitySchedules } from '@/features/schedules/schedulecard/queries';
-import { getActiveAndUpcomingScheduleChangeLogs } from '@/features/schedules/change-log/queries';
+import { getScheduleChangeLog } from '@/features/schedules/change-log/queries';
 
 const date = new Date('2026-10-20T00:00:00Z');
 beforeEach(() => {
@@ -100,13 +100,15 @@ it('refreshes the schedule list after a schedule mutation expires its facility',
   expect(mocks.db.schedule.findMany).toHaveBeenCalledTimes(2);
 });
 
-it('loads grouped history together and preserves Date values after cache serialization', async () => {
+it('reads one schedule\'s history once and preserves Date values after cache serialization', async () => {
   const change = { id: 'change', createdAt: date, changeType: 'UPDATE', reason: 'עדכון', version: { number: 2 }, changedBy: { displayName: 'מנהל' } };
-  mocks.db.schedule.findMany.mockResolvedValue([{ id: 's', name: 'שיבוץ', changes: [change] }]);
-  const first = await getActiveAndUpcomingScheduleChangeLogs('facility');
-  const second = await getActiveAndUpcomingScheduleChangeLogs('facility');
+  mocks.db.scheduleChange.findMany.mockResolvedValue([change]);
+  const first = await getScheduleChangeLog('s', 'facility');
+  const second = await getScheduleChangeLog('s', 'facility');
   expect(second).toEqual(first);
-  expect(second[0].entries[0].createdAt).toBeInstanceOf(Date);
-  expect(mocks.db.schedule.findMany).toHaveBeenCalledTimes(1);
-  expect(mocks.db.scheduleChange.findMany).not.toHaveBeenCalled();
+  expect(second[0].createdAt).toBeInstanceOf(Date);
+  expect(second[0].message).toBe('עדכון');
+  expect(second[0]).not.toHaveProperty('reason');
+  expect(mocks.db.scheduleChange.findMany).toHaveBeenCalledTimes(1);
+  expect(mocks.db.scheduleChange.findMany).toHaveBeenCalledWith(expect.objectContaining({ where: { scheduleId: 's', facilityId: 'facility' } }));
 });
