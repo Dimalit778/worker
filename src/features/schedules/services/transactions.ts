@@ -10,27 +10,49 @@ export type VersionExpectation = { versionId: string | null; revision: number; p
 export type ScheduleActor = { facilityId: string; userId: string };
 export const STALE_VERSION = 'השיבוץ השתנה. יש לרענן ולנסות שוב';
 
+const ATTEMPTS = 3;
+
+/**
+ * SQLSTATE 40001. Postgres raises it for Serializable transactions that may have read each other's writes,
+ * including transactions of different facilities when it tracks reads per page or table. Prisma reports it as
+ * P2034, or the driver adapter throws it with the original code in `cause`.
+ */
+function isSerializationFailure(error: unknown) {
+  if (error instanceof Prisma.PrismaClientKnownRequestError) return error.code === 'P2034';
+  return (error as { cause?: { originalCode?: unknown } } | null)?.cause?.originalCode === '40001';
+}
+
 /** Serialize schedule changes per facility, including adjacent-period rest checks. */
 export async function scheduleTransaction<T>(actor: ScheduleActor, fn: (tx: Prisma.TransactionClient) => Promise<T>): Promise<T> {
-  try {
-    const result = await prisma.$transaction(async tx => {
-      await tx.$queryRaw`SELECT id FROM "Facility" WHERE id=${actor.facilityId} FOR UPDATE`;
-      const editor = await tx.user.findFirst({
-        where: {
-          id: actor.userId,
-          isActive: true,
-          OR: [{ systemRole: 'ADMIN' }, { facilityId: actor.facilityId, canEditSchedule: true }],
-        },
-        select: { id: true },
-      });
-      if (!editor) throw new Error('אין הרשאת ניהול למתקן');
-      return fn(tx);
-    }, { isolationLevel: Prisma.TransactionIsolationLevel.Serializable, timeout: 20000 });
-    expireFacilityData(actor.facilityId);
-    return result;
-  } catch (error) {
-    if (error instanceof Prisma.PrismaClientKnownRequestError && ['P2034','P2002'].includes(error.code)) throw new Error(STALE_VERSION);
-    throw error;
+  for (let attempt = 1; ; attempt++) {
+    try {
+      const result = await prisma.$transaction(async tx => {
+        await tx.$queryRaw`SELECT id FROM "Facility" WHERE id=${actor.facilityId} FOR UPDATE`;
+        const editor = await tx.user.findFirst({
+          where: {
+            id: actor.userId,
+            isActive: true,
+            OR: [{ systemRole: 'ADMIN' }, { facilityId: actor.facilityId, canEditSchedule: true }],
+          },
+          select: { id: true },
+        });
+        if (!editor) throw new Error('אין הרשאת ניהול למתקן');
+        return fn(tx);
+      }, { isolationLevel: Prisma.TransactionIsolationLevel.Serializable, timeout: 20000 });
+      expireFacilityData(actor.facilityId);
+      return result;
+    } catch (error) {
+      if (isSerializationFailure(error)) {
+        // The retry reads a fresh snapshot, so a real conflict on the same schedule still fails its version check.
+        if (attempt < ATTEMPTS) {
+          await new Promise(resolve => setTimeout(resolve, 20 + Math.random() * 80));
+          continue;
+        }
+        throw new Error(STALE_VERSION);
+      }
+      if (error instanceof Prisma.PrismaClientKnownRequestError && error.code === 'P2002') throw new Error(STALE_VERSION);
+      throw error;
+    }
   }
 }
 
