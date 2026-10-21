@@ -21,7 +21,7 @@ export default async function ManagerDashboardPage({ searchParams }: ManagerDash
 
   return (
     <HydrationBoundary state={dehydrate(queryClient, dehydrateOptions())}>
-      <ManagerDashboard year={selection.year} initialSelection={selection} />
+      <ManagerDashboard year={selection.year} />
     </HydrationBoundary>
   );
 }
