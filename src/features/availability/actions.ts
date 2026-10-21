@@ -6,6 +6,7 @@ import { requireEmployee } from '@/lib/db/auth-helpers';
 import { expireFacilityData } from '@/lib/cache/data-cache';
 import type { CurrentAvailability, EmployeeAvailabilityForPeriod } from './types';
 import {
+  assertWeeklyMinimums,
   deriveAvailabilityStatus,
   parseDraftEntries,
   validateAvailabilityEntries,
@@ -146,6 +147,7 @@ export async function submitAvailability(input: AvailabilityInput): Promise<Acti
     input.periodId,
     async (tx, { schedule, employeeId, facilityId, now }) => {
       const rows = validateAvailabilityEntries(input.entries, isoDate(schedule.startDate), isoDate(schedule.endDate));
+      assertWeeklyMinimums(rows, isoDate(schedule.startDate), isoDate(schedule.endDate));
       const note = input.note?.trim() || null;
       const cleared = { draftEntries: Prisma.DbNull, draftNote: null, draftSavedAt: now };
       const form = await tx.availabilitySubmission.upsert({

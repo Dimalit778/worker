@@ -1,6 +1,7 @@
 import { describe, expect, it } from 'vitest';
 import {
   applyPreference,
+  assertWeeklyMinimums,
   chunkWeeks,
   copyWeek,
   datesInRange,
@@ -91,5 +92,51 @@ describe('weeks', () => {
     const set = applyPreference({}, ['2098-01-05', '2098-01-06'], ['MORNING'], 'UNAVAILABLE');
     expect(set).toEqual({ '2098-01-05-MORNING': 'UNAVAILABLE', '2098-01-06-MORNING': 'UNAVAILABLE' });
     expect(applyPreference(set, ['2098-01-05'], ['MORNING'], undefined)).toEqual({ '2098-01-06-MORNING': 'UNAVAILABLE' });
+  });
+});
+
+describe('assertWeeklyMinimums', () => {
+  const check = (entries: Record<string, string>, end: '2098-01-11' | '2098-01-18') =>
+    assertWeeklyMinimums(validateAvailabilityEntries(entries, '2098-01-05', end), '2098-01-05', end);
+  const week1 = { '2098-01-05-MORNING': 'AVAILABLE', '2098-01-06-MORNING': 'AVAILABLE', '2098-01-07-EVENING': 'AVAILABLE' };
+  const week2 = { '2098-01-12-MORNING': 'AVAILABLE', '2098-01-13-MORNING': 'AVAILABLE', '2098-01-14-EVENING': 'AVAILABLE' };
+  const generic = 'בכל שבוע יש לסמן לפחות 2 משמרות בוקר ומשמרת ערב אחת כזמין או מועדף';
+
+  it('passes a 7-day period with 2 mornings and 1 evening', () => {
+    expect(() => check(week1, '2098-01-11')).not.toThrow();
+  });
+
+  it('rejects a 7-day period that is short of mornings, evenings or everything', () => {
+    expect(() => check({ '2098-01-05-MORNING': 'AVAILABLE', '2098-01-07-EVENING': 'AVAILABLE' }, '2098-01-11')).toThrow(generic);
+    expect(() => check({ '2098-01-05-MORNING': 'AVAILABLE', '2098-01-06-MORNING': 'AVAILABLE' }, '2098-01-11')).toThrow(generic);
+    expect(() => check({}, '2098-01-11')).toThrow(generic);
+  });
+
+  it('counts PREFERRED as available', () => {
+    expect(() =>
+      check({ '2098-01-05-MORNING': 'PREFERRED', '2098-01-06-MORNING': 'PREFERRED', '2098-01-07-EVENING': 'PREFERRED' }, '2098-01-11'),
+    ).not.toThrow();
+  });
+
+  it('does not count UNAVAILABLE entries', () => {
+    expect(() => check({ ...week1, '2098-01-06-MORNING': 'UNAVAILABLE' }, '2098-01-11')).toThrow(generic);
+    expect(() => check({ ...week1, '2098-01-07-EVENING': 'UNAVAILABLE' }, '2098-01-11')).toThrow(generic);
+  });
+
+  it('does not count NIGHT shifts toward either minimum', () => {
+    expect(() => check({ ...week1, '2098-01-06-MORNING': 'AVAILABLE', '2098-01-07-EVENING': 'UNAVAILABLE', '2098-01-08-NIGHT': 'AVAILABLE' }, '2098-01-11')).toThrow(generic);
+    expect(() => check({ '2098-01-05-MORNING': 'AVAILABLE', '2098-01-06-NIGHT': 'AVAILABLE', '2098-01-07-EVENING': 'AVAILABLE' }, '2098-01-11')).toThrow(generic);
+  });
+
+  it('passes a 14-day period only when both weeks meet the minimum', () => {
+    expect(() => check({ ...week1, ...week2 }, '2098-01-18')).not.toThrow();
+  });
+
+  it('names the failing week in a 14-day period', () => {
+    const missing = (week: number) => `בשבוע ${week} יש לסמן לפחות 2 משמרות בוקר ומשמרת ערב אחת כזמין או מועדף`;
+    expect(() => check(week1, '2098-01-18')).toThrow(missing(2));
+    expect(() => check(week2, '2098-01-18')).toThrow(missing(1));
+    expect(() => check({ ...week1, '2098-01-12-MORNING': 'AVAILABLE', '2098-01-14-EVENING': 'AVAILABLE' }, '2098-01-18')).toThrow(missing(2));
+    expect(() => check({}, '2098-01-18')).toThrow(generic);
   });
 });

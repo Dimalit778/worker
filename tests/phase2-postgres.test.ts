@@ -64,11 +64,9 @@ suite('phase 2 workflows against migrated PostgreSQL', () => {
   });
   afterAll(async () => { await prisma?.$disconnect(); });
 
-  /** Employee submits: 06/01 morning preferred, 07/01 night available. */
+  /** Employee submitted: 06/01 morning preferred, 07/01 night available (seeded directly; submitAvailability requires the weekly minimum). */
   const submitEmployee = async () => {
-    as(employeeId);
-    expect(await submitAvailability({ periodId: scheduleId, entries: { '2098-01-06-MORNING': 'PREFERRED', '2098-01-07-NIGHT': 'AVAILABLE' }, note: '' })).toMatchObject({ ok: true });
-    as(managerId);
+    await prisma.availabilitySubmission.create({ data: { userId: employeeId, facilityId, scheduleId, submittedAt: new Date(), availabilities: { create: [{ date: date('2098-01-06'), shiftType: 'MORNING', preference: 'PREFERRED' }, { date: date('2098-01-07'), shiftType: 'NIGHT', preference: 'AVAILABLE' }] } } });
   };
   const generate = async () => {
     const result = await generateAutoSchedule(scheduleId, expected);
@@ -100,16 +98,25 @@ suite('phase 2 workflows against migrated PostgreSQL', () => {
     expect(draft.availabilities).toHaveLength(0);
     expect((await loadSchedulingInput(prisma, scheduleId, facilityId, null)).input.availability.has(employeeId)).toBe(false);
 
-    expect(await submitAvailability({ periodId: scheduleId, entries: { '2098-01-06-MORNING': 'PREFERRED', '2098-01-07-NIGHT': 'AVAILABLE', '2098-01-08-EVENING': 'UNAVAILABLE' }, note: '' })).toMatchObject({ ok: true });
+    // Submitting below the weekly minimum is rejected and leaves the draft untouched.
+    const rejected = await submitAvailability({ periodId: scheduleId, entries: { '2098-01-06-MORNING': 'PREFERRED', '2098-01-07-NIGHT': 'AVAILABLE' }, note: '' });
+    expect(rejected).toMatchObject({ ok: false, error: expect.stringContaining('יש לסמן לפחות 2 משמרות בוקר ומשמרת ערב אחת') });
+    const untouched = await prisma.availabilitySubmission.findFirstOrThrow({ where: { scheduleId, userId: employeeId }, include: { availabilities: true } });
+    expect(untouched).toMatchObject({ submittedAt: null, draftNote: 'draft' });
+    expect(untouched.availabilities).toHaveLength(0);
+
+    // 2 mornings + 1 evening in each of the two weeks.
+    const entries = { '2098-01-06-MORNING': 'PREFERRED', '2098-01-07-MORNING': 'AVAILABLE', '2098-01-08-EVENING': 'AVAILABLE', '2098-01-13-MORNING': 'AVAILABLE', '2098-01-14-MORNING': 'AVAILABLE', '2098-01-15-EVENING': 'AVAILABLE', '2098-01-07-NIGHT': 'AVAILABLE', '2098-01-09-EVENING': 'UNAVAILABLE' } as const;
+    expect(await submitAvailability({ periodId: scheduleId, entries, note: '' })).toMatchObject({ ok: true });
     const submitted = await prisma.availabilitySubmission.findFirstOrThrow({ where: { scheduleId, userId: employeeId }, include: { availabilities: true } });
     expect(submitted.submittedAt).not.toBeNull();
     expect(submitted.draftEntries).toBeNull();
-    expect(submitted.availabilities).toHaveLength(3);
+    expect(submitted.availabilities).toHaveLength(8);
 
     // A later draft does not change what the engine reads.
     expect(await saveAvailabilityDraft({ periodId: scheduleId, entries: {}, note: '' })).toMatchObject({ ok: true });
     const { input } = await loadSchedulingInput(prisma, scheduleId, facilityId, null);
-    expect([...input.availability.get(employeeId)!].sort()).toEqual(['2098-01-06|MORNING', '2098-01-07|NIGHT']);
+    expect([...input.availability.get(employeeId)!].sort()).toEqual(['2098-01-06|MORNING', '2098-01-07|MORNING', '2098-01-07|NIGHT', '2098-01-08|EVENING', '2098-01-13|MORNING', '2098-01-14|MORNING', '2098-01-15|EVENING']);
     expect([...input.preferences.get(employeeId)!]).toEqual(['2098-01-06|MORNING']);
   });
 
