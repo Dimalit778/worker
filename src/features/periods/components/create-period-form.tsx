@@ -172,7 +172,7 @@ export function CreatePeriodForm({
               dir="rtl"
               value={periodType}
               onValueChange={(value) => handleTypeChange(value as PeriodType)}
-              className="grid grid-cols-2 gap-3"
+              className="grid grid-cols-2 gap-2"
             >
               {PERIOD_OPTIONS.map((opt) => {
                 const selected = periodType === opt.value;
@@ -182,7 +182,7 @@ export function CreatePeriodForm({
                     key={opt.value}
                     htmlFor={opt.value}
                     className={cn(
-                      'flex min-h-28 cursor-pointer items-start gap-4 rounded-3xl border p-5 transition-all',
+                      'flex cursor-pointer items-start gap-3 rounded-2xl border px-3.5 py-3 transition-all',
                       'bg-background/40 hover:bg-muted/40',
                       selected
                         ? 'border-primary bg-muted/60 ring-1 ring-primary/40'
@@ -192,13 +192,13 @@ export function CreatePeriodForm({
                     <RadioGroupItem
                       id={opt.value}
                       value={opt.value}
-                      className="mt-1 border-4 border-muted-foreground/30 text-primary data-[state=checked]:border-primary"
+                      className="mt-0.5 border-4 border-muted-foreground/30 text-primary data-[state=checked]:border-primary"
                     />
 
-                    <div className="space-y-1">
-                      <div className="text-xl font-medium leading-tight text-foreground">{opt.label}</div>
+                    <div className="space-y-0.5">
+                      <div className="text-base font-medium leading-tight text-foreground">{opt.label}</div>
 
-                      <div className="text-base font-normal text-muted-foreground">{opt.desc}</div>
+                      <div className="text-sm font-normal text-muted-foreground">{opt.desc}</div>
                     </div>
                   </Label>
                 );
@@ -226,9 +226,6 @@ export function CreatePeriodForm({
               }}
               className="w-full border border-border rounded-md px-3 py-2 text-sm bg-background focus:outline-none focus:ring-2 focus:ring-foreground/20"
             />
-            <p className="text-[11px] text-muted-foreground mt-1 leading-snug">
-              אפשר לבחור תקופה מאוחרת יותר אם קיימת חפיפה. תאריך הסיום מחושב לפי משך השיבוץ שנבחר.
-            </p>
           </div>
 
           <div className="rounded-lg bg-muted/40 px-3 py-2.5 text-xs">

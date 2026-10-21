@@ -17,6 +17,10 @@ type ScheduleOverviewCardProps = {
   emptyAction?: ReactNode;
   footer?: ReactNode;
   aside?: ReactNode;
+  /** Status badge (e.g. פורסם) — useful on draft, noise on the live schedule. */
+  showStatus?: boolean;
+  /** Slightly stronger treatment for the live/current schedule card. */
+  emphasize?: boolean;
 };
 
 function ScheduleOverviewCard({
@@ -27,6 +31,8 @@ function ScheduleOverviewCard({
   emptyAction,
   footer,
   aside,
+  showStatus = true,
+  emphasize = false,
 }: ScheduleOverviewCardProps) {
   if (!schedule) {
     return (
@@ -46,13 +52,29 @@ function ScheduleOverviewCard({
     <>
       <div className="min-w-0 flex-1 space-y-2 text-right">
         <div className="flex flex-wrap items-center gap-2">
-          <p className="text-xs font-medium text-muted-foreground">{label}</p>
-          <span className={cn('rounded-full px-2 py-0.5 text-[11px] font-medium', STATUS_BADGE[schedule.status])}>
-            {PERIOD_STATUS_HE[schedule.status]}
-          </span>
+          <p
+            className={cn(
+              'text-xs font-medium',
+              emphasize ? 'text-primary' : 'text-muted-foreground',
+            )}
+          >
+            {label}
+          </p>
+          {showStatus && (
+            <span className={cn('rounded-full px-2 py-0.5 text-[11px] font-medium', STATUS_BADGE[schedule.status])}>
+              {PERIOD_STATUS_HE[schedule.status]}
+            </span>
+          )}
         </div>
 
-        <p className="truncate text-base font-semibold leading-snug">{schedule.name}</p>
+        <p
+          className={cn(
+            'truncate leading-snug',
+            emphasize ? 'text-lg font-semibold text-foreground' : 'text-base font-semibold',
+          )}
+        >
+          {schedule.name}
+        </p>
 
         <p className="text-sm text-muted-foreground">
           {formatDate(schedule.startDate)} – {formatDate(schedule.endDate)}
@@ -61,7 +83,12 @@ function ScheduleOverviewCard({
 
       {aside ?? (
         <span
-          className="mt-0.5 flex size-10 shrink-0 items-center justify-center rounded-full border border-border/80 bg-muted/40 text-muted-foreground transition-colors group-hover:bg-muted group-hover:text-foreground"
+          className={cn(
+            'mt-0.5 flex size-10 shrink-0 items-center justify-center rounded-full border transition-colors',
+            emphasize
+              ? 'border-primary/30 bg-primary/10 text-primary group-hover:bg-primary/15'
+              : 'border-border/80 bg-muted/40 text-muted-foreground group-hover:bg-muted group-hover:text-foreground',
+          )}
           aria-hidden
         >
           <ChevronLeft className="size-5" />
@@ -72,10 +99,23 @@ function ScheduleOverviewCard({
   const rowClassName = 'group flex items-start gap-4 border-b border-border/60 px-5 py-4';
 
   return (
-    <Card size="sm" className="overflow-hidden">
+    <Card
+      size="sm"
+      className={cn(
+        'overflow-hidden',
+        emphasize && 'ring-1 ring-primary/25 bg-primary/[0.04]',
+      )}
+    >
       {/* Without a link target the card is informational only (e.g. draft still open for submissions). */}
       {href ? (
-        <Link href={href} className={cn(rowClassName, 'transition-colors hover:bg-muted/30')}>
+        <Link
+          href={href}
+          className={cn(
+            rowClassName,
+            'transition-colors',
+            emphasize ? 'hover:bg-primary/[0.06]' : 'hover:bg-muted/30',
+          )}
+        >
           {content}
         </Link>
       ) : (
@@ -120,6 +160,8 @@ export function ScheduleStatusCards({
           schedule={activeSchedule}
           href="/manager/schedule"
           emptyText="אין שיבוץ פעיל כרגע."
+          showStatus={false}
+          emphasize
         />
 
         <ScheduleOverviewCard
