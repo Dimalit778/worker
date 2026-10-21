@@ -302,7 +302,7 @@ model Schedule {
   updatedAt DateTime @updatedAt
 
   @@unique([id, facilityId])
-  @@unique([facilityId, startDate, endDate])
+  // Dates are unique per facility only for non-archived periods: a partial index in SQL (not representable here), like ScheduleVersion_one_draft.
   @@unique([draftVersionId, id, facilityId])
   @@unique([publishedVersionId, id, facilityId])
 }

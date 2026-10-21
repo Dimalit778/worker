@@ -301,7 +301,6 @@ export type ScheduleWhereUniqueInput = Prisma.AtLeast<{
   draftVersionId?: string
   publishedVersionId?: string
   id_facilityId?: Prisma.ScheduleIdFacilityIdCompoundUniqueInput
-  facilityId_startDate_endDate?: Prisma.ScheduleFacilityIdStartDateEndDateCompoundUniqueInput
   draftVersionId_id_facilityId?: Prisma.ScheduleDraftVersionIdIdFacilityIdCompoundUniqueInput
   publishedVersionId_id_facilityId?: Prisma.SchedulePublishedVersionIdIdFacilityIdCompoundUniqueInput
   AND?: Prisma.ScheduleWhereInput | Prisma.ScheduleWhereInput[]
@@ -326,7 +325,7 @@ export type ScheduleWhereUniqueInput = Prisma.AtLeast<{
   slots?: Prisma.ScheduleSlotListRelationFilter
   submissions?: Prisma.AvailabilitySubmissionListRelationFilter
   changes?: Prisma.ScheduleChangeListRelationFilter
-}, "id" | "draftVersionId" | "publishedVersionId" | "id_facilityId" | "facilityId_startDate_endDate" | "draftVersionId_id_facilityId" | "publishedVersionId_id_facilityId">
+}, "id" | "draftVersionId" | "publishedVersionId" | "id_facilityId" | "draftVersionId_id_facilityId" | "publishedVersionId_id_facilityId">
 
 export type ScheduleOrderByWithAggregationInput = {
   id?: Prisma.SortOrder
@@ -519,12 +518,6 @@ export type ScheduleOrderByRelationAggregateInput = {
 export type ScheduleIdFacilityIdCompoundUniqueInput = {
   id: string
   facilityId: string
-}
-
-export type ScheduleFacilityIdStartDateEndDateCompoundUniqueInput = {
-  facilityId: string
-  startDate: Date | string
-  endDate: Date | string
 }
 
 export type ScheduleDraftVersionIdIdFacilityIdCompoundUniqueInput = {
