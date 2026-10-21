@@ -76,10 +76,11 @@ export function WeeklyDraftScheduleView({
       ) : null}
 
       <WeekNavigator
-        weekIndex={weekIndex}
-        onWeekChange={setWeekIndex}
-        week0Label={weekRangeLabel(0)}
-        week1Label={weekRangeLabel(1)}
+        index={weekIndex}
+        onChange={setWeekIndex}
+        labels={[weekRangeLabel(0), weekRangeLabel(1)]}
+        prevAriaLabel="שבוע א׳"
+        nextAriaLabel="שבוע ב׳"
       />
 
       {/* Desktop/tablet: shift-first dense grid. Below md, a table is unusable at this density. */}

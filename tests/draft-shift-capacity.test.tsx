@@ -118,7 +118,7 @@ it('holds up at realistic density (10 morning guards, 6 evening guards, multiple
   render(
     <ShiftSection shiftType="NIGHT" weekDays={[day]} assignments={nightAssignments} employees={[]} capacity={capacity} scheduleId="schedule" facilityId="facility" />,
   );
-  expect(document.querySelectorAll('tbody tr')).toHaveLength(1);
+  expect(document.querySelectorAll('tbody tr')).toHaveLength(2); // every required slot gets a row, the open one stays empty
   expect(screen.getByText('NIGHT-guard-0')).toBeInTheDocument();
-  expect(screen.queryByText('פנוי')).not.toBeInTheDocument(); // assigned shifts size their rows by actual assignments
+  expect(screen.getAllByText('פנוי')).toHaveLength(1);
 });

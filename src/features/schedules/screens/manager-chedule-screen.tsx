@@ -17,7 +17,6 @@ export function ManagerScheduleScreen() {
         errorMessage="לא ניתן לטעון השיבוץ הנוכחי."
         emptyStateTitle="אין שיבוץ פעיל"
         isReadOnly={false}
-        defaultView="weekly"
       />
 
       {data && <ChangeLogList scheduleId={data.scheduleId} versionId={data.versionId ?? null} revision={data.revision ?? 0} />}

@@ -25,17 +25,12 @@ export function EmployeeSubmissionsClient() {
       endDate: p.endDate,
       status: p.status,
       isSubmitted: p.isSubmitted,
+      submittedAt: p.submittedAt,
       submissionStatus: p.submissionStatus,
       entries,
       selectedSlotCount,
     };
   });
 
-  return (
-    <div className="space-y-6" dir="rtl">
-      <h1 className="text-xl font-bold">ההגשות שלי</h1>
-      <p className="text-sm text-muted-foreground -mt-2">בחרו תקופה כדי לראות את ההגשה שלכם בתקופה זו.</p>
-      <SubmissionsTable periods={submissionsPayload} />
-    </div>
-  );
+  return <SubmissionsTable periods={submissionsPayload} />;
 }

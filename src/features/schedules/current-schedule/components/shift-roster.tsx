@@ -1,5 +1,6 @@
 import { SHIFT_TONES } from '@/features/schedules/constants';
-import { Moon, Sunrise, Sunset } from 'lucide-react';
+import { ChevronDown, Moon, Sunrise, Sunset } from 'lucide-react';
+import { useState } from 'react';
 import { Card, CardContent, CardHeader } from '@/components/ui/card';
 import { cn } from '@/lib/utils';
 import type {
@@ -170,30 +171,40 @@ export function ShiftRoster({
     swapCandidatesByAssignmentId.set(slot.assignment.id, candidates);
   }
   const requiredCount = getShiftRequiredCount(date, shiftType, capacity);
-  const currentAssignmentsCount = currentEmployeeId
-    ? slots.filter((slot) => slot.assignment?.employeeId === currentEmployeeId).length
-    : 0;
+  const assignedCount = slots.filter((slot) => slot.assignment).length;
+  const hasMine = currentEmployeeId
+    ? slots.some((slot) => slot.assignment?.employeeId === currentEmployeeId)
+    : false;
+  const [expanded, setExpanded] = useState(hasMine);
 
   return (
     <Card size="sm" className={cn('border shadow-sm', `${SHIFT_TONES[shiftType].bg} ${SHIFT_TONES[shiftType].text} ${SHIFT_TONES[shiftType].border}`)}>
-      <CardHeader className="flex flex-row items-start justify-between gap-3 ">
-        <div className="flex items-center gap-2">
-          <span className="flex size-8 items-center justify-center rounded-md text-current">{display.icon}</span>
-          <div>
-            <h2 className="text-base font-bold">{display.label}</h2>
-            <p className="text-xs opacity-75">{display.time}</p>
+      <CardHeader>
+        <button
+          type="button"
+          onClick={() => setExpanded((value) => !value)}
+          aria-expanded={expanded}
+          className="flex w-full items-center justify-between gap-3 text-start lg:pointer-events-none"
+        >
+          <div className="flex items-center gap-2">
+            <span className="flex size-8 items-center justify-center rounded-md text-current">{display.icon}</span>
+            <div>
+              <h2 className="text-base font-bold">{display.label}</h2>
+              <p className="text-xs opacity-75">{display.time}</p>
+            </div>
           </div>
-        </div>
-        <div className="flex shrink-0 flex-col items-end gap-1">
-          {currentAssignmentsCount > 0 ? (
-            <span className="rounded-md border border-primary/20 bg-secondary/70 px-2 py-0.5 text-xs font-semibold text-primary">
-              השיבוץ שלך
-            </span>
-          ) : null}
-        </div>
+          <div className="flex items-center gap-2 lg:hidden">
+            {requiredCount > 0 ? (
+              <span className="text-sm font-semibold tabular-nums">
+                {assignedCount}/{requiredCount}
+              </span>
+            ) : null}
+            <ChevronDown className={cn('size-4 transition-transform', expanded && 'rotate-180')} aria-hidden />
+          </div>
+        </button>
       </CardHeader>
 
-      <CardContent>
+      <CardContent className={cn(!expanded && 'max-lg:hidden')}>
         {requiredCount === 0 ? (
           <div className="flex min-h-24 items-center justify-center rounded-md border border-dashed border-border/70 bg-secondary/50 px-4 text-center text-sm text-muted-foreground">
             אין תקנים למשמרת זו

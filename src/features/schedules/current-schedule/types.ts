@@ -13,7 +13,6 @@ export type CurrentScheduleViewProps = {
   scheduleId: string;
   startDate: string;
   endDate: string;
-  scheduleName: string;
   assignments: AssignmentMap;
   overflowCandidates?: OverflowCandidateMap;
   employees: ScheduleEmployeeOption[];
