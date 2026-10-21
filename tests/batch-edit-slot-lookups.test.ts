@@ -5,10 +5,12 @@ vi.mock('@/lib/db/client', () => ({ prisma: { $transaction: mocks.transaction } 
 vi.mock('@/lib/db/auth-helpers', () => ({ requireManager: mocks.manager, requireSession: vi.fn() }));
 vi.mock('@/features/schedules/generation/queries', () => ({ loadSchedulingInput: mocks.load }));
 vi.mock('@/features/schedules/assignments/loaded-details', () => ({ loadedScheduleDetails: () => ({ assignments: {}, warnings: [], fairness: [] }) }));
-vi.mock('@/features/scheduling-engine/validate', () => ({ validateAssignments: () => [] }));
+vi.mock('@/features/scheduling-engine/validate', () => ({ validateAssignments: vi.fn(() => []) }));
 vi.mock('@/features/scheduling-engine/manual-violations', () => ({ computeManualViolations: () => ({ blocking: [], violations: [] }) }));
 import { saveScheduleChanges, type SlotChange } from '@/features/schedules/assignments/actions';
 import { shiftBounds } from '@/features/schedules/shift-times';
+import { validateAssignments } from '@/features/scheduling-engine/validate';
+import type { EngineAssignment, EngineInput } from '@/features/scheduling-engine/types';
 
 type Slot = {
   id: string; scheduleId: string; versionId: string; facilityId: string; positionId: string; date: Date;
@@ -72,6 +74,43 @@ beforeEach(() => {
 });
 
 describe('batch save slot lookups', () => {
+  it('saves a new employee in a published roster containing an officer from an older seed', async () => {
+    const real = await vi.importActual<typeof import('@/features/scheduling-engine/validate')>('@/features/scheduling-engine/validate');
+    vi.mocked(validateAssignments).mockImplementationOnce(real.validateAssignments).mockImplementationOnce(real.validateAssignments);
+    slots = [slot(1, 'officer'), slot(2, null)];
+    tx.schedule.findFirst.mockResolvedValue({
+      id: 'sch', status: 'PUBLISHED', endDate: new Date('2099-01-01'), draftVersionId: null,
+      originalVersionId: 'original', publishedVersionId: 'v1',
+      publishedVersion: { id: 'v1', status: 'PUBLISHED', revision: 0 },
+    } as never);
+    tx.user.findMany.mockResolvedValue([{
+      id: 'officer', displayName: 'Officer', facilityId: 'fac', roleId: 'officer-role', isActive: true, role: { rank: 1 },
+    }] as never);
+    const input: EngineInput = {
+      period: { id: 'sch', facilityId: 'fac', startDate: date, endDate: date },
+      week1Dates: [date], week2Dates: [],
+      employees: [{ id: 'staff', facilityId: 'fac', positionId: 'guard-role', rank: 4, isActive: true }],
+      capacities: [{ positionId: 'p1', requiredRank: 4, shiftType: 'MORNING', dayCategory: 'WEEKDAY', amount: 2 }],
+      availability: new Map([['officer', new Set([`${day}|MORNING`])]]), manualAssignments: [],
+    };
+    const toEngine = (s: Slot): EngineAssignment => ({
+      employeeId: s.userId!, facilityId: s.facilityId, positionId: s.positionId, date: s.date,
+      shiftType: s.shiftType as EngineAssignment['shiftType'], slotIndex: s.slotNumber - 1,
+      isManualOverride: s.isLocked, source: 'AUTOMATIC',
+      ...(s.source === 'MANUAL' ? { source: 'MANUAL' } : {}),
+    });
+    mocks.load.mockImplementation(async () => ({
+      input, allAssignments: slots.filter(s => s.userId).map(toEngine),
+      assignments: slots.filter(s => s.userId), toEngine,
+    }));
+
+    const result = await saveScheduleChanges('sch', { versionId: 'v1', revision: 0, publish: true }, [change(1, 'staff')]);
+    expect(result).toMatchObject({ ok: true, revision: 1, published: true });
+    expect(stored(1)).toMatchObject([{ userId: 'officer', source: 'AUTO' }]);
+    expect(stored(2)).toMatchObject([{ userId: 'staff', source: 'MANUAL' }]);
+    expect(input.employees.map(employee => employee.id)).toEqual(['staff']);
+  });
+
   it('applies a multi-change batch without a per-change slot or position query', async () => {
     slots = [slot(1, 'a'), slot(2, 'b'), slot(3, 'c', { positionId: 'p2' })];
     const result = await save([

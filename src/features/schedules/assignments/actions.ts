@@ -7,7 +7,7 @@ import { getCurrentSchedule, getDraftScheduleData, getOriginalSchedule } from '.
 import { scheduleTransaction, checkedVersion, editableDraft, type VersionExpectation } from '../services/transactions';
 import { loadSchedulingInput } from '../generation/queries';
 import { saveScheduleAnalysis } from '../generation/recalculate';
-import { validateAssignments } from '@/features/scheduling-engine/validate';
+import { validateScheduleEdit } from './validate-edit';
 import { computeManualViolations, type ManualViolation } from '@/features/scheduling-engine/manual-violations';
 import { parseISODateToUtcMidnight } from '@/features/periods/utils';
 import { prisma } from '@/lib/db/client';
@@ -136,7 +136,7 @@ async function applyEdit(scheduleId: string, expected: VersionExpectation, reque
       changedIds.push(existing!.id, other.id);
     }
     const data = await loadSchedulingInput(tx, scheduleId, actor.facilityId, version.id);
-    const failures = validateAssignments(data.input, data.allAssignments);
+    const failures = await validateScheduleEdit(tx, data.input, data.allAssignments, before.flatMap(slot => slot.userId ? [slot.userId] : []));
     const clearsOnly = edit.kind === 'batch' && edit.changes.every(c => c.employeeId === null);
     if (failures.length && edit.kind !== 'remove' && edit.kind !== 'lock' && !clearsOnly) throw new Error(failures.join('; '));
     // Manual placements: hard integrity rules block; business rules need an explicit manager approval.
