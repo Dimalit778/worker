@@ -77,6 +77,14 @@ it('checks manager authorization on every dashboard read, including a cache hit'
   await expect(getManagerDashboardData(2026)).rejects.toThrow('unauthorized');
 });
 
+it('counts only active employees in the dashboard staff summary', async () => {
+  await getManagerDashboardData(2026);
+  expect(mocks.db.user.count).toHaveBeenCalledWith({ where: { facilityId: 'facility', isActive: true } });
+  expect(mocks.db.role.findMany).toHaveBeenCalledWith(expect.objectContaining({
+    select: expect.objectContaining({ _count: { select: { users: { where: { facilityId: 'facility', isActive: true } } } } }),
+  }));
+});
+
 it('shares admin data across screens but checks authorization before every read', async () => {
   await getAdminCourtsData(); await getAdminCourtsData();
   expect(mocks.db.district.findMany).toHaveBeenCalledTimes(1);

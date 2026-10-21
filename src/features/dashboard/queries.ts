@@ -97,7 +97,7 @@ export async function getStaffCountsByPosition(facilityId: string): Promise<Staf
       name: true,
       rank: true,
       basePosition: { select: { color: true } },
-      _count: { select: { users: { where: { facilityId } } } },
+      _count: { select: { users: { where: { facilityId, isActive: true } } } },
     },
     orderBy: { rank: 'asc' },
   });
@@ -165,7 +165,7 @@ export async function getManagerDashboardData(year: number): Promise<ManagerDash
 
     const [byPosition, totalActive, yearSchedules, activeRow, draftRow] = await Promise.all([
       getStaffCountsByPosition(facilityId),
-      prisma.user.count({ where: { facilityId } }),
+      prisma.user.count({ where: { facilityId, isActive: true } }),
       getSchedulesForYear(facilityId, year),
       prisma.schedule.findFirst({
         where: currentScheduleWhere(facilityId, now),
