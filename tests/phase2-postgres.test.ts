@@ -120,6 +120,22 @@ suite('phase 2 workflows against migrated PostgreSQL', () => {
     expect([...input.preferences.get(employeeId)!]).toEqual(['2098-01-06|MORNING']);
   });
 
+  it('exempts a week with approved time off from the weekly minimum on submit', async () => {
+    as(employeeId);
+    const week2 = { '2098-01-13-MORNING': 'AVAILABLE', '2098-01-14-MORNING': 'AVAILABLE', '2098-01-15-EVENING': 'AVAILABLE' } as const;
+    expect(await createDateRequest({ type: 'TIME_OFF', startDate: '2098-01-06', endDate: '2098-01-06', reason: 'חופשה' })).toEqual({ ok: true });
+    // Pending time off does not exempt week 1.
+    expect(await submitAvailability({ periodId: scheduleId, entries: week2, note: '' })).toMatchObject({ ok: false, error: expect.stringContaining('בשבוע 1') });
+
+    const request = await prisma.employeeRequest.findFirstOrThrow({ where: { requesterId: employeeId } });
+    as(managerId);
+    expect(await approveRequest(request.id)).toMatchObject({ ok: true });
+    as(employeeId);
+    expect(await submitAvailability({ periodId: scheduleId, entries: week2, note: '' })).toMatchObject({ ok: true });
+    // Week 2 has no time off, so it is still enforced.
+    expect(await submitAvailability({ periodId: scheduleId, entries: { '2098-01-13-MORNING': 'AVAILABLE' }, note: '' })).toMatchObject({ ok: false, error: expect.stringContaining('בשבוע 2') });
+  });
+
   it('extends the submission deadline with an audited reason, only before publication', async () => {
     expect(await extendSubmissionDeadline({ scheduleId, newDeadline: '2098-01-05T20:00', reason: '' })).toEqual({ error: 'יש לציין סיבה להארכה' });
     const result = await extendSubmissionDeadline({ scheduleId, newDeadline: '2098-01-05T20:00', reason: 'חג' });

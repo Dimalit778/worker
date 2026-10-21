@@ -140,10 +140,17 @@ export function validateAvailabilityEntries(
 /**
  * On submit, every week needs the engine's weekly minimum of MORNING and EVENING shifts marked
  * AVAILABLE or PREFERRED. UNAVAILABLE, omitted keys and NIGHT do not count. Drafts are not checked.
+ * A week containing any of `timeOffDates` (approved time off, YYYY-MM-DD) is exempt.
  */
-export function assertWeeklyMinimums(rows: ValidatedEntry[], startISO: string, endISO: string): void {
+export function assertWeeklyMinimums(
+  rows: ValidatedEntry[],
+  startISO: string,
+  endISO: string,
+  timeOffDates: ReadonlySet<string> = new Set(),
+): void {
   const weeks = chunkWeeks(datesInRange(startISO, endISO));
   const missing = weeks.flatMap((dates, index) => {
+    if (dates.some((date) => timeOffDates.has(date))) return [];
     const counted = rows.filter((row) => row.preference !== 'UNAVAILABLE' && dates.includes(row.date));
     const morning = counted.filter((row) => row.shiftType === 'MORNING').length;
     const evening = counted.filter((row) => row.shiftType === 'EVENING').length;

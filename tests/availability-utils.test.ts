@@ -139,4 +139,29 @@ describe('assertWeeklyMinimums', () => {
     expect(() => check({ ...week1, '2098-01-12-MORNING': 'AVAILABLE', '2098-01-14-EVENING': 'AVAILABLE' }, '2098-01-18')).toThrow(missing(2));
     expect(() => check({}, '2098-01-18')).toThrow(generic);
   });
+
+  describe('approved time off', () => {
+    const checkWithTimeOff = (entries: Record<string, string>, end: '2098-01-11' | '2098-01-18', timeOff: string[]) =>
+      assertWeeklyMinimums(validateAvailabilityEntries(entries, '2098-01-05', end), '2098-01-05', end, new Set(timeOff));
+
+    it('skips a week that contains an approved time-off day', () => {
+      expect(() => checkWithTimeOff({}, '2098-01-11', ['2098-01-09'])).not.toThrow();
+      expect(() => checkWithTimeOff(week2, '2098-01-18', ['2098-01-05'])).not.toThrow();
+      expect(() => checkWithTimeOff(week1, '2098-01-18', ['2098-01-18'])).not.toThrow();
+    });
+
+    it('still enforces the other week of a 14-day period', () => {
+      const missing = (week: number) => `בשבוע ${week} יש לסמן לפחות 2 משמרות בוקר ומשמרת ערב אחת כזמין או מועדף`;
+      expect(() => checkWithTimeOff(week1, '2098-01-18', ['2098-01-05'])).toThrow(missing(2));
+      expect(() => checkWithTimeOff(week2, '2098-01-18', ['2098-01-18'])).toThrow(missing(1));
+      expect(() => checkWithTimeOff({}, '2098-01-18', ['2098-01-12'])).toThrow(missing(1));
+    });
+
+    it('behaves as before when the set is empty or the dates fall outside the period', () => {
+      expect(() => checkWithTimeOff({}, '2098-01-11', [])).toThrow(generic);
+      expect(() => checkWithTimeOff({}, '2098-01-18', [])).toThrow(generic);
+      expect(() => checkWithTimeOff({}, '2098-01-11', ['2098-01-12'])).toThrow(generic);
+      expect(() => checkWithTimeOff({ ...week1, ...week2 }, '2098-01-18', [])).not.toThrow();
+    });
+  });
 });
