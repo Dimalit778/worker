@@ -107,16 +107,6 @@ function upcomingSundayISO(from: Date = new Date()): string {
   return addDays(today, day === 0 ? 7 : 7 - day);
 }
 
-function suggestName(start: string, days: number): string {
-  const d = new Date(`${start}T12:00:00Z`);
-  const month = d.toLocaleDateString('he-IL', { month: 'long', year: 'numeric', timeZone: 'UTC' });
-  if (days === 7) {
-    const weekNum = Math.ceil(d.getUTCDate() / 7);
-    return `${month} — שבוע ${weekNum}`;
-  }
-  return month;
-}
-
 function deriveFields(start: string, days: number) {
   const end = addDays(start, days - 1);
   const deadline = addDays(end, -2) + 'T17:00';
@@ -136,7 +126,6 @@ export {
   buildMonthGrid,
   buildWeeks,
   upcomingSundayISO,
-  suggestName,
   deriveFields,
 };
 

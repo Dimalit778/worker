@@ -53,7 +53,6 @@ export async function getSchedulesList(): Promise<PeriodSummary[]> {
 }
 
 export async function createSchedule(data: {
-  name: string;
   startDate: string;
   endDate: string;
   submissionOpensAt: string;
@@ -62,7 +61,6 @@ export async function createSchedule(data: {
 }): Promise<{ ok: true; id: string; emailWarning?: string } | { error: string }> {
   const session = await requireSession(PortalRole.MANAGER);
 
-  if (!data.name.trim()) return { error: 'שם השיבוץ חובה' };
   if (!data.startDate || !data.endDate || !data.submissionOpensAt || !data.submissionDeadline) {
     return { error: 'כל השדות חובה' };
   }
@@ -138,7 +136,8 @@ export async function createSchedule(data: {
 
       const created = await tx.schedule.create({
         data: {
-          name: data.name.trim(),
+          // Schedules are identified by their dates; there is no separate name to enter.
+          name: `${formatDate(data.startDate)} – ${formatDate(data.endDate)}`,
           startDate: start,
           endDate: end,
           submissionOpensAt: opensAt,

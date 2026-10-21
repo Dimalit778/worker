@@ -20,7 +20,7 @@ import {
   Checkbox,
 } from '@/components/ui';
 import { fetchSubmissionWindowRule } from '@/features/settings/actions';
-import { upcomingSundayISO, suggestName, addDays } from '../utils';
+import { upcomingSundayISO, addDays } from '../utils';
 import {
   formatJerusalemLocal,
   instantForRule,
@@ -60,7 +60,6 @@ export function CreatePeriodForm({
   const [startDate, setStartDate] = useState(upcomingSundayISO);
   const [submissionRule, setSubmissionRule] = useState<SubmissionWindowRule | null>(null);
   const [periodType, setPeriodType] = useState<PeriodType>('biweekly');
-  const [name, setName] = useState(() => suggestName(upcomingSundayISO(), 14));
   const [opensAt, setOpensAt] = useState('');
   const [closesAt, setClosesAt] = useState('');
   const [saveRule, setSaveRule] = useState(false);
@@ -106,9 +105,7 @@ export function CreatePeriodForm({
       return;
     }
     const sun = upcomingSundayISO();
-    const d = PERIOD_OPTIONS.find((o) => o.value === periodType)!.days;
     setStartDate(sun);
-    setName(suggestName(sun, d));
     setSaveRule(false);
     setError(null);
     try {
@@ -125,19 +122,10 @@ export function CreatePeriodForm({
   const days = PERIOD_OPTIONS.find((o) => o.value === periodType)!.days;
   const endDate = startDate ? addDays(startDate, days - 1) : '';
 
-  function handleTypeChange(t: PeriodType) {
-    setPeriodType(t);
-    if (open) {
-      const d = PERIOD_OPTIONS.find((o) => o.value === t)!.days;
-      if (startDate) setName(suggestName(startDate, d));
-    }
-  }
-
   const createMutation = useMutation({
     mutationFn: () => {
       const d = PERIOD_OPTIONS.find((o) => o.value === periodType)!.days;
       return createSchedule({
-        name,
         startDate,
         endDate: addDays(startDate, d - 1),
         submissionOpensAt: opensAt,
@@ -212,7 +200,7 @@ export function CreatePeriodForm({
             <RadioGroup
               dir="rtl"
               value={periodType}
-              onValueChange={(value) => handleTypeChange(value as PeriodType)}
+              onValueChange={(value) => setPeriodType(value as PeriodType)}
               className="grid grid-cols-2 gap-2"
             >
               {PERIOD_OPTIONS.map((opt) => {
@@ -261,7 +249,6 @@ export function CreatePeriodForm({
                 const value = event.target.value;
                 setStartDate(value);
                 if (value) {
-                  setName(suggestName(value, days));
                   if (submissionRule) {
                     applyRule(submissionRule, value);
                   } else {
@@ -345,20 +332,6 @@ export function CreatePeriodForm({
             <Checkbox checked={saveRule} onCheckedChange={(checked) => setSaveRule(checked === true)} />
             שמור כימים ושעות קבועים להבא
           </Label>
-
-          <div className="space-y-1.5">
-            <Label htmlFor="period-name" className="text-xs font-medium text-muted-foreground block">
-              שם
-            </Label>
-            <Input
-              id="period-name"
-              type="text"
-              value={name}
-              onChange={(e) => setName(e.target.value)}
-              required
-              className="w-full border border-border rounded-md px-3 py-2 text-sm bg-background focus:outline-none focus:ring-2 focus:ring-foreground/20"
-            />
-          </div>
 
           {error && (
             <p className="text-sm text-red-200 bg-red-950 border border-red-200 rounded-md px-3 py-2">{error}</p>

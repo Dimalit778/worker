@@ -10,7 +10,7 @@ vi.mock('@/features/schedules/services/transactions', () => ({ scheduleTransacti
 vi.mock('@/features/periods/process-windows', () => ({ processDueSubmissionWindows: async () => ({ emailErrors: {} }) }));
 import { createSchedule, getSchedulesList } from '@/features/periods/actions';
 
-const data = { name: 'שיבוץ', startDate: '2026-10-25', endDate: '2026-11-07', submissionOpensAt: '2026-10-20T10:00', submissionDeadline: '2026-10-23T17:00' };
+const data = { startDate: '2026-10-25', endDate: '2026-11-07', submissionOpensAt: '2026-10-20T10:00', submissionDeadline: '2026-10-23T17:00' };
 beforeEach(() => {
   vi.useFakeTimers();
   vi.setSystemTime(new Date('2026-10-19T10:00Z'));
@@ -40,6 +40,10 @@ describe('period length validation', () => {
     expect(await createSchedule(data)).toMatchObject({ error: expect.stringContaining('חופפת') });
     expect(await createSchedule({ ...data, startDate: '2026-11-01', endDate: '2026-11-14' })).toMatchObject({ ok: true });
   });
+});
+it('names a new schedule by its dates', async () => {
+  expect(await createSchedule(data)).toMatchObject({ ok: true });
+  expect(mocks.schedule.create).toHaveBeenCalledWith(expect.objectContaining({ data: expect.objectContaining({ name: '25/10/2026 – 07/11/2026' }) }));
 });
 it('counts only active non-manager employees and their final submissions', async () => {
   mocks.schedule.findMany.mockResolvedValue([]);
