@@ -218,8 +218,9 @@ main h1, .auth-shell [data-slot='card-title'] {
 }
 .app-shell { background: transparent; }
 .app-shell > aside { box-shadow: inset 1px 0 rgba(186,215,247,.06); }
-.app-shell nav a, .employee-nav a { border-radius: 999px; }
-.app-shell nav a[aria-current='page'] {
+.app-shell nav[aria-label='ניווט ראשי'] a,
+.employee-nav a { border-radius: 999px; }
+.app-shell nav[aria-label='ניווט ראשי'] a[aria-current='page'] {
   box-shadow: inset 0 1px 1px rgba(216,236,248,.18), inset 0 0 0 1px var(--border);
 }
 .auth-shell {

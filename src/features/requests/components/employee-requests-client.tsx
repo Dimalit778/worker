@@ -157,8 +157,6 @@ export function EmployeeRequestsClient() {
 
   return (
     <div className="mx-auto max-w-2xl space-y-6" dir="rtl">
-      <h1 className="text-xl font-bold">הבקשות שלי</h1>
-
       <Card>
         <CardHeader><CardTitle>בקשה חדשה</CardTitle></CardHeader>
         <CardContent><NewRequestForm onDone={refresh} /></CardContent>

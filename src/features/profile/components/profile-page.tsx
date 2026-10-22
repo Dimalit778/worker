@@ -36,11 +36,6 @@ export async function ProfilePage() {
 
   return (
     <div className="mx-auto max-w-4xl space-y-6" dir="rtl">
-      <div>
-        <h1 className="text-2xl font-bold">הפרופיל שלי</h1>
-        <p className="mt-1 text-sm text-muted-foreground">הפרטים האישיים ופרטי העבודה שלך כפי שהם שמורים במערכת.</p>
-      </div>
-
       <Card>
         <CardContent className="space-y-4">
           <div className="flex flex-wrap items-center gap-4">
