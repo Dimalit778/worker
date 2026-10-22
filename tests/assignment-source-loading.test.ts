@@ -68,11 +68,11 @@ it('marks the later slot of one custom-hours shift as an extension', async () =>
   expect(byShift.EVENING.customHours).toBe(byShift.MORNING.customHours);
 });
 
-it('reads surrounding slots only from the live published versions of other schedules', async () => {
+it('reads surrounding slots only from the current versions of other schedules', async () => {
   const date = new Date('2026-10-05T00:00:00Z');
   const neighbour = { id: 'neighbour', userId: 'employee', facilityId: 'facility', positionId: 'position', versionId: 'published-version', date: new Date('2026-10-04T00:00:00Z'), shiftType: 'EVENING', slotNumber: 1, isLocked: false, source: 'AUTO' };
   const tx = {
-    schedule: { findFirst: vi.fn().mockResolvedValue({ id: 'schedule', startDate: date, endDate: date }), findMany: vi.fn().mockResolvedValue([{ publishedVersionId: 'published-version' }]) },
+    schedule: { findFirst: vi.fn().mockResolvedValue({ id: 'schedule', startDate: date, endDate: date }), findMany: vi.fn().mockResolvedValue([{ status: 'PUBLISHED', publishedVersionId: 'published-version', draftVersionId: null }]) },
     user: { findMany: vi.fn().mockResolvedValue([]) },
     staffingRequirement: { findMany: vi.fn().mockResolvedValue([]) },
     staffingDateOverride: { findMany: vi.fn().mockResolvedValue([]) },
@@ -82,8 +82,11 @@ it('reads surrounding slots only from the live published versions of other sched
   };
   const data = await loadSchedulingInput(tx as unknown as Prisma.TransactionClient, 'schedule', 'facility', null);
   expect(tx.schedule.findMany).toHaveBeenCalledWith({
-    where: { facilityId: 'facility', id: { not: 'schedule' }, status: 'PUBLISHED', publishedVersionId: { not: null } },
-    select: { publishedVersionId: true },
+    where: { facilityId: 'facility', id: { not: 'schedule' }, OR: [
+      { status: 'PUBLISHED', publishedVersionId: { not: null } },
+      { status: 'DRAFT', draftVersionId: { not: null } },
+    ] },
+    select: { status: true, publishedVersionId: true, draftVersionId: true },
   });
   expect(tx.scheduleSlot.findMany).toHaveBeenCalledTimes(1);
   expect(tx.scheduleSlot.findMany).toHaveBeenCalledWith({
@@ -112,4 +115,33 @@ it('skips the surrounding slots query when no other schedule is published', asyn
   expect(tx.scheduleSlot.findMany).not.toHaveBeenCalled();
   expect(data.input.historicalAssignments).toEqual([]);
   expect(data.input.boundaryAssignments).toEqual([]);
+});
+
+it('checks conflicts against a neighbouring draft too, without counting it as history', async () => {
+  const start = new Date('2026-10-05T00:00:00Z');
+  const end = new Date('2026-10-11T00:00:00Z');
+  const row = (id: string, versionId: string, date: string, shiftType: string) => ({ id, userId: id, facilityId: 'facility', positionId: 'position', versionId, date: new Date(`${date}T00:00:00Z`), shiftType, slotNumber: 1, isLocked: false, source: 'MANUAL' });
+  const rows: Record<string, ReturnType<typeof row>[]> = {
+    'published-version': [row('before', 'published-version', '2026-10-04', 'NIGHT')],
+    'draft-version': [row('after', 'draft-version', '2026-10-12', 'MORNING')],
+  };
+  const tx = {
+    schedule: { findFirst: vi.fn().mockResolvedValue({ id: 'schedule', startDate: start, endDate: end }), findMany: vi.fn().mockResolvedValue([
+      { status: 'PUBLISHED', publishedVersionId: 'published-version', draftVersionId: null },
+      { status: 'DRAFT', publishedVersionId: null, draftVersionId: 'draft-version' },
+    ]) },
+    user: { findMany: vi.fn().mockResolvedValue([]) },
+    staffingRequirement: { findMany: vi.fn().mockResolvedValue([]) },
+    staffingDateOverride: { findMany: vi.fn().mockResolvedValue([]) },
+    employeeRequest: { findMany: vi.fn().mockResolvedValue([]) },
+    availabilitySubmission: { findMany: vi.fn().mockResolvedValue([]) },
+    scheduleSlot: { findMany: vi.fn(async ({ where }: { where: { versionId: { in: string[] } } }) => where.versionId.in.flatMap(id => rows[id] ?? [])) },
+  };
+  const data = await loadSchedulingInput(tx as unknown as Prisma.TransactionClient, 'schedule', 'facility', null);
+  // A draft is not history: only its days next to this schedule are read.
+  expect(tx.scheduleSlot.findMany).toHaveBeenCalledWith({ where: expect.objectContaining({
+    versionId: { in: ['draft-version'] }, date: { gte: new Date('2026-10-04T00:00:00Z'), lte: new Date('2026-10-12T00:00:00Z') },
+  }) });
+  expect(data.input.boundaryAssignments?.map(a => a.employeeId).sort()).toEqual(['after', 'before']);
+  expect(data.input.historicalAssignments?.map(a => a.employeeId)).toEqual(['before']);
 });

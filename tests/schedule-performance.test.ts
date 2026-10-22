@@ -4,7 +4,7 @@ import type { CurrentScheduleData } from '@/features/schedules/types';
 import { queryKeys } from '@/lib/react-query/query-keys';
 
 const db = vi.hoisted(() => ({
-  schedule: { findFirst: vi.fn(), findMany: vi.fn().mockResolvedValue([{ publishedVersionId: 'published' }]) },
+  schedule: { findFirst: vi.fn(), findMany: vi.fn().mockResolvedValue([{ status: 'PUBLISHED', publishedVersionId: 'published', draftVersionId: null }]) },
   user: { findMany: vi.fn() },
   staffingRequirement: { findMany: vi.fn() },
   staffingDateOverride: { findMany: vi.fn().mockResolvedValue([]) },
