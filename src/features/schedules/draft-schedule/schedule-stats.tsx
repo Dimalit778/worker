@@ -54,7 +54,7 @@ export function ScheduleStats({ warnings, submittedCount, eligibleCount, missing
             </>
           }
           open={activePanel === 'submissions'}
-          disabled={!hasPendingSubmissions}
+          disabled={readiness ? shownEligible === 0 : !hasPendingSubmissions}
           onClick={() => toggle('submissions')}
         />
         <StatTile
@@ -91,7 +91,7 @@ export function ScheduleStats({ warnings, submittedCount, eligibleCount, missing
         <Card className="rounded-xl shadow-none border-border/60 animate-in fade-in slide-in-from-top-1 duration-150">
           <CardContent className="p-4">
             {submissions ? (
-              <SubmissionStatusList readiness={submissions} />
+              <SubmissionStatusList readiness={submissions} showAllEmployees />
             ) : (
             <>
             <p className="text-xs font-semibold uppercase tracking-wide text-muted-foreground mb-3">
