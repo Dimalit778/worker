@@ -16,7 +16,6 @@ import { OPEN_STATUSES } from '@/features/requests/rules';
 import { defaultShiftTimes, isValidShiftTime, shiftBounds, type CustomHours } from '../shift-times';
 
 type Edit = { kind: 'create'; params: AssignEmployeeToSlotParams } |
-  { kind: 'update'; assignmentId: string; employeeId: string } |
   { kind: 'remove'; assignmentId: string } |
   { kind: 'batch'; changes: SlotChange[] };
 
@@ -142,12 +141,9 @@ async function applyEdit(scheduleId: string, expected: VersionExpectation, reque
           changedIds.push(created.id);
         }
       }
-    } else if (edit.kind === 'remove') {
+    } else {
       if (direct) await tx.scheduleSlot.update({ where: { id: existing!.id }, data: { userId: null, source: 'MANUAL', isLocked: false } });
       else await tx.scheduleSlot.delete({ where: { id: existing!.id } });
-    } else {
-      await tx.scheduleSlot.update({ where: { id: existing!.id }, data: { userId: edit.employeeId, source: 'MANUAL' } });
-      changedIds.push(existing!.id);
     }
     const loaded = await loadSchedulingInput(tx, scheduleId, actor.facilityId, version.id);
     // A published roster is checked against the requirements frozen at publication, as its screen shows them.
@@ -191,9 +187,6 @@ async function scheduleForAssignment(assignmentId: string) {
 }
 export async function createAssignment(params: AssignEmployeeToSlotParams, expected: VersionExpectation, override?: ManualOverride) {
   return editSchedule(params.scheduleId, expected, { kind: 'create', params }, override);
-}
-export async function updateAssignment(assignmentId: string, employeeId: string, expected: VersionExpectation, override?: ManualOverride) {
-  return editSchedule(await scheduleForAssignment(assignmentId), expected, { kind: 'update', assignmentId, employeeId }, override);
 }
 export async function removeAssignment(assignmentId: string, expected: VersionExpectation) {
   return editSchedule(await scheduleForAssignment(assignmentId), expected, { kind: 'remove', assignmentId });
