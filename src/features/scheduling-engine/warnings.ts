@@ -30,26 +30,52 @@ export function createMinimumWarnings(unmetMinimums: UnmetMinimum[]): EngineWarn
 // ─── Mandatory staffing warnings ─────────────────────────────────────────────
 
 // Only the manager's mandatory headcount raises shortages; the rest of the
-// staffing requirement is filled when possible without warnings.
+// staffing requirement is filled when possible without warnings. As in role
+// eligibility, people in a more senior position beyond its own mandatory count
+// also cover a junior position's mandatory count; each person counts once.
 export function createMandatoryStaffingWarnings(
   slots: EngineSlot[],
   assignments: EngineAssignment[]
 ): EngineWarning[] {
   const warnings: EngineWarning[] = [];
+  const shifts = new Map<string, EngineSlot[]>();
 
   for (const slot of slots) {
-    const required = slot.mandatoryAmount ?? 0;
-    const fillCount = getSlotFillCount(slot, assignments);
-    if (fillCount >= required) continue;
+    const key = `${slot.facilityId}|${createDateKey(slot.date)}|${slot.shiftType}`;
+    shifts.set(key, [...(shifts.get(key) ?? []), slot]);
+  }
 
-    warnings.push({
-      type: fillCount === 0 ? "UNFILLED" : "UNDERSTAFFED",
-      severity: "ERROR",
-      positionId: slot.positionId,
-      date: slot.date,
-      shiftType: slot.shiftType,
-      message: `${createDateKey(slot.date).split("-").reverse().join("/")} · ${SHIFT_LABELS[slot.shiftType]} — ${slot.positionName ?? "תפקיד"}: משובצים ${fillCount} מתוך ${required} בחובה.`,
-    });
+  for (const shiftSlots of shifts.values()) {
+    // A smaller rank is more senior; spare seniors carry over to the next ranks.
+    const ranks = [...new Set(shiftSlots.map((slot) => slot.requiredRank))].sort((a, b) => a - b);
+    let spare = 0;
+
+    for (const rank of ranks) {
+      let rankSpare = 0;
+
+      for (const slot of shiftSlots.filter((s) => s.requiredRank === rank)) {
+        const required = slot.mandatoryAmount ?? 0;
+        const fillCount = getSlotFillCount(slot, assignments);
+        const own = Math.min(fillCount, required);
+        const fromSeniors = Math.min(required - own, spare);
+        spare -= fromSeniors;
+        rankSpare += fillCount - own;
+
+        const covered = own + fromSeniors;
+        if (covered >= required) continue;
+
+        warnings.push({
+          type: covered === 0 ? "UNFILLED" : "UNDERSTAFFED",
+          severity: "ERROR",
+          positionId: slot.positionId,
+          date: slot.date,
+          shiftType: slot.shiftType,
+          message: `${createDateKey(slot.date).split("-").reverse().join("/")} · ${SHIFT_LABELS[slot.shiftType]} — ${slot.positionName ?? "תפקיד"}: משובצים ${covered} מתוך ${required} בחובה.`,
+        });
+      }
+
+      spare += rankSpare;
+    }
   }
 
   return warnings;
