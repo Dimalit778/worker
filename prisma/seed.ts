@@ -38,6 +38,12 @@ export const DEMO_STAFFING = {
     SATURDAY: { MORNING: [0, 0, 2], EVENING: [0, 0, 2], NIGHT: [0, 0, 2] },
   },
 } as const;
+// Mandatory part of the staffing per [אחמ״ש, בקר, מאבטח]; capped by each facility's staffing.
+const DEMO_MANDATORY = {
+  WEEKDAY: { MORNING: [1, 1, 3], EVENING: [1, 0, 2], NIGHT: [0, 0, 1] },
+  FRIDAY: { MORNING: [1, 0, 1], EVENING: [0, 0, 1], NIGHT: [0, 0, 1] },
+  SATURDAY: { MORNING: [0, 0, 1], EVENING: [0, 0, 1], NIGHT: [0, 0, 1] },
+} as const;
 const ROLES = [
   { code: 'MANAGER', name: 'קצין מתקן', rank: 1 },
   { code: 'SHIFT_MANAGER', name: 'אחמ״ש', rank: 2 },
@@ -200,8 +206,9 @@ export async function seedFacilitiesAndEmployees(
       for (const dayCategory of DAY_CATEGORIES)
         for (const shiftType of SHIFT_TYPES) {
           const requiredCount = staffing[dayCategory][shiftType][position.requiredRank! - 2];
+          const mandatoryCount = Math.min(DEMO_MANDATORY[dayCategory][shiftType][position.requiredRank! - 2], requiredCount);
           await tx.staffingRequirement.create({
-            data: { facilityId: facility.id, positionId: position.id, shiftType, dayCategory, requiredCount },
+            data: { facilityId: facility.id, positionId: position.id, shiftType, dayCategory, requiredCount, mandatoryCount },
           });
         }
     }

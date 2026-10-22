@@ -136,8 +136,7 @@ export function generateSchedule(input: EngineInput): EngineOutput {
   const fairnessSummary = computeFairnessSummary(current, input.holidayCategories);
   return {
     assignments: automatic, unfilledSlots, unmetMinimums, overflowCandidates, fairnessSummary,
-    warnings: createWarnings({ unmetMinimums, slots, assignments: current, fairnessSummary,
-      dateOverrides: input.dateOverrides, timeOff: input.timeOff }),
+    warnings: createWarnings({ unmetMinimums, slots, assignments: current, fairnessSummary, timeOff: input.timeOff }),
     stats: {
       totalSlots: slots.length,
       filledSlots: slots.filter(s => (fills.get(createSlotKey(s)) ?? 0) >= s.requiredAmount).length,

@@ -46,6 +46,7 @@ export interface ResolvedRequirement {
   requiredRank: number;
   shiftType: ShiftType;
   amount: number;
+  mandatory: number;
   isDateOverride: boolean;
 }
 
@@ -67,17 +68,22 @@ export function resolveRequirementsForDate(
       requiredRank: capacity.requiredRank,
       shiftType: capacity.shiftType,
       amount: capacity.amount,
+      mandatory: capacity.mandatory ?? 0,
       isDateOverride: false,
     });
   }
   for (const override of dateOverrides ?? []) {
     if (override.date !== dateKey) continue;
-    resolved.set(`${override.shiftType}|${override.positionId}`, {
+    const key = `${override.shiftType}|${override.positionId}`;
+    // The day-category mandatory count still applies, capped by the date's amount.
+    const mandatory = Math.min(resolved.get(key)?.mandatory ?? 0, override.amount);
+    resolved.set(key, {
       positionId: override.positionId,
       positionName: override.positionName,
       requiredRank: override.requiredRank,
       shiftType: override.shiftType,
       amount: override.amount,
+      mandatory,
       isDateOverride: true,
     });
   }
@@ -114,6 +120,7 @@ export function buildSlots(input: EngineInput): EngineSlot[] {
           shiftType: requirement.shiftType,
           dayCategory,
           requiredAmount: requirement.amount,
+          ...(requirement.mandatory > 0 ? { mandatoryAmount: Math.min(requirement.mandatory, requirement.amount) } : {}),
           ...(requirement.isDateOverride ? { isDateOverride: true } : {}),
         });
       }

@@ -48,15 +48,22 @@ export async function updatePositionColor(
   }
 }
 
+function validateStaffingCounts(amount: number, mandatory: number) {
+  if (!Number.isInteger(amount) || amount < 0) throw new Error('התקן חייב להיות מספר שלם ואינו יכול להיות שלילי');
+  if (!Number.isInteger(mandatory) || mandatory < 0) throw new Error('החובה חייבת להיות מספר שלם ואינה יכולה להיות שלילית');
+  if (mandatory > amount) throw new Error('החובה אינה יכולה להיות גבוהה מהתקן');
+}
+
 export async function addStaffingRequirement(params: {
   positionId: string;
   shiftType: ShiftType;
   dayCategory: DayCategory;
   amount: number;
+  mandatory: number;
 }) {
   const actor = await requireManager();
   try {
-    if (!Number.isInteger(params.amount) || params.amount < 0) throw new Error('התקן חייב להיות מספר שלם ואינו יכול להיות שלילי');
+    validateStaffingCounts(params.amount, params.mandatory);
     return await scheduleTransaction(actor, async tx => {
       const position = await tx.position.findFirst({
         where: { id: params.positionId, OR: [{ facilityId: actor.facilityId }, { facilityId: null }] },
@@ -67,8 +74,8 @@ export async function addStaffingRequirement(params: {
         where: { facilityId_positionId_shiftType_dayCategory: {
           facilityId: actor.facilityId, positionId: params.positionId, shiftType: params.shiftType, dayCategory: params.dayCategory,
         } },
-        update: { requiredCount: params.amount },
-        create: { facilityId: actor.facilityId, positionId: params.positionId, shiftType: params.shiftType, dayCategory: params.dayCategory, requiredCount: params.amount },
+        update: { requiredCount: params.amount, mandatoryCount: params.mandatory },
+        create: { facilityId: actor.facilityId, positionId: params.positionId, shiftType: params.shiftType, dayCategory: params.dayCategory, requiredCount: params.amount, mandatoryCount: params.mandatory },
         select: { id: true },
       });
       const reconciliation = await reconcileDraftCapacity(tx, actor);
@@ -79,14 +86,14 @@ export async function addStaffingRequirement(params: {
   }
 }
 
-export async function updateStaffingRequirement(id: string, amount: number) {
+export async function updateStaffingRequirement(id: string, amount: number, mandatory: number) {
   const actor = await requireManager();
   try {
-    if (!Number.isInteger(amount) || amount < 0) throw new Error('התקן חייב להיות מספר שלם ואינו יכול להיות שלילי');
+    validateStaffingCounts(amount, mandatory);
     return await scheduleTransaction(actor, async tx => {
       const capacity = await tx.staffingRequirement.findFirst({ where: { id, facilityId: actor.facilityId }, select: { id: true } });
       if (!capacity) throw new Error('התקן לא נמצא');
-      await tx.staffingRequirement.update({ where: { id }, data: { requiredCount: amount } });
+      await tx.staffingRequirement.update({ where: { id }, data: { requiredCount: amount, mandatoryCount: mandatory } });
       const reconciliation = await reconcileDraftCapacity(tx, actor);
       return { ok: true as const, id, ...reconciliation };
     });

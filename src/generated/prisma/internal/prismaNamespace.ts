@@ -1996,7 +1996,8 @@ export const StaffingRequirementScalarFieldEnum = {
   positionId: 'positionId',
   shiftType: 'shiftType',
   dayCategory: 'dayCategory',
-  requiredCount: 'requiredCount'
+  requiredCount: 'requiredCount',
+  mandatoryCount: 'mandatoryCount'
 } as const
 
 export type StaffingRequirementScalarFieldEnum = (typeof StaffingRequirementScalarFieldEnum)[keyof typeof StaffingRequirementScalarFieldEnum]

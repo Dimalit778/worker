@@ -89,6 +89,7 @@ export async function getShiftCapacities(facilityId: string) {
         shiftType: true,
         dayCategory: true,
         requiredCount: true,
+        mandatoryCount: true,
       },
       orderBy: [{ position: { displayOrder: 'asc' } }, { position: { createdAt: 'asc' } }],
     });

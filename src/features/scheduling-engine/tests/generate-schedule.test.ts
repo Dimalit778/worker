@@ -182,15 +182,23 @@ describe("generateSchedule", () => {
     expect(minErrors.every((w) => w.severity === "ERROR")).toBe(true);
   });
 
-  it("returns UNFILLED ERROR when a required slot has no available employee", () => {
+  it("returns UNFILLED ERROR when a mandatory slot has no available employee", () => {
     const e1 = emp("emp1");
+    const capacities = CAPACITIES_2.map((c) => ({ ...c, mandatory: 1 }));
     // Employee has no availability at all
-    const output = generateSchedule(makeInput([e1], new Map()));
+    const output = generateSchedule(makeInput([e1], new Map(), { capacities }));
 
     const unfilledErrors = output.warnings.filter(
       (w) => w.type === "UNFILLED" && w.severity === "ERROR"
     );
     expect(unfilledErrors.length).toBeGreaterThan(0);
+  });
+
+  it("reports no shortage when only the non-mandatory part of the requirement is missing", () => {
+    const e1 = emp("emp1");
+    const output = generateSchedule(makeInput([e1], new Map()));
+
+    expect(output.warnings.some((w) => w.type === "UNFILLED" || w.type === "UNDERSTAFFED")).toBe(false);
   });
 
   it("manual assignments are not included in output.assignments", () => {

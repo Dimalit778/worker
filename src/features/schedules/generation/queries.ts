@@ -123,6 +123,7 @@ export async function loadSchedulingInput(tx: Prisma.TransactionClient, schedule
       shiftType: c.shiftType,
       dayCategory: c.dayCategory,
       amount: c.requiredCount,
+      mandatory: c.mandatoryCount,
     })),
     dateOverrides: dateOverrides.map(toEngineDateOverride),
     availability,

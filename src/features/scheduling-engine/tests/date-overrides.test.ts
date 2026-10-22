@@ -69,14 +69,15 @@ describe('date-specific staffing overrides', () => {
     expect(amountOf(data, nextDay, 'parking')).toBe(0);
   });
 
-  it('caps fixed weekday minimums by the override on that shift', () => {
-    const data = input([override('guard', 1), override('ahmash', 0, { positionName: 'אחמ״ש', requiredRank: 2 })]);
-    const slots = buildSlots(data).filter(slot => slot.date.getTime() === monday.getTime());
+  it('caps the day-category mandatory count by the override on that date', () => {
+    const data = { ...input([override('guard', 1), override('ahmash', 0, { positionName: 'אחמ״ש', requiredRank: 2 })]), capacities: capacities.map(c => ({ ...c, mandatory: c.amount })) };
+    const slots = buildSlots(data);
+    const mondaySlot = (positionId: string) => slots.find(slot => slot.date.getTime() === monday.getTime() && slot.positionId === positionId);
+    expect(mondaySlot('guard')?.mandatoryAmount).toBe(1);
+    expect(mondaySlot('ahmash')).toBeUndefined();
     const assignments = [{ employeeId: 'e1', facilityId: 'court', positionId: 'guard', positionName: 'מאבטח', date: monday, shiftType: 'MORNING' as const, slotIndex: 0, isManualOverride: false }];
-    const withOverride = createMandatoryStaffingWarnings(slots, assignments, data.dateOverrides).map(w => w.message);
-    expect(withOverride.some(m => m.includes('אחמ״ש') || m.includes('מאבטח'))).toBe(false);
-    expect(withOverride.some(m => m.includes('בקר'))).toBe(false);
-    const regular = createMandatoryStaffingWarnings(slots, assignments).map(w => w.message);
-    expect(regular.some(m => m.includes('חסרים 3 מאבטחים'))).toBe(true);
+    const messages = createMandatoryStaffingWarnings(slots, assignments).map(w => w.message);
+    expect(messages.some(m => m.startsWith('06/01/2098'))).toBe(false);
+    expect(messages).toContain('07/01/2098 · בוקר — מאבטח: משובצים 0 מתוך 2 בחובה.');
   });
 });

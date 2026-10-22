@@ -239,12 +239,14 @@ model Position {
 
 /// תבנית מספר המקומות הדרושים; מועתקת למקומות בעת יצירת סידור.
 model StaffingRequirement {
-  id            String      @id @default(cuid())
-  facilityId    String
-  positionId    String
-  shiftType     ShiftType
-  dayCategory   DayCategory
-  requiredCount Int         @default(0)
+  id             String      @id @default(cuid())
+  facilityId     String
+  positionId     String
+  shiftType      ShiftType
+  dayCategory    DayCategory
+  requiredCount  Int         @default(0)
+  /// חלק מהתקן שחובה לאייש; רק חוסר ביחס אליו מוצג כאזהרה בשיבוץ.
+  mandatoryCount Int         @default(0)
 
   // Position must be global or belong to this facility; validate on writes.
   facility Facility @relation(fields: [facilityId], references: [id], onDelete: Restrict)

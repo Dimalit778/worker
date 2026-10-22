@@ -28,10 +28,12 @@ export type AggregateStaffingRequirement = {
 
 export type StaffingRequirementAvgAggregateOutputType = {
   requiredCount: number | null
+  mandatoryCount: number | null
 }
 
 export type StaffingRequirementSumAggregateOutputType = {
   requiredCount: number | null
+  mandatoryCount: number | null
 }
 
 export type StaffingRequirementMinAggregateOutputType = {
@@ -41,6 +43,7 @@ export type StaffingRequirementMinAggregateOutputType = {
   shiftType: $Enums.ShiftType | null
   dayCategory: $Enums.DayCategory | null
   requiredCount: number | null
+  mandatoryCount: number | null
 }
 
 export type StaffingRequirementMaxAggregateOutputType = {
@@ -50,6 +53,7 @@ export type StaffingRequirementMaxAggregateOutputType = {
   shiftType: $Enums.ShiftType | null
   dayCategory: $Enums.DayCategory | null
   requiredCount: number | null
+  mandatoryCount: number | null
 }
 
 export type StaffingRequirementCountAggregateOutputType = {
@@ -59,16 +63,19 @@ export type StaffingRequirementCountAggregateOutputType = {
   shiftType: number
   dayCategory: number
   requiredCount: number
+  mandatoryCount: number
   _all: number
 }
 
 
 export type StaffingRequirementAvgAggregateInputType = {
   requiredCount?: true
+  mandatoryCount?: true
 }
 
 export type StaffingRequirementSumAggregateInputType = {
   requiredCount?: true
+  mandatoryCount?: true
 }
 
 export type StaffingRequirementMinAggregateInputType = {
@@ -78,6 +85,7 @@ export type StaffingRequirementMinAggregateInputType = {
   shiftType?: true
   dayCategory?: true
   requiredCount?: true
+  mandatoryCount?: true
 }
 
 export type StaffingRequirementMaxAggregateInputType = {
@@ -87,6 +95,7 @@ export type StaffingRequirementMaxAggregateInputType = {
   shiftType?: true
   dayCategory?: true
   requiredCount?: true
+  mandatoryCount?: true
 }
 
 export type StaffingRequirementCountAggregateInputType = {
@@ -96,6 +105,7 @@ export type StaffingRequirementCountAggregateInputType = {
   shiftType?: true
   dayCategory?: true
   requiredCount?: true
+  mandatoryCount?: true
   _all?: true
 }
 
@@ -192,6 +202,7 @@ export type StaffingRequirementGroupByOutputType = {
   shiftType: $Enums.ShiftType
   dayCategory: $Enums.DayCategory
   requiredCount: number
+  mandatoryCount: number
   _count: StaffingRequirementCountAggregateOutputType | null
   _avg: StaffingRequirementAvgAggregateOutputType | null
   _sum: StaffingRequirementSumAggregateOutputType | null
@@ -224,6 +235,7 @@ export type StaffingRequirementWhereInput = {
   shiftType?: Prisma.EnumShiftTypeFilter<"StaffingRequirement"> | $Enums.ShiftType
   dayCategory?: Prisma.EnumDayCategoryFilter<"StaffingRequirement"> | $Enums.DayCategory
   requiredCount?: Prisma.IntFilter<"StaffingRequirement"> | number
+  mandatoryCount?: Prisma.IntFilter<"StaffingRequirement"> | number
   facility?: Prisma.XOR<Prisma.FacilityScalarRelationFilter, Prisma.FacilityWhereInput>
   position?: Prisma.XOR<Prisma.PositionScalarRelationFilter, Prisma.PositionWhereInput>
 }
@@ -235,6 +247,7 @@ export type StaffingRequirementOrderByWithRelationInput = {
   shiftType?: Prisma.SortOrder
   dayCategory?: Prisma.SortOrder
   requiredCount?: Prisma.SortOrder
+  mandatoryCount?: Prisma.SortOrder
   facility?: Prisma.FacilityOrderByWithRelationInput
   position?: Prisma.PositionOrderByWithRelationInput
 }
@@ -250,6 +263,7 @@ export type StaffingRequirementWhereUniqueInput = Prisma.AtLeast<{
   shiftType?: Prisma.EnumShiftTypeFilter<"StaffingRequirement"> | $Enums.ShiftType
   dayCategory?: Prisma.EnumDayCategoryFilter<"StaffingRequirement"> | $Enums.DayCategory
   requiredCount?: Prisma.IntFilter<"StaffingRequirement"> | number
+  mandatoryCount?: Prisma.IntFilter<"StaffingRequirement"> | number
   facility?: Prisma.XOR<Prisma.FacilityScalarRelationFilter, Prisma.FacilityWhereInput>
   position?: Prisma.XOR<Prisma.PositionScalarRelationFilter, Prisma.PositionWhereInput>
 }, "id" | "facilityId_positionId_shiftType_dayCategory">
@@ -261,6 +275,7 @@ export type StaffingRequirementOrderByWithAggregationInput = {
   shiftType?: Prisma.SortOrder
   dayCategory?: Prisma.SortOrder
   requiredCount?: Prisma.SortOrder
+  mandatoryCount?: Prisma.SortOrder
   _count?: Prisma.StaffingRequirementCountOrderByAggregateInput
   _avg?: Prisma.StaffingRequirementAvgOrderByAggregateInput
   _max?: Prisma.StaffingRequirementMaxOrderByAggregateInput
@@ -278,6 +293,7 @@ export type StaffingRequirementScalarWhereWithAggregatesInput = {
   shiftType?: Prisma.EnumShiftTypeWithAggregatesFilter<"StaffingRequirement"> | $Enums.ShiftType
   dayCategory?: Prisma.EnumDayCategoryWithAggregatesFilter<"StaffingRequirement"> | $Enums.DayCategory
   requiredCount?: Prisma.IntWithAggregatesFilter<"StaffingRequirement"> | number
+  mandatoryCount?: Prisma.IntWithAggregatesFilter<"StaffingRequirement"> | number
 }
 
 export type StaffingRequirementCreateInput = {
@@ -285,6 +301,7 @@ export type StaffingRequirementCreateInput = {
   shiftType: $Enums.ShiftType
   dayCategory: $Enums.DayCategory
   requiredCount?: number
+  mandatoryCount?: number
   facility: Prisma.FacilityCreateNestedOneWithoutStaffingRequirementsInput
   position: Prisma.PositionCreateNestedOneWithoutRequirementsInput
 }
@@ -296,6 +313,7 @@ export type StaffingRequirementUncheckedCreateInput = {
   shiftType: $Enums.ShiftType
   dayCategory: $Enums.DayCategory
   requiredCount?: number
+  mandatoryCount?: number
 }
 
 export type StaffingRequirementUpdateInput = {
@@ -303,6 +321,7 @@ export type StaffingRequirementUpdateInput = {
   shiftType?: Prisma.EnumShiftTypeFieldUpdateOperationsInput | $Enums.ShiftType
   dayCategory?: Prisma.EnumDayCategoryFieldUpdateOperationsInput | $Enums.DayCategory
   requiredCount?: Prisma.IntFieldUpdateOperationsInput | number
+  mandatoryCount?: Prisma.IntFieldUpdateOperationsInput | number
   facility?: Prisma.FacilityUpdateOneRequiredWithoutStaffingRequirementsNestedInput
   position?: Prisma.PositionUpdateOneRequiredWithoutRequirementsNestedInput
 }
@@ -314,6 +333,7 @@ export type StaffingRequirementUncheckedUpdateInput = {
   shiftType?: Prisma.EnumShiftTypeFieldUpdateOperationsInput | $Enums.ShiftType
   dayCategory?: Prisma.EnumDayCategoryFieldUpdateOperationsInput | $Enums.DayCategory
   requiredCount?: Prisma.IntFieldUpdateOperationsInput | number
+  mandatoryCount?: Prisma.IntFieldUpdateOperationsInput | number
 }
 
 export type StaffingRequirementCreateManyInput = {
@@ -323,6 +343,7 @@ export type StaffingRequirementCreateManyInput = {
   shiftType: $Enums.ShiftType
   dayCategory: $Enums.DayCategory
   requiredCount?: number
+  mandatoryCount?: number
 }
 
 export type StaffingRequirementUpdateManyMutationInput = {
@@ -330,6 +351,7 @@ export type StaffingRequirementUpdateManyMutationInput = {
   shiftType?: Prisma.EnumShiftTypeFieldUpdateOperationsInput | $Enums.ShiftType
   dayCategory?: Prisma.EnumDayCategoryFieldUpdateOperationsInput | $Enums.DayCategory
   requiredCount?: Prisma.IntFieldUpdateOperationsInput | number
+  mandatoryCount?: Prisma.IntFieldUpdateOperationsInput | number
 }
 
 export type StaffingRequirementUncheckedUpdateManyInput = {
@@ -339,6 +361,7 @@ export type StaffingRequirementUncheckedUpdateManyInput = {
   shiftType?: Prisma.EnumShiftTypeFieldUpdateOperationsInput | $Enums.ShiftType
   dayCategory?: Prisma.EnumDayCategoryFieldUpdateOperationsInput | $Enums.DayCategory
   requiredCount?: Prisma.IntFieldUpdateOperationsInput | number
+  mandatoryCount?: Prisma.IntFieldUpdateOperationsInput | number
 }
 
 export type StaffingRequirementListRelationFilter = {
@@ -365,10 +388,12 @@ export type StaffingRequirementCountOrderByAggregateInput = {
   shiftType?: Prisma.SortOrder
   dayCategory?: Prisma.SortOrder
   requiredCount?: Prisma.SortOrder
+  mandatoryCount?: Prisma.SortOrder
 }
 
 export type StaffingRequirementAvgOrderByAggregateInput = {
   requiredCount?: Prisma.SortOrder
+  mandatoryCount?: Prisma.SortOrder
 }
 
 export type StaffingRequirementMaxOrderByAggregateInput = {
@@ -378,6 +403,7 @@ export type StaffingRequirementMaxOrderByAggregateInput = {
   shiftType?: Prisma.SortOrder
   dayCategory?: Prisma.SortOrder
   requiredCount?: Prisma.SortOrder
+  mandatoryCount?: Prisma.SortOrder
 }
 
 export type StaffingRequirementMinOrderByAggregateInput = {
@@ -387,10 +413,12 @@ export type StaffingRequirementMinOrderByAggregateInput = {
   shiftType?: Prisma.SortOrder
   dayCategory?: Prisma.SortOrder
   requiredCount?: Prisma.SortOrder
+  mandatoryCount?: Prisma.SortOrder
 }
 
 export type StaffingRequirementSumOrderByAggregateInput = {
   requiredCount?: Prisma.SortOrder
+  mandatoryCount?: Prisma.SortOrder
 }
 
 export type StaffingRequirementCreateNestedManyWithoutFacilityInput = {
@@ -486,6 +514,7 @@ export type StaffingRequirementCreateWithoutFacilityInput = {
   shiftType: $Enums.ShiftType
   dayCategory: $Enums.DayCategory
   requiredCount?: number
+  mandatoryCount?: number
   position: Prisma.PositionCreateNestedOneWithoutRequirementsInput
 }
 
@@ -495,6 +524,7 @@ export type StaffingRequirementUncheckedCreateWithoutFacilityInput = {
   shiftType: $Enums.ShiftType
   dayCategory: $Enums.DayCategory
   requiredCount?: number
+  mandatoryCount?: number
 }
 
 export type StaffingRequirementCreateOrConnectWithoutFacilityInput = {
@@ -533,6 +563,7 @@ export type StaffingRequirementScalarWhereInput = {
   shiftType?: Prisma.EnumShiftTypeFilter<"StaffingRequirement"> | $Enums.ShiftType
   dayCategory?: Prisma.EnumDayCategoryFilter<"StaffingRequirement"> | $Enums.DayCategory
   requiredCount?: Prisma.IntFilter<"StaffingRequirement"> | number
+  mandatoryCount?: Prisma.IntFilter<"StaffingRequirement"> | number
 }
 
 export type StaffingRequirementCreateWithoutPositionInput = {
@@ -540,6 +571,7 @@ export type StaffingRequirementCreateWithoutPositionInput = {
   shiftType: $Enums.ShiftType
   dayCategory: $Enums.DayCategory
   requiredCount?: number
+  mandatoryCount?: number
   facility: Prisma.FacilityCreateNestedOneWithoutStaffingRequirementsInput
 }
 
@@ -549,6 +581,7 @@ export type StaffingRequirementUncheckedCreateWithoutPositionInput = {
   shiftType: $Enums.ShiftType
   dayCategory: $Enums.DayCategory
   requiredCount?: number
+  mandatoryCount?: number
 }
 
 export type StaffingRequirementCreateOrConnectWithoutPositionInput = {
@@ -583,6 +616,7 @@ export type StaffingRequirementCreateManyFacilityInput = {
   shiftType: $Enums.ShiftType
   dayCategory: $Enums.DayCategory
   requiredCount?: number
+  mandatoryCount?: number
 }
 
 export type StaffingRequirementUpdateWithoutFacilityInput = {
@@ -590,6 +624,7 @@ export type StaffingRequirementUpdateWithoutFacilityInput = {
   shiftType?: Prisma.EnumShiftTypeFieldUpdateOperationsInput | $Enums.ShiftType
   dayCategory?: Prisma.EnumDayCategoryFieldUpdateOperationsInput | $Enums.DayCategory
   requiredCount?: Prisma.IntFieldUpdateOperationsInput | number
+  mandatoryCount?: Prisma.IntFieldUpdateOperationsInput | number
   position?: Prisma.PositionUpdateOneRequiredWithoutRequirementsNestedInput
 }
 
@@ -599,6 +634,7 @@ export type StaffingRequirementUncheckedUpdateWithoutFacilityInput = {
   shiftType?: Prisma.EnumShiftTypeFieldUpdateOperationsInput | $Enums.ShiftType
   dayCategory?: Prisma.EnumDayCategoryFieldUpdateOperationsInput | $Enums.DayCategory
   requiredCount?: Prisma.IntFieldUpdateOperationsInput | number
+  mandatoryCount?: Prisma.IntFieldUpdateOperationsInput | number
 }
 
 export type StaffingRequirementUncheckedUpdateManyWithoutFacilityInput = {
@@ -607,6 +643,7 @@ export type StaffingRequirementUncheckedUpdateManyWithoutFacilityInput = {
   shiftType?: Prisma.EnumShiftTypeFieldUpdateOperationsInput | $Enums.ShiftType
   dayCategory?: Prisma.EnumDayCategoryFieldUpdateOperationsInput | $Enums.DayCategory
   requiredCount?: Prisma.IntFieldUpdateOperationsInput | number
+  mandatoryCount?: Prisma.IntFieldUpdateOperationsInput | number
 }
 
 export type StaffingRequirementCreateManyPositionInput = {
@@ -615,6 +652,7 @@ export type StaffingRequirementCreateManyPositionInput = {
   shiftType: $Enums.ShiftType
   dayCategory: $Enums.DayCategory
   requiredCount?: number
+  mandatoryCount?: number
 }
 
 export type StaffingRequirementUpdateWithoutPositionInput = {
@@ -622,6 +660,7 @@ export type StaffingRequirementUpdateWithoutPositionInput = {
   shiftType?: Prisma.EnumShiftTypeFieldUpdateOperationsInput | $Enums.ShiftType
   dayCategory?: Prisma.EnumDayCategoryFieldUpdateOperationsInput | $Enums.DayCategory
   requiredCount?: Prisma.IntFieldUpdateOperationsInput | number
+  mandatoryCount?: Prisma.IntFieldUpdateOperationsInput | number
   facility?: Prisma.FacilityUpdateOneRequiredWithoutStaffingRequirementsNestedInput
 }
 
@@ -631,6 +670,7 @@ export type StaffingRequirementUncheckedUpdateWithoutPositionInput = {
   shiftType?: Prisma.EnumShiftTypeFieldUpdateOperationsInput | $Enums.ShiftType
   dayCategory?: Prisma.EnumDayCategoryFieldUpdateOperationsInput | $Enums.DayCategory
   requiredCount?: Prisma.IntFieldUpdateOperationsInput | number
+  mandatoryCount?: Prisma.IntFieldUpdateOperationsInput | number
 }
 
 export type StaffingRequirementUncheckedUpdateManyWithoutPositionInput = {
@@ -639,6 +679,7 @@ export type StaffingRequirementUncheckedUpdateManyWithoutPositionInput = {
   shiftType?: Prisma.EnumShiftTypeFieldUpdateOperationsInput | $Enums.ShiftType
   dayCategory?: Prisma.EnumDayCategoryFieldUpdateOperationsInput | $Enums.DayCategory
   requiredCount?: Prisma.IntFieldUpdateOperationsInput | number
+  mandatoryCount?: Prisma.IntFieldUpdateOperationsInput | number
 }
 
 
@@ -650,6 +691,7 @@ export type StaffingRequirementSelect<ExtArgs extends runtime.Types.Extensions.I
   shiftType?: boolean
   dayCategory?: boolean
   requiredCount?: boolean
+  mandatoryCount?: boolean
   facility?: boolean | Prisma.FacilityDefaultArgs<ExtArgs>
   position?: boolean | Prisma.PositionDefaultArgs<ExtArgs>
 }, ExtArgs["result"]["staffingRequirement"]>
@@ -661,6 +703,7 @@ export type StaffingRequirementSelectCreateManyAndReturn<ExtArgs extends runtime
   shiftType?: boolean
   dayCategory?: boolean
   requiredCount?: boolean
+  mandatoryCount?: boolean
   facility?: boolean | Prisma.FacilityDefaultArgs<ExtArgs>
   position?: boolean | Prisma.PositionDefaultArgs<ExtArgs>
 }, ExtArgs["result"]["staffingRequirement"]>
@@ -672,6 +715,7 @@ export type StaffingRequirementSelectUpdateManyAndReturn<ExtArgs extends runtime
   shiftType?: boolean
   dayCategory?: boolean
   requiredCount?: boolean
+  mandatoryCount?: boolean
   facility?: boolean | Prisma.FacilityDefaultArgs<ExtArgs>
   position?: boolean | Prisma.PositionDefaultArgs<ExtArgs>
 }, ExtArgs["result"]["staffingRequirement"]>
@@ -683,9 +727,10 @@ export type StaffingRequirementSelectScalar = {
   shiftType?: boolean
   dayCategory?: boolean
   requiredCount?: boolean
+  mandatoryCount?: boolean
 }
 
-export type StaffingRequirementOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"id" | "facilityId" | "positionId" | "shiftType" | "dayCategory" | "requiredCount", ExtArgs["result"]["staffingRequirement"]>
+export type StaffingRequirementOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"id" | "facilityId" | "positionId" | "shiftType" | "dayCategory" | "requiredCount" | "mandatoryCount", ExtArgs["result"]["staffingRequirement"]>
 export type StaffingRequirementInclude<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
   facility?: boolean | Prisma.FacilityDefaultArgs<ExtArgs>
   position?: boolean | Prisma.PositionDefaultArgs<ExtArgs>
@@ -712,6 +757,10 @@ export type $StaffingRequirementPayload<ExtArgs extends runtime.Types.Extensions
     shiftType: $Enums.ShiftType
     dayCategory: $Enums.DayCategory
     requiredCount: number
+    /**
+     * חלק מהתקן שחובה לאייש; רק חוסר ביחס אליו מוצג כאזהרה בשיבוץ.
+     */
+    mandatoryCount: number
   }, ExtArgs["result"]["staffingRequirement"]>
   composites: {}
 }
@@ -1143,6 +1192,7 @@ export interface StaffingRequirementFieldRefs {
   readonly shiftType: Prisma.FieldRef<"StaffingRequirement", 'ShiftType'>
   readonly dayCategory: Prisma.FieldRef<"StaffingRequirement", 'DayCategory'>
   readonly requiredCount: Prisma.FieldRef<"StaffingRequirement", 'Int'>
+  readonly mandatoryCount: Prisma.FieldRef<"StaffingRequirement", 'Int'>
 }
     
 

@@ -17,7 +17,7 @@ const input: EngineInput = {
   period: { id: 'schedule', facilityId: 'facility', startDate: date, endDate: date },
   week1Dates: [date], week2Dates: [],
   employees: [{ id: 'employee', facilityId: 'facility', positionId: 'role', rank: 2, isActive: true }],
-  capacities: [{ positionId: 'position', positionName: 'אחמ״ש', requiredRank: 2, shiftType: 'MORNING', dayCategory: 'WEEKDAY', amount: 1 }],
+  capacities: [{ positionId: 'position', positionName: 'אחמ״ש', requiredRank: 2, shiftType: 'MORNING', dayCategory: 'WEEKDAY', amount: 1, mandatory: 1 }],
   availability: new Map(), manualAssignments: [],
 };
 
@@ -52,13 +52,13 @@ describe('getScheduleWarnings', () => {
     expect(mocks.loadSchedulingInput).not.toHaveBeenCalled();
   });
 
-  it('returns critical shortages and capacity warnings with serializable dates and names', async () => {
+  it('returns mandatory shortages with serializable dates and names', async () => {
     const warnings = await getScheduleWarnings('schedule', 'facility');
     expect(warnings).toEqual(expect.arrayContaining([
-      expect.objectContaining({ severity: 'ERROR', message: expect.stringContaining('חסר אחמ״ש'), date: '2026-10-05', shiftType: 'MORNING' }),
-      expect.objectContaining({ severity: 'WARNING', type: 'UNFILLED', positionName: 'אחמ״ש', date: '2026-10-05' }),
+      expect.objectContaining({ severity: 'ERROR', type: 'UNFILLED', positionName: 'אחמ״ש', message: expect.stringContaining('אחמ״ש: משובצים 0 מתוך 1 בחובה'), date: '2026-10-05', shiftType: 'MORNING' }),
       expect.objectContaining({ severity: 'ERROR', type: 'MIN_NOT_MET', employeeName: 'דוד לוי', positionName: 'אחמ״ש' }),
     ]));
+    expect(warnings.some(w => w.severity === 'WARNING')).toBe(false);
     expect(warnings.find(w => w.type === 'MIN_NOT_MET' && w.shiftType === 'MORNING')?.message)
       .toBe('שבוע 1: נדרשות 2 משמרות בוקר; בפועל: 0.');
     expect(warnings.find(w => w.type === 'MIN_NOT_MET' && w.shiftType === 'EVENING')?.message)
@@ -70,14 +70,12 @@ describe('getScheduleWarnings', () => {
 
   it('recalculates after an assignment is saved and removes the resolved shortage', async () => {
     const before = await getScheduleWarnings('schedule', 'facility');
-    expect(before.some(w => w.severity === 'WARNING' && w.positionName === 'אחמ״ש')).toBe(true);
+    expect(before.some(w => w.type === 'UNFILLED' && w.positionName === 'אחמ״ש')).toBe(true);
     const assignment: EngineAssignment = {
       employeeId: 'employee', facilityId: 'facility', positionId: 'position', date, shiftType: 'MORNING', slotIndex: 0, isManualOverride: true,
     };
     mocks.loadSchedulingInput.mockResolvedValue({ input, allAssignments: [assignment], dateOverrides: [] });
     const after = await getScheduleWarnings('schedule', 'facility');
-    expect(after.some(w => w.severity === 'WARNING' && w.positionName === 'אחמ״ש')).toBe(false);
-    expect(after.some(w => w.message.includes('חסר אחמ״ש'))).toBe(false);
-    expect(after.some(w => w.message.includes('חסר בקר'))).toBe(true);
+    expect(after.some(w => w.type === 'UNFILLED' || w.type === 'UNDERSTAFFED')).toBe(false);
   });
 });

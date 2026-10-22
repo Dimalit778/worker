@@ -36,6 +36,8 @@ export interface EngineCapacity {
   shiftType: ShiftType;
   dayCategory: DayCategory;
   amount: number;
+  // Part of the amount that must be staffed; only shortfalls below it are reported.
+  mandatory?: number;
 }
 
 /** Date-specific requirement: replaces the day-category amount for that date, shift and position. */
@@ -105,6 +107,8 @@ export interface EngineSlot {
   dayCategory: DayCategory;
   // Total number of employees required for this slot.
   requiredAmount: number;
+  // Employees that must be assigned; fewer raises a shortage error.
+  mandatoryAmount?: number;
   // True when the amount comes from a date-specific override.
   isDateOverride?: boolean;
 }

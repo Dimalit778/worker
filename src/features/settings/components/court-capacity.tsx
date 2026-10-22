@@ -32,6 +32,7 @@ type StaffingRow = {
   shiftType: ShiftType;
   dayCategory: DayCategory;
   requiredCount: number;
+  mandatoryCount: number;
 };
 
 type CellKey = `${DayCategory}-${ShiftType}-${string}`;
@@ -39,11 +40,18 @@ type CellKey = `${DayCategory}-${ShiftType}-${string}`;
 type CellState = {
   id: string | null;
   value: string;
+  mandatory: string;
 };
+
+type CellField = 'value' | 'mandatory';
 
 type GridState = Record<CellKey, CellState>;
 
-const EMPTY_CELL: CellState = { id: null, value: '0' };
+const EMPTY_CELL: CellState = { id: null, value: '0', mandatory: '0' };
+
+function isCellChanged(a: CellState | undefined, b: CellState | undefined) {
+  return Boolean(a && b && (a.value !== b.value || a.mandatory !== b.mandatory));
+}
 
 function cellKey(day: DayCategory, shift: ShiftType, positionId: string): CellKey {
   return `${day}-${shift}-${positionId}`;
@@ -62,6 +70,7 @@ function buildGrid(params: { positions: PositionOption[]; capacities: StaffingRo
         grid[cellKey(day, shift, position.id)] = {
           id: capacity?.id ?? null,
           value: String(capacity?.requiredCount ?? 0),
+          mandatory: String(capacity?.mandatoryCount ?? 0),
         };
       }
     }
@@ -75,13 +84,15 @@ function Cell({
   shift,
   position,
   cell,
+  field,
   onChange,
 }: {
   day: DayCategory;
   shift: ShiftType;
   position: PositionOption;
   cell: CellState;
-  onChange: (day: DayCategory, shift: ShiftType, positionId: string, raw: string) => void;
+  field: CellField;
+  onChange: (day: DayCategory, shift: ShiftType, positionId: string, field: CellField, raw: string) => void;
 }) {
   return (
       <Input
@@ -89,10 +100,10 @@ function Cell({
         min={0}
         max={50}
         inputMode="numeric"
-        value={cell.value}
-        onChange={(e) => onChange(day, shift, position.id, e.target.value)}
+        value={cell[field]}
+        onChange={(e) => onChange(day, shift, position.id, field, e.target.value)}
         onBlur={(e) => {
-          onChange(day, shift, position.id, e.target.value);
+          onChange(day, shift, position.id, field, e.target.value);
         }}
         onKeyDown={(e) => {
           if (e.key === 'Enter') {
@@ -103,9 +114,9 @@ function Cell({
             (e.target as HTMLInputElement).blur();
           }
         }}
-        aria-label={`${DAY_META[day].label} ${SHIFT_LABELS[shift]} ${position.name}`}
+        aria-label={`${DAY_META[day].label} ${SHIFT_LABELS[shift]} ${position.name}${field === 'mandatory' ? ' חובה' : ''}`}
         className={cn(
-          'mx-auto h-8 w-24 bg-background px-2 text-center text-sm font-medium tabular-nums',
+          'mx-auto h-8 w-16 bg-background px-2 text-center text-sm font-medium tabular-nums sm:w-24',
         )}
       />
   );
@@ -146,20 +157,27 @@ export function CourtCapacityRules({
         if (!draftCell) continue;
 
         const amount = parseInt(draftCell.value, 10);
-        if (Number.isNaN(amount) || amount < 0) {
+        const mandatory = parseInt(draftCell.mandatory, 10);
+        if (Number.isNaN(amount) || amount < 0 || Number.isNaN(mandatory) || mandatory < 0) {
           throw new Error('כמות חייבת להיות מספר 0 ומעלה');
         }
 
         const cell = saved[key] ?? EMPTY_CELL;
         const [dayCategory, shiftType, positionId] = key.split('-') as [DayCategory, ShiftType, string];
 
+        if (mandatory > amount) {
+          const positionName = positions.find((p) => p.id === positionId)?.name ?? '';
+          throw new Error(`${DAY_META[dayCategory].label} · משמרת ${SHIFT_LABELS[shiftType]} · ${positionName}: החובה אינה יכולה להיות גבוהה מהתקן`);
+        }
+
         const res = cell.id
-          ? await updateStaffingRequirement(cell.id, amount)
+          ? await updateStaffingRequirement(cell.id, amount, mandatory)
           : await addStaffingRequirement({
               dayCategory,
               shiftType,
               positionId,
               amount,
+              mandatory,
             });
 
         if ('error' in res) {
@@ -169,6 +187,7 @@ export function CourtCapacityRules({
         next[key] = {
           id: res.id ?? cell.id,
           value: String(amount),
+          mandatory: String(mandatory),
         };
       }
 
@@ -197,13 +216,9 @@ export function CourtCapacityRules({
     setSaved(initial);
   }, [initial]);
 
-  const isDirty = (Object.keys(draft) as CellKey[]).some((key) => {
-    const a = draft[key];
-    const b = saved[key];
-    return a && b && a.value !== b.value;
-  });
+  const isDirty = (Object.keys(draft) as CellKey[]).some((key) => isCellChanged(draft[key], saved[key]));
 
-  function handleChange(day: DayCategory, shift: ShiftType, positionId: string, raw: string) {
+  function handleChange(day: DayCategory, shift: ShiftType, positionId: string, field: CellField, raw: string) {
     const key = cellKey(day, shift, positionId);
 
     setDraft((grid) => {
@@ -212,18 +227,14 @@ export function CourtCapacityRules({
         ...grid,
         [key]: {
           ...prev,
-          value: raw,
+          [field]: raw,
         },
       };
     });
   }
 
   function handleSaveAll() {
-    const dirtyKeys = (Object.keys(draft) as CellKey[]).filter((key) => {
-      const d = draft[key];
-      const s = saved[key];
-      return d && s && d.value !== s.value;
-    });
+    const dirtyKeys = (Object.keys(draft) as CellKey[]).filter((key) => isCellChanged(draft[key], saved[key]));
 
     saveMutation.mutate(dirtyKeys);
   }
@@ -269,7 +280,8 @@ export function CourtCapacityRules({
                   <thead className="bg-muted/30 text-xs text-muted-foreground">
                     <tr className="border-b border-border/50">
                       <th scope="col" className="rounded-tr-lg px-3 py-2 text-right font-medium">תפקיד</th>
-                      <th scope="col" className="w-36 rounded-tl-lg px-3 py-2 text-center font-medium">תקן נדרש</th>
+                      <th scope="col" className="px-3 py-2 text-center font-medium sm:w-36">תקן נדרש</th>
+                      <th scope="col" className="rounded-tl-lg px-3 py-2 text-center font-medium sm:w-36">חובה</th>
                     </tr>
                   </thead>
                   <tbody className="divide-y divide-border/40">
@@ -282,6 +294,17 @@ export function CourtCapacityRules({
                             shift={shift}
                             position={position}
                             cell={draft[cellKey(selectedDay, shift, position.id)] ?? EMPTY_CELL}
+                            field="value"
+                            onChange={handleChange}
+                          />
+                        </td>
+                        <td className="px-3 py-1.5">
+                          <Cell
+                            day={selectedDay}
+                            shift={shift}
+                            position={position}
+                            cell={draft[cellKey(selectedDay, shift, position.id)] ?? EMPTY_CELL}
+                            field="mandatory"
                             onChange={handleChange}
                           />
                         </td>

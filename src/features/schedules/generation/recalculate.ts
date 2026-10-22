@@ -8,7 +8,7 @@ import { collectUnmetMinimums } from '@/features/scheduling-engine/weekly-minimu
 export function analyzeSchedule(input: EngineInput, assignments: EngineAssignment[]) {
   const unmetMinimums = collectUnmetMinimums(input, assignments);
   const fairnessSummary = computeFairnessSummary(assignments, input.holidayCategories);
-  const warnings = createWarnings({ unmetMinimums, slots: buildSlots(input), assignments, fairnessSummary, dateOverrides: input.dateOverrides, timeOff: input.timeOff });
+  const warnings = createWarnings({ unmetMinimums, slots: buildSlots(input), assignments, fairnessSummary, timeOff: input.timeOff });
   return { fairnessSummary, warnings };
 }
 
