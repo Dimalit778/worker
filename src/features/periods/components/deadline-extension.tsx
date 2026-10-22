@@ -26,7 +26,7 @@ function formatInstant(value: string | null) {
   return value ? formatJerusalemDateTime(new Date(value)) : '—';
 }
 
-/** Manager control: documented submission-deadline extension plus its history. Renders nothing when not relevant. */
+/** Manager control for extending the submission deadline. Renders nothing when not relevant. */
 export function DeadlineExtension({ scheduleId }: { scheduleId: string }) {
   const queryClient = useQueryClient();
   const { data } = useQuery({
@@ -76,9 +76,6 @@ export function DeadlineExtension({ scheduleId }: { scheduleId: string }) {
   return (
     <div className="space-y-2 text-sm" dir="rtl">
       <div className="flex flex-wrap items-center gap-2">
-        {data.extensions.length > 0 && (
-          <span className="rounded-full bg-amber-100 px-2.5 py-1 text-xs font-medium text-amber-900">הוארך</span>
-        )}
         <span className="text-muted-foreground">מועד הגשה: {formatInstant(data.submissionDeadline)}</span>
         {data.canExtend && (
           <Dialog open={open} onOpenChange={handleOpenChange}>
@@ -142,19 +139,6 @@ export function DeadlineExtension({ scheduleId }: { scheduleId: string }) {
         </p>
       )}
 
-      {data.extensions.length > 0 && (
-        <ul className="space-y-1 text-xs text-muted-foreground">
-          {data.extensions.map((entry) => (
-            <li key={entry.id}>
-              <span dir="ltr">{formatInstant(entry.from)} → {formatInstant(entry.to)}</span>
-              {' · '}
-              {entry.reason}
-              {' · '}
-              {entry.changedBy}, {formatInstant(entry.createdAt)}
-            </li>
-          ))}
-        </ul>
-      )}
     </div>
   );
 }
