@@ -26,6 +26,8 @@ import {
   PREFERENCE_LABEL,
   sameEntries,
   SHIFTS,
+  validateAvailabilityEntries,
+  weeklyMinimumError,
   type AvailabilityStatus,
   type Preference,
   type PreferenceMap,
@@ -44,6 +46,8 @@ type Props = {
   submittedNote?: string;
   status?: AvailabilityStatus;
   closesAt?: string | null;
+  /** Approved time-off dates; weeks containing one are exempt from the weekly minimum. */
+  timeOffDates?: string[];
   viewOnly?: boolean;
   /** When false, hides the submission status badge (e.g. הוגש). Defaults to true. */
   showStatus?: boolean;
@@ -84,6 +88,7 @@ export function ScheduleCalendar({
   submittedNote,
   status: initialStatus,
   closesAt,
+  timeOffDates = [],
   viewOnly = false,
   showStatus = true,
 }: Props) {
@@ -151,6 +156,16 @@ export function ScheduleCalendar({
   const shownStatus = displayAvailabilityStatus(status, dirty);
   const submittedOnce = hasSubmitted(status);
   const hasServerDraft = status === 'DRAFT' || status === 'UNSUBMITTED_CHANGES';
+  const minimumError = editable
+    ? weeklyMinimumError(
+        validateAvailabilityEntries(entries, period.startDate, period.endDate),
+        period.startDate,
+        period.endDate,
+        new Set(timeOffDates),
+        note,
+      )
+    : null;
+  const shownError = minimumError ?? error;
 
   // Day/shift/week headers mark every slot they cover as available.
   const brushPreference: Preference = 'AVAILABLE';
@@ -337,7 +352,7 @@ export function ScheduleCalendar({
           </Button>
           <Button
             type="button"
-            disabled={pending || (status === 'SUBMITTED' && !dirty)}
+            disabled={pending || minimumError != null || (status === 'SUBMITTED' && !dirty)}
             onClick={() => submitMutation.mutate({ periodId: period.id, entries, note })}
           >
             {submitMutation.isPending ? 'מגיש...' : submittedOnce ? 'הגש שינויים' : 'הגש זמינות'}
@@ -352,9 +367,9 @@ export function ScheduleCalendar({
               {submittedOnce ? 'בטל שינויים וחזור להגשה' : 'מחק טיוטה'}
             </Button>
           )}
-          {error && (
+          {shownError && (
             <p role="alert" className="text-sm text-destructive">
-              {error}
+              {shownError}
             </p>
           )}
         </div>

@@ -152,13 +152,13 @@ const countsTowardMinimum = (date: string) => {
  * A week containing any of `timeOffDates` (approved time off, YYYY-MM-DD) is exempt.
  * A non-empty `note` explaining the shortfall lets the submission through anyway.
  */
-export function assertWeeklyMinimums(
+export function weeklyMinimumError(
   rows: ValidatedEntry[],
   startISO: string,
   endISO: string,
   timeOffDates: ReadonlySet<string> = new Set(),
   note = '',
-): void {
+): string | null {
   const weeks = chunkWeeks(datesInRange(startISO, endISO));
   const missing = weeks.flatMap((dates, index) => {
     if (dates.some((date) => timeOffDates.has(date))) return [];
@@ -169,9 +169,15 @@ export function assertWeeklyMinimums(
     const evening = counted.filter((row) => row.shiftType === 'EVENING').length;
     return morning < MORNING_MINIMUM || evening < EVENING_MINIMUM ? [index + 1] : [];
   });
-  if (missing.length === 0 || note.trim()) return;
+  if (missing.length === 0 || note.trim()) return null;
   const where = missing.length === weeks.length ? 'בכל שבוע' : `בשבוע ${missing[0]}`;
-  throw new Error(`${where} יש לסמן לפחות 2 משמרות בוקר ומשמרת ערב אחת (לא בשישי, שבת או חג) כזמין או מועדף, או לכתוב הסבר בשדה הבקשות`);
+  return `${where} יש לסמן לפחות 2 משמרות בוקר ומשמרת ערב אחת (לא בשישי, שבת או חג), או לכתוב הסבר בשדה הבקשות`;
+}
+
+/** Throws the `weeklyMinimumError` message, if any. */
+export function assertWeeklyMinimums(...args: Parameters<typeof weeklyMinimumError>): void {
+  const error = weeklyMinimumError(...args);
+  if (error) throw new Error(error);
 }
 
 /** Split dates into consecutive 7-day weeks; a final partial week is kept as is (never an empty week). */

@@ -100,7 +100,7 @@ describe('assertWeeklyMinimums', () => {
     assertWeeklyMinimums(validateAvailabilityEntries(entries, '2098-01-05', end), '2098-01-05', end);
   const week1 = { '2098-01-05-MORNING': 'AVAILABLE', '2098-01-06-MORNING': 'AVAILABLE', '2098-01-07-EVENING': 'AVAILABLE' };
   const week2 = { '2098-01-12-MORNING': 'AVAILABLE', '2098-01-13-MORNING': 'AVAILABLE', '2098-01-14-EVENING': 'AVAILABLE' };
-  const generic = 'בכל שבוע יש לסמן לפחות 2 משמרות בוקר ומשמרת ערב אחת (לא בשישי, שבת או חג) כזמין או מועדף';
+  const generic = 'בכל שבוע יש לסמן לפחות 2 משמרות בוקר ומשמרת ערב אחת (לא בשישי, שבת או חג)';
 
   it('passes a 7-day period with 2 mornings and 1 evening', () => {
     expect(() => check(week1, '2098-01-11')).not.toThrow();
@@ -148,7 +148,7 @@ describe('assertWeeklyMinimums', () => {
   });
 
   it('names the failing week in a 14-day period', () => {
-    const missing = (week: number) => `בשבוע ${week} יש לסמן לפחות 2 משמרות בוקר ומשמרת ערב אחת (לא בשישי, שבת או חג) כזמין או מועדף`;
+    const missing = (week: number) => `בשבוע ${week} יש לסמן לפחות 2 משמרות בוקר ומשמרת ערב אחת (לא בשישי, שבת או חג)`;
     expect(() => check(week1, '2098-01-18')).toThrow(missing(2));
     expect(() => check(week2, '2098-01-18')).toThrow(missing(1));
     expect(() => check({ ...week1, '2098-01-12-MORNING': 'AVAILABLE', '2098-01-14-EVENING': 'AVAILABLE' }, '2098-01-18')).toThrow(missing(2));
@@ -181,7 +181,7 @@ describe('assertWeeklyMinimums', () => {
     });
 
     it('still enforces the other week of a 14-day period', () => {
-      const missing = (week: number) => `בשבוע ${week} יש לסמן לפחות 2 משמרות בוקר ומשמרת ערב אחת (לא בשישי, שבת או חג) כזמין או מועדף`;
+      const missing = (week: number) => `בשבוע ${week} יש לסמן לפחות 2 משמרות בוקר ומשמרת ערב אחת (לא בשישי, שבת או חג)`;
       expect(() => checkWithTimeOff(week1, '2098-01-18', ['2098-01-05'])).toThrow(missing(2));
       expect(() => checkWithTimeOff(week2, '2098-01-18', ['2098-01-18'])).toThrow(missing(1));
       expect(() => checkWithTimeOff({}, '2098-01-18', ['2098-01-12'])).toThrow(missing(1));

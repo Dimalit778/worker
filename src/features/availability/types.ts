@@ -46,6 +46,8 @@ export type CurrentAvailability = {
   closesAt: string | null;
   lastSavedAt: string | null;
   submittedAt: string | null;
+  /** Approved time-off dates (YYYY-MM-DD) in the period; weeks containing one are exempt from the minimum. */
+  timeOffDates: string[];
   /** When no period is open: the next scheduled opening, if any. */
   nextOpeningAt: string | null;
 };

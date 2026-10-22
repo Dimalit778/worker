@@ -57,6 +57,7 @@ export async function getScheduleData(): Promise<CurrentAvailability> {
       closesAt: null,
       lastSavedAt: null,
       submittedAt: null,
+      timeOffDates: [],
       nextOpeningAt: next?.submissionOpensAt.toISOString() ?? null,
     };
   }
@@ -64,6 +65,7 @@ export async function getScheduleData(): Promise<CurrentAvailability> {
     where: { scheduleId_userId: { scheduleId: schedule.id, userId: employeeId } },
     include: { availabilities: true },
   });
+  const timeOff = await loadApprovedTimeOff(prisma, facilityId, schedule.startDate, schedule.endDate);
   const draft = parseDraftEntries(form?.draftEntries);
   const submittedEntries = form?.submittedAt ? submittedMap(form.availabilities) : {};
   const submittedNote = form?.submittedAt ? (form.note ?? '') : '';
@@ -86,6 +88,7 @@ export async function getScheduleData(): Promise<CurrentAvailability> {
     closesAt: schedule.submissionClosesAt.toISOString(),
     lastSavedAt: lastSaved?.toISOString() ?? null,
     submittedAt: form?.submittedAt?.toISOString() ?? null,
+    timeOffDates: [...(timeOff.get(employeeId) ?? [])],
   };
 }
 
