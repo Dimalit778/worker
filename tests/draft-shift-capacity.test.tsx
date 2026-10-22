@@ -122,3 +122,11 @@ it('holds up at realistic density (10 morning guards, 6 evening guards, multiple
   expect(screen.getByText('NIGHT-guard-0')).toBeInTheDocument();
   expect(screen.getAllByText('פנוי')).toHaveLength(1);
 });
+
+it('gives an empty row a slot index no shown assignment uses, after an unsaved removal leaves a gap', () => {
+  // Saved [A(0), B(1)] with A removed but not saved yet: only B(1) remains in the cell.
+  const assignments: AssignmentMap = { '2026-10-05-MORNING-manager': [{ id: 'b', employeeId: 'b', employeeDisplayName: 'בני', positionId: 'manager', positionName: 'אחמ״ש', shiftType: 'MORNING', slotIndex: 1 }] };
+  render(<ShiftSection shiftType="MORNING" weekDays={[{ iso: '2026-10-05', dayOfWeek: 1, letter: 'ב', label: '05/10' }]} assignments={assignments} employees={[]} capacity={[{ ...rule, amount: 2 }]} scheduleId="schedule" facilityId="facility" />);
+  expect(screen.getByText('בני')).toHaveAttribute('data-slot', '1');
+  expect(screen.getByText('פנוי')).toHaveAttribute('data-slot', '0');
+});

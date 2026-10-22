@@ -119,7 +119,7 @@ describe('batch save slot lookups', () => {
       change(1, null), // clear existing
       change(2, 'y'), // create in p1
       change(3, 'z'), // create in p1 (same position)
-      change(4, 'w', { positionId: 'p2' }), // create in p2
+      change(4, 'w', { positionId: 'p2' }), // create in p2, after its last row (3)
       change(5, null), // clear a slot that does not exist
     ]);
     expect(result.ok).toBe(true);
@@ -133,7 +133,7 @@ describe('batch save slot lookups', () => {
     expect(stored(2)).toEqual([]);
     expect(stored(3)).toMatchObject([{ userId: 'y', source: 'MANUAL' }]);
     expect(stored(4)).toMatchObject([{ userId: 'z', source: 'MANUAL' }]);
-    expect(slots.find(s => s.positionId === 'p2' && s.slotNumber === 5)).toMatchObject({ userId: 'w' });
+    expect(slots.find(s => s.positionId === 'p2' && s.slotNumber === 4)).toMatchObject({ userId: 'w' });
     expect(slots.find(s => s.positionId === 'p2' && s.slotNumber === 3)).toMatchObject({ userId: 'c' });
   });
 
@@ -270,5 +270,59 @@ describe('published edits are checked against the published roster, not later ch
     publish();
     load(baseInput([guardRule]));
     await expect(savePublished([change(0, 'officer')])).rejects.toThrow('העובד אינו שייך למתקן');
+  });
+});
+
+describe('batch save maps the screen slot index to the stored row', () => {
+  // The screen numbers the filled rows of a cell 0..n-1 (see buildAssignmentMap), whatever their stored numbers.
+  const publish = () => {
+    tx.schedule.findFirst.mockResolvedValue({
+      id: 'sch', status: 'PUBLISHED', endDate: new Date('2099-01-01'), draftVersionId: null,
+      originalVersionId: 'original', publishedVersionId: 'v1',
+      publishedVersion: { id: 'v1', status: 'PUBLISHED', revision: 0 },
+    } as never);
+    return (changes: SlotChange[]) => saveScheduleChanges('sch', { versionId: 'v1', revision: 0, publish: true }, changes);
+  };
+
+  it('published: removes the employee shown first when an emptied row precedes it', async () => {
+    const savePublished = publish();
+    slots = [slot(1, null), slot(2, 'bob')];
+    await savePublished([change(0, null)]);
+    expect(slots.map(s => [s.slotNumber, s.userId])).toEqual([[1, null], [2, null]]);
+  });
+
+  it('published: replaces the employee shown first instead of filling the emptied row', async () => {
+    const savePublished = publish();
+    slots = [slot(1, null), slot(2, 'bob')];
+    await savePublished([change(0, 'carol')]);
+    expect(slots.map(s => [s.slotNumber, s.userId])).toEqual([[1, null], [2, 'carol']]);
+  });
+
+  it('published: a new employee fills an emptied row before a new row is created', async () => {
+    const savePublished = publish();
+    slots = [slot(1, null), slot(2, 'bob')];
+    await savePublished([change(1, 'carol')]);
+    expect(tx.scheduleSlot.create).not.toHaveBeenCalled();
+    expect(slots.map(s => [s.slotNumber, s.userId])).toEqual([[1, 'carol'], [2, 'bob']]);
+  });
+
+  it('published: a row emptied in the same batch stays with its screen slot', async () => {
+    const savePublished = publish();
+    slots = [slot(1, 'alice'), slot(2, 'bob')];
+    await savePublished([change(0, null), change(2, 'carol'), change(0, 'dana')]);
+    expect(slots.map(s => [s.slotNumber, s.userId])).toEqual([[1, 'dana'], [2, 'bob'], [3, 'carol']]);
+  });
+
+  it('draft: replaces the employee shown first when the stored numbers have a gap', async () => {
+    slots = [slot(2, 'bob')];
+    await save([change(0, 'carol')]);
+    expect(tx.scheduleSlot.create).not.toHaveBeenCalled();
+    expect(slots.map(s => [s.slotNumber, s.userId])).toEqual([[2, 'carol']]);
+  });
+
+  it('draft: a new row is numbered after the last stored row of the cell', async () => {
+    slots = [slot(3, 'bob')];
+    await save([change(1, 'carol')]);
+    expect(slots.map(s => [s.slotNumber, s.userId])).toEqual([[3, 'bob'], [4, 'carol']]);
   });
 });
