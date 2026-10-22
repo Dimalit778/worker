@@ -13,6 +13,7 @@ import { AssignmentCell } from './assignment-cell';
 import {
   blockedEmployeeIdsForShift,
   createAssignmentCellKey,
+  emptySlotIndex,
   getCapacityForCell,
   getDayCategoryForDate,
   getOrderedPositionsForShift,
@@ -77,7 +78,8 @@ export function MobileDayScheduleView(props: Props) {
                   <div className="flex flex-col gap-1.5 p-2">
                     {rows.map(({ pos, slotIndex, sortedAssignments }) => {
                       const assignment = sortedAssignments[slotIndex] ?? null;
-                      const overflowKey = `${createAssignmentCellKey({ date: day.iso, shiftType, positionId: pos.positionId })}-${slotIndex}` as keyof OverflowCandidateMap;
+                      const targetSlotIndex = assignment?.slotIndex ?? emptySlotIndex(sortedAssignments, slotIndex - sortedAssignments.length);
+                      const overflowKey = `${createAssignmentCellKey({ date: day.iso, shiftType, positionId: pos.positionId })}-${targetSlotIndex}` as keyof OverflowCandidateMap;
                       const swapCandidates = assignment
                         ? Array.from(
                             new Map(
@@ -107,7 +109,7 @@ export function MobileDayScheduleView(props: Props) {
                             positionId={pos.positionId}
                             positionColor={pos.positionColor}
                             mutedPosition={isGrayPosition}
-                            slotIndex={slotIndex}
+                            slotIndex={targetSlotIndex}
                             overflowCandidates={overflowCandidates?.[overflowKey] ?? []}
                             readonly={readonly}
                             highlightedEmployeeId={highlightedEmployeeId}
