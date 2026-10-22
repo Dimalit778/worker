@@ -50,7 +50,7 @@ it('keeps edits local until save, then sends them together', async () => {
   expect(screen.getByText('רון')).toBeInTheDocument();
   expect(save).not.toHaveBeenCalled();
   fireEvent.click(screen.getByRole('button', { name: 'שמירה' }));
-  await waitFor(() => expect(save).toHaveBeenCalledWith('s', { versionId: 'v', revision: 3 }, [{ ...slot, employeeId: 'e2' }]));
+  await waitFor(() => expect(save).toHaveBeenCalledWith('s', { versionId: 'v', revision: 3 }, [{ ...slot, employeeId: 'e2' }], undefined));
   await waitFor(() => expect(screen.queryByRole('button', { name: 'שמירה' })).toBeNull());
 });
 
@@ -94,5 +94,21 @@ it('applies custom hours to every cell of the employee that day, and carries the
   await waitFor(() => expect(save).toHaveBeenCalledWith('s', { versionId: 'v', revision: 3 }, [
     { ...slot, employeeId: 'e1', hours },
     { ...evening, employeeId: 'e1', hours },
-  ]));
+  ], undefined));
+});
+
+it('asks for a reason when the save reports an overlapping shift, then saves again with it', async () => {
+  const message = 'פחות מ־8 שעות מנוחה בין משמרות';
+  save
+    .mockResolvedValueOnce({ ok: false, requiresOverride: true, violations: [{ code: 'REST_GAP', message, employeeId: 'e2' }] })
+    .mockResolvedValueOnce({ ok: true });
+  renderProbe();
+  fireEvent.click(screen.getByText('החלף'));
+  fireEvent.click(screen.getByRole('button', { name: 'שמירה' }));
+  expect(await screen.findByText(message)).toBeInTheDocument();
+  expect(screen.getByText('רון')).toBeInTheDocument(); // the unsaved change is kept while the manager decides
+  fireEvent.change(screen.getByLabelText('סיבת החריגה'), { target: { value: 'אין מחליף' } });
+  fireEvent.click(screen.getByRole('button', { name: 'אשר חריגה ושבץ' }));
+  await waitFor(() => expect(save).toHaveBeenLastCalledWith('s', { versionId: 'v', revision: 3 }, [{ ...slot, employeeId: 'e2' }], { reason: 'אין מחליף' }));
+  await waitFor(() => expect(screen.queryByRole('button', { name: 'שמירה' })).toBeNull());
 });
