@@ -5,6 +5,7 @@ import { prisma } from '@/lib/db/client';
 import { syncSubmissionWindows } from '@/features/periods/process-windows';
 import { AppShell, type AppNavItem } from '@/components/navigation/app-shell';
 import { countIncomingTransfers } from '@/features/requests/queries';
+import { ProfileNavigation } from '@/features/profile/components/profile-navigation';
 
 export default async function UserLayout({ children }: { children: React.ReactNode }) {
   const session = await requireSession(PortalRole.EMPLOYEE);
@@ -49,8 +50,6 @@ export default async function UserLayout({ children }: { children: React.ReactNo
     { href: '/employee/home', label: 'בית' },
     { href: '/employee', label: 'שיבוץ' },
     { href: '/employee/schedules', label: 'כל השיבוצים' },
-    { href: '/employee/submissions', label: 'ההגשות שלי' },
-    { href: '/employee/requests', label: 'הבקשות שלי', badge: incomingTransfers, badgeLabel: 'בקשות להעברה' },
     { href: '/employee/profile', label: 'הפרופיל שלי' },
   ];
 
@@ -65,6 +64,7 @@ export default async function UserLayout({ children }: { children: React.ReactNo
       courtName={primaryCourt?.name ?? null}
       navItems={navItems}
     >
+      <ProfileNavigation incomingTransfers={incomingTransfers} />
       {children}
     </AppShell>
   );
