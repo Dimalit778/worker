@@ -112,6 +112,12 @@ describe('assertWeeklyMinimums', () => {
     expect(() => check({}, '2098-01-11')).toThrow(generic);
   });
 
+  it('requires the 2 mornings and the evening on 3 different days', () => {
+    const sameDay = { '2098-01-05-MORNING': 'AVAILABLE', '2098-01-06-MORNING': 'AVAILABLE', '2098-01-06-EVENING': 'AVAILABLE' };
+    expect(() => check(sameDay, '2098-01-11')).toThrow(generic);
+    expect(() => check({ ...sameDay, '2098-01-07-MORNING': 'AVAILABLE' }, '2098-01-11')).not.toThrow();
+  });
+
   it('counts PREFERRED as available', () => {
     expect(() =>
       check({ '2098-01-05-MORNING': 'PREFERRED', '2098-01-06-MORNING': 'PREFERRED', '2098-01-07-EVENING': 'PREFERRED' }, '2098-01-11'),

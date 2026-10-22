@@ -146,7 +146,7 @@ const countsTowardMinimum = (date: string) => {
 };
 
 /**
- * On submit, every week needs the engine's weekly minimum of MORNING and EVENING shifts marked
+ * On submit, every week needs the engine's weekly minimum of MORNING and EVENING shifts, on different days, marked
  * AVAILABLE or PREFERRED. UNAVAILABLE, omitted keys, NIGHT, Friday, Saturday and rest-day holidays do not
  * count. Drafts are not checked.
  * A week containing any of `timeOffDates` (approved time off, YYYY-MM-DD) is exempt.
@@ -165,9 +165,15 @@ export function weeklyMinimumError(
     const counted = rows.filter(
       (row) => row.preference !== 'UNAVAILABLE' && dates.includes(row.date) && countsTowardMinimum(row.date),
     );
-    const morning = counted.filter((row) => row.shiftType === 'MORNING').length;
-    const evening = counted.filter((row) => row.shiftType === 'EVENING').length;
-    return morning < MORNING_MINIMUM || evening < EVENING_MINIMUM ? [index + 1] : [];
+    const morningDays = new Set(counted.filter((row) => row.shiftType === 'MORNING').map((row) => row.date));
+    const eveningDays = new Set(counted.filter((row) => row.shiftType === 'EVENING').map((row) => row.date));
+    // The required mornings and evenings must fall on different days.
+    const distinctDays = new Set([...morningDays, ...eveningDays]).size;
+    return morningDays.size < MORNING_MINIMUM ||
+      eveningDays.size < EVENING_MINIMUM ||
+      distinctDays < MORNING_MINIMUM + EVENING_MINIMUM
+      ? [index + 1]
+      : [];
   });
   if (missing.length === 0 || note.trim()) return null;
   const where = missing.length === weeks.length ? 'בכל שבוע' : `בשבוע ${missing[0]}`;
