@@ -3,7 +3,7 @@ import { afterEach, expect, it, vi } from 'vitest';
 import { cleanup, fireEvent, render, screen, waitFor } from '@testing-library/react';
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import { ScheduleCalendar } from '@/features/availability/components/schedule-calendar';
-import { saveAvailabilityDraft, submitAvailability } from '@/features/availability/actions';
+import { submitAvailability } from '@/features/availability/actions';
 import type { AvailabilityStatus } from '@/features/availability/utils';
 vi.mock('@/features/availability/actions', () => ({
   submitAvailability: vi.fn(async () => ({ ok: true, savedAt: '2098-01-01T10:00:00.000Z' })),
@@ -49,22 +49,10 @@ it('toggles a shift between empty and available', () => {
   expect(shift).toHaveAttribute('data-state', 'EMPTY');
 });
 
-it('saves a draft without submitting', async () => {
+it('offers no draft saving, only submit', () => {
   setup();
-  expect(statusText()).toBe('לא הוגש');
-  expect(screen.getByRole('button', { name: 'שמור טיוטה' })).toBeDisabled();
-  fireEvent.click(cell('2098-01-06 בוקר'));
-  expect(screen.getByText('יש שינויים שלא נשמרו')).toBeInTheDocument();
-  fireEvent.click(screen.getByRole('button', { name: 'שמור טיוטה' }));
-  await waitFor(() =>
-    expect(saveAvailabilityDraft).toHaveBeenCalledWith(
-      { periodId: 'explicit-period', entries: { '2098-01-06-MORNING': 'AVAILABLE' }, note: '' },
-      expect.anything(),
-    ),
-  );
-  expect(submitAvailability).not.toHaveBeenCalled();
-  await waitFor(() => expect(statusText()).toBe('טיוטה'));
-  expect(screen.queryByText('יש שינויים שלא נשמרו')).not.toBeInTheDocument();
+  expect(screen.queryByRole('button', { name: 'שמור טיוטה' })).not.toBeInTheDocument();
+  expect(screen.getByRole('button', { name: 'הגש זמינות' })).toBeInTheDocument();
 });
 
 it('blocks submitting below the weekly minimum until an explanation is written', () => {
@@ -101,10 +89,8 @@ it('shows unsubmitted changes after editing a submitted form', async () => {
   expect(submit).toBeDisabled();
   fireEvent.click(cell('2098-01-06 בוקר'));
   expect(statusText()).toBe('שינויים שלא הוגשו');
+  expect(submit).toBeDisabled();
   writeNote('מילואים');
-  fireEvent.click(screen.getByRole('button', { name: 'שמור טיוטה' }));
-  await waitFor(() => expect(saveAvailabilityDraft).toHaveBeenCalled());
-  expect(statusText()).toBe('שינויים שלא הוגשו');
   expect(submit).toBeEnabled();
   fireEvent.click(submit);
   await waitFor(() => expect(statusText()).toBe('הוגש'));

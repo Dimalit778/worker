@@ -9,7 +9,7 @@ import { Button } from '@/components/ui/button';
 import { Label } from '@/components/ui/label';
 import { formatJerusalemDateTime } from '@/features/periods/submission-window';
 import { formatDate } from '@/features/periods/utils';
-import { discardAvailabilityDraft, saveAvailabilityDraft, submitAvailability } from '../actions';
+import { discardAvailabilityDraft, submitAvailability } from '../actions';
 import { invalidateAvailabilityCurrent, invalidateMySubmissions } from '../hooks';
 import type { ShiftType } from '@/generated/prisma/client';
 import { PeriodInfo } from '../types';
@@ -110,16 +110,6 @@ export function ScheduleCalendar({
     invalidateMySubmissions(queryClient);
   };
 
-  const draftMutation = useMutation({
-    mutationFn: saveAvailabilityDraft,
-    onSuccess: (res, input) => {
-      if (!res.ok) return;
-      setSaved({ entries: normalizeEntries(input.entries), note: input.note ?? '' });
-      setStatus((prev) => (hasSubmitted(prev) ? 'UNSUBMITTED_CHANGES' : 'DRAFT'));
-      invalidate();
-    },
-  });
-
   const submitMutation = useMutation({
     mutationFn: submitAvailability,
     onSuccess: (res, input) => {
@@ -144,10 +134,10 @@ export function ScheduleCalendar({
     },
   });
 
-  const pending = draftMutation.isPending || submitMutation.isPending || discardMutation.isPending;
+  const pending = submitMutation.isPending || discardMutation.isPending;
   const error =
-    [draftMutation, submitMutation, discardMutation].map((m) => m.data?.error).find(Boolean) ??
-    ([draftMutation, submitMutation, discardMutation].some((m) => m.isError) ? 'השמירה נכשלה. הבחירות נשמרו במסך; אפשר לנסות שוב.' : null);
+    [submitMutation, discardMutation].map((m) => m.data?.error).find(Boolean) ??
+    ([submitMutation, discardMutation].some((m) => m.isError) ? 'השמירה נכשלה. הבחירות נשמרו במסך; אפשר לנסות שוב.' : null);
 
   const weeks = chunkWeeks(datesInRange(period.startDate, period.endDate));
   const readonly = viewOnly || period.status === 'LOCKED' || period.status === 'ARCHIVED';
@@ -166,6 +156,7 @@ export function ScheduleCalendar({
       )
     : null;
   const shownError = minimumError ?? error;
+  const canSubmit = !pending && minimumError == null && !(status === 'SUBMITTED' && !dirty);
 
   // Day/shift/week headers mark every slot they cover as available.
   const brushPreference: Preference = 'AVAILABLE';
@@ -344,15 +335,8 @@ export function ScheduleCalendar({
         <div className="flex flex-wrap items-center gap-3 pt-1">
           <Button
             type="button"
-            variant="outline"
-            disabled={pending || !dirty}
-            onClick={() => draftMutation.mutate({ periodId: period.id, entries, note })}
-          >
-            {draftMutation.isPending ? 'שומר...' : 'שמור טיוטה'}
-          </Button>
-          <Button
-            type="button"
-            disabled={pending || minimumError != null || (status === 'SUBMITTED' && !dirty)}
+            disabled={!canSubmit}
+            className={cn(canSubmit && 'border-emerald-600 bg-emerald-500 text-white hover:bg-emerald-600 hover:text-white')}
             onClick={() => submitMutation.mutate({ periodId: period.id, entries, note })}
           >
             {submitMutation.isPending ? 'מגיש...' : submittedOnce ? 'הגש שינויים' : 'הגש זמינות'}
