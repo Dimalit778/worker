@@ -1,6 +1,7 @@
 import { PeriodScheduleStatus } from '@/features/schedules/period-status';
 import { CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { CreatePeriodForm } from '@/features/periods/components/create-period-form';
+import { DeadlineExtension } from '@/features/periods/components/deadline-extension';
 import { DraftActions } from './components/draft-actions';
 import { Card } from '@/components/ui/card';
 import type { CurrentScheduleData } from '../types';
@@ -36,13 +37,16 @@ export function TopBar({ data, showCreateButton = false }: { data: CurrentSchedu
               {data.scheduleName}
             </CardDescription>
           </div>
-          <div className="flex w-full shrink-0 flex-col gap-2 sm:w-auto sm:flex-row sm:flex-wrap sm:justify-end">
-            {showCreateButton && <CreatePeriodForm triggerLabel="צור שיבוץ חדש" />}
-            <DraftActions
-              scheduleId={data.scheduleId}
-              scheduleStatus={data.scheduleStatus}
-              hasUnpublishedDraft={data.hasUnpublishedDraft}
-            />
+          <div className="flex w-full flex-col gap-3 sm:w-auto sm:max-w-xl">
+            <div className="flex flex-col gap-2 sm:flex-row sm:flex-wrap sm:justify-end">
+              {showCreateButton && <CreatePeriodForm triggerLabel="צור שיבוץ חדש" />}
+              <DraftActions
+                scheduleId={data.scheduleId}
+                scheduleStatus={data.scheduleStatus}
+                hasUnpublishedDraft={data.hasUnpublishedDraft}
+              />
+            </div>
+            <DeadlineExtension scheduleId={data.scheduleId} />
           </div>
         </div>
       </CardHeader>
