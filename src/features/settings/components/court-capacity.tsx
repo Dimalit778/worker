@@ -152,9 +152,10 @@ export function CourtCapacityRules({
     mutationFn: async (dirtyKeys: CellKey[]) => {
       const next = { ...saved };
 
-      for (const key of dirtyKeys) {
+      // Validate every changed cell first, so one invalid cell saves nothing.
+      const rows = dirtyKeys.flatMap((key) => {
         const draftCell = draft[key];
-        if (!draftCell) continue;
+        if (!draftCell) return [];
 
         const amount = parseInt(draftCell.value, 10);
         const mandatory = parseInt(draftCell.mandatory, 10);
@@ -162,13 +163,18 @@ export function CourtCapacityRules({
           throw new Error('כמות חייבת להיות מספר 0 ומעלה');
         }
 
-        const cell = saved[key] ?? EMPTY_CELL;
         const [dayCategory, shiftType, positionId] = key.split('-') as [DayCategory, ShiftType, string];
 
         if (mandatory > amount) {
           const positionName = positions.find((p) => p.id === positionId)?.name ?? '';
           throw new Error(`${DAY_META[dayCategory].label} · משמרת ${SHIFT_LABELS[shiftType]} · ${positionName}: החובה אינה יכולה להיות גבוהה מהתקן`);
         }
+
+        return [{ key, dayCategory, shiftType, positionId, amount, mandatory }];
+      });
+
+      for (const { key, dayCategory, shiftType, positionId, amount, mandatory } of rows) {
+        const cell = saved[key] ?? EMPTY_CELL;
 
         const res = cell.id
           ? await updateStaffingRequirement(cell.id, amount, mandatory)
