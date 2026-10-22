@@ -17,6 +17,7 @@ type MissingEmployee = { id: string; displayName: string; positionName: string |
 
 type Props = {
   warnings: ScheduleWarningSummary[];
+  hasSchedule?: boolean;
   submittedCount: number;
   eligibleCount: number;
   missingEmployees: MissingEmployee[];
@@ -24,14 +25,14 @@ type Props = {
   readiness?: { scheduleId: string; versionId: string | null; revision: number };
 };
 
-export function ScheduleStats({ warnings, submittedCount, eligibleCount, missingEmployees, readiness }: Props) {
+export function ScheduleStats({ warnings, hasSchedule = true, submittedCount, eligibleCount, missingEmployees, readiness }: Props) {
   const [activePanel, setActivePanel] = useState<ActivePanel>(null);
   const submissions = useSubmissionReadiness(readiness?.scheduleId).data;
   const load = useEmployeeLoad(readiness?.scheduleId, readiness?.versionId, readiness?.revision, activePanel === 'load');
 
-  const errorWarnings = warnings.filter((w) => w.severity === 'ERROR');
+  const errorWarnings = hasSchedule ? warnings.filter((w) => w.severity === 'ERROR') : [];
   const errorCount = errorWarnings.length;
-  const shortages = warnings.filter((w) => w.type === 'UNFILLED' || w.type === 'UNDERSTAFFED');
+  const shortages = hasSchedule ? warnings.filter((w) => w.type === 'UNFILLED' || w.type === 'UNDERSTAFFED') : [];
   const shownSubmitted = submissions ? submissions.counts.SUBMITTED + submissions.counts.UNSUBMITTED_CHANGES : submittedCount;
   const shownEligible = submissions ? submissions.total : eligibleCount;
   const hasPendingSubmissions = submissions ? submissions.counts.SUBMITTED < submissions.total : missingEmployees.length > 0;
@@ -59,7 +60,7 @@ export function ScheduleStats({ warnings, submittedCount, eligibleCount, missing
         />
         <StatTile
           label="בעיות"
-          value={<span className="text-2xl font-bold tracking-tight">{errorCount}</span>}
+          value={<span className="text-2xl font-bold tracking-tight">{hasSchedule ? errorCount : '—'}</span>}
           open={activePanel === 'errors'}
           disabled={errorCount === 0}
           tone={errorCount > 0 ? 'danger' : 'neutral'}
@@ -69,7 +70,7 @@ export function ScheduleStats({ warnings, submittedCount, eligibleCount, missing
           <>
             <StatTile
               label="חוסרים"
-              value={<span className="text-2xl font-bold tracking-tight">{shortages.length}</span>}
+              value={<span className="text-2xl font-bold tracking-tight">{hasSchedule ? shortages.length : '—'}</span>}
               open={activePanel === 'shortages'}
               disabled={shortages.length === 0}
               tone={shortages.length > 0 ? 'danger' : 'neutral'}

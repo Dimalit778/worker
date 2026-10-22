@@ -24,7 +24,9 @@ vi.mock('@/features/schedules/shared/correction-button', () => ({ CorrectionButt
 vi.mock('@/features/periods/components/create-period-form', () => ({ CreatePeriodForm: () => null }));
 vi.mock('@/features/periods/components/deadline-extension', () => ({ DeadlineExtension: () => null }));
 vi.mock('@/features/schedules/draft-schedule/topbar', () => ({ TopBar: () => null }));
-vi.mock('@/features/schedules/draft-schedule/schedule-stats', () => ({ ScheduleStats: () => null }));
+vi.mock('@/features/schedules/draft-schedule/schedule-stats', () => ({
+  ScheduleStats: ({ hasSchedule }: { hasSchedule: boolean }) => <div data-testid="schedule-stats" data-has-schedule={String(hasSchedule)} />,
+}));
 vi.mock('@/features/schedules/current-schedule', () => ({ CurrentScheduleView: () => <p>לוח יומי לבדיקה</p> }));
 vi.mock('@/features/schedules/draft-schedule/weekly-draft-schedule-view', () => ({ WeeklyDraftScheduleView: (props: { readonly?: boolean }) => <p data-readonly={String(props.readonly)}>לוח שבועי לבדיקה</p> }));
 
@@ -118,6 +120,15 @@ it('manager draft screen hides the section when there is no schedule', async () 
   expect(await screen.findByText('שיבוץ בהכנה')).toBeInTheDocument();
   expect(screen.queryByText('שינויים בשיבוץ')).not.toBeInTheDocument();
   expect(actions.fetchScheduleChangeLog).not.toHaveBeenCalled();
+});
+
+it.each([
+  { revision: 0, expected: 'false' },
+  { revision: 1, expected: 'true' },
+])('distinguishes a new empty draft from a generated draft at revision $revision', async ({ revision, expected }) => {
+  actions.fetchDraftSchedule.mockResolvedValue({ ...data, revision });
+  wrap(<ManagerDraftScreen scheduleId="s1" />);
+  expect(await screen.findByTestId('schedule-stats')).toHaveAttribute('data-has-schedule', expected);
 });
 
 it('manager current-schedule screen shows the section only when a schedule exists', async () => {

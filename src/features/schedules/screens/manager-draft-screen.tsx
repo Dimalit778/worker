@@ -57,6 +57,8 @@ export function ManagerDraftScreen({ scheduleId }: { scheduleId?: string }) {
   const eligible = submission?.eligibleEmployeeCount ?? 0;
   const submitted = submission?.submittedCount ?? 0;
   const missingEmployees = submission?.missingEmployees ?? [];
+  // A new period already has an empty version at revision 0. Generation and saved edits advance it.
+  const hasSchedule = (data.revision ?? 0) > 0 || data.scheduleStatus === 'PUBLISHED' || Object.values(data.assignments).some((cell) => cell.length > 0);
 
   return (
     <VersionProvider value={{ versionId: data.versionId ?? null, revision: data.revision ?? 0 }}>
@@ -64,6 +66,7 @@ export function ManagerDraftScreen({ scheduleId }: { scheduleId?: string }) {
         <TopBar data={data} showCreateButton={canCreateNewSchedule} />
         <ScheduleStats
           warnings={data.warnings}
+          hasSchedule={hasSchedule}
           submittedCount={submitted}
           eligibleCount={eligible}
           missingEmployees={missingEmployees}
