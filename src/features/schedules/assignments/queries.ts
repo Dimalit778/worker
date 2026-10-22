@@ -87,13 +87,13 @@ async function getScheduleEmployees(facilityId: string): Promise<ScheduleEmploye
 type ScheduleRow = Schedule & { publishedVersion: ScheduleVersion | null };
 
 /** Published capacity is frozen in the version; older snapshots contain only day-category rules. */
-function snapshotCapacity(version: ScheduleVersion | null | undefined): DatedCapacityRule[] | null {
+export function snapshotCapacity(version: ScheduleVersion | null | undefined): DatedCapacityRule[] | null {
   const snapshot = version?.capacitySnapshot;
   return Array.isArray(snapshot) ? (snapshot as unknown as DatedCapacityRule[]) : null;
 }
 
 /** Analyze a published version against its own snapshot instead of today's settings. */
-function withSnapshotRequirements(input: EngineInput, rules: DatedCapacityRule[]): EngineInput {
+export function withSnapshotRequirements(input: EngineInput, rules: DatedCapacityRule[]): EngineInput {
   return {
     ...input,
     capacities: rules.filter((rule) => !rule.date).map((rule) => ({
