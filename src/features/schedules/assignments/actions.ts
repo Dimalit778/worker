@@ -18,8 +18,6 @@ import { defaultShiftTimes, isValidShiftTime, shiftBounds, type CustomHours } fr
 type Edit = { kind: 'create'; params: AssignEmployeeToSlotParams } |
   { kind: 'update'; assignmentId: string; employeeId: string } |
   { kind: 'remove'; assignmentId: string } |
-  { kind: 'swap'; assignmentId: string; otherId: string } |
-  { kind: 'lock'; assignmentId: string; isLocked: boolean } |
   { kind: 'batch'; changes: SlotChange[] };
 
 /** One slot's target state in a batch save: an employee, or null to clear the slot. */
@@ -147,17 +145,9 @@ async function applyEdit(scheduleId: string, expected: VersionExpectation, reque
     } else if (edit.kind === 'remove') {
       if (direct) await tx.scheduleSlot.update({ where: { id: existing!.id }, data: { userId: null, source: 'MANUAL', isLocked: false } });
       else await tx.scheduleSlot.delete({ where: { id: existing!.id } });
-    } else if (edit.kind === 'lock') {
-      await tx.scheduleSlot.update({ where: { id: existing!.id }, data: { isLocked: edit.isLocked } });
-    } else if (edit.kind === 'update') {
+    } else {
       await tx.scheduleSlot.update({ where: { id: existing!.id }, data: { userId: edit.employeeId, source: 'MANUAL' } });
       changedIds.push(existing!.id);
-    } else {
-      const other = before.find(a => a.id === edit.otherId);
-      if (!other || other.id === existing!.id) throw new Error('יש לבחור שני שיבוצים שונים באותה טיוטה');
-      await tx.scheduleSlot.update({ where: { id: existing!.id }, data: { userId: other.userId, source: 'MANUAL' } });
-      await tx.scheduleSlot.update({ where: { id: other.id }, data: { userId: existing!.userId, source: 'MANUAL' } });
-      changedIds.push(existing!.id, other.id);
     }
     const loaded = await loadSchedulingInput(tx, scheduleId, actor.facilityId, version.id);
     // A published roster is checked against the requirements frozen at publication, as its screen shows them.
@@ -205,17 +195,8 @@ export async function createAssignment(params: AssignEmployeeToSlotParams, expec
 export async function updateAssignment(assignmentId: string, employeeId: string, expected: VersionExpectation, override?: ManualOverride) {
   return editSchedule(await scheduleForAssignment(assignmentId), expected, { kind: 'update', assignmentId, employeeId }, override);
 }
-export async function updateAssignmentEmployee(assignmentId: string, employeeId: string, expected: VersionExpectation, override?: ManualOverride) {
-  return updateAssignment(assignmentId, employeeId, expected, override);
-}
 export async function removeAssignment(assignmentId: string, expected: VersionExpectation) {
   return editSchedule(await scheduleForAssignment(assignmentId), expected, { kind: 'remove', assignmentId });
-}
-export async function swapAssignments(assignmentId: string, otherId: string, expected: VersionExpectation, override?: ManualOverride) {
-  return editSchedule(await scheduleForAssignment(assignmentId), expected, { kind: 'swap', assignmentId, otherId }, override);
-}
-export async function setAssignmentLocked(assignmentId: string, isLocked: boolean, expected: VersionExpectation) {
-  return editSchedule(await scheduleForAssignment(assignmentId), expected, { kind: 'lock', assignmentId, isLocked });
 }
 /** Save several unsaved slot changes at once; all are applied (and validated) together or none are. */
 export async function saveScheduleChanges(scheduleId: string, expected: VersionExpectation, changes: SlotChange[], override?: ManualOverride) {
