@@ -37,15 +37,21 @@ export function SubmissionStatusList({ readiness, showAllEmployees = false }: { 
           style={showAllEmployees ? { '--submission-columns': Math.ceil(employees.length / 2) } as CSSProperties : undefined}
         >
           {employees.map((emp) => (
-            <div key={emp.id} className={cn('flex items-center justify-between gap-2 rounded-lg bg-muted/40 px-3 py-2 text-sm', showAllEmployees && '@[64rem]:flex-col @[64rem]:items-start')}>
-              <span className={cn('min-w-0', showAllEmployees && '@[64rem]:flex @[64rem]:flex-col')}>
+            <div key={emp.id} className="flex items-center justify-between gap-2 rounded-lg bg-muted/40 px-3 py-2 text-sm">
+              <span className="min-w-0">
                 <span className="font-medium">{emp.displayName}</span>
-                <span className={cn('ms-2 text-xs text-muted-foreground', showAllEmployees && '@[64rem]:ms-0')}>{emp.roleName}</span>
+                {!showAllEmployees && <span className="ms-2 text-xs text-muted-foreground">{emp.roleName}</span>}
               </span>
-              <Badge variant={STATUS_VARIANT[emp.status]} className={cn(showAllEmployees && 'h-auto min-h-5 shrink whitespace-normal', emp.status === 'SUBMITTED' && 'text-green-700 dark:text-green-400')}>
-                {(emp.status === 'SUBMITTED' || emp.status === 'UNSUBMITTED_CHANGES') && <Check className="shrink-0" aria-hidden="true" />}
-                {SUBMISSION_STATUS_LABELS[emp.status]}
-              </Badge>
+              {showAllEmployees ? (
+                (emp.status === 'SUBMITTED' || emp.status === 'UNSUBMITTED_CHANGES') && (
+                  <Check className="size-4 shrink-0 text-green-700 dark:text-green-400" role="img" aria-label="הוגש" />
+                )
+              ) : (
+                <Badge variant={STATUS_VARIANT[emp.status]}>
+                  {emp.status === 'UNSUBMITTED_CHANGES' && <Check className="shrink-0" aria-hidden="true" />}
+                  {SUBMISSION_STATUS_LABELS[emp.status]}
+                </Badge>
+              )}
             </div>
           ))}
         </div>
