@@ -1,5 +1,6 @@
 import { SHIFT_ORDER, SHIFT_LABELS, SHIFT_TONES } from '@/features/schedules/constants';
 import { EVENING_MINIMUM, MORNING_MINIMUM } from '@/features/scheduling-engine/weekly-minimums';
+import { IL_HOLIDAYS } from '@/features/periods/constants';
 import type { ShiftType } from '@/generated/prisma/client';
 
 const SHIFTS = SHIFT_ORDER.map(key => ({ key, label: SHIFT_LABELS[key], ...SHIFT_TONES[key] }));
@@ -137,9 +138,17 @@ export function validateAvailabilityEntries(
   });
 }
 
+// Rest-day holidays; other IL_HOLIDAYS entries (Hanukkah, Chol HaMoed, Purim...) count as regular days.
+const REST_HOLIDAYS = new Set(['ר״ה', 'יוה״כ', 'סוכות', 'שמח״ת', 'פסח', 'שבועות', 'יום העצמאות']);
+const countsTowardMinimum = (date: string) => {
+  const day = new Date(`${date}T00:00:00Z`).getUTCDay();
+  return day !== 5 && day !== 6 && !REST_HOLIDAYS.has(IL_HOLIDAYS[date]);
+};
+
 /**
  * On submit, every week needs the engine's weekly minimum of MORNING and EVENING shifts marked
- * AVAILABLE or PREFERRED. UNAVAILABLE, omitted keys and NIGHT do not count. Drafts are not checked.
+ * AVAILABLE or PREFERRED. UNAVAILABLE, omitted keys, NIGHT, Friday, Saturday and rest-day holidays do not
+ * count. Drafts are not checked.
  * A week containing any of `timeOffDates` (approved time off, YYYY-MM-DD) is exempt.
  * A non-empty `note` explaining the shortfall lets the submission through anyway.
  */
@@ -153,14 +162,16 @@ export function assertWeeklyMinimums(
   const weeks = chunkWeeks(datesInRange(startISO, endISO));
   const missing = weeks.flatMap((dates, index) => {
     if (dates.some((date) => timeOffDates.has(date))) return [];
-    const counted = rows.filter((row) => row.preference !== 'UNAVAILABLE' && dates.includes(row.date));
+    const counted = rows.filter(
+      (row) => row.preference !== 'UNAVAILABLE' && dates.includes(row.date) && countsTowardMinimum(row.date),
+    );
     const morning = counted.filter((row) => row.shiftType === 'MORNING').length;
     const evening = counted.filter((row) => row.shiftType === 'EVENING').length;
     return morning < MORNING_MINIMUM || evening < EVENING_MINIMUM ? [index + 1] : [];
   });
   if (missing.length === 0 || note.trim()) return;
   const where = missing.length === weeks.length ? 'בכל שבוע' : `בשבוע ${missing[0]}`;
-  throw new Error(`${where} יש לסמן לפחות 2 משמרות בוקר ומשמרת ערב אחת כזמין או מועדף, או לכתוב הסבר בשדה הבקשות`);
+  throw new Error(`${where} יש לסמן לפחות 2 משמרות בוקר ומשמרת ערב אחת (לא בשישי, שבת או חג) כזמין או מועדף, או לכתוב הסבר בשדה הבקשות`);
 }
 
 /** Split dates into consecutive 7-day weeks; a final partial week is kept as is (never an empty week). */
