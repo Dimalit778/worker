@@ -24,13 +24,15 @@ export function SubmissionStatusList({ readiness, showAllEmployees = false }: { 
       <p className="text-sm font-medium">
         הגישו {submitted} מתוך {readiness.total}
       </p>
-      <div className="flex flex-wrap gap-x-3 gap-y-1 text-xs text-muted-foreground">
-        {(['NOT_SUBMITTED', 'DRAFT', 'UNSUBMITTED_CHANGES'] as const).map((status) => (
-          <span key={status}>
-            {SUBMISSION_STATUS_LABELS[status]}: <span className="font-semibold text-foreground tabular-nums">{readiness.counts[status]}</span>
-          </span>
-        ))}
-      </div>
+      {!showAllEmployees && (
+        <div className="flex flex-wrap gap-x-3 gap-y-1 text-xs text-muted-foreground">
+          {(['NOT_SUBMITTED', 'DRAFT', 'UNSUBMITTED_CHANGES'] as const).map((status) => (
+            <span key={status}>
+              {SUBMISSION_STATUS_LABELS[status]}: <span className="font-semibold text-foreground tabular-nums">{readiness.counts[status]}</span>
+            </span>
+          ))}
+        </div>
+      )}
       {employees.length > 0 ? (
         <div
           className={cn('grid gap-2', showAllEmployees && '@sm:grid-cols-2 @2xl:grid-cols-4 @[64rem]:grid-cols-[repeat(var(--submission-columns),minmax(0,1fr))]')}
