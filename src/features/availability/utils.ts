@@ -141,12 +141,14 @@ export function validateAvailabilityEntries(
  * On submit, every week needs the engine's weekly minimum of MORNING and EVENING shifts marked
  * AVAILABLE or PREFERRED. UNAVAILABLE, omitted keys and NIGHT do not count. Drafts are not checked.
  * A week containing any of `timeOffDates` (approved time off, YYYY-MM-DD) is exempt.
+ * A non-empty `note` explaining the shortfall lets the submission through anyway.
  */
 export function assertWeeklyMinimums(
   rows: ValidatedEntry[],
   startISO: string,
   endISO: string,
   timeOffDates: ReadonlySet<string> = new Set(),
+  note = '',
 ): void {
   const weeks = chunkWeeks(datesInRange(startISO, endISO));
   const missing = weeks.flatMap((dates, index) => {
@@ -156,9 +158,9 @@ export function assertWeeklyMinimums(
     const evening = counted.filter((row) => row.shiftType === 'EVENING').length;
     return morning < MORNING_MINIMUM || evening < EVENING_MINIMUM ? [index + 1] : [];
   });
-  if (missing.length === 0) return;
+  if (missing.length === 0 || note.trim()) return;
   const where = missing.length === weeks.length ? 'בכל שבוע' : `בשבוע ${missing[0]}`;
-  throw new Error(`${where} יש לסמן לפחות 2 משמרות בוקר ומשמרת ערב אחת כזמין או מועדף`);
+  throw new Error(`${where} יש לסמן לפחות 2 משמרות בוקר ומשמרת ערב אחת כזמין או מועדף, או לכתוב הסבר בשדה הבקשות`);
 }
 
 /** Split dates into consecutive 7-day weeks; a final partial week is kept as is (never an empty week). */

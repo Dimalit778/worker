@@ -140,6 +140,21 @@ describe('assertWeeklyMinimums', () => {
     expect(() => check({}, '2098-01-18')).toThrow(generic);
   });
 
+  describe('explanation note', () => {
+    const checkWithNote = (entries: Record<string, string>, end: '2098-01-11' | '2098-01-18', note: string) =>
+      assertWeeklyMinimums(validateAvailabilityEntries(entries, '2098-01-05', end), '2098-01-05', end, new Set(), note);
+
+    it('allows submitting below the minimum when an explanation is given', () => {
+      expect(() => checkWithNote({}, '2098-01-11', 'בחופשה')).not.toThrow();
+      expect(() => checkWithNote(week1, '2098-01-18', 'מילואים בשבוע השני')).not.toThrow();
+    });
+
+    it('still rejects a missing or blank explanation and asks for one', () => {
+      expect(() => checkWithNote({}, '2098-01-11', '')).toThrow('או לכתוב הסבר בשדה הבקשות');
+      expect(() => checkWithNote({}, '2098-01-18', '   ')).toThrow(generic);
+    });
+  });
+
   describe('approved time off', () => {
     const checkWithTimeOff = (entries: Record<string, string>, end: '2098-01-11' | '2098-01-18', timeOff: string[]) =>
       assertWeeklyMinimums(validateAvailabilityEntries(entries, '2098-01-05', end), '2098-01-05', end, new Set(timeOff));

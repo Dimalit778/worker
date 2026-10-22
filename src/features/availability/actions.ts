@@ -149,8 +149,8 @@ export async function submitAvailability(input: AvailabilityInput): Promise<Acti
     async (tx, { schedule, employeeId, facilityId, now }) => {
       const rows = validateAvailabilityEntries(input.entries, isoDate(schedule.startDate), isoDate(schedule.endDate));
       const timeOff = await loadApprovedTimeOff(tx, facilityId, schedule.startDate, schedule.endDate);
-      assertWeeklyMinimums(rows, isoDate(schedule.startDate), isoDate(schedule.endDate), timeOff.get(employeeId));
       const note = input.note?.trim() || null;
+      assertWeeklyMinimums(rows, isoDate(schedule.startDate), isoDate(schedule.endDate), timeOff.get(employeeId), note ?? '');
       const cleared = { draftEntries: Prisma.DbNull, draftNote: null, draftSavedAt: now };
       const form = await tx.availabilitySubmission.upsert({
         where: { scheduleId_userId: { scheduleId: schedule.id, userId: employeeId } },
