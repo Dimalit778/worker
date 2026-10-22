@@ -14,7 +14,9 @@ import {
   AlertDialogTitle,
 } from '@/components/ui/alert-dialog';
 import { Button } from '@/components/ui/button';
-import { saveScheduleChanges, type SlotChange } from '../assignments/actions';
+import { saveScheduleChanges, type ManualOverride, type SlotChange } from '../assignments/actions';
+import type { ManualViolation } from '@/features/scheduling-engine/manual-violations';
+import { ManualOverrideDialog } from './manual-override-dialog';
 import { applyScheduleEdit } from '../hooks';
 import type { AssignmentMap, AssignmentSummary, CurrentScheduleData } from '../types';
 import { createAssignmentCellKey } from '../utils';
@@ -53,6 +55,7 @@ export function PendingEditsProvider({ data, children }: { data: CurrentSchedule
   const [saving, setSaving] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [leaveHref, setLeaveHref] = useState<string | null>(null);
+  const [conflicts, setConflicts] = useState<ManualViolation[] | null>(null);
 
   const assignments = useMemo(() => {
     if (changes.size === 0) return data.assignments;
@@ -173,10 +176,12 @@ export function PendingEditsProvider({ data, children }: { data: CurrentSchedule
     if (!dirty) setLeaveHref(null);
   }, [dirty]);
 
-  async function save() {
-    setSaving(true); setError(null);
+  async function save(override?: ManualOverride) {
+    setSaving(true); setError(null); setConflicts(null);
     try {
-      const update = await saveScheduleChanges(data.scheduleId, expected, [...changes.values()]);
+      const update = await saveScheduleChanges(data.scheduleId, expected, [...changes.values()], override);
+      // Overlapping or too-close shifts are saved only with the manager's reason; the changes stay unsaved meanwhile.
+      if ('requiresOverride' in update) { setConflicts(update.violations); return; }
       await applyScheduleEdit(queryClient, update);
       setChanges(new Map());
     } catch (e) {
@@ -198,10 +203,12 @@ export function PendingEditsProvider({ data, children }: { data: CurrentSchedule
           {error && <span role="alert" className="text-sm text-destructive">{error}</span>}
           <div className="ms-auto flex gap-2">
             <Button type="button" variant="outline" disabled={saving} onClick={() => { setChanges(new Map()); setError(null); }}>ביטול שינויים</Button>
-            <Button type="button" disabled={saving} onClick={save}>{saving ? 'שומר...' : 'שמירה'}</Button>
+            <Button type="button" disabled={saving} onClick={() => save()}>{saving ? 'שומר...' : 'שמירה'}</Button>
           </div>
         </div>
       )}
+
+      <ManualOverrideDialog violations={conflicts} onConfirm={reason => save({ reason })} onCancel={() => setConflicts(null)} />
 
       <AlertDialog
         open={leaveHref != null}

@@ -221,6 +221,19 @@ export function blockedEmployeeIdsForShift(
   );
 }
 
+/**
+ * Slot index for the `emptyRow`-th empty row of a cell drawn after its assignments: the `emptyRow`-th index no
+ * assignment uses. An unsaved removal leaves a gap in the indexes, which a row number would collide with.
+ */
+export function emptySlotIndex(assignments: Array<{ slotIndex: number }>, emptyRow: number): number {
+  const used = new Set(assignments.map((assignment) => assignment.slotIndex));
+  for (let index = 0, free = 0; ; index += 1) {
+    if (used.has(index)) continue;
+    if (free === emptyRow) return index;
+    free += 1;
+  }
+}
+
 /** Max required headcount for this position+shift across the given dates (for slot rows). */
 /** Guard rows use a blank תפקיד label (DB `Position.name` is often מאבטח or legacy GUARD). */
 export function isGuardPositionLabel(positionName: string): boolean {

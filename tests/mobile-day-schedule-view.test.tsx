@@ -109,3 +109,16 @@ it('preserves every assignment through the day-first regrouping (no slot dropped
   }
   expect(screen.queryByText('פנוי')).not.toBeInTheDocument();
 });
+
+it('targets each row by its assignment slot, and an empty row by an unused slot, after an unsaved removal', () => {
+  const weekDays = [{ iso: '2026-10-05', dayOfWeek: 1, letter: 'ב', label: '05/10' }];
+  // Saved [A(0), B(1)] with A removed but not saved yet: only B(1) remains in the cell.
+  const assignments: AssignmentMap = {
+    '2026-10-05-MORNING-guard': [{ id: 'b', employeeId: 'b', employeeDisplayName: 'בני', positionId: 'guard', positionName: 'מאבטח', shiftType: 'MORNING', slotIndex: 1 }],
+  };
+  render(
+    <MobileDayScheduleView weekDays={weekDays} assignments={assignments} employees={[]} capacity={[{ ...morningGuard, amount: 2 }]} scheduleId="schedule" facilityId="facility" />,
+  );
+  expect(screen.getByText('בני')).toHaveAttribute('data-slot', '1');
+  expect(screen.getByText('פנוי')).toHaveAttribute('data-slot', '0');
+});
