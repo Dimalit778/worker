@@ -44,7 +44,9 @@ export function SubmissionStatusList({ readiness, showAllEmployees = false }: { 
               </span>
               {showAllEmployees ? (
                 (emp.status === 'SUBMITTED' || emp.status === 'UNSUBMITTED_CHANGES') && (
-                  <Check className="size-4 shrink-0 text-green-700 dark:text-green-400" role="img" aria-label="הוגש" />
+                  <Badge variant="outline" className="border-green-600/30 bg-green-600/10 text-green-700 dark:text-green-400" role="img" aria-label="הוגש">
+                    <Check aria-hidden="true" />
+                  </Badge>
                 )
               ) : (
                 <Badge variant={STATUS_VARIANT[emp.status]}>
