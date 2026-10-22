@@ -36,6 +36,7 @@ function setup({ endDate = '2098-01-06', entries = {}, submitted = false, status
 }
 const cell = (name: string) => screen.getByRole('button', { name: new RegExp(`^${name}:`) });
 const statusText = () => screen.getByTestId('availability-status').textContent;
+const writeNote = (text: string) => fireEvent.change(screen.getByLabelText('בקשות'), { target: { value: text } });
 
 it('toggles a shift between empty and available', () => {
   setup();
@@ -66,13 +67,27 @@ it('saves a draft without submitting', async () => {
   expect(screen.queryByText('יש שינויים שלא נשמרו')).not.toBeInTheDocument();
 });
 
+it('blocks submitting below the weekly minimum until an explanation is written', () => {
+  setup();
+  fireEvent.click(cell('2098-01-06 ערב'));
+  const submit = screen.getByRole('button', { name: 'הגש זמינות' });
+  expect(submit).toBeDisabled();
+  expect(screen.getByRole('alert')).toHaveTextContent('או לכתוב הסבר בשדה הבקשות');
+  writeNote('   ');
+  expect(submit).toBeDisabled();
+  writeNote('מילואים');
+  expect(submit).toBeEnabled();
+  expect(screen.queryByRole('alert')).not.toBeInTheDocument();
+});
+
 it('submits only explicit choices', async () => {
   setup();
   fireEvent.click(cell('2098-01-06 ערב'));
+  writeNote('מילואים');
   fireEvent.click(screen.getByRole('button', { name: 'הגש זמינות' }));
   await waitFor(() =>
     expect(submitAvailability).toHaveBeenCalledWith(
-      { periodId: 'explicit-period', entries: { '2098-01-06-EVENING': 'AVAILABLE' }, note: '' },
+      { periodId: 'explicit-period', entries: { '2098-01-06-EVENING': 'AVAILABLE' }, note: 'מילואים' },
       expect.anything(),
     ),
   );
@@ -86,6 +101,7 @@ it('shows unsubmitted changes after editing a submitted form', async () => {
   expect(submit).toBeDisabled();
   fireEvent.click(cell('2098-01-06 בוקר'));
   expect(statusText()).toBe('שינויים שלא הוגשו');
+  writeNote('מילואים');
   fireEvent.click(screen.getByRole('button', { name: 'שמור טיוטה' }));
   await waitFor(() => expect(saveAvailabilityDraft).toHaveBeenCalled());
   expect(statusText()).toBe('שינויים שלא הוגשו');
@@ -115,6 +131,7 @@ it('shows both weeks at once and submits selections from each', async () => {
   fireEvent.click(screen.getByRole('button', { name: /^2098-01-13 בוקר:/ }));
   expect(screen.getByText('שבוע 1')).toBeInTheDocument();
   expect(screen.getByText('שבוע 2')).toBeInTheDocument();
+  writeNote('מילואים');
   fireEvent.click(screen.getByRole('button', { name: 'הגש זמינות' }));
-  await waitFor(() => expect(submitAvailability).toHaveBeenCalledWith({ periodId: 'two-weeks', entries: { '2098-01-06-MORNING': 'AVAILABLE', '2098-01-13-MORNING': 'AVAILABLE' }, note: '' }, expect.anything()));
+  await waitFor(() => expect(submitAvailability).toHaveBeenCalledWith({ periodId: 'two-weeks', entries: { '2098-01-06-MORNING': 'AVAILABLE', '2098-01-13-MORNING': 'AVAILABLE' }, note: 'מילואים' }, expect.anything()));
 });
