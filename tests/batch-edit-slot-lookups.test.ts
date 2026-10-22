@@ -220,6 +220,35 @@ describe('batch save slot lookups', () => {
   });
 });
 
+describe('batch save asks for a reason before an overlapping or too-close shift', () => {
+  const violation = (code: 'REST_GAP' | 'DOUBLE_BOOKED' | 'NO_SUBMISSION', employeeId = 'x') => ({ code, message: `msg-${code}`, employeeId });
+
+  it('returns the conflicts and records nothing when no reason was given', async () => {
+    vi.mocked(computeManualViolations).mockReturnValueOnce({ blocking: [], violations: [violation('REST_GAP'), violation('NO_SUBMISSION')] });
+    const result = await save([change(0, 'x')]);
+    expect(result).toEqual({ ok: false, requiresOverride: true, violations: [violation('REST_GAP')] });
+    expect(tx.scheduleChange.createMany).not.toHaveBeenCalled();
+    expect(tx.scheduleVersion.update).not.toHaveBeenCalled();
+  });
+
+  it('asks for a double booking too', async () => {
+    vi.mocked(computeManualViolations).mockReturnValueOnce({ blocking: [], violations: [violation('DOUBLE_BOOKED')] });
+    await expect(save([change(0, 'x')])).resolves.toMatchObject({ requiresOverride: true });
+  });
+
+  it('saves with the reason in the change log once the manager approves', async () => {
+    vi.mocked(computeManualViolations).mockReturnValueOnce({ blocking: [], violations: [violation('REST_GAP')] });
+    const result = await saveScheduleChanges('sch', { versionId: 'v1', revision: 0 }, [change(0, 'x')], { reason: 'אין מחליף' });
+    expect(result).toMatchObject({ ok: true });
+    expect(tx.scheduleChange.createMany.mock.calls[0][0].data[0].reason).toContain('אין מחליף');
+  });
+
+  it('still saves other rule violations without asking', async () => {
+    vi.mocked(computeManualViolations).mockReturnValueOnce({ blocking: [], violations: [violation('NO_SUBMISSION')] });
+    await expect(save([change(0, 'x')])).resolves.toMatchObject({ ok: true });
+  });
+});
+
 describe('published edits are checked against the published roster, not later changes', () => {
   const realValidate = async () => (await vi.importActual<typeof import('@/features/scheduling-engine/validate')>('@/features/scheduling-engine/validate')).validateAssignments;
   const realManual = async () => (await vi.importActual<typeof import('@/features/scheduling-engine/manual-violations')>('@/features/scheduling-engine/manual-violations')).computeManualViolations;
