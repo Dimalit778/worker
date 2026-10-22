@@ -4,6 +4,7 @@ import { ArrowLeftRight, Minus, Plus } from 'lucide-react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
 import { useScheduleChangeLog } from '@/features/schedules/hooks';
+import { EXTENSION_REASON_PREFIX } from '@/features/periods/extension';
 import type { AssignmentChangeKind } from './format';
 
 type ChangeLogListProps = {
@@ -36,6 +37,7 @@ function ChangeActionIcon({ kind }: { kind: AssignmentChangeKind }) {
 
 export function ChangeLogList({ scheduleId, versionId, revision }: ChangeLogListProps) {
   const { data: entries, isError } = useScheduleChangeLog(scheduleId, versionId, revision);
+  const visibleEntries = entries?.filter((entry) => !(entry.changeType === 'UPDATE' && entry.message?.startsWith(EXTENSION_REASON_PREFIX)));
   const message = isError ? 'לא ניתן לטעון את השינויים.' : entries ? 'אין שינויים רשומים.' : 'טוען שינויים...';
 
   return (
@@ -44,7 +46,7 @@ export function ChangeLogList({ scheduleId, versionId, revision }: ChangeLogList
         <CardTitle>שינויים בשיבוץ</CardTitle>
       </CardHeader>
       <CardContent>
-        {entries?.length ? (
+        {visibleEntries?.length ? (
           <Table>
             <TableHeader>
               <TableRow>
@@ -54,7 +56,7 @@ export function ChangeLogList({ scheduleId, versionId, revision }: ChangeLogList
               </TableRow>
             </TableHeader>
             <TableBody>
-              {entries.map((entry) => {
+              {visibleEntries.map((entry) => {
                 const changeText = entry.summary
                   ? [entry.summary, entry.shiftDateLabel].filter(Boolean).join(' · ')
                   : (entry.message ?? '—');
