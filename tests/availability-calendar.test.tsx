@@ -51,6 +51,7 @@ it('toggles a shift between empty and available', () => {
 
 it('offers no draft saving, only submit', () => {
   setup();
+  expect(screen.queryByTestId('availability-status')).not.toBeInTheDocument();
   expect(screen.queryByRole('button', { name: 'שמור טיוטה' })).not.toBeInTheDocument();
   expect(screen.getByRole('button', { name: 'הגש זמינות' })).toBeInTheDocument();
 });
@@ -79,21 +80,22 @@ it('submits only explicit choices', async () => {
       expect.anything(),
     ),
   );
-  await waitFor(() => expect(statusText()).toBe('הוגש'));
+  await waitFor(() => expect(statusText()).toBe('נשלח'));
 });
 
 it('shows unsubmitted changes after editing a submitted form', async () => {
   setup({ submitted: true, entries: { '2098-01-06-MORNING': 'AVAILABLE' } });
-  expect(statusText()).toBe('הוגש');
+  expect(statusText()).toBe('נשלח');
   const submit = screen.getByRole('button', { name: 'הגש שינויים' });
   expect(submit).toBeDisabled();
   fireEvent.click(cell('2098-01-06 בוקר'));
-  expect(statusText()).toBe('שינויים שלא הוגשו');
+  expect(statusText()).toBe('נשלח');
+  expect(screen.getByText('יש שינויים שלא נשמרו')).toBeInTheDocument();
   expect(submit).toBeDisabled();
   writeNote('מילואים');
   expect(submit).toBeEnabled();
   fireEvent.click(submit);
-  await waitFor(() => expect(statusText()).toBe('הוגש'));
+  await waitFor(() => expect(statusText()).toBe('נשלח'));
 });
 
 it('renders a single week for a 7-day period', () => {

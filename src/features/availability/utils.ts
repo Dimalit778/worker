@@ -60,7 +60,7 @@ export const NO_CHOICE_LABEL = 'לא נבחר';
 export const AVAILABILITY_STATUS_LABEL: Record<AvailabilityStatus, string> = {
   NOT_SUBMITTED: 'לא הוגש',
   DRAFT: 'טיוטה',
-  SUBMITTED: 'הוגש',
+  SUBMITTED: 'נשלח',
   UNSUBMITTED_CHANGES: 'שינויים שלא הוגשו',
 };
 
