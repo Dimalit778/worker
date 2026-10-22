@@ -2,7 +2,7 @@ import { getToken } from 'next-auth/jwt';
 import type { NextApiRequest } from 'next';
 import { cookies, headers } from 'next/headers';
 import { redirect } from 'next/navigation';
-import { Card, CardHeader, CardTitle, CardContent } from '@/components/ui/card';
+import { Card, CardContent } from '@/components/ui/card';
 import { LoginForm } from './LoginForm';
 
 export default async function LoginPage({ searchParams }: { searchParams: Promise<{ passwordSet?: string }> }) {
@@ -20,10 +20,6 @@ export default async function LoginPage({ searchParams }: { searchParams: Promis
 
   return (
     <Card className="auth-login-card w-full max-w-sm">
-      <CardHeader className="text-center">
-        <CardTitle className="text-xl">שמירה בתי משפט</CardTitle>
-        <p className="text-sm text-muted-foreground">כניסה למערכת</p>
-      </CardHeader>
       <CardContent>
         {passwordSet && <p className="mb-4 text-sm text-center">הסיסמה נשמרה. אפשר להתחבר עם הסיסמה החדשה.</p>}
         <LoginForm />

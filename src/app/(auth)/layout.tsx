@@ -10,7 +10,6 @@ export default function AuthLayout({ children }: { children: React.ReactNode }) 
         <p className="auth-eyebrow">מערכת ניהול ושיבוץ</p>
       </div>
       {children}
-      <p className="text-xs text-muted-foreground">שמירה בתי משפט · סביבת העבודה שלך</p>
     </main>
   );
 }

@@ -1,0 +1,17 @@
+{
+  "detector": {
+    "ignoreRules": [],
+    "ignoreFiles": [],
+    "ignoreValues": [
+      {
+        "rule": "gradient-text",
+        "value": "*",
+        "files": [
+          "src/app/globals.css"
+        ],
+        "createdAt": "2026-10-22T18:27:28.340Z",
+        "reason": "Existing intentional midnight-glass heading treatment in globals.css; not introduced by this nav-radius fix"
+      }
+    ]
+  }
+}
