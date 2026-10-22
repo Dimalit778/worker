@@ -53,14 +53,20 @@ type Props = {
 
 const SHIFT_KEYS = SHIFTS.map((s) => s.key);
 
+/** Selection = blue (+ check icon); not color-only. Success/warnings live in status, not cells. */
 const STATE_STYLE: Record<Preference, string> = {
-  AVAILABLE: 'bg-emerald-500 text-white border border-emerald-600 shadow-sm',
-  PREFERRED: 'bg-amber-400 text-amber-950 border-2 border-amber-600 shadow-sm',
-  UNAVAILABLE: 'bg-rose-100 text-rose-700 border border-rose-300',
+  AVAILABLE:
+    'border border-blue-500 bg-blue-600 text-white shadow-sm hover:border-blue-400 hover:bg-blue-500 focus-visible:ring-blue-300',
+  PREFERRED:
+    'border-2 border-blue-300 bg-blue-500 text-white shadow-sm hover:border-blue-200 hover:bg-blue-400 focus-visible:ring-blue-300',
+  UNAVAILABLE:
+    'border border-rose-500/60 bg-rose-950/70 text-rose-100 hover:bg-rose-900/80 focus-visible:ring-rose-300',
 };
-const EMPTY_STYLE = 'border border-dashed border-border bg-background hover:border-solid hover:bg-muted/50';
+/** Unselected: lighter than page bg, solid subtle border so the hit target is obvious. */
+const EMPTY_STYLE =
+  'border border-solid border-foreground/25 bg-secondary text-muted-foreground hover:border-foreground/40 hover:bg-accent hover:text-foreground focus-visible:ring-ring';
 
-const SUBMITTED_STATUS_STYLE = 'bg-green-950 text-green-200';
+const SUBMITTED_STATUS_STYLE = 'bg-green-900 text-green-100';
 
 /** Always-visible weekly minimum reminder in the employee availability header (two lines). */
 const WEEKLY_MINIMUM_HINT_LINES = [
@@ -153,8 +159,12 @@ export function ScheduleCalendar({
         note,
       )
     : null;
-  const shownError = minimumError ?? error;
   const canSubmit = !pending && minimumError == null && !(status === 'SUBMITTED' && !dirty);
+
+  const cancelLocalChanges = () => {
+    setEntries(saved.entries);
+    setNote(saved.note);
+  };
 
   // Day/shift/week headers mark every slot they cover as available.
   const brushPreference: Preference = 'AVAILABLE';
@@ -182,10 +192,35 @@ export function ScheduleCalendar({
   return (
     <div className="space-y-5" dir="rtl">
       {showHeader ? (
-        <div className="grid grid-cols-[minmax(0,1fr)_auto_minmax(0,1fr)] items-start gap-3 text-sm">
-          {/* RTL: first column is visual right */}
+        <div className="flex flex-col gap-3 text-sm md:grid md:grid-cols-2 md:items-start md:gap-4">
+          {/* Mobile: dates first. Desktop RTL: col 2 = visual left */}
           {!viewOnly ? (
-            <ul className="max-w-md list-none space-y-0.5 text-sm font-semibold leading-snug text-muted-foreground">
+            <div className="flex items-start justify-between gap-3 md:col-start-2 md:flex-col md:items-end md:gap-1 md:text-end">
+              <div className="flex min-w-0 flex-col gap-0.5">
+                <span className="text-base font-semibold">
+                  {formatDate(period.startDate)} – {formatDate(period.endDate)}
+                </span>
+                {closesAt ? (
+                  <span className="text-xs text-muted-foreground">מועד סגירה: {formatInstant(closesAt)}</span>
+                ) : null}
+              </div>
+              {showStatus && submittedOnce ? (
+                <Badge className={cn('h-6 shrink-0 px-3 text-sm', SUBMITTED_STATUS_STYLE)} data-testid="availability-status">
+                  נשלח
+                </Badge>
+              ) : null}
+            </div>
+          ) : showStatus && submittedOnce ? (
+            <div className="flex justify-center md:col-span-2">
+              <Badge className={cn('h-6 px-3 text-sm', SUBMITTED_STATUS_STYLE)} data-testid="availability-status">
+                נשלח
+              </Badge>
+            </div>
+          ) : null}
+
+          {/* Mobile: rules below. Desktop RTL: col 1 = visual right */}
+          {!viewOnly ? (
+            <ul className="w-full list-none space-y-1 text-xs font-semibold leading-snug text-muted-foreground sm:text-sm md:col-start-1 md:row-start-1 md:max-w-md md:space-y-0.5">
               {WEEKLY_MINIMUM_HINT_LINES.map((line) => (
                 <li key={line} className="flex items-start gap-2">
                   <span className="mt-1.5 size-1.5 shrink-0 rounded-full bg-muted-foreground" aria-hidden />
@@ -193,30 +228,7 @@ export function ScheduleCalendar({
                 </li>
               ))}
             </ul>
-          ) : (
-            <span />
-          )}
-          <div className="flex flex-col items-center gap-1">
-            {showStatus && submittedOnce ? (
-              <Badge className={cn('h-6 px-3 text-sm', SUBMITTED_STATUS_STYLE)} data-testid="availability-status">
-                נשלח
-              </Badge>
-            ) : null}
-            {editable && dirty && <span className="text-xs font-medium text-amber-300">יש שינויים שלא נשמרו</span>}
-          </div>
-          {/* RTL: last column is visual left */}
-          {!viewOnly ? (
-            <div className="flex flex-col items-end gap-0.5 text-end">
-              <span className="font-semibold">
-                {formatDate(period.startDate)} – {formatDate(period.endDate)}
-              </span>
-              {closesAt ? (
-                <span className="text-xs text-muted-foreground">מועד סגירה: {formatInstant(closesAt)}</span>
-              ) : null}
-            </div>
-          ) : (
-            <span />
-          )}
+          ) : null}
         </div>
       ) : null}
 
@@ -346,28 +358,40 @@ export function ScheduleCalendar({
       </div>
 
       {editable && (
-        <div className="flex flex-wrap items-center gap-3 pt-1">
+        <div className="flex flex-wrap items-center justify-center gap-3 pt-1">
           <Button
             type="button"
             disabled={!canSubmit}
-            className={cn(canSubmit && 'border-emerald-600 bg-emerald-500 text-white hover:bg-emerald-600 hover:text-white')}
+            className={cn(
+              canSubmit &&
+                'border-emerald-300 bg-emerald-200 text-emerald-950 hover:bg-emerald-100 hover:text-emerald-950',
+            )}
             onClick={() => submitMutation.mutate({ periodId: period.id, entries, note })}
           >
-            {submitMutation.isPending ? 'מגיש...' : submittedOnce ? 'הגש שינויים' : 'הגש זמינות'}
+            {submitMutation.isPending ? 'מגיש...' : 'הגש שיבוץ'}
           </Button>
-          {hasServerDraft && (
+          {dirty ? (
             <Button
               type="button"
-              variant="ghost"
+              variant="secondary"
+              disabled={pending}
+              onClick={cancelLocalChanges}
+            >
+              ביטול שינויים
+            </Button>
+          ) : hasServerDraft ? (
+            <Button
+              type="button"
+              variant="secondary"
               disabled={pending}
               onClick={() => discardMutation.mutate(period.id)}
             >
               {submittedOnce ? 'בטל שינויים וחזור להגשה' : 'מחק טיוטה'}
             </Button>
-          )}
-          {shownError && (
-            <p role="alert" className="text-sm text-destructive">
-              {shownError}
+          ) : null}
+          {error && (
+            <p role="alert" className="basis-full text-center text-sm text-destructive">
+              {error}
             </p>
           )}
         </div>
