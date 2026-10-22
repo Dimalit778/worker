@@ -231,7 +231,7 @@ suite('phase 2 workflows against migrated PostgreSQL', () => {
     expect(await prisma.employeeRequest.findUniqueOrThrow({ where: { id: request.id } })).toMatchObject({ status: 'APPROVED', overrideReason: 'סוכם טלפונית' });
   });
 
-  it('rejects a stale transfer after the manager clears its live slot', async () => {
+  it('cancels a transfer when the manager clears its live slot', async () => {
     const published = await publishEmployeeOnMorning();
     as(employeeId);
     expect(await createTransferRequest({ slotId: published.id, targetUserId: colleagueId })).toEqual({ ok: true });
@@ -241,10 +241,12 @@ suite('phase 2 workflows against migrated PostgreSQL', () => {
     as(managerId);
     await saveScheduleChanges(scheduleId, { ...expected, publish: true }, [{ employeeId: null, positionId, date: '2098-01-06', shiftType: 'MORNING', slotIndex: 0 }]);
 
+    expect(await prisma.employeeRequest.findUniqueOrThrow({ where: { id: request.id } })).toMatchObject({
+      status: 'CANCELLED', decidedById: managerId, decisionNote: 'בוטלה: המנהל שינה את השיבוץ במשמרת זו',
+    });
     const result = await approveRequest(request.id, { overrideReason: 'test' });
     expect(result).toMatchObject({ ok: false });
-    expect('error' in result && result.error).toContain('המשמרת כבר אינה משובצת');
-    expect((await prisma.employeeRequest.findUniqueOrThrow({ where: { id: request.id } })).status).toBe('PENDING_MANAGER');
+    expect('error' in result && result.error).toContain('הבקשה כבר טופלה');
     expect((await prisma.scheduleSlot.findUniqueOrThrow({ where: { id: published.id } })).userId).toBeNull();
   });
 

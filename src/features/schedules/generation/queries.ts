@@ -33,7 +33,7 @@ export function toEngineDateOverride(row: OverrideRow): EngineDateOverride {
 export async function loadSchedulingInput(tx: Prisma.TransactionClient, scheduleId: string, facilityId: string, versionId: string | null, loadedSchedule?: Schedule) {
   const schedule = loadedSchedule ?? await tx.schedule.findFirst({ where: { id: scheduleId, facilityId } });
   if (!schedule) throw new Error('השיבוץ לא נמצא');
-  const [employees, capacities, dateOverrides, forms, assignments, surrounding, timeOff] = await Promise.all([
+  const [employees, capacities, dateOverrides, forms, assignments, { surrounding, draftNeighbours }, timeOff] = await Promise.all([
     tx.user.findMany({ where: { facilityId, ...staffedUser }, select: { id: true, displayName: true, roleId: true, isActive: true, deletedAt: true, role: { select: { id: true, name: true, rank: true } } } }),
     tx.staffingRequirement.findMany({ where: { facilityId, position: staffedPosition }, include: { position: { include: { baseRole: true } } } }),
     tx.staffingDateOverride.findMany({
@@ -47,21 +47,28 @@ export async function loadSchedulingInput(tx: Prisma.TransactionClient, schedule
     }),
     versionId ? tx.scheduleSlot.findMany({ where: { scheduleId, versionId, facilityId, userId: { not: null } }, include: { user: { select: { displayName: true } }, position: { select: { name: true } } } }) : Promise.resolve([]),
     (async () => {
-      // Read slots by the live published version ids, so old versions and drafts are never scanned.
-      const published = await tx.schedule.findMany({
-        where: { facilityId, id: { not: scheduleId }, status: 'PUBLISHED', publishedVersionId: { not: null } },
-        select: { publishedVersionId: true },
+      // Read slots by the current version ids only, so old versions are never scanned: the live published version,
+      // and a draft's version, which can still be published with a conflict against this schedule.
+      const neighbours = await tx.schedule.findMany({
+        where: { facilityId, id: { not: scheduleId }, OR: [
+          { status: 'PUBLISHED', publishedVersionId: { not: null } },
+          { status: 'DRAFT', draftVersionId: { not: null } },
+        ] },
+        select: { status: true, publishedVersionId: true, draftVersionId: true },
       });
-      const versionIds = published.flatMap((s) => s.publishedVersionId ?? []);
-      if (!versionIds.length) return [];
-      return tx.scheduleSlot.findMany({
+      const slotsFrom = async (versionIds: string[], from: Date) => versionIds.length ? tx.scheduleSlot.findMany({
         where: {
           facilityId,
           versionId: { in: versionIds },
           userId: { not: null },
-          date: { gte: addDays(schedule.startDate, -56), lte: addDays(schedule.endDate, 1) },
+          date: { gte: from, lte: addDays(schedule.endDate, 1) },
         },
-      });
+      }) : [];
+      return {
+        surrounding: await slotsFrom(neighbours.flatMap((s) => s.status === 'PUBLISHED' ? s.publishedVersionId ?? [] : []), addDays(schedule.startDate, -56)),
+        // A draft is not history yet: only its days next to this schedule are read, for conflicts.
+        draftNeighbours: await slotsFrom(neighbours.flatMap((s) => s.status === 'DRAFT' ? s.draftVersionId ?? [] : []), addDays(schedule.startDate, -1)),
+      };
     })(),
     loadApprovedTimeOff(tx, facilityId, schedule.startDate, schedule.endDate),
   ]);
@@ -70,7 +77,7 @@ export async function loadSchedulingInput(tx: Prisma.TransactionClient, schedule
   const customHours = new Map<string, string>();
   const extensions = new Set<string>();
   const firstOfShift = new Map<string, { id: string; rank: number }>();
-  for (const slot of [...assignments, ...surrounding]) {
+  for (const slot of [...assignments, ...surrounding, ...draftNeighbours]) {
     if (!slot.userId || !slot.endsAt || !customHoursOf(slot.date, slot.shiftType, slot.startsAt, slot.endsAt)) continue;
     const hours = `${slot.startsAt.toISOString()}|${slot.endsAt.toISOString()}`;
     customHours.set(slot.id, hours);
@@ -122,7 +129,7 @@ export async function loadSchedulingInput(tx: Prisma.TransactionClient, schedule
     preferences,
     manualAssignments: assignments.filter((a) => a.isLocked && a.userId).map(toEngine),
     historicalAssignments: surrounding.filter((a) => a.date < schedule.startDate && a.userId).map(toEngine),
-    boundaryAssignments: surrounding.filter((a) => a.date >= addDays(schedule.startDate, -1) && a.userId).map(toEngine),
+    boundaryAssignments: [...surrounding, ...draftNeighbours].filter((a) => a.date >= addDays(schedule.startDate, -1) && a.userId).map(toEngine),
     holidayCategories: new Map(),
     timeOff,
   };

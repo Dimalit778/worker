@@ -2,6 +2,7 @@ import type { Prisma, Schedule, ScheduleSlot } from '@/generated/prisma/client';
 import type { ScheduleActor } from '@/features/schedules/services/transactions';
 import { recordSlotChanges } from '@/features/schedules/change-log/record';
 import { loadSchedulingInput } from '@/features/schedules/generation/queries';
+import { snapshotCapacity, withSnapshotRequirements } from '@/features/schedules/assignments/queries';
 import { computeManualViolations } from '@/features/scheduling-engine/manual-violations';
 import type { EngineAssignment } from '@/features/scheduling-engine/types';
 import { transferDecision, type TransferCheck } from '../rules';
@@ -30,7 +31,7 @@ export async function checkTransfer(tx: Prisma.TransactionClient, actor: Schedul
 
   if (request.status !== 'PENDING_MANAGER') { blocking.push('הבקשה כבר טופלה'); return result(); }
   if (!request.slot || !request.targetUserId || !request.target) { blocking.push('בקשת ההעברה אינה שלמה'); return result(); }
-  const schedule = await tx.schedule.findFirst({ where: { id: request.slot.scheduleId, facilityId: actor.facilityId } });
+  const schedule = await tx.schedule.findFirst({ where: { id: request.slot.scheduleId, facilityId: actor.facilityId }, include: { publishedVersion: true } });
   if (!schedule?.publishedVersionId) { blocking.push(VERSION_CHANGED); return result(); }
   const current = await tx.scheduleSlot.findFirst({ where: {
     versionId: schedule.publishedVersionId, date: request.slot.date, shiftType: request.slot.shiftType,
@@ -45,7 +46,10 @@ export async function checkTransfer(tx: Prisma.TransactionClient, actor: Schedul
   if (schedule.draftVersionId) blocking.push('קיימת טיוטת תיקון פתוחה לשיבוץ זה. יש לפרסם אותה לפני אישור ההעברה');
   if (blocking.length) return result({ current, schedule });
 
-  const data = await loadSchedulingInput(tx, schedule.id, actor.facilityId, schedule.publishedVersionId, schedule);
+  const loaded = await loadSchedulingInput(tx, schedule.id, actor.facilityId, schedule.publishedVersionId, schedule);
+  // Checked against the requirements frozen at publication, like a manager's edit of the published roster.
+  const snapshot = snapshotCapacity(schedule.publishedVersion);
+  const data = snapshot ? { ...loaded, input: withSnapshotRequirements(loaded.input, snapshot) } : loaded;
   const others = data.assignments.filter(a => a.id !== current.id).map(toEngine);
   const candidate = toEngine({ ...current, userId: request.targetUserId, source: 'MANUAL' });
   const manual = computeManualViolations(data.input, others, candidate);

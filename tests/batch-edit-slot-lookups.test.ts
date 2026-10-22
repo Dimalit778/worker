@@ -6,10 +6,11 @@ vi.mock('@/lib/db/auth-helpers', () => ({ requireManager: mocks.manager, require
 vi.mock('@/features/schedules/generation/queries', () => ({ loadSchedulingInput: mocks.load }));
 vi.mock('@/features/schedules/assignments/loaded-details', () => ({ loadedScheduleDetails: () => ({ assignments: {}, warnings: [], fairness: [] }) }));
 vi.mock('@/features/scheduling-engine/validate', () => ({ validateAssignments: vi.fn(() => []) }));
-vi.mock('@/features/scheduling-engine/manual-violations', () => ({ computeManualViolations: () => ({ blocking: [], violations: [] }) }));
+vi.mock('@/features/scheduling-engine/manual-violations', () => ({ computeManualViolations: vi.fn(() => ({ blocking: [], violations: [] })) }));
 import { saveScheduleChanges, type SlotChange } from '@/features/schedules/assignments/actions';
 import { shiftBounds } from '@/features/schedules/shift-times';
 import { validateAssignments } from '@/features/scheduling-engine/validate';
+import { computeManualViolations } from '@/features/scheduling-engine/manual-violations';
 import type { EngineAssignment, EngineInput } from '@/features/scheduling-engine/types';
 
 type Slot = {
@@ -39,6 +40,7 @@ function makeTx(ownedPositions: string[]) {
     schedule: { findFirst: vi.fn().mockResolvedValue({ id: 'sch', status: 'DRAFT', endDate: new Date('2099-01-01'), draftVersionId: 'v1', draftVersion: { id: 'v1', status: 'DRAFT', revision: 0 }, publishedVersion: null }) },
     scheduleVersion: { update: vi.fn() },
     scheduleChange: { create: vi.fn(), createMany: vi.fn() },
+    employeeRequest: { updateMany: vi.fn().mockResolvedValue({ count: 0 }) },
     position: { findMany: vi.fn(async () => ownedPositions.map(id => ({ id, name: id }))), findFirst: vi.fn(async ({ where }: { where: { id: string } }) => ownedPositions.includes(where.id) ? { id: where.id } : null) },
     scheduleSlot: {
       findMany: vi.fn(async ({ where }: { where: Partial<Slot> }) => slots.filter(s => matches(s, where)).map(s => ({ ...s }))),
@@ -118,7 +120,7 @@ describe('batch save slot lookups', () => {
       change(1, null), // clear existing
       change(2, 'y'), // create in p1
       change(3, 'z'), // create in p1 (same position)
-      change(4, 'w', { positionId: 'p2' }), // create in p2
+      change(4, 'w', { positionId: 'p2' }), // create in p2, after its last row (3)
       change(5, null), // clear a slot that does not exist
     ]);
     expect(result.ok).toBe(true);
@@ -132,7 +134,7 @@ describe('batch save slot lookups', () => {
     expect(stored(2)).toEqual([]);
     expect(stored(3)).toMatchObject([{ userId: 'y', source: 'MANUAL' }]);
     expect(stored(4)).toMatchObject([{ userId: 'z', source: 'MANUAL' }]);
-    expect(slots.find(s => s.positionId === 'p2' && s.slotNumber === 5)).toMatchObject({ userId: 'w' });
+    expect(slots.find(s => s.positionId === 'p2' && s.slotNumber === 4)).toMatchObject({ userId: 'w' });
     expect(slots.find(s => s.positionId === 'p2' && s.slotNumber === 3)).toMatchObject({ userId: 'c' });
   });
 
@@ -216,5 +218,171 @@ describe('batch save slot lookups', () => {
     await save([change(0, 'x', { positionId: 'foreign' })]);
     expect(tx.position.findFirst).not.toHaveBeenCalled();
     expect(slots[0].userId).toBe('x');
+  });
+});
+
+describe('batch save asks for a reason before an overlapping or too-close shift', () => {
+  const violation = (code: 'REST_GAP' | 'DOUBLE_BOOKED' | 'NO_SUBMISSION', employeeId = 'x') => ({ code, message: `msg-${code}`, employeeId });
+
+  it('returns the conflicts and records nothing when no reason was given', async () => {
+    vi.mocked(computeManualViolations).mockReturnValueOnce({ blocking: [], violations: [violation('REST_GAP'), violation('NO_SUBMISSION')] });
+    const result = await save([change(0, 'x')]);
+    expect(result).toEqual({ ok: false, requiresOverride: true, violations: [violation('REST_GAP')] });
+    expect(tx.scheduleChange.createMany).not.toHaveBeenCalled();
+    expect(tx.scheduleVersion.update).not.toHaveBeenCalled();
+  });
+
+  it('asks for a double booking too', async () => {
+    vi.mocked(computeManualViolations).mockReturnValueOnce({ blocking: [], violations: [violation('DOUBLE_BOOKED')] });
+    await expect(save([change(0, 'x')])).resolves.toMatchObject({ requiresOverride: true });
+  });
+
+  it('saves with the reason in the change log once the manager approves', async () => {
+    vi.mocked(computeManualViolations).mockReturnValueOnce({ blocking: [], violations: [violation('REST_GAP')] });
+    const result = await saveScheduleChanges('sch', { versionId: 'v1', revision: 0 }, [change(0, 'x')], { reason: 'אין מחליף' });
+    expect(result).toMatchObject({ ok: true });
+    expect(tx.scheduleChange.createMany.mock.calls[0][0].data[0].reason).toContain('אין מחליף');
+  });
+
+  it('still saves other rule violations without asking', async () => {
+    vi.mocked(computeManualViolations).mockReturnValueOnce({ blocking: [], violations: [violation('NO_SUBMISSION')] });
+    await expect(save([change(0, 'x')])).resolves.toMatchObject({ ok: true });
+  });
+});
+
+describe('published edits are checked against the published roster, not later changes', () => {
+  const realValidate = async () => (await vi.importActual<typeof import('@/features/scheduling-engine/validate')>('@/features/scheduling-engine/validate')).validateAssignments;
+  const realManual = async () => (await vi.importActual<typeof import('@/features/scheduling-engine/manual-violations')>('@/features/scheduling-engine/manual-violations')).computeManualViolations;
+  const toEngine = (s: Slot): EngineAssignment => ({
+    employeeId: s.userId!, facilityId: s.facilityId, positionId: s.positionId, date: s.date,
+    shiftType: s.shiftType as EngineAssignment['shiftType'], slotIndex: s.slotNumber - 1,
+    isManualOverride: s.isLocked, source: s.source === 'MANUAL' ? 'MANUAL' : 'AUTOMATIC',
+  });
+  const baseInput = (capacities: EngineInput['capacities']): EngineInput => ({
+    period: { id: 'sch', facilityId: 'fac', startDate: date, endDate: date },
+    week1Dates: [date], week2Dates: [],
+    employees: [
+      { id: 'gone', facilityId: 'fac', positionId: 'guard-role', rank: 4, isActive: false },
+      { id: 'staff', facilityId: 'fac', positionId: 'guard-role', rank: 4, isActive: true },
+    ],
+    capacities, availability: new Map([['staff', new Set([`${day}|MORNING`])]]), manualAssignments: [],
+  });
+  const publish = (capacitySnapshot: unknown = null) => tx.schedule.findFirst.mockResolvedValue({
+    id: 'sch', status: 'PUBLISHED', endDate: new Date('2099-01-01'), draftVersionId: null,
+    originalVersionId: 'original', publishedVersionId: 'v1',
+    publishedVersion: { id: 'v1', status: 'PUBLISHED', revision: 0, capacitySnapshot },
+  } as never);
+  const load = (input: EngineInput) => mocks.load.mockImplementation(async () => ({
+    input, allAssignments: slots.filter(s => s.userId).map(toEngine), assignments: slots.filter(s => s.userId), toEngine,
+  }));
+  const savePublished = (changes: SlotChange[]) => saveScheduleChanges('sch', { versionId: 'v1', revision: 0, publish: true }, changes);
+  const guardRule = { positionId: 'p1', requiredRank: 4, shiftType: 'MORNING' as const, dayCategory: 'WEEKDAY' as const, amount: 2 };
+
+  it('an untouched automatic row whose employee was deactivated after publishing does not block another placement', async () => {
+    vi.mocked(validateAssignments).mockImplementationOnce(await realValidate());
+    publish();
+    slots = [slot(1, 'gone', { source: 'AUTOMATIC' })];
+    load(baseInput([guardRule]));
+    await expect(savePublished([change(1, 'staff')])).resolves.toMatchObject({ ok: true });
+    expect(slots.map(s => s.userId)).toEqual(['gone', 'staff']);
+  });
+
+  it('accepts a placement in a position the published roster requires, even if it was removed from the settings later', async () => {
+    vi.mocked(computeManualViolations).mockImplementationOnce(await realManual());
+    publish([{ id: 'r1', positionId: 'p1', displayName: 'מאבטח', color: null, rank: 4, shiftType: 'MORNING', dayCategory: 'WEEKDAY', amount: 2 }]);
+    load(baseInput([]));
+    await expect(savePublished([change(0, 'staff')])).resolves.toMatchObject({ ok: true });
+    expect(slots.map(s => s.userId)).toEqual(['staff']);
+  });
+
+  it('still blocks placing an employee the schedule cannot staff', async () => {
+    vi.mocked(computeManualViolations).mockImplementationOnce(await realManual());
+    publish();
+    load(baseInput([guardRule]));
+    await expect(savePublished([change(0, 'officer')])).rejects.toThrow('העובד אינו שייך למתקן');
+  });
+});
+
+describe('batch save maps the screen slot index to the stored row', () => {
+  // The screen numbers the filled rows of a cell 0..n-1 (see buildAssignmentMap), whatever their stored numbers.
+  const publish = () => {
+    tx.schedule.findFirst.mockResolvedValue({
+      id: 'sch', status: 'PUBLISHED', endDate: new Date('2099-01-01'), draftVersionId: null,
+      originalVersionId: 'original', publishedVersionId: 'v1',
+      publishedVersion: { id: 'v1', status: 'PUBLISHED', revision: 0 },
+    } as never);
+    return (changes: SlotChange[]) => saveScheduleChanges('sch', { versionId: 'v1', revision: 0, publish: true }, changes);
+  };
+
+  it('published: removes the employee shown first when an emptied row precedes it', async () => {
+    const savePublished = publish();
+    slots = [slot(1, null), slot(2, 'bob')];
+    await savePublished([change(0, null)]);
+    expect(slots.map(s => [s.slotNumber, s.userId])).toEqual([[1, null], [2, null]]);
+  });
+
+  it('published: replaces the employee shown first instead of filling the emptied row', async () => {
+    const savePublished = publish();
+    slots = [slot(1, null), slot(2, 'bob')];
+    await savePublished([change(0, 'carol')]);
+    expect(slots.map(s => [s.slotNumber, s.userId])).toEqual([[1, null], [2, 'carol']]);
+  });
+
+  it('published: a new employee fills an emptied row before a new row is created', async () => {
+    const savePublished = publish();
+    slots = [slot(1, null), slot(2, 'bob')];
+    await savePublished([change(1, 'carol')]);
+    expect(tx.scheduleSlot.create).not.toHaveBeenCalled();
+    expect(slots.map(s => [s.slotNumber, s.userId])).toEqual([[1, 'carol'], [2, 'bob']]);
+  });
+
+  it('published: a row emptied in the same batch stays with its screen slot', async () => {
+    const savePublished = publish();
+    slots = [slot(1, 'alice'), slot(2, 'bob')];
+    await savePublished([change(0, null), change(2, 'carol'), change(0, 'dana')]);
+    expect(slots.map(s => [s.slotNumber, s.userId])).toEqual([[1, 'dana'], [2, 'bob'], [3, 'carol']]);
+  });
+
+  it('draft: replaces the employee shown first when the stored numbers have a gap', async () => {
+    slots = [slot(2, 'bob')];
+    await save([change(0, 'carol')]);
+    expect(tx.scheduleSlot.create).not.toHaveBeenCalled();
+    expect(slots.map(s => [s.slotNumber, s.userId])).toEqual([[2, 'carol']]);
+  });
+
+  it('draft: a new row is numbered after the last stored row of the cell', async () => {
+    slots = [slot(3, 'bob')];
+    await save([change(1, 'carol')]);
+    expect(slots.map(s => [s.slotNumber, s.userId])).toEqual([[3, 'bob'], [4, 'carol']]);
+  });
+});
+
+describe('batch save closes transfer requests the edit made moot', () => {
+  const publish = () => {
+    tx.schedule.findFirst.mockResolvedValue({
+      id: 'sch', status: 'PUBLISHED', endDate: new Date('2099-01-01'), draftVersionId: null,
+      originalVersionId: 'original', publishedVersionId: 'v1',
+      publishedVersion: { id: 'v1', status: 'PUBLISHED', revision: 0 },
+    } as never);
+    return (changes: SlotChange[]) => saveScheduleChanges('sch', { versionId: 'v1', revision: 0, publish: true }, changes);
+  };
+
+  it('cancels open transfer requests of a slot whose employee was removed or replaced', async () => {
+    const savePublished = publish();
+    slots = [slot(1, 'a'), slot(1, 'b', { shiftType: 'EVENING' }), slot(1, 'c', { shiftType: 'NIGHT' })];
+    const [removed, replaced] = slots.map(s => s.id);
+    await savePublished([change(0, null), change(0, 'x', { shiftType: 'EVENING' })]);
+    expect(tx.employeeRequest.updateMany).toHaveBeenCalledTimes(1);
+    const { where, data } = tx.employeeRequest.updateMany.mock.calls[0][0];
+    expect(where).toEqual({ facilityId: 'fac', type: 'SHIFT_SWAP', status: { in: ['PENDING_PEER', 'PENDING_MANAGER'] }, slotId: { in: [removed, replaced] } });
+    expect(data).toMatchObject({ status: 'CANCELLED', decidedById: 'manager', decisionNote: expect.any(String) });
+    expect(data.decidedAt).toBeInstanceOf(Date);
+  });
+
+  it('keeps the requests when the slot keeps its employee', async () => {
+    const savePublished = publish();
+    slots = [slot(1, 'a')];
+    await savePublished([change(0, 'a', { hours: long })]);
+    expect(tx.employeeRequest.updateMany).not.toHaveBeenCalled();
   });
 });
