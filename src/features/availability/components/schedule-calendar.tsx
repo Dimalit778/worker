@@ -15,11 +15,9 @@ import type { ShiftType } from '@/generated/prisma/client';
 import { PeriodInfo } from '../types';
 import {
   applyPreference,
-  AVAILABILITY_STATUS_LABEL,
   chunkWeeks,
   datesInRange,
   DAY_HE,
-  displayAvailabilityStatus,
   hasSubmitted,
   NO_CHOICE_LABEL,
   normalizeEntries,
@@ -49,7 +47,7 @@ type Props = {
   /** Approved time-off dates; weeks containing one are exempt from the weekly minimum. */
   timeOffDates?: string[];
   viewOnly?: boolean;
-  /** When false, hides the submission status badge (e.g. הוגש). Defaults to true. */
+  /** When false, hides the submission status badge (e.g. נשלח). Defaults to true. */
   showStatus?: boolean;
 };
 
@@ -62,12 +60,13 @@ const STATE_STYLE: Record<Preference, string> = {
 };
 const EMPTY_STYLE = 'border border-dashed border-border bg-background hover:border-solid hover:bg-muted/50';
 
-const STATUS_STYLE: Record<AvailabilityStatus, string> = {
-  NOT_SUBMITTED: 'bg-muted text-muted-foreground',
-  DRAFT: 'bg-sky-950 text-sky-200',
-  SUBMITTED: 'bg-green-950 text-green-200',
-  UNSUBMITTED_CHANGES: 'bg-amber-950 text-amber-200',
-};
+const SUBMITTED_STATUS_STYLE = 'bg-green-950 text-green-200';
+
+/** Always-visible weekly minimum reminder in the employee availability header (two lines). */
+const WEEKLY_MINIMUM_HINT_LINES = [
+  'מינימום 2 בקרים וערב בכל שבוע (לא כולל שישי, שבת, חגים)',
+  'מי שלא מגיש מינימום חייב להוסיף פירוט',
+] as const;
 
 function StateIcon({ preference }: { preference: Preference | undefined }) {
   const iconClass = 'size-3.5 sm:size-4';
@@ -153,7 +152,6 @@ export function ScheduleCalendar({
   const readonly = viewOnly || period.status === 'LOCKED' || period.status === 'ARCHIVED';
   const editable = !readonly && period.status === 'OPEN';
   const dirty = !sameEntries(entries, saved.entries) || note !== saved.note;
-  const shownStatus = displayAvailabilityStatus(status, dirty);
   const submittedOnce = hasSubmitted(status);
   const hasServerDraft = status === 'DRAFT' || status === 'UNSUBMITTED_CHANGES';
   const minimumError = editable
@@ -193,25 +191,41 @@ export function ScheduleCalendar({
   return (
     <div className="space-y-5" dir="rtl">
       {showHeader ? (
-        <div className="grid grid-cols-[1fr_auto_1fr] items-center gap-2 text-sm">
+        <div className="grid grid-cols-[minmax(0,1fr)_auto_minmax(0,1fr)] items-start gap-3 text-sm">
+          {/* RTL: first column is visual right */}
           {!viewOnly ? (
-            <span className="font-semibold">
-              {formatDate(period.startDate)} – {formatDate(period.endDate)}
-            </span>
+            <ul className="max-w-md list-none space-y-0.5 text-sm font-semibold leading-snug text-muted-foreground">
+              {WEEKLY_MINIMUM_HINT_LINES.map((line) => (
+                <li key={line} className="flex items-start gap-2">
+                  <span className="mt-1.5 size-1.5 shrink-0 rounded-full bg-muted-foreground" aria-hidden />
+                  <span>{line}</span>
+                </li>
+              ))}
+            </ul>
           ) : (
             <span />
           )}
           <div className="flex flex-col items-center gap-1">
-            {showStatus ? (
-              <Badge className={cn('h-6 px-3 text-sm', STATUS_STYLE[shownStatus])} data-testid="availability-status">
-                {AVAILABILITY_STATUS_LABEL[shownStatus]}
+            {showStatus && submittedOnce ? (
+              <Badge className={cn('h-6 px-3 text-sm', SUBMITTED_STATUS_STYLE)} data-testid="availability-status">
+                נשלח
               </Badge>
             ) : null}
             {editable && dirty && <span className="text-xs font-medium text-amber-300">יש שינויים שלא נשמרו</span>}
           </div>
-          <span className="text-end text-xs text-muted-foreground">
-            {!viewOnly && closesAt ? <>מועד סגירה: {formatInstant(closesAt)}</> : null}
-          </span>
+          {/* RTL: last column is visual left */}
+          {!viewOnly ? (
+            <div className="flex flex-col items-end gap-0.5 text-end">
+              <span className="font-semibold">
+                {formatDate(period.startDate)} – {formatDate(period.endDate)}
+              </span>
+              {closesAt ? (
+                <span className="text-xs text-muted-foreground">מועד סגירה: {formatInstant(closesAt)}</span>
+              ) : null}
+            </div>
+          ) : (
+            <span />
+          )}
         </div>
       ) : null}
 

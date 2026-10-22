@@ -51,7 +51,7 @@ it('toggles a shift between empty and available', () => {
 
 it('saves a draft without submitting', async () => {
   setup();
-  expect(statusText()).toBe('לא הוגש');
+  expect(screen.queryByTestId('availability-status')).not.toBeInTheDocument();
   expect(screen.getByRole('button', { name: 'שמור טיוטה' })).toBeDisabled();
   fireEvent.click(cell('2098-01-06 בוקר'));
   expect(screen.getByText('יש שינויים שלא נשמרו')).toBeInTheDocument();
@@ -63,7 +63,7 @@ it('saves a draft without submitting', async () => {
     ),
   );
   expect(submitAvailability).not.toHaveBeenCalled();
-  await waitFor(() => expect(statusText()).toBe('טיוטה'));
+  await waitFor(() => expect(screen.queryByTestId('availability-status')).not.toBeInTheDocument());
   expect(screen.queryByText('יש שינויים שלא נשמרו')).not.toBeInTheDocument();
 });
 
@@ -91,23 +91,24 @@ it('submits only explicit choices', async () => {
       expect.anything(),
     ),
   );
-  await waitFor(() => expect(statusText()).toBe('הוגש'));
+  await waitFor(() => expect(statusText()).toBe('נשלח'));
 });
 
 it('shows unsubmitted changes after editing a submitted form', async () => {
   setup({ submitted: true, entries: { '2098-01-06-MORNING': 'AVAILABLE' } });
-  expect(statusText()).toBe('הוגש');
+  expect(statusText()).toBe('נשלח');
   const submit = screen.getByRole('button', { name: 'הגש שינויים' });
   expect(submit).toBeDisabled();
   fireEvent.click(cell('2098-01-06 בוקר'));
-  expect(statusText()).toBe('שינויים שלא הוגשו');
+  expect(statusText()).toBe('נשלח');
+  expect(screen.getByText('יש שינויים שלא נשמרו')).toBeInTheDocument();
   writeNote('מילואים');
   fireEvent.click(screen.getByRole('button', { name: 'שמור טיוטה' }));
   await waitFor(() => expect(saveAvailabilityDraft).toHaveBeenCalled());
-  expect(statusText()).toBe('שינויים שלא הוגשו');
+  expect(statusText()).toBe('נשלח');
   expect(submit).toBeEnabled();
   fireEvent.click(submit);
-  await waitFor(() => expect(statusText()).toBe('הוגש'));
+  await waitFor(() => expect(statusText()).toBe('נשלח'));
 });
 
 it('renders a single week for a 7-day period', () => {
