@@ -1,7 +1,7 @@
 'use server';
 
 import { requireManager, requireSession } from '@/lib/db/auth-helpers';
-import type { ShiftType } from '@/generated/prisma/client';
+import type { ScheduleSlot, ShiftType } from '@/generated/prisma/client';
 import type { AssignEmployeeToSlotParams } from '../types';
 import { getCurrentSchedule, getDraftScheduleData, getOriginalSchedule } from './queries';
 import { scheduleTransaction, checkedVersion, editableDraft, type VersionExpectation } from '../services/transactions';
@@ -79,10 +79,20 @@ async function applyEdit(scheduleId: string, expected: VersionExpectation, reque
       changedIds.push(created.id);
     } else if (edit.kind === 'batch') {
       if (!edit.changes.length) throw new Error('אין שינויים לשמירה');
-      // `before` already holds every slot of this version: look slots up here instead of querying per change,
-      // and keep the map in step with the writes below so later changes see what a fresh query would.
-      const slotKey = (date: Date, shiftType: string, positionId: string, slotNumber: number) => `${date.getTime()}|${shiftType}|${positionId}|${slotNumber}`;
-      const slots = new Map(before.map(a => [slotKey(a.date, a.shiftType, a.positionId, a.slotNumber), a]));
+      // The screen numbers the filled rows of each cell 0..n-1 in slot-number order (buildAssignmentMap), so its slot
+      // index is not a slot number: published removals leave empty rows and draft removals leave gaps.
+      // `before` already holds every slot of this version: resolve each screen slot from it once, and keep that
+      // binding in step with the writes below so later changes in the batch see earlier ones.
+      const cellKey = (date: Date, shiftType: string, positionId: string) => `${date.getTime()}|${shiftType}|${positionId}`;
+      const cells = new Map<string, { filled: ScheduleSlot[]; empty: ScheduleSlot[]; lastNumber: number }>();
+      for (const row of [...before].sort((a, b) => a.slotNumber - b.slotNumber)) {
+        const key = cellKey(row.date, row.shiftType, row.positionId);
+        const cell = cells.get(key) ?? { filled: [], empty: [], lastNumber: 0 };
+        (row.userId ? cell.filled : cell.empty).push(row);
+        cell.lastNumber = row.slotNumber;
+        cells.set(key, cell);
+      }
+      const bound = new Map<string, { row: ScheduleSlot | null; slotNumber?: number }>();
       const ownedPositions = new Set<string>();
       for (const change of edit.changes) {
         const date = parseISODateToUtcMidnight(change.date);
@@ -93,30 +103,44 @@ async function applyEdit(scheduleId: string, expected: VersionExpectation, reque
         const defaultBounds = shiftBounds(date, defaults.startTime, defaults.endTime);
         // Custom hours are a manager decision: lock the slot so automatic scheduling keeps it; clearing them unlocks it.
         const hoursData = hours ? { ...shiftBounds(date, hours.startTime, hours.endTime), isLocked: true } : { ...defaultBounds, isLocked: false };
-        const slotNumber = change.slotIndex + 1;
-        const key = slotKey(date, change.shiftType, change.positionId, slotNumber);
-        const slot = slots.get(key);
+        const key = cellKey(date, change.shiftType, change.positionId);
+        const cell = cells.get(key) ?? { filled: [], empty: [], lastNumber: 0 };
+        cells.set(key, cell);
+        const screenSlot = `${key}#${change.slotIndex}`;
+        const target = bound.get(screenSlot) ?? { row: cell.filled[change.slotIndex] ?? null };
+        target.slotNumber ??= target.row?.slotNumber;
+        bound.set(screenSlot, target);
+        const slot = target.row;
         if (change.employeeId === null) {
           if (slot) {
-            if (direct) slots.set(key, await tx.scheduleSlot.update({ where: { id: slot.id }, data: { userId: null, source: 'MANUAL', isLocked: false } }));
+            if (direct) target.row = await tx.scheduleSlot.update({ where: { id: slot.id }, data: { userId: null, source: 'MANUAL', isLocked: false } });
             else {
               await tx.scheduleSlot.delete({ where: { id: slot.id } });
-              slots.delete(key);
+              target.row = null;
             }
           }
         } else if (slot) {
           // Custom hours belong to the person: a new employee in the slot starts from the default hours.
           const times = hours !== undefined ? hoursData : slot.userId !== change.employeeId ? defaultBounds : {};
-          slots.set(key, await tx.scheduleSlot.update({ where: { id: slot.id }, data: { userId: change.employeeId, source: 'MANUAL', ...times } }));
+          target.row = await tx.scheduleSlot.update({ where: { id: slot.id }, data: { userId: change.employeeId, source: 'MANUAL', ...times } });
           changedIds.push(slot.id);
+        } else if (target.slotNumber === undefined && cell.empty.length) {
+          // Published removals keep their rows (stable IDs): fill an emptied row before adding a new one.
+          const empty = cell.empty.shift()!;
+          target.row = await tx.scheduleSlot.update({ where: { id: empty.id }, data: { userId: change.employeeId, source: 'MANUAL', ...hoursData } });
+          target.slotNumber = empty.slotNumber;
+          changedIds.push(empty.id);
         } else {
           if (!ownedPositions.has(change.positionId)) {
             const position = await tx.position.findFirst({ where: { id: change.positionId, OR: [{ facilityId: actor.facilityId }, { facilityId: null }] }, select: { id: true } });
             if (!position) throw new Error('התפקיד אינו שייך למתקן');
             ownedPositions.add(change.positionId);
           }
+          // A slot deleted earlier in this batch comes back with its number; a new one goes after the cell's last row.
+          const slotNumber = target.slotNumber ?? ++cell.lastNumber;
           const created = await tx.scheduleSlot.create({ data: { scheduleId, versionId: version.id, facilityId: actor.facilityId, userId: change.employeeId, positionId: change.positionId, date, shiftType: change.shiftType, slotNumber, ...hoursData, source: 'MANUAL' } });
-          slots.set(key, created);
+          target.row = created;
+          target.slotNumber = slotNumber;
           changedIds.push(created.id);
         }
       }
