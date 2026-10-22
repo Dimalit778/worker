@@ -10,8 +10,15 @@ import { invalidateSettingsQueries } from '@/features/settings/hooks';
 import { queryKeys } from '@/lib/react-query/query-keys';
 import { invalidateScheduleQueries } from '@/features/schedules/hooks';
 import { cn } from '@/lib/utils';
-import { ChevronDown } from 'lucide-react';
+import { Moon, Sun, Sunset } from 'lucide-react';
 import { Input } from '@/components/ui/input';
+import { defaultShiftTimes } from '@/features/schedules/shift-times';
+
+const SHIFT_STYLE = {
+  MORNING: { Icon: Sun, accent: 'border-l-amber-400', icon: 'text-amber-500' },
+  EVENING: { Icon: Sunset, accent: 'border-l-orange-500', icon: 'text-orange-500' },
+  NIGHT: { Icon: Moon, accent: 'border-l-violet-500', icon: 'text-violet-500' },
+};
 
 type PositionOption = {
   id: string;
@@ -77,11 +84,6 @@ function Cell({
   onChange: (day: DayCategory, shift: ShiftType, positionId: string, raw: string) => void;
 }) {
   return (
-    <div className="flex w-full min-w-0 flex-col items-center gap-1 py-0.5">
-      <span className="line-clamp-2 min-h-9 w-full px-0.5 text-center text-[11px] font-medium leading-snug text-muted-foreground sm:text-xs">
-        {position.name}
-      </span>
-
       <Input
         type="number"
         min={0}
@@ -101,14 +103,11 @@ function Cell({
             (e.target as HTMLInputElement).blur();
           }
         }}
-        aria-label={`${SHIFT_LABELS[shift]} ${position.name}`}
+        aria-label={`${DAY_META[day].label} ${SHIFT_LABELS[shift]} ${position.name}`}
         className={cn(
-          'mx-auto h-8 max-w-18 md:h-9 md:max-w-20',
-          'px-2 text-center text-sm font-semibold tabular-nums md:text-sm',
-          '[appearance:textfield] [&::-webkit-inner-spin-button]:appearance-none [&::-webkit-outer-spin-button]:appearance-none',
+          'mx-auto h-8 w-24 bg-background px-2 text-center text-sm font-medium tabular-nums',
         )}
       />
-    </div>
   );
 }
 
@@ -135,7 +134,7 @@ export function CourtCapacityRules({
   const [draft, setDraft] = useState<GridState>(initial);
   const [saved, setSaved] = useState<GridState>(initial);
   const [errorMsg, setErrorMsg] = useState('');
-  const [open, setOpen] = useState<Partial<Record<DayCategory, boolean>>>({ WEEKDAY: true });
+  const [selectedDay, setSelectedDay] = useState<DayCategory>('WEEKDAY');
   const queryClient = useQueryClient();
 
   const saveMutation = useMutation({
@@ -204,13 +203,6 @@ export function CourtCapacityRules({
     return a && b && a.value !== b.value;
   });
 
-  function toggleDay(day: DayCategory) {
-    setOpen((prev) => ({
-      ...prev,
-      [day]: !prev[day],
-    }));
-  }
-
   function handleChange(day: DayCategory, shift: ShiftType, positionId: string, raw: string) {
     const key = cellKey(day, shift, positionId);
 
@@ -238,53 +230,67 @@ export function CourtCapacityRules({
 
   return (
     <div className={cn('space-y-5 ', className)} dir="rtl">
-      <div className="space-y-3">
-        {DAY_CATEGORIES.map((day) => {
-          const isOpen = !!open[day];
-          return (
-            <div
-              key={day}
-              className="overflow-hidden rounded-xl border border-border/80 bg-card/40 shadow-sm transition-shadow hover:shadow-md"
-            >
-              <button
-                type="button"
-                onClick={() => toggleDay(day)}
-                className="flex w-full items-center justify-between gap-3 px-4 py-3.5 text-right text-sm font-semibold text-foreground transition-colors hover:bg-muted/50"
-              >
-                <span className="min-w-0 flex-1">{DAY_META[day].label}</span>
-                <ChevronDown
-                  className={cn('h-4 w-4 shrink-0 text-muted-foreground transition-transform', isOpen && 'rotate-180')}
-                />
-              </button>
+      <div className="flex flex-wrap gap-1 rounded-xl bg-muted/50 p-1" role="group" aria-label="סוג יום">
+        {DAY_CATEGORIES.map((day) => (
+          <Button
+            key={day}
+            type="button"
+            variant={selectedDay === day ? 'secondary' : 'ghost'}
+            size="sm"
+            aria-pressed={selectedDay === day}
+            onClick={() => setSelectedDay(day)}
+            className={cn('flex-1 rounded-lg', selectedDay === day && 'bg-background shadow-sm')}
+          >
+            {DAY_META[day].label}
+          </Button>
+        ))}
+      </div>
 
-              {isOpen && (
-                <div className="border-t border-border/60 bg-muted/10 px-2 pb-4 pt-1 sm:px-4 ">
-                  <div className="overflow-x-auto overscroll-x-contain [-webkit-overflow-scrolling:touch]">
-                    <div className="inline-flex min-w-full gap-4 sm:gap-6 md:justify-center md:gap-8">
-                      {SHIFT_ORDER.map((shift) => (
-                        <div key={shift} className="flex w-full max-w-32 flex-col">
-                          <span className="select-none text-center text-xs font-semibold uppercase tracking-wide text-muted-foreground">
-                            {SHIFT_LABELS[shift]}
-                          </span>
-                          <div className="flex flex-col gap-6 rounded-lg border border-border/50  p-2 shadow-inner">
-                            {positions.map((position) => (
-                              <Cell
-                                key={position.id}
-                                day={day}
-                                shift={shift}
-                                position={position}
-                                cell={draft[cellKey(day, shift, position.id)] ?? EMPTY_CELL}
-                                onChange={handleChange}
-                              />
-                            ))}
-                          </div>
-                        </div>
-                      ))}
-                    </div>
-                  </div>
+      <div className="space-y-3">
+        {SHIFT_ORDER.map((shift) => {
+          const { Icon, accent, icon } = SHIFT_STYLE[shift];
+          const times = defaultShiftTimes(shift);
+          return (
+            <section
+              key={shift}
+              aria-label={`משמרת ${SHIFT_LABELS[shift]} — ${DAY_META[selectedDay].label}`}
+              className={cn('flex flex-col overflow-hidden rounded-xl border border-border/70 border-l-[3px] bg-card shadow-sm sm:flex-row-reverse', accent)}
+            >
+              <div className="flex shrink-0 flex-row-reverse items-start justify-end gap-3 p-4 sm:w-48 sm:justify-start">
+                <Icon className={cn('mt-0.5 size-6 shrink-0', icon)} aria-hidden="true" />
+                <div className="space-y-1">
+                  <h3 className="text-sm font-semibold">משמרת {SHIFT_LABELS[shift]}</h3>
+                  <p className="text-xs text-muted-foreground tabular-nums" dir="ltr">{times.startTime} – {times.endTime}</p>
                 </div>
-              )}
-            </div>
+              </div>
+              <div className="min-w-0 flex-1 p-3 pt-0 sm:pt-3">
+                <table className="w-full text-sm">
+                  <caption className="sr-only">תקנים למשמרת {SHIFT_LABELS[shift]} — {DAY_META[selectedDay].label}</caption>
+                  <thead className="bg-muted/30 text-xs text-muted-foreground">
+                    <tr className="border-b border-border/50">
+                      <th scope="col" className="rounded-tr-lg px-3 py-2 text-right font-medium">תפקיד</th>
+                      <th scope="col" className="w-36 rounded-tl-lg px-3 py-2 text-center font-medium">תקן נדרש</th>
+                    </tr>
+                  </thead>
+                  <tbody className="divide-y divide-border/40">
+                    {positions.map((position) => (
+                      <tr key={position.id}>
+                        <th scope="row" className="px-3 py-1.5 text-right font-medium">{position.name}</th>
+                        <td className="px-3 py-1.5">
+                          <Cell
+                            day={selectedDay}
+                            shift={shift}
+                            position={position}
+                            cell={draft[cellKey(selectedDay, shift, position.id)] ?? EMPTY_CELL}
+                            onChange={handleChange}
+                          />
+                        </td>
+                      </tr>
+                    ))}
+                  </tbody>
+                </table>
+              </div>
+            </section>
           );
         })}
       </div>
