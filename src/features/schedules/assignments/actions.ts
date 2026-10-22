@@ -12,6 +12,7 @@ import { parseISODateToUtcMidnight } from '@/features/periods/utils';
 import { prisma } from '@/lib/db/client';
 import { loadedScheduleDetails } from './loaded-details';
 import { recordSlotChanges } from '../change-log/record';
+import { OPEN_STATUSES } from '@/features/requests/rules';
 import { defaultShiftTimes, isValidShiftTime, shiftBounds, type CustomHours } from '../shift-times';
 
 type Edit = { kind: 'create'; params: AssignEmployeeToSlotParams } |
@@ -179,6 +180,14 @@ async function applyEdit(scheduleId: string, expected: VersionExpectation, reque
     const details = loadedScheduleDetails(data);
     await tx.scheduleVersion.update({ where: { id: version.id }, data: { revision: { increment: 1 } } });
     await recordSlotChanges(tx, actor, scheduleId, version.id, before, data.assignments, violations, reason);
+    // An open transfer request (only published slots have them) belongs to the slot's employee: once the manager
+    // removes or replaces them, close it.
+    const assignee = new Map(data.assignments.map(a => [a.id, a.userId]));
+    const reassigned = before.filter(slot => slot.userId && assignee.get(slot.id) !== slot.userId).map(slot => slot.id);
+    if (direct && reassigned.length) await tx.employeeRequest.updateMany({
+      where: { facilityId: actor.facilityId, type: 'SHIFT_SWAP', status: { in: [...OPEN_STATUSES] }, slotId: { in: reassigned } },
+      data: { status: 'CANCELLED', decidedById: actor.userId, decidedAt: new Date(), decisionNote: 'בוטלה: המנהל שינה את השיבוץ במשמרת זו' },
+    });
     return { ok: true as const, scheduleId, revision: version.revision + 1, versionId: version.id, published: direct,
       assignments: details.assignments, warnings: details.warnings, fairness: details.fairness };
   });
