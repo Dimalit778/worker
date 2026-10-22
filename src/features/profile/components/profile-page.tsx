@@ -3,7 +3,6 @@ import { notFound } from 'next/navigation';
 import { UserRound } from 'lucide-react';
 import { Badge } from '@/components/ui/badge';
 import { Card, CardContent, CardHeader } from '@/components/ui/card';
-import { SystemRole } from '@/generated/prisma/client';
 import { requireSession } from '@/lib/db/auth-helpers';
 import { prisma } from '@/lib/db/client';
 
@@ -15,13 +14,6 @@ function Detail({ label, children }: { label: string; children: ReactNode }) {
     </div>
   );
 }
-
-const dateFormat = new Intl.DateTimeFormat('he-IL', {
-  day: '2-digit',
-  month: '2-digit',
-  year: 'numeric',
-  timeZone: 'Asia/Jerusalem',
-});
 
 export async function ProfilePage() {
   const session = await requireSession();
@@ -35,11 +27,7 @@ export async function ProfilePage() {
       phoneNumber: true,
       isReligious: true,
       isActive: true,
-      systemRole: true,
-      canEditSchedule: true,
-      createdAt: true,
-      updatedAt: true,
-      role: { select: { name: true, rank: true } },
+      role: { select: { name: true } },
       facility: { select: { name: true, district: { select: { name: true } } } },
     },
   });
@@ -54,15 +42,21 @@ export async function ProfilePage() {
       </div>
 
       <Card>
-        <CardContent className="flex flex-wrap items-center gap-4">
-          <div className="flex size-14 shrink-0 items-center justify-center rounded-lg bg-primary/15 text-primary">
-            <UserRound className="size-7" aria-hidden />
+        <CardContent className="space-y-4">
+          <div className="flex flex-wrap items-center gap-4">
+            <div className="flex size-14 shrink-0 items-center justify-center rounded-lg bg-primary/15 text-primary">
+              <UserRound className="size-7" aria-hidden />
+            </div>
+            <div className="min-w-0 flex-1">
+              <p className="break-words text-xl font-semibold">{user.firstName} {user.lastName}</p>
+            </div>
+            <Badge variant="secondary">{user.isActive ? 'חשבון פעיל' : 'חשבון מושבת'}</Badge>
           </div>
-          <div className="min-w-0 flex-1">
-            <p className="break-words text-xl font-semibold">{user.firstName} {user.lastName}</p>
-            <p className="mt-1 break-words text-sm text-muted-foreground">{user.role.name} · {user.facility.name}</p>
-          </div>
-          <Badge variant="secondary">{user.isActive ? 'חשבון פעיל' : 'חשבון מושבת'}</Badge>
+          <dl className="grid gap-3 sm:grid-cols-3">
+            <Detail label="תפקיד">{user.role.name}</Detail>
+            <Detail label="מתקן">{user.facility.name}</Detail>
+            <Detail label="מחוז">{user.facility.district.name}</Detail>
+          </dl>
         </CardContent>
       </Card>
 
@@ -76,30 +70,6 @@ export async function ProfilePage() {
             <Detail label="אימייל"><bdi dir="ltr">{user.email}</bdi></Detail>
             <Detail label="טלפון"><bdi dir="ltr">{user.phoneNumber?.trim() || 'לא הוזן'}</bdi></Detail>
             <Detail label="שומר שבת">{user.isReligious ? 'כן' : 'לא'}</Detail>
-          </dl>
-        </CardContent>
-      </Card>
-
-      <Card>
-        <CardHeader><h2 className="text-base font-medium">פרטי עבודה והרשאות</h2></CardHeader>
-        <CardContent>
-          <dl className="grid gap-3 sm:grid-cols-2">
-            <Detail label="תפקיד">{user.role.name}</Detail>
-            <Detail label="דרגה">{user.role.rank}</Detail>
-            <Detail label="בית משפט">{user.facility.name}</Detail>
-            <Detail label="מחוז">{user.facility.district.name}</Detail>
-            <Detail label="הרשאה במערכת">{user.systemRole === SystemRole.ADMIN ? 'מנהל מערכת' : 'משתמש'}</Detail>
-            <Detail label="הרשאה לעריכת שיבוץ">{user.canEditSchedule ? 'כן' : 'לא'}</Detail>
-          </dl>
-        </CardContent>
-      </Card>
-
-      <Card>
-        <CardHeader><h2 className="text-base font-medium">פרטי חשבון</h2></CardHeader>
-        <CardContent>
-          <dl className="grid gap-3 sm:grid-cols-2">
-            <Detail label="תאריך הצטרפות">{dateFormat.format(user.createdAt)}</Detail>
-            <Detail label="עודכן לאחרונה">{dateFormat.format(user.updatedAt)}</Detail>
           </dl>
         </CardContent>
       </Card>

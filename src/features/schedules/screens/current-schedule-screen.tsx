@@ -57,7 +57,7 @@ export function CurrentScheduleScreen({
     return (
       <div className="flex h-full flex-col items-center justify-center" dir="rtl">
         <h1 className="text-2xl font-bold">{emptyStateTitle}</h1>
-        <p className="mt-2 text-sm text-muted-foreground">הסידור יופיע כאן לאחר פרסום הקצין.</p>
+        <p className="mt-2 text-sm text-muted-foreground">הסידור יופיע כאן לאחר פרסום</p>
       </div>
     );
   }
