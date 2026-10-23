@@ -45,7 +45,7 @@ export function ScheduleStats({ warnings, hasSchedule = true, submittedCount, el
 
   return (
     <div className="flex flex-col gap-3" dir="rtl">
-      <div className={cn('grid grid-cols-2 gap-2', readiness && 'sm:grid-cols-4')}>
+      <div className={cn('grid grid-cols-2 items-start gap-2', readiness && 'sm:grid-cols-4')}>
         <StatTile
           label="הגשות"
           value={
@@ -68,14 +68,36 @@ export function ScheduleStats({ warnings, hasSchedule = true, submittedCount, el
         />
         {readiness && (
           <>
-            <StatTile
-              label="חוסרים"
-              value={<span className="text-2xl font-bold tracking-tight">{hasSchedule ? shortages.length : '—'}</span>}
-              open={activePanel === 'shortages'}
-              disabled={shortages.length === 0}
-              tone={shortages.length > 0 ? 'danger' : 'neutral'}
-              onClick={() => toggle('shortages')}
-            />
+            <div className="flex min-w-0 flex-col gap-2">
+              <StatTile
+                label="חוסרים"
+                value={<span className="text-2xl font-bold tracking-tight">{hasSchedule ? shortages.length : '—'}</span>}
+                open={activePanel === 'shortages'}
+                disabled={shortages.length === 0}
+                tone={shortages.length > 0 ? 'danger' : 'neutral'}
+                onClick={() => toggle('shortages')}
+              />
+              {activePanel === 'shortages' && shortages.length > 0 && (
+                <Card className="rounded-xl shadow-none border-border/60 animate-in fade-in slide-in-from-top-1 duration-150">
+                  <CardContent className="p-4">
+                    <p className="text-xs font-semibold uppercase tracking-wide text-muted-foreground mb-3">
+                      משמרות עם חוסר בעובדים ({shortages.length})
+                    </p>
+                    <div className="flex max-h-72 flex-col gap-1 overflow-y-auto">
+                      {shortages.map((w) => (
+                        <div key={w.id} className="rounded-lg bg-muted/40 px-3 py-2 text-sm">
+                          <span className="font-medium">
+                            {[w.date ? `${w.date.slice(8, 10)}/${w.date.slice(5, 7)}` : null, w.shiftType ? SHIFT_LABELS[w.shiftType] : null, w.positionName]
+                              .filter(Boolean)
+                              .join(' · ')}
+                          </span>
+                        </div>
+                      ))}
+                    </div>
+                  </CardContent>
+                </Card>
+              )}
+            </div>
             <StatTile
               label="חלוקת משמרות"
               value={<span className="text-sm font-medium">משמרות ושעות לעובד</span>}
@@ -111,28 +133,6 @@ export function ScheduleStats({ warnings, hasSchedule = true, submittedCount, el
             </div>
             </>
             )}
-          </CardContent>
-        </Card>
-      )}
-
-      {activePanel === 'shortages' && shortages.length > 0 && (
-        <Card className="rounded-xl shadow-none border-border/60 animate-in fade-in slide-in-from-top-1 duration-150">
-          <CardContent className="p-4">
-            <p className="text-xs font-semibold uppercase tracking-wide text-muted-foreground mb-3">
-              משמרות עם חוסר בעובדים ({shortages.length})
-            </p>
-            <div className="flex max-h-72 flex-col gap-1 overflow-y-auto">
-              {shortages.map((w) => (
-                <div key={w.id} className="flex items-center justify-between gap-3 rounded-lg bg-muted/40 px-3 py-2 text-sm">
-                  <span className="font-medium">
-                    {[w.date ? `${w.date.slice(8, 10)}/${w.date.slice(5, 7)}` : null, w.shiftType ? SHIFT_LABELS[w.shiftType] : null, w.positionName]
-                      .filter(Boolean)
-                      .join(' · ')}
-                  </span>
-                  <span className="text-xs text-muted-foreground">{w.message}</span>
-                </div>
-              ))}
-            </div>
           </CardContent>
         </Card>
       )}
@@ -184,7 +184,7 @@ function StatTile({
       disabled={disabled}
       aria-expanded={!disabled && open}
       className={cn(
-        'flex items-center justify-between gap-3 rounded-xl border px-4 py-3 text-end transition-all',
+        'flex w-full items-center justify-between gap-3 rounded-xl border px-4 py-3 text-end transition-all',
         disabled ? 'cursor-default border-border/60 bg-muted/30' : 'cursor-pointer hover:-translate-y-px hover:shadow-md active:translate-y-0',
         !disabled && danger && (open ? 'border-red-400 bg-red-950 ring-2 ring-red-400' : 'border-red-200 bg-red-950/60'),
         !disabled && !danger && (open ? 'border-primary bg-primary/5 ring-2 ring-primary' : 'border-border/60 bg-muted/30'),
