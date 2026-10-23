@@ -1,6 +1,6 @@
 'use client';
 
-import { useMemo, useState } from 'react';
+import { useState } from 'react';
 import {
   Select,
   SelectContent,
@@ -9,6 +9,7 @@ import {
   SelectValue,
 } from '@/components/ui/select';
 import { WeekNavigator } from './week-navigator';
+import { EmployeeLoadTile, ScheduleStats } from './schedule-stats';
 import { ShiftSection } from './shift-section';
 import { MobileDayScheduleView } from './mobile-day-schedule-view';
 import { buildWeekDays, initialWeekIndexForToday } from '../utils';
@@ -28,20 +29,12 @@ export function WeeklyDraftScheduleView({
   readonly,
   highlightedEmployeeId: initialHighlightedEmployeeId = null,
   showHighlightPicker = true,
+  loadReadiness,
+  toolbarStats,
 }: WeeklyDraftScheduleViewProps) {
   const [weekIndex, setWeekIndex] = useState(() => initialWeekIndexForToday(startDate));
   const [highlightedEmployeeId, setHighlightedEmployeeId] = useState<string | null>(initialHighlightedEmployeeId);
   const weekDays = buildWeekDays(startDate, weekIndex);
-  const highlightedEmployeeName = employees.find(employee => employee.id === highlightedEmployeeId)?.displayName;
-  const highlightedAssignmentsCount = useMemo(() => {
-    if (!showHighlightPicker || !highlightedEmployeeId) return 0;
-    return Object.values(assignments)
-      .flat()
-      .filter((assignment) => assignment.employeeId === highlightedEmployeeId).length;
-  }, [assignments, highlightedEmployeeId, showHighlightPicker]);
-  const highlightedCountLabel = highlightedAssignmentsCount === 1
-    ? 'משבצת אחת מסומנת'
-    : `${highlightedAssignmentsCount} משבצות מסומנות`;
 
   function weekRangeLabel(idx: number): string {
     const days = buildWeekDays(startDate, idx);
@@ -50,42 +43,72 @@ export function WeeklyDraftScheduleView({
 
   return (
     <div className="mx-auto w-full max-w-6xl" dir="rtl">
-      {showHighlightPicker ? (
-        <div className="mb-3 flex flex-col gap-1.5 rounded-[8px] border border-border/60 bg-card px-2.5 py-2 shadow-sm sm:flex-row sm:items-center sm:justify-between">
-          <div className="min-w-0">
-            <p className="text-sm font-semibold text-foreground">הבלטת משמרות של עובד</p>
-            <p className="text-xs text-muted-foreground">
-              {highlightedEmployeeId
-                ? `${highlightedEmployeeName ?? 'העובד הנבחר'} · ${highlightedCountLabel} בתקופה. כל הסידור נשאר מוצג.`
-                : 'בחרו עובד כדי להבליט את המשמרות שלו בתוך הסידור המלא'}
-            </p>
+      <div className="mb-5 grid grid-cols-[1fr_auto_1fr] items-center gap-2">
+        {toolbarStats ? (
+          <div className="min-w-0 w-full">
+            <ScheduleStats
+              warnings={toolbarStats.warnings}
+              hasSchedule={toolbarStats.hasSchedule}
+              submittedCount={toolbarStats.submittedCount}
+              eligibleCount={toolbarStats.eligibleCount}
+              missingEmployees={toolbarStats.missingEmployees}
+              readiness={
+                loadReadiness
+                  ? { scheduleId, versionId: loadReadiness.versionId, revision: loadReadiness.revision }
+                  : undefined
+              }
+              showLoadTile={false}
+              layout="inline"
+            />
           </div>
-          <Select
-            value={highlightedEmployeeId ?? NO_HIGHLIGHT}
-            onValueChange={(value) => setHighlightedEmployeeId(value === NO_HIGHLIGHT ? null : value)}
-          >
-            <SelectTrigger className="w-full bg-background sm:w-64" aria-label="בחירת עובד לסימון משמרות">
-              <SelectValue placeholder="בחר עובד" />
-            </SelectTrigger>
-            <SelectContent>
-              <SelectItem value={NO_HIGHLIGHT}>ללא סימון</SelectItem>
-              {employees.map((employee) => (
-                <SelectItem key={employee.id} value={employee.id}>
-                  {employee.displayName}
-                </SelectItem>
-              ))}
-            </SelectContent>
-          </Select>
-        </div>
-      ) : null}
-
-      <WeekNavigator
-        index={weekIndex}
-        onChange={setWeekIndex}
-        labels={[weekRangeLabel(0), weekRangeLabel(1)]}
-        prevAriaLabel="שבוע א׳"
-        nextAriaLabel="שבוע ב׳"
-      />
+        ) : (
+          <div aria-hidden />
+        )}
+        <WeekNavigator
+          index={weekIndex}
+          onChange={setWeekIndex}
+          labels={[weekRangeLabel(0), weekRangeLabel(1)]}
+          prevAriaLabel="שבוע א׳"
+          nextAriaLabel="שבוע ב׳"
+        />
+        {showHighlightPicker || loadReadiness ? (
+          <div className="flex items-center gap-2 justify-self-end">
+            {loadReadiness ? (
+              <div className="w-44 shrink-0 sm:w-52">
+                <EmployeeLoadTile
+                  scheduleId={scheduleId}
+                  versionId={loadReadiness.versionId}
+                  revision={loadReadiness.revision}
+                  compact
+                />
+              </div>
+            ) : null}
+            {showHighlightPicker ? (
+              <Select
+                value={highlightedEmployeeId ?? NO_HIGHLIGHT}
+                onValueChange={(value) => setHighlightedEmployeeId(value === NO_HIGHLIGHT ? null : value)}
+              >
+                <SelectTrigger
+                  className="h-9 w-44 border-border bg-card shadow-[var(--glass-shadow)] sm:w-52"
+                  aria-label="בחירת עובד לסימון משמרות"
+                >
+                  <SelectValue placeholder="בחר עובד" />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value={NO_HIGHLIGHT}>ללא סימון</SelectItem>
+                  {employees.map((employee) => (
+                    <SelectItem key={employee.id} value={employee.id}>
+                      {employee.displayName}
+                    </SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
+            ) : null}
+          </div>
+        ) : (
+          <div aria-hidden />
+        )}
+      </div>
 
       {/* Desktop/tablet: shift-first dense grid. Below md, a table is unusable at this density. */}
       <div className="hidden md:block">

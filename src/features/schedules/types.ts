@@ -122,6 +122,16 @@ export type WeeklyDraftScheduleViewProps = {
   highlightedEmployeeId?: string | null;
   /** Manager-only filter bar; keep false for employees who still get self-highlight. */
   showHighlightPicker?: boolean;
+  /** When set with showHighlightPicker, shows the load tile between week nav and employee select. */
+  loadReadiness?: { versionId: string | null; revision: number };
+  /** Compact stats (הגשות / בעיות / חוסר) shown to the right of the week navigator. */
+  toolbarStats?: {
+    warnings: ScheduleWarningSummary[];
+    hasSchedule: boolean;
+    submittedCount: number;
+    eligibleCount: number;
+    missingEmployees: AvailabilitySubmissionSummary['missingEmployees'];
+  };
 };
 
 export type WeekDay = {

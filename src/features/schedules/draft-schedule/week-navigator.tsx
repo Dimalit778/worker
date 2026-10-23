@@ -22,52 +22,53 @@ export function WeekNavigator({
   const atStart = index <= 0;
   const atEnd = index >= lastIndex;
 
+  const navButtonClass = (disabled: boolean) =>
+    cn(
+      'flex size-8 shrink-0 items-center justify-center rounded-[6px] border border-border text-card-foreground/80 transition-colors',
+      disabled ? 'cursor-default opacity-30' : 'hover:bg-muted hover:text-card-foreground',
+    );
+
   return (
-    <div className="mb-3 flex justify-center" dir="rtl">
-      <div className="flex items-center gap-2 rounded-[8px] border border-border/60 bg-card px-3 py-1.5 shadow-sm">
-        <button
-          type="button"
-          onClick={() => onChange(index - 1)}
-          disabled={atStart}
-          className={cn(
-            'flex size-8 items-center justify-center rounded-md border border-border bg-muted text-muted-foreground transition-colors',
-            atStart ? 'cursor-default opacity-30' : 'hover:bg-accent',
-          )}
-          aria-label={prevAriaLabel}
-        >
-          <ChevronRight className="h-3.5 w-3.5" />
-        </button>
+    <div
+      className="flex items-center gap-6 rounded-md border border-border bg-card px-2 py-1.5 shadow-[var(--glass-shadow)]"
+      dir="rtl"
+    >
+      <button
+        type="button"
+        onClick={() => onChange(index - 1)}
+        disabled={atStart}
+        className={navButtonClass(atStart)}
+        aria-label={prevAriaLabel}
+      >
+        <ChevronRight className="h-4 w-4" strokeWidth={1.75} />
+      </button>
 
-        <div className="flex min-w-[160px] flex-col items-center gap-0.5">
-          <span className="text-sm font-semibold tabular-nums">{label}</span>
-          {count > 1 ? (
-            <div className="flex gap-1">
-              {Array.from({ length: count }, (_, i) => (
-                <div
-                  key={i}
-                  className={cn(
-                    'h-1.5 w-1.5 rounded-full',
-                    index === i ? 'bg-primary' : 'bg-muted-foreground/30',
-                  )}
-                />
-              ))}
-            </div>
-          ) : null}
-        </div>
-
-        <button
-          type="button"
-          onClick={() => onChange(index + 1)}
-          disabled={atEnd}
-          className={cn(
-            'flex size-8 items-center justify-center rounded-md border border-border bg-muted text-muted-foreground transition-colors',
-            atEnd ? 'cursor-default opacity-30' : 'hover:bg-accent',
-          )}
-          aria-label={nextAriaLabel}
-        >
-          <ChevronLeft className="h-3.5 w-3.5" />
-        </button>
+      <div className="flex min-w-[11rem] flex-col items-center gap-1 px-2">
+        <span className="text-sm font-semibold tabular-nums tracking-wide text-card-foreground">{label}</span>
+        {count > 1 ? (
+          <div className="flex gap-1.5" aria-hidden>
+            {Array.from({ length: count }, (_, i) => (
+              <div
+                key={i}
+                className={cn(
+                  'h-1.5 w-1.5 rounded-full transition-colors',
+                  index === i ? 'bg-primary' : 'bg-muted-foreground/35',
+                )}
+              />
+            ))}
+          </div>
+        ) : null}
       </div>
+
+      <button
+        type="button"
+        onClick={() => onChange(index + 1)}
+        disabled={atEnd}
+        className={navButtonClass(atEnd)}
+        aria-label={nextAriaLabel}
+      >
+        <ChevronLeft className="h-4 w-4" strokeWidth={1.75} />
+      </button>
     </div>
   );
 }

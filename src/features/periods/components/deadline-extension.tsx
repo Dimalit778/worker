@@ -26,8 +26,14 @@ function formatInstant(value: string | null) {
   return value ? formatJerusalemDateTime(new Date(value)) : '—';
 }
 
+type DeadlineExtensionProps = {
+  scheduleId: string;
+  /** When false, only the deadline label is shown (no extend control). Default true. */
+  allowExtend?: boolean;
+};
+
 /** Manager control for extending the submission deadline. Renders nothing when not relevant. */
-export function DeadlineExtension({ scheduleId }: { scheduleId: string }) {
+export function DeadlineExtension({ scheduleId, allowExtend = true }: DeadlineExtensionProps) {
   const queryClient = useQueryClient();
   const { data } = useQuery({
     queryKey: extensionsKey(scheduleId),
@@ -60,7 +66,9 @@ export function DeadlineExtension({ scheduleId }: { scheduleId: string }) {
     onError: () => setMessage({ tone: 'error', text: 'שגיאה בהארכת מועד ההגשה' }),
   });
 
-  if (!data || (!data.canExtend && data.extensions.length === 0)) return null;
+  if (!data) return null;
+  if (allowExtend && !data.canExtend && data.extensions.length === 0) return null;
+  if (!allowExtend && !data.submissionDeadline) return null;
 
   function handleOpenChange(next: boolean) {
     setOpen(next);
@@ -72,6 +80,15 @@ export function DeadlineExtension({ scheduleId }: { scheduleId: string }) {
   }
 
   const canSubmit = deadline !== '' && reason.trim() !== '' && !mutation.isPending;
+  const label = (
+    <span className="whitespace-nowrap text-xs text-muted-foreground">
+      מועד הגשה: {formatInstant(data.submissionDeadline)}
+    </span>
+  );
+
+  if (!allowExtend) {
+    return label;
+  }
 
   return (
     <div className="space-y-2 text-sm" dir="rtl">
@@ -138,7 +155,6 @@ export function DeadlineExtension({ scheduleId }: { scheduleId: string }) {
           {message.text}
         </p>
       )}
-
     </div>
   );
 }

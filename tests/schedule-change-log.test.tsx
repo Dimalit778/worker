@@ -26,9 +26,22 @@ vi.mock('@/features/periods/components/deadline-extension', () => ({ DeadlineExt
 vi.mock('@/features/schedules/draft-schedule/topbar', () => ({ TopBar: () => null }));
 vi.mock('@/features/schedules/draft-schedule/schedule-stats', () => ({
   ScheduleStats: ({ hasSchedule }: { hasSchedule: boolean }) => <div data-testid="schedule-stats" data-has-schedule={String(hasSchedule)} />,
+  EmployeeLoadTile: () => null,
 }));
 vi.mock('@/features/schedules/current-schedule', () => ({ CurrentScheduleView: () => <p>לוח יומי לבדיקה</p> }));
-vi.mock('@/features/schedules/draft-schedule/weekly-draft-schedule-view', () => ({ WeeklyDraftScheduleView: (props: { readonly?: boolean }) => <p data-readonly={String(props.readonly)}>לוח שבועי לבדיקה</p> }));
+vi.mock('@/features/schedules/draft-schedule/weekly-draft-schedule-view', () => ({
+  WeeklyDraftScheduleView: (props: {
+    readonly?: boolean;
+    toolbarStats?: { hasSchedule: boolean };
+  }) => (
+    <div>
+      <p data-readonly={String(props.readonly)}>לוח שבועי לבדיקה</p>
+      {props.toolbarStats ? (
+        <div data-testid="schedule-stats" data-has-schedule={String(props.toolbarStats.hasSchedule)} />
+      ) : null}
+    </div>
+  ),
+}));
 
 import { ChangeLogList } from '@/features/schedules/change-log/change-log-list';
 import { CurrentScheduleScreen } from '@/features/schedules/screens/current-schedule-screen';

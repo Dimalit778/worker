@@ -9,7 +9,6 @@ import { Card, CardDescription, CardHeader, CardTitle } from '@/components/ui/ca
 import { CreatePeriodForm } from '@/features/periods/components/create-period-form';
 import { WeeklyDraftScheduleView } from '@/features/schedules/draft-schedule/weekly-draft-schedule-view';
 import { TopBar } from '@/features/schedules/draft-schedule/topbar';
-import { ScheduleStats } from '@/features/schedules/draft-schedule/schedule-stats';
 import { useDraftSchedule } from '@/features/schedules/hooks';
 
 export function ManagerDraftScreen({ scheduleId }: { scheduleId?: string }) {
@@ -52,28 +51,11 @@ export function ManagerDraftScreen({ scheduleId }: { scheduleId?: string }) {
 
   const isReadonly = data.scheduleStatus === 'PUBLISHED' && !data.hasUnpublishedDraft;
   const canCreateNewSchedule = isReadonly;
-  const submission = data.availabilitySubmissionSummary;
-  const eligible = submission?.eligibleEmployeeCount ?? 0;
-  const submitted = submission?.submittedCount ?? 0;
-  const missingEmployees = submission?.missingEmployees ?? [];
-  // A new period already has an empty version at revision 0. Generation and saved edits advance it.
-  const hasSchedule = (data.revision ?? 0) > 0 || data.scheduleStatus === 'PUBLISHED' || Object.values(data.assignments).some((cell) => cell.length > 0);
 
   return (
     <VersionProvider value={{ versionId: data.versionId ?? null, revision: data.revision ?? 0 }}>
       <div className="space-y-6" dir="rtl">
-        {/* Top bar, stats and the schedule below sit flush, without the page's section spacing. */}
-        <div className="mb-0">
-          <TopBar data={data} showCreateButton={canCreateNewSchedule} />
-          <ScheduleStats
-            warnings={data.warnings}
-            hasSchedule={hasSchedule}
-            submittedCount={submitted}
-            eligibleCount={eligible}
-            missingEmployees={missingEmployees}
-            readiness={{ scheduleId: data.scheduleId, versionId: data.versionId ?? null, revision: data.revision ?? 0 }}
-          />
-        </div>
+        <TopBar data={data} showCreateButton={canCreateNewSchedule} />
 
         {isReadonly && (
           <div
@@ -111,6 +93,14 @@ function DraftSchedule({ data, readonly }: { data: CurrentScheduleData; readonly
       facilityId={data.facilityId}
       overflowCandidates={data.overflowCandidates}
       readonly={readonly}
+      loadReadiness={{ versionId: data.versionId ?? null, revision: data.revision ?? 0 }}
+      toolbarStats={{
+        warnings: data.warnings,
+        hasSchedule: (data.revision ?? 0) > 0 || data.scheduleStatus === 'PUBLISHED' || Object.values(data.assignments).some((cell) => cell.length > 0),
+        submittedCount: data.availabilitySubmissionSummary?.submittedCount ?? 0,
+        eligibleCount: data.availabilitySubmissionSummary?.eligibleEmployeeCount ?? 0,
+        missingEmployees: data.availabilitySubmissionSummary?.missingEmployees ?? [],
+      }}
     />
   );
 }

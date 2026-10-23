@@ -122,7 +122,7 @@ export function DraftActions({ scheduleId, scheduleStatus, hasUnpublishedDraft =
 
   return (
     <>
-      <div className="flex items-center gap-3 flex-wrap" dir="rtl">
+      <div className="flex flex-wrap items-center gap-2" dir="rtl">
         <div role="status" aria-live="polite">
           {error && <p className="text-sm text-destructive">{error}</p>}
           {message && <p className="text-sm text-green-200">{message}</p>}
