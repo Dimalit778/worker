@@ -52,13 +52,16 @@ it('shows mandatory staffing details only under shortage and individual issues o
   expect(screen.getByText('איתי')).toBeInTheDocument();
   expect(screen.getByText('שבוע 1 — חסר בוקר')).toBeInTheDocument();
   expect(screen.queryByText(minimum.message)).not.toBeInTheDocument();
-  expect(screen.getByRole('button', { name: /בעיות/ }).parentElement).toContainElement(screen.getByText('איתי'));
+  expect(screen.getByRole('dialog', { name: 'פירוט בעיות' })).toContainElement(screen.getByText('איתי'));
   expect(screen.getByText(`${conflict.message} — בוקר`)).toBeInTheDocument();
   expect(screen.queryByText(shortage.message)).not.toBeInTheDocument();
   fireEvent.click(screen.getByRole('button', { name: /חוסר/ }));
   expect(screen.getByText('25/10 · בוקר · בקר')).toBeInTheDocument();
   expect(screen.queryByText(shortage.message)).not.toBeInTheDocument();
-  expect(screen.getByRole('button', { name: /חוסר/ }).parentElement)
+  expect(screen.getByRole('dialog', { name: 'פירוט חוסר' }))
     .toContainElement(screen.getByText('חוסר לפי תקני חובה (1)'));
   expect(screen.queryByText(minimum.message)).not.toBeInTheDocument();
+  expect(screen.queryByRole('dialog', { name: 'פירוט בעיות' })).not.toBeInTheDocument();
+  fireEvent.keyDown(screen.getByRole('dialog'), { key: 'Escape' });
+  expect(screen.queryByRole('dialog')).not.toBeInTheDocument();
 });
