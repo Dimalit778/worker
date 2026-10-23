@@ -65,7 +65,7 @@ it('lists shortages, exceptions and changes, and confirms issues the manager rev
   renderActions();
   fireEvent.click(screen.getByRole('button', { name: 'פרסם שיבוץ' }));
   expect(await screen.findByText('משמרת לא מאוישת')).toBeInTheDocument();
-  expect(screen.getByText('העובד סימן שאינו זמין למשמרת')).toBeInTheDocument();
+  expect(screen.queryByText('העובד סימן שאינו זמין למשמרת')).not.toBeInTheDocument();
   expect(screen.getByText(/אבי ← בני/)).toBeInTheDocument();
   expect(screen.getByText('השוואה לגרסה המפורסמת (גרסה 1).')).toBeInTheDocument();
   fireEvent.click(screen.getByRole('button', { name: 'פרסם למרות הבעיות' }));

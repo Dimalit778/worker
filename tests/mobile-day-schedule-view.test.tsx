@@ -50,7 +50,7 @@ const eveningGuard: ScheduleCapacityRule = {
   amount: 6,
 };
 
-it('groups by Day -> Shift -> Position, rendering every required slot as a mobile row (as="row")', () => {
+it('shows the selected day with the desktop shift tables, rendering every required slot', () => {
   const weekDays = [{ iso: '2026-10-05', dayOfWeek: 1, letter: 'ב', label: '05/10' }];
   const capacity: ScheduleCapacityRule[] = [morningManager, morningGuard, eveningGuard];
 
@@ -65,17 +65,16 @@ it('groups by Day -> Shift -> Position, rendering every required slot as a mobil
     />,
   );
 
-  // Day heading present once.
-  expect(screen.getByText('05/10')).toBeInTheDocument();
+  // Day appears in the picker and in each shift table header.
+  expect(screen.getByRole('button', { name: 'ב 05/10' })).toHaveAttribute('aria-pressed', 'true');
   // Both shift sections for this day render (morning has manager+10 guards, evening has 6 guards).
   expect(screen.getByText('בוקר')).toBeInTheDocument();
   expect(screen.getByText('ערב')).toBeInTheDocument();
-  // Night has no capacity rules for this day -> its shift section must not render at all.
-  expect(screen.queryByText('לילה')).not.toBeInTheDocument();
+  // Night has no capacity rules for this day -> it renders as the empty "no staffing" banner.
+  expect(screen.getByText('אין תקנים למשמרת זו')).toBeInTheDocument();
 
   const rows = screen.getAllByText('פנוי');
   expect(rows).toHaveLength(1 /* manager */ + 10 /* morning guards */ + 6 /* evening guards */);
-  rows.forEach((row) => expect(row).toHaveAttribute('data-as', 'row'));
 });
 
 it('preserves every assignment through the day-first regrouping (no slot dropped or duplicated)', () => {

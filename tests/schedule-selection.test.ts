@@ -36,8 +36,10 @@ it('dashboard and default draft screen exclude open submissions and expired peri
   const dashboard = mocks.schedule.findFirst.mock.calls[1][0];
   await getDraftScheduleData('facility');
   const screen = mocks.schedule.findFirst.mock.calls[3][0];
-  expect(screen.where).toEqual(dashboard.where);
-  expect(screen.where).toEqual({ facilityId: 'facility', status: 'DRAFT', submissionClosesAt: { lte: new Date() }, endDate: { gte: new Date('2026-10-25') } });
+  expect(screen.where.OR[0]).toEqual(dashboard.where);
+  expect(screen.where.OR[0]).toEqual({ facilityId: 'facility', status: 'DRAFT', submissionClosesAt: { lte: new Date() }, endDate: { gte: new Date('2026-10-25') } });
+  // A published schedule that has not started yet stays reachable from the draft screen.
+  expect(screen.where.OR[1]).toEqual({ facilityId: 'facility', status: 'PUBLISHED', startDate: { gt: new Date('2026-10-25') } });
   expect(screen.orderBy).toEqual(dashboard.orderBy);
 });
 it('dashboard falls back to the nearest draft still open for submissions', async () => {
