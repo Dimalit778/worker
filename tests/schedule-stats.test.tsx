@@ -55,6 +55,8 @@ it('shows mandatory staffing details only under shortage and individual issues o
   expect(screen.queryByText(shortage.message)).not.toBeInTheDocument();
   fireEvent.click(screen.getByRole('button', { name: /חוסר/ }));
   expect(screen.getByText('25/10 · בוקר · בקר')).toBeInTheDocument();
-  expect(screen.getByText(shortage.message)).toBeInTheDocument();
+  expect(screen.queryByText(shortage.message)).not.toBeInTheDocument();
+  expect(screen.getByRole('button', { name: /חוסר/ }).parentElement)
+    .toContainElement(screen.getByText('חוסר לפי תקני חובה (1)'));
   expect(screen.queryByText(minimum.message)).not.toBeInTheDocument();
 });
