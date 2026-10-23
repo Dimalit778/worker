@@ -5,6 +5,7 @@ import { prisma } from '@/lib/db/client';
 import { syncSubmissionWindows } from '@/features/periods/process-windows';
 import { AppShell } from '@/components/navigation/app-shell';
 import { countOpenUrgent } from '@/features/requests/queries';
+import { upcomingPublishedWhere } from '@/features/schedules/selection';
 
 const navItems = [
   { href: '/manager', label: 'ראשי' },
@@ -25,9 +26,14 @@ export default async function ManagerLayout({ children }: { children: React.Reac
     ? await Promise.all([
         prisma.facility.findUnique({ where: { id: session.user.facilityId } }),
         countOpenUrgent(session.user.facilityId),
-        // The draft tab appears only once the submission deadline has passed and the schedule is not yet published.
+        // The draft tab appears once the submission deadline has passed, and stays after publishing until the schedule starts.
         prisma.schedule.count({
-          where: { facilityId: session.user.facilityId, status: 'DRAFT', draftVersionId: { not: null }, submissionClosesAt: { lte: new Date() } },
+          where: {
+            OR: [
+              { facilityId: session.user.facilityId, status: 'DRAFT', draftVersionId: { not: null }, submissionClosesAt: { lte: new Date() } },
+              upcomingPublishedWhere(session.user.facilityId),
+            ],
+          },
         }).then(count => count > 0),
       ])
     : [null, 0, false];

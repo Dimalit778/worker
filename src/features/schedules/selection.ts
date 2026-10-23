@@ -13,3 +13,8 @@ export function preparationScheduleWhere(facilityId: string, now = new Date()) {
     submissionClosesAt: { lte: now },
   };
 }
+
+/** Published but not started yet: still viewable from the preparation screen before it becomes current. */
+export function upcomingPublishedWhere(facilityId: string, now = new Date()) {
+  return { facilityId, status: 'PUBLISHED' as const, startDate: { gt: todayUtcDateForTimeZone('Asia/Jerusalem', now) } };
+}

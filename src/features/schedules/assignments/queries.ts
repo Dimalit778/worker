@@ -16,7 +16,7 @@ import { buildAssignmentMap, toScheduleData } from './utils';
 import { toDatedCapacityRules, type DatedCapacityRule } from '../utils';
 import type { EngineInput } from '@/features/scheduling-engine/types';
 import { todayUtcDateForTimeZone } from '@/features/periods/utils';
-import { currentScheduleWhere, preparationScheduleWhere } from '../selection';
+import { currentScheduleWhere, preparationScheduleWhere, upcomingPublishedWhere } from '../selection';
 import { getPublishedSlots } from './published-slots';
 import { readFacilityCache } from '@/lib/cache/data-cache';
 
@@ -214,7 +214,7 @@ export async function getDraftScheduleData(facilityId: string, scheduleId?: stri
   const schedule = await prisma.schedule.findFirst({
     where: {
       facilityId,
-      ...(scheduleId ? { id: scheduleId } : preparationScheduleWhere(facilityId)),
+      ...(scheduleId ? { id: scheduleId } : { OR: [preparationScheduleWhere(facilityId), upcomingPublishedWhere(facilityId)] }),
     },
     include: { draftVersion: true, publishedVersion: true },
     orderBy: { startDate: 'desc' },
