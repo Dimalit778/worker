@@ -221,27 +221,25 @@ describe('batch save slot lookups', () => {
   });
 });
 
-describe('batch save asks for a reason before an overlapping or too-close shift', () => {
+describe('manual save blocks consecutive shifts and records other exceptions', () => {
   const violation = (code: 'REST_GAP' | 'DOUBLE_BOOKED' | 'NO_SUBMISSION', employeeId = 'x') => ({ code, message: `msg-${code}`, employeeId });
 
-  it('returns the conflicts and records nothing when no reason was given', async () => {
-    vi.mocked(computeManualViolations).mockReturnValueOnce({ blocking: [], violations: [violation('REST_GAP'), violation('NO_SUBMISSION')] });
-    const result = await save([change(0, 'x')]);
-    expect(result).toEqual({ ok: false, requiresOverride: true, violations: [violation('REST_GAP')] });
+  it('blocks consecutive shifts and records nothing', async () => {
+    vi.mocked(computeManualViolations).mockReturnValueOnce({ blocking: ['לא ניתן לשבץ עובד למשמרות עוקבות'], violations: [] });
+    await expect(save([change(0, 'x')])).rejects.toThrow('לא ניתן לשבץ עובד למשמרות עוקבות');
     expect(tx.scheduleChange.createMany).not.toHaveBeenCalled();
     expect(tx.scheduleVersion.update).not.toHaveBeenCalled();
   });
 
-  it('asks for a double booking too', async () => {
+  it('records same-shift exceptions without asking for approval', async () => {
     vi.mocked(computeManualViolations).mockReturnValueOnce({ blocking: [], violations: [violation('DOUBLE_BOOKED')] });
-    await expect(save([change(0, 'x')])).resolves.toMatchObject({ requiresOverride: true });
+    await expect(save([change(0, 'x')])).resolves.toMatchObject({ ok: true });
   });
 
-  it('saves with the reason in the change log once the manager approves', async () => {
-    vi.mocked(computeManualViolations).mockReturnValueOnce({ blocking: [], violations: [violation('REST_GAP')] });
-    const result = await saveScheduleChanges('sch', { versionId: 'v1', revision: 0 }, [change(0, 'x')], { reason: 'אין מחליף' });
-    expect(result).toMatchObject({ ok: true });
-    expect(tx.scheduleChange.createMany.mock.calls[0][0].data[0].reason).toContain('אין מחליף');
+  it('cannot bypass consecutive shifts with an override reason', async () => {
+    vi.mocked(computeManualViolations).mockReturnValueOnce({ blocking: ['לא ניתן לשבץ עובד למשמרות עוקבות'], violations: [] });
+    await expect(saveScheduleChanges('sch', { versionId: 'v1', revision: 0 }, [change(0, 'x')], { reason: 'אין מחליף' })).rejects.toThrow('לא ניתן לשבץ עובד למשמרות עוקבות');
+    expect(tx.scheduleVersion.update).not.toHaveBeenCalled();
   });
 
   it('still saves other rule violations without asking', async () => {

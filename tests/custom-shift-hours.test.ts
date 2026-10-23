@@ -34,7 +34,7 @@ describe('custom shift hours', () => {
   it('does not flag the evening covered by the same custom hours as a conflict', () => {
     expect(computeManualViolations(input, [morning], evening).violations).toEqual([]);
     const regularEvening = { ...evening, customHours: undefined, isExtension: undefined };
-    expect(computeManualViolations(input, [morning], regularEvening).violations.map(v => v.code)).toContain('REST_GAP');
+    expect(computeManualViolations(input, [morning], regularEvening).blocking).toContain('לא ניתן לשבץ עובד למשמרות עוקבות');
   });
 
   it('fills the evening seat without counting it toward the minimum or fairness', () => {

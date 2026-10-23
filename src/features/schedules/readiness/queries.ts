@@ -3,7 +3,6 @@
 import { prisma } from '@/lib/db/client';
 import { requireManager } from '@/lib/db/auth-helpers';
 import { computeManualViolations } from '@/features/scheduling-engine/manual-violations';
-import type { EngineAssignment } from '@/features/scheduling-engine/types';
 import type { ShiftType } from '@/generated/prisma/client';
 import { loadSchedulingInput } from '../generation/queries';
 import { loadedScheduleDetails } from '../assignments/loaded-details';
@@ -121,11 +120,6 @@ export type PublishReview =
       changes: SlotChange[];
     };
 
-const toEngine = (a: { userId: string | null; facilityId: string; positionId: string; date: Date; shiftType: ShiftType; slotNumber: number; isLocked: boolean; source: EngineAssignment['source'] }): EngineAssignment => ({
-  employeeId: a.userId ?? '', facilityId: a.facilityId, positionId: a.positionId, date: a.date, shiftType: a.shiftType,
-  slotIndex: Math.max(0, a.slotNumber - 1), isManualOverride: a.isLocked, source: a.source,
-});
-
 const isoDay = (date: Date) => date.toISOString().slice(0, 10);
 
 export async function getPublishReview(scheduleId: string, expected: VersionExpectation): Promise<PublishReview> {
@@ -147,8 +141,8 @@ export async function getPublishReview(scheduleId: string, expected: VersionExpe
   const exceptions: ManualException[] = [];
   for (const row of data.assignments) {
     if (row.source !== 'MANUAL' && !row.isLocked) continue;
-    const others = data.assignments.filter((a) => a.id !== row.id).map(toEngine);
-    const result = computeManualViolations(data.input, others, toEngine(row));
+    const others = data.assignments.filter((a) => a.id !== row.id).map(data.toEngine);
+    const result = computeManualViolations(data.input, others, data.toEngine(row));
     const messages = [...result.blocking, ...result.violations.map((v) => v.message)];
     if (!messages.length) continue;
     exceptions.push({

@@ -48,8 +48,8 @@ it('still rejects a manual assignment outside the schedule period', () => {
   expect(validateAssignments(input(), [{ ...manual, date: new Date('2026-11-01T00:00:00Z') }])).toContain('עובד, תפקיד, מתקן או תאריך אינם תקינים לשיבוץ');
 });
 
-it('allows manager assignments in adjacent shifts without imposing a rest rule', () => {
-  expect(validateAssignments(input(), [manual, { ...manual, shiftType: 'EVENING' }])).toEqual([]);
+it('blocks manager assignments in consecutive shifts', () => {
+  expect(validateAssignments(input(), [manual, { ...manual, shiftType: 'EVENING' }])).toContain('לא ניתן לשבץ עובד למשמרות עוקבות');
 });
 it('does not invalidate an original automatic shift because of a new manual override', () => {
   const data = input();

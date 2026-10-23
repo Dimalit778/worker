@@ -75,6 +75,16 @@ export function hasShiftConflict(
   );
 }
 
+export const CONSECUTIVE_SHIFT_MESSAGE = 'לא ניתן לשבץ עובד למשמרות עוקבות';
+
+/** A continuous custom-hours duty may cover adjacent display cells. */
+export function hasConsecutiveAssignment(candidate: EngineAssignment, assignments: EngineAssignment[]): boolean {
+  return assignments.some(other =>
+    other.employeeId === candidate.employeeId &&
+    areAdjacentShifts(other.date, other.shiftType, candidate.date, candidate.shiftType) &&
+    !(candidate.customHours && candidate.customHours === other.customHours));
+}
+
 export function isDoubleBooked(
   employeeId: string,
   date: Date,

@@ -1,5 +1,5 @@
 import { buildSlots, createDateKey, createSlotKey, findRequiredRank } from './slots';
-import { getSlotFillCount, hasShiftConflict, isAvailable, isSameDate } from './constraints';
+import { CONSECUTIVE_SHIFT_MESSAGE, getSlotFillCount, hasConsecutiveAssignment, isAvailable, isSameDate } from './constraints';
 import { canEmployeeFillPosition } from './role-eligibility';
 import type { EngineAssignment, EngineInput } from './types';
 
@@ -26,7 +26,8 @@ export const MANUAL_VIOLATION_MESSAGES: Record<ManualViolationCode, string> = {
 
 /**
  * Checks a manual placement. `blocking` rules (facility, active employee, valid slot) can never be
- * overridden; `violations` are business rules a manager may explicitly approve.
+ * overridden; consecutive shifts are also blocked, except one continuous custom-hours duty.
+ * `violations` are informational business-rule exceptions recorded for manager edits.
  * `others` must contain every other assignment of the schedule, but not `candidate`.
  */
 export function computeManualViolations(
@@ -42,6 +43,10 @@ export function computeManualViolations(
       findRequiredRank(input, candidate.positionId) === undefined) blocking.push('תפקיד או תאריך אינם תקינים לשיבוץ');
   if (blocking.length || !employee) return { blocking, violations: [] };
 
+  if (hasConsecutiveAssignment(candidate, [...others, ...(input.boundaryAssignments ?? [])])) {
+    blocking.push(CONSECUTIVE_SHIFT_MESSAGE);
+  }
+
   const found = new Set<ManualViolationCode>();
   if (input.timeOff?.get(candidate.employeeId)?.has(createDateKey(candidate.date))) {
     found.add('TIME_OFF');
@@ -49,10 +54,7 @@ export function computeManualViolations(
     found.add(input.availability.has(candidate.employeeId) ? 'UNAVAILABLE' : 'NO_SUBMISSION');
   }
   for (const other of [...others, ...(input.boundaryAssignments ?? [])]) {
-    if (other.employeeId !== candidate.employeeId || !hasShiftConflict(other.date, other.shiftType, candidate.date, candidate.shiftType)) continue;
-    // One continuous custom-hours shift spanning both slots.
-    if (candidate.customHours && other.customHours === candidate.customHours && other.shiftType !== candidate.shiftType) continue;
-    found.add(other.shiftType === candidate.shiftType && isSameDate(other.date, candidate.date) ? 'DOUBLE_BOOKED' : 'REST_GAP');
+    if (other.employeeId === candidate.employeeId && other.shiftType === candidate.shiftType && isSameDate(other.date, candidate.date)) found.add('DOUBLE_BOOKED');
   }
   const requiredRank = findRequiredRank(input, candidate.positionId);
   if (!canEmployeeFillPosition(employee.rank, requiredRank)) found.add('RANK_MISMATCH');

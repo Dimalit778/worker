@@ -1,5 +1,5 @@
 import { buildSlots, createDateKey, createSlotKey, findRequiredRank } from './slots';
-import { isAvailable, isDoubleBooked, isEligibleForSlot, getSlotFillCount } from './constraints';
+import { CONSECUTIVE_SHIFT_MESSAGE, hasConsecutiveAssignment, isAvailable, isDoubleBooked, isEligibleForSlot, getSlotFillCount } from './constraints';
 import type { EngineAssignment, EngineInput } from './types';
 
 /** Automatic scheduling enforces all rules; persisted manager edits override staffing rules. */
@@ -16,6 +16,9 @@ export function validateAssignments(
   const errors: string[] = [];
   const accepted = (input.boundaryAssignments ?? []).filter(assignment => !isManual(assignment));
   for (const assignment of assignments) {
+    if (allowManualOverrides && hasConsecutiveAssignment(assignment, [...assignments, ...(input.boundaryAssignments ?? [])])) {
+      errors.push(CONSECUTIVE_SHIFT_MESSAGE);
+    }
     const employee = employees.get(assignment.employeeId);
     if (isManual(assignment)) {
       // Keep data ownership and the schedule's date range intact, without applying staffing rules.

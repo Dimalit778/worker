@@ -28,17 +28,9 @@ export type SlotChange = {
 
 export type ManualOverride = { reason: string };
 export type OverrideRequired = { ok: false; requiresOverride: true; violations: ManualViolation[] };
-class OverrideRequiredError extends Error {
-  constructor(readonly violations: ManualViolation[]) { super('נדרש אישור חריגה'); }
-}
 
-async function editSchedule(scheduleId: string, expected: VersionExpectation, edit: Edit, override?: ManualOverride) {
-  try {
-    return await applyEdit(scheduleId, expected, edit, override);
-  } catch (error) {
-    if (error instanceof OverrideRequiredError) return { ok: false, requiresOverride: true, violations: error.violations } as OverrideRequired;
-    throw error;
-  }
+async function editSchedule(scheduleId: string, expected: VersionExpectation, edit: Edit, override?: ManualOverride): Promise<Awaited<ReturnType<typeof applyEdit>> | OverrideRequired> {
+  return applyEdit(scheduleId, expected, edit, override);
 }
 
 async function applyEdit(scheduleId: string, expected: VersionExpectation, requested: Edit, override?: ManualOverride) {
@@ -151,7 +143,7 @@ async function applyEdit(scheduleId: string, expected: VersionExpectation, reque
     const data = snapshot ? { ...loaded, input: withSnapshotRequirements(loaded.input, snapshot) } : loaded;
     // Only the changed rows are checked: a row the edit did not touch may have stopped meeting the rules after
     // it was placed (deactivated employee, approved vacation, changed requirements) and must not block other edits.
-    // Manual placements: hard integrity rules block; business rules need an explicit manager approval.
+    // Integrity and consecutive shifts block; other manual exceptions are recorded without approval.
     const violations: ManualViolation[] = [];
     for (const row of data.assignments.filter(a => changedIds.includes(a.id))) {
       const result = computeManualViolations(data.input, data.assignments.filter(a => a.id !== row.id).map(data.toEngine), data.toEngine(row));
@@ -159,10 +151,6 @@ async function applyEdit(scheduleId: string, expected: VersionExpectation, reque
       const prefix = changedIds.length > 1 ? `${row.user?.displayName ?? ''}: ` : '';
       violations.push(...result.violations.map(v => ({ ...v, message: prefix + v.message })));
     }
-    // A batch save needs a typed reason only for an overlapping or too-close shift, including one in the neighbouring
-    // published schedule; its other rule violations are saved and recorded in the change log.
-    const needsReason = edit.kind === 'batch' ? violations.filter(v => v.code === 'DOUBLE_BOOKED' || v.code === 'REST_GAP') : violations;
-    if (needsReason.length && !reason) throw new OverrideRequiredError(needsReason);
     const details = loadedScheduleDetails(data);
     await tx.scheduleVersion.update({ where: { id: version.id }, data: { revision: { increment: 1 } } });
     await recordSlotChanges(tx, actor, scheduleId, version.id, before, data.assignments, violations, reason);

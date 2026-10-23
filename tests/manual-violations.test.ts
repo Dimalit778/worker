@@ -32,11 +32,11 @@ describe('computeManualViolations', () => {
     const off = input(); off.availability = new Map([['e', new Set<string>()]]);
     expect(codes(computeManualViolations(off, [], candidate))).toEqual(['UNAVAILABLE']);
   });
-  it('reports same-shift double booking, rest gap and capacity', () => {
+  it('reports same-shift double booking and capacity but blocks consecutive shifts', () => {
     const data = input();
     const other = { ...candidate, employeeId: 'x', slotIndex: 1 };
     expect(codes(computeManualViolations(data, [{ ...candidate, positionId: 'q' }], candidate))).toContain('DOUBLE_BOOKED');
-    expect(codes(computeManualViolations(data, [{ ...candidate, date: new Date('2026-10-04T00:00:00Z'), shiftType: 'NIGHT' }], candidate))).toContain('REST_GAP');
+    expect(computeManualViolations(data, [{ ...candidate, date: new Date('2026-10-04T00:00:00Z'), shiftType: 'NIGHT' }], candidate).blocking).toContain('לא ניתן לשבץ עובד למשמרות עוקבות');
     expect(codes(computeManualViolations(data, [other], candidate))).toContain('OVER_CAPACITY');
   });
   it('reports a rank mismatch', () => {
