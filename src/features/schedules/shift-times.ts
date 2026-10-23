@@ -31,6 +31,20 @@ export function defaultShiftTimes(shiftType: ShiftType) {
 
 export type CustomHours = { startTime: string; endTime: string };
 
+/** Manual edits block consecutive shifts only when both are worked in full. */
+export function intervalCoversFullShift(date: Date, shiftType: ShiftType, startsAt: Date, endsAt: Date): boolean {
+  const defaults = defaultShiftTimes(shiftType);
+  const bounds = shiftBounds(date, defaults.startTime, defaults.endTime);
+  return startsAt <= bounds.startsAt && endsAt >= bounds.endsAt;
+}
+
+export function customHoursCoverFullShift(date: string, shiftType: ShiftType, hours: CustomHours): boolean {
+  if (!isValidShiftTime(hours.startTime) || !isValidShiftTime(hours.endTime)) return false;
+  const day = new Date(`${date}T00:00:00Z`);
+  const bounds = shiftBounds(day, hours.startTime, hours.endTime);
+  return intervalCoversFullShift(day, shiftType, bounds.startsAt, bounds.endsAt);
+}
+
 function localTime(instant: Date) {
   return new Intl.DateTimeFormat('en-GB', { timeZone: 'Asia/Jerusalem', hour: '2-digit', minute: '2-digit', hourCycle: 'h23' }).format(instant);
 }

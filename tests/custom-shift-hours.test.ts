@@ -1,12 +1,13 @@
 import { describe, expect, it } from 'vitest';
-import { customHoursOf, shiftBounds } from '@/features/schedules/shift-times';
+import { customHoursOf, customHoursCoverFullShift, shiftBounds } from '@/features/schedules/shift-times';
 import { computeManualViolations } from '@/features/scheduling-engine/manual-violations';
 import { collectUnmetMinimums } from '@/features/scheduling-engine/weekly-minimums';
 import { computeFairnessSummary } from '@/features/scheduling-engine/fairness';
 import type { EngineAssignment, EngineInput } from '@/features/scheduling-engine/types';
 
 const date = new Date('2026-10-05T00:00:00Z');
-const hours = '07:00-19:00';
+const bounds = shiftBounds(date, '07:00', '19:00');
+const hours = `${bounds.startsAt.toISOString()}|${bounds.endsAt.toISOString()}`;
 const input: EngineInput = {
   scheduleId: 's',
   period: { id: 's', facilityId: 'f', startDate: date, endDate: date },
@@ -23,6 +24,22 @@ const morning: EngineAssignment = { employeeId: 'e', facilityId: 'f', positionId
 const evening: EngineAssignment = { ...morning, shiftType: 'EVENING', isExtension: true };
 
 describe('custom shift hours', () => {
+  it.each([
+    ['2026-10-05', '07:00', '19:00', 'MORNING', true],
+    ['2026-10-05', '07:00', '19:00', 'EVENING', false],
+    ['2026-10-05', '07:00', '19:00', 'NIGHT', false],
+    ['2026-10-05', '07:00', '15:00', 'EVENING', false],
+    ['2026-10-05', '15:00', '23:00', 'NIGHT', false],
+    ['2026-10-05', '19:00', '03:00', 'EVENING', false],
+    ['2026-10-05', '19:00', '03:00', 'NIGHT', false],
+    ['2026-10-05', '15:00', '07:00', 'EVENING', true],
+    ['2026-10-05', '15:00', '07:00', 'NIGHT', true],
+    ['2026-10-25', '07:00', '19:00', 'EVENING', false],
+    ['2026-10-25', '07:00', '19:00', 'NIGHT', false],
+  ] as const)('checks %s %s–%s against %s: %s', (day, startTime, endTime, shiftType, expected) => {
+    expect(customHoursCoverFullShift(day, shiftType, { startTime, endTime })).toBe(expected);
+  });
+
   it('reports hours only when they differ from the shift defaults', () => {
     const regular = shiftBounds(date, '07:00', '15:00');
     expect(customHoursOf(date, 'MORNING', regular.startsAt, regular.endsAt)).toBeUndefined();
@@ -34,7 +51,7 @@ describe('custom shift hours', () => {
   it('does not flag the evening covered by the same custom hours as a conflict', () => {
     expect(computeManualViolations(input, [morning], evening).violations).toEqual([]);
     const regularEvening = { ...evening, customHours: undefined, isExtension: undefined };
-    expect(computeManualViolations(input, [morning], regularEvening).blocking).toContain('לא ניתן לשבץ עובד למשמרות עוקבות');
+    expect(computeManualViolations(input, [morning], regularEvening).blocking).toContain('לא ניתן לשבץ עובד לשתי משמרות מלאות עוקבות');
   });
 
   it('fills the evening seat without counting it toward the minimum or fairness', () => {

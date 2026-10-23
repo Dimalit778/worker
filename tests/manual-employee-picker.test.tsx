@@ -57,3 +57,22 @@ it('shows one employee list even when swap candidates are supplied', () => {
   expect(screen.getAllByRole('button', { name: 'עובד פנוי' })).toHaveLength(1);
   expect(screen.queryByRole('button', { name: 'במשמרת הבאה' })).not.toBeInTheDocument();
 });
+
+it('allows partial custom hours without blocking evening or night', () => {
+  const assignments = assignmentsFor([['before', '2026-10-05', 'MORNING']]);
+  assignments['2026-10-05-MORNING-guard'][0].customHours = { startTime: '07:00', endTime: '19:00' };
+  expect(blockedEmployeeIdsForShift(assignments, '2026-10-05', 'EVENING').has('before')).toBe(false);
+  assignments['2026-10-05-EVENING-guard'] = [{
+    ...assignments['2026-10-05-MORNING-guard'][0], shiftType: 'EVENING',
+  }];
+  const blocked = blockedEmployeeIdsForShift(assignments, '2026-10-05', 'NIGHT');
+  render(<GuardPicker employees={candidates} currentUserId={null} disabledEmployeeIds={blocked}
+    anchorRect={{ bottom: 0, left: 0 } as DOMRect} onSelect={vi.fn()} onRemove={vi.fn()} onClose={vi.fn()} />);
+  expect(screen.getByRole('button', { name: 'במשמרת הקודמת' })).toBeInTheDocument();
+});
+
+it('blocks full consecutive shifts even when the custom hours match', () => {
+  const assignments = assignmentsFor([['before', '2026-10-05', 'MORNING']]);
+  assignments['2026-10-05-MORNING-guard'][0].customHours = { startTime: '07:00', endTime: '23:00' };
+  expect(blockedEmployeeIdsForShift(assignments, '2026-10-05', 'EVENING').has('before')).toBe(true);
+});

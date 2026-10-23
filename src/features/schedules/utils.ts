@@ -1,4 +1,5 @@
 import { calendarDateISO } from '@/features/periods/utils';
+import { customHoursCoverFullShift } from './shift-times';
 import type { ShiftType } from '@/generated/prisma/client';
 import type { AssignmentCellKey, AssignmentMap, ScheduleCapacityRule, StaffingDayCategory, WeekDay } from './types';
 import { EVENING_SLOT_LABELS, MORNING_SLOT_LABELS, NIGHT_SLOT_LABELS, WEEKDAY_HEADER_LETTERS } from './constants';
@@ -210,13 +211,22 @@ export function blockedEmployeeIdsForShift(
   }
 
   const prefixes = conflictingShiftRefs.map((ref) => `${ref.date}-${ref.shiftType}-`);
+  // The editor carries an employee's custom hours into a new cell on the same day.
+  const targetHours = new Map(
+    Object.entries(assignments).filter(([key]) => key.startsWith(`${date}-`))
+      .flatMap(([, list]) => list.filter(a => a.customHours).map(a => [a.employeeId, a.customHours!] as const)),
+  );
 
   return new Set(
     Object.entries(assignments)
       .filter(([key]) => prefixes.some((prefix) => key.startsWith(prefix)))
-      // Custom hours on another shift that day may extend into this one: the manager decides.
       .flatMap(([key, list]) => list
-        .filter((assignment) => !(assignment.customHours && key.startsWith(`${date}-`) && !key.startsWith(`${date}-${shiftType}-`)))
+        .filter((assignment) => {
+          if (key.startsWith(`${date}-${shiftType}-`)) return true;
+          const hours = targetHours.get(assignment.employeeId);
+          return (!hours || customHoursCoverFullShift(date, shiftType, hours)) &&
+            (!assignment.customHours || customHoursCoverFullShift(key.slice(0, 10), assignment.shiftType, assignment.customHours));
+        })
         .map((assignment) => assignment.employeeId)),
   );
 }
