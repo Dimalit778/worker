@@ -49,21 +49,34 @@ describe('manual consecutive-shift policy', () => {
     }
   });
 
-  it('allows one custom duty in morning and evening but blocks a separate night', () => {
+  it('allows a partial evening and a night, with or without copied custom hours', () => {
     const hours = '2026-10-05T04:00:00Z|2026-10-05T16:00:00Z';
     const morning = { ...assignment('MORNING'), customHours: hours };
     const evening = { ...assignment('EVENING'), customHours: hours, isExtension: true };
     expect(computeManualViolations(input(), [morning], evening).blocking).toEqual([]);
     expect(validateAssignments(input(), [morning, evening])).toEqual([]);
     const night = assignment('NIGHT');
-    expect(computeManualViolations(input(), [morning, evening], night).blocking).toContain(CONSECUTIVE_SHIFT_MESSAGE);
-    expect(validateAssignments(input(), [morning, evening, night])).toContain(CONSECUTIVE_SHIFT_MESSAGE);
+    expect(computeManualViolations(input(), [morning, evening], night).blocking).toEqual([]);
+    expect(validateAssignments(input(), [morning, evening, night])).toEqual([]);
+    const copiedNight = { ...night, customHours: hours };
+    expect(computeManualViolations(input(), [morning, evening], copiedNight).blocking).toEqual([]);
+    expect(validateAssignments(input(), [morning, evening, copiedNight])).toEqual([]);
   });
 
-  it('does not merge different custom duties into the same shift', () => {
-    const morning = { ...assignment('MORNING'), customHours: '07:00-19:00' };
-    const evening = { ...assignment('EVENING'), customHours: '15:00-20:00' };
+  it('blocks two full consecutive shifts even when they share custom hours', () => {
+    const hours = '2026-10-05T04:00:00Z|2026-10-05T20:00:00Z'; // 07:00–23:00 local.
+    const morning = { ...assignment('MORNING'), customHours: hours };
+    const evening = { ...assignment('EVENING'), customHours: hours };
     expect(computeManualViolations(input(), [morning], evening).blocking).toContain(CONSECUTIVE_SHIFT_MESSAGE);
+    expect(validateAssignments(input(), [morning, evening])).toContain(CONSECUTIVE_SHIFT_MESSAGE);
+  });
+
+  it('allows a partial night before a full morning in the next period', () => {
+    const data = input();
+    data.boundaryAssignments = [{ ...assignment('NIGHT', new Date('2026-10-04T00:00:00Z')),
+      customHours: '2026-10-04T20:00:00Z|2026-10-05T00:00:00Z' }]; // 23:00–03:00 local.
+    expect(computeManualViolations(data, [], assignment('MORNING')).blocking).toEqual([]);
+    expect(validateAssignments(data, [assignment('MORNING')])).toEqual([]);
   });
 
   it('permits manual nonconsecutive shifts despite unavailable time, rank and capacity exceptions', () => {

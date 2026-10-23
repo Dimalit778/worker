@@ -1,6 +1,7 @@
 import { EngineAssignment, EngineEmployee, EngineSlot, ShiftType } from "./types";
 import { createDateKey } from "./slots";
 import { canEmployeeFillPosition } from "./role-eligibility";
+import { intervalCoversFullShift } from '../schedules/shift-times';
 
 // ─── Date utilities ───────────────────────────────────────────────────────────
 
@@ -75,14 +76,20 @@ export function hasShiftConflict(
   );
 }
 
-export const CONSECUTIVE_SHIFT_MESSAGE = 'לא ניתן לשבץ עובד למשמרות עוקבות';
+export const CONSECUTIVE_SHIFT_MESSAGE = 'לא ניתן לשבץ עובד לשתי משמרות מלאות עוקבות';
 
-/** A continuous custom-hours duty may cover adjacent display cells. */
+/** Partial custom-hours shifts do not trigger the manual consecutive-shift restriction. */
 export function hasConsecutiveAssignment(candidate: EngineAssignment, assignments: EngineAssignment[]): boolean {
+  const isFull = (assignment: EngineAssignment) => {
+    if (!assignment.customHours) return true;
+    const [start, end] = assignment.customHours.split('|');
+    return intervalCoversFullShift(assignment.date, assignment.shiftType, new Date(start), new Date(end));
+  };
+  if (!isFull(candidate)) return false;
   return assignments.some(other =>
     other.employeeId === candidate.employeeId &&
     areAdjacentShifts(other.date, other.shiftType, candidate.date, candidate.shiftType) &&
-    !(candidate.customHours && candidate.customHours === other.customHours));
+    isFull(other));
 }
 
 export function isDoubleBooked(

@@ -26,7 +26,7 @@ export const MANUAL_VIOLATION_MESSAGES: Record<ManualViolationCode, string> = {
 
 /**
  * Checks a manual placement. `blocking` rules (facility, active employee, valid slot) can never be
- * overridden; consecutive shifts are also blocked, except one continuous custom-hours duty.
+ * overridden; two full consecutive shifts are also blocked. Partial custom-hours shifts are allowed.
  * `violations` are informational business-rule exceptions recorded for manager edits.
  * `others` must contain every other assignment of the schedule, but not `candidate`.
  */
