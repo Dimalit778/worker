@@ -17,7 +17,7 @@ function ScheduleStatusBadge({ status }: { status: PeriodScheduleStatus | null }
     );
   }
   return (
-    <span className={cn('inline-flex rounded-md border px-2 py-0.5 text-xs font-medium', STATUS_COLORS[status])}>
+    <span className={cn('inline-flex rounded-full border px-2.5 py-0.5 text-xs font-medium', STATUS_COLORS[status])}>
       {STATUS_LABELS[status]}
     </span>
   );
@@ -25,12 +25,12 @@ function ScheduleStatusBadge({ status }: { status: PeriodScheduleStatus | null }
 
 export function TopBar({ data, showCreateButton = false }: { data: CurrentScheduleData; showCreateButton?: boolean }) {
   return (
-    <Card size="sm" className="shadow-sm">
+    <Card size="sm" className="rounded-[10px] shadow-sm">
       <CardHeader className="border-b border-border/50 space-y-4 pb-4">
         <div className="flex flex-col gap-3 sm:flex-row sm:items-start sm:justify-between">
           <div className="min-w-0">
             <div className="flex flex-wrap items-center gap-2">
-              <CardTitle className="text-xl font-semibold">שיבוץ בהכנה</CardTitle>
+              <CardTitle className="text-2xl font-bold">שיבוץ בהכנה</CardTitle>
               <ScheduleStatusBadge status={data.scheduleStatus} />
             </div>
             <CardDescription className="text-[0.9375rem] font-medium text-foreground/90 leading-relaxed">
@@ -46,7 +46,9 @@ export function TopBar({ data, showCreateButton = false }: { data: CurrentSchedu
                 hasUnpublishedDraft={data.hasUnpublishedDraft}
               />
             </div>
-            <DeadlineExtension scheduleId={data.scheduleId} />
+            <div className="rounded-[8px] border border-border/60 px-3 py-1.5 sm:self-end">
+              <DeadlineExtension scheduleId={data.scheduleId} />
+            </div>
           </div>
         </div>
       </CardHeader>

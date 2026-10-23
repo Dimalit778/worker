@@ -12,6 +12,14 @@ import { defaultShiftTimes, type CustomHours } from '@/features/schedules/shift-
 /** Table cells ignore min-height; keep vacant rows as tall as filled ones via an inner box. */
 const TD_SLOT_INNER = 'flex min-h-6 w-full flex-col items-center justify-center';
 const TD_CELL_PAD = 'px-0.5 py-0.5';
+/** Desktop grid: each slot renders as a rounded card inside its cell. */
+const TD_CARD_PAD = 'px-1 py-0.5';
+const CARD_BASE = 'flex min-h-7 w-full flex-col items-center justify-center rounded-[4px] border px-1 py-0 transition-colors';
+const CARD_ASSIGNED = 'border-teal-700/40 bg-[#1f4544] text-teal-50';
+/** Gray rows (אחמ״ש, בקר) get a blue card instead of teal. */
+const CARD_ASSIGNED_MUTED = 'border-sky-700/40 bg-[#1c3352] text-sky-50';
+const CARD_HIGHLIGHTED = 'border-amber-600/50 bg-amber-900/70 text-amber-100';
+const CARD_EMPTY = 'border-border bg-card/60 text-muted-foreground';
 
 type Props = {
   closed?: boolean;
@@ -37,6 +45,10 @@ type Props = {
 
 function TdSlotContent({ children }: { children?: ReactNode }) {
   return <div className={TD_SLOT_INNER}>{children}</div>;
+}
+
+function TdSlotCard({ className, children }: { className: string; children?: ReactNode }) {
+  return <div className={cn(CARD_BASE, className)}>{children}</div>;
 }
 
 /** Custom hours shown next to the name, e.g. 07:00–19:00. */
@@ -85,6 +97,11 @@ export function AssignmentCell({
     'bg-amber-950/60 text-amber-200 ring-1 ring-amber-500/50 ring-inset';
 
   const rowLayout = as === 'row';
+  const cardClass = isHighlighted
+    ? CARD_HIGHLIGHTED
+    : !assignment
+      ? CARD_EMPTY
+      : mutedPosition ? CARD_ASSIGNED_MUTED : CARD_ASSIGNED;
 
   if (closed) {
     if (anonymousRow) {
@@ -118,7 +135,7 @@ export function AssignmentCell({
   if (readonly) {
     const label = anonymousRow && assignment ? assignment.employeeDisplayName : (assignment?.employeeDisplayName ?? '');
     const labelSpan = !anonymousRow ? (
-      <span className={cn('truncate block', rowLayout ? 'max-w-[70%]' : 'mx-auto max-w-full text-xs leading-tight')}>{label}</span>
+      <span className={cn('truncate block', rowLayout ? 'max-w-[70%]' : 'mx-auto max-w-full text-sm font-medium leading-tight')}>{label}</span>
     ) : null;
     const overflow = !anonymousRow ? <OverflowCandidates candidates={overflowCandidates} /> : null;
     const hoursLabel = !anonymousRow ? <HoursLabel assignment={assignment} /> : null;
@@ -128,10 +145,10 @@ export function AssignmentCell({
           'relative border border-border/60 text-center text-xs',
           rowLayout
             ? 'flex min-h-11 w-full items-center justify-between rounded-md px-3 py-2 text-start'
-            : TD_CELL_PAD,
+            : anonymousRow ? TD_CELL_PAD : TD_CARD_PAD,
           anonymousRow && 'bg-card',
           mutedPosition && 'border-border',
-          isHighlighted && !anonymousRow && highlightClass,
+          isHighlighted && !anonymousRow && rowLayout && highlightClass,
         )}
         style={positionStyle}
         aria-label={anonymousRow && assignment ? assignment.employeeDisplayName : undefined}
@@ -142,12 +159,14 @@ export function AssignmentCell({
             {hoursLabel}
             {overflow}
           </>
+        ) : anonymousRow ? (
+          <TdSlotContent />
         ) : (
-          <TdSlotContent>
+          <TdSlotCard className={cardClass}>
             {labelSpan}
             {hoursLabel}
             {overflow}
-          </TdSlotContent>
+          </TdSlotCard>
         )}
       </Comp>
     );
@@ -185,7 +204,7 @@ export function AssignmentCell({
   const cellLabel = `${date} ${shiftType} — ${assignment?.employeeDisplayName ?? 'תקן פנוי'}`;
 
   const nameSpan = (
-    <span className={cn('truncate block', rowLayout ? 'max-w-[70%]' : 'mx-auto max-w-full text-xs leading-tight')}>
+    <span className={cn('truncate block', rowLayout ? 'max-w-[70%]' : 'mx-auto max-w-full text-sm font-medium leading-tight')}>
       {assignment?.employeeDisplayName ?? (rowLayout ? 'הקצה עובד' : '')}
     </span>
   );
@@ -202,10 +221,11 @@ export function AssignmentCell({
         'focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-inset',
         rowLayout
           ? 'flex min-h-11 w-full items-center justify-between gap-2 rounded-md px-3 py-2 text-start'
-          : TD_CELL_PAD,
-        anonymousRow ? 'bg-card' : assignment ? 'hover:bg-accent/60' : 'bg-muted/40 hover:bg-accent/30',
+          : TD_CARD_PAD,
+        rowLayout && (anonymousRow ? 'bg-card' : assignment ? 'hover:bg-accent/60' : 'bg-muted/40 hover:bg-accent/30'),
+        !rowLayout && 'group',
         mutedPosition && 'border-border',
-        isHighlighted && !anonymousRow && highlightClass,
+        isHighlighted && !anonymousRow && rowLayout && highlightClass,
         unsaved && 'outline outline-2 -outline-offset-2 outline-dashed outline-primary',
         open && 'ring-2 ring-primary ring-inset',
       )}
@@ -229,11 +249,11 @@ export function AssignmentCell({
           <OverflowCandidates candidates={overflowCandidates} />
         </>
       ) : (
-        <TdSlotContent>
-          {nameSpan}
+        <TdSlotCard className={cn(cardClass, 'group-hover:brightness-125')}>
+          {assignment ? nameSpan : <span aria-hidden className="text-sm leading-none">+</span>}
           <HoursLabel assignment={assignment} />
           <OverflowCandidates candidates={overflowCandidates} />
-        </TdSlotContent>
+        </TdSlotCard>
       )}
 
       {open && anchorRect && (

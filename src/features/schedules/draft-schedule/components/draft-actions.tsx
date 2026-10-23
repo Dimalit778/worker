@@ -5,6 +5,7 @@ import { useVersionExpectation } from '../../shared/version-context';
 import { useState } from 'react';
 import { useMutation, useQueryClient } from '@tanstack/react-query';
 import { Send, Sparkles } from 'lucide-react';
+import { cn } from '@/lib/utils';
 import { Button } from '@/components/ui/button';
 import {
   AlertDialog,
@@ -128,7 +129,7 @@ export function DraftActions({ scheduleId, scheduleStatus, hasUnpublishedDraft =
         </div>
 
         {canGenerate && (
-          <Button size="sm" variant="default" onClick={handleGenerate} disabled={pending} className="gap-1.5">
+          <Button size="sm" variant="outline" onClick={handleGenerate} disabled={pending} className="gap-1.5 rounded-[8px]">
             <Sparkles className="w-4 h-4" />
             {pendingAction === 'generate' ? 'יוצר שיבוץ...' : 'צור שיבוץ אוטומטי'}
           </Button>
@@ -139,7 +140,7 @@ export function DraftActions({ scheduleId, scheduleStatus, hasUnpublishedDraft =
           variant={isPublished ? 'outline' : 'default'}
           onClick={handlePublish}
           disabled={!scheduleId || pending || !canPublishDraft}
-          className="gap-1.5"
+          className={cn('gap-1.5 rounded-[8px]', !isPublished && 'bg-blue-600 text-white hover:bg-blue-500')}
         >
           <Send className="w-4 h-4" />
           {isPublished ? 'פורסם לעובדים' : 'פרסם שיבוץ'}

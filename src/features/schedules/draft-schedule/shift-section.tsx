@@ -156,8 +156,7 @@ export function ShiftSection(props: ShiftSectionProps) {
               <th
                 colSpan={colCount}
                 className={cn(
-                  'border-b border-border/60 px-2 py-1.5 text-center text-sm font-bold text-white',
-                  style.header,
+                  'border-b border-border/60 px-2 py-1.5 text-center text-sm font-bold text-white bg-muted',
                 )}
               >
                 <span className="inline-flex items-center gap-1.5">
@@ -171,8 +170,7 @@ export function ShiftSection(props: ShiftSectionProps) {
                 className={cn(
                   headerCellPad,
                   gridBorder,
-                  'align-middle text-center text-xs font-semibold leading-none text-white',
-                  style.header,
+                  'align-middle text-center text-xs font-semibold leading-none text-white bg-muted',
                 )}
                 title="תפקיד"
               >
@@ -186,8 +184,7 @@ export function ShiftSection(props: ShiftSectionProps) {
                     className={cn(
                       headerCellPad,
                       gridBorder,
-                      'min-w-0 align-middle text-center text-white',
-                      style.header,
+                      'min-w-0 align-middle text-center text-white bg-muted',
                     )}
                   >
                     <div className="flex flex-col items-center gap-0.5">

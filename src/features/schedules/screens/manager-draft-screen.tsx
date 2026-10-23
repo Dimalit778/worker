@@ -62,15 +62,18 @@ export function ManagerDraftScreen({ scheduleId }: { scheduleId?: string }) {
   return (
     <VersionProvider value={{ versionId: data.versionId ?? null, revision: data.revision ?? 0 }}>
       <div className="space-y-6" dir="rtl">
-        <TopBar data={data} showCreateButton={canCreateNewSchedule} />
-        <ScheduleStats
-          warnings={data.warnings}
-          hasSchedule={hasSchedule}
-          submittedCount={submitted}
-          eligibleCount={eligible}
-          missingEmployees={missingEmployees}
-          readiness={{ scheduleId: data.scheduleId, versionId: data.versionId ?? null, revision: data.revision ?? 0 }}
-        />
+        {/* Top bar, stats and the schedule below sit flush, without the page's section spacing. */}
+        <div className="mb-0">
+          <TopBar data={data} showCreateButton={canCreateNewSchedule} />
+          <ScheduleStats
+            warnings={data.warnings}
+            hasSchedule={hasSchedule}
+            submittedCount={submitted}
+            eligibleCount={eligible}
+            missingEmployees={missingEmployees}
+            readiness={{ scheduleId: data.scheduleId, versionId: data.versionId ?? null, revision: data.revision ?? 0 }}
+          />
+        </div>
 
         {isReadonly && (
           <div

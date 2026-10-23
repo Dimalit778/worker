@@ -51,7 +51,7 @@ export function WeeklyDraftScheduleView({
   return (
     <div className="mx-auto w-full max-w-6xl" dir="rtl">
       {showHighlightPicker ? (
-        <div className="mb-3 flex flex-col gap-1.5 rounded-lg border border-border bg-card px-2.5 py-2 shadow-sm sm:flex-row sm:items-center sm:justify-between">
+        <div className="mb-3 flex flex-col gap-1.5 rounded-[8px] border border-border/60 bg-card px-2.5 py-2 shadow-sm sm:flex-row sm:items-center sm:justify-between">
           <div className="min-w-0">
             <p className="text-sm font-semibold text-foreground">הבלטת משמרות של עובד</p>
             <p className="text-xs text-muted-foreground">

@@ -24,7 +24,7 @@ export function WeekNavigator({
 
   return (
     <div className="mb-3 flex justify-center" dir="rtl">
-      <div className="flex items-center gap-2 rounded-lg border border-border bg-card px-3 py-1.5 shadow-sm">
+      <div className="flex items-center gap-2 rounded-[8px] border border-border/60 bg-card px-3 py-1.5 shadow-sm">
         <button
           type="button"
           onClick={() => onChange(index - 1)}
