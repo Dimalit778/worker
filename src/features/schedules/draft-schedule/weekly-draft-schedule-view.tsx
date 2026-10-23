@@ -32,12 +32,16 @@ export function WeeklyDraftScheduleView({
   const [weekIndex, setWeekIndex] = useState(() => initialWeekIndexForToday(startDate));
   const [highlightedEmployeeId, setHighlightedEmployeeId] = useState<string | null>(initialHighlightedEmployeeId);
   const weekDays = buildWeekDays(startDate, weekIndex);
+  const highlightedEmployeeName = employees.find(employee => employee.id === highlightedEmployeeId)?.displayName;
   const highlightedAssignmentsCount = useMemo(() => {
     if (!showHighlightPicker || !highlightedEmployeeId) return 0;
     return Object.values(assignments)
       .flat()
       .filter((assignment) => assignment.employeeId === highlightedEmployeeId).length;
   }, [assignments, highlightedEmployeeId, showHighlightPicker]);
+  const highlightedCountLabel = highlightedAssignmentsCount === 1
+    ? 'משבצת אחת מסומנת'
+    : `${highlightedAssignmentsCount} משבצות מסומנות`;
 
   function weekRangeLabel(idx: number): string {
     const days = buildWeekDays(startDate, idx);
@@ -49,11 +53,11 @@ export function WeeklyDraftScheduleView({
       {showHighlightPicker ? (
         <div className="mb-3 flex flex-col gap-1.5 rounded-lg border border-border bg-card px-2.5 py-2 shadow-sm sm:flex-row sm:items-center sm:justify-between">
           <div className="min-w-0">
-            <p className="text-sm font-semibold text-foreground">סימון משמרות לפי עובד</p>
+            <p className="text-sm font-semibold text-foreground">הבלטת משמרות של עובד</p>
             <p className="text-xs text-muted-foreground">
               {highlightedEmployeeId
-                ? `${highlightedAssignmentsCount} משמרות מסומנות לעובד הנבחר`
-                : 'בחרו עובד כדי לצבוע את כל המשמרות שלו'}
+                ? `${highlightedEmployeeName ?? 'העובד הנבחר'} · ${highlightedCountLabel} בתקופה. כל הסידור נשאר מוצג.`
+                : 'בחרו עובד כדי להבליט את המשמרות שלו בתוך הסידור המלא'}
             </p>
           </div>
           <Select

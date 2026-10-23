@@ -12,6 +12,7 @@ import { SubmissionStatusList } from '@/features/schedules/readiness/components/
 import { EmployeeLoadTable } from '@/features/schedules/readiness/components/employee-load-table';
 
 type ActivePanel = 'errors' | 'submissions' | 'shortages' | 'load' | null;
+const SHORTAGE_TYPES = new Set<ScheduleWarningSummary['type']>(['UNFILLED', 'UNDERSTAFFED']);
 
 type MissingEmployee = { id: string; displayName: string; positionName: string | null };
 
@@ -30,9 +31,9 @@ export function ScheduleStats({ warnings, hasSchedule = true, submittedCount, el
   const submissions = useSubmissionReadiness(readiness?.scheduleId).data;
   const load = useEmployeeLoad(readiness?.scheduleId, readiness?.versionId, readiness?.revision, activePanel === 'load');
 
-  const errorWarnings = hasSchedule ? warnings.filter((w) => w.severity === 'ERROR') : [];
-  const errorCount = errorWarnings.length;
-  const shortages = hasSchedule ? warnings.filter((w) => w.type === 'UNFILLED' || w.type === 'UNDERSTAFFED') : [];
+  const employeeWarnings = hasSchedule ? warnings.filter((w) => w.severity !== 'INFO' && !SHORTAGE_TYPES.has(w.type)) : [];
+  const issueCount = employeeWarnings.length;
+  const shortages = hasSchedule ? warnings.filter((w) => SHORTAGE_TYPES.has(w.type)) : [];
   const shownSubmitted = submissions ? submissions.counts.SUBMITTED + submissions.counts.UNSUBMITTED_CHANGES : submittedCount;
   const shownEligible = submissions ? submissions.total : eligibleCount;
   const hasPendingSubmissions = submissions ? submissions.counts.SUBMITTED < submissions.total : missingEmployees.length > 0;
@@ -41,7 +42,7 @@ export function ScheduleStats({ warnings, hasSchedule = true, submittedCount, el
     setActivePanel((prev) => (prev === panel ? null : panel));
   }
 
-  const activeGroups = activePanel === 'errors' ? groupWarningsByEmployee(errorWarnings) : [];
+  const activeGroups = activePanel === 'errors' ? groupWarningsByEmployee(employeeWarnings) : [];
 
   return (
     <div className="flex flex-col gap-3" dir="rtl">
@@ -60,16 +61,16 @@ export function ScheduleStats({ warnings, hasSchedule = true, submittedCount, el
         />
         <StatTile
           label="בעיות"
-          value={<span className="text-2xl font-bold tracking-tight">{hasSchedule ? errorCount : '—'}</span>}
+          value={<span className="text-2xl font-bold tracking-tight">{hasSchedule ? issueCount : '—'}</span>}
           open={activePanel === 'errors'}
-          disabled={errorCount === 0}
-          tone={errorCount > 0 ? 'danger' : 'neutral'}
+          disabled={issueCount === 0}
+          tone={issueCount > 0 ? 'danger' : 'neutral'}
           onClick={() => toggle('errors')}
         />
         {readiness && (
           <>
             <StatTile
-              label="חוסרים"
+              label="חוסר"
               value={<span className="text-2xl font-bold tracking-tight">{hasSchedule ? shortages.length : '—'}</span>}
               open={activePanel === 'shortages'}
               disabled={shortages.length === 0}
@@ -119,8 +120,9 @@ export function ScheduleStats({ warnings, hasSchedule = true, submittedCount, el
         <Card className="rounded-xl shadow-none border-border/60 animate-in fade-in slide-in-from-top-1 duration-150">
           <CardContent className="p-4">
             <p className="text-xs font-semibold uppercase tracking-wide text-muted-foreground mb-3">
-              משמרות עם חוסר בעובדים ({shortages.length})
+              חוסר בכוח אדם לפי תקני חובה ({shortages.length})
             </p>
+            <p className="mb-3 text-xs text-muted-foreground">תאריך, משמרת ותפקיד שבהם לא הושלם האיוש שהוגדר כחובה.</p>
             <div className="flex max-h-72 flex-col gap-1 overflow-y-auto">
               {shortages.map((w) => (
                 <div key={w.id} className="flex items-center justify-between gap-3 rounded-lg bg-muted/40 px-3 py-2 text-sm">
@@ -151,7 +153,8 @@ export function ScheduleStats({ warnings, hasSchedule = true, submittedCount, el
       {activePanel === 'errors' && activeGroups.length > 0 && (
         <Card className="rounded-xl shadow-none border-border/60 animate-in fade-in slide-in-from-top-1 duration-150">
           <CardContent className="p-4">
-            <p className="text-xs font-semibold uppercase tracking-wide text-muted-foreground mb-3">בעיות לפי עובד</p>
+            <p className="text-xs font-semibold uppercase tracking-wide text-muted-foreground mb-3">בעיות בשיבוץ לפי עובד</p>
+            <p className="mb-3 text-xs text-muted-foreground">מינימום שבועי שלא הושלם ובעיות במשמרות ששובצו לעובד.</p>
             <EmployeeWarningsPanel groups={activeGroups} />
           </CardContent>
         </Card>
