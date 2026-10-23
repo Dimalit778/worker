@@ -38,7 +38,7 @@ it('shows staffing shortages separately from employee problems after a schedule 
 });
 
 it('shows mandatory staffing details only under shortage and individual issues only under problems', () => {
-  const minimum: ScheduleWarningSummary = { ...warnings[0], id: 'minimum', type: 'MIN_NOT_MET', employeeName: 'איתי',
+  const minimum: ScheduleWarningSummary = { ...warnings[0], id: 'minimum', type: 'MIN_NOT_MET', employeeName: 'איתי', weekNumber: 1, shiftType: 'MORNING',
     message: 'שבוע 1: נדרשות 2 משמרות בוקר; בפועל: 1.' };
   const conflict: ScheduleWarningSummary = { ...minimum, id: 'vacation', type: 'CONFLICT', severity: 'WARNING',
     message: 'העובד משובץ בזמן חופשה מאושרת.' };
@@ -50,8 +50,10 @@ it('shows mandatory staffing details only under shortage and individual issues o
   expect(screen.getByRole('button', { name: /חוסר/ })).toHaveTextContent('1');
   fireEvent.click(screen.getByRole('button', { name: /בעיות/ }));
   expect(screen.getByText('איתי')).toBeInTheDocument();
-  expect(screen.getByText(minimum.message)).toBeInTheDocument();
-  expect(screen.getByText(conflict.message)).toBeInTheDocument();
+  expect(screen.getByText('שבוע 1 — חסר בוקר')).toBeInTheDocument();
+  expect(screen.queryByText(minimum.message)).not.toBeInTheDocument();
+  expect(screen.getByRole('button', { name: /בעיות/ }).parentElement).toContainElement(screen.getByText('איתי'));
+  expect(screen.getByText(`${conflict.message} — בוקר`)).toBeInTheDocument();
   expect(screen.queryByText(shortage.message)).not.toBeInTheDocument();
   fireEvent.click(screen.getByRole('button', { name: /חוסר/ }));
   expect(screen.getByText('25/10 · בוקר · בקר')).toBeInTheDocument();

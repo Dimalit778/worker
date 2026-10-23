@@ -19,6 +19,7 @@ export function toWarningSummaries(
       message: warning.message,
       date: warning.date?.toISOString().slice(0, 10) ?? null,
       shiftType: warning.shiftType ?? null,
+      ...(warning.weekNumber ? { weekNumber: warning.weekNumber } : {}),
       employeeName: employee?.displayName ?? null,
       positionName: (warning.positionId ? positionNames.get(warning.positionId) : employee?.position?.name) ?? null,
     };

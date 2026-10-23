@@ -56,7 +56,7 @@ describe('getScheduleWarnings', () => {
     const warnings = await getScheduleWarnings('schedule', 'facility');
     expect(warnings).toEqual(expect.arrayContaining([
       expect.objectContaining({ severity: 'ERROR', type: 'UNFILLED', positionName: 'אחמ״ש', message: expect.stringContaining('אחמ״ש: משובצים 0 מתוך 1 בחובה'), date: '2026-10-05', shiftType: 'MORNING' }),
-      expect.objectContaining({ severity: 'ERROR', type: 'MIN_NOT_MET', employeeName: 'דוד לוי', positionName: 'אחמ״ש' }),
+      expect.objectContaining({ severity: 'ERROR', type: 'MIN_NOT_MET', weekNumber: 1, employeeName: 'דוד לוי', positionName: 'אחמ״ש' }),
     ]));
     expect(warnings.some(w => w.severity === 'WARNING')).toBe(false);
     expect(warnings.find(w => w.type === 'MIN_NOT_MET' && w.shiftType === 'MORNING')?.message)

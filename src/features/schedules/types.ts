@@ -73,6 +73,7 @@ export type ScheduleWarningSummary = {
   shiftType: ShiftType | null;
   employeeName: string | null;
   positionName: string | null;
+  weekNumber?: 1 | 2;
 };
 
 /** Submitted availability vs active employees for a period (manager-facing). */

@@ -123,6 +123,7 @@ export interface EngineWarning {
   positionId?: string;
   date?: Date;
   shiftType?: ShiftType;
+  weekNumber?: 1 | 2;
 }
 
 export interface UnmetMinimum {

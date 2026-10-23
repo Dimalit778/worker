@@ -59,14 +59,23 @@ export function ScheduleStats({ warnings, hasSchedule = true, submittedCount, el
           disabled={readiness ? shownEligible === 0 : !hasPendingSubmissions}
           onClick={() => toggle('submissions')}
         />
-        <StatTile
-          label="בעיות"
-          value={<span className="text-2xl font-bold tracking-tight">{hasSchedule ? issueCount : '—'}</span>}
-          open={activePanel === 'errors'}
-          disabled={issueCount === 0}
-          tone={issueCount > 0 ? 'danger' : 'neutral'}
-          onClick={() => toggle('errors')}
-        />
+        <div className="flex min-w-0 flex-col gap-2">
+          <StatTile
+            label="בעיות"
+            value={<span className="text-2xl font-bold tracking-tight">{hasSchedule ? issueCount : '—'}</span>}
+            open={activePanel === 'errors'}
+            disabled={issueCount === 0}
+            tone={issueCount > 0 ? 'danger' : 'neutral'}
+            onClick={() => toggle('errors')}
+          />
+          {activePanel === 'errors' && activeGroups.length > 0 && (
+            <Card className="rounded-xl shadow-none border-border/60 animate-in fade-in slide-in-from-top-1 duration-150">
+              <CardContent className="p-3">
+                <EmployeeWarningsPanel groups={activeGroups} compact />
+              </CardContent>
+            </Card>
+          )}
+        </div>
         {readiness && (
           <>
             <div className="flex min-w-0 flex-col gap-2">
@@ -149,15 +158,6 @@ export function ScheduleStats({ warnings, hasSchedule = true, submittedCount, el
         </Card>
       )}
 
-      {activePanel === 'errors' && activeGroups.length > 0 && (
-        <Card className="rounded-xl shadow-none border-border/60 animate-in fade-in slide-in-from-top-1 duration-150">
-          <CardContent className="p-4">
-            <p className="text-xs font-semibold uppercase tracking-wide text-muted-foreground mb-3">בעיות בשיבוץ לפי עובד</p>
-            <p className="mb-3 text-xs text-muted-foreground">מינימום שבועי שלא הושלם ובעיות במשמרות ששובצו לעובד.</p>
-            <EmployeeWarningsPanel groups={activeGroups} />
-          </CardContent>
-        </Card>
-      )}
     </div>
   );
 }

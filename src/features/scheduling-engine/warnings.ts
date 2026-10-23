@@ -23,6 +23,7 @@ export function createMinimumWarnings(unmetMinimums: UnmetMinimum[]): EngineWarn
     severity: "ERROR" as const,
     employeeId: u.employeeId,
     shiftType: u.shiftType,
+    weekNumber: u.weekNumber,
     message: `שבוע ${u.weekNumber}: ${u.required === 1 ? `נדרשת משמרת ${SHIFT_LABELS[u.shiftType]} אחת` : `נדרשות ${u.required} משמרות ${SHIFT_LABELS[u.shiftType]}`}; בפועל: ${u.actual}.`,
   }));
 }

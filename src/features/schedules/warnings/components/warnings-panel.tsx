@@ -9,6 +9,7 @@ import { groupWarningsByEmployee, type EmployeeWarningGroup } from '../utils';
 
 type EmployeeWarningsPanelProps = {
   groups: EmployeeWarningGroup[];
+  compact?: boolean;
 };
 
 type WarningsPanelProps = {
@@ -56,13 +57,45 @@ function formatDate(iso: string): string {
   return `${day}/${month}`;
 }
 
+function compactWarningText(warning: ScheduleWarningSummary): string {
+  if (warning.type === 'MIN_NOT_MET' && warning.shiftType) {
+    return [warning.weekNumber ? `שבוע ${warning.weekNumber}` : null, `חסר ${SHIFT_LABELS[warning.shiftType]}`]
+      .filter(Boolean).join(' — ');
+  }
+  const context = [warning.date ? formatDate(warning.date) : null, warning.shiftType ? SHIFT_LABELS[warning.shiftType] : null]
+    .filter(Boolean).join(' · ');
+  return [warning.message || WARNING_TYPE_LABELS[warning.type], context].filter(Boolean).join(' — ');
+}
+
 function SeverityIcon({ severity, className }: { severity: WarningSeverity; className?: string }) {
   if (severity === 'INFO') return <Info className={cn('h-3.5 w-3.5', className)} />;
   return <AlertTriangle className={cn('h-3.5 w-3.5', className)} />;
 }
 
-export function EmployeeWarningsPanel({ groups }: EmployeeWarningsPanelProps) {
+export function EmployeeWarningsPanel({ groups, compact = false }: EmployeeWarningsPanelProps) {
   if (groups.length === 0) return null;
+
+  if (compact) {
+    return (
+      <div className="flex max-h-72 flex-col gap-2 overflow-y-auto" dir="rtl">
+        {groups.map(group => (
+          <div key={group.employeeName} className="rounded-lg bg-muted/40 px-3 py-2">
+            <p className="text-sm font-medium">
+              {group.employeeName}
+              {group.positionName && <span className="mr-1 text-xs font-normal text-muted-foreground">· {group.positionName}</span>}
+            </p>
+            <ul className="mt-1 space-y-1 text-xs text-muted-foreground">
+              {group.warnings.map(warning => (
+                <li key={warning.id}>
+                  {compactWarningText(warning)}
+                </li>
+              ))}
+            </ul>
+          </div>
+        ))}
+      </div>
+    );
+  }
 
   return (
     <div className="grid grid-cols-1 items-start gap-2 lg:grid-cols-2" dir="rtl">
