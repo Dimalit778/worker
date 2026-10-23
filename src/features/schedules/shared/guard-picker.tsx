@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, useRef, useEffect } from 'react';
+import { useState, useRef, useEffect, useLayoutEffect, type CSSProperties } from 'react';
 import { createPortal } from 'react-dom';
 import { X } from 'lucide-react';
 import { cn } from '@/lib/utils';
@@ -20,6 +20,7 @@ type Props = {
   currentUserId: string | null;
   disabledEmployeeIds?: Set<string>;
   anchorRect: DOMRect;
+  anchorElement?: HTMLElement;
   onSelect: (employeeId: string) => void;
   onRemove: () => void;
   onClose: () => void;
@@ -36,6 +37,7 @@ export function GuardPicker({
   currentUserId,
   disabledEmployeeIds,
   anchorRect,
+  anchorElement,
   onSelect,
   onRemove,
   onClose,
@@ -49,6 +51,7 @@ export function GuardPicker({
   const hoursValid = Boolean(startTime && endTime && startTime !== endTime);
   const inputRef = useRef<HTMLInputElement>(null);
   const panelRef = useRef<HTMLDivElement>(null);
+  const [position, setPosition] = useState<CSSProperties>({ visibility: 'hidden' });
 
   const selectableEmployees = employees.filter(employee => !disabledEmployeeIds?.has(employee.id));
   const filtered = query.trim()
@@ -56,8 +59,54 @@ export function GuardPicker({
     : selectableEmployees;
 
   useEffect(() => {
-    inputRef.current?.focus();
+    inputRef.current?.focus({ preventScroll: true });
   }, []);
+
+  useLayoutEffect(() => {
+    let frame: number | undefined;
+    const updatePosition = () => {
+      const panel = panelRef.current;
+      if (!panel) return;
+      const rect = anchorElement?.getBoundingClientRect() ?? anchorRect;
+      const margin = 8, gap = 4;
+      const viewportWidth = window.innerWidth, viewportHeight = window.innerHeight;
+      if (anchorElement && (rect.bottom <= 0 || rect.top >= viewportHeight || rect.right <= 0 || rect.left >= viewportWidth)) {
+        onClose();
+        return;
+      }
+      const panelRect = panel.getBoundingClientRect();
+      const width = panelRect.width || 176;
+      const height = panel.scrollHeight || panelRect.height;
+      const below = Math.max(0, viewportHeight - rect.bottom - gap - margin);
+      const above = Math.max(0, (rect.top ?? rect.bottom) - gap - margin);
+      const openBelow = height <= below || below >= above;
+      const maxHeight = Math.min(openBelow ? below : above, viewportHeight - margin * 2);
+      const top = openBelow ? rect.bottom + gap : (rect.top ?? rect.bottom) - gap - Math.min(height, maxHeight);
+      setPosition({
+        top: Math.max(margin, top),
+        left: Math.max(margin, Math.min(rect.left, viewportWidth - width - margin)),
+        maxHeight,
+      });
+    };
+    const schedulePosition = (event?: Event) => {
+      // Scrolling the employee list must not move or dismiss its own picker.
+      if (event?.type === 'scroll' && event.target instanceof Node && panelRef.current?.contains(event.target)) return;
+      if (frame !== undefined) cancelAnimationFrame(frame);
+      frame = requestAnimationFrame(updatePosition);
+    };
+    updatePosition();
+    document.addEventListener('scroll', schedulePosition, true);
+    window.addEventListener('resize', schedulePosition);
+    const observer = typeof ResizeObserver === 'undefined' ? undefined : new ResizeObserver(() => schedulePosition());
+    if (panelRef.current) observer?.observe(panelRef.current);
+    if (anchorElement) observer?.observe(anchorElement);
+    return () => {
+      if (frame !== undefined) cancelAnimationFrame(frame);
+      document.removeEventListener('scroll', schedulePosition, true);
+      window.removeEventListener('resize', schedulePosition);
+      observer?.disconnect();
+    };
+  }, [anchorElement, anchorRect, onClose, filtered.length]);
 
   useEffect(() => {
     function handleClick(e: MouseEvent) {
@@ -80,8 +129,8 @@ export function GuardPicker({
   const panel = (
     <div
       ref={panelRef}
-      className="fixed z-9999 bg-card border border-border rounded-lg shadow-lg w-full max-w-44 py-1"
-      style={{ top: anchorRect.bottom + 4, left: anchorRect.left }}
+      className="fixed z-9999 bg-card border border-border rounded-lg shadow-lg w-44 max-w-[calc(100vw-16px)] overflow-y-auto py-1"
+      style={position}
       dir="rtl"
     >
       <div className="px-2 pb-1 pt-1 border-b border-border">

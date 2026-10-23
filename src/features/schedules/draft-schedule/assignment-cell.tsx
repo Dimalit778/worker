@@ -72,6 +72,7 @@ export function AssignmentCell({
   const edits = usePendingEdits();
   const [open, setOpen] = useState(false);
   const [anchorRect, setAnchorRect] = useState<DOMRect | null>(null);
+  const [anchorElement, setAnchorElement] = useState<HTMLElement | null>(null);
   // Shared between the <td> (desktop grid) and <div> (mobile row) render paths.
   const tdRef = useRef<HTMLTableCellElement | HTMLDivElement>(null);
   const Comp = as === 'row' ? 'div' : 'td';
@@ -178,6 +179,7 @@ export function AssignmentCell({
   function openPicker() {
     if (tdRef.current) {
       setAnchorRect(tdRef.current.getBoundingClientRect());
+      setAnchorElement(tdRef.current);
     }
     setOpen((v) => !v);
   }
@@ -242,6 +244,7 @@ export function AssignmentCell({
           disabledEmployeeIds={assignedEmployeeIds}
           currentUserId={assignment?.employeeId ?? null}
           anchorRect={anchorRect}
+          anchorElement={anchorElement ?? undefined}
           onSelect={handleSelect}
           onRemove={handleRemove}
           currentHours={assignment?.customHours}
