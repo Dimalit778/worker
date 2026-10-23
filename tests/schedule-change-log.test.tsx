@@ -37,7 +37,7 @@ import { ManagerScheduleScreen } from '@/features/schedules/screens/manager-ched
 
 const entry = (over: Partial<ScheduleChangeLogEntry>): ScheduleChangeLogEntry => ({
   id: 'c1', createdAt: new Date('2026-10-20T08:30:00Z'), changeType: 'UPDATE',
-  message: 'הוחלף עובד במשמרת בוקר', summary: null, shiftDateLabel: null, actionKind: null,
+  message: 'הוחלף עובד במשמרת בוקר', summary: null, shiftLabel: null, shiftDateLabel: null, actionKind: null,
   versionNumber: 2, changedByName: 'מנהל ראשי', ...over,
 });
 const data: CurrentScheduleData = {
@@ -67,8 +67,8 @@ it('lists one schedule\'s changes newest first and shows each reason once', asyn
   expect(await screen.findByText('שינויים בשיבוץ')).toBeInTheDocument();
   expect(await screen.findByText('פורסמה גרסה חדשה')).toBeInTheDocument();
   expect(actions.fetchScheduleChangeLog).toHaveBeenCalledWith('s1');
-  for (const header of ['מתי', 'שונה על ידי', 'שינוי']) {
-    expect(screen.getByRole('columnheader', { name: header })).toBeInTheDocument();
+  for (const label of ['מתי', 'שונה על ידי', 'שינוי', 'משמרת', 'תאריך']) {
+    expect(screen.getByText(label)).toBeInTheDocument();
   }
 
   const rows = screen.getAllByRole('row').slice(1);
@@ -78,6 +78,43 @@ it('lists one schedule\'s changes newest first and shows each reason once', asyn
   expect(within(rows[1]).getByText('מנהל ראשי')).toBeInTheDocument();
   expect(screen.getAllByText(/הוחלף עובד במשמרת בוקר/)).toHaveLength(1);
   expect(screen.queryByText(/סיבה:/)).not.toBeInTheDocument();
+});
+
+it('hides automatic regenerate noise rows', async () => {
+  actions.fetchScheduleChangeLog.mockResolvedValue([
+    entry({ id: 'noise', message: 'יצירה אוטומטית מחדש; איושים נעולים נשמרו' }),
+    entry({ id: 'keep', message: 'פורסמה גרסה חדשה' }),
+  ]);
+  wrap(<ChangeLogList scheduleId="s1" versionId="v1" revision={1} />);
+
+  expect(await screen.findByText('פורסמה גרסה חדשה')).toBeInTheDocument();
+  expect(screen.queryByText(/יצירה אוטומטית מחדש/)).not.toBeInTheDocument();
+  expect(screen.getAllByRole('row').slice(1)).toHaveLength(1);
+});
+
+it('shows join/leave rows with packed audit and shift/date clusters', async () => {
+  actions.fetchScheduleChangeLog.mockResolvedValue([
+    entry({
+      id: 'join',
+      message: 'שיר · ערב · 27/10/2026 · יום ג',
+      summary: 'שיר',
+      shiftLabel: 'ערב',
+      shiftDateLabel: '27/10/2026 · יום ג',
+      actionKind: 'joined',
+      changedByName: 'מנהל',
+    }),
+  ]);
+  wrap(<ChangeLogList scheduleId="s1" versionId="v1" revision={1} />);
+
+  const row = (await screen.findAllByRole('row')).slice(1)[0];
+  const cells = within(row).getAllByRole('cell');
+  expect(cells).toHaveLength(2);
+  expect(within(cells[0]).getByText('מנהל')).toBeInTheDocument();
+  expect(within(cells[1]).getByText('שיר')).toBeInTheDocument();
+  expect(within(cells[1]).getByText('ערב')).toBeInTheDocument();
+  expect(within(cells[1]).getByText('27/10/2026 · יום ג')).toBeInTheDocument();
+  expect(within(row).queryByText(/חריגות/)).not.toBeInTheDocument();
+  expect(within(row).queryByText(/יצטרף/)).not.toBeInTheDocument();
 });
 
 it('shows the empty state when the schedule has no changes', async () => {

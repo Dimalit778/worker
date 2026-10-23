@@ -8,9 +8,11 @@ export type ScheduleChangeLogEntry = {
   createdAt: Date;
   changeType: ScheduleChangeType;
   message: string | null;
-  /** Assignment change body (name + join/leave + day/shift); freeform rows leave this null. */
+  /** Employee name(s) for assignment edits; freeform rows leave this null. */
   summary: string | null;
-  /** Shift calendar date (DD/MM/YYYY), shown on the left of the change cell. */
+  /** בוקר / ערב / לילה for assignment edits. */
+  shiftLabel: string | null;
+  /** Shift calendar date + weekday (DD/MM/YYYY · יום X). */
   shiftDateLabel: string | null;
   actionKind: AssignmentChangeKind | null;
   versionNumber: number | null;
@@ -36,6 +38,7 @@ function serializeEntry(row: Prisma.ScheduleChangeGetPayload<{ select: typeof ch
     changeType: row.changeType,
     message: row.reason,
     summary: structured?.summary ?? null,
+    shiftLabel: structured?.shiftLabel ?? null,
     shiftDateLabel: structured?.shiftDateLabel ?? null,
     actionKind: structured?.kind ?? null,
     versionNumber: row.version?.number ?? null,
@@ -48,7 +51,7 @@ function restoreEntry(row: ReturnType<typeof serializeEntry>): ScheduleChangeLog
 }
 
 export async function getScheduleChangeLog(scheduleId: string, facilityId: string): Promise<ScheduleChangeLogEntry[]> {
-  const entries = await readFacilityCache(facilityId, ['change-log', scheduleId, 'summary-v2'], async () => {
+  const entries = await readFacilityCache(facilityId, ['change-log', scheduleId, 'summary-v4'], async () => {
     const rows = await prisma.scheduleChange.findMany({
       where: { scheduleId, facilityId },
       orderBy: { createdAt: 'desc' },

@@ -25,40 +25,54 @@ export function formatShiftDateLabel(iso: string): string {
   return `${day}/${month}/${year}`;
 }
 
+/** Logged on auto-regenerate; filtered from the manager change list (noise, not a staffing edit). */
+export const AUTO_REGEN_CHANGE_REASON = 'יצירה אוטומטית מחדש; איושים נעולים נשמרו';
+
 export type AssignmentChangeKind = 'joined' | 'left' | 'swapped';
 
-/** Human-readable assignment change: name → join/leave → day + shift. */
+export type AssignmentChangeParts = {
+  /** Employee name(s); +/− / swap is shown via actionKind in the UI. */
+  summary: string;
+  /** בוקר / ערב / לילה */
+  shiftLabel: string;
+  /** DD/MM/YYYY · יום X */
+  shiftDateLabel: string;
+  kind: AssignmentChangeKind | null;
+};
+
+/** Human-readable assignment change parts: name, shift type, date + weekday. */
 export function formatAssignmentChangeSummary(input: {
   oldName: string;
   newName: string;
   dateIso: string;
   shiftType: ShiftType;
   sameEmployeeChanges?: string;
-}): { summary: string; shiftDateLabel: string; kind: AssignmentChangeKind | null } {
-  const shiftPart = `${dayNameForIso(input.dateIso)} · ${SHIFT_LABELS[input.shiftType]}`;
-  const shiftDateLabel = formatShiftDateLabel(input.dateIso);
+}): AssignmentChangeParts {
+  const shiftLabel = SHIFT_LABELS[input.shiftType];
+  const shiftDateLabel = `${formatShiftDateLabel(input.dateIso)} · ${dayNameForIso(input.dateIso)}`;
 
   if (!input.oldName && input.newName) {
-    return { summary: `${input.newName} יצטרף · ${shiftPart}`, shiftDateLabel, kind: 'joined' };
+    return { summary: input.newName, shiftLabel, shiftDateLabel, kind: 'joined' };
   }
   if (input.oldName && !input.newName) {
-    return { summary: `${input.oldName} ירד · ${shiftPart}`, shiftDateLabel, kind: 'left' };
+    return { summary: input.oldName, shiftLabel, shiftDateLabel, kind: 'left' };
   }
   if (input.oldName !== input.newName) {
     return {
-      summary: `${input.newName} החליף את ${input.oldName} · ${shiftPart}`,
+      summary: `${input.newName} החליף את ${input.oldName}`,
+      shiftLabel,
       shiftDateLabel,
       kind: 'swapped',
     };
   }
 
-  return { summary: input.sameEmployeeChanges || '', shiftDateLabel, kind: null };
+  return { summary: input.sameEmployeeChanges || '', shiftLabel, shiftDateLabel, kind: null };
 }
 
 export function summarizeChangeLogPayloads(
   beforeData: unknown,
   afterData: unknown,
-): { summary: string; shiftDateLabel: string; kind: AssignmentChangeKind } | null {
+): Omit<AssignmentChangeParts, 'kind'> & { kind: AssignmentChangeKind } | null {
   const before = (beforeData ?? null) as ChangeLogSlotPayload | null;
   const after = (afterData ?? null) as ChangeLogSlotPayload | null;
   const cell = after?.date ? after : before;
@@ -76,9 +90,10 @@ export function summarizeChangeLogPayloads(
     shiftType: cell.shiftType,
   });
   if (!formatted.kind) return null;
-  const issues = after?.violations?.map(v => v.message).filter(Boolean) ?? [];
-  if (issues.length) {
-    formatted.summary = `${formatted.summary} · חריגות: ${issues.join('; ')}`;
-  }
-  return { summary: formatted.summary, shiftDateLabel: formatted.shiftDateLabel, kind: formatted.kind };
+  return {
+    summary: formatted.summary,
+    shiftLabel: formatted.shiftLabel,
+    shiftDateLabel: formatted.shiftDateLabel,
+    kind: formatted.kind,
+  };
 }

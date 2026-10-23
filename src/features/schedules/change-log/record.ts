@@ -44,7 +44,7 @@ export async function recordSlotChanges(
         ? `שונו שעות ${newName} מ־${hoursLabel(oldSlot)} ל־${hoursLabel(newSlot)}` : '',
       oldSlot.isLocked !== newSlot.isLocked ? `${newSlot.isLocked ? 'ננעל השיבוץ של' : 'בוטלה נעילת השיבוץ של'} ${newName}` : '',
     ].filter(Boolean).join('; ') : '';
-    const { summary, shiftDateLabel } = formatAssignmentChangeSummary({
+    const { summary, shiftLabel, shiftDateLabel } = formatAssignmentChangeSummary({
       oldName,
       newName,
       dateIso,
@@ -52,14 +52,10 @@ export async function recordSlotChanges(
       sameEmployeeChanges,
     });
     const issues = violations.filter(v => v.employeeId === newUser);
-    const extras = [
-      reason,
-      issues.length ? `חריגות: ${issues.map(v => v.message).join('; ')}` : '',
-    ].filter(Boolean);
     return {
       facilityId: actor.facilityId, scheduleId, versionId, changedById: actor.userId,
       changeType: issues.length ? 'MANUAL_OVERRIDE' as const : !oldUser ? 'CREATE' as const : !newUser ? 'DELETE' as const : 'UPDATE' as const,
-      reason: [summary, shiftDateLabel, ...extras].filter(Boolean).join(' · '),
+      reason: [summary, shiftLabel, shiftDateLabel, reason].filter(Boolean).join(' · '),
       beforeData: payload(oldSlot, cell), afterData: { ...payload(newSlot, cell), violations: issues, ...(requestId ? { requestId } : {}) },
     };
   }) });

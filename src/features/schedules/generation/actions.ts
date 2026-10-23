@@ -12,7 +12,7 @@ export async function generateAutoSchedule(scheduleId: string, expected: Version
   try {
     return await scheduleTransaction(actor, async (tx) => {
       const { version } = await editableDraft(tx, actor, scheduleId, expected);
-      const { input, assignments: before } = await loadSchedulingInput(tx, scheduleId, actor.facilityId, version.id);
+      const { input } = await loadSchedulingInput(tx, scheduleId, actor.facilityId, version.id);
       const output = generateSchedule(input);
       const all = [...input.manualAssignments, ...output.assignments];
       const failures = validateAssignments(input, all, { allowManualOverrides: false });
@@ -51,17 +51,6 @@ export async function generateAutoSchedule(scheduleId: string, expected: Version
       }
       const analysis = await saveScheduleAnalysis(tx, version.id, input, all);
       await tx.scheduleVersion.update({ where: { id: version.id }, data: { revision: { increment: 1 } } });
-      await tx.scheduleChange.create({
-        data: {
-          facilityId: actor.facilityId,
-          scheduleId, versionId: version.id,
-          changedById: actor.userId,
-          changeType: 'UPDATE',
-          reason: 'יצירה אוטומטית מחדש; איושים נעולים נשמרו',
-          beforeData: JSON.parse(JSON.stringify(before)),
-          afterData: JSON.parse(JSON.stringify(all)),
-        },
-      });
       return {
         ok: true as const,
         scheduleId,

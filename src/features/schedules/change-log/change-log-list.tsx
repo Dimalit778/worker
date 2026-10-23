@@ -5,7 +5,8 @@ import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
 import { useScheduleChangeLog } from '@/features/schedules/hooks';
 import { EXTENSION_REASON_PREFIX } from '@/features/periods/extension';
-import type { AssignmentChangeKind } from './format';
+import { AUTO_REGEN_CHANGE_REASON, type AssignmentChangeKind } from './format';
+import type { ScheduleChangeLogEntry } from './queries';
 
 type ChangeLogListProps = {
   scheduleId: string;
@@ -25,7 +26,7 @@ function formatChangeDate(date: Date): string {
 }
 
 function ChangeActionIcon({ kind }: { kind: AssignmentChangeKind }) {
-  const className = 'mt-0.5 size-3.5 shrink-0';
+  const className = 'size-3.5 shrink-0';
   if (kind === 'joined') {
     return <Plus className={`${className} text-emerald-600`} aria-hidden />;
   }
@@ -35,9 +36,36 @@ function ChangeActionIcon({ kind }: { kind: AssignmentChangeKind }) {
   return <ArrowLeftRight className={`${className} text-muted-foreground`} aria-hidden />;
 }
 
+function isNoiseChange(entry: { changeType: string; message: string | null }) {
+  if (entry.changeType === 'UPDATE' && entry.message?.startsWith(EXTENSION_REASON_PREFIX)) return true;
+  if (entry.message === AUTO_REGEN_CHANGE_REASON) return true;
+  return false;
+}
+
+function ChangeCell({ entry }: { entry: ScheduleChangeLogEntry }) {
+  if (entry.summary && entry.actionKind) {
+    return (
+      <span className="flex items-center gap-2">
+        <ChangeActionIcon kind={entry.actionKind} />
+        <span>{entry.summary}</span>
+      </span>
+    );
+  }
+  return (
+    <span className="flex items-center gap-2">
+      <span className="size-3.5 shrink-0" aria-hidden />
+      <span>{entry.message ?? '—'}</span>
+    </span>
+  );
+}
+
+/** Shared tracks so header labels and row values share the same edges. */
+const metaClusterClass = 'grid w-max grid-cols-[9.5rem_4.5rem] items-center gap-x-3';
+const detailClusterClass = 'grid w-max grid-cols-[7.5rem_3.25rem_10.5rem] items-center gap-x-3';
+
 export function ChangeLogList({ scheduleId, versionId, revision }: ChangeLogListProps) {
   const { data: entries, isError } = useScheduleChangeLog(scheduleId, versionId, revision);
-  const visibleEntries = entries?.filter((entry) => !(entry.changeType === 'UPDATE' && entry.message?.startsWith(EXTENSION_REASON_PREFIX)));
+  const visibleEntries = entries?.filter((entry) => !isNoiseChange(entry));
   const message = isError ? 'לא ניתן לטעון את השינויים.' : entries ? 'אין שינויים רשומים.' : 'טוען שינויים...';
 
   return (
@@ -47,39 +75,57 @@ export function ChangeLogList({ scheduleId, versionId, revision }: ChangeLogList
       </CardHeader>
       <CardContent>
         {visibleEntries?.length ? (
-          <Table>
+          <Table className="table-fixed">
+            <colgroup>
+              <col className="w-[30%]" />
+              <col className="w-[70%]" />
+            </colgroup>
             <TableHeader>
               <TableRow>
-                <TableHead className="text-right">מתי</TableHead>
-                <TableHead className="text-right">שונה על ידי</TableHead>
-                <TableHead className="text-right">שינוי</TableHead>
+                <TableHead className="text-right">
+                  <div className={metaClusterClass}>
+                    <span>מתי</span>
+                    <span>שונה על ידי</span>
+                  </div>
+                </TableHead>
+                <TableHead className="text-right">
+                  <div className={detailClusterClass}>
+                    <span className="flex items-center gap-2">
+                      <span className="size-3.5 shrink-0" aria-hidden />
+                      <span>שינוי</span>
+                    </span>
+                    <span>משמרת</span>
+                    <span>תאריך</span>
+                  </div>
+                </TableHead>
               </TableRow>
             </TableHeader>
             <TableBody>
-              {visibleEntries.map((entry) => {
-                const changeText = entry.summary
-                  ? [entry.summary, entry.shiftDateLabel].filter(Boolean).join(' · ')
-                  : (entry.message ?? '—');
-
-                return (
-                  <TableRow key={entry.id}>
-                    <TableCell className="whitespace-nowrap text-xs text-muted-foreground">
-                      {formatChangeDate(entry.createdAt)}
-                    </TableCell>
-                    <TableCell className="text-xs font-medium whitespace-nowrap">{entry.changedByName}</TableCell>
-                    <TableCell className="text-xs whitespace-normal">
-                      {entry.summary && entry.actionKind ? (
-                        <span className="flex items-start gap-2">
-                          <ChangeActionIcon kind={entry.actionKind} />
-                          <span>{changeText}</span>
-                        </span>
-                      ) : (
-                        changeText
-                      )}
-                    </TableCell>
-                  </TableRow>
-                );
-              })}
+              {visibleEntries.map((entry) => (
+                <TableRow key={entry.id}>
+                  <TableCell className="align-middle text-xs">
+                    <div className={metaClusterClass}>
+                      <span className="whitespace-nowrap text-muted-foreground">
+                        {formatChangeDate(entry.createdAt)}
+                      </span>
+                      <span className="truncate font-medium whitespace-nowrap">{entry.changedByName}</span>
+                    </div>
+                  </TableCell>
+                  <TableCell className="align-middle text-xs">
+                    <div className={detailClusterClass}>
+                      <span className="text-foreground">
+                        <ChangeCell entry={entry} />
+                      </span>
+                      <span className="whitespace-nowrap text-muted-foreground">
+                        {entry.shiftLabel ?? ''}
+                      </span>
+                      <span className="whitespace-nowrap text-muted-foreground">
+                        {entry.shiftDateLabel ?? ''}
+                      </span>
+                    </div>
+                  </TableCell>
+                </TableRow>
+              ))}
             </TableBody>
           </Table>
         ) : (
