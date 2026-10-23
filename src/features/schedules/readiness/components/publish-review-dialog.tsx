@@ -82,7 +82,7 @@ export function PublishReviewDialog({ open, onOpenChange, scheduleId, expected, 
               ? review.isFirstPublication
                 ? 'זהו הפרסום הראשון של השיבוץ לתקופה זו.'
                 : `השוואה לגרסה המפורסמת (גרסה ${review.publishedVersionNumber}).`
-              : 'בדקו חוסרים, חריגות ושינויים לפני שהשיבוץ יוצג לעובדים.'}
+              : 'בדקו חוסרים ושינויים לפני שהשיבוץ יוצג לעובדים.'}
           </AlertDialogDescription>
         </AlertDialogHeader>
 
@@ -98,22 +98,6 @@ export function PublishReviewDialog({ open, onOpenChange, scheduleId, expected, 
 
             <Section title="בעיות" count={review.issues.length}>
               <WarningList warnings={review.issues} empty="לא נמצאו בעיות." />
-            </Section>
-
-            <Section title="חריגות ידניות" count={review.exceptions.length}>
-              {review.exceptions.length ? (
-                <ul className="flex max-h-48 flex-col gap-1 overflow-y-auto">
-                  {review.exceptions.map((e) => (
-                    <li key={e.slotId} className="rounded-lg bg-muted/40 px-3 py-2 text-sm">
-                      <span className="block text-xs text-muted-foreground">{where(e)}</span>
-                      <span className="font-medium">{e.employeeName}: </span>
-                      {e.messages.join(', ')}
-                    </li>
-                  ))}
-                </ul>
-              ) : (
-                <p className="text-sm text-muted-foreground">אין שיבוצים ידניים החורגים מהכללים.</p>
-              )}
             </Section>
 
             {!review.isFirstPublication && (
