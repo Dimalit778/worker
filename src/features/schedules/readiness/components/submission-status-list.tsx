@@ -14,10 +14,15 @@ const STATUS_VARIANT: Record<SubmissionStatus, 'destructive' | 'secondary' | 'ou
   SUBMITTED: 'outline',
 };
 
+/** Pending employees first, so the overview leads with who still needs a reminder. */
+const STATUS_ORDER: Record<SubmissionStatus, number> = { NOT_SUBMITTED: 0, DRAFT: 1, UNSUBMITTED_CHANGES: 2, SUBMITTED: 3 };
+
 /** The draft overview includes submitted employees; confirmation dialogs show pending employees. */
 export function SubmissionStatusList({ readiness, showAllEmployees = false }: { readiness: SubmissionReadiness; showAllEmployees?: boolean }) {
   const submitted = readiness.counts.SUBMITTED + readiness.counts.UNSUBMITTED_CHANGES;
-  const employees = showAllEmployees ? readiness.employees : readiness.employees.filter((e) => e.status !== 'SUBMITTED');
+  const employees = showAllEmployees
+    ? [...readiness.employees].sort((a, b) => STATUS_ORDER[a.status] - STATUS_ORDER[b.status])
+    : readiness.employees.filter((e) => e.status !== 'SUBMITTED');
 
   return (
     <div className="@container space-y-3 text-right" dir="rtl">

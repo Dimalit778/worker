@@ -23,16 +23,19 @@ function ScheduleStatusBadge({ status }: { status: PeriodScheduleStatus | null }
 
 export function TopBar({ data, showCreateButton = false }: { data: CurrentScheduleData; showCreateButton?: boolean }) {
   return (
-    <div className="flex flex-col gap-3 sm:flex-row sm:items-start sm:justify-between">
+    <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
       <div className="min-w-0 space-y-1">
         <div className="flex flex-wrap items-center gap-x-2 gap-y-1">
           <h1 className="font-heading text-xl font-bold leading-tight tracking-tight text-foreground">שיבוץ בהכנה</h1>
           <ScheduleStatusBadge status={data.scheduleStatus} />
         </div>
-        <p className="text-base font-bold tabular-nums tracking-tight text-foreground">{data.scheduleName}</p>
+        {/* Period facts on one quiet line; the dot separator only appears between items that render. */}
+        <div className="flex flex-wrap items-baseline gap-x-2 gap-y-0.5 [&>*:not(:first-child)]:before:me-2 [&>*:not(:first-child)]:before:text-muted-foreground/50 [&>*:not(:first-child)]:before:content-['·']">
+          <span className="text-sm font-medium tabular-nums text-foreground/85">{data.scheduleName}</span>
+          <DeadlineExtension scheduleId={data.scheduleId} allowExtend={false} />
+        </div>
       </div>
       <div className="flex w-full flex-wrap items-center gap-2 sm:w-auto sm:justify-end" dir="rtl">
-        <DeadlineExtension scheduleId={data.scheduleId} allowExtend={false} />
         {showCreateButton && <CreatePeriodForm triggerLabel="צור שיבוץ חדש" />}
         <DraftActions
           scheduleId={data.scheduleId}

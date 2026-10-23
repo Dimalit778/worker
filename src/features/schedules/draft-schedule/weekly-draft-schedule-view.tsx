@@ -74,14 +74,13 @@ export function WeeklyDraftScheduleView({
         {showHighlightPicker || loadReadiness ? (
           <div className="flex items-center gap-2 justify-self-end">
             {loadReadiness ? (
-              <div className="w-44 shrink-0 sm:w-52">
-                <EmployeeLoadTile
-                  scheduleId={scheduleId}
-                  versionId={loadReadiness.versionId}
-                  revision={loadReadiness.revision}
-                  compact
-                />
-              </div>
+              <EmployeeLoadTile
+                scheduleId={scheduleId}
+                versionId={loadReadiness.versionId}
+                revision={loadReadiness.revision}
+                highlightedEmployeeId={highlightedEmployeeId}
+                onHighlightEmployee={(id) => setHighlightedEmployeeId((current) => (current === id ? null : id))}
+              />
             ) : null}
             {showHighlightPicker ? (
               <Select
