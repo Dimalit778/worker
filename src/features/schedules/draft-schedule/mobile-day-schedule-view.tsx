@@ -107,7 +107,6 @@ export function MobileDayScheduleView(props: Props) {
                             date={day.iso}
                             shiftType={shiftType}
                             positionId={pos.positionId}
-                            positionColor={pos.positionColor}
                             mutedPosition={isGrayPosition}
                             slotIndex={targetSlotIndex}
                             overflowCandidates={overflowCandidates?.[overflowKey] ?? []}

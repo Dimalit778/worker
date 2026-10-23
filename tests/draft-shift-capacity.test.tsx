@@ -5,7 +5,7 @@ import { ShiftSection } from '@/features/schedules/draft-schedule/shift-section'
 import type { AssignmentMap, ScheduleCapacityRule } from '@/features/schedules/types';
 
 vi.mock('@/features/schedules/draft-schedule/assignment-cell', () => ({
-  AssignmentCell: ({ closed, assignment, positionId, slotIndex, positionColor }: { closed: boolean; assignment: { employeeDisplayName: string } | null; positionId: string; slotIndex: number; positionColor: string | null }) => <td data-position={positionId} data-slot={slotIndex} data-color={positionColor}>{closed ? 'סגור' : assignment?.employeeDisplayName ?? 'פנוי'}</td>,
+  AssignmentCell: ({ closed, assignment, positionId, slotIndex }: { closed: boolean; assignment: { employeeDisplayName: string } | null; positionId: string; slotIndex: number }) => <td data-position={positionId} data-slot={slotIndex}>{closed ? 'סגור' : assignment?.employeeDisplayName ?? 'פנוי'}</td>,
 }));
 afterEach(cleanup);
 const rule: ScheduleCapacityRule = { id: 'rule', positionId: 'manager', displayName: 'אחמ״ש', rank: 2, color: null, shiftType: 'MORNING', dayCategory: 'WEEKDAY', amount: 1 };
@@ -42,7 +42,6 @@ it('packs Friday and Saturday guard slots at the top without changing weekday ro
   expect(first[1]).toHaveAttribute('data-position', 'manager'); // Thursday retains the manager row
   expect(first[2]).toHaveAttribute('data-position', 'guard');
   expect(first[2]).toHaveAttribute('data-slot', '0');
-  expect(first[2]).toHaveAttribute('data-color', '#00ff00');
   expect(first[3]).toHaveAttribute('data-position', 'guard');
   const second = rows[1].querySelectorAll('td');
   expect(second[1]).toHaveAttribute('data-position', 'controller');
@@ -63,7 +62,6 @@ it('keeps configured role colors and order for a weekend with controller and gua
   const rows = document.querySelectorAll('tbody tr');
   const first = rows[0].querySelectorAll('td');
   expect(first[2]).toHaveAttribute('data-position', 'controller');
-  expect(first[2]).toHaveAttribute('data-color', '#0000ff');
   expect(first[3]).toHaveAttribute('rowspan', '5'); // Saturday has no requirements
   const second = rows[1].querySelectorAll('td');
   expect(second[2]).toHaveAttribute('data-position', 'guard');

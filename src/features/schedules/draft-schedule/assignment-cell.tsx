@@ -23,7 +23,6 @@ type Props = {
   date: string;
   shiftType: ShiftType;
   positionId: string;
-  positionColor?: string | null;
   mutedPosition?: boolean;
   slotIndex: number;
   overflowCandidates?: OverflowCandidateSummary[];
@@ -59,7 +58,6 @@ export function AssignmentCell({
   date,
   shiftType,
   positionId,
-  positionColor,
   mutedPosition = false,
   slotIndex,
   overflowCandidates = [],
@@ -80,9 +78,9 @@ export function AssignmentCell({
   const unsaved = edits?.isDirty(slotRef) ?? false;
 
   const isHighlighted = Boolean(highlightedEmployeeId && assignment?.employeeId === highlightedEmployeeId);
-  const positionStyle = (positionColor === undefined && !mutedPosition) || isHighlighted || anonymousRow
+  const positionStyle = isHighlighted || anonymousRow
     ? undefined
-    : { backgroundColor: mutedPosition ? 'var(--muted)' : positionColor ? `${positionColor}28` : 'var(--card)' };
+    : { backgroundColor: mutedPosition ? 'var(--muted)' : 'var(--card)' };
   const highlightClass =
     'bg-amber-950/60 text-amber-200 ring-1 ring-amber-500/50 ring-inset';
 

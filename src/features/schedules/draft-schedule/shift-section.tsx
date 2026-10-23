@@ -225,7 +225,7 @@ export function ShiftSection(props: ShiftSectionProps) {
                 <tr
                   key={pos ? `${pos.positionId}-${row.visualRow}` : `filler-${rowIdx}`}
                   className="bg-card"
-                  style={grayStyle ?? (pos?.positionColor ? { backgroundColor: pos.positionColor + '28' } : undefined)}
+                  style={grayStyle}
                 >
                   {!row && rowIdx === bodyRows.length ? (
                     <td rowSpan={totalRows - rowIdx} className={cn(narrowColCell, gridBorder, 'bg-muted/20')} />
@@ -302,7 +302,6 @@ export function ShiftSection(props: ShiftSectionProps) {
                         date={day.iso}
                         shiftType={shiftType}
                         positionId={cellPosition.positionId}
-                        positionColor={cellPosition.positionColor}
                         mutedPosition={cellPosition.positionRank === 2 || cellPosition.positionRank === 3}
                         slotIndex={targetSlotIndex}
                         overflowCandidates={overflowCandidates?.[overflowKey] ?? []}

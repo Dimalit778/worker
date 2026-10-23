@@ -139,16 +139,13 @@ it('refetches when the schedule revision changes', async () => {
   expect(actions.fetchScheduleChangeLog).toHaveBeenCalledTimes(2);
 });
 
-it('manager draft screen shows the section below the schedule when data exists', async () => {
+it('manager draft screen does not show or fetch changes while preparing a schedule', async () => {
   actions.fetchDraftSchedule.mockResolvedValue(data);
-  actions.fetchScheduleChangeLog.mockResolvedValue([entry({})]);
   wrap(<ManagerDraftScreen scheduleId="s1" />);
 
-  const schedule = await screen.findByText('לוח שבועי לבדיקה');
-  const section = await screen.findByText('שינויים בשיבוץ');
-  expect(schedule.compareDocumentPosition(section) & Node.DOCUMENT_POSITION_FOLLOWING).toBeTruthy();
-  expect(await screen.findByText('הוחלף עובד במשמרת בוקר', { exact: false })).toBeInTheDocument();
-  expect(actions.fetchScheduleChangeLog).toHaveBeenCalledWith('s1');
+  expect(await screen.findByText('לוח שבועי לבדיקה')).toBeInTheDocument();
+  expect(screen.queryByText('שינויים בשיבוץ')).not.toBeInTheDocument();
+  expect(actions.fetchScheduleChangeLog).not.toHaveBeenCalled();
 });
 
 it('manager draft screen hides the section when there is no schedule', async () => {

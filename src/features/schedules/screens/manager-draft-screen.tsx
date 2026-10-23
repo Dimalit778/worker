@@ -6,7 +6,6 @@ import { PendingEditsProvider, usePendingEdits } from '../shared/pending-edits';
 import { VersionProvider } from '../shared/version-context';
 import type { CurrentScheduleData } from '../types';
 import { Card, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
-import { ChangeLogList } from '@/features/schedules/change-log/change-log-list';
 import { CreatePeriodForm } from '@/features/periods/components/create-period-form';
 import { WeeklyDraftScheduleView } from '@/features/schedules/draft-schedule/weekly-draft-schedule-view';
 import { TopBar } from '@/features/schedules/draft-schedule/topbar';
@@ -90,8 +89,6 @@ export function ManagerDraftScreen({ scheduleId }: { scheduleId?: string }) {
         <PendingEditsProvider data={data}>
           <DraftSchedule data={data} readonly={isReadonly || data.scheduleStatus === 'ARCHIVED' || !data.versionId} />
         </PendingEditsProvider>
-
-        <ChangeLogList scheduleId={data.scheduleId} versionId={data.versionId ?? null} revision={data.revision ?? 0} />
       </div>
     </VersionProvider>
   );
