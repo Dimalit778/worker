@@ -30,7 +30,7 @@ export function WeekNavigator({
 
   return (
     <div
-      className="flex items-center gap-6 rounded-md border border-border bg-card px-2 py-1.5 shadow-[var(--glass-shadow)]"
+      className="flex items-center justify-between gap-3 rounded-md border border-border bg-card px-2 py-1.5 shadow-[var(--glass-shadow)] md:justify-start md:gap-6"
       dir="rtl"
     >
       <button

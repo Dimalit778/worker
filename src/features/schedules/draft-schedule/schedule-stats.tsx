@@ -212,7 +212,7 @@ export function EmployeeLoadTile({
         <Dialog.Content
           dir="rtl"
           onInteractOutside={(event) => event.preventDefault()}
-          className="fixed inset-y-0 inset-e-0 z-50 flex w-full max-w-sm flex-col border-s border-border bg-popover text-popover-foreground shadow-xl outline-none duration-200 data-open:animate-in data-open:slide-in-from-left data-closed:animate-out data-closed:slide-out-to-left"
+          className="fixed inset-y-0 inset-e-0 z-[110] flex w-full max-w-sm flex-col border-s border-border bg-popover text-popover-foreground shadow-xl outline-none duration-200 data-open:animate-in data-open:slide-in-from-left data-closed:animate-out data-closed:slide-out-to-left"
         >
           <div className="flex items-start justify-between gap-3 border-b border-border/60 px-5 py-4">
             <div className="min-w-0">

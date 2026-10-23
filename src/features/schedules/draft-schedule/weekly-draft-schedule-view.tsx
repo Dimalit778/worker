@@ -43,7 +43,7 @@ export function WeeklyDraftScheduleView({
 
   return (
     <div className="mx-auto w-full max-w-6xl" dir="rtl">
-      <div className="mb-5 grid grid-cols-[1fr_auto_1fr] items-center gap-2">
+      <div className="mb-5 grid grid-cols-1 items-center gap-2 md:grid-cols-[1fr_auto_1fr]">
         {toolbarStats ? (
           <div className="min-w-0 w-full">
             <ScheduleStats
@@ -62,7 +62,7 @@ export function WeeklyDraftScheduleView({
             />
           </div>
         ) : (
-          <div aria-hidden />
+          <div className="hidden md:block" aria-hidden />
         )}
         <WeekNavigator
           index={weekIndex}
@@ -72,7 +72,7 @@ export function WeeklyDraftScheduleView({
           nextAriaLabel="שבוע ב׳"
         />
         {showHighlightPicker || loadReadiness ? (
-          <div className="flex items-center gap-2 justify-self-end">
+          <div className="flex items-center gap-2 md:justify-self-end">
             {loadReadiness ? (
               <EmployeeLoadTile
                 scheduleId={scheduleId}
@@ -88,7 +88,7 @@ export function WeeklyDraftScheduleView({
                 onValueChange={(value) => setHighlightedEmployeeId(value === NO_HIGHLIGHT ? null : value)}
               >
                 <SelectTrigger
-                  className="h-9 w-44 border-border bg-card shadow-[var(--glass-shadow)] sm:w-52"
+                  className="h-9 min-w-0 flex-1 border-border bg-card shadow-[var(--glass-shadow)] md:w-52 md:flex-none"
                   aria-label="בחירת עובד לסימון משמרות"
                 >
                   <SelectValue placeholder="בחר עובד" />
@@ -105,7 +105,7 @@ export function WeeklyDraftScheduleView({
             ) : null}
           </div>
         ) : (
-          <div aria-hidden />
+          <div className="hidden md:block" aria-hidden />
         )}
       </div>
 
