@@ -358,7 +358,7 @@ export function AppShell({ fullName, courtName, roleLabel, navItems, children }:
         />
       </aside>
 
-      <div className="fixed inset-x-0 top-0 z-100 flex h-14 shrink-0 items-center gap-3 border-b border-border bg-card/95 px-3 shadow-sm backdrop-blur supports-backdrop-filter:bg-card/80 md:hidden">
+      <div className="fixed inset-x-0 top-0 z-40 flex h-14 shrink-0 items-center gap-3 border-b border-border bg-card/95 px-3 shadow-sm backdrop-blur supports-backdrop-filter:bg-card/80 md:hidden">
         <Button
           type="button"
           variant="ghost"
