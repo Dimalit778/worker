@@ -287,6 +287,8 @@ function SidebarContent({
 
 export function AppShell({ fullName, courtName, roleLabel, navItems, children }: AppShellProps) {
   const pathname = usePathname();
+  // Use document scrolling on mobile profiles to avoid iOS Home Screen scroll latching.
+  const isProfilePage = pathname.endsWith('/profile');
   const [open, setOpen] = useState(false);
   const [desktopCollapsed, setDesktopCollapsed] = useState(false);
   const [desktopPreferenceLoaded, setDesktopPreferenceLoaded] = useState(false);
@@ -340,7 +342,7 @@ export function AppShell({ fullName, courtName, roleLabel, navItems, children }:
   }, [desktopCollapsed, desktopPreferenceLoaded]);
 
   return (
-    <div className="app-shell flex h-dvh">
+    <div className={cn('app-shell flex h-dvh', isProfilePage && 'max-md:h-auto max-md:min-h-dvh')}>
       <aside
         className={cn(
           'hidden shrink-0 flex-col overflow-hidden border-s border-sidebar-border bg-sidebar text-sidebar-foreground shadow-sm transition-[width] duration-200 ease-out md:flex',
@@ -424,7 +426,12 @@ export function AppShell({ fullName, courtName, roleLabel, navItems, children }:
         </div>
       </div>
 
-      <main className="min-w-0 flex-1 overflow-auto pt-14 max-md:scrollbar-hide md:pt-0">
+      <main
+        className={cn(
+          'min-w-0 flex-1 overflow-auto pt-14 max-md:scrollbar-hide md:pt-0',
+          isProfilePage && 'max-md:overflow-visible',
+        )}
+      >
         <div className="mx-auto min-h-full max-w-[1440px] p-4 md:p-8">{children}</div>
       </main>
     </div>
