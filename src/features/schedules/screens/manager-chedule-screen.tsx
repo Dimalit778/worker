@@ -2,20 +2,33 @@
 
 import { useState } from 'react';
 import { useQuery } from '@tanstack/react-query';
+import { Button } from '@/components/ui/button';
 import { fetchOriginalSchedule } from '../assignments/actions';
-import { useCurrentSchedule } from '@/features/schedules/hooks';
+import { useCurrentSchedule, useUpcomingSchedule } from '@/features/schedules/hooks';
 import { ChangeLogList } from '@/features/schedules/change-log/change-log-list';
 import { CurrentScheduleScreen } from './current-schedule-screen';
 
 export function ManagerScheduleScreen() {
-  const { data, isLoading, isError } = useCurrentSchedule();
+  const current = useCurrentSchedule();
+  const { data: upcoming } = useUpcomingSchedule();
+  const [showUpcoming, setShowUpcoming] = useState(false);
+  const isUpcomingShown = showUpcoming && !!upcoming;
+  const data = isUpcomingShown ? upcoming : current.data;
 
   return (
     <div className="space-y-8">
+      {upcoming ? (
+        <div className="flex justify-end" dir="rtl">
+          <Button variant="outline" onClick={() => setShowUpcoming(!isUpcomingShown)}>
+            {isUpcomingShown ? 'השיבוץ הנוכחי' : 'השיבוץ הבא'}
+          </Button>
+        </div>
+      ) : null}
       <CurrentScheduleScreen
+        key={isUpcomingShown ? 'upcoming' : 'current'}
         data={data}
-        isLoading={isLoading}
-        isError={isError}
+        isLoading={isUpcomingShown ? false : current.isLoading}
+        isError={isUpcomingShown ? false : current.isError}
         loadingMessage="טוען שיבוץ נוכחי..."
         errorMessage="לא ניתן לטעון השיבוץ הנוכחי."
         emptyStateTitle="אין שיבוץ פעיל"
