@@ -2,6 +2,7 @@
 
 import { useMemo, useState } from 'react';
 import { useMutation, useQueryClient } from '@tanstack/react-query';
+import { CalendarDays } from 'lucide-react';
 import type { DayCategory, ShiftType } from '@/generated/prisma/client';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
@@ -158,15 +159,28 @@ export function DateOverridesSection({
     <div className="space-y-6" dir="rtl">
       <div className="space-y-4 rounded-xl border border-border/80 bg-card/40 p-4 shadow-sm">
         <div className="grid gap-4 sm:grid-cols-2">
-          <div className="space-y-1.5">
+          <div className="min-w-0 space-y-1.5">
             <Label htmlFor="override-date">תאריך</Label>
-            <Input
-              id="override-date"
-              type="date"
-              min={today}
-              value={date}
-              onChange={(e) => selectDate(e.target.value)}
-            />
+            <div className="relative">
+              <Input
+                id="override-date"
+                type="date"
+                dir="ltr"
+                min={today}
+                value={date}
+                onChange={(e) => selectDate(e.target.value)}
+                className={cn(
+                  'block max-w-full appearance-none [&::-webkit-date-and-time-value]:min-h-6 [&::-webkit-date-and-time-value]:text-right [&::-webkit-datetime-edit]:p-0',
+                  !date && 'text-transparent',
+                )}
+              />
+              {!date && (
+                <span className="pointer-events-none absolute inset-y-0 right-3 flex items-center gap-2 text-sm text-muted-foreground">
+                  <CalendarDays className="size-4" aria-hidden="true" />
+                  בחר תאריך
+                </span>
+              )}
+            </div>
           </div>
           <div className="space-y-1.5">
             <Label htmlFor="override-label">תיאור</Label>
