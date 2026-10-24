@@ -39,14 +39,18 @@ function ColorPicker({
       setOpen(false);
     }
 
+    function handleScroll() {
+      setOpen(false);
+    }
+
     updatePosition();
     document.addEventListener('mousedown', handleClick);
     window.addEventListener('resize', updatePosition);
-    window.addEventListener('scroll', updatePosition, true);
+    window.addEventListener('scroll', handleScroll, true);
     return () => {
       document.removeEventListener('mousedown', handleClick);
       window.removeEventListener('resize', updatePosition);
-      window.removeEventListener('scroll', updatePosition, true);
+      window.removeEventListener('scroll', handleScroll, true);
     };
   }, [open]);
 
