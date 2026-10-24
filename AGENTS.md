@@ -8,7 +8,7 @@ This version has breaking changes — APIs, conventions, and file structure may 
 
 # Court Guard Scheduler - AI Agent Instructions
 
-Single source of truth for all AI tools (Claude Code, Codex, Cursor, Copilot). `CLAUDE.md` imports this file; do not duplicate rules elsewhere.
+Single source of truth for all AI tools (Claude Code, Codex, Cursor). `CLAUDE.md` imports this file; do not duplicate rules elsewhere.
 
 ## Stack
 
