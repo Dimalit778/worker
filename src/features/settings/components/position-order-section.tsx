@@ -87,19 +87,6 @@ function ColorPicker({
                   style={{ backgroundColor: c }}
                 />
               ))}
-              {color ? (
-                <button
-                  type="button"
-                  onClick={() => {
-                    onChange('');
-                    setOpen(false);
-                  }}
-                  className="h-6 w-6 rounded border-2 border-dashed border-border text-[10px] text-muted-foreground hover:border-ring"
-                  title="הסר צבע"
-                >
-                  ✕
-                </button>
-              ) : null}
             </div>,
             document.body,
           )
