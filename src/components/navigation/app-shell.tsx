@@ -340,7 +340,7 @@ export function AppShell({ fullName, courtName, roleLabel, navItems, children }:
   }, [desktopCollapsed, desktopPreferenceLoaded]);
 
   return (
-    <div className="app-shell flex h-screen">
+    <div className="app-shell flex h-dvh">
       <aside
         className={cn(
           'hidden shrink-0 flex-col overflow-hidden border-s border-sidebar-border bg-sidebar text-sidebar-foreground shadow-sm transition-[width] duration-200 ease-out md:flex',
@@ -424,7 +424,7 @@ export function AppShell({ fullName, courtName, roleLabel, navItems, children }:
         </div>
       </div>
 
-      <main className="min-w-0 flex-1 overflow-auto pt-14 md:pt-0">
+      <main className="min-w-0 flex-1 overflow-auto pt-14 max-md:scrollbar-hide md:pt-0">
         <div className="mx-auto min-h-full max-w-[1440px] p-4 md:p-8">{children}</div>
       </main>
     </div>
