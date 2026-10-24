@@ -1,10 +1,17 @@
-import type { Metadata } from 'next';
+import type { Metadata, Viewport } from 'next';
 import './globals.css';
 import { Heebo } from 'next/font/google';
 import { cn } from '@/lib/utils';
 import { QueryProvider } from '@/providers/query-provider';
 
 const heebo = Heebo({ subsets: ['hebrew', 'latin'], variable: '--font-hebrew', display: 'swap' });
+
+export const viewport: Viewport = {
+  width: 'device-width',
+  initialScale: 1,
+  maximumScale: 1,
+  userScalable: false,
+};
 
 export const metadata: Metadata = {
   title: 'שמירה בתי משפט',

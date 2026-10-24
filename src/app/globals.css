@@ -187,6 +187,9 @@
 
 /* Shared midnight glass language, including Radix surfaces rendered in portals. */
 @layer base {
+  html, body {
+    touch-action: pan-x pan-y;
+  }
   body {
     background-image: radial-gradient(ellipse at 50% 0%, rgba(124,145,182,.16), transparent 55%);
     background-size: 100% 720px;
