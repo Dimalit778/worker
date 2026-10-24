@@ -48,7 +48,7 @@ export function WarningBar({
             </p>
           </div>
           {missingEmployees.length > 0 ? (
-            <ul className="mt-3 max-h-28 space-y-1 overflow-y-auto pe-1 text-sm">
+            <ul className="mt-3 space-y-1 pe-1 text-sm md:max-h-28 md:overflow-y-auto">
               {missingEmployees.map((employee) => (
                 <li
                   key={employee.id}

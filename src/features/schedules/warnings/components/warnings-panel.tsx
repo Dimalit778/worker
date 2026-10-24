@@ -77,7 +77,7 @@ export function EmployeeWarningsPanel({ groups, compact = false }: EmployeeWarni
 
   if (compact) {
     return (
-      <div className="flex max-h-72 flex-col gap-2 overflow-y-auto" dir="rtl">
+      <div className="flex flex-col gap-2 md:max-h-72 md:overflow-y-auto" dir="rtl">
         {groups.map(group => (
           <div key={group.employeeName} className="rounded-lg bg-muted/40 px-3 py-2">
             <p className="text-sm font-medium">

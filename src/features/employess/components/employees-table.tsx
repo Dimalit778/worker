@@ -282,7 +282,7 @@ export function EmployeesTable({
             </AlertDialogDescription>
           </AlertDialogHeader>
 
-          <ul className="max-h-64 space-y-1 overflow-y-auto text-sm">
+          <ul className="space-y-1 text-sm md:max-h-64 md:overflow-y-auto">
             {deactivationResult?.assignments.map((assignment) => (
               <li key={assignment.slotId} className="rounded-md border px-3 py-2">
                 {assignment.date} · {SHIFT_LABELS[assignment.shiftType as ShiftType] ?? assignment.shiftType} ·{' '}

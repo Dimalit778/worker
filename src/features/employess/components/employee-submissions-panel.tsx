@@ -72,7 +72,7 @@ export function EmployeeSubmissionsPanel({ periods }: EmployeeSubmissionsPanelPr
           />
         </label>
 
-        <div className="max-h-144 space-y-3 overflow-y-auto pe-1">
+        <div className="space-y-3 pe-1 md:max-h-144 md:overflow-y-auto">
           {filteredPeriods.map((period) => {
             const active = period.id === selectedId;
             return (
