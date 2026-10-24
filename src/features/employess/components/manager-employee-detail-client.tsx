@@ -16,7 +16,8 @@ import {
 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
-import { useEmployeeDetail } from '@/features/employess/hooks';
+import { useEmployeeDetail, useEmployeesList } from '@/features/employess/hooks';
+import { EmployeeActions } from './employee-actions';
 import { cn } from '@/lib/utils';
 
 const SHIFT_LABELS: Record<string, string> = {
@@ -63,8 +64,9 @@ function StatCard({ label, value, tone }: { label: string; value: number; tone: 
   );
 }
 
-export function ManagerEmployeeDetailClient({ employeeId }: { employeeId: string }) {
+export function ManagerEmployeeDetailClient({ employeeId, currentUserId }: { employeeId: string; currentUserId: string }) {
   const { data, isLoading, isError } = useEmployeeDetail(employeeId);
+  const { data: employeesData } = useEmployeesList();
 
   if (isLoading) {
     return <p className="text-sm text-muted-foreground" dir="rtl">טוען פרטי עובד...</p>;
@@ -116,6 +118,12 @@ export function ManagerEmployeeDetailClient({ employeeId }: { employeeId: string
         </div>
       </div>
 
+      <EmployeeActions
+        employee={employee}
+        positions={employeesData && !('error' in employeesData) ? employeesData.positions : []}
+        currentUserId={currentUserId}
+      />
+
       <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-6">
         <StatCard label="הגשות מלאות" value={stats.submissions} tone="bg-emerald-500" />
         <StatCard label="רשומות זמינות" value={stats.totalAvailabilityRecords} tone="bg-sky-500" />
@@ -125,8 +133,8 @@ export function ManagerEmployeeDetailClient({ employeeId }: { employeeId: string
         <StatCard label="אזהרות" value={stats.warnings} tone="bg-slate-700" />
       </div>
 
-      <div className="grid gap-6 xl:grid-cols-[minmax(0,1fr)_24rem]">
-        <div className="space-y-6">
+      <div className="grid grid-cols-1 gap-6 xl:grid-cols-[minmax(0,1fr)_24rem]">
+        <div className="min-w-0 space-y-6">
           <Card className="shadow-sm">
             <CardHeader className="pb-3">
               <CardTitle className="flex items-center gap-2 text-base">
@@ -203,7 +211,7 @@ export function ManagerEmployeeDetailClient({ employeeId }: { employeeId: string
           </Card>
         </div>
 
-        <aside className="space-y-6">
+        <aside className="min-w-0 space-y-6">
           <Card className="shadow-sm">
             <CardHeader className="pb-3">
               <CardTitle className="flex items-center gap-2 text-base">

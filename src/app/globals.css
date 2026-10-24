@@ -175,8 +175,21 @@
   }
 }
 
+@media (width < 768px) {
+  html {
+    scrollbar-width: none;
+    -ms-overflow-style: none;
+  }
+  html::-webkit-scrollbar {
+    display: none;
+  }
+}
+
 /* Shared midnight glass language, including Radix surfaces rendered in portals. */
 @layer base {
+  html, body {
+    touch-action: pan-x pan-y;
+  }
   body {
     background-image: radial-gradient(ellipse at 50% 0%, rgba(124,145,182,.16), transparent 55%);
     background-size: 100% 720px;
@@ -226,11 +239,43 @@ main h1, .auth-shell [data-slot='card-title'] {
 .auth-shell {
   background: radial-gradient(ellipse at 50% 15%, rgba(124,145,182,.18), transparent 60%);
 }
+html:has(.auth-login-card),
+body:has(.auth-login-card) {
+  height: 100%;
+  overflow: hidden;
+  overscroll-behavior: none;
+  scrollbar-width: none;
+  -ms-overflow-style: none;
+}
+html:has(.auth-login-card)::-webkit-scrollbar,
+body:has(.auth-login-card)::-webkit-scrollbar {
+  display: none;
+}
 .auth-shell:has(.auth-login-card) {
+  height: 100dvh;
+  max-height: 100dvh;
+  min-height: 100dvh;
+  overflow: hidden;
+  overscroll-behavior: none;
   background-image: radial-gradient(ellipse at 50% 15%, rgba(124,145,182,.18), transparent 60%),
     linear-gradient(rgba(186,215,247,.025) 1px, transparent 1px),
     linear-gradient(90deg, rgba(186,215,247,.025) 1px, transparent 1px);
   background-size: 100% 100%, 88px 88px, 88px 88px;
+}
+/* Let short mobile viewports reach the entire login form. */
+@media (width < 768px) {
+  html:has(.auth-login-card),
+  body:has(.auth-login-card) {
+    height: auto;
+    overflow: visible;
+    overscroll-behavior: auto;
+  }
+  .auth-shell:has(.auth-login-card) {
+    height: auto;
+    max-height: none;
+    overflow: visible;
+    overscroll-behavior: auto;
+  }
 }
 .auth-shell [data-slot='card'] {
   background: rgba(5,6,15,.97);

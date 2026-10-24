@@ -2,34 +2,26 @@
 
 import Link from 'next/link';
 import type { ColumnDef } from '@tanstack/react-table';
-import { Eye, MailPlus, Pencil, Trash2, UserCheck, UserX } from 'lucide-react';
 
 import { cn } from '@/lib/utils';
-import { EmployeeListItem } from '@/features/employess/types';
-import { Button } from '@/components/ui/button';
+import type { EmployeeListItem, PositionOption } from '@/features/employess/types';
 import { Badge } from '@/components/ui/badge';
 
 import { POSITION_STYLE } from '../utils';
+import { EmployeeActions } from './employee-actions';
 
 type EmployeesColumnsProps = {
-  onEdit: (employee: EmployeeListItem) => void;
-  onDelete?: (employee: EmployeeListItem) => void;
-  onToggleActive?: (employee: EmployeeListItem) => void;
-  onResendInvite: (employee: EmployeeListItem) => void;
-  deletePending?: boolean;
-  hideDetailLinks?: boolean;
+  positions: PositionOption[];
+  facilityId?: string;
   currentUserId?: string;
 };
 
 export function createEmployeesColumns({
-  onEdit,
-  onDelete,
-  onToggleActive,
-  onResendInvite,
-  deletePending,
-  hideDetailLinks = false,
+  positions,
+  facilityId,
   currentUserId,
 }: EmployeesColumnsProps): ColumnDef<EmployeeListItem>[] {
+  const hideDetailLinks = Boolean(facilityId);
   return [
     {
       id: 'index',
@@ -87,74 +79,13 @@ export function createEmployeesColumns({
       header: 'אימייל',
       cell: ({ row }) => row.original.email || '-',
     },
-    {
+    ...(facilityId ? [{
       id: 'actions',
       enableHiding: false,
-      cell: ({ row }) => {
-        const employee = row.original;
-
-        return (
-          <div className="flex items-center justify-end gap-1">
-            {!hideDetailLinks && (
-              <Button asChild variant="ghost" size="icon" className="h-8 w-8" title="צפייה">
-                <Link href={`/manager/employees/${employee.id}`} aria-label="צפייה">
-                  <Eye className="h-4 w-4" />
-                </Link>
-              </Button>
-            )}
-            <Button
-              type="button"
-              variant="ghost"
-              size="icon"
-              className="h-8 w-8"
-              title="עריכה"
-              aria-label="עריכה"
-              onClick={() => onEdit(employee)}
-            >
-              <Pencil className="h-4 w-4" />
-            </Button>
-            <Button
-              type="button"
-              variant="ghost"
-              size="icon"
-              className="h-8 w-8"
-              title="שליחת הזמנה מחדש"
-              aria-label="שליחת הזמנה מחדש"
-              onClick={() => onResendInvite(employee)}
-            >
-              <MailPlus className="h-4 w-4" />
-            </Button>
-            {onToggleActive && (
-              <Button
-                type="button"
-                variant="ghost"
-                size="icon"
-                className="h-8 w-8"
-                disabled={deletePending}
-                title={employee.isActive ? 'השבתה' : 'הפעלה מחדש'}
-                aria-label={employee.isActive ? 'השבתה' : 'הפעלה מחדש'}
-                onClick={() => onToggleActive(employee)}
-              >
-                {employee.isActive ? <UserX className="h-4 w-4" /> : <UserCheck className="h-4 w-4" />}
-              </Button>
-            )}
-            {onDelete && employee.id !== currentUserId && (
-              <Button
-                type="button"
-                variant="ghost"
-                size="icon"
-                className="h-8 w-8 text-destructive hover:text-destructive"
-                disabled={deletePending}
-                title="מחיקת עובד לצמיתות"
-                aria-label="מחיקת עובד לצמיתות"
-                onClick={() => onDelete(employee)}
-              >
-                <Trash2 className="h-4 w-4" />
-              </Button>
-            )}
-          </div>
-        );
-      },
-    },
+      cell: ({ row }) => (
+        <EmployeeActions employee={row.original} positions={positions} facilityId={facilityId}
+          currentUserId={currentUserId} compact />
+      ),
+    } satisfies ColumnDef<EmployeeListItem>] : []),
   ];
 }

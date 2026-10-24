@@ -39,14 +39,18 @@ function ColorPicker({
       setOpen(false);
     }
 
+    function handleScroll() {
+      setOpen(false);
+    }
+
     updatePosition();
     document.addEventListener('mousedown', handleClick);
     window.addEventListener('resize', updatePosition);
-    window.addEventListener('scroll', updatePosition, true);
+    window.addEventListener('scroll', handleScroll, true);
     return () => {
       document.removeEventListener('mousedown', handleClick);
       window.removeEventListener('resize', updatePosition);
-      window.removeEventListener('scroll', updatePosition, true);
+      window.removeEventListener('scroll', handleScroll, true);
     };
   }, [open]);
 
@@ -83,19 +87,6 @@ function ColorPicker({
                   style={{ backgroundColor: c }}
                 />
               ))}
-              {color ? (
-                <button
-                  type="button"
-                  onClick={() => {
-                    onChange('');
-                    setOpen(false);
-                  }}
-                  className="h-6 w-6 rounded border-2 border-dashed border-border text-[10px] text-muted-foreground hover:border-ring"
-                  title="הסר צבע"
-                >
-                  ✕
-                </button>
-              ) : null}
             </div>,
             document.body,
           )

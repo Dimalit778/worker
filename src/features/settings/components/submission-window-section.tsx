@@ -106,7 +106,7 @@ function DayTimeField({
   onTimeChange: (value: string) => void;
 }) {
   return (
-    <fieldset className="space-y-2">
+    <fieldset className="min-w-0 space-y-2">
       <legend className="text-sm font-medium text-foreground">{label}</legend>
       <div className="flex gap-2">
         <div className="min-w-0 flex-1 space-y-1">
@@ -126,17 +126,18 @@ function DayTimeField({
             </SelectContent>
           </Select>
         </div>
-        <div className="w-28 space-y-1">
+        <div className="w-28 min-w-0 shrink-0 space-y-1">
           <Label htmlFor={timeId} className="text-xs text-muted-foreground">
             שעה
           </Label>
           <Input
             id={timeId}
             type="time"
+            dir="ltr"
             value={time}
             onChange={(event) => onTimeChange(event.target.value)}
             required
-            className="border border-border bg-background"
+            className="block max-w-full appearance-none border border-border bg-background [&::-webkit-date-and-time-value]:min-h-6 [&::-webkit-date-and-time-value]:text-center [&::-webkit-datetime-edit]:p-0"
           />
         </div>
       </div>

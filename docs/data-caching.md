@@ -1,18 +1,32 @@
 # Data caching
 
 The application uses the Next.js Data Cache (`unstable_cache`, without enabling
-Cache Components). Authentication and current user permission checks run outside
+Cache Components; migrating to `use cache` needs a separate review of the
+app-wide change). Authentication and current user permission checks run outside
 cached loaders. Facility ID is part of both the cache key and its invalidation
-tag. Cached results contain display DTOs, not Prisma clients or transaction input.
+tag. Cached results contain display DTOs, not Prisma clients or transaction input,
+and never session data.
 
 | View | Cached data | Fallback revalidation |
 | --- | --- | --- |
-| Published roster | Immutable slots, keyed by facility/schedule/version/revision | 1 hour |
+| Published roster | Immutable slots, keyed by facility/schedule/version/revision; the query also restricts slots to that facility/schedule and a published version | 1 hour |
 | Draft roster | Display assignments, warnings, fairness and submission summary, keyed by facility/schedule/version/revision/display status | 30 seconds |
 | Manager dashboard | Counts, submission summary, yearly schedules and display warnings | 30 seconds; a fresh clock bucket forces a miss at the next window |
 | Settings | Positions, capacities, submission-window rule and dated overrides | 5 minutes; overrides also include the Jerusalem calendar date in their key |
 | Admin screens | Shared districts/facilities/employee aggregate, after the admin permission check | 5 minutes |
 | Schedule list/change log | Facility-scoped display data; each schedule's change log is keyed by facility/schedule | 30 seconds |
+
+## Published roster
+
+Manager and employee schedule screens share one cache entry for published slots.
+Current/upcoming schedule selection is read from the database on every request.
+Publication, direct edits and approved transfers produce a new revision, so the
+next request uses a new key immediately; no tag invalidation is needed for the
+immutable published slots. Employee names, roles, active status and picker
+options are read fresh on every request. Inactive assignees keep their
+assignments and current names but are excluded from picker options. Capacity
+comes from the selected published version's snapshot. The manager page
+prefetches and hydrates the same React Query key its client view uses.
 
 ## Committed writes and dependencies
 
@@ -53,50 +67,3 @@ objects at the query boundary. Unit tests model the JSON cache boundary and
 exercise cache keys, facility isolation, authorization on hits, committed-write
 invalidation, clock boundaries and history serialization. Standard PostgreSQL
 suites require a separate localhost `_test` database; they are skipped without it.
-
-## Local runtime verification
-
-Authenticated requests to Next.js on the isolated worktree database exercised
-cold reads, cache hits and immediate tag expiration. The temporary verification
-route was removed before commit. These are Prisma data-read call counts (not SQL
-statement counts), excluding authentication and shared layout work:
-
-| Data path | Cold | Cache hit | After tag expiration |
-| --- | ---: | ---: | ---: |
-| Settings | 4 | 0 | 4 |
-| Draft display loader | 8 | 1 (live schedule/version selection) | 8 |
-| Dashboard | 6 | 0 | 6 |
-| Schedule list | 1 | 0 | 1 |
-
-The fixture used an existing published schedule through the draft loader's
-published-version fallback. Actual draft analysis and invalidation are also
-covered by unit tests. These local fixture results are not a production benchmark.
-The grouped change-history page measured at the time was later replaced by a
-per-schedule change log on the manager schedule screens; it was not re-measured.
-
-## Files changed in this extension
-
-- `docs/data-caching.md`
-- `src/features/admin/actions.ts`
-- `src/features/availability/actions.ts`
-- `src/features/availability/hooks.ts`
-- `src/features/dashboard/hooks.ts`
-- `src/features/dashboard/queries.ts`
-- `src/features/employess/actions.ts`
-- `src/features/employess/hooks.ts`
-- `src/features/requests/actions.ts`
-- `src/features/schedules/assignments/queries.ts`
-- `src/features/schedules/change-log/queries.ts`
-- `src/features/schedules/hooks.ts`
-- `src/features/schedules/schedulecard/queries.ts`
-- `src/features/schedules/services/transactions.ts`
-- `src/features/settings/actions.ts`
-- `src/features/settings/hooks.ts`
-- `src/features/settings/queries.ts`
-- `src/lib/cache/data-cache.ts`
-- `src/lib/react-query/get-query-client.ts`
-- `tests/cache-write-boundaries.test.ts`
-- `tests/cached-screen-queries.test.ts`
-- `tests/data-cache.test.ts`
-- `tests/helpers/cache-runtime.ts`
-- `vitest.setup.ts`

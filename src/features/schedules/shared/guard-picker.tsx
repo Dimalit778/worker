@@ -137,7 +137,7 @@ export function GuardPicker({
         <Input ref={inputRef} value={query} onChange={(e) => setQuery(e.target.value)} placeholder="חיפוש..." />
       </div>
 
-      <ul className="max-h-44 overflow-y-auto">
+      <ul className="md:max-h-44 md:overflow-y-auto">
         {filtered.length === 0 && <li className="px-3 py-2 text-xs text-muted-foreground">לא נמצא</li>}
         {filtered.map((e) => (
           <li key={e.id}>

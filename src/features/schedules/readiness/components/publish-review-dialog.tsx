@@ -47,7 +47,7 @@ function Section({ title, count, children }: { title: string; count: number; chi
 function WarningList({ warnings, empty }: { warnings: ScheduleWarningSummary[]; empty: string }) {
   if (!warnings.length) return <p className="text-sm text-muted-foreground">{empty}</p>;
   return (
-    <ul className="flex max-h-48 flex-col gap-1 overflow-y-auto">
+    <ul className="flex flex-col gap-1 md:max-h-48 md:overflow-y-auto">
       {warnings.map((w) => (
         <li key={w.id} className="rounded-lg bg-muted/40 px-3 py-2 text-sm">
           <span className="block text-xs text-muted-foreground">{where(w)}</span>
@@ -107,7 +107,7 @@ export function PublishReviewDialog({ open, onOpenChange, scheduleId, expected, 
                     <p className="text-xs text-muted-foreground">
                       נוספו {counts.added} · הוסרו {counts.removed} · הוחלפו {counts.reassigned}
                     </p>
-                    <ul className="flex max-h-60 flex-col gap-1 overflow-y-auto">
+                    <ul className="flex flex-col gap-1 md:max-h-60 md:overflow-y-auto">
                       {review.changes.map((c, i) => (
                         <li key={`${c.date}-${c.shiftType}-${c.positionId}-${i}`} className="flex items-center justify-between gap-3 rounded-lg bg-muted/40 px-3 py-2 text-sm">
                           <span className="min-w-0">

@@ -1,39 +1,26 @@
 # Scheduling architecture
 
-The application remains a Next.js modular monolith using Prisma/PostgreSQL and a pure TypeScript scheduler. Route actions authenticate current database identities. Facility membership is `UserFacilityRole` (`userId`, `facilityId`, `FacilityRole`). A manager is `SystemRole.USER` plus `FacilityRole.MANAGER`. `SystemRole` is only `USER` or `ADMIN`. The session portal is derived from that: admin, otherwise manager, otherwise employee.
+The application is a Next.js modular monolith using Prisma/PostgreSQL and a pure TypeScript scheduler (`src/features/scheduling-engine`). Server actions authenticate the current database identity on every call; cached loaders never perform permission checks (see [data-caching.md](data-caching.md)).
 
-## Model names
+## Structure and roles
 
-`District` replaced `Region`, `Facility` replaced `Court`, and foreign keys are `districtId` and `facilityId`. `ShiftRole` replaced `Position` (`primaryShiftRoleId` on employees, `shiftRoleId` on staffing and assignments). `StaffingRequirement` replaced `ShiftCapacity`. Availability is `AvailabilitySubmission` plus `ShiftAvailability`. Published state lives on `RosterVersion` (`DRAFT` | `PUBLISHED` | `ARCHIVED`, `isActive`, `publishedAt`). `Roster` has `archivedAt` and no status column. `SchedulePeriod.submissionState` is `SCHEDULED` | `OPEN` | `CLOSED`. Fairness rows are `EmployeeScheduleStats`. Settings are `SystemSetting`.
+- Hierarchy: `District` → `Facility`; every `User` belongs to one facility (`User.facilityId`). `SystemRole` is `USER` or `ADMIN`.
+- `Role.rank` (officer 1, shift manager 2, controller 3, guard 4; lower is higher) decides which positions an employee may fill (`Position.requiredRank`). Edit authority is a separate flag, `User.canEditSchedule`; a rank or label never grants it.
+- A `Schedule` is a 7- or 14-day period with its own submission window. Each version is a `ScheduleVersion` and each assignment a `ScheduleSlot`. Versions, publication and corrections are described in [schedule-versions.md](schedule-versions.md).
 
 ## Invariants
 
-Automatic generation follows the [minimum-first scheduling priorities](scheduling-priorities.md): weekly minimums across the whole period precede extras, and extras are balanced by shift type before historical workload and preferences break ties.
+- Automatic generation follows the [minimum-first scheduling priorities](scheduling-priorities.md).
+- Only submitted availability counts. Missing or `UNAVAILABLE` slots block assignment; `PREFERRED` is a soft preference. An empty submission is valid. Every availability save checks the opening and closing timestamps.
+- Provenance (`AssignmentSource`: `MANUAL`/`AUTOMATIC`) is separate from `isLocked`. Regeneration replaces all unlocked assignments, including manual ones; lock an assignment to preserve it. The UI confirms this before regeneration.
+- Every mutation carries `{ versionId, revision }`. Facility locking, serializable transactions and an in-transaction permission and facility check coordinate writes, validation and audit. Stale or conflicting operations require a refresh and are not blindly retried.
+- Shared validation covers active employees, rank, availability, capacity, rest and adjacent schedules. Deleting or unlocking can repair an invalid draft; a final full validation is mandatory at publication.
+- Fairness considers the current published version of neighbouring schedules in the preceding 56 days plus the working draft. Historical assignments influence ordering but are not counted in the draft's totals.
+- Warnings and fairness figures are derived from the final assignments of a version. Published assignments and the change history are protected by SQL triggers; audit entries are append-only.
+- Tenant isolation relies on application authorization and composite foreign keys, not on database row-level security. Do not expose the database directly to clients. `pnpm db:check-rls` only reports the connection's role and RLS flags.
 
-- `Employee.capability` and `Position.requiredCapability` use GUARD < CONTROLLER < SHIFT_MANAGER. Display labels do not grant qualification. The employee's existing position remains a personnel designation; it is not a management permission.
-- `SchedulePeriod.submissionState` controls submissions. Every save checks opening and deadline timestamps regardless of cron or the legacy `Roster.status` display projection. Only submitted forms participate. Missing/UNAVAILABLE slots block assignment; PREFERRED is a soft preference. Empty availability is a valid submission.
-- One DRAFT version and one active PUBLISHED version per schedule are enforced by partial unique indexes. `isActive` means the current publication, not that today's date is within its period.
-- A published roster is read-only. Open a correction from the current/upcoming roster. Its assignments are copied to a draft; employees continue to see the old version until publication. Publication requires a reason and confirms any staffing/minimum/fairness warnings. Hard validation failures cannot be confirmed away.
-- Every mutation receives `{ versionId, revision }`. Facility row locking, serializable transactions and an in-transaction membership check coordinate writes, validation, analysis and audit. Stale/conflicting operations require a refresh; they are not blindly retried.
-- Shared validation covers active employees, capability, availability, court/date/role requirements, capacity and rest, including other current publications adjacent to the period. Deletion/unlocking can repair an invalid draft; a final full validation is mandatory at publication.
-- Provenance (`MANUAL`/`AUTOMATIC`) is separate from `isLocked`. Regeneration replaces **all unlocked assignments**, including manual edits. Use the lock control to preserve an assignment. The UI confirms this before regeneration.
-- Fairness uses the current published version of each schedule in the preceding 56 days plus the working draft. Nights/weekends, total workload, preference, then stable employee ID determine ordering. Historical assignments are not included in draft totals or returned generated assignments. The draft screen shows workload measures separately.
-- Warnings and fairness records are derived per-version caches. Assignment content is protected after publication; version metadata permits only deactivation of a former publication. Audit payloads are append-only. Parent deletion cannot remove published history. The existing delete operation archives schedules with history.
+## Deployment and verification
 
-## Deployment
+Run `pnpm db:generate` and `pnpm db:deploy` against the intended database. Migrations include handwritten partial indexes and triggers, so `db push` does not install the invariants. Vercel does not run migrations (see [DEPLOYMENT.md](../DEPLOYMENT.md)).
 
-1. Back up any data that must be kept. This migration maps the original fixture role codes to capabilities once and backfills manager court memberships from their employee records. Verify that mapping if adapting the migration to real data. It normalizes duplicate draft/current version flags and clears old analysis caches whose version cannot be known.
-2. Run `pnpm db:generate`, then `pnpm db:deploy` against the intended database. The migration includes handwritten partial indexes and triggers; `db push` alone does **not** install the invariants.
-3. Run `pnpm db:check-rls` using the deployment connection. The old, unused RLS policy file was removed; tenant isolation relies on application code plus composite foreign keys, not database RLS policies. Owner/superuser/BYPASSRLS connections can bypass enabled policies. A restricted non-owner deployment requires a separately tested context-and-policy implementation before switching the runtime role. Do not expose this database directly to clients.
-4. Check one manager login, employee submission, draft generation, lock/regeneration, initial publish and correction publish. Refresh any sessions after role provisioning changes to update navigation hints; server checks already read the current role.
-
-The main seed now requires an empty development database instead of deleting history. `seed-employees.ts` populates explicit capabilities and manager memberships. Historical demo scripts refuse to overwrite existing periods. Do not run old demos against a live database.
-
-## Verification
-
-- `pnpm typecheck`, `pnpm lint`, `pnpm test:run`, `pnpm build`.
-- PostgreSQL integration: create an empty **local test database**, run all migrations with DATABASE_URL pointing to it, then run `TEST_DATABASE_URL=postgresql://.../worker_architecture_test pnpm test:integration`.
-- Integration tests create isolated fixture courts and retain their histories. They never reset the application database; use a disposable test database. Without TEST_DATABASE_URL they are explicitly skipped.
-- Database tests cover authorization revocation/isolation, explicit submission ownership and deadline, unsubmitted/unavailable slots, capability, old-version retention, immutable metadata, moving rows into publications, concurrent edits/publication, regeneration locks, adjacent-period rest and no duplicate historical fairness.
-
-No migration has been applied automatically to the application's configured database. The attempted configured-connection RLS inspection failed; its runtime role/policies remain unverified. Local database test results are not a production RLS verification.
+Run `pnpm typecheck`, `pnpm lint`, `pnpm test:run` and `pnpm build`. PostgreSQL integration tests need a disposable local `_test` database via `TEST_DATABASE_URL` and are skipped without it; see the validation steps in [schedule-versions.md](schedule-versions.md).

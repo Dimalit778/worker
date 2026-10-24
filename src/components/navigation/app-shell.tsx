@@ -340,7 +340,7 @@ export function AppShell({ fullName, courtName, roleLabel, navItems, children }:
   }, [desktopCollapsed, desktopPreferenceLoaded]);
 
   return (
-    <div className="app-shell flex h-screen">
+    <div className="app-shell flex min-h-dvh md:h-dvh">
       <aside
         className={cn(
           'hidden shrink-0 flex-col overflow-hidden border-s border-sidebar-border bg-sidebar text-sidebar-foreground shadow-sm transition-[width] duration-200 ease-out md:flex',
@@ -358,7 +358,7 @@ export function AppShell({ fullName, courtName, roleLabel, navItems, children }:
         />
       </aside>
 
-      <div className="fixed inset-x-0 top-0 z-100 flex h-14 shrink-0 items-center gap-3 border-b border-border bg-card/95 px-3 shadow-sm backdrop-blur supports-backdrop-filter:bg-card/80 md:hidden">
+      <div className="fixed inset-x-0 top-0 z-40 flex h-14 shrink-0 items-center gap-3 border-b border-border bg-card/95 px-3 shadow-sm backdrop-blur supports-backdrop-filter:bg-card/80 md:hidden">
         <Button
           type="button"
           variant="ghost"
@@ -424,7 +424,8 @@ export function AppShell({ fullName, courtName, roleLabel, navItems, children }:
         </div>
       </div>
 
-      <main className="min-w-0 flex-1 overflow-auto pt-14 md:pt-0">
+      {/* Document scrolling avoids iOS Home Screen latching to an outer scroll area. */}
+      <main className="min-w-0 flex-1 pt-14 md:overflow-auto md:pt-0">
         <div className="mx-auto min-h-full max-w-[1440px] p-4 md:p-8">{children}</div>
       </main>
     </div>

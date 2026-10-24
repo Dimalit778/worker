@@ -12,7 +12,7 @@ type ManagerEmployeePageProps = {
 };
 
 export default async function ManagerEmployeePage({ params }: ManagerEmployeePageProps) {
-  await requireSession(PortalRole.MANAGER);
+  const session = await requireSession(PortalRole.MANAGER);
   const { employeeId } = await params;
   const queryClient = getQueryClient();
 
@@ -26,7 +26,7 @@ export default async function ManagerEmployeePage({ params }: ManagerEmployeePag
 
   return (
     <HydrationBoundary state={dehydrate(queryClient, dehydrateOptions())}>
-      <ManagerEmployeeDetailClient employeeId={employeeId} />
+      <ManagerEmployeeDetailClient employeeId={employeeId} currentUserId={session.user.id} />
     </HydrationBoundary>
   );
 }
