@@ -37,13 +37,16 @@ pnpm db:deploy
 
 Do not use `prisma db push` against Production.
 
+Vercel does not run migrations. After merging a change that includes new migrations, run `pnpm db:deploy` manually against the Production database.
+
 ## Release Flow
 
 1. Open a pull request.
 2. Wait for GitHub Actions CI to pass.
 3. Check the Vercel Preview Deployment.
-4. Merge into `main`.
-5. Vercel deploys Production from `main`.
+4. Merge into `master`.
+5. Vercel deploys Production from `master`.
+6. If the change includes migrations, run `pnpm db:deploy` against Production.
 
 Before merging, verify the core workflows in the Preview Deployment:
 
