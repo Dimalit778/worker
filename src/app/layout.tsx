@@ -9,6 +9,13 @@ const heebo = Heebo({ subsets: ['hebrew', 'latin'], variable: '--font-hebrew', d
 export const metadata: Metadata = {
   title: 'שמירה בתי משפט',
   description: 'מערכת ניהול סידור עבודה לשוטרי בתי משפט',
+  appleWebApp: {
+    capable: true,
+    title: 'שמירה בתי משפט',
+    statusBarStyle: 'default',
+  },
+  // Next.js 16 emits mobile-web-app-capable; retain Apple's tag for iOS.
+  other: { 'apple-mobile-web-app-capable': 'yes' },
 };
 
 export default function RootLayout({ children }: { children: React.ReactNode }) {
