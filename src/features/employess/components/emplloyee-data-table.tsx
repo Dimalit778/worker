@@ -18,15 +18,16 @@ import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
 
-// Phone and email push the name, role and actions off-screen on narrow viewports.
+// Keep the name and role visible on narrow viewports.
 const HIDDEN_ON_MOBILE = new Set(['phone', 'email']);
 
 type EmployeesDataTableProps<TData, TValue> = {
   columns: ColumnDef<TData, TValue>[];
   data: TData[];
+  onRowClick?: (employee: TData) => void;
 };
 
-export function EmployeesDataTable<TData, TValue>({ columns, data }: EmployeesDataTableProps<TData, TValue>) {
+export function EmployeesDataTable<TData, TValue>({ columns, data, onRowClick }: EmployeesDataTableProps<TData, TValue>) {
   const [sorting, setSorting] = React.useState<SortingState>([]);
   const [columnFilters, setColumnFilters] = React.useState<ColumnFiltersState>([]);
 
@@ -75,7 +76,15 @@ export function EmployeesDataTable<TData, TValue>({ columns, data }: EmployeesDa
           <TableBody>
             {table.getRowModel().rows.length ? (
               table.getRowModel().rows.map((row) => (
-                <TableRow key={row.id} data-state={row.getIsSelected() && 'selected'} className="hover:bg-muted/30">
+                <TableRow
+                  key={row.id}
+                  data-state={row.getIsSelected() && 'selected'}
+                  className={cn('hover:bg-muted/30', onRowClick && 'cursor-pointer')}
+                  onClick={onRowClick ? (event) => {
+                    if ((event.target as HTMLElement).closest('a, button, input, select, textarea')) return;
+                    onRowClick(row.original);
+                  } : undefined}
+                >
                   {row.getVisibleCells().map((cell) => (
                     <TableCell key={cell.id} className={cn('text-right', HIDDEN_ON_MOBILE.has(cell.column.id) && 'hidden md:table-cell')}>
                       {flexRender(cell.column.columnDef.cell, cell.getContext())}
