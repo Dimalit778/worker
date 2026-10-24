@@ -73,17 +73,19 @@ Single source of truth for all AI tools (Claude Code, Codex, Cursor, Copilot). `
 - Work on only one task per branch.
 - Never implement multiple unrelated tasks in the same branch.
 - Start each task from the latest master branch.
-- Create a new descriptive branch for every task, such as `fix/shift-publication`.
-- Prefer a separate Git worktree for each task.
+- Create a new descriptive branch for every task, prefixed `fix/`, `feat/`, `docs/` or `ui/`, such as `fix/shift-publication`.
+- Before starting a task, ask the user whether to open a new window (a separate Git worktree and branch) or work in the current one. Do not decide this yourself. If the current checkout is already on a task branch (for example one created by Orca), say so when asking.
 - Never modify master directly.
 - After implementation, run relevant tests and review the diff.
-- Commit changes with clear commit messages.
+- Stage only files that belong to the current task, never `git add .` or `-A`; other sessions or agents may have unrelated uncommitted changes in the same checkout.
+- Commit changes with clear messages in the form `type: description` (`fix:`, `feat:`, `docs:`, `refactor:`).
 - Keep changes local by default. Push a branch only when the user explicitly requests a push or a Pull Request.
 - Create a GitHub Pull Request only when the user explicitly requests one; task completion and GitHub access are not authorization to create a PR.
 - Never merge Pull Requests automatically.
 - Wait for explicit user confirmation before starting the next task.
 - After the previous PR is merged, synchronize master before creating the next branch.
 - Never discard uncommitted changes or delete worktrees without verifying they are safe to remove.
+- After a PR is merged, remind the user to remove that task's branch and worktree. Delete them only after verifying they have no unmerged commits or uncommitted changes, and only with the user's approval.
 
 ## Worktree development policy
 
