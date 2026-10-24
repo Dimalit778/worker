@@ -125,8 +125,8 @@ export function ManagerEmployeeDetailClient({ employeeId }: { employeeId: string
         <StatCard label="אזהרות" value={stats.warnings} tone="bg-slate-700" />
       </div>
 
-      <div className="grid gap-6 xl:grid-cols-[minmax(0,1fr)_24rem]">
-        <div className="space-y-6">
+      <div className="grid grid-cols-1 gap-6 xl:grid-cols-[minmax(0,1fr)_24rem]">
+        <div className="min-w-0 space-y-6">
           <Card className="shadow-sm">
             <CardHeader className="pb-3">
               <CardTitle className="flex items-center gap-2 text-base">
@@ -203,7 +203,7 @@ export function ManagerEmployeeDetailClient({ employeeId }: { employeeId: string
           </Card>
         </div>
 
-        <aside className="space-y-6">
+        <aside className="min-w-0 space-y-6">
           <Card className="shadow-sm">
             <CardHeader className="pb-3">
               <CardTitle className="flex items-center gap-2 text-base">
