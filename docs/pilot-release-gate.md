@@ -4,9 +4,9 @@ This gate tracks section 4 of the technical launch work. Passing a build alone d
 
 ## Delivery order
 
-1. Reliability and access (current branch): transaction-level active-manager checks; atomic invitation/password-reset redemption; serialized link replacement; reject login if the password or active status changes during verification; collect tests only from the root `tests` and `src` trees.
+1. Reliability and access: transaction-level active-manager checks; atomic invitation/password-reset redemption; serialized link replacement; reject login if the password or active status changes during verification; collect tests only from the root `tests` and `src` trees.
 2. Submissions and publication: availability draft saving, stale-save protection, submission deadline races, weekly periods and Jerusalem daylight-saving boundaries. Verify existing version migration preserves submissions and history, and published schedules remain visible during corrections.
-3. Requests and notifications: leave/swap request models, server authorization and approval workflows, notification records and a durable delivery queue with retries and deduplication. Obtain explicit schema/migration approval before editing those files.
+3. Notifications: leave and swap requests (`EmployeeRequest`) already exist, so what remains is verifying their server authorization and approval workflows, plus notification records and a durable delivery queue with retries and deduplication. Obtain explicit schema/migration approval before editing those files.
 4. Screen polish and full workflow: Hebrew error screens, invitation → login → submission → assignment → publication → correction → swap → received update.
 
 Keep each delivery in its own branch/PR. Wait for human confirmation and synchronize the default branch after merge before starting the next delivery. This repository currently uses `master` as its default branch.
