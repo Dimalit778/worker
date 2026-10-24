@@ -5,8 +5,9 @@ import { EmployeeHomeScreen } from '@/features/schedules/screens/employee-home-s
 import type { CurrentScheduleData } from '@/features/schedules/types';
 
 const query = vi.hoisted(() => ({ data: null as CurrentScheduleData | null, isLoading: false, isError: false, refetch: vi.fn() }));
-vi.mock('@/features/schedules/hooks', () => ({ useEmployeeCurrentSchedule: () => query }));
-afterEach(() => { cleanup(); query.data = null; query.isError = false; query.isLoading = false; });
+const upcomingQuery = vi.hoisted(() => ({ data: null as CurrentScheduleData | null }));
+vi.mock('@/features/schedules/hooks', () => ({ useEmployeeCurrentSchedule: () => query, useUpcomingSchedule: () => upcomingQuery }));
+afterEach(() => { cleanup(); query.data = null; query.isError = false; query.isLoading = false; upcomingQuery.data = null; });
 
 it('shows only the employee shifts and separates the next shift from the rest', () => {
   query.data = {
@@ -37,4 +38,19 @@ it('offers a retry when loading fails', () => {
   render(<EmployeeHomeScreen employeeId="me" initialNow="2026-10-20T12:00:00Z" />);
   expect(screen.getByRole('alert')).toBeInTheDocument();
   expect(screen.getByRole('button', { name: 'ניסיון טעינה מחדש' })).toBeInTheDocument();
+});
+
+it('lists the employee shifts from the next published schedule before it starts', () => {
+  upcomingQuery.data = {
+    scheduleId: 'n', scheduleName: 'השיבוץ הבא', startDate: '2026-10-25', endDate: '2026-10-31',
+    facilityId: 'f', employees: [], capacity: [], warnings: [], overflowCandidates: {}, scheduleStatus: 'PUBLISHED',
+    assignments: {
+      '2026-10-26-MORNING-p': [{ id: 'n1', employeeId: 'me', employeeDisplayName: 'אני', positionId: 'p', positionName: 'תפקיד הבא', shiftType: 'MORNING', slotIndex: 0 }],
+      '2026-10-27-MORNING-p': [{ id: 'n2', employeeId: 'other', employeeDisplayName: 'אחר', positionId: 'p', positionName: 'תפקיד אחר', shiftType: 'MORNING', slotIndex: 0 }],
+    },
+  };
+  render(<EmployeeHomeScreen employeeId="me" initialNow="2026-10-20T12:00:00Z" />);
+  const card = screen.getByRole('heading', { name: 'המשמרות שלך בשיבוץ הבא' }).closest('[data-slot="card"]') as HTMLElement;
+  expect(within(card).getByText('בוקר · תפקיד הבא')).toBeInTheDocument();
+  expect(screen.queryByText(/תפקיד אחר/)).not.toBeInTheDocument();
 });

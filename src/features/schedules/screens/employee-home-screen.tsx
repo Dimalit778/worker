@@ -5,7 +5,7 @@ import { useEffect, useState } from 'react';
 import { CalendarDays } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader } from '@/components/ui/card';
-import { useEmployeeCurrentSchedule } from '../hooks';
+import { useEmployeeCurrentSchedule, useUpcomingSchedule } from '../hooks';
 import { employeeHomeShifts } from '../employee-home';
 import { SHIFT_LABELS } from '../constants';
 
@@ -29,6 +29,7 @@ function ShiftDetails({ shift }: { shift: HomeShift }) {
 
 export function EmployeeHomeScreen({ employeeId, initialNow }: { employeeId: string; initialNow: string }) {
   const { data, isLoading, isError, refetch } = useEmployeeCurrentSchedule();
+  const { data: upcoming } = useUpcomingSchedule();
   const [now, setNow] = useState(() => new Date(initialNow));
 
   useEffect(() => {
@@ -37,6 +38,8 @@ export function EmployeeHomeScreen({ employeeId, initialNow }: { employeeId: str
   }, []);
 
   const { next, remaining } = employeeHomeShifts(data?.assignments ?? {}, employeeId, now);
+  const upcomingShifts = upcoming ? employeeHomeShifts(upcoming.assignments, employeeId, now) : null;
+  const upcomingList = upcomingShifts ? [upcomingShifts.next, ...upcomingShifts.remaining].filter(shift => shift !== null) : [];
 
   return (
     <div className="space-y-6" dir="rtl">
@@ -80,6 +83,18 @@ export function EmployeeHomeScreen({ employeeId, initialNow }: { employeeId: str
           </Card>
         </>
       )}
+      {!isLoading && !isError && upcoming ? (
+        <Card>
+          <CardHeader><h2 className="text-lg font-semibold">המשמרות שלך בשיבוץ הבא</h2></CardHeader>
+          <CardContent>
+            {upcomingList.length ? (
+              <ul className="divide-y divide-border">
+                {upcomingList.map(shift => <li key={shift.id} className="py-4 first:pt-0 last:pb-0"><ShiftDetails shift={shift} /></li>)}
+              </ul>
+            ) : <p className="text-muted-foreground">אין לך משמרות בשיבוץ הבא.</p>}
+          </CardContent>
+        </Card>
+      ) : null}
     </div>
   );
 }
